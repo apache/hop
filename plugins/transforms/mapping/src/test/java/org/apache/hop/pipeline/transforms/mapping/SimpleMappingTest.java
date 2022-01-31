@@ -34,7 +34,7 @@ import org.mockito.Mockito;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class SimpleMappingTest {
@@ -154,7 +154,6 @@ public class SimpleMappingTest {
   }
 
   @Test
-  @Ignore
   public void testTransformShouldStopProcessingInput_IfUnderlyingTransitionIsStopped()
       throws Exception {
 
