@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM adoptopenjdk/openjdk8:alpine-slim
+FROM alpine
 LABEL maintainer="Apache Hop Team"
 # path to where the artifacts should be deployed to
 ENV DEPLOYMENT_PATH=/opt/hop
@@ -87,7 +87,8 @@ ENV HOP_SERVER_MAX_OBJECT_TIMEOUT=
 RUN chmod 777 -R /tmp && chmod o+t -R /tmp
 
 # Install some fonts
-RUN apk --no-cache add msttcorefonts-installer \
+RUN apk --no-cache add openjdk8-jre \
+        msttcorefonts-installer \
         fontconfig \
         font-noto \
         font-noto-adlam \
