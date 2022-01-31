@@ -26,23 +26,22 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.ws.rs.core.MultivaluedMap;
 
-import java.lang.reflect.Field;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.reflect.Whitebox.setInternalState;
 
+@RunWith(PowerMockRunner.class)
 @PrepareForTest(ApacheHttpClient4.class)
 public class RestTest {
 
@@ -67,7 +66,6 @@ public class RestTest {
   }
 
   @Test
-  @Ignore
   public void testCallEndpointWithDeleteVerb() throws HopException {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.add("Content-Type", "application/json");
@@ -84,7 +82,7 @@ public class RestTest {
     doReturn(builder).when(resource).getRequestBuilder();
 
     ApacheHttpClient4 client = mock(ApacheHttpClient4.class);
-    doReturn(resource).when(client).resource(anyString());
+    doReturn(resource).when(client).resource(nullable(String.class));
 
     mockStatic(ApacheHttpClient4.class);
     when(ApacheHttpClient4.create(any())).thenReturn(client);
@@ -104,12 +102,12 @@ public class RestTest {
     data.resultCodeFieldName = "status";
     data.resultHeaderFieldName = "headers";
 
-    Rest rest = mock(Rest.class);
+    Rest rest = mock(Rest.class, Answers.RETURNS_DEFAULTS);
     doCallRealMethod().when(rest).callRest(any());
     doCallRealMethod().when(rest).searchForHeaders(any());
 
-    //setInternalState(rest, "meta", meta);
-    //setInternalState(rest, "data", data);
+    setInternalState(rest, "meta", meta);
+    setInternalState(rest, "data", data);
 
     Object[] output = rest.callRest(new Object[] {0});
 
