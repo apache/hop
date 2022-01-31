@@ -69,7 +69,7 @@ public abstract class BaseDialog extends Dialog {
   public static final int VAR_ICON_HEIGHT =
       GuiResource.getInstance().getImageVariable().getBounds().height;
 
-  protected Map<String, Listener> buttons = new HashMap();
+  protected Map<String, Listener> buttons = new HashMap<>();
 
   protected Shell shell;
 
