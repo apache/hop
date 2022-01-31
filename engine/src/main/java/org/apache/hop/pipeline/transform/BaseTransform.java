@@ -1022,11 +1022,17 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     // started.
     //
     if (this.checkPipelineRunning == false) {
+      int counter = 0;
       while (!pipeline.isRunning() && !stopped.get()) {
         try {
-          Thread.sleep(1);
+          Thread.sleep(1000);
+          counter++;
         } catch (InterruptedException e) {
           // Ignore
+        }
+        //wait 3s max
+        if(counter >= 3) {
+          break;
         }
       }
       this.checkPipelineRunning = true;

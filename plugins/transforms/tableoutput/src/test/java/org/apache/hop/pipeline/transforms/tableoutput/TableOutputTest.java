@@ -168,7 +168,6 @@ public class TableOutputTest {
     verify(tableOutputSpy, times(1)).truncateTable();
   }
 
-  @Ignore
   @Test
   public void testProcessRow_doesNotTruncateOnOtherRows() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);
