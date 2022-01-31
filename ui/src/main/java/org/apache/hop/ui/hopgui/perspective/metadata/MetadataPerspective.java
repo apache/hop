@@ -718,6 +718,8 @@ public class MetadataPerspective implements IHopPerspective {
       id = TOOLBAR_ITEM_REFRESH,
       toolTip = "i18n::MetadataPerspective.ToolbarElement.Refresh.Tooltip",
       image = "ui/images/refresh.svg")
+  @GuiKeyboardShortcut(key = SWT.F5)
+  @GuiOsxKeyboardShortcut(key = SWT.F5)  
   public void refresh() {
     try {
       tree.setRedraw(false);

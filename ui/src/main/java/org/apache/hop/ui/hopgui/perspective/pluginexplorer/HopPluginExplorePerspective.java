@@ -65,7 +65,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 
   private HopGui hopGui;
   private Composite composite;
-  private CCombo wPluginType;
+  private Combo wPluginType;
   private TableView wPluginView;
 
   private Map<String, List<Object[]>> dataMap;
@@ -132,7 +132,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
     fdlFields.top = new FormAttachment(0, props.getMargin());
     label.setLayoutData(fdlFields);
 
-    wPluginType = new CCombo(composite, SWT.LEFT | SWT.READ_ONLY | SWT.BORDER);
+    wPluginType = new Combo(composite, SWT.LEFT | SWT.READ_ONLY | SWT.BORDER);
     wPluginType.setItems(pluginsType);
     wPluginType.setText(selectedPluginType);
     props.setLook(wPluginType);
