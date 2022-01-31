@@ -732,11 +732,11 @@ public class LdapConnection {
             String attributeValue = attr.get().toString();
             int valueType;
 
-            if (StringUtil.IsDate(attributeValue, "yy-mm-dd")) {
+            if (StringUtil.isDate(attributeValue, "yy-mm-dd")) {
               valueType = IValueMeta.TYPE_DATE;
-            } else if (StringUtil.IsInteger(attributeValue)) {
+            } else if (StringUtil.isInteger(attributeValue)) {
               valueType = IValueMeta.TYPE_INTEGER;
-            } else if (StringUtil.IsNumber(attributeValue)) {
+            } else if (StringUtil.isNumber(attributeValue)) {
               valueType = IValueMeta.TYPE_NUMBER;
             } else {
               valueType = IValueMeta.TYPE_STRING;
