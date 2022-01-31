@@ -89,21 +89,9 @@ RUN chmod 777 -R /tmp && chmod o+t -R /tmp
 # Install some fonts
 RUN apk --no-cache add openjdk8-jre \
         msttcorefonts-installer \
-        fontconfig \
-        font-noto \
-        font-noto-adlam \
-        font-noto-adlamunjoined \
-        font-noto-arabic \
-        font-noto-armenian \
-        font-noto-avestan \
-        font-noto-bamum \
-        font-noto-bengali \
-        font-noto-buhid \
-        font-noto-carian \
-        font-noto-chakma \
-        font-noto-cherokee && \
-    update-ms-fonts && \
-    fc-cache -f
+        fontconfig && \
+        update-ms-fonts && \
+        fc-cache -f
 
 # INSTALL REQUIRED PACKAGES AND ADJUST LOCALE
 # procps: The package includes the programs ps, top, vmstat, w, kill, free, slabtop, and skill
