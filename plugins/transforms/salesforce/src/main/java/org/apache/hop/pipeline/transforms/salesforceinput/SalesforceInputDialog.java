@@ -1481,14 +1481,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     if (Const.NVL(firstValue, "null").equals("null")) {
       fieldType = "string";
     } else {
-      if (StringUtil.IsDate(firstValue, DEFAULT_DATE_TIME_FORMAT)) {
+      if (StringUtil.isDate(firstValue, DEFAULT_DATE_TIME_FORMAT)) {
         fieldType = "datetime";
-      } else if (StringUtil.IsDate(firstValue, DEFAULT_DATE_FORMAT)) {
+      } else if (StringUtil.isDate(firstValue, DEFAULT_DATE_FORMAT)) {
         fieldType = "date";
-      } else if (StringUtil.IsInteger(firstValue)) {
+      } else if (StringUtil.isInteger(firstValue)) {
         fieldType = "int";
         fieldLength = Integer.toString(IValueMeta.DEFAULT_INTEGER_LENGTH);
-      } else if (StringUtil.IsNumber(firstValue)) {
+      } else if (StringUtil.isNumber(firstValue)) {
         fieldType = "double";
       } else if (firstValue.equals("true") || firstValue.equals("false")) {
         fieldType = "boolean";
