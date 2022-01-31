@@ -24,7 +24,6 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -59,7 +58,6 @@ import org.w3c.dom.Node;
 import picocli.CommandLine;
 import picocli.CommandLine.Parameters;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -435,7 +433,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     }
   }
 
-  private void buildVariableSpace() throws IOException {
+  private void buildVariableSpace() {
     // Also grabs the system properties from hop.config.
     //
     variables = Variables.getADefaultVariableSpace();
@@ -578,13 +576,12 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
    * @param port
    * @param username
    * @param password
-   * @throws ParseException
    * @throws HopServerCommandException
    */
   @VisibleForTesting
   static void callStopHopServerRestService(
       String hostname, String port, String username, String password)
-      throws ParseException, HopServerCommandException {
+      throws HopServerCommandException {
     // get information about the remote connection
     try {
       HopClientEnvironment.init();
@@ -624,8 +621,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
   public static class HopServerCommandException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    public HopServerCommandException() {}
-
     public HopServerCommandException(final String message) {
       super(message);
     }
@@ -634,9 +629,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
       super(message, cause);
     }
 
-    public HopServerCommandException(final Throwable cause) {
-      super(cause);
-    }
   }
 
   /**
