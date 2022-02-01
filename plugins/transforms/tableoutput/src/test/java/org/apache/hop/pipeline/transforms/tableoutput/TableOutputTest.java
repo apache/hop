@@ -36,7 +36,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class TableOutputTest {
@@ -110,24 +110,22 @@ public class TableOutputTest {
   }
 
   @Test
-  @Ignore
   public void testTruncateTable_on() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);
     when(tableOutputSpy.getCopy()).thenReturn(0);
 
     tableOutputSpy.truncateTable();
-    verify(db).truncateTable(anyString(), anyString());
+    verify(db).truncateTable(nullable(String.class), nullable(String.class));
   }
 
   @Test
-  @Ignore
   public void testTruncateTable_on_PartitionId() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);
     when(tableOutputSpy.getCopy()).thenReturn(1);
     when(tableOutputSpy.getPartitionId()).thenReturn("partition id");
 
     tableOutputSpy.truncateTable();
-    verify(db).truncateTable(anyString(), anyString());
+    verify(db).truncateTable(nullable(String.class), nullable(String.class));
   }
 
   @Test

@@ -39,7 +39,6 @@ import static org.powermock.reflect.Whitebox.getMethod;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({FieldHelper.class, FieldHelperTest.class})
-@Ignore
 public class FieldHelperTest {
 
   @Test
