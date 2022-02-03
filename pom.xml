@@ -137,7 +137,7 @@
 
         <!-- Copy from master POM (NEEDS CLEANUP) -->
         <!-- VERSIONS -->
-        <batik.version>1.12</batik.version>
+        <batik.version>1.14</batik.version>
         <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
