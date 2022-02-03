@@ -17,6 +17,6 @@
 
 name: dev-manual
 title: Development Documentation
-version: 0
+version: latest
 nav:
   - modules/ROOT/nav.adoc

@@ -17,6 +17,6 @@
 
 name: tech-manual
 title: Technical Documentation
-version: 0
+version: latest
 nav:
   - modules/ROOT/nav.adoc
