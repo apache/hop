@@ -423,13 +423,21 @@ GET `/hop/sniffTransform`
 
 parameters::
 * xml: use XML (default: Y)
-* name: name of the pipeline to sniff
+* pipeline: name of the pipeline to sniff
 * id: id of the pipeline to sniff
 * transform: name of the transform to sniff
 * type: (input/output) sniff input or output
+* lines: number of lines to wait for
+* copynr: when using multiple copies you can specify the copynr
+
+following parameters are required::
+* xml
+* id or pipeline
+* transform
+
 
 example request::
-GET `+http://localhost:8081/hop/sniffTransform/?xml=Y&name=<NAME>&id=<ID>&transform=<TRANSFORMNAME>&type=output+`
+GET `+http://localhost:8081/hop/sniffTransform/?xml=Y&pipeline=<NAME>&id=<ID>&transform=<TRANSFORMNAME>&type=output&lines=100+`
 
 result::
 
