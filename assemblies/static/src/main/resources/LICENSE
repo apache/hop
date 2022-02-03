@@ -565,7 +565,7 @@ This product bundles commons-collections4 4.4, which is available under a
 This product bundles commons-compiler 3.1.2, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
 
-This product bundles commons-compress 1.19, which is available under a
+This product bundles commons-compress 1.21, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles commons-configuration 1.6, which is available under a
