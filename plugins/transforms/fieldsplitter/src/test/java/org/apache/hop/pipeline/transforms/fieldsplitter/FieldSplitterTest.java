@@ -38,8 +38,7 @@ import org.junit.*;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -61,7 +60,7 @@ public class FieldSplitterTest {
     transformMockHelper =
         new TransformMockHelper<>(
             "Field Splitter", FieldSplitterMeta.class, FieldSplitterData.class);
-    when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+    when(transformMockHelper.logChannelFactory.create(any(), nullable(ILoggingObject.class)))
         .thenReturn(transformMockHelper.iLogChannel);
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
@@ -81,12 +80,12 @@ public class FieldSplitterTest {
     doCallRealMethod()
         .when(meta)
         .getFields(
-            any(IRowMeta.class),
-            anyString(),
-            any(IRowMeta[].class),
-            any(TransformMeta.class),
-            any(IVariables.class),
-            any(IHopMetadataProvider.class));
+                any(IRowMeta.class),
+                nullable(String.class),
+		        nullable(IRowMeta[].class),
+		        nullable(TransformMeta.class),
+		        nullable(IVariables.class),
+		        nullable(IHopMetadataProvider.class));
     doReturn(new String[] {"a", "b"}).when(meta).getFieldName();
     doReturn(new int[] {IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING}).when(meta).getFieldType();
     doReturn(new String[] {"a=", "b="}).when(meta).getFieldID();
@@ -116,7 +115,6 @@ public class FieldSplitterTest {
   }
 
   @Test
-  @Ignore
   public void testSplitFields() throws HopException {
 
     FieldSplitter transform =
