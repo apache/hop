@@ -70,7 +70,7 @@ public class DatabaseConnectionMap {
     map.remove(key);
   }
 
-  public static String createEntryKey(
+  private String createEntryKey(
       String connectionGroup, String partitionID, Database database) {
     StringBuilder key = new StringBuilder(connectionGroup);
 
