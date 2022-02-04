@@ -166,7 +166,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
                           "Database connection '"
                               + database.getDatabaseMeta().getName()
                               + "' closed successfully!");
-                } catch (HopDatabaseException hde) {
+               } catch (HopDatabaseException hde) {
                    workflow
                       .getLogChannel()
                       .logError(
@@ -175,6 +175,8 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
                               + hde.getMessage());
                   workflow.getLogChannel().logError(Const.getStackTracker(hde));
                 }
+                //Definitely remove the connection reference the connections map
+                DatabaseConnectionMap.getInstance().removeConnection(group, null, database);
               }
             }
           });
