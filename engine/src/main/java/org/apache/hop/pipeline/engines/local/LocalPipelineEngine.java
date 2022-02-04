@@ -187,6 +187,8 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                       pipeline.getLogChannel().logError(Const.getStackTracker(hde));
                     }
                   }
+                  //Definitely remove the connection reference the connections map
+                  DatabaseConnectionMap.getInstance().removeConnection(group, null, database);
                 }
               });
     }
