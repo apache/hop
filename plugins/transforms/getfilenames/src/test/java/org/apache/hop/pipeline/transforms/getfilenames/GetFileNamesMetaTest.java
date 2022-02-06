@@ -44,7 +44,7 @@ public class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUp() throws HopException {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
 
     List<String> attributes =
         Arrays.asList(

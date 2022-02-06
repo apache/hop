@@ -51,7 +51,7 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
 
   @Before
   public void setUpLoadSave() throws Exception {
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes = Arrays.asList("commit", "connection", "lookup");
 
     Map<String, String> getterMap =

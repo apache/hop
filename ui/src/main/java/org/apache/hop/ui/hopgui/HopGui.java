@@ -40,6 +40,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.logging.*;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
+import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchableProvider;
@@ -283,6 +284,10 @@ public class HopGui
       // - Load perspectives
       //
       HopGuiEnvironment.init();
+      
+      // Clear the jar file cache so that we don't waste memory...
+      //
+      JarCache.getInstance().clear();
 
       try {
         ExtensionPointHandler.callExtensionPoint(

@@ -49,7 +49,7 @@ public class GetVariableMetaTest implements IInitializer<GetVariableMeta> {
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
   }
 
   @Before

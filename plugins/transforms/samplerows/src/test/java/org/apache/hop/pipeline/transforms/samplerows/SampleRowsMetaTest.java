@@ -38,7 +38,7 @@ public class SampleRowsMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes = Arrays.asList("linesRange", "lineNumberField");
 
     Map<String, String> aMap = new HashMap<>();
