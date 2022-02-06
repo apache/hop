@@ -380,10 +380,8 @@ public class SelectValuesMeta extends BaseTransformMeta
         int idx = inputRowMeta.indexOfValue(metaChange.getName());
         boolean metaTypeChangeUsesNewTypeDefaults = false; // Normal behavior as of 5.x or so
         if (variables != null) {
-          metaTypeChangeUsesNewTypeDefaults =
-              ValueMetaBase.convertStringToBoolean(
-                  variables.getVariable(
-                      Const.HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS, "N"));
+          metaTypeChangeUsesNewTypeDefaults = variables.getVariableBoolean(
+                      Const.HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS, false);
         }
         if (idx >= 0) { // We found the value
 

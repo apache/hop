@@ -344,10 +344,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     // Check compatibility mode
-    boolean compatibilityMode =
-        ValueMetaBase.convertStringToBoolean(
-            variables.getVariable(
-                Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, "N"));
+    boolean compatibilityMode = variables.getVariableBoolean(Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, false);
 
     // re-assemble a new row of metadata
     //

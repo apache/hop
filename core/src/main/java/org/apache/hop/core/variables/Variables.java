@@ -84,7 +84,7 @@ public class Variables implements IVariables {
   @Override
   public boolean getVariableBoolean(String variableName, boolean defaultValue) {
     if (!Utils.isEmpty(variableName)) {
-      String value = resolve(variableName);
+      String value = properties.get(variableName);
       if (!Utils.isEmpty(value)) {
         return ValueMetaBase.convertStringToBoolean(value);
       }

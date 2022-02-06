@@ -253,10 +253,9 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData>
     // Check if retro compatibility is set or not, to guaranty compatibility with older versions.
     // In 6.1 null values were written with string "null". Since then the attribute is not written.
 
-    String val = getVariable(Const.HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES, "N");
+    boolean comptability = getVariableBoolean(Const.HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES, false);
 
-    return ValueMetaBase.convertStringToBoolean(Const.NVL(val, "N"))
-        && valueMetaType == IValueMeta.TYPE_STRING;
+    return comptability  && valueMetaType == IValueMeta.TYPE_STRING;
   }
 
   private void writeField(IValueMeta valueMeta, Object valueData, String element)
