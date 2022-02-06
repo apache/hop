@@ -43,7 +43,7 @@ public class ConstantMetaTest implements IInitializer<ConstantMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes = new ArrayList<>();
 
     Map<String, String> getterMap = new HashMap<>();

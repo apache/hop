@@ -41,6 +41,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -461,6 +462,10 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
       //
       hopServer.buildVariableSpace();
 
+      // Clear the jar file cache so that we don't waste memory...
+      //
+      JarCache.getInstance().clear();
+      
       // Set up the metadata to use
       //
       hopServer.metadataProvider =

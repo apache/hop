@@ -141,7 +141,7 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
             "script",

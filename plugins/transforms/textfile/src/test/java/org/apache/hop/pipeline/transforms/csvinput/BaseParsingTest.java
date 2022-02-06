@@ -65,7 +65,7 @@ public abstract class BaseParsingTest<
   public final void beforeCommon() throws Exception {
     HopEnvironment.init();
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
-    PluginRegistry.init(false);
+    PluginRegistry.init();
 
     transformMeta = new TransformMeta();
     transformMeta.setName("test");

@@ -39,7 +39,7 @@ public class SasInputMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes = Arrays.asList("acceptingField", "outputFields");
 
     Map<String, String> gsMap = new HashMap<>();

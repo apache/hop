@@ -48,7 +48,7 @@ public class FilterRowsMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes = Arrays.asList("condition", "send_true_to", "send_false_to");
 
     Map<String, String> getterMap = new HashMap<>();

@@ -53,7 +53,7 @@ public class ValueMapperMetaTest implements IInitializer<ITransformMeta> {
       throws HopException {
 
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList("fieldToUse", "targetField", "nonMatchDefault", "sourceValue", "targetValue");
 
