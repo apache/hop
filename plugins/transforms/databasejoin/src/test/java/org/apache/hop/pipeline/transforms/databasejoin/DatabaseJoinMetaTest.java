@@ -42,7 +42,7 @@ public class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
   }
 
   @Before

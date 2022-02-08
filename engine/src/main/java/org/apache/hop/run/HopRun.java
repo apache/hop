@@ -25,6 +25,7 @@ import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.HopLogStore;
@@ -35,6 +36,7 @@ import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -715,6 +717,10 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       //
       HopLogStore.init();
 
+      // Clear the jar file cache so that we don't waste memory...
+      //
+      JarCache.getInstance().clear();
+      
       // Set up the metadata to use
       //
       hopRun.metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(hopRun.variables);
