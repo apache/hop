@@ -55,8 +55,8 @@
         <jzlib.version>1.0.7</jzlib.version>
         <ognl.version>2.6.9</ognl.version>
         <woodstox-core-asl.version>4.4.1</woodstox-core-asl.version>
-        <httpclient.version>4.5.3</httpclient.version>
-        <httpccore.version>4.4.6</httpccore.version>
+        <httpclient.version>4.5.13</httpclient.version>
+        <httpccore.version>4.4.13</httpccore.version>
         <xmlunit.version>1.5</xmlunit.version>
         <javassist.version>3.20.0-GA</javassist.version>
         <json-simple.version>1.1.1</json-simple.version>
