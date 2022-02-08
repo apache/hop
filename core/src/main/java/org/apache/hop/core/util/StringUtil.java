@@ -21,11 +21,25 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 
-import java.text.*;
-import java.util.*;
+import java.text.DateFormat;
+import java.text.DateFormatSymbols;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.Normalizer;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /** A collection of utilities to manipulate strings. */
 public class StringUtil {
+
+  private static final Random random = new Random();
+
   public static final String UNIX_OPEN = "${";
 
   public static final String UNIX_CLOSE = "}";
@@ -48,7 +62,7 @@ public class StringUtil {
 
   public static final String EMPTY_STRING = "";
 
-  public static final String[] SYSTEM_PROPERTIES =
+  protected static final String[] SYSTEM_PROPERTIES =
       new String[] {
         "java.version",
         "java.vendor",
@@ -97,6 +111,9 @@ public class StringUtil {
         "sun.management.compiler",
         "sun.os.patch.level",
       };
+
+  private StringUtil() {
+  }
 
   /**
    * Substitutes variables in <code>aString</code>. Variable names are delimited by open and close
@@ -161,7 +178,7 @@ public class StringUtil {
             if (recursion > 50) {
               // endless loops with stack overflow
               throw new RuntimeException(
-                  "Endless loop detected for substitution of variable: " + (String) value);
+                  "Endless loop detected for substitution of variable: " + value);
             }
             value = substitute((String) value, variablesValues, open, close, ++recursion);
           }
@@ -237,6 +254,7 @@ public class StringUtil {
    *
    * @param aString the string on which to apply the substitution.
    * @param systemProperties the system properties to use
+   *
    * @return the string with the substitution applied.
    */
   public static final synchronized String environmentSubstitute(
@@ -328,18 +346,17 @@ public class StringUtil {
         if (to >= 0) {
           String variable = aString.substring(from, to);
 
-          if (Const.indexOfString(variable, list) < 0) {
-            // Either we include the system variables (all)
-            // Or the variable is not a system variable
-            // Or it's a system variable but the value has not been set (and we offer the user the
-            // option to set it)
-            //
-            if (includeSystemVariables
-                || !isSystemVariable(variable)
-                || System.getProperty(variable) == null) {
-              list.add(variable);
-            }
+          // Either we include the system variables (all)
+          // Or the variable is not a system variable
+          // Or it's a system variable but the value has not been set (and we offer the user the
+          // option to set it)
+          //
+          if ((Const.indexOfString(variable, list) < 0) && includeSystemVariables
+              || !isSystemVariable(variable)
+              || System.getProperty(variable) == null) {
+            list.add(variable);
           }
+
           // OK, continue
           p = to + close.length();
         }
@@ -358,7 +375,7 @@ public class StringUtil {
     getUsedVariables(aString, WINDOWS_OPEN, WINDOWS_CLOSE, list, includeSystemVariables);
   }
 
-  public static final String generateRandomString(
+  public static String generateRandomString(
       int length, String prefix, String postfix, boolean uppercase) {
     StringBuilder buffer = new StringBuilder();
 
@@ -367,7 +384,7 @@ public class StringUtil {
     }
 
     for (int i = 0; i < length; i++) {
-      int c = 'a' + (int) (Math.random() * 26);
+      int c = 'a' + random.nextInt() * 26;
       buffer.append((char) c);
     }
     if (!Utils.isEmpty(postfix)) {
@@ -395,50 +412,6 @@ public class StringUtil {
     }
   }
 
-  public static double str2num(
-      String pattern, String decimal, String grouping, String currency, String value)
-      throws HopValueException {
-    // 0 : pattern
-    // 1 : Decimal separator
-    // 2 : Grouping separator
-    // 3 : Currency symbol
-
-    NumberFormat nf = NumberFormat.getInstance();
-    DecimalFormat df = (DecimalFormat) nf;
-    DecimalFormatSymbols dfs = new DecimalFormatSymbols();
-
-    if (!Utils.isEmpty(pattern)) {
-      df.applyPattern(pattern);
-    }
-    if (!Utils.isEmpty(decimal)) {
-      dfs.setDecimalSeparator(decimal.charAt(0));
-    }
-    if (!Utils.isEmpty(grouping)) {
-      dfs.setGroupingSeparator(grouping.charAt(0));
-    }
-    if (!Utils.isEmpty(currency)) {
-      dfs.setCurrencySymbol(currency);
-    }
-    try {
-      df.setDecimalFormatSymbols(dfs);
-      return df.parse(value).doubleValue();
-    } catch (Exception e) {
-      String message = "Couldn't convert string to number " + e.toString();
-      if (!isEmpty(pattern)) {
-        message += " pattern=" + pattern;
-      }
-      if (!isEmpty(decimal)) {
-        message += " decimal=" + decimal;
-      }
-      if (!isEmpty(grouping)) {
-        message += " grouping=" + grouping.charAt(0);
-      }
-      if (!isEmpty(currency)) {
-        message += " currency=" + currency;
-      }
-      throw new HopValueException(message);
-    }
-  }
 
   /**
    * Check if the string supplied is empty. A String is empty when it is null or when the length is
@@ -462,23 +435,6 @@ public class StringUtil {
     return string == null || string.length() == 0;
   }
 
-  public static Date str2dat(String arg0, String arg1, String val) throws HopValueException {
-    SimpleDateFormat df = new SimpleDateFormat();
-
-    DateFormatSymbols dfs = new DateFormatSymbols();
-    if (arg1 != null) {
-      dfs.setLocalPatternChars(arg1);
-    }
-    if (arg0 != null) {
-      df.applyPattern(arg0);
-    }
-
-    try {
-      return df.parse(val);
-    } catch (Exception e) {
-      throw new HopValueException("TO_DATE Couldn't convert String to Date " + e.toString());
-    }
-  }
 
   public static String getIndent(int indentLevel) {
     return INDENTCHARS.substring(0, indentLevel);
@@ -534,7 +490,7 @@ public class StringUtil {
     return getFormattedDateTime(new Date(), milliseconds);
   }
 
-  public static boolean IsInteger(String str) {
+  public static boolean isInteger(String str) {
     try {
       Integer.parseInt(str);
     } catch (NumberFormatException e) {
@@ -543,23 +499,23 @@ public class StringUtil {
     return true;
   }
 
-  public static boolean IsNumber(String str) {
+  public static boolean isNumber(String str) {
     try {
-      Double.valueOf(str).doubleValue();
+      Double.parseDouble(str);
     } catch (Exception e) {
       return false;
     }
     return true;
   }
 
-  public static boolean IsDate(String str) {
-    return IsDate("yy-mm-dd");
+  public static boolean isDate(String str) {
+    return isDate(str, "yy-mm-dd");
   }
 
-  public static boolean IsDate(String str, String mask) {
+  public static boolean isDate(String str, String mask) {
     // TODO: What about other dates? Maybe something for a CRQ
     try {
-      SimpleDateFormat fdate = new SimpleDateFormat("yy-mm-dd");
+      SimpleDateFormat fdate = new SimpleDateFormat(mask);
       fdate.parse(str);
     } catch (Exception e) {
       return false;
@@ -573,12 +529,12 @@ public class StringUtil {
    * @param variable the variable to look for, with the $ or % variable specification.
    * @return the variable name
    */
-  public static final String getVariableName(String variable) {
+  public static String getVariableName(String variable) {
     variable = variable.trim();
     if (variable.startsWith(UNIX_OPEN)
         || variable.startsWith(WINDOWS_OPEN)
         || variable.startsWith(HEX_OPEN)) {
-      variable = variable.substring(2, variable.length());
+      variable = variable.substring(2);
     }
     if (variable.endsWith(UNIX_CLOSE) || variable.endsWith(HEX_CLOSE)) {
       variable = variable.substring(0, variable.length() - 1);

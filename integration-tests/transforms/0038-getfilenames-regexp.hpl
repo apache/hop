@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0037-getfilenames-regexp</name>
+    <name>0038-getfilenames-regexp</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -62,8 +62,8 @@ limitations under the License.
     </hop>
   </order>
   <transform>
-    <name>Get file names</name>
-    <type>GetFileNames</type>
+    <name>Check num rows</name>
+    <type>FilterRows</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -72,30 +72,28 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <isaddresult>N</isaddresult>
-    <doNotFailIfNoFile>N</doNotFailIfNoFile>
-    <exclude_wildcard_Field/>
-    <filename_Field/>
-    <dynamic_include_subfolders>N</dynamic_include_subfolders>
-    <wildcard_Field/>
-    <filefield>N</filefield>
-    <file>
-      <exclude_filemask/>
-      <filemask>s.*.txt</filemask>
-      <name>${PROJECT_HOME}/files</name>
-      <file_required>N</file_required>
-      <include_subfolders>N</include_subfolders>
-    </file>
-    <filter>
-      <filterfiletype>all_files</filterfiletype>
-    </filter>
-    <rownum>N</rownum>
-    <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
-    <limit>0</limit>
-    <rownum_field/>
+    <send_true_to>Success</send_true_to>
+    <send_false_to>No files found - Abort</send_false_to>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>num_file</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>3</text>
+          <length>-1</length>
+          <precision>0</precision>
+          <isnull>N</isnull>
+          <mask>####0;-####0</mask>
+        </value>
+      </condition>
+    </compare>
     <attributes/>
     <GUI>
-      <xloc>192</xloc>
+      <xloc>480</xloc>
       <yloc>96</yloc>
     </GUI>
   </transform>
@@ -135,8 +133,8 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>Check num rows</name>
-    <type>FilterRows</type>
+    <name>Get file names</name>
+    <type>GetFileNames</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -145,28 +143,25 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to>Success</send_true_to>
-    <send_false_to>No files found - Abort</send_false_to>
-    <compare>
-      <condition>
-        <negated>N</negated>
-        <leftvalue>num_file</leftvalue>
-        <function>=</function>
-        <rightvalue/>
-        <value>
-          <name>constant</name>
-          <type>Integer</type>
-          <text>2</text>
-          <length>-1</length>
-          <precision>0</precision>
-          <isnull>N</isnull>
-          <mask>####0;-####0</mask>
-        </value>
-      </condition>
-    </compare>
+    <isaddresult>N</isaddresult>
+    <doNotFailIfNoFile>N</doNotFailIfNoFile>
+    <dynamic_include_subfolders>N</dynamic_include_subfolders>
+    <filefield>N</filefield>
+    <file>
+      <filemask>s.*.txt</filemask>
+      <name>${PROJECT_HOME}/files</name>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <filter>
+      <filterfiletype>all_files</filterfiletype>
+    </filter>
+    <rownum>N</rownum>
+    <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
+    <limit>0</limit>
     <attributes/>
     <GUI>
-      <xloc>480</xloc>
+      <xloc>192</xloc>
       <yloc>96</yloc>
     </GUI>
   </transform>

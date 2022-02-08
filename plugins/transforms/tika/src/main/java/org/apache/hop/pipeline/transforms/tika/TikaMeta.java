@@ -48,10 +48,10 @@ import java.util.Map;
 @Transform(
     id = "Tika",
     image = "tika.svg",
-    name = "Apache Tika",
-    description = "Parses text and metadata content from various input file types",
-    categoryDescription = "Input",
-    keywords = "Load text from file,Tika,Apache,content analysis toolkit")
+    name = "i18n::Tika.Name",
+    description = "i18n::Tika.Description",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    keywords = "i18n::Tika.Keywords")
 public class TikaMeta extends BaseTransformMeta implements ITransformMeta<Tika, TikaData> {
   private static final Class<?> PKG = TikaMeta.class; // for Translator
 

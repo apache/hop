@@ -29,6 +29,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.VariableValue;
 import org.apache.hop.testing.util.DataSetConst;
@@ -52,6 +53,11 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint
 
     boolean runUnitTest =
         "Y".equalsIgnoreCase(variables.getVariable(DataSetConst.VAR_RUN_UNIT_TEST));
+
+    // Only try to run a unit test when running with the local engine
+    //
+    runUnitTest = runUnitTest && (pipeline instanceof LocalPipelineEngine);
+
     if (!runUnitTest) {
       // No business here...
       if (log.isDetailed()) {

@@ -41,7 +41,7 @@ public class SnappyCompressionOutputStreamTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
-    PluginRegistry.init(false);
+    PluginRegistry.init();
   }
 
   @AfterClass

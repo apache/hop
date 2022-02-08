@@ -42,7 +42,7 @@ public class HttpPostMetaTest {
   @Before
   public void testLoadSaveRoundTrip() throws HopException {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
             "postAFile",

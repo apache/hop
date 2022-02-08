@@ -28,13 +28,13 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.xml.PipelineTestFactory;
-import org.apache.poi.util.IOUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -130,7 +130,7 @@ public class XsdValidatorIntTest {
     try (InputStream source = getFileInputStream(filename)) {
       FileObject fileObject = HopVfs.getFileObject(targetUrl);
       try (OutputStream targetStream = fileObject.getContent().getOutputStream()) {
-        IOUtils.copy(source, targetStream);
+        copy(source, targetStream, -1);
       }
       return fileObject;
     }
@@ -184,5 +184,23 @@ public class XsdValidatorIntTest {
     assertEquals(dataFilename, result.get(0).getString(0, "default"));
     assertEquals(schemaFilename, result.get(0).getString(1, "default"));
     assertEquals(expected, result.get(0).getBoolean(2, !expected));
+  }
+
+  private static long copy(InputStream inp, OutputStream out, long limit) throws IOException {
+    final byte[] buff = new byte[4096];
+    long totalCount = 0;
+    int readBytes = -1;
+    do {
+      int todoBytes = (int)((limit < 0) ? buff.length : Math.min(limit-totalCount, buff.length));
+      if (todoBytes > 0) {
+        readBytes = inp.read(buff, 0, todoBytes);
+        if (readBytes > 0) {
+          out.write(buff, 0, readBytes);
+          totalCount += readBytes;
+        }
+      }
+    } while (readBytes >= 0 && (limit == -1 || totalCount < limit));
+
+    return totalCount;
   }
 }

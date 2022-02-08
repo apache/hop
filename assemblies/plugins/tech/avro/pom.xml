@@ -34,7 +34,7 @@
     <description></description>
 
     <properties>
-        <avro.version>1.8.2</avro.version>
+        <avro.version>1.11.0</avro.version>
     </properties>
 
     <dependencies>

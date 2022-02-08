@@ -83,7 +83,7 @@ TIP: You need version 1.27.0 or higher of docker-compose
 . Clean build HOP
 +
 ----
-cd incubator-hop
+cd hop
 mvn clean install
 ----
 +
@@ -107,7 +107,7 @@ We generate xml reports that can be used by Jenkins to generate reports. these r
 A script is also provided to run the test without using Docker.
 This script is also used inside the automated test suite but can be used in a stand alone mode.
 
-This script can be found at following location `incubator-hop/integration-tests/scripts/run-tests.sh`.
+This script can be found at following location `hop/integration-tests/scripts/run-tests.sh`.
 Be sure to export the needed system variables for the script to find the correct paths to run the tests.
 You can aslo run a single project by adding the project name to the command `./run-tests.sh projectname`
 

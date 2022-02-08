@@ -50,7 +50,6 @@
             <useProjectArtifact>false</useProjectArtifact>
             <scope>runtime</scope>
             <includes>
-                <include>com.fasterxml.jackson.core:jackson-core:jar</include>
                 <include>com.google.api:api-common:jar</include>
                 <include>com.google.api-client:google-api-client:jar</include>
                 <include>com.google.api:gax-httpjson:jar</include>

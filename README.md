@@ -40,7 +40,7 @@ There are various things you can do to help Hop continue moving forward quickly:
   or [mattermost](https://chat.project-hop.org/hop/channels/dev)
 - Help us write or fix documentation (lot of opportunities)
 - Translate Hop. See our [i18n guide](https://hop.apache.org/dev-manual/latest/internationalisation.html).
-- help fix some [sonar issues](https://sonarcloud.io/dashboard?id=apache_incubator-hop)
+- help fix some [sonar issues](https://sonarcloud.io/dashboard?id=apache_hop)
 
 Check our [Contribution Guide](https://hop.apache.org/community/contributing/) and
 the [Hop website](https://hop.apache.org) for more information on how to contribute.
@@ -76,7 +76,7 @@ available on the system
 
 ### From release archive
 
-You can download a source release [here](https://downloads.apache.org/incubator/hop/)
+You can download a source release [here](https://downloads.apache.org/hop/)
 
 Required:
 

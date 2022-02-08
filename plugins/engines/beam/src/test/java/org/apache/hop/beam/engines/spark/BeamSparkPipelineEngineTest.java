@@ -32,8 +32,9 @@ import static org.junit.Assert.assertEquals;
 
 public class BeamSparkPipelineEngineTest extends BeamBasePipelineEngineTest {
 
-  @Ignore
+  // Disabled because of log4j library dependency problems with Spark
   @Test
+  @Ignore
   public void testSparkPipelineEngine() throws Exception {
 
     BeamSparkPipelineRunConfiguration configuration = new BeamSparkPipelineRunConfiguration();

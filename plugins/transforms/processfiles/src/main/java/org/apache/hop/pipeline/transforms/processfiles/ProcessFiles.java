@@ -225,7 +225,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
       // add filename to result filenames?
       if (meta.isAddResultFilenames()
           && meta.getOperationType() != ProcessFilesMeta.OPERATION_TYPE_DELETE
-          && data.sourceFile.getType() == FileType.FILE) {
+          && data.targetFile.getType() == FileType.FILE) {
         // Add this to the result file names...
         ResultFile resultFile =
             new ResultFile(

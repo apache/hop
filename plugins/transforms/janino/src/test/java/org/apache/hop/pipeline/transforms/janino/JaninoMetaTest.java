@@ -38,7 +38,7 @@ public class JaninoMetaTest {
   @BeforeClass
   public static void setUpBeforeClass() throws HopPluginException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
-    PluginRegistry.init(false);
+    PluginRegistry.init();
   }
 
   @Test

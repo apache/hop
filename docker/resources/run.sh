@@ -19,13 +19,13 @@
 #
 # When stopping the running hop-server container with 'docker stop' it ended up with an timeout
 # and an exitcode > 0 because signals are not catched correctly.
-# It was not possible to end the container gracefully with Ctrl-C when it was started without -d 
-# option which might be annoying on a gratefull exit. Therefore this script ( run.sh ) 
+# It was not possible to end the container gracefully with Ctrl-C when it was started without -d
+# option which might be annoying on a gratefull exit. Therefore this script ( run.sh )
 # that catches signals coming from the docker host is introduced.
 #
 
 log() {
-    echo `date '+%Y/%m/%d %H:%M:%S'`" - ${1}"
+  echo $(date '+%Y/%m/%d %H:%M:%S')" - ${1}"
 }
 
 #
@@ -33,17 +33,21 @@ log() {
 #   to be able to exit gracefully
 #
 trapper() {
-    "$@" &
-    pid="$!"
-    log "Running the entrypoint script with PID ${pid}"
-    trap "log 'Stopping entrypoint script with $pid'; kill -SIGTERM $pid" SIGINT SIGTERM
+  "$@" &
+  pid="$!"
+  log "Running the entrypoint script with PID ${pid}"
+  trap "log 'Stopping entrypoint script with $pid'; kill -SIGTERM $pid" SIGINT SIGTERM
 
-    while kill -0 $pid > /dev/null 2>&1; do
-        wait
-    done
+  while kill -0 $pid >/dev/null 2>&1; do
+    wait
+  done
 }
 
-trapper /opt/hop/load-and-execute.sh $@
+trapper /opt/hop/load-and-execute.sh "$@"
 
-EXIT_CODE=`cat /tmp/exitcode.txt`
-exit ${EXIT_CODE}
+if [ -f /tmp/exitcode.txt ]; then
+  EXIT_CODE=$(cat /tmp/exitcode.txt)
+  exit "${EXIT_CODE}"
+else
+  exit 7
+fi

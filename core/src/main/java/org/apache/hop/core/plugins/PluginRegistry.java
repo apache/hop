@@ -491,26 +491,16 @@ public class PluginRegistry {
     return Collections.unmodifiableList(pluginTypes);
   }
 
-  public static synchronized void init() throws HopPluginException {
-    init(true);
-  }
-
   /**
    * This method registers plugin types and loads their respective plugins
    *
    * @throws HopPluginException
    */
-  public static synchronized void init(boolean keepCache) throws HopPluginException {
+  public static synchronized void init() throws HopPluginException {
     final PluginRegistry registry = getInstance();
 
     for (final IPluginType pluginType : pluginTypes) {
       registry.registerType(pluginType);
-    }
-
-    // Clear the jar file cache so that we don't waste memory...
-    //
-    if (!keepCache) {
-      JarCache.getInstance().clear();
     }
   }
 

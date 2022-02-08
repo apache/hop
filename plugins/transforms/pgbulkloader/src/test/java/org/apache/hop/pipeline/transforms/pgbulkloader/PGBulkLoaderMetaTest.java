@@ -54,7 +54,7 @@ public class PGBulkLoaderMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
             "schemaName",
@@ -118,7 +118,7 @@ public class PGBulkLoaderMetaTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
-    PluginRegistry.init(false);
+    PluginRegistry.init();
   }
 
   @Before

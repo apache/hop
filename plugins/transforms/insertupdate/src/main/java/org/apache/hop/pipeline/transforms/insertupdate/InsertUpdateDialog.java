@@ -808,7 +808,8 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     // Get the information for the dialog into the input structure.
     getInfo(input);
 
-    if (input.getConnection() == null) {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    if (databaseMeta == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "InsertUpdateDialog.InvalidConnection.DialogMessage"));

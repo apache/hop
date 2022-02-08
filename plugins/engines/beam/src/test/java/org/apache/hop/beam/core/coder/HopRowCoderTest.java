@@ -24,6 +24,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class HopRowCoderTest extends TestCase {
@@ -44,7 +45,7 @@ public class HopRowCoderTest extends TestCase {
     HopRow row1 =
         new HopRow(
             new Object[] {
-              "AAA", "BBB", Long.valueOf(100), Double.valueOf(1.234), new Date(876876868)
+              "AAA", "BBB", Long.valueOf(100), Double.valueOf(1.234), new Date(876876868), new Timestamp(810311)
             });
 
     hopRowCoder.encode(row1, outputStream);

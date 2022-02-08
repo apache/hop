@@ -40,7 +40,7 @@ public class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
             "displayHeader", "limitRows", "limitRowsNumber", "logmessage", "loglevel", "fieldName");

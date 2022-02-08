@@ -56,6 +56,15 @@
         </dependencySet>
         <dependencySet>
             <includes>
+                <include>org.eclipse.platform:*.gtk.linux.aarch64</include>
+            </includes>
+            <outputDirectory>libswt/linux/arm64</outputDirectory>
+            <outputFileNameMapping>swt.jar</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <includes>
                 <include>org.eclipse.platform:*.win32.x86_64</include>
             </includes>
             <outputDirectory>libswt/win64</outputDirectory>
