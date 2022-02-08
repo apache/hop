@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transform;
 
 import junit.framework.TestCase;
 import org.apache.hop.core.BlockingRowSet;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class DynamicWaitTimesTest extends TestCase {
     for (int i = 0; i < 10; i++) {
       status.adjust(true, rowSet);
     }
-    assertEquals(Const.TIMEOUT_GET_MAX_MILLIS, status.get());
+    assertEquals(DynamicWaitTimes.MAX_TIMEOUT, status.get());
   }
 
   public void testMultiStreamStatus() {
@@ -86,9 +85,8 @@ public class DynamicWaitTimesTest extends TestCase {
     testAPeriod(rowSetList);
   }
 
-  private void testAPeriod(List<IRowSet> rowSetList ) {
+  private void testAPeriod(List<IRowSet> rowSetList) {
     for (int j = 0; j < rowSetList.size() * 10; j++) {
-      System.out.println(">>> " + adjustTimes.incrementAndGet());
       for (IRowSet iRowSet : rowSetList) {
         status.adjust(true, iRowSet);
       }
