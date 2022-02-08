@@ -175,7 +175,7 @@
         <!-- spring-security version -->
         <spring-security.version>4.1.5.RELEASE</spring-security.version>
 
-        <xercesImpl.version>2.12.2</xercesImpl.version>
+        <xerces.version>2.12.2</xerces.version>
         <xml-apis.version>1.4.01</xml-apis.version>
 
         <!-- jdk version -->
@@ -431,7 +431,7 @@
             <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
-                <version>${xercesImpl.version}</version>
+                <version>${xerces.version}</version>
             </dependency>
             <dependency>
                 <groupId>xml-apis</groupId>
