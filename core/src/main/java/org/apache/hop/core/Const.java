@@ -1520,7 +1520,7 @@ public class Const {
     String version = Const.class.getPackage().getImplementationVersion();
 
     if (version == null || version.endsWith("SNAPSHOT")) {
-      version = "latest";
+      version = "next";
     }
 
     return url + version + "/";
