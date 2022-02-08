@@ -56,14 +56,12 @@
                 <include>com.google.protobuf:protobuf-java:jar</include>
                 <include>commons-collections:commons-collections:jar</include>
                 <include>commons-digester:commons-digester:jar</include>
-                <include>commons-httpclient:commons-httpclient:jar</include>
                 <include>com.sun.jersey:jersey-client:jar</include>
                 <include>com.sun.jersey:jersey-core:jar</include>
                 <include>io.netty:netty:jar</include>
                 <include>javax.activation:activation:jar</include>
                 <include>javax.xml.bind:jaxb-api:jar</include>
                 <include>javax.xml.stream:stax-api:jar</include>
-                <include>org.apache.avro:avro:jar</include>
                 <include>org.apache.curator:curator-client:jar</include>
                 <include>org.apache.curator:curator-framework:jar</include>
                 <include>org.apache.curator:curator-recipes:jar</include>

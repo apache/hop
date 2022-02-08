@@ -40,6 +40,7 @@
         <maven-surefire-plugin.argLine>-Duser.timezone=UTC -Dfile.encoding=UTF-8 -Duser.language=en -Duser.country=US
         </maven-surefire-plugin.argLine>
         <!-- Third-party dependencies -->
+        <avro.version>1.11.0</avro.version>
         <slf4j-api.version>1.7.32</slf4j-api.version>
         <slf4j-nop.version>1.7.32</slf4j-nop.version>
         <xml-apis-ext.version>1.3.04</xml-apis-ext.version>
@@ -67,6 +68,16 @@
 
         <!-- Third-party dependencies -->
         <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>${avro.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-avro</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j-api.version}</version>
@@ -85,6 +96,11 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
