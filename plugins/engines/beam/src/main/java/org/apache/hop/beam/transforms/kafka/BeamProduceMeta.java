@@ -160,6 +160,15 @@ public class BeamProduceMeta extends BaseTransformMeta
       throw new HopException("Error finding message/value field "+messageFieldName+" in the input rows");
     }
 
+    // Register a coder for the short time that KV<HopRow, GenericRecord> exists in Beam
+    //
+    if (messageValueMeta.getType()==IValueMeta.TYPE_AVRO) {
+      ValueMetaAvroRecord valueMetaAvroRecord = (ValueMetaAvroRecord) messageValueMeta;
+      Schema schema = valueMetaAvroRecord.getSchema();
+      AvroCoder<GenericRecord> coder = AvroCoder.of(schema);
+      pipeline.getCoderRegistry().registerCoderForClass(GenericRecord.class, coder);
+    }
+
     BeamKafkaOutputTransform beamOutputTransform =
         new BeamKafkaOutputTransform(
             transformMeta.getName(),

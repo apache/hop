@@ -210,6 +210,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
                         .withBootstrapServers(bootstrapServers)
                         .withTopic(topic)
                         .withKeySerializer(StringSerializer.class)
+                        .withValueSerializer((Class)KafkaAvroSerializer.class)
                         .withProducerConfigUpdates(producerConfigUpdates);
         PCollection<KV<String, GenericRecord>> kvpCollection =
                 input.apply(ParDo.of(hopRowToKVStringGenericRecordFn));
