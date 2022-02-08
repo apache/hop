@@ -19,6 +19,7 @@ package org.apache.hop.neo4j.transforms.cypher;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopConfigException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
@@ -141,12 +142,12 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
     }
   }
 
-  private void createDriverSession() {
+  private void createDriverSession() throws HopConfigException {
     data.driver = data.neoConnection.getDriver(log, this);
     data.session = data.neoConnection.getSession(log, data.driver, this);
   }
 
-  private void reconnect() {
+  private void reconnect() throws HopConfigException {
     closeSessionDriver();
 
     log.logBasic("RECONNECTING to database");
@@ -312,7 +313,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData>
 
   private void runCypherStatementsBatch() throws HopException {
 
-    if (data.cypherStatements == null || data.cypherStatements.size() == 0) {
+    if (data.cypherStatements == null || data.cypherStatements.isEmpty()) {
       // Nothing to see here, move along
       return;
     }

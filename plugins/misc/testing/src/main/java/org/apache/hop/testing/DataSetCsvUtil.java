@@ -128,9 +128,7 @@ public class DataSetCsvUtil {
 
       FileObject file = HopVfs.getFileObject(dataSetFilename);
       if (!file.exists()) {
-        // This is fine.  We haven't put rows in yet.
-        //
-        return rows;
+        throw new HopException("File " + dataSetFilename + " doesn't exist!");
       }
 
       List<String> sortFields = location.getFieldOrder();

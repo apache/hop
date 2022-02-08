@@ -150,17 +150,17 @@ public enum HopExtensionPoint {
 
   public String id;
 
-  public String description;
+  private String description;
 
-  public Class<?> providedClass;
+  private Class<?> providedClass;
 
-  private HopExtensionPoint(String description) {
+  HopExtensionPoint(String description) {
     this.id = name();
     this.description = description;
     this.providedClass = Object.class;
   }
 
-  private HopExtensionPoint(String id, String description, Class<?> providedClass) {
+  HopExtensionPoint(String id, String description, Class<?> providedClass) {
     this.id = id;
     this.description = description;
     this.providedClass = providedClass;

@@ -416,7 +416,7 @@ public class TableInputMeta extends BaseTransformMeta
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
     for (IStream stream : infoStreams) {
       stream.setTransformMeta(
-          TransformMeta.findTransform(transforms, (String) stream.getSubject()));
+          TransformMeta.findTransform(transforms, stream.getSubject()));
     }
   }
 
@@ -510,34 +510,11 @@ public class TableInputMeta extends BaseTransformMeta
               null,
               BaseMessages.getString(PKG, "TableInputMeta.InfoStream.Description"),
               StreamIcon.INFO,
-              null);
+              lookup);
       ioMeta.addStream(stream);
       setTransformIOMeta(ioMeta);
     }
 
     return ioMeta;
-  }
-
-  @Override
-  public void resetTransformIoMeta() {
-    // Do nothing, don't reset as there is no need to do this.
-  }
-
-  /**
-   * For compatibility, wraps around the standard transform IO metadata
-   *
-   * @param transformMeta The transform where you read lookup data from
-   */
-  public void setLookupFromTransform(TransformMeta transformMeta) {
-    getTransformIOMeta().getInfoStreams().get(0).setTransformMeta(transformMeta);
-  }
-
-  /**
-   * For compatibility, wraps around the standard transform IO metadata
-   *
-   * @return The transform where you read lookup data from
-   */
-  public TransformMeta getLookupFromTransform() {
-    return getTransformIOMeta().getInfoStreams().get(0).getTransformMeta();
   }
 }

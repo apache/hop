@@ -61,7 +61,7 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUp() throws HopException {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("delete1");
 

@@ -24,6 +24,7 @@ import org.apache.hop.core.row.IValueMeta;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -31,7 +32,7 @@ import java.util.Date;
 public class HopRowCoder extends AtomicCoder<HopRow> {
 
   @Override
-  public void encode(HopRow value, OutputStream outStream) throws CoderException, IOException {
+  public void encode(HopRow value, OutputStream outStream) throws IOException {
 
     Object[] row = value.getRow();
     ObjectOutputStream out = new ObjectOutputStream(outStream);
@@ -68,7 +69,7 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
   }
 
   @Override
-  public HopRow decode(InputStream inStream) throws CoderException, IOException {
+  public HopRow decode(InputStream inStream) throws IOException {
 
     ObjectInputStream in = new ObjectInputStream(inStream);
 
@@ -92,7 +93,7 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
   }
 
   @Override
-  public void verifyDeterministic() throws NonDeterministicException {
+  public void verifyDeterministic() {
     // Sure
   }
 
@@ -112,9 +113,15 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           out.writeLong(lng);
         }
         break;
+      case IValueMeta.TYPE_TIMESTAMP:
+        {
+          out.writeLong(((Timestamp) object).getTime());
+          out.writeInt(((Timestamp) object).getNanos());
+        }
+        break;
       case IValueMeta.TYPE_DATE:
         {
-          Long lng = ((Date) object).getTime();
+          long lng = ((Date) object).getTime();
           out.writeLong(lng);
         }
         break;
@@ -136,6 +143,21 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           out.writeUTF(bd.toString());
         }
         break;
+      case IValueMeta.TYPE_BINARY:
+        {
+          byte[] bytes = (byte[]) object;
+          out.write(bytes.length);
+          out.write(bytes);
+        }
+        break;
+      case IValueMeta.TYPE_INET:
+        {
+          InetAddress inetAddress = (InetAddress) object;
+          write(out, IValueMeta.TYPE_STRING, inetAddress.getHostName());
+          out.writeInt(inetAddress.getAddress().length == 4 ? 1 : 2);
+          out.write(inetAddress.getAddress());
+        }
+        break;
       default:
         throw new IOException(
             "Data type not supported yet: " + objectType + " - " + object.toString());
@@ -149,39 +171,52 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           int length = in.readInt();
           byte[] data = new byte[length];
           in.readFully(data);
-          String string = new String(data, StandardCharsets.UTF_8);
-          return string;
+          return new String(data, StandardCharsets.UTF_8);
         }
 
       case IValueMeta.TYPE_INTEGER:
         {
-          Long lng = in.readLong();
-          return lng;
+          return in.readLong();
+        }
+
+      case IValueMeta.TYPE_TIMESTAMP:
+        {
+          Timestamp timestamp = new Timestamp(in.readLong());
+          timestamp.setNanos(in.readInt());
+          return timestamp;
         }
 
       case IValueMeta.TYPE_DATE:
         {
-          Long lng = in.readLong();
-          return new Date(lng);
+          return new Date(in.readLong());
         }
 
       case IValueMeta.TYPE_BOOLEAN:
         {
-          boolean b = in.readBoolean();
-          return b;
+          return in.readBoolean();
         }
 
       case IValueMeta.TYPE_NUMBER:
         {
-          Double dbl = in.readDouble();
-          return dbl;
+          return in.readDouble();
         }
 
       case IValueMeta.TYPE_BIGNUMBER:
         {
-          String bd = in.readUTF();
-          return new BigDecimal(bd);
+          return new BigDecimal(in.readUTF());
         }
+
+      case IValueMeta.TYPE_BINARY:
+      {
+        return new byte[in.readInt()];
+      }
+
+      case IValueMeta.TYPE_INET:
+      {
+        String hostname = (String) read(in, IValueMeta.TYPE_STRING);
+        byte[] addr = new byte[in.readInt() == 1 ? 4 : 16];
+        return InetAddress.getByAddress(hostname, addr);
+      }
       default:
         throw new IOException("Data type not supported yet: " + objectType);
     }
@@ -194,11 +229,11 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
     if (object instanceof Long) {
       return IValueMeta.TYPE_INTEGER;
     }
-    if (object instanceof Date) {
-      return IValueMeta.TYPE_DATE;
-    }
     if (object instanceof Timestamp) {
       return IValueMeta.TYPE_TIMESTAMP;
+    }
+    if (object instanceof Date) {
+      return IValueMeta.TYPE_DATE;
     }
     if (object instanceof Boolean) {
       return IValueMeta.TYPE_BOOLEAN;
@@ -208,6 +243,12 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
     }
     if (object instanceof BigDecimal) {
       return IValueMeta.TYPE_BIGNUMBER;
+    }
+    if (object instanceof byte[]) {
+      return IValueMeta.TYPE_BINARY;
+    }
+    if (object instanceof InetAddress) {
+      return IValueMeta.TYPE_INET;
     }
     throw new CoderException(
         "Data type for object class " + object.getClass().getName() + " isn't supported yet");

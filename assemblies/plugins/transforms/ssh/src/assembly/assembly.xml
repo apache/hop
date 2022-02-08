@@ -50,7 +50,7 @@
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>com.trilead:trilead-ssh2:jar</include>
+                <include>org.connectbot:sshlib:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

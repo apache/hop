@@ -71,7 +71,7 @@ public class MappingInputMetaCloningTest {
   @Before
   public void setUp() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList("fieldName", "fieldType", "fieldLength", "fieldPrecision");
 

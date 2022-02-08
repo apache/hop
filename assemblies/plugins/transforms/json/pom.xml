@@ -34,20 +34,20 @@
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms JSON</name>
-    <description></description>
+    <description/>
 
     <properties>
         <commons-codec.version>1.9</commons-codec.version>
         <encoder.version>1.2</encoder.version>
-        <guava.version>27.0-jre</guava.version>
+        <guava.version>31.0.1-jre</guava.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
-        <poi.version>3.17</poi.version>
+        <mockito-all.version>1.9.5</mockito-all.version>
         <dependency.com.tinkerpop.blueprints.version>2.6.0</dependency.com.tinkerpop.blueprints.version>
         <dependency.org.powermock.version>2.0.9</dependency.org.powermock.version>
         <json-smart.version>2.2</json-smart.version>
         <json-path.version>2.1.0</json-path.version>
         <jackson-core.version>${jackson-databind.version}</jackson-core.version>
-        <jackson-databind.version>2.10.2</jackson-databind.version>
+        <jackson-databind.version>2.12.1</jackson-databind.version>
         <json-simple.version>1.1.1</json-simple.version>
         <jsch.version>0.1.54</jsch.version>
     </properties>
@@ -72,11 +72,6 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>${jackson-core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>${poi.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>

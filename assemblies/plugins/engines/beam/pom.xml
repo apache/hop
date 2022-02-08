@@ -31,7 +31,7 @@
   <version>1.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Hop Assemblies Plugins Engines Beam</name>
-  <description></description>
+  <description/>
 
   <repositories>
     <repository>
@@ -50,9 +50,9 @@
   </repositories>
 
   <properties>
-    <apache-beam-version>2.34.0</apache-beam-version>
-    <spark-version>2.4.8</spark-version>
-    <flink-version>1.11.3</flink-version>
+    <apache-beam-version>2.35.0</apache-beam-version>
+    <spark-version>3.1.2</spark-version>
+    <flink-version>1.13.5</flink-version>
     <json-simple.version>1.1.1</json-simple.version>
     <bigtable-hbase-beam.version>1.20.1</bigtable-hbase-beam.version>
     <grpc.version>1.37.0</grpc.version>
@@ -132,11 +132,40 @@
       <artifactId>grpc-alts</artifactId>
       <version>${grpc.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.google.api</groupId>
       <artifactId>gax-grpc</artifactId>
       <version>${gax-grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-client</artifactId>
+      <version>2.10.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-common</artifactId>
+      <version>2.10.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs</artifactId>
+      <version>2.10.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.woodstox</groupId>
+      <artifactId>woodstox-core-asl</artifactId>
+      <version>4.4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>31.0.1-jre</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-shaded-guava</artifactId>
+      <version>18.0-13.0</version>
     </dependency>
 
     <!-- The Apache Beam dependencies -->
@@ -144,7 +173,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-scala_2.11</artifactId>
-      <version>2.10.2</version>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
@@ -210,7 +239,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.beam</groupId>
-      <artifactId>beam-runners-spark</artifactId>
+      <artifactId>beam-runners-spark-3</artifactId>
       <version>${apache-beam-version}</version>
       <exclusions>
         <exclusion>
@@ -229,7 +258,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.beam</groupId>
-      <artifactId>beam-runners-flink-1.11</artifactId>
+      <artifactId>beam-runners-flink-1.13</artifactId>
       <version>${apache-beam-version}</version>
       <exclusions>
         <exclusion>
@@ -246,6 +275,7 @@
         </exclusion>
       </exclusions>
     </dependency>
+
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-sdks-java-extensions-join-library</artifactId>
@@ -323,25 +353,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.beam</groupId>
-      <artifactId>beam-sdks-java-io-kafka</artifactId>
-      <version>${apache-beam-version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.module</groupId>
-          <artifactId>jackson-module-scala_2.11</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-storage</artifactId>
       <version>1.53.0</version>
@@ -362,11 +373,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.beam</groupId>
-      <artifactId>beam-vendor-guava-20_0</artifactId>
-      <version>0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.beam</groupId>
       <artifactId>beam-vendor-guava-26_0-jre</artifactId>
       <version>0.1</version>
     </dependency>
@@ -377,7 +383,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-core_2.11</artifactId>
+      <artifactId>spark-core_2.12</artifactId>
       <version>${spark-version}</version>
       <exclusions>
         <exclusion>
@@ -396,7 +402,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-streaming_2.11</artifactId>
+      <artifactId>spark-streaming_2.12</artifactId>
       <version>${spark-version}</version>
       <exclusions>
         <exclusion>

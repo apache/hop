@@ -19,10 +19,6 @@
 package org.apache.hop.beam.run;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -32,6 +28,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -40,6 +37,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class MainBeam {
 
@@ -54,9 +52,8 @@ public class MainBeam {
 
       // Read the pipeline XML and metadata JSON (optionally from Hadoop FS)
       //
-      Configuration hadoopConfiguration = new Configuration();
-      String pipelineMetaXml = readFileIntoString(args[0], hadoopConfiguration, "UTF-8");
-      String metadataJson = readFileIntoString(args[1], hadoopConfiguration, "UTF-8");
+      String pipelineMetaXml = readFileIntoString(args[0], "UTF-8");
+      String metadataJson = readFileIntoString(args[1], "UTF-8");
       String runConfigName = args[2];
 
       // Inflate the metadata:
@@ -77,9 +74,6 @@ public class MainBeam {
       PipelineMeta pipelineMeta =
           new PipelineMeta(
               XmlHandler.loadXmlString(pipelineMetaXml, PipelineMeta.XML_TAG), metadataProvider);
-
-      String hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
-      System.out.println(">>>>>> HADOOP_CONF_DIR='" + hadoopConfDir + "'");
 
       System.out.println(">>>>>> Building Apache Beam Pipeline...");
       PluginRegistry registry = PluginRegistry.getInstance();
@@ -111,12 +105,11 @@ public class MainBeam {
     }
   }
 
-  private static String readFileIntoString(
-      String filename, Configuration hadoopConfiguration, String encoding) throws IOException {
-    Path path = new Path(filename);
-    FileSystem fileSystem = FileSystem.get(path.toUri(), hadoopConfiguration);
-    FSDataInputStream inputStream = fileSystem.open(path);
-    String fileContent = IOUtils.toString(inputStream, encoding);
-    return fileContent;
+  private static String readFileIntoString(String filename, String encoding) throws IOException {
+    try (InputStream inputStream = HopVfs.getInputStream(filename)) {
+      return IOUtils.toString(inputStream, encoding);
+    } catch (Exception e) {
+      throw new IOException("Error reading from file " + filename, e);
+    }
   }
 }

@@ -32,14 +32,14 @@ ENV HOP_LOG_PATH=$DEPLOYMENT_PATH/hop.err.log
 # path to jdbc drivers
 ENV HOP_SHARED_JDBC_FOLDER=
 # name of the Hop project to use
-ENV HOP_PROJECT_NAME=
+ENV HOP_PROJECT_NAME=project1
 # path to the home of the Hop project..
 ENV HOP_PROJECT_DIRECTORY=
 ENV HOP_PROJECT_FOLDER=
 # name of the project config file including file extension
 ENV HOP_PROJECT_CONFIG_FILE_NAME=project-config.json
 # environment to use with hop run
-ENV HOP_ENVIRONMENT_NAME=
+ENV HOP_ENVIRONMENT_NAME=environment1
 # comma separated list of paths to environment config files (including filename and file extension).
 ENV HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=
 # hop run configuration to use
@@ -87,22 +87,11 @@ ENV HOP_SERVER_MAX_OBJECT_TIMEOUT=
 RUN chmod 777 -R /tmp && chmod o+t -R /tmp
 
 # Install some fonts
-RUN apk --no-cache add msttcorefonts-installer \
-        fontconfig \
-        font-noto \
-        font-noto-adlam \
-        font-noto-adlamunjoined \
-        font-noto-arabic \
-        font-noto-armenian \
-        font-noto-avestan \
-        font-noto-bamum \
-        font-noto-bengali \
-        font-noto-buhid \
-        font-noto-carian \
-        font-noto-chakma \
-        font-noto-cherokee && \
-    update-ms-fonts && \
-    fc-cache -f
+RUN apk --no-cache add openjdk8-jre \
+        msttcorefonts-installer \
+        fontconfig && \
+        update-ms-fonts && \
+        fc-cache -f
 
 # INSTALL REQUIRED PACKAGES AND ADJUST LOCALE
 # procps: The package includes the programs ps, top, vmstat, w, kill, free, slabtop, and skill

@@ -25,7 +25,7 @@ import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
-import org.apache.poi.xssf.model.SharedStringsTable;
+import org.apache.poi.xssf.model.SharedStrings;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
@@ -68,7 +68,7 @@ public class StaxPoiSheet implements IKSheet {
   private IKCell[] currentRowCells;
 
   // full shared strings table
-  private SharedStringsTable sst;
+  private SharedStrings sst;
   // custom styles
   private StylesTable styles;
 
@@ -121,7 +121,7 @@ public class StaxPoiSheet implements IKSheet {
                   if (event == XMLStreamConstants.START_ELEMENT
                       && sheetReader.getLocalName().equals("v")) {
                     int idx = Integer.parseInt(sheetReader.getElementText());
-                    String content = new XSSFRichTextString(sst.getEntryAt(idx)).toString();
+                    String content = sst.getItemAt(idx).getString();
                     headerRow.add(content);
                     break;
                   }
@@ -239,7 +239,7 @@ public class StaxPoiSheet implements IKSheet {
           // read content as string
           if (cellType != null && cellType.equals("s")) {
             int idx = Integer.parseInt(sheetReader.getElementText());
-            content = new XSSFRichTextString(sst.getEntryAt(idx)).toString();
+            content = sst.getItemAt(idx).getString();
           } else {
             content = sheetReader.getElementText();
           }

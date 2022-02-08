@@ -24,6 +24,8 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.kafka.clients.consumer.Consumer;
 
+import java.util.List;
+
 public class KafkaConsumerInputData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public Consumer consumer;
@@ -31,6 +33,8 @@ public class KafkaConsumerInputData extends BaseTransformData implements ITransf
   public RowProducer rowProducer;
   public SingleThreadedPipelineExecutor executor;
   public boolean isKafkaConsumerClosing;
+  public List<Object[]> incomingRowsBuffer;
+
 
   /** */
   public KafkaConsumerInputData() {

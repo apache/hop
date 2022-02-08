@@ -139,7 +139,7 @@ public class TableOutputMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
 
     List<String> attributesList = new ArrayList<>();
     Map<String, String> getterMap = new HashMap<>();

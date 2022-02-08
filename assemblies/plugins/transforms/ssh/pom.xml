@@ -43,9 +43,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.trilead</groupId>
-            <artifactId>trilead-ssh2</artifactId>
-            <version>1.0.0-build222</version>
+            <groupId>org.connectbot</groupId>
+            <artifactId>sshlib</artifactId>
+            <version>2.2.20</version>
         </dependency>
     </dependencies>
 </project>

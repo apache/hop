@@ -499,6 +499,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         workflow.setParentWorkflow(parentWorkflow);
         workflow.setLogLevel(jobLogLevel);
         workflow.shareWith(this);
+        workflow.setResult(result);
         workflow.setInternalHopVariables();
         workflow.copyParametersFromDefinitions(workflowMeta);
         workflow.setInteractive(parentWorkflow.isInteractive());

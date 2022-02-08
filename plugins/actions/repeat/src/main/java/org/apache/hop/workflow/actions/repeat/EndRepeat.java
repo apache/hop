@@ -29,8 +29,8 @@ import org.w3c.dom.Node;
 
 @Action(
     id = "EndRepeat",
-    name = "i18n::EndRepeat.name",
-    description = "i18n::EndRepeat.description",
+    name = "i18n::EndRepeat.Name",
+    description = "i18n::EndRepeat.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
     keywords = "i18n::EndRepeat.keywords",
     image = "endrepeat.svg",

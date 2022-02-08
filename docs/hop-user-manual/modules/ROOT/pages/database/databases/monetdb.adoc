@@ -18,7 +18,7 @@ under the License.
 :documentationPath: /database/databases/
 :language: en_US
 
-= monetdb
+= MonetDB
 
 [width="90%",cols="2*",options="header"]
 |===
