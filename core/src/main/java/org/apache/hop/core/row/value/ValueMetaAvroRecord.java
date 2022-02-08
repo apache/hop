@@ -15,41 +15,65 @@
  * limitations under the License.
  */
 
-package org.apache.hop.avro.type;
+package org.apache.hop.core.row.value;
 
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.*;
-import org.apache.hop.core.WriterOutputStream;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.exception.HopEofException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueDataUtil;
-import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.row.value.ValueMetaPlugin;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.server.HttpUtil;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 
 @ValueMetaPlugin(
     id = "20",
     name = "Avro Record",
     description = "This type wraps around an Avro Record",
-    image = "Apache_Avro_Logo.svg")
+    image = "images/avro.svg")
 public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
 
-  public static final int TYPE_AVRO_RECORD = 20;
+  private Schema schema;
 
   public ValueMetaAvroRecord() {
-    super(null, TYPE_AVRO_RECORD);
+    super(null, IValueMeta.TYPE_AVRO);
   }
 
   public ValueMetaAvroRecord(String name) {
-    super(name, TYPE_AVRO_RECORD);
+    super(name, IValueMeta.TYPE_AVRO);
+  }
+
+  public ValueMetaAvroRecord(String name, Schema schema) {
+    super(name, IValueMeta.TYPE_AVRO);
+    this.schema = schema;
+  }
+
+  public ValueMetaAvroRecord(ValueMetaAvroRecord meta) {
+    super(meta.name, IValueMeta.TYPE_AVRO);
+    if (meta.schema != null) {
+      this.schema = new Schema.Parser().parse(meta.schema.toString());
+    }
+  }
+
+  @Override
+  public ValueMetaAvroRecord clone() {
+    return new ValueMetaAvroRecord(this);
   }
 
   @Override
@@ -59,12 +83,16 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
 
   @Override
   public String toStringMeta() {
-    return "Avro Generic Record";
+    if (schema == null) {
+      return "Avro Generic Record";
+    } else {
+      return "Avro Generic Record " + schema.toString(false);
+    }
   }
 
   public GenericRecord getGenericRecord(Object object) throws HopValueException {
     switch (type) {
-      case TYPE_AVRO_RECORD:
+      case IValueMeta.TYPE_AVRO:
         switch (storageType) {
           case STORAGE_TYPE_NORMAL:
             return (GenericRecord) object;
@@ -102,28 +130,23 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
    * @return The JSON representation of a generic Avro record
    * @throws HopValueException
    */
-  public String convertGenericRecordToString(GenericRecord genericRecord) throws HopValueException {
+  public static String convertGenericRecordToString(GenericRecord genericRecord)
+      throws HopValueException {
     try {
       Schema schema = genericRecord.getSchema();
       String schemaJson = schema.toString();
+      String dataJson = genericRecord.toString();
 
-      StringWriter stringWriter = new StringWriter();
-      OutputStream outputStream = new WriterOutputStream(stringWriter);
-      JsonEncoder jsonEncoder =
-          EncoderFactory.get().jsonEncoder(genericRecord.getSchema(), outputStream);
-      DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(genericRecord.getSchema());
-      datumWriter.write(genericRecord, jsonEncoder);
-      String dataJson = stringWriter.toString();
       String json = "{ \"schema\" : " + schemaJson + ", \"data\" : " + dataJson + " }";
       return json;
-
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new HopValueException(
           "Unable to convert an Avro record to a JSON String using the provided schema", e);
     }
   }
 
-  public GenericRecord convertStringToGenericRecord(String jsonString) throws HopValueException {
+  public static GenericRecord convertStringToGenericRecord(String jsonString)
+      throws HopValueException {
     try {
       // Convert schema AND data to JSON...
       //
@@ -233,7 +256,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
           }
           break;
 
-        case TYPE_AVRO_RECORD:
+        case IValueMeta.TYPE_AVRO:
           switch (storageType) {
             case STORAGE_TYPE_NORMAL:
               string = object == null ? null : object.toString();
@@ -277,12 +300,184 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
     }
 
     GenericRecord genericRecord = getGenericRecord(object);
-    String jsonString = convertGenericRecordToString(genericRecord);
-    return convertStringToGenericRecord(jsonString);
+    Schema schema = genericRecord.getSchema();
+
+    // Create a new record and copy over all the values
+    //
+    GenericRecord copy = new GenericData.Record(schema);
+
+    // We consider all the values to be primitives, not in need of clone
+    //
+    for (Schema.Field field : schema.getFields()) {
+      Object v = genericRecord.get(field.name());
+      copy.put(field.name(), v);
+    }
+
+    return copy;
   }
 
   @Override
   public Class<?> getNativeDataTypeClass() throws HopValueException {
     return GenericRecord.class;
+  }
+
+  @Override
+  public void writeMeta(DataOutputStream outputStream) throws HopFileException {
+    try {
+      // First write the basic metadata
+      //
+      super.writeMeta(outputStream);
+
+      // Also output the schema metadata in JSON format...
+      //
+      if (schema == null) {
+        outputStream.writeUTF("");
+      } else {
+        outputStream.writeUTF(schema.toString(false));
+      }
+    } catch (Exception e) {
+      throw new HopFileException("Error writing Avro Record metadata", e);
+    }
+  }
+
+  @Override
+  public void readMetaData(DataInputStream inputStream) throws HopFileException {
+    try {
+      // First read the basic type metada data
+      //
+      super.readMetaData(inputStream);
+
+      // Now read the schema JSON
+      //
+      String schemaJson = inputStream.readUTF();
+      if (StringUtils.isEmpty(schemaJson)) {
+        schema = null;
+      } else {
+        schema = new Schema.Parser().parse(schemaJson);
+      }
+    } catch (Exception e) {
+      throw new HopFileException("Error read Avro Record metadata", e);
+    }
+  }
+
+  @Override
+  public String getMetaXml() throws IOException {
+    StringBuilder xml = new StringBuilder();
+
+    xml.append(XmlHandler.openTag(XML_META_TAG));
+
+    xml.append(XmlHandler.addTagValue("type", getTypeDesc()));
+    xml.append(XmlHandler.addTagValue("storagetype", getStorageTypeCode(getStorageType())));
+
+    // Just append the schema JSON as a compressed base64 encoded string...
+    //
+    if (schema != null) {
+      xml.append(
+          XmlHandler.addTagValue(
+              "schema", HttpUtil.encodeBase64ZippedString(schema.toString(false))));
+    }
+    xml.append(XmlHandler.closeTag(XML_META_TAG));
+
+    return super.getMetaXml();
+  }
+
+  @Override
+  public void storeMetaInJson(JSONObject jValue) throws HopException {
+    // Store the absolute basics (name, type, ...)
+    super.storeMetaInJson(jValue);
+
+    // And the schema JSON (if any)
+    //
+    try {
+      if (schema != null) {
+        String schemaJson = schema.toString(false);
+        Object jSchema = new JSONParser().parse(schemaJson);
+        jValue.put("schema", jSchema);
+      }
+    } catch (Exception e) {
+      throw new HopException(
+          "Error encoding Avro schema as JSON in value metadata of field " + name, e);
+    }
+  }
+
+  @Override
+  public void loadMetaFromJson(JSONObject jValue) {
+    // Load the basic metadata
+    //
+    super.loadMetaFromJson(jValue);
+
+    // Load the schema (if any)...
+    //
+    Object jSchema = jValue.get("schema");
+    if (jSchema != null) {
+      String schemaJson = ((JSONObject) jSchema).toJSONString();
+      schema = new Schema.Parser().parse(schemaJson);
+    } else {
+      schema = null;
+    }
+  }
+
+  @Override
+  public void writeData(DataOutputStream outputStream, Object object) throws HopFileException {
+    try {
+      // Is the value NULL?
+      outputStream.writeBoolean(object == null);
+
+      if (object!=null) {
+        GenericRecord genericRecord = (GenericRecord) object;
+
+        BinaryEncoder binaryEncoder = EncoderFactory.get().directBinaryEncoder(outputStream, null);
+        GenericDatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(genericRecord.getSchema());
+        datumWriter.write(genericRecord, binaryEncoder);
+      }
+    } catch (IOException e) {
+      throw new HopFileException(this + " : Unable to write value data to output stream", e);
+    }
+  }
+
+  @Override
+  public Object readData(DataInputStream inputStream) throws HopFileException, SocketTimeoutException {
+    try {
+      // Is the value NULL?
+      if (inputStream.readBoolean()) {
+        return null; // done
+      }
+
+      // De-serialize a GenericRow object
+      //
+      if (schema==null) {
+        throw new HopFileException("An Avro schema is needed to read a GenericRecord from an input stream");
+      }
+
+      BinaryDecoder binaryDecoder = DecoderFactory.get().directBinaryDecoder(inputStream, null);
+      GenericDatumReader<GenericRecord> datumReader = new GenericDatumReader<>(schema);
+      GenericRecord genericRecord = datumReader.read(null, binaryDecoder);
+
+      return genericRecord;
+    } catch (EOFException e) {
+      throw new HopEofException(e);
+    } catch (SocketTimeoutException e) {
+      throw e;
+    } catch (IOException e) {
+      throw new HopFileException(toString() + " : Unable to read value data from input stream", e);
+    }
+  }
+
+  public Schema getSchema() {
+    return schema;
+  }
+
+  public void setSchema(Schema schema) {
+    this.schema = schema;
+  }
+
+  @Override
+  public String getComments() {
+    if (StringUtils.isEmpty(super.comments)) {
+      if (schema != null) {
+        return schema.toString(false);
+      }
+    }
+    return super.getComments();
   }
 }

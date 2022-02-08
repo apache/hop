@@ -21,6 +21,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.*;
 import org.apache.hop.core.variables.IVariables;
+import org.json.simple.JSONObject;
 import org.w3c.dom.Node;
 
 import java.io.DataInputStream;
@@ -165,6 +166,9 @@ public interface IValueMeta extends Cloneable {
 
   /** Value type indicating that the value contains a Internet address */
   int TYPE_INET = 10;
+
+  /** Value type indicating that the value contains an Avro Record */
+  int TYPE_AVRO = 20;
 
   /** The Constant typeCodes. */
   String[] typeCodes =
@@ -1257,4 +1261,16 @@ public interface IValueMeta extends Cloneable {
    * @param ignoreWhitespace true if whitespace should be ignored during string comparison
    */
   void setIgnoreWhitespace(boolean ignoreWhitespace);
+
+  /**
+   * Store the metadata of this value in the specified json object.
+   * @param jValue The object to store the metadata in.
+   */
+  void storeMetaInJson(JSONObject jValue) throws HopException;
+
+  /**
+   * Load additional metadata from the de-serialized JSON object
+   * @param jValue The json object to load value metadata from
+   */
+  void loadMetaFromJson(JSONObject jValue);
 }

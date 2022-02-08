@@ -42,21 +42,21 @@ limitations under the License.
       <note>Commit size set to 123 to check for dangling records</note>
       <xloc>192</xloc>
       <yloc>224</yloc>
-      <width>383</width>
-      <heigth>27</heigth>
+      <width>137</width>
+      <heigth>20</heigth>
       <fontname>Sans</fontname>
       <fontsize>6</fontsize>
       <fontbold>N</fontbold>
       <fontitalic>N</fontitalic>
-      <fontcolorred>0</fontcolorred>
-      <fontcolorgreen>0</fontcolorgreen>
-      <fontcolorblue>0</fontcolorblue>
+      <fontcolorred>255</fontcolorred>
+      <fontcolorgreen>255</fontcolorgreen>
+      <fontcolorblue>255</fontcolorblue>
       <backgroundcolorred>255</backgroundcolorred>
       <backgroundcolorgreen>205</backgroundcolorgreen>
       <backgroundcolorblue>112</backgroundcolorblue>
-      <bordercolorred>100</bordercolorred>
-      <bordercolorgreen>100</bordercolorgreen>
-      <bordercolorblue>100</bordercolorblue>
+      <bordercolorred>155</bordercolorred>
+      <bordercolorgreen>155</bordercolorgreen>
+      <bordercolorblue>155</bordercolorblue>
     </notepad>
   </notepads>
   <order>

@@ -51,6 +51,9 @@ public class AvroDecodeMeta extends BaseTransformMeta
   @HopMetadataProperty(key = "source_field")
   private String sourceFieldName;
 
+  @HopMetadataProperty(key = "remove_source_field")
+  private boolean removingSourceField;
+
   @HopMetadataProperty(key = "ignore_missing")
   private boolean ignoringMissingPaths;
 
@@ -59,6 +62,7 @@ public class AvroDecodeMeta extends BaseTransformMeta
 
   public AvroDecodeMeta() {
     sourceFieldName = "avro";
+    removingSourceField = true;
     ignoringMissingPaths = true;
     targetFields = new ArrayList<>();
   }
@@ -110,6 +114,14 @@ public class AvroDecodeMeta extends BaseTransformMeta
   /** @param sourceFieldName The sourceFieldName to set */
   public void setSourceFieldName(String sourceFieldName) {
     this.sourceFieldName = sourceFieldName;
+  }
+
+  public boolean isRemovingSourceField() {
+    return removingSourceField;
+  }
+
+  public void setRemovingSourceField(boolean removingSourceField) {
+    this.removingSourceField = removingSourceField;
   }
 
   /**

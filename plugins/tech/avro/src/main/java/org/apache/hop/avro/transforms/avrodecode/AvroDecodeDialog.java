@@ -20,11 +20,11 @@ package org.apache.hop.avro.transforms.avrodecode;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.hop.avro.transforms.avroinput.AvroFileInputMeta;
-import org.apache.hop.avro.type.ValueMetaAvroRecord;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
+import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
@@ -222,7 +222,15 @@ public class AvroDecodeDialog extends BaseTransformDialog implements ITransformD
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
 
+    try {
+      // Get the fields from the previous transforms:
+      wSourceField.setItems(
+          pipelineMeta.getPrevTransformFields(variables, transformMeta).getFieldNames());
+    } catch (Exception e) {
+      // Ignore exception
+    }
     wSourceField.setText(Const.NVL(input.getSourceFieldName(), ""));
+
     int rowNr = 0;
     for (TargetField targetField : input.getTargetFields()) {
       TableItem item = wFields.table.getItem(rowNr++);

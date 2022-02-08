@@ -17,15 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.kafka.producer;
 
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.kafka.clients.producer.Producer;
 
 public class KafkaProducerOutputData extends BaseTransformData implements ITransformData {
-  Producer<Object, Object> kafkaProducer;
-  int keyFieldIndex;
-  int messageFieldIndex;
-  boolean isOpen;
+    public IValueMeta keyValueMeta;
+    public IValueMeta msgValueMeta;
+    public Producer<Object, Object> kafkaProducer;
+  public int keyFieldIndex;
+  public int messageFieldIndex;
+  public boolean isOpen;
 
   public KafkaProducerOutputData() {
     super();

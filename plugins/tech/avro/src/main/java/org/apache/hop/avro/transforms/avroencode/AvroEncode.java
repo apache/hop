@@ -20,6 +20,9 @@ package org.apache.hop.avro.transforms.avroencode;
 
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.generic.IndexedRecord;
+import org.apache.avro.specific.SpecificData;
+import org.apache.avro.specific.SpecificRecord;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -64,8 +67,8 @@ public class AvroEncode extends BaseTransform<AvroEncodeMeta, AvroEncodeData>
       //
       for (SourceField field : meta.getSourceFields()) {
         int index = getInputRowMeta().indexOfValue(field.getSourceFieldName());
-        if (index<0) {
-          throw new HopException("Unable to find input field "+field.getSourceFieldName());
+        if (index < 0) {
+          throw new HopException("Unable to find input field " + field.getSourceFieldName());
         }
         IValueMeta valueMeta = getInputRowMeta().getValueMeta(index);
         data.sourceFieldIndexes.add(index);
@@ -73,7 +76,17 @@ public class AvroEncode extends BaseTransform<AvroEncodeMeta, AvroEncodeData>
 
       // Build the Avro schema.
       //
-      data.avroSchema = meta.createAvroSchema(getInputRowMeta());
+      String schemaName = resolve(meta.getSchemaName());
+      String namespace = resolve(meta.getNamespace());
+      String documentation = resolve(meta.getDocumentation());
+
+      data.avroSchema =
+          meta.createAvroSchema(
+              schemaName, namespace, documentation, getInputRowMeta(), meta.getSourceFields());
+
+      if (log.isDetailed()) {
+        log.logDetailed("Schema: " + data.avroSchema.toString(true));
+      }
     }
 
     // Create a new generic record.
@@ -82,7 +95,7 @@ public class AvroEncode extends BaseTransform<AvroEncodeMeta, AvroEncodeData>
 
     // Add the field data...
     //
-    for (int i=0;i<meta.getSourceFields().size();i++) {
+    for (int i = 0; i < meta.getSourceFields().size(); i++) {
       SourceField field = meta.getSourceFields().get(i);
       int index = data.sourceFieldIndexes.get(i);
       IValueMeta valueMeta = getInputRowMeta().getValueMeta(index);

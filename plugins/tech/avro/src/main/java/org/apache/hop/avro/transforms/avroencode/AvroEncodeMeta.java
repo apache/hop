@@ -21,12 +21,14 @@ package org.apache.hop.avro.transforms.avroencode;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
-import org.apache.hop.avro.type.ValueMetaAvroRecord;
-import org.apache.hop.core.Const;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -54,12 +56,20 @@ public class AvroEncodeMeta extends BaseTransformMeta
   @HopMetadataProperty(key = "output_field")
   private String outputFieldName;
 
+  @HopMetadataProperty(key = "schema_name")
+  private String schemaName;
+
+  @HopMetadataProperty private String namespace;
+
+  @HopMetadataProperty private String documentation;
+
   @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<SourceField> sourceFields;
 
   public AvroEncodeMeta() {
     outputFieldName = "avro";
     sourceFields = new ArrayList<>();
+    schemaName = "hop-schema";
   }
 
   @Override
@@ -69,14 +79,40 @@ public class AvroEncodeMeta extends BaseTransformMeta
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider) {
-    ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord(variables.resolve(outputFieldName));
-    rowMeta.addValueMeta(valueMeta);
+      IHopMetadataProvider metadataProvider) throws HopTransformException {
+
+    try {
+      Schema schema =
+          createAvroSchema(
+              variables.resolve(getSchemaName()),
+              variables.resolve(getNamespace()),
+              variables.resolve(getDocumentation()),
+              rowMeta,
+              sourceFields);
+      ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord(variables.resolve(outputFieldName), schema);
+      rowMeta.addValueMeta(valueMeta);
+    } catch (Exception e) {
+      throw new HopTransformException(
+          "Error creating Avro schema and/or determining output field layout", e);
+    }
   }
 
-  public Schema createAvroSchema(IRowMeta inputRowMeta) throws HopException {
-    SchemaBuilder.FieldAssembler<Schema> fieldAssembler =
-        SchemaBuilder.record("ApacheHopParquetSchema").fields();
+  public static Schema createAvroSchema(
+      String name,
+      String namespace,
+      String doc,
+      IRowMeta inputRowMeta,
+      List<SourceField> sourceFields)
+      throws HopException {
+    SchemaBuilder.RecordBuilder<Schema> recordBuilder = SchemaBuilder.record(name);
+    if (StringUtils.isNotEmpty(namespace)) {
+      recordBuilder = recordBuilder.namespace(namespace);
+    }
+    if (StringUtils.isNotEmpty(doc)) {
+      recordBuilder.doc(doc);
+    }
+
+    SchemaBuilder.FieldAssembler<Schema> fieldAssembler = recordBuilder.fields();
 
     for (SourceField field : sourceFields) {
       int index = inputRowMeta.indexOfValue(field.getSourceFieldName());
@@ -93,6 +129,7 @@ public class AvroEncodeMeta extends BaseTransformMeta
       //
       switch (valueMeta.getType()) {
         case IValueMeta.TYPE_DATE:
+          fieldAssembler = fieldBuilder.longType().noDefault();
           Schema timestampMilliType =
               LogicalTypes.timestampMillis().addToSchema(Schema.create(Schema.Type.LONG));
           fieldAssembler =
@@ -164,5 +201,29 @@ public class AvroEncodeMeta extends BaseTransformMeta
 
   public void setSourceFields(List<SourceField> sourceFields) {
     this.sourceFields = sourceFields;
+  }
+
+  public String getSchemaName() {
+    return schemaName;
+  }
+
+  public void setSchemaName(String schemaName) {
+    this.schemaName = schemaName;
+  }
+
+  public String getNamespace() {
+    return namespace;
+  }
+
+  public void setNamespace(String namespace) {
+    this.namespace = namespace;
+  }
+
+  public String getDocumentation() {
+    return documentation;
+  }
+
+  public void setDocumentation(String documentation) {
+    this.documentation = documentation;
   }
 }

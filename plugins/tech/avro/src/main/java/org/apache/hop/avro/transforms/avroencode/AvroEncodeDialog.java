@@ -30,6 +30,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -42,7 +43,10 @@ public class AvroEncodeDialog extends BaseTransformDialog implements ITransformD
 
   private AvroEncodeMeta input;
 
-  private Combo wOutputField;
+  private TextVar wOutputField;
+  private TextVar wSchemaName;
+  private TextVar wNamespace;
+  private TextVar wDocumentation;
   private TableView wFields;
 
   public AvroEncodeDialog(
@@ -114,7 +118,7 @@ public class AvroEncodeDialog extends BaseTransformDialog implements ITransformD
     fdlOutputField.right = new FormAttachment(middle, -margin);
     fdlOutputField.top = new FormAttachment(lastControl, margin);
     wlOutputField.setLayoutData(fdlOutputField);
-    wOutputField = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wOutputField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wOutputField.setText(transformName);
     props.setLook(wOutputField);
     FormData fdOutputField = new FormData();
@@ -124,6 +128,60 @@ public class AvroEncodeDialog extends BaseTransformDialog implements ITransformD
     wOutputField.setLayoutData(fdOutputField);
     lastControl = wOutputField;
 
+    Label wlSchemaName = new Label(shell, SWT.RIGHT);
+    wlSchemaName.setText(BaseMessages.getString(PKG, "AvroEncodeDialog.SchemaName.Label"));
+    props.setLook(wlSchemaName);
+    FormData fdlSchemaName = new FormData();
+    fdlSchemaName.left = new FormAttachment(0, 0);
+    fdlSchemaName.right = new FormAttachment(middle, -margin);
+    fdlSchemaName.top = new FormAttachment(lastControl, margin);
+    wlSchemaName.setLayoutData(fdlSchemaName);
+    wSchemaName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSchemaName.setText(transformName);
+    props.setLook(wSchemaName);
+    FormData fdSchemaName = new FormData();
+    fdSchemaName.left = new FormAttachment(middle, 0);
+    fdSchemaName.top = new FormAttachment(wlSchemaName, 0, SWT.CENTER);
+    fdSchemaName.right = new FormAttachment(100, 0);
+    wSchemaName.setLayoutData(fdSchemaName);
+    lastControl = wSchemaName;
+
+    Label wlNamespace = new Label(shell, SWT.RIGHT);
+    wlNamespace.setText(BaseMessages.getString(PKG, "AvroEncodeDialog.Namespace.Label"));
+    props.setLook(wlNamespace);
+    FormData fdlNamespace = new FormData();
+    fdlNamespace.left = new FormAttachment(0, 0);
+    fdlNamespace.right = new FormAttachment(middle, -margin);
+    fdlNamespace.top = new FormAttachment(lastControl, margin);
+    wlNamespace.setLayoutData(fdlNamespace);
+    wNamespace = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wNamespace.setText(transformName);
+    props.setLook(wNamespace);
+    FormData fdNamespace = new FormData();
+    fdNamespace.left = new FormAttachment(middle, 0);
+    fdNamespace.top = new FormAttachment(wlNamespace, 0, SWT.CENTER);
+    fdNamespace.right = new FormAttachment(100, 0);
+    wNamespace.setLayoutData(fdNamespace);
+    lastControl = wNamespace;
+
+    Label wlDocumentation = new Label(shell, SWT.RIGHT);
+    wlDocumentation.setText(BaseMessages.getString(PKG, "AvroEncodeDialog.Documentation.Label"));
+    props.setLook(wlDocumentation);
+    FormData fdlDocumentation = new FormData();
+    fdlDocumentation.left = new FormAttachment(0, 0);
+    fdlDocumentation.right = new FormAttachment(middle, -margin);
+    fdlDocumentation.top = new FormAttachment(lastControl, margin);
+    wlDocumentation.setLayoutData(fdlDocumentation);
+    wDocumentation = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wDocumentation.setText(transformName);
+    props.setLook(wDocumentation);
+    FormData fdDocumentation = new FormData();
+    fdDocumentation.left = new FormAttachment(middle, 0);
+    fdDocumentation.top = new FormAttachment(wlDocumentation, 0, SWT.CENTER);
+    fdDocumentation.right = new FormAttachment(100, 0);
+    wDocumentation.setLayoutData(fdDocumentation);
+    lastControl = wDocumentation;
+    
     Label wlFields = new Label(shell, SWT.RIGHT);
     wlFields.setText(BaseMessages.getString(PKG, "AvroEncodeDialog.Fields.Label"));
     props.setLook(wlFields);
@@ -176,6 +234,10 @@ public class AvroEncodeDialog extends BaseTransformDialog implements ITransformD
   public void getData() {
 
     wOutputField.setText(Const.NVL(input.getOutputFieldName(), ""));
+    wSchemaName.setText(Const.NVL(input.getSchemaName(), ""));
+    wNamespace.setText(Const.NVL(input.getNamespace(), ""));
+    wDocumentation.setText(Const.NVL(input.getDocumentation(), ""));
+
     int rowNr = 0;
     for (SourceField sourceField : input.getSourceFields()) {
       TableItem item = wFields.table.getItem(rowNr++);
@@ -199,6 +261,10 @@ public class AvroEncodeDialog extends BaseTransformDialog implements ITransformD
     }
 
     input.setOutputFieldName(wOutputField.getText());
+    input.setSchemaName(wSchemaName.getText());
+    input.setNamespace(wNamespace.getText());
+    input.setDocumentation(wDocumentation.getText());
+
     input.getSourceFields().clear();
     for (TableItem item : wFields.getNonEmptyItems()) {
       int col = 1;

@@ -214,7 +214,6 @@
         <include>joda-time:joda-time</include>
         <include>net.razorvine:pyrolite</include>
         <include>net.sf.py4j:py4j</include>
-        <include>org.apache.avro:avro</include>
         <include>org.apache.avro:avro-ipc</include>
         <include>org.apache.avro:avro-mapred</include>
         <include>org.apache.beam:beam-model-fn-execution</include>

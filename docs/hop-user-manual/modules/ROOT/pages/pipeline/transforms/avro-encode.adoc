@@ -1,0 +1,62 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Avro Encode transform allows you to encode a new Avro field using a selection of Hop fields.
+
+= Avro Encode
+
+== Description
+
+The Avro Encode transform allows you to encode a new Avro field using a selection of Hop fields.
+
+== Options
+
+[width="90%",options="header"]
+|===
+
+|Option
+|Description
+
+|Transform name
+|Name of the transform.
+Note: This name has to be unique in a single pipeline.
+
+|Output field name
+|Choose a name for the Avro Record output field.
+
+|Schema name
+|The name of the schema included in the output Avro record
+
+|Namespace
+|An optional schema namespace
+
+|Documentation
+|An optional schema documentation (doc) element
+
+|The fields to encode in a generic Avro record:
+|You can specify the names of the Hop input fields to be included in the output Avro record field.
+Optionally you can store the values under a different name (key) in the Avro record.
+
+|Get fields button
+|You can use the "Get fields" button to retrieve the fields to be included in the Avro record.
+
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection.

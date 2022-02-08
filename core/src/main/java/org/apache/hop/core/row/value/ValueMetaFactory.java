@@ -17,11 +17,16 @@
 
 package org.apache.hop.core.row.value;
 
+import org.apache.hop.core.exception.HopEofException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
+import org.json.simple.JSONObject;
 
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -210,5 +215,27 @@ public class ValueMetaFactory {
     }
     // ask someone else
     return null;
+  }
+
+  public static IValueMeta loadValueMetaFromJson(JSONObject jValue) throws HopPluginException {
+    String name = (String) jValue.get("name");
+    long type = (long)jValue.get("type");
+
+    IValueMeta valueMeta = ValueMetaFactory.createValueMeta(name, (int) type);
+    valueMeta.loadMetaFromJson(jValue);
+    return valueMeta;
+  }
+
+  public static IValueMeta loadValueMeta(DataInputStream inputStream) throws HopFileException {
+    try {
+      int type = inputStream.readInt();
+      IValueMeta valueMeta = createValueMeta(type);
+      valueMeta.readMetaData(inputStream);
+      return valueMeta;
+    } catch (EOFException e) {
+      throw new HopEofException(e);
+    } catch (Exception e) {
+      throw new HopFileException("Unable to read value metadata from input stream", e);
+    }
   }
 }

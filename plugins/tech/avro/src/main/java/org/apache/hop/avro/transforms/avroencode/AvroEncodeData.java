@@ -19,7 +19,6 @@
 package org.apache.hop.avro.transforms.avroencode;
 
 import org.apache.avro.Schema;
-import org.apache.hop.avro.type.ValueMetaAvroRecord;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
