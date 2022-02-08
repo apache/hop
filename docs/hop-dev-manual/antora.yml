@@ -17,6 +17,7 @@
 
 name: dev-manual
 title: Development Documentation
-version: 0
+version: 1.2.0
+prerelease: true
 nav:
   - modules/ROOT/nav.adoc
