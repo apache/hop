@@ -33,7 +33,7 @@
   <name>Hop Plugins Transforms Apache Tika</name>
 
   <properties>
-    <tika.version>2.1.0</tika.version>
+    <tika.version>2.3.0</tika.version>
   </properties>
 
   <dependencies>
