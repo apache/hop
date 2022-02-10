@@ -127,6 +127,8 @@
         <google-api-client.version>1.31.1</google-api-client.version>
         <guava.version>31.0.1-jre</guava.version>
         <encoder.version>1.2</encoder.version>
+        <httpclient.version>4.5.13</httpclient.version>
+        <httpccore.version>4.4.13</httpccore.version>
 
         <!-- Test dependencies -->
         <mockito-all.version>1.10.19</mockito-all.version>
