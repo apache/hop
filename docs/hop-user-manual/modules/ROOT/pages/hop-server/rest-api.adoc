@@ -74,6 +74,7 @@ example request::
 `+http://localhost:8081/hop/addPipeline/xml=Y+` with XML payload
 
 result::
+- 
 
 == addWorkflow
 
