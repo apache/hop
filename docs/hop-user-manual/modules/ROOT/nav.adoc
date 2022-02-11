@@ -41,6 +41,10 @@ under the License.
 ** xref:pipeline/run-preview-debug-pipeline.adoc[Run, Preview and Debug a Pipeline]
 ** xref:pipeline/errorhandling.adoc[Error Handling]
 ** xref:pipeline/beam/getting-started-with-beam.adoc[Getting started with Apache Beam]
+*** xref:pipeline/beam/running-the-beam-samples.adoc[Running the Beam samples]
+**** xref:pipeline/beam/beam-samples-direct-runner.adoc[Direct Runner]
+**** xref:pipeline/beam/beam-samples-flink.adoc[Apache Flink]
+**** xref:pipeline/beam/beam-samples-spark.adoc[Apache Spark]
 ** xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline Run Configurations]
 *** xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Beam Google DataFlow]
 *** xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Beam Direct]
@@ -52,7 +56,6 @@ under the License.
 ** xref:pipeline/metadata-injection.adoc[Metadata Injection]
 ** xref:pipeline/partitioning.adoc[Partitioning]
 ** xref:pipeline/transforms.adoc[Transforms]
-
 *** xref:pipeline/transforms/abort.adoc[Abort]
 *** xref:pipeline/transforms/addchecksum.adoc[Add a checksum]
 *** xref:pipeline/transforms/addconstant.adoc[Add Constants]
