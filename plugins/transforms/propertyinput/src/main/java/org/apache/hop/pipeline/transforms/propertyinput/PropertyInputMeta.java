@@ -759,8 +759,8 @@ public class PropertyInputMeta extends BaseTransformMeta
     rowNumberField = "";
     dynamicFilenameField = "";
 
-    int nrFiles = 1;
-    int nrFields = 1;
+    int nrFiles = 0;
+    int nrFields = 0;
 
     allocate(nrFiles, nrFields);
 
