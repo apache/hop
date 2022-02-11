@@ -19,10 +19,12 @@ package org.apache.hop.avro.transforms.avrodecode;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.avro.transforms.avroinput.AvroFileInputMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -290,102 +292,131 @@ public class AvroDecodeDialog extends BaseTransformDialog implements ITransformD
 
   private void getFields() {
     try {
-      String filename =
-          BaseDialog.presentFileDialog(
-              shell,
-              new String[] {"*.avro", "*.*"},
-              new String[] {"Avro files", "All files"},
-              true);
-      if (filename != null) {
-        // Read the file
-        // Grab the schema
-        // Add all the fields to wFields
-        //
-        PipelineMeta pipelineMeta = new PipelineMeta();
-        pipelineMeta.setName("Get Avro file details");
 
-        // We'll inject the filename to minimize dependencies
-        //
-        InjectorMeta injector = new InjectorMeta();
-        injector.getInjectorFields().add(new InjectorField("filename", "String", "500", "-1"));
-        TransformMeta injectorMeta = new TransformMeta("Filename", injector);
-        injectorMeta.setLocation(50, 50);
-        pipelineMeta.addTransform(injectorMeta);
+      Map<String, Schema.Field> fieldsMap = new HashMap<>();
 
-        // The Avro File Input transform
-        //
-        AvroFileInputMeta fileInput = new AvroFileInputMeta();
-        fileInput.setDataFilenameField("filename");
-        fileInput.setOutputFieldName("avro");
-        fileInput.setRowsLimit("1");
-        TransformMeta fileInputMeta = new TransformMeta("Avro", fileInput);
-        fileInputMeta.setLocation(250, 50);
-        pipelineMeta.addTransform(fileInputMeta);
-        pipelineMeta.addPipelineHop(new PipelineHopMeta(injectorMeta, fileInputMeta));
+      // If we have a source field name we can see if it's an Avro Record type with a schema...
+      //
+      String fieldName = wSourceField.getText();
+      if (StringUtils.isNotEmpty(fieldName)) {
+        IRowMeta fields = pipelineMeta.getPrevTransformFields(variables, transformName);
+        IValueMeta valueMeta = fields.searchValueMeta(fieldName);
+        if (valueMeta != null && valueMeta.getType() == IValueMeta.TYPE_AVRO) {
+          Schema schema = ((ValueMetaAvroRecord) valueMeta).getSchema();
+          if (schema != null) {
+            for (Schema.Field field : schema.getFields()) {
+              fieldsMap.put(field.name(), field);
+            }
+          }
+        }
+      }
 
-        LocalPipelineEngine pipeline =
-            new LocalPipelineEngine(pipelineMeta, variables, loggingObject);
-        pipeline.setMetadataProvider(metadataProvider);
-        pipeline.prepareExecution();
-        pipeline.setPreview(true);
+      // If there's no metadata in the fields map, ask for an Avro field to get the schema from
+      //
+      if (fieldsMap.isEmpty()) {
+        String filename =
+            BaseDialog.presentFileDialog(
+                shell,
+                new String[] {"*.avro", "*.*"},
+                new String[] {"Avro files", "All files"},
+                true);
+        if (filename != null) {
+          // Read the file
+          // Grab the schema
+          // Add all the fields to wFields
+          //
+          PipelineMeta pipelineMeta = new PipelineMeta();
+          pipelineMeta.setName("Get Avro file details");
 
-        RowProducer rowProducer = pipeline.addRowProducer("Filename", 0);
+          // We'll inject the filename to minimize dependencies
+          //
+          InjectorMeta injector = new InjectorMeta();
+          injector.getInjectorFields().add(new InjectorField("filename", "String", "500", "-1"));
+          TransformMeta injectorMeta = new TransformMeta("Filename", injector);
+          injectorMeta.setLocation(50, 50);
+          pipelineMeta.addTransform(injectorMeta);
 
-        IEngineComponent avroComponent = pipeline.findComponent("Avro", 0);
-        Map<String, Schema.Field> fieldsMap = new HashMap<>();
+          // The Avro File Input transform
+          //
+          AvroFileInputMeta fileInput = new AvroFileInputMeta();
+          fileInput.setDataFilenameField("filename");
+          fileInput.setOutputFieldName("avro");
+          fileInput.setRowsLimit("1");
+          TransformMeta fileInputMeta = new TransformMeta("Avro", fileInput);
+          fileInputMeta.setLocation(250, 50);
+          pipelineMeta.addTransform(fileInputMeta);
+          pipelineMeta.addPipelineHop(new PipelineHopMeta(injectorMeta, fileInputMeta));
 
-        avroComponent.addRowListener(
-            new RowAdapter() {
-              private boolean first = true;
+          LocalPipelineEngine pipeline =
+              new LocalPipelineEngine(pipelineMeta, variables, loggingObject);
+          pipeline.setMetadataProvider(metadataProvider);
+          pipeline.prepareExecution();
+          pipeline.setPreview(true);
 
-              @Override
-              public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
-                  throws HopTransformException {
-                if (first) {
-                  first = false;
+          RowProducer rowProducer = pipeline.addRowProducer("Filename", 0);
 
-                  int index = rowMeta.indexOfValue("avro");
-                  ValueMetaAvroRecord avroMeta = (ValueMetaAvroRecord) rowMeta.getValueMeta(index);
-                  Object avroValue = row[index];
+          IEngineComponent avroComponent = pipeline.findComponent("Avro", 0);
 
-                  try {
-                    GenericRecord genericRecord = avroMeta.getGenericRecord(avroValue);
-                    Schema schema = genericRecord.getSchema();
-                    List<Schema.Field> fields = schema.getFields();
-                    for (Schema.Field field : fields) {
-                      fieldsMap.put(field.name(), field);
+          avroComponent.addRowListener(
+              new RowAdapter() {
+                private boolean first = true;
+
+                @Override
+                public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
+                    throws HopTransformException {
+                  if (first) {
+                    first = false;
+
+                    int index = rowMeta.indexOfValue("avro");
+                    ValueMetaAvroRecord avroMeta =
+                        (ValueMetaAvroRecord) rowMeta.getValueMeta(index);
+                    Object avroValue = row[index];
+
+                    try {
+                      GenericRecord genericRecord = avroMeta.getGenericRecord(avroValue);
+                      Schema schema = genericRecord.getSchema();
+                      List<Schema.Field> fields = schema.getFields();
+                      for (Schema.Field field : fields) {
+                        fieldsMap.put(field.name(), field);
+                      }
+                    } catch (Exception e) {
+                      throw new HopTransformException(e);
                     }
-                  } catch (Exception e) {
-                    throw new HopTransformException(e);
                   }
                 }
-              }
-            });
+              });
 
-        pipeline.startThreads();
-        rowProducer.putRow(
-            new RowMetaBuilder().addString("filename").build(),
-            new Object[] {variables.resolve(filename)});
-        rowProducer.finished();
+          pipeline.startThreads();
+          rowProducer.putRow(
+              new RowMetaBuilder().addString("filename").build(),
+              new Object[] {variables.resolve(filename)});
+          rowProducer.finished();
 
-        pipeline.waitUntilFinished();
-
-        List<String> names = new ArrayList<>(fieldsMap.keySet());
-        Collections.sort(names, Comparator.comparing(String::toLowerCase));
-        for (String name : names) {
-          Schema.Field field = fieldsMap.get(name);
-          String typeDesc = StringUtil.initCap(field.schema().getType().name().toLowerCase());
-          int hopType = AvroDecode.getStandardHopType(field);
-          String hopTypeDesc = ValueMetaFactory.getValueMetaName(hopType);
-
-          TableItem item = new TableItem(wFields.table, SWT.NONE);
-          item.setText(1, Const.NVL(field.name(), ""));
-          item.setText(2, typeDesc);
-          item.setText(3, Const.NVL(field.name(), ""));
-          item.setText(4, hopTypeDesc);
+          pipeline.waitUntilFinished();
         }
-        wFields.optimizeTableView();
       }
+
+      if (fieldsMap.isEmpty()) {
+        // Sorry, we can't do anything...
+        return;
+      }
+
+      List<String> names = new ArrayList<>(fieldsMap.keySet());
+      names.sort(Comparator.comparing(String::toLowerCase));
+      for (String name : names) {
+        Schema.Field field = fieldsMap.get(name);
+        String typeDesc = StringUtil.initCap(field.schema().getType().name().toLowerCase());
+        int hopType = AvroDecode.getStandardHopType(field);
+        String hopTypeDesc = ValueMetaFactory.getValueMetaName(hopType);
+
+        TableItem item = new TableItem(wFields.table, SWT.NONE);
+        item.setText(1, Const.NVL(field.name(), ""));
+        item.setText(2, typeDesc);
+        item.setText(3, Const.NVL(field.name(), ""));
+        item.setText(4, hopTypeDesc);
+      }
+      wFields.optimizeTableView();
+
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error getting fields", e);
     }

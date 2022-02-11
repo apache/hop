@@ -480,4 +480,18 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
     }
     return super.getComments();
   }
+
+  /**
+   * Try to get an Integer from an Avro value
+   * @param object
+   * @return
+   * @throws HopValueException
+   */
+  @Override
+  public Long getInteger(Object object) throws HopValueException {
+
+
+
+    return super.getInteger(object);
+  }
 }

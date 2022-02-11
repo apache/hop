@@ -22,7 +22,7 @@ under the License.
 
 == Description
 
-The Avro Encode transform allows you to encode a new Avro field using a selection of Hop fields.
+The Avro Encode transform allows you to encode a new Avro Record field using a selection of Hop fields.   The Avro schema will be part of the value metadata for this Avro Record field.
 
 == Options
 
