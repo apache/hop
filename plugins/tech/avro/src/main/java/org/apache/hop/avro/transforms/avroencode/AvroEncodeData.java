@@ -13,33 +13,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.hop.pipeline.transforms.kafka.consumer;
+package org.apache.hop.avro.transforms.avroencode;
 
-import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.Schema;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.RowProducer;
-import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.kafka.clients.consumer.Consumer;
 
 import java.util.List;
 
-public class KafkaConsumerInputData extends BaseTransformData implements ITransformData {
+public class AvroEncodeData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
-  public Consumer<Object, Object> consumer;
-  public int batchDuration;
-  public int batchSize;
-  public RowProducer rowProducer;
-  public SingleThreadedPipelineExecutor executor;
-  public boolean isKafkaConsumerClosing;
-  public List<Object[]> incomingRowsBuffer;
+  public List<Integer> sourceFieldIndexes;
+  public Schema avroSchema;
 
-
-  /** */
-  public KafkaConsumerInputData() {
-    super();
-  }
+  public AvroEncodeData() {}
 }

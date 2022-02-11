@@ -137,6 +137,8 @@ public class PropsUi extends Props {
             "org.eclipse.swt.internal.win32.ToolBar.backgroundColor",
             new Color(display, 0xD0, 0xD0, 0xD0));
         display.setData("org.eclipse.swt.internal.win32.ProgressBar.useColors", true);
+      } else {
+        setOSLookShown(true);
       }
     } else {
       if (!EnvironmentUtils.getInstance().isWeb()) {

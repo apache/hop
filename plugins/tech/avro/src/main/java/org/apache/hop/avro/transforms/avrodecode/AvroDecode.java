@@ -22,10 +22,10 @@ import org.apache.avro.generic.GenericContainer;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
-import org.apache.hop.avro.type.ValueMetaAvroRecord;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -112,6 +112,26 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData>
 
   public static final int getStandardHopType(Schema.Field field) throws HopException {
     Schema.Type type = field.schema().getType();
+    int basicType = getBasicType(type);
+    if (basicType != 0) {
+      return basicType;
+    }
+    if (type == Schema.Type.UNION) {
+      // Often we have a union of a type and "null"
+      for (Schema subType : field.schema().getTypes()) {
+        if (subType.getType() != Schema.Type.NULL) {
+          basicType = getBasicType(subType.getType());
+          if (basicType != 0) {
+            return basicType;
+          }
+        }
+      }
+    }
+
+    throw new HopException("Schema type '" + type + " isn't handled");
+  }
+
+  private static int getBasicType(Schema.Type type) {
     switch (type) {
       case BYTES:
         return IValueMeta.TYPE_BINARY;
@@ -123,16 +143,14 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData>
         return IValueMeta.TYPE_NUMBER;
       case BOOLEAN:
         return IValueMeta.TYPE_BOOLEAN;
-      case NULL:
       case STRING:
       case RECORD:
       case ARRAY:
       case MAP:
-      case UNION:
       case FIXED:
         return IValueMeta.TYPE_STRING;
       default:
-        throw new HopException("Schema type '" + type + " isn't handled");
+        return IValueMeta.TYPE_NONE;
     }
   }
 
@@ -182,7 +200,17 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData>
         case UNION:
           // This value can be a set of possible values...
           //
-          hopValue = avroValue.toString();
+          if (avroValue instanceof Long
+              || avroValue instanceof Double
+              || avroValue instanceof String
+              || avroValue instanceof Boolean
+              || avroValue instanceof byte[]) {
+            hopValue = avroValue;
+          } else if (avroValue instanceof Integer) {
+            hopValue = Integer.valueOf((int) avroValue).longValue();
+          } else {
+            hopValue = avroValue.toString();
+          }
           break;
         case FIXED:
           GenericContainer container = (GenericContainer) avroValue;

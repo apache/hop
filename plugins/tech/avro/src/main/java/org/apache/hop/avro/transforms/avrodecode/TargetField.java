@@ -100,7 +100,7 @@ public class TargetField {
   }
 
   public IValueMeta createTargetValueMeta(IVariables variables) throws HopException {
-    String name = variables.resolve(targetFieldName);
+    String name = variables.resolve(Const.NVL(targetFieldName, sourceField));
     int type = ValueMetaFactory.getIdForValueMeta(variables.resolve(targetType));
     int length = Const.toInt(variables.resolve(targetLength), -1);
     int precision = Const.toInt(variables.resolve(targetPrecision), -1);

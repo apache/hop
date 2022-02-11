@@ -49,11 +49,7 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro</artifactId>
-            <version>${avro.version}</version>
-        </dependency>
+
 
         <dependency>
             <groupId>junit</groupId>

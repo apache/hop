@@ -753,7 +753,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
             false,
             lsMod,
             props,
-            false,
+            true,
             lsFocusInTopic);
 
     topicsTable.setSortable(false);

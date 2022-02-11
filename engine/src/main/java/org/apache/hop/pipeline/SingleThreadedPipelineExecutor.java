@@ -50,13 +50,12 @@ public class SingleThreadedPipelineExecutor {
     initializeObject(pipeline, handleExceptionsExternally);
   }
 
-  public void initializeObject(final Pipeline pipeline, boolean handleExceptionsExternally ) {
+  public void initializeObject(final Pipeline pipeline, boolean handleExceptionsExternally) {
 
     this.pipeline = pipeline;
     this.handleExceptionsExternally = handleExceptionsExternally;
     this.log = pipeline.getLogChannel();
     transforms = pipeline.getTransforms();
-
 
     sortTransforms();
 
@@ -67,12 +66,12 @@ public class SingleThreadedPipelineExecutor {
     transformInfoRowSets = new ArrayList<>();
     for (TransformMetaDataCombi combi : transforms) {
       List<IStream> infoStreams =
-              combi.transformMeta.getTransform().getTransformIOMeta().getInfoStreams();
+          combi.transformMeta.getTransform().getTransformIOMeta().getInfoStreams();
       transformInfoStreams.add(infoStreams);
       List<IRowSet> infoRowSets = new ArrayList<>();
       for (IStream infoStream : infoStreams) {
         IRowSet infoRowSet =
-                pipeline.findRowSet(infoStream.getTransformName(), 0, combi.transformName, 0);
+            pipeline.findRowSet(infoStream.getTransformName(), 0, combi.transformName, 0);
         if (infoRowSet != null) {
           infoRowSets.add(infoRowSet);
         }
@@ -382,10 +381,11 @@ public class SingleThreadedPipelineExecutor {
       }
     } catch (Exception e) {
       if (handleExceptionsExternally) {
-        log.logDebug("An exception was raised during a transform's execution: " + inProcessCombi.transformName);
+        log.logDebug(
+            "An exception was raised during a transform's execution: "
+                + inProcessCombi.transformName);
         this.exceptionsRaisedCounter += 1;
-      } else
-        throw new HopException();
+      } else throw new HopException("Error performing an iteration in a single threaded pipeline", e);
     }
     return nrDone < transforms.size() && !pipeline.isStopped();
   }
