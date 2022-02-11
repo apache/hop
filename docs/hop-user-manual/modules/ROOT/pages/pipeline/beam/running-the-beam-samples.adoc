@@ -16,7 +16,7 @@ under the License.
 ////
 [[RunningTheBeamSamples]]
 :imagesdir: ../assets/images
-:description: Follow the instruction on this page to set up a minimal installation to run the Apache Hop samples for the Apache Beam run configurations for Apache Spark, Apache Beam and Google Cloud Dataflow.
+:description: Follow the instruction on this page to set up a minimal installation to run the Apache Hop samples for the Apache Beam run configurations for Apache Spark, Apache Flink and Google Cloud Dataflow.
 
 :toc:
 
@@ -26,7 +26,7 @@ under the License.
 
 The steps on this page and the detail pages for Spark, Flink and Google Dataflow will set up everything you need to run the pipelines in the Hop samples project.
 
-=== Java and Scala
+=== Java
 
 You'll already have Java installed to run Apache Hop.
 
@@ -41,15 +41,6 @@ Double-check your java version with the `java -version` command. Your output sho
 openjdk version "1.8.0_312"
 OpenJDK Runtime Environment (build 1.8.0_312-b10)
 OpenJDK 64-Bit Server VM (build 25.312-b10, mixed mode)
-----
-
-Download and install scala, either through the https://www.scala-lang.org/download/[download page] or through your favorite package manager. Since Scala is built on top of Java, you'll need a Java 8 compatible version for Scala too. Check the https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html[JDK compatibility page]. You should be good to go with Scala versions up to 2.13.
-
-Check your scala version with the `scala -version` command. Your output should look similar to the one below.
-
-[source, shell]
-----
-Scala code runner version 2.13.7-20211220-212922-unknown -- Copyright 2002-2021, LAMP/EPFL and Lightbend, Inc.
 ----
 
 === the samples project
