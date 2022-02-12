@@ -18,37 +18,37 @@
 
 package org.apache.hop.vfs.dropbox;
 
-import com.dropbox.core.DbxException;
-import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.*;
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.vfs2.FileNotFoundException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
-
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import com.dropbox.core.DbxException;
+import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.ListFolderResult;
+import com.dropbox.core.v2.files.Metadata;
+import com.dropbox.core.v2.files.UploadUploader;
 
 /** An dropbox file object. */
 public class DropboxFileObject extends AbstractFileObject<DropboxFileSystem> {
 
   private final DbxClientV2 client;
-  private long size;
-  private long lastModified;
+  private Metadata metadata;
 
   protected DropboxFileObject(final AbstractFileName name, final DropboxFileSystem fileSystem)
       throws FileSystemException {
     super(name, fileSystem);
 
     this.client = fileSystem.getClient();
-    this.size = 0;
-    this.lastModified = 0;
     this.injectType(FileType.IMAGINARY);
   }
 
@@ -58,6 +58,15 @@ public class DropboxFileObject extends AbstractFileObject<DropboxFileSystem> {
       // If root folder
       if (this.getParent() == null) {
         this.injectType(FileType.FOLDER);
+        return;
+      }
+      if (this.metadata == null) {
+        try {
+          String path = this.getName().getPath();
+          this.metadata = client.files().getMetadata(path);
+        } catch (DbxException e) {
+          // Ignore
+        }
       }
     }
   }
@@ -65,14 +74,18 @@ public class DropboxFileObject extends AbstractFileObject<DropboxFileSystem> {
   @Override
   protected void doDetach() throws FileSystemException {
     synchronized (getFileSystem()) {
-      this.size = 0;
-      this.lastModified = 0;
+      this.metadata = null;
     }
   }
 
   @Override
   protected FileType doGetType() throws Exception {
-    return this.getName().isFile() ? FileType.FILE : FileType.FOLDER;
+    synchronized (getFileSystem()) {
+      if (metadata == null) {
+        return FileType.IMAGINARY;
+      }
+      return (metadata instanceof FileMetadata) ? FileType.FILE : FileType.FOLDER;
+    }
   }
 
   /** Fetches the children of this folder. */
@@ -82,7 +95,8 @@ public class DropboxFileObject extends AbstractFileObject<DropboxFileSystem> {
       String path = this.getName().getPath();
 
       // Root path should be empty
-      if ("/".equals(path)) path = "";
+      if ("/".equals(path))
+        path = "";
 
       ListFolderResult result = client.files().listFolder(path);
       while (true) {
@@ -94,7 +108,7 @@ public class DropboxFileObject extends AbstractFileObject<DropboxFileSystem> {
         result = this.client.files().listFolderContinue(result.getCursor());
       }
     } catch (DbxException e) {
-      throw new FileSystemException("Error find childrens of folder ", this.getName());
+      throw new FileSystemException("vfs.provider/list-children.error", this.getName(), e);
     }
 
     return childrens;
@@ -110,18 +124,8 @@ public class DropboxFileObject extends AbstractFileObject<DropboxFileSystem> {
       DropboxFileObject file =
           (DropboxFileObject) fileSystem.resolveFile(metadata.getPathDisplay());
       if (file != null) {
-
         // Sets the metadata for this file object.
-        if (metadata instanceof FileMetadata) {
-          FileMetadata fileMetadata = (FileMetadata) metadata;
-          file.injectType(FileType.FILE);
-          file.lastModified = fileMetadata.getClientModified().getTime();
-          file.size = fileMetadata.getSize();
-        } else if (metadata instanceof FolderMetadata) {
-          file.injectType(FileType.FOLDER);
-          file.size = 0;
-          file.lastModified = 0;
-        }
+        file.metadata = metadata;
         result[i++] = file;
       }
     }
@@ -136,37 +140,37 @@ public class DropboxFileObject extends AbstractFileObject<DropboxFileSystem> {
 
   @Override
   protected void doDelete() throws Exception {
-    synchronized (getFileSystem()) {
-      String path = this.getName().getPath();
-      client.files().deleteV2(path);
-    }
+    String path = this.getName().getPath();
+    client.files().deleteV2(path);
   }
 
   @Override
   protected void doRename(FileObject newFile) throws Exception {
-    synchronized (getFileSystem()) {
-      String fromPath = this.getName().getPath();
-      String toPath = newFile.getName().getPath();
-      client.files().moveV2(fromPath, toPath);
-    }
+    String fromPath = this.getName().getPath();
+    String toPath = newFile.getName().getPath();
+    client.files().moveV2(fromPath, toPath);
   }
 
   @Override
   protected void doCreateFolder() throws Exception {
-    synchronized (getFileSystem()) {
-      String path = this.getName().getPath();
-      client.files().createFolderV2(path);
-    }
+    String path = this.getName().getPath();
+    client.files().createFolderV2(path);
   }
 
   @Override
   protected long doGetContentSize() {
-    return this.size;
+    if (metadata instanceof FileMetadata) {
+      return ((FileMetadata) metadata).getSize();
+    }
+    return 0;
   }
 
   @Override
   protected long doGetLastModifiedTime() {
-    return this.lastModified;
+    if (metadata instanceof FileMetadata) {
+      return ((FileMetadata) metadata).getClientModified().getTime();
+    }
+    return 0;
   }
 
   @Override
@@ -174,23 +178,35 @@ public class DropboxFileObject extends AbstractFileObject<DropboxFileSystem> {
     String path = this.getName().getPath();
     InputStream is = client.files().download(path).getInputStream();
     if (is == null) {
-      throw new FileNotFoundException(getName().toString());
+      throw new FileNotFoundException(getName());
     }
     return is;
   }
 
   @Override
-  protected OutputStream doGetOutputStream(boolean bAppend) throws Exception {
+  protected OutputStream doGetOutputStream(boolean append) throws Exception {
+
     String path = this.getName().getPath();
-    final UploadUploader upload = client.files().upload(path);
-    return new FilterOutputStream(upload.getOutputStream()) {
+    if (append) {
+      throw new FileSystemException("vfs.provider/write-append-not-supported.error", path);
+    }
+
+    // VFS try to create file first, so we return fake output stream to avoid conflict
+    if (this.getType() == FileType.IMAGINARY) {
+      return NullOutputStream.NULL_OUTPUT_STREAM;
+    }
+
+    // TODO: Uploader is limited to 150MB, use upload session to increase upload to 350GB.
+    final UploadUploader uploader = client.files().upload(path);
+    return new FilterOutputStream(uploader.getOutputStream()) {
       @Override
       public void close() throws IOException {
-        super.close();
         try {
-          upload.finish();
+          uploader.finish();
         } catch (Exception e) {
           throw new IOException("Failed to upload " + getName(), e);
+        } finally {
+          uploader.close();
         }
       }
     };
