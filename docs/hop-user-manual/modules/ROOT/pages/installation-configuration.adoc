@@ -28,7 +28,7 @@ This page covers everything you need to know to install and run Apache Hop on yo
 
 Hop is designed to be as flexible and lightweight as possible, and is intended to blend in with your architecture, not the other way around. This makes the basic installation process extremely easy, but there's a lot of configuration that can be applied to make Hop behave exactly the way you want it to.
 
-TIP: Take a look at the link:/tech-manual/latest/docker-container.html[Docker] page for instructions to run Hop in containers and Kubernetes environments.
+TIP: Take a look at the xref:tech-manual::docker-container.adoc[Docker] page for instructions to run Hop in containers and Kubernetes environments.
 
 == System Requirements
 
@@ -75,9 +75,9 @@ The basic installation for Apache Hop couldn't be easier:
 * unzip
 * change to your newly unzipped `hop` directory
 * run:
-** `hop-gui.bat` (Windows) or `hop-gui.sh` (Linux, MacOS): run link:/manual/latest/hop-gui/index.html[Hop Gui]
-** `hop-run.bat` (Windows) or `hop-run.sh` (Linux, MacOS): link:/manual/latest/hop-run/index.html[run workflows or pipelines] from the command line.
-** `hop-server.bat` (Windows) or `hop-server.sh` (Linux, MacOS): start a link:/manual/latest/hop-server/index.html[Hop Server] instance.
+** `hop-gui.bat` (Windows) or `hop-gui.sh` (Linux, MacOS): run xref:hop-gui/index.adoc[Hop Gui]
+** `hop-run.bat` (Windows) or `hop-run.sh` (Linux, MacOS): xref:/hop-run/index.adoc[run workflows or pipelines] from the command line.
+** `hop-server.bat` (Windows) or `hop-server.sh` (Linux, MacOS): start a xref:/hop-server/index.adoc[Hop Server] instance.
 
 == Additional configuration
 
@@ -100,7 +100,7 @@ For example:
 
 Check the documentation for your JRE for more information about additional JVM configuration, tuning and garbage collection parameters. https://www.baeldung.com/jvm-parameters[This guide] may help you to get started.
 
-TIP: **Developers**: a couple of lines below the `-Xmx` parameter, you'll find another `HOP_OPTIONS` line that contains `-Xdebug`. Uncomment this line to allow debuggers to attach to your running Hop instance. Check the link:/dev-manual/latest/setup-dev-environment.html[developer documentation] for more information.
+TIP: **Developers**: a couple of lines below the `-Xmx` parameter, you'll find another `HOP_OPTIONS` line that contains `-Xdebug`. Uncomment this line to allow debuggers to attach to your running Hop instance. Check the xref:dev-manual::setup-dev-environment.adoc[developer documentation] for more information.
 
 === Hop environment variables
 
@@ -128,4 +128,4 @@ For example, to add a JDBC driver for the MySQL database, download the MySQL JDB
 
 Hop comes with built-in support for lots of technologies that may require their own (installation and) configuration.
 
-Check the link:/manual/latest/technology/technology.html[technology] page for the platform you need to configure to find out more.
+Check the xref:/technology/technology.html[technology] page for the platform you need to configure to find out more.
