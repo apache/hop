@@ -527,6 +527,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     if (activeFileObject == null) {
       return null;
     }
+    
     return activeFileObject.toString();
   }
 
@@ -590,6 +591,12 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private void okButton() {
     try {
       activeFileObject = HopVfs.getFileObject(wFilename.getText());
+            
+      if ( !this.browsingDirectories && activeFileObject.isFolder() ) {
+        navigateTo(HopVfs.getFilename(activeFileObject), true);
+        return;
+      }        
+      
       ok();
     } catch (Throwable e) {
       showError(
