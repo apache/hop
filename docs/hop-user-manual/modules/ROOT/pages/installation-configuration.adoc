@@ -128,4 +128,4 @@ For example, to add a JDBC driver for the MySQL database, download the MySQL JDB
 
 Hop comes with built-in support for lots of technologies that may require their own (installation and) configuration.
 
-Check the xref:/technology/technology.html[technology] page for the platform you need to configure to find out more.
+Check the xref:technology/technology.adoc[technology] page for the platform you need to configure to find out more.
