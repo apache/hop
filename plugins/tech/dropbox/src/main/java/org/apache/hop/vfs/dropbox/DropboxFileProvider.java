@@ -25,7 +25,6 @@ import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
 import org.apache.hop.vfs.dropbox.config.DropboxConfig;
 import org.apache.hop.vfs.dropbox.config.DropboxConfigSingleton;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,11 +47,6 @@ public class DropboxFileProvider extends AbstractOriginatingFileProvider {
               Capability.URI,
               Capability.WRITE_CONTENT));
 
-  public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES =
-      new UserAuthenticationData.Type[] {
-        UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
-      };
-
   private static FileSystemOptions defaultOptions = new FileSystemOptions();
 
   public static FileSystemOptions getDefaultFileSystemOptions() {
@@ -61,6 +55,8 @@ public class DropboxFileProvider extends AbstractOriginatingFileProvider {
 
   public DropboxFileProvider() {
     super();
+    
+    setFileNameParser(DropboxFileNameParser.getInstance());
   }
 
   @Override
