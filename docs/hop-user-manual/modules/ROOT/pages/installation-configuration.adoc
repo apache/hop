@@ -50,6 +50,7 @@ The only requirement Hop has on any supported operating system is the Java Runti
 Apache Hop is known to work well on the following widely used Java Runtimes:
 
 * https://www.java.com/[Oracle Java Runtime]
+* https://www.microsoft.com/openjdk[Microsoft OpenJDK] (OpenJDK builds for Windows, MacOS and Linux).
 * https://openjdk.java.net/install/[OpenJDK Java Runtime]
 
 Apache Hop works well with these 64-bit java runtimes for version 8 or higher.
