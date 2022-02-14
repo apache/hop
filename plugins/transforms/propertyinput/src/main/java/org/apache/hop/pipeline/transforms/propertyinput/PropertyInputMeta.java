@@ -278,6 +278,7 @@ public class PropertyInputMeta extends BaseTransformMeta
   }
 
   public void setFileRequired(String[] fileRequiredin) {
+    this.fileRequired = new String[fileRequiredin.length];
     for (int i = 0; i < fileRequiredin.length; i++) {
       this.fileRequired[i] = getRequiredFilesCode(fileRequiredin[i]);
     }
