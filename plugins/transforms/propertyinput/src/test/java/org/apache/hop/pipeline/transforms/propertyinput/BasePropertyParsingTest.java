@@ -43,6 +43,7 @@ public class BasePropertyParsingTest
     meta.setFileName(new String[] {getFile(file).getURL().getFile()});
     meta.setFileMask(new String[1]);
     meta.setExcludeFileMask(new String[1]);
+    meta.setFileRequired(new String[] {"N"});
 
     transform = new PropertyInput(transformMeta, meta, data, 1, pipelineMeta, pipeline);
     transform.init();
