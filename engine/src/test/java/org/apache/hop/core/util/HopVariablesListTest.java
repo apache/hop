@@ -19,12 +19,8 @@ package org.apache.hop.core.util;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopVariablesList;
-import org.apache.hop.core.config.DescribedVariable;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.RandomAccessFile;
 
 import static org.junit.Assert.*;
 
@@ -46,23 +42,5 @@ public class HopVariablesListTest {
     assertEquals(
         "Specifies the password encoder plugin to use by ID (Hop is the default).",
         describedVariable.getDescription());
-  }
-
-  @Test
-  public void testInit_closeInputStream() throws Exception {
-    HopVariablesList.init();
-    RandomAccessFile fos = null;
-    try {
-      File file = new File(Const.HOP_VARIABLES_FILE);
-      if (file.exists()) {
-        fos = new RandomAccessFile(file, "rw");
-      }
-    } catch (FileNotFoundException | SecurityException e) {
-      fail("the file with properties should be unallocated");
-    } finally {
-      if (fos != null) {
-        fos.close();
-      }
-    }
   }
 }

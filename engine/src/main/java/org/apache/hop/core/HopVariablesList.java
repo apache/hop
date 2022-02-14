@@ -17,16 +17,26 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.HopURLClassLoader;
+import org.apache.hop.core.plugins.JarCache;
+import org.apache.hop.core.util.TranslateUtil;
+import org.apache.hop.core.variables.DescribedVariable;
+import org.apache.hop.core.variables.Variable;
 import org.apache.hop.core.xml.XmlHandler;
+import org.jboss.jandex.AnnotationInstance;
+import org.jboss.jandex.DotName;
+import org.jboss.jandex.FieldInfo;
+import org.jboss.jandex.IndexView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -49,45 +59,104 @@ public class HopVariablesList {
   public static void init() throws HopException {
 
     instance = new HopVariablesList();
-
-    InputStream inputStream = null;
+    
+    // Search variable annotations    
     try {
-      HopVariablesList variablesList = getInstance();
-
-      inputStream = variablesList.getClass().getResourceAsStream(Const.HOP_VARIABLES_FILE);
-
-      if (inputStream == null) {
-        inputStream = variablesList.getClass().getResourceAsStream("/" + Const.HOP_VARIABLES_FILE);
-      }
-      if (inputStream == null) {
-        throw new HopPluginException(
-            "Unable to find standard hop variables definition file: " + Const.HOP_VARIABLES_FILE);
-      }
-      Document doc = XmlHandler.loadXmlFile(inputStream, null, false, false);
-      Node varsNode = XmlHandler.getSubNode(doc, "hop-variables");
-      int nrVars = XmlHandler.countNodes(varsNode, "hop-variable");
-      for (int i = 0; i < nrVars; i++) {
-        Node varNode = XmlHandler.getSubNodeByNr(varsNode, "hop-variable", i);
-        String description = XmlHandler.getTagValue(varNode, "description");
-        String variable = XmlHandler.getTagValue(varNode, "variable");
-        String defaultValue = XmlHandler.getTagValue(varNode, "default-value");
-
-        instance.defaultVariables.add(new DescribedVariable(variable, defaultValue, description));
-      }
-    } catch (Exception e) {
-      throw new HopException("Unable to read file '" + Const.HOP_VARIABLES_FILE + "'", e);
-    } finally {
-      if (inputStream != null) {
-        try {
-          inputStream.close();
-        } catch (IOException e) {
-          // we do not able to close property file will log it
-          LogChannel.GENERAL.logDetailed("Unable to close file hop variables definition file", e);
+      JarCache cache = JarCache.getInstance();
+      DotName annotationName = DotName.createSimple(Variable.class.getName());
+      
+      // Search annotation in native jar
+      for (File jarFile : cache.getNativeJars()) {
+        IndexView index = cache.getIndex(jarFile);
+        for (AnnotationInstance info : index.getAnnotations(annotationName)) {
+          registerDescribedVariable(jarFile, info.target().asField());
         }
       }
+
+      // Search annotation in plugins
+      for (File jarFile : cache.getPluginJars()) {
+        IndexView index = cache.getIndex(jarFile);
+        for (AnnotationInstance info : index.getAnnotations(annotationName)) {
+            registerDescribedVariable(jarFile, info.target().asField());
+        }
+      }
+    } catch (Exception e) {
+      LogChannel.GENERAL.logDetailed("Unable to find hop variables definition", e);
     }
   }
+  
+  private static void registerDescribedVariable(File jarFile, FieldInfo fieldInfo)
+      throws ClassNotFoundException, SecurityException, NoSuchFieldException, MalformedURLException {
+    URLClassLoader urlClassLoader =  createUrlClassLoader(jarFile.toURI().toURL(), FieldInfo.class.getClassLoader());
+    Class<?> clazz = urlClassLoader.loadClass(fieldInfo.declaringClass().name().toString());
+    Field field = clazz.getDeclaredField(fieldInfo.name());
+    Variable annotation = field.getAnnotation(Variable.class);
+    
+    // For now, ignore non editable variable (system)
+    if ( annotation.editable() ) {
+      String description = TranslateUtil.translate(annotation.description(), clazz);        
+      instance.defaultVariables.add(new DescribedVariable(field.getName(), annotation.value(), description));
+    }
+  }
+  
+  
+  protected static URLClassLoader createUrlClassLoader(URL jarFileUrl, ClassLoader classLoader) {
+    List<URL> urls = new ArrayList<>();
 
+    // Also append all the files in the underlying lib folder if it exists...
+    //
+    try {
+      JarCache jarCache = JarCache.getInstance();
+
+      String parentFolderName =
+          new File(URLDecoder.decode(jarFileUrl.getFile(), "UTF-8")).getParent();
+
+      File libFolder = new File(parentFolderName + Const.FILE_SEPARATOR + "lib");
+      if (libFolder.exists()) {
+        for (File libFile : jarCache.findJarFiles(libFolder)) {
+          urls.add(libFile.toURI().toURL());
+        }
+      }
+
+      // Also get the libraries in the dependency folders of the plugin in question...
+      // The file is called dependencies.xml
+      //
+      String dependenciesFileName = parentFolderName + Const.FILE_SEPARATOR + "dependencies.xml";
+      File dependenciesFile = new File(dependenciesFileName);
+      if (dependenciesFile.exists()) {
+        // Add the files in the dependencies folders to the classpath...
+        //
+        Document document = XmlHandler.loadXmlFile(dependenciesFile);
+        Node dependenciesNode = XmlHandler.getSubNode(document, "dependencies");
+        List<Node> folderNodes = XmlHandler.getNodes(dependenciesNode, "folder");
+        for (Node folderNode : folderNodes) {
+          String relativeFolderName = XmlHandler.getNodeValue(folderNode);
+          String dependenciesFolderName =
+              parentFolderName + Const.FILE_SEPARATOR + relativeFolderName;
+          File dependenciesFolder = new File(dependenciesFolderName);
+          if (dependenciesFolder.exists()) {
+            // Now get the jar files in this dependency folder
+            // This includes the possible lib/ folder dependencies in there
+            //
+            for (File libFile : jarCache.findJarFiles(dependenciesFolder)) {
+              urls.add(libFile.toURI().toURL());
+            }
+          }
+        }
+      }
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Unexpected error searching for plugin jar files in lib/ folder and dependencies for jar file '"
+              + jarFileUrl
+              + "'",
+          e);
+    }
+
+    urls.add(jarFileUrl);
+
+    return new HopURLClassLoader(urls.toArray(new URL[urls.size()]), classLoader);
+  }
+  
   public DescribedVariable findEnvironmentVariable(String name) {
     for (DescribedVariable describedVariable : defaultVariables) {
       if (describedVariable.getName().equals(name)) {

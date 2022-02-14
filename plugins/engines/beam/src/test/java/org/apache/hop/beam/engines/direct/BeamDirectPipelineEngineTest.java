@@ -19,7 +19,7 @@ package org.apache.hop.beam.engines.direct;
 
 import org.apache.hop.beam.engines.BeamBasePipelineEngineTest;
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
-import org.apache.hop.core.variables.VariableValueDescription;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -41,7 +41,7 @@ public class BeamDirectPipelineEngineTest extends BeamBasePipelineEngineTest {
         new PipelineRunConfiguration(
             "direct",
             "description",
-            Arrays.asList(new VariableValueDescription("VAR1", "value1", "description1")),
+            Arrays.asList(new DescribedVariable("VAR1", "value1", "description1")),
             configuration);
 
     metadataProvider.getSerializer(PipelineRunConfiguration.class).save(pipelineRunConfiguration);

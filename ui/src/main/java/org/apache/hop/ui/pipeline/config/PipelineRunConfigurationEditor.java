@@ -22,7 +22,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.variables.VariableValueDescription;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -423,7 +423,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     }
 
     for (int i = 0; i < workingConfiguration.getConfigurationVariables().size(); i++) {
-      VariableValueDescription vvd = workingConfiguration.getConfigurationVariables().get(i);
+      DescribedVariable vvd = workingConfiguration.getConfigurationVariables().get(i);
       TableItem item = wVariables.table.getItem(i);
       int col = 1;
       item.setText(col++, Const.NVL(vvd.getName(), ""));
@@ -457,7 +457,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
       String name = item.getText(1);
       String value = item.getText(2);
       String description = item.getText(3);
-      meta.getConfigurationVariables().add(new VariableValueDescription(name, value, description));
+      meta.getConfigurationVariables().add(new DescribedVariable(name, value, description));
     }
   }
 

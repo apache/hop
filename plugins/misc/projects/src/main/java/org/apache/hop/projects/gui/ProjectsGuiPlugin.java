@@ -31,8 +31,8 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.VariableValueDescription;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.history.AuditEvent;
@@ -704,7 +704,7 @@ public class ProjectsGuiPlugin {
       IHopMetadataSerializer<PipelineRunConfiguration> runConfigSerializer =
           hopGui.getMetadataProvider().getSerializer(PipelineRunConfiguration.class);
       for (PipelineRunConfiguration runConfig : runConfigSerializer.loadAll()) {
-        for (VariableValueDescription variableValueDescription :
+        for (DescribedVariable variableValueDescription :
             runConfig.getConfigurationVariables()) {
           variables.setVariable(variableValueDescription.getName(), "");
         }

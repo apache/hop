@@ -72,11 +72,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
         return false;
       }
 
-      String val = getVariable(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "N");
-      allNullsAreZero = ValueMetaBase.convertStringToBoolean(val);
-      val = getVariable(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "N");
-      minNullIsValued = ValueMetaBase.convertStringToBoolean(val);
-
+      allNullsAreZero = getVariableBoolean(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, false);      
+      minNullIsValued = getVariableBoolean(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, false);
+      
       // What is the output looking like?
       //
       data.inputRowMeta = getInputRowMeta();

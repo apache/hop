@@ -18,7 +18,7 @@
 package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.config.DescribedVariable;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;

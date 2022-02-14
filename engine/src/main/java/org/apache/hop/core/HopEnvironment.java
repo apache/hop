@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.auth.AuthenticationConsumerPluginType;
 import org.apache.hop.core.auth.AuthenticationProviderPluginType;
 import org.apache.hop.core.compress.CompressionPluginType;
-import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.exception.HopException;
@@ -31,6 +30,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.*;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.imp.ImportPluginType;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
@@ -114,17 +114,21 @@ public class HopEnvironment {
         HopVariablesList.init();
 
         // If the HopConfig system properties is empty, initialize with the variables...
+        // or if new variables are added
         //
         HopConfig hopConfig = HopConfig.getInstance();
-        List<DescribedVariable> configVariables = hopConfig.getDescribedVariables();
-        if (configVariables.isEmpty()) {
-          List<DescribedVariable> describedVariables =
-              HopVariablesList.getInstance().getEnvironmentVariables();
-          for (DescribedVariable describedVariable : describedVariables) {
+        for(DescribedVariable describedVariable : HopVariablesList.getInstance().getEnvironmentVariables() ) {          
+          DescribedVariable variable = hopConfig.findDescribedVariable(describedVariable.getName());
+          if ( variable==null ) {
+            // Add variable if not exist
             hopConfig.setDescribedVariable(new DescribedVariable(describedVariable));
           }
-        }
-
+          else {
+            // Update variable description
+            variable.setDescription(describedVariable.getDescription());            
+          }
+        }           
+        
         // Set the system configuration variables in System
         // Let's try very hard to not do this anywhere else!
         //

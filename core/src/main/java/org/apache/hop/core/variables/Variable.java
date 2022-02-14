@@ -15,24 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.hop.core.config;
+package org.apache.hop.core.variables;
 
-import org.apache.hop.core.variables.DescribedVariable;
-import java.util.List;
+import java.lang.annotation.*;
 
-public interface IConfigFile {
-
-  String getConfigFilename();
-
-  void setConfigFilename(String filename);
-
-  List<DescribedVariable> getDescribedVariables();
-
-  DescribedVariable findDescribedVariable(String name);
-
-  void setDescribedVariable(DescribedVariable variable);
-
-  String findDescribedVariableValue(String name);
-
-  void setDescribedVariables(List<DescribedVariable> describedVariables);
+/**
+ * Static final field annotated with "Variable" are automatically
+ * recognized and registered as a described variable.
+ */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface Variable {
+  /** The default value */
+  String value() default "";
+  /** The description of the variable, can be translated i18n::key */
+  String description() default "";
+  /** System environment variable can't be edited */
+  boolean editable() default true;
 }

@@ -25,7 +25,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.config.*;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
-
+import org.apache.hop.core.variables.DescribedVariable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;

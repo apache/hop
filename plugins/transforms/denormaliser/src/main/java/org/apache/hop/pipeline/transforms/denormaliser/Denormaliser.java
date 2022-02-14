@@ -109,11 +109,9 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
     return true;
   }
 
-  private boolean processFirstRow() throws HopTransformException {
-    String val = getVariable(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "N");
-    this.allNullsAreZero = ValueMetaBase.convertStringToBoolean(val);
-    val = getVariable(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "N");
-    this.minNullIsValued = ValueMetaBase.convertStringToBoolean(val);
+  private boolean processFirstRow() throws HopTransformException {   
+    allNullsAreZero = getVariableBoolean(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, false);      
+    minNullIsValued = getVariableBoolean(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, false);    
     data.inputRowMeta = getInputRowMeta();
     data.outputRowMeta = data.inputRowMeta.clone();
     meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);

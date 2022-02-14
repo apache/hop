@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variable;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.awt.*;
@@ -103,6 +104,7 @@ public class Const {
   /*
    The name of the history folder in which the Hop local audit manager saves data
   */
+  @Variable(editable=false, description="The name of the history folder in which the Hop local audit manager saves data.")
   public static final String HOP_AUDIT_FOLDER =
       NVL(
           System.getProperty("HOP_AUDIT_FOLDER"),
@@ -111,6 +113,7 @@ public class Const {
   /*
    The name of the history folder in which the Hop local audit manager saves data
   */
+  @Variable(editable=false, description="The name of the history folder in which the Hop local audit manager saves data.")
   public static final String HOP_CONFIG_FOLDER =
       NVL(
           System.getProperty("HOP_CONFIG_FOLDER"),
@@ -120,15 +123,19 @@ public class Const {
    * The name of the variable which configures whether or not we should automatically create a
    * config file when it's missing
    */
+  @Variable(editable=false, value="N", description="Set this variable to 'Y' to automatically create config file when it's missing.")
   public static final String HOP_AUTO_CREATE_CONFIG = "HOP_AUTO_CREATE_CONFIG";
 
   /** The variable which points to a shared folder with JDBC drivers in them. */
+  @Variable(editable=false, description="The variable which points to a shared folder with JDBC drivers in them.")
   public static final String HOP_SHARED_JDBC_FOLDER = "HOP_SHARED_JDBC_FOLDER";
 
   /** The operating system the hop platform runs on */
+  @Variable(editable=false, description="The operating system the hop platform runs on.")
   public static final String HOP_PLATFORM_OS = "HOP_PLATFORM_OS";
 
   /** The runtime that is being used */
+  @Variable(editable=false, description="The runtime that is being used.")
   public static final String HOP_PLATFORM_RUNTIME = "HOP_PLATFORM_RUNTIME";
 
   /** An empty ("") String. */
@@ -339,25 +346,24 @@ public class Const {
 
   /** The default undo level for Hop */
   public static final int MAX_UNDO = 100;
-
-  /** The file that documents these variables. */
-  public static final String HOP_VARIABLES_FILE = "hop-variables.xml";
-
+  
   /**
    * If you set this environment variable you can limit the log size of all pipelines and workflows
    * that don't have the "log size limit" property set in their respective properties.
    */
+  @Variable(value="0", description="The log size limit for all pipelines and workflows that don't have the \"log size limit\" property set in their respective properties.")
   public static final String HOP_LOG_SIZE_LIMIT = "HOP_LOG_SIZE_LIMIT";
 
   /** The name of the variable that defines the timer used for detecting server nodes. */
+  @Variable(description="")
   public static final String HOP_SERVER_DETECTION_TIMER = "HOP_SERVER_DETECTION_TIMER";
 
   /**
    * System wide flag to drive the evaluation of null in ValueMeta. If this setting is set to "Y",
    * an empty string and null are different. Otherwise they are not.
    */
-  public static final String HOP_EMPTY_STRING_DIFFERS_FROM_NULL =
-      "HOP_EMPTY_STRING_DIFFERS_FROM_NULL";
+  @Variable(value="N", description="NULL vs Empty String. If this setting is set to 'Y', an empty string and null are different. Otherwise they are not")
+  public static final String HOP_EMPTY_STRING_DIFFERS_FROM_NULL = "HOP_EMPTY_STRING_DIFFERS_FROM_NULL";
 
   /**
    * System wide flag to allow non-strict string to number conversion for backward compatibility. If
@@ -366,10 +372,12 @@ public class Const {
    * symbol). The default (N) will be to throw an error if non-numeric symbols are found in the
    * string.
    */
+  @Variable(value="N", description="System wide flag to allow lenient string to number conversion for backward compatibility. If this setting is set to 'Y', an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol). The default (N) will be to throw an error if non-numeric symbols are found in the string.")
   public static final String HOP_LENIENT_STRING_TO_NUMBER_CONVERSION =
       "HOP_LENIENT_STRING_TO_NUMBER_CONVERSION";
 
   /** System wide flag to ignore timezone while writing date/timestamp value to the database. */
+  @Variable(value="N", description="System wide flag to ignore timezone while writing date/timestamp value to the database.")
   public static final String HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE =
       "HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE";
 
@@ -377,6 +385,7 @@ public class Const {
    * System wide flag to set or not append and header options dependency on Text file output
    * transform.
    */
+  @Variable(value="N", description="Set this variable to 'Y' for backward compatibility for the Text File Output transform. Setting this to Ywill add no header row at all when the append option is enabled, regardless if the file is existing or not.")
   public static final String HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER =
       "HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER";
 
@@ -386,6 +395,7 @@ public class Const {
    * enables the documented behavior and takes the fields from the comparison stream (correct
    * behavior)
    */
+  @Variable(value="N", description="Set this variable to 'Y' for backward compatibility for the Merge Rows (diff) transform. Setting this to Y will use the data from the reference stream (instead of the comparison stream) in case the compared rows are identical.")
   public static final String HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL =
       "HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL";
 
@@ -395,6 +405,7 @@ public class Const {
    * and Average aggregations 'N' enables the documented behavior of returning the same type as the
    * input fields use (correct behavior).
    */
+  @Variable(description="")
   public static final String HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE =
       "HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE";
 
@@ -402,33 +413,39 @@ public class Const {
    * You can use this variable to speed up hostname lookup. Hostname lookup is performed by Hop so
    * that it is capable of logging the server on which a workflow or pipeline is executed.
    */
+  @Variable(description="You can use this variable to speed up hostname lookup. Hostname lookup is performed by Hop so that it is capable of logging the server on which a workflow or pipeline is executed.")
   public static final String HOP_SYSTEM_HOSTNAME = "HOP_SYSTEM_HOSTNAME";
 
   /**
    * System wide flag to set the maximum number of log lines that are kept internally by Hop. Set to
    * 0 to keep all rows (default)
    */
+  @Variable(editable=false, value="0", description="The maximum number of log lines that are kept internally by Hop. Set to 0 to keep all rows (default)")
   public static final String HOP_MAX_LOG_SIZE_IN_LINES = "HOP_MAX_LOG_SIZE_IN_LINES";
 
   /**
    * System wide flag to set the maximum age (in minutes) of a log line while being kept internally
    * by Hop. Set to 0 to keep all rows indefinitely (default)
    */
+  @Variable(editable=false, value="1440", description="The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)")
   public static final String HOP_MAX_LOG_TIMEOUT_IN_MINUTES = "HOP_MAX_LOG_TIMEOUT_IN_MINUTES";
 
   /**
    * System wide flag to determine whether standard error will be redirected to Hop logging
    * facilities. Will redirect if the value is equal ignoring case to the string "Y"
    */
+  @Variable(editable=false, value="N", description="Set this variable to 'Y' to redirect stderr to Hop logging.")
   public static final String HOP_REDIRECT_STDERR = "HOP_REDIRECT_STDERR";
 
   /**
    * System wide flag to determine whether standard out will be redirected to Hop logging
    * facilities. Will redirect if the value is equal ignoring case to the string "Y"
    */
+  @Variable(editable=false, value="N", description="Set this variable to 'Y' to redirect stdout to Hop logging.")
   public static final String HOP_REDIRECT_STDOUT = "HOP_REDIRECT_STDOUT";
 
   /** System wide flag to log stack traces in a simpler, more human readable format */
+  @Variable(editable=false, value="N", description="Set this variable to 'Y' to log stack traces in a simpler, more human readable format.")
   public static final String HOP_SIMPLE_STACK_TRACES = "HOP_SIMPLE_STACK_TRACES";
 
   public static final boolean isUsingSimpleStackTraces() {
@@ -440,6 +457,7 @@ public class Const {
    * This environment variable will set a time-out after which waiting, completed or stopped
    * pipelines and workflows will be automatically cleaned up. The default value is 1440 (one day).
    */
+  @Variable(value="1440", description="This project variable will set a time-out after which waiting, completed or stopped pipelines and workflows will be automatically cleaned up. The default value is 1440 (one day).")
   public static final String HOP_SERVER_OBJECT_TIMEOUT_MINUTES =
       "HOP_SERVER_OBJECT_TIMEOUT_MINUTES";
 
@@ -447,49 +465,59 @@ public class Const {
    * System wide parameter: the maximum number of transform performance snapshots to keep in memory.
    * Set to 0 to keep all snapshots indefinitely (default)
    */
+  @Variable(value="0", description="The maximum number of transform performance snapshots to keep in memory. Set to 0 to keep all snapshots indefinitely (default)")
   public static final String HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT =
       "HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT";
 
   /** A variable to configure the maximum number of workflow trackers kept in memory. */
+  @Variable(value="5000", description="The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)")
   public static final String HOP_MAX_WORKFLOW_TRACKER_SIZE = "HOP_MAX_WORKFLOW_TRACKER_SIZE";
 
   /**
    * A variable to configure the maximum number of action results kept in memory for logging
    * purposes.
    */
+  @Variable(value="5000", description="The maximum number of action results kept in memory for logging purposes.")
   public static final String HOP_MAX_ACTIONS_LOGGED = "HOP_MAX_ACTIONS_LOGGED";
 
   /**
    * A variable to configure the maximum number of logging registry entries kept in memory for
    * logging purposes.
    */
+  @Variable(value="10000", description="The maximum number of logging registry entries kept in memory for logging purposes")
   public static final String HOP_MAX_LOGGING_REGISTRY_SIZE = "HOP_MAX_LOGGING_REGISTRY_SIZE";
 
   /** A variable to configure the hop log tab refresh delay. */
+  @Variable(value="1000", description="The hop log tab refresh delay.")
   public static final String HOP_LOG_TAB_REFRESH_DELAY = "HOP_LOG_TAB_REFRESH_DELAY";
 
   /** A variable to configure the hop log tab refresh period. */
+  @Variable(value="1000", description="The hop log tab refresh period.")
   public static final String HOP_LOG_TAB_REFRESH_PERIOD = "HOP_LOG_TAB_REFRESH_PERIOD";
 
   /**
    * The name of the system wide variable that can contain the name of the SAP Connection factory
    * for the test button in the DB dialog. This defaults to
    */
+  @Variable(description="")
   public static final String HOP_SAP_CONNECTION_FACTORY = "HOP_SAP_CONNECTION_FACTORY";
 
   /** The default SAP ERP connection factory */
+  @Variable(description="")
   public static final String HOP_SAP_CONNECTION_FACTORY_DEFAULT_NAME =
       "org.apache.hop.pipeline.transforms.sapinput.sap.SAPConnectionFactory";
 
   /**
    * Name of the environment variable to specify additional classes to scan for plugin annotations
    */
+  @Variable(description="A comma delimited list of classes to scan for plugin annotations")
   public static final String HOP_PLUGIN_CLASSES = "HOP_PLUGIN_CLASSES";
 
   /**
    * Name of the environment variable to specify additional packaged to scan for plugin annotations
    * (warning: slow!)
    */
+  @Variable(description="A comma delimited list of packages to scan for plugin annotations (warning: slow!!)")
   public static final String HOP_PLUGIN_PACKAGES = "HOP_PLUGIN_PACKAGES";
 
   public static final String HOP_PLUGIN_BASE_FOLDERS = "HOP_PLUGIN_BASE_FOLDERS";
@@ -498,6 +526,7 @@ public class Const {
    * Name of the environment variable that contains the size of the pipeline rowset size. This
    * overwrites values that you set pipeline settings.
    */
+  @Variable(description="")
   public static final String HOP_PIPELINE_ROWSET_SIZE = "HOP_PIPELINE_ROWSET_SIZE";
 
   /** A general initial version comment */
@@ -506,33 +535,9 @@ public class Const {
   /** A general edit version comment */
   public static final String VERSION_COMMENT_EDIT_VERSION = "Modification by user";
 
-  /**
-   * The name of the environment variable that will contain the alternative location of the
-   * hop-transforms.xml file
-   */
-  public static final String HOP_CORE_TRANSFORMS_FILE = "HOP_CORE_TRANSFORMS_FILE";
-
-  /**
-   * The name of the environment variable that will contain the alternative location of the
-   * hop-workflow-actions.xml file
-   */
-  public static final String HOP_CORE_WORKFLOW_ACTIONS_FILE = "HOP_CORE_WORKFLOW_ACTIONS_FILE";
-
-  /**
-   * The name of the environment variable that will contain the alternative location of the
-   * hop-valuemeta-plugins.xml file
-   */
-  public static final String HOP_VALUEMETA_PLUGINS_FILE = "HOP_VALUEMETA_PLUGINS_FILE";
-
   /** Specifies the password encoding plugin to use by ID (Hop is the default). */
+  @Variable(value="Hop", description="Specifies the password encoder plugin to use by ID (Hop is the default).")
   public static final String HOP_PASSWORD_ENCODER_PLUGIN = "HOP_PASSWORD_ENCODER_PLUGIN";
-
-  /**
-   * The name of the environment variable that will contain the alternative location of the
-   * hop-password-encoder-plugins.xml file
-   */
-  public static final String HOP_PASSWORD_ENCODER_PLUGINS_FILE =
-      "HOP_PASSWORD_ENCODER_PLUGINS_FILE";
 
   /**
    * The name of the Hop encryption seed environment variable for the HopTwoWayPasswordEncoder class
@@ -541,73 +546,79 @@ public class Const {
       "HOP_TWO_WAY_PASSWORD_ENCODER_SEED";
 
   /**
-   * The name of the environment variable that will contain the alternative location of the
-   * hop-logging-plugins.xml file
-   */
-  public static final String HOP_LOGGING_PLUGINS_FILE = "HOP_LOGGING_PLUGINS_FILE";
-
-  /**
-   * The name of the environment variable that will contain the alternative location of the
-   * hop-servlets.xml file
-   */
-  public static final String HOP_CORE_SERVLETS_FILE = "HOP_CORE_SERVLETS_FILE";
-
-  /**
    * The name of the variable that optionally contains an alternative rowset get timeout (in ms).
    * This only makes a difference for extremely short lived pipelines.
    */
+  @Variable(value = "50",
+      description = "The name of the variable that optionally contains an alternative rowset get timeout (in ms). This only makes a difference for extremely short lived pipelines.")
   public static final String HOP_ROWSET_GET_TIMEOUT = "HOP_ROWSET_GET_TIMEOUT";
 
   /**
    * The name of the variable that optionally contains an alternative rowset put timeout (in ms).
    * This only makes a difference for extremely short lived pipelines.
    */
+  @Variable(value = "50",
+      description = "The name of the variable that optionally contains an alternative rowset put timeout (in ms). This only makes a difference for extremely short lived pipelines.")
   public static final String HOP_ROWSET_PUT_TIMEOUT = "HOP_ROWSET_PUT_TIMEOUT";
 
   /** Set this variable to Y if you want to test a more efficient batching row set. (default = N) */
+  @Variable(description="")
   public static final String HOP_BATCHING_ROWSET = "HOP_BATCHING_ROWSET";
 
   /**
    * Set this variable to limit max number of files the Text File Output transform can have open at
    * one time.
    */
+  @Variable(value="1024", description="This project variable is used by the Text File Output transform. It defines the max number of simultaneously open files within the transform. The transform will close/reopen files as necessary to insure the max is not exceeded")
   public static final String HOP_FILE_OUTPUT_MAX_STREAM_COUNT = "HOP_FILE_OUTPUT_MAX_STREAM_COUNT";
 
   /**
    * This variable contains the number of milliseconds between flushes of all open files in the Text
    * File Output transform.
    */
+  @Variable(value="0", description="This project variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform.")
   public static final String HOP_FILE_OUTPUT_MAX_STREAM_LIFE = "HOP_FILE_OUTPUT_MAX_STREAM_LIFE";
 
   /** Set this variable to Y to disable standard Hop logging to the console. (stdout) */
+  @Variable(value="N", description="Set this variable to 'Y' to disable standard Hop logging to the console. (stdout)")
   public static final String HOP_DISABLE_CONSOLE_LOGGING = "HOP_DISABLE_CONSOLE_LOGGING";
 
   /** The name of the variable containing an alternative default number format */
+  @Variable(description="The name of the variable containing an alternative default number format")
   public static final String HOP_DEFAULT_NUMBER_FORMAT = "HOP_DEFAULT_NUMBER_FORMAT";
 
   /** The name of the variable containing an alternative default bignumber format */
+  @Variable(description="The name of the variable containing an alternative default bignumber format")
   public static final String HOP_DEFAULT_BIGNUMBER_FORMAT = "HOP_DEFAULT_BIGNUMBER_FORMAT";
 
   /** The name of the variable containing an alternative default integer format */
+  @Variable(description="The name of the variable containing an alternative default integer format")
   public static final String HOP_DEFAULT_INTEGER_FORMAT = "HOP_DEFAULT_INTEGER_FORMAT";
 
   /** The name of the variable containing an alternative default date format */
+  @Variable(description="The name of the variable containing an alternative default date format")
   public static final String HOP_DEFAULT_DATE_FORMAT = "HOP_DEFAULT_DATE_FORMAT";
 
   // Null values tweaks
+  @Variable(value="N", description="Set this variable to 'Y' to set the minimum to NULL if NULL is within an aggregate. Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL. See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.")
   public static final String HOP_AGGREGATION_MIN_NULL_IS_VALUED =
       "HOP_AGGREGATION_MIN_NULL_IS_VALUED";
+  
+  @Variable(value="N", description="Set this variable to 'Y' to return 0 when all values within an aggregate are NULL. Otherwise by default a NULL is returned when all values are NULL.")
   public static final String HOP_AGGREGATION_ALL_NULLS_ARE_ZERO =
       "HOP_AGGREGATION_ALL_NULLS_ARE_ZERO";
 
   /** The name of the variable containing an alternative default timestamp format */
+  @Variable(description="The name of the variable containing an alternative default timestamp format")
   public static final String HOP_DEFAULT_TIMESTAMP_FORMAT = "HOP_DEFAULT_TIMESTAMP_FORMAT";
 
   /** Variable that is responsible for removing enclosure symbol after splitting the string */
+  @Variable(value="N", description="Set this variable to 'N' to preserve enclosure symbol after splitting the string in the Split fields transform. Changing it to true will remove first and last enclosure symbol from the resulting string chunks.")
   public static final String HOP_SPLIT_FIELDS_REMOVE_ENCLOSURE =
       "HOP_SPLIT_FIELDS_REMOVE_ENCLOSURE";
 
   /** Variable that is responsible for checking empty field names and types. */
+  @Variable(value="N", description="Set this variable to 'Y' to allow your pipeline to pass 'null' fields and/or empty types.")
   public static final String HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES =
       "HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES";
 
@@ -616,6 +627,7 @@ public class Const {
    * Properties -> Log panel. Changing it to true will clear all global log variables when export
    * pipeline / workflow
    */
+  @Variable(value="N", description="Set this variable to 'N' to preserve global log variables defined in pipeline / workflow Properties -> Log panel. Changing it to 'Y' will clear it when export pipeline / workflow.")
   public static final String HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT =
       "HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT";
 
@@ -625,19 +637,24 @@ public class Const {
    *
    * <p>Switches off the fix for calculation of timezone decomposition.
    */
+  @Variable(description="")
   public static final String HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION =
       "HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION";
 
   /** Compatibility settings for setNrErrors */
+  @Variable(description="")
   public static final String HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS =
       "HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS";
 
+  @Variable(description="")
   public static final String HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS =
       "HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS";
 
+  @Variable(description="")
   public static final String HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS =
       "HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS";
 
+  @Variable(description="")
   public static final String HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES =
       "HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES";
 
@@ -653,20 +670,28 @@ public class Const {
   public static final String HOP_METADATA_FOLDER = "HOP_METADATA_FOLDER";
 
   /** A variable to configure turning on/off detailed subjects in log. */
+  @Variable(value="N", description="Set this variable to 'Y' to precede transform/action name in log lines with the complete path to the transform/action. Useful to perfectly identify where a problem happened in our process.")
   public static final String HOP_LOG_MARK_MAPPINGS = "HOP_LOG_MARK_MAPPINGS";
 
-  /** A variable to configure jetty option: acceptors for Carte */
+  /** A variable to configure jetty option: acceptors for Hop server */
+  @Variable(description="A variable to configure jetty option: acceptors for Hop server")
   public static final String HOP_SERVER_JETTY_ACCEPTORS = "HOP_SERVER_JETTY_ACCEPTORS";
 
-  /** A variable to configure jetty option: acceptQueueSize for Carte */
+  /** A variable to configure jetty option: acceptQueueSize for Hop server */
+  @Variable(description="A variable to configure jetty option: acceptQueueSize for Hop server")
   public static final String HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE =
       "HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE";
 
-  /** A variable to configure jetty option: lowResourcesMaxIdleTime for Carte */
+  /** A variable to configure jetty option: lowResourcesMaxIdleTime for Hop server */
+  @Variable(description="A variable to configure jetty option: lowResourcesMaxIdleTime for Hop server")
   public static final String HOP_SERVER_JETTY_RES_MAX_IDLE_TIME =
       "HOP_SERVER_JETTY_RES_MAX_IDLE_TIME";
 
-  /** A variable to configure refresh for carte workflow/pipeline status page */
+  @Variable(description="Defines the default encoding for servlets, leave it empty to use Java default encoding")
+  public static final String HOP_DEFAULT_SERVLET_ENCODING = "HOP_DEFAULT_SERVLET_ENCODING";
+  
+  /** A variable to configure refresh for Hop server workflow/pipeline status page */
+  @Variable(description="A variable to configure refresh for Hop server workflow/pipeline status page")
   public static final String HOP_SERVER_REFRESH_STATUS = "HOP_SERVER_REFRESH_STATUS";
 
   /** A variable to configure s3vfs to use a temporary file on upload data to S3 Amazon." */
@@ -674,6 +699,7 @@ public class Const {
       "s3.vfs.useTempFileOnUploadData";
 
   /** A variable to configure Tab size" */
+  @Variable(description="")
   public static final String HOP_MAX_TAB_LENGTH = "HOP_MAX_TAB_LENGTH";
 
   /**
@@ -692,6 +718,7 @@ public class Const {
    * @see #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT
    * @see #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT_STRING
    */
+  @Variable(description="")
   public static final String HOP_ZIP_MIN_INFLATE_RATIO = "HOP_ZIP_MIN_INFLATE_RATIO";
 
   /**
@@ -699,7 +726,7 @@ public class Const {
    *
    * @see #HOP_ZIP_MIN_INFLATE_RATIO
    * @see #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT_STRING
-   */
+   */  
   public static final Double HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT = 0.01d;
 
   /**
@@ -708,6 +735,7 @@ public class Const {
    * @see #HOP_ZIP_MIN_INFLATE_RATIO
    * @see #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT
    */
+  @Variable(description="")
   public static final String HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT_STRING =
       String.valueOf(HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT);
 
@@ -720,6 +748,7 @@ public class Const {
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING
    */
+  @Variable(description="")
   public static final String HOP_ZIP_MAX_ENTRY_SIZE = "HOP_ZIP_MAX_ENTRY_SIZE";
 
   /**
@@ -727,7 +756,7 @@ public class Const {
    *
    * @see #HOP_ZIP_MAX_ENTRY_SIZE
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING
-   */
+   */  
   public static final Long HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT = 0xFFFFFFFFL;
 
   /**
@@ -736,6 +765,7 @@ public class Const {
    * @see #HOP_ZIP_MAX_ENTRY_SIZE
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT
    */
+  @Variable(description="")
   public static final String HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING =
       String.valueOf(HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT);
 
@@ -749,6 +779,7 @@ public class Const {
    * @see #HOP_ZIP_MAX_TEXT_SIZE_DEFAULT
    * @see #HOP_ZIP_MAX_TEXT_SIZE_DEFAULT_STRING
    */
+  @Variable(description="")
   public static final String HOP_ZIP_MAX_TEXT_SIZE = "HOP_ZIP_MAX_TEXT_SIZE";
 
   /**
@@ -765,6 +796,7 @@ public class Const {
    * @see #HOP_ZIP_MAX_TEXT_SIZE
    * @see #HOP_ZIP_MAX_TEXT_SIZE_DEFAULT
    */
+  @Variable(description="")
   public static final String HOP_ZIP_MAX_TEXT_SIZE_DEFAULT_STRING =
       String.valueOf(HOP_ZIP_MAX_TEXT_SIZE_DEFAULT);
 
@@ -772,6 +804,7 @@ public class Const {
    * This is the name of the variable which when set should contains the path to a file which will
    * be included in the serialization of pipelines and workflows.
    */
+  @Variable(description="This is the name of the variable which when set should contains the path to a file which will be included in the serialization of pipelines and workflows")
   public static final String HOP_LICENSE_HEADER_FILE = "HOP_LICENSE_HEADER_FILE";
 
   public static final String[] HOP_SYSTEM_SETTING_VARIABLES =

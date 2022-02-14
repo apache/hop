@@ -25,6 +25,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variable;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
@@ -56,7 +57,10 @@ import java.util.function.Consumer;
 /** A base dialog class containing a body and a configurable button panel. */
 public abstract class BaseDialog extends Dialog {
   private static final Class<?> PKG = BaseDialog.class; // For Translator
-
+  
+  @Variable(value="N", description="Set this value to 'Y' if you want to use the system file open/save dialog when browsing files.")
+  public static final String HOP_USE_NATIVE_FILE_DIALOG = "HOP_USE_NATIVE_FILE_DIALOG";
+  
   public static final int MARGIN_SIZE = 15;
   public static final int LABEL_SPACING = 5;
   public static final int ELEMENT_SPACING = 10;
@@ -174,10 +178,7 @@ public abstract class BaseDialog extends Dialog {
       String[] filterNames,
       boolean folderAndFile) {
 
-    boolean useNativeFileDialog =
-        "Y"
-            .equalsIgnoreCase(
-                HopGui.getInstance().getVariables().getVariable("HOP_USE_NATIVE_FILE_DIALOG", "N"));
+    boolean useNativeFileDialog = HopGui.getInstance().getVariables().getVariableBoolean(HOP_USE_NATIVE_FILE_DIALOG, false);
 
     IFileDialog dialog;
 

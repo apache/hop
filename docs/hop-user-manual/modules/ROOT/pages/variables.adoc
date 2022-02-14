@@ -173,15 +173,13 @@ Otherwise by default a NULL is returned when all values are NULL.
 |HOP_AGGREGATION_MIN_NULL_IS_VALUED|N|Set this variable to Y to set the minimum to NULL if NULL is within an aggregate.
 Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL.
 See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
-|HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES|false|Set this variable to TRUE to allow your pipeline to pass 'null' fields and/or empty types.
+|HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES|N|Set this variable to Y to allow your pipeline to pass 'null' fields and/or empty types.
 |HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE|N|System wide flag to ignore timezone while writing date/timestamp value to the database.
 |HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL|N|Set this variable to Y for backward compatibility for the Merge Rows (diff) transform.
 Setting this to Y will use the data from the reference stream (instead of the comparison stream) in case the compared rows are identical.
 |HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER|N|Set this variable to Y for backward compatibility for the Text File Output transform.
 Setting this to Ywill add no header row at all when the append option is enabled, regardless if the file is existing or not.
-|HOP_CORE_TRANSFORMS_FILE||The name of the project variable that will contain the alternative location of the hop-transforms.xml file.
 You can use this to customize the list of available internal transforms outside of the codebase.
-|HOP_CORE_WORKFLOW_ACTIONS_FILE    ||The name of the project variable that will contain the alternative location of the hop-workflow-actions.xml file.
 |HOP_DEFAULT_BIGNUMBER_FORMAT||The name of the variable containing an alternative default bignumber format
 |HOP_DEFAULT_DATE_FORMAT||The name of the variable containing an alternative default date format
 |HOP_DEFAULT_INTEGER_FORMAT||The name of the variable containing an alternative default integer format
@@ -198,7 +196,7 @@ It defines the max number of simultaneously open files within the transform.
 The transform will close/reopen files as necessary to insure the max is not exceeded
 |HOP_FILE_OUTPUT_MAX_STREAM_LIFE|0|This project variable is used by the Text File Output transform.
 It defines the max number of milliseconds between flushes of files opened by the transform.
-|HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT|false|Set this variable to false to preserve global log variables defined in pipeline / workflow Properties -> Log panel.
+|HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT|N|Set this variable to N to preserve global log variables defined in pipeline / workflow Properties -> Log panel.
 Changing it to true will clear it when export pipeline / workflow.
 |HOP_LENIENT_STRING_TO_NUMBER_CONVERSION|N|System wide flag to allow lenient string to number conversion for backward compatibility.
 If this setting is set to "Y", an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol).
@@ -228,7 +226,7 @@ This only makes a difference for extremely short lived pipelines.
 |HOP_SERVER_JETTY_RES_MAX_IDLE_TIME||A variable to configure jetty option: lowResourcesMaxIdleTime for Carte
 |HOP_SERVER_OBJECT_TIMEOUT_MINUTES|1440|This project variable will set a time-out after which waiting, completed or stopped pipelines and workflows will be automatically cleaned up.
 The default value is 1440 (one day).
-|HOP_SPLIT_FIELDS_REMOVE_ENCLOSURE|false|Set this variable to false to preserve enclosure symbol after splitting the string in the Split fields transform.
+|HOP_SPLIT_FIELDS_REMOVE_ENCLOSURE|N|Set this variable to N to preserve enclosure symbol after splitting the string in the Split fields transform.
 Changing it to true will remove first and last enclosure symbol from the resulting string chunks.
 |HOP_SYSTEM_HOSTNAME||You can use this variable to speed up hostname lookup.
 Hostname lookup is performed by Hop so that it is capable of logging the server on which a workflow or pipeline is executed.

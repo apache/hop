@@ -18,8 +18,8 @@
 package org.apache.hop.pipeline.config;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.VariableValueDescription;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -41,7 +41,7 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
 
   @HopMetadataProperty private String description;
 
-  @HopMetadataProperty private List<VariableValueDescription> configurationVariables;
+  @HopMetadataProperty private List<DescribedVariable> configurationVariables;
 
   @HopMetadataProperty private IPipelineEngineRunConfiguration engineRunConfiguration;
 
@@ -52,7 +52,7 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
   public PipelineRunConfiguration(
       String name,
       String description,
-      List<VariableValueDescription> configurationVariables,
+      List<DescribedVariable> configurationVariables,
       IPipelineEngineRunConfiguration engineRunConfiguration) {
     this.name = name;
     this.description = description;
@@ -89,12 +89,12 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
    *
    * @return value of configurationVariables
    */
-  public List<VariableValueDescription> getConfigurationVariables() {
+  public List<DescribedVariable> getConfigurationVariables() {
     return configurationVariables;
   }
 
   /** @param configurationVariables The configurationVariables to set */
-  public void setConfigurationVariables(List<VariableValueDescription> configurationVariables) {
+  public void setConfigurationVariables(List<DescribedVariable> configurationVariables) {
     this.configurationVariables = configurationVariables;
   }
 
@@ -113,7 +113,7 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
   }
 
   public void applyToVariables(IVariables variables) {
-    for (VariableValueDescription vvd : configurationVariables) {
+    for (DescribedVariable vvd : configurationVariables) {
       if (StringUtils.isNotEmpty(vvd.getName())) {
         variables.setVariable(vvd.getName(), variables.resolve(vvd.getValue()));
       }

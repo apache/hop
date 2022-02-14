@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigFile;
 import org.apache.hop.core.util.Utils;
-
+import org.apache.hop.core.variables.DescribedVariable;
 import java.util.*;
 
 /**

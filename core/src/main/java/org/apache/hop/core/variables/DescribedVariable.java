@@ -18,10 +18,9 @@
 package org.apache.hop.core.variables;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
 
-public class VariableValueDescription {
+public class DescribedVariable {
 
   @HopMetadataProperty private String name;
 
@@ -29,12 +28,18 @@ public class VariableValueDescription {
 
   @HopMetadataProperty private String description;
 
-  public VariableValueDescription() {}
+  public DescribedVariable() {}
 
-  public VariableValueDescription(String name, String value, String description) {
+  public DescribedVariable(String name, String value, String description) {
     this.name = name;
     this.value = value;
     this.description = description;
+  }
+
+  public DescribedVariable(DescribedVariable e) {
+    this.name = e.name;
+    this.value = e.value;
+    this.description = e.description;
   }
 
   @Override
@@ -45,7 +50,7 @@ public class VariableValueDescription {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    VariableValueDescription that = (VariableValueDescription) o;
+    DescribedVariable that = (DescribedVariable) o;
     return Objects.equals(name, that.name);
   }
 

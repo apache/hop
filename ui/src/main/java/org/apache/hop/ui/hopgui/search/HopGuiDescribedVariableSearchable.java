@@ -17,11 +17,11 @@
 
 package org.apache.hop.ui.hopgui.search;
 
-import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.ui.hopgui.HopGui;
 
 import java.io.File;
