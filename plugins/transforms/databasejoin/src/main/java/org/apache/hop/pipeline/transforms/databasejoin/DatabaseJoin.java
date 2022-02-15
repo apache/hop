@@ -290,6 +290,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     try {
     if (data.db != null) {
       data.db.disconnect();
+      data.db = null;
     }
 
     super.dispose();
