@@ -55,14 +55,14 @@ HOP_OPTIONS="${HOP_OPTIONS} -DHOP_PLATFORM_RUNTIME=Translator -DHOP_AUTO_CREATE_
 
 case $(uname -s) in
 Linux)
-    if [[ $(java -XshowSettings:properties -version 2>&1| grep "os.arch = ") == *"aarch64"* ]]; then
+    if $(java -XshowSettings:properties -version 2>&1| grep -q "os.arch = aarch64"); then
         CLASSPATH="lib/*:libswt/linux/arm64/*"
     else
         CLASSPATH="lib/*:libswt/linux/$(uname -m)/*"
     fi
   ;;
 Darwin)
-  if [[ $(java -XshowSettings:properties -version 2>&1| grep "os.arch = ") == *"aarch64"* ]]; then
+  if $(java -XshowSettings:properties -version 2>&1| grep -q "os.arch = aarch64"); then
       CLASSPATH="lib/*:libswt/osx/arm64/*"
   else
       CLASSPATH="lib/*:libswt/osx/x86_64/*"
