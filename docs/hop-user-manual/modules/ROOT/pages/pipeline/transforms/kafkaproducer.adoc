@@ -31,29 +31,27 @@ A Kafka Producer transform publishes a stream of records to one Kafka topic.
 [width="90%",options="header"]
 |===
 |Option|Description
-|Transform name|the name for this transform
-|===
 
-=== Setup
+|Transform name
+|the name for this transform
 
-[width="90%",options="header"]
-|===
-|Option|Description
-|Transform name|the name for this transform
-|===
+|Bootstrap servers
+|comma separated list of bootstrap servers in a Kafka cluster
 
-[width="90%",options="header"]
-|===
-|Option|Description
-|Bootstrap servers|comma separated list of bootstrap servers in a Kafka cluster
-|Client ID|The unique Client identifier, used to identify and set up a durable connection path to the server to make requests and to distinguish between different clients.
-|Topic|The category to which records are published.
-|Key Field|In Kafka, all messages can be keyed, allowing for messages to be distributed to partitions based on their keys in a default routing scheme.
+|Client ID
+|The unique Client identifier, used to identify and set up a durable connection path to the server to make requests and to distinguish between different clients.
+
+|Topic
+|The category to which records are published.
+
+|Key Field
+|In Kafka, all messages can be keyed, allowing for messages to be distributed to partitions based on their keys in a default routing scheme.
 If no key is present, messages are randomly distributed to partitions.
-|Message Field|The individual record contained in a topic.
-|===
 
-=== Options
+|Message Field
+|The individual record contained in a topic.
+
+|===
 
 === Options
 

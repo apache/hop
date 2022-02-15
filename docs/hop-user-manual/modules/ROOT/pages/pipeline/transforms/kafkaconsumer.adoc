@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Kafka Consumer transform pulls streaming data from Kafka. It runs a sub-pipeline that executes according to message batch size or duration, letting you process a continuous stream of records in near-real-time.
+:description: The Kafka Consumer transform continuously pulls data from Kafka. It runs a sub-pipeline that executes according to message batch size or duration.
 
 = Kafka Consumer
 
@@ -153,8 +153,6 @@ The options that are included by default are:
 The Kafka consumer supports error handling but this is *limited to the case* of Batch Size equal to 1 (records from the Kafka queue are processed one by one). In this case, whenever a record coming from the Kafka queue generates an error in the called sub pipeline, that record will be sent along to the error path for further processing. The record that enter the error path is committed in Kafka and next records in the queue can be processed without any problem. Apart the errors fields inserted by error handling, the layout of the record flowing into the error path will be the layout specified in _Field_ tab.
 
 This feature is very useful in any case where we have a record in the Kafka queue that is stopping processing of further records (because it generates an error during processing) and we want to "remove it" from the queue so that we can process the remaining records in the queue. The failing record can be saved somewhere (for example saved to a file or to a DB table) for further investigation.
-
-=== Avro and Schema Registry
 
 === Avro and Schema registry
 
