@@ -37,6 +37,7 @@ import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -552,6 +553,8 @@ public class EnterOptionsDialog extends Dialog {
     fdDarkMode.top = new FormAttachment(wlDarkMode, 0, SWT.CENTER);
     fdDarkMode.right = new FormAttachment(100, 0);
     wDarkMode.setLayoutData(fdDarkMode);
+    wlDarkMode.setEnabled(Const.isWindows());
+    wDarkMode.setEnabled(Const.isWindows());
 
     // DefaultLocale line
     Label wlDefaultLocale = new Label(wLookComp, SWT.RIGHT);
