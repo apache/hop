@@ -84,12 +84,10 @@ public class HopWeb implements ApplicationConfiguration {
     if ("dark".equalsIgnoreCase(themeId)) {
       themeId = "dark";
       PropsUi.getInstance().setDarkMode(true);
-      PropsUi.getInstance().setOSLookShown(true);
       System.out.println("Hop web: enabled dark mode rendering");
     } else {
       themeId = "light";
       PropsUi.getInstance().setDarkMode(false);
-      PropsUi.getInstance().setOSLookShown(false);
     }
     System.out.println("Hop web: selected theme is: " + themeId);
 

@@ -335,9 +335,9 @@ public class GuiResource {
     imageMap = new HashMap<>();
     colorMap = new HashMap<>();
 
-    colorBackground = new ManagedColor(display, props.contrastColor(props.getBackgroundRGB()));
-    colorGraph = new ManagedColor(display, props.contrastColor(props.getGraphColorRGB()));
-    colorTab = new ManagedColor(display, props.contrastColor(props.getTabColorRGB()));
+    colorBackground = new ManagedColor(display, props.contrastColor(new RGB(255,255,255)));
+    colorGraph = new ManagedColor(display, props.contrastColor(new RGB(255,255,255)));
+    colorTab = new ManagedColor(display, props.contrastColor(new RGB(128,128,128)));
     colorSuccessGreen = new ManagedColor(display, props.contrastColor(0, 139, 0));
     colorRed = new ManagedColor(display, props.contrastColor(255, 0, 0));
     colorGreen = new ManagedColor(display, props.contrastColor(0, 255, 0));

@@ -111,6 +111,12 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
+
+    // Select the active file if there's any.
+    //
+    if (activeItem != null) {
+      tabFolder.setSelection(activeItem.getTabItem());
+    }
   }
 
   @Override
@@ -118,6 +124,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     IHopFileTypeHandler handler = getActiveFileTypeHandler();
     HopGui.getInstance()
         .handleFileCapabilities(handler.getFileType(), handler.hasChanged(), false, false);
+    setActiveFileTypeHandler(handler);
   }
 
   @Override

@@ -136,7 +136,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             new CLabel(parent, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
         label.setText(Const.NVL(toolbarItem.getLabel(), ""));
         label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
-        label.setBackground(toolBar.getBackground());
+        props.setLook(label);
         label.pack();
         labelSeparator.setWidth(label.getSize().x);
         labelSeparator.setControl(label);
@@ -176,6 +176,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             new Combo(parent, SWT.SINGLE | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
         combo.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
         combo.setItems(getComboItems(toolbarItem));
+        props.setLook(combo);
         combo.pack();
         comboSeparator.setWidth(
             calculateComboWidth(combo)
@@ -198,7 +199,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             new Button(parent, SWT.CHECK | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
         checkbox.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
         checkbox.setText(Const.NVL(toolbarItem.getLabel(), ""));
-        checkbox.setBackground(toolBar.getBackground());
+        props.setLook(checkbox);
         checkbox.pack();
         checkboxSeparator.setWidth(
             checkbox.getSize().x
