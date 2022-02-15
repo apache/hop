@@ -1553,6 +1553,9 @@ public class TableView extends Composite {
   }
 
   private void applyTextChange(TableItem row, int rowNr, int colNr) {
+    if (text == null || text.isDisposed()) {
+      return;
+    }
     String textData = getTextWidgetValue(colNr);
 
     row.setText(colNr, textData);
