@@ -291,7 +291,10 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData>
                 + e.toString());
         setErrors(1);
       } finally {
-        if (dispose) data.db.disconnect();
+        if (dispose) {
+          data.db.disconnect();
+          data.db = null;
+        }
       }
     }
   }

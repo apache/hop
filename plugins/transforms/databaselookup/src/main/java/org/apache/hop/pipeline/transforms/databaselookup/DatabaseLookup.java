@@ -681,6 +681,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
     // Recover memory immediately, allow in-memory data to be garbage collected
     //
     data.cache = null;
+    data.db = null;
 
     super.dispose();
   }
