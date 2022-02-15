@@ -269,11 +269,9 @@ public class Http extends BaseTransform<HttpMeta, HttpData>
       for (int i = 0; i < data.argnrs.length; i++) {
         String key = meta.getArgumentParameter()[i];
         String value = outputRowMeta.getString(row, data.argnrs[i]);
-        BasicNameValuePair basicNameValuePair = new BasicNameValuePair(key, value);
-        queryParams.add(basicNameValuePair);
-      }
-      if (!queryParams.isEmpty()) {
-        uriBuilder.setParameters(queryParams);
+        if (!key.isEmpty() && !value.isEmpty()) {
+          uriBuilder.addParameter(key, value);
+        }
       }
     } catch (Exception e) {
       throw new HopException(BaseMessages.getString(PKG, "HTTP.Log.UnableCreateUrl"), e);
