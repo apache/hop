@@ -29,6 +29,7 @@ import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -100,7 +101,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
      * in path, constants should be inserted into all arrays items
      */
     for (Entry<String, ITransformMeta> en : data.transformInjectionMetasMap.entrySet()) {
-      newInjectionConstants(en.getKey(), en.getValue());
+      newInjectionConstants(this, en.getKey(), en.getValue());
     }
     for (Entry<String, ITransformMeta> en : data.transformInjectionMetasMap.entrySet()) {
       en.getValue().searchInfoAndTargetTransforms(transforms);
@@ -402,8 +403,12 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
     }
   }
 
-  /** Inject constant values. */
-  private void newInjectionConstants(String targetTransform, ITransformMeta targetTransformMeta)
+  /** Inject constant values.
+   * @param variables
+   * @param targetTransform
+   * @param targetTransformMeta
+   */
+  private void newInjectionConstants(IVariables variables, String targetTransform, ITransformMeta targetTransformMeta)
       throws HopException {
     if (log.isDetailed()) {
       logDetailed("Handing transform '" + targetTransform + "' constants injection!");
@@ -425,8 +430,9 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
           // inject constant
           if (injector.hasProperty(targetTransformMeta, target.getAttributeKey())) {
             // target transform has specified key
+            String value = variables.resolve(source.getField());
             injector.setProperty(
-                targetTransformMeta, target.getAttributeKey(), null, source.getField());
+                targetTransformMeta, target.getAttributeKey(), null, value);
           } else {
             // target transform doesn't have specified key - just report but don't fail like in 6.0
             // (BACKLOG-6753)

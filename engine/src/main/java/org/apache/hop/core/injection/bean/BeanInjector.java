@@ -215,7 +215,9 @@ public class BeanInjector<Meta extends Object> {
       String dataName,
       String dataValue)
       throws Exception {
+    boolean returnValue = true;
     Object obj = root;
+
     for (int i = 1; i < prop.path.size(); i++) {
       BeanLevelInfo<Meta> s = prop.path.get(i);
       if (i < prop.path.size() - 1) {
@@ -336,8 +338,10 @@ public class BeanInjector<Meta extends Object> {
               Object existArray =
                   data != null ? extendArray(s, obj, index + 1) : checkArray(s, obj, index);
               if (existArray == null) {
-                // out of array for constant
-                return false;
+                // A constant is set in a group. We need to allocate one element in the array.
+                existArray = Array.newInstance(s.leafClass, index+1);
+                s.field.set(obj, existArray);
+                returnValue = false;
               }
               Array.set(existArray, index, value);
               break;
@@ -345,8 +349,11 @@ public class BeanInjector<Meta extends Object> {
               List<Object> existList =
                   data != null ? extendList(s, obj, index + 1) : checkList(s, obj, index);
               if (existList == null) {
-                // out of array for constant
-                return false;
+                // A constant is set in a group. We need to allocate one element in the list.
+                existList = new ArrayList<>();
+                existList.add(new Object());
+                s.field.set(obj, existList);
+                returnValue = false;
               }
               existList.set(index, value);
               break;
@@ -361,7 +368,7 @@ public class BeanInjector<Meta extends Object> {
         }
       }
     }
-    return true;
+    return returnValue;
   }
 
   private Object createObject(Class<?> clazz, Object root) throws HopException {
