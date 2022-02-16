@@ -25,18 +25,18 @@ import org.apache.commons.vfs2.provider.AbstractFileName;
 /** An dropbox file name. */
 public class DropboxFileName extends AbstractFileName {
 
-  protected DropboxFileName(final String path, final FileType type) {
-    super("dropbox", path, type);
+  protected DropboxFileName(final String scheme, final String path, final FileType type) {
+    super(scheme, path, type);
   }
 
   @Override
   public FileName createName(String path, FileType type) {
-    return new DropboxFileName(path, type);
+    return new DropboxFileName(getScheme(), path, type);
   }
 
   @Override
   protected void appendRootUri(StringBuilder buffer, boolean addPassword) {
     buffer.append(getScheme());
-    buffer.append("://");
+    buffer.append(":/");
   }
 }

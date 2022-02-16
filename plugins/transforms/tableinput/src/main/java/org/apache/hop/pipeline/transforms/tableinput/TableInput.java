@@ -286,6 +286,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData>
     } finally {
       if (data.db != null) {
         data.db.disconnect();
+        data.db = null;
       }
     }
 

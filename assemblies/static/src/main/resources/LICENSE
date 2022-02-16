@@ -1858,73 +1858,73 @@ This product bundles threetenbp 1.5.0, which is available under a
 This product bundles thrift-server 0.3.7, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-core 2.1.0, which is available under a
+This product bundles tika-core 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-apple-module 2.1.0, which is available under a
+This product bundles tika-parser-apple-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-audiovideo-module 2.1.0, which is available under a
+This product bundles tika-parser-audiovideo-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-cad-module 2.1.0, which is available under a
+This product bundles tika-parser-cad-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-code-module 2.1.0, which is available under a
+This product bundles tika-parser-code-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-crypto-module 2.1.0, which is available under a
+This product bundles tika-parser-crypto-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-digest-commons 2.1.0, which is available under a
+This product bundles tika-parser-digest-commons 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-font-module 2.1.0, which is available under a
+This product bundles tika-parser-font-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-html-commons 2.1.0, which is available under a
+This product bundles tika-parser-html-commons 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-html-module 2.1.0, which is available under a
+This product bundles tika-parser-html-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-image-module 2.1.0, which is available under a
+This product bundles tika-parser-image-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-mail-commons 2.1.0, which is available under a
+This product bundles tika-parser-mail-commons 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-mail-module 2.1.0, which is available under a
+This product bundles tika-parser-mail-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-microsoft-module 2.1.0, which is available under a
+This product bundles tika-parser-microsoft-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-miscoffice-module 2.1.0, which is available under a
+This product bundles tika-parser-miscoffice-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-news-module 2.1.0, which is available under a
+This product bundles tika-parser-news-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-ocr-module 2.1.0, which is available under a
+This product bundles tika-parser-ocr-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-pdf-module 2.1.0, which is available under a
+This product bundles tika-parser-pdf-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-pkg-module 2.1.0, which is available under a
+This product bundles tika-parser-pkg-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-text-module 2.1.0, which is available under a
+This product bundles tika-parser-text-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-xml-module 2.1.0, which is available under a
+This product bundles tika-parser-xml-module 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-xmp-commons 2.1.0, which is available under a
+This product bundles tika-parser-xmp-commons 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles tika-parser-zip-commons 2.1.0, which is available under a
+This product bundles tika-parser-zip-commons 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles trilead-ssh2 1.0.0-build222, which is available under a
@@ -1975,7 +1975,7 @@ This product bundles xmlbeans 5.0.3, which is available under a
 This product bundles xmlenc 0.52, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
 
-This product bundles xmlgraphics-commons 2.3, which is available under a
+This product bundles xmlgraphics-commons 2.7, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles xmpcore 6.1.11, which is available under a

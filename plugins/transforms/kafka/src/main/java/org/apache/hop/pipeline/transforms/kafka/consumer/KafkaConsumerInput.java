@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
+import org.apache.avro.generic.GenericRecord;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.errors.WakeupException;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Set;
@@ -74,7 +75,8 @@ public class KafkaConsumerInput
     }
 
     data.incomingRowsBuffer= new ArrayList<>();
-    data.batch = Const.toInt(resolve(meta.getBatchSize()), -1);
+    data.batchDuration = Const.toInt(resolve(meta.getBatchDuration()), 0);
+    data.batchSize = Const.toInt(resolve(meta.getBatchSize()), 0);
 
     data.consumer = buildKafkaConsumer(this, meta);
 
@@ -258,8 +260,9 @@ public class KafkaConsumerInput
     // If we get any, process them...
     //
     try {
-      ConsumerRecords<String, String> records =
-              data.consumer.poll(data.batch > 0 ? data.batch : Long.MAX_VALUE);
+      Duration duration = Duration.ofMillis(data.batchDuration > 0 ? data.batchDuration : Long.MAX_VALUE);
+      ConsumerRecords<Object, Object> records =
+              data.consumer.poll(duration);
 
       if (!data.isKafkaConsumerClosing) {
         if (records.isEmpty()) {
@@ -268,7 +271,7 @@ public class KafkaConsumerInput
         } else {
           // Grab the records...
           //
-          for (ConsumerRecord<String, String> record : records) {
+          for (ConsumerRecord<Object, Object> record : records) {
             Object[] outputRow = processMessageAsRow(record);
             data.rowProducer.putRow(data.outputRowMeta, outputRow);
             if (errorHandlingConditionIsSatisfied()) {
@@ -349,10 +352,10 @@ public class KafkaConsumerInput
   private boolean errorHandlingConditionIsSatisfied () {
     // Added a check to be sure that lines collecting for error handling is limited
     // to the case of batchSize = 1.
-    return getTransformMeta().isDoingErrorHandling() && data.batch == 1;
+    return getTransformMeta().isDoingErrorHandling() && data.batchSize == 1;
   }
 
-  public Object[] processMessageAsRow(ConsumerRecord<String, String> record) {
+  public Object[] processMessageAsRow(ConsumerRecord<Object, Object> record) {
 
     Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
 

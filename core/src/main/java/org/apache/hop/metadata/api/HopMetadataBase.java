@@ -44,7 +44,7 @@ public class HopMetadataBase implements IHopMetadata {
     if (this == o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (o == null || name == null || getClass() != o.getClass()) {
       return false;
     }
     HopMetadataBase that = (HopMetadataBase) o;

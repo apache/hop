@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Key",
+          "data_set_field": "key"
+        },
+        {
+          "transform_field": "Value",
+          "data_set_field": "value"
+        }
+      ],
+      "field_order": [
+        "key",
+        "value"
+      ],
+      "transform_name": "Dummy (do nothing)",
+      "data_set_name": "golden-properties-input"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0041-properties-file-input-valid-file UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0041-properties-file-input-valid-file.hpl",
+  "test_type": "UNIT_TEST"
+}

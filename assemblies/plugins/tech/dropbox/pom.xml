@@ -35,7 +35,7 @@
     <description></description>
 
     <properties>
-        <dropbox.version>4.0.0</dropbox.version>
+        <dropbox.version>5.0.0</dropbox.version>
     </properties>
 
     <dependencies>

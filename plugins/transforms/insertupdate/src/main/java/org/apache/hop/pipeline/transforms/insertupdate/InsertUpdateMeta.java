@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.insertupdate;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
@@ -441,117 +442,127 @@ public class InsertUpdateMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    DatabaseMeta databaseMeta =
-        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+    SqlStatement sqlStatement =
+        new SqlStatement(transformMeta.getName(), null, null); // default: nothing to do!
 
-    SqlStatement retval =
-        new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
+    String connectionName = variables.resolve(connection);
 
-    if (databaseMeta != null) {
-      if (prev != null && prev.size() > 0) {
-
-        String[] keyLookup = null;
-        String[] keyStream = null;
-        String[] updateLookup = null;
-        String[] updateStream = null;
-
-        if (insertUpdateLookupField.getLookupKeys().size() > 0) {
-          keyLookup = new String[insertUpdateLookupField.getLookupKeys().size()];
-          for (int i = 0; i < insertUpdateLookupField.getLookupKeys().size(); i++) {
-            keyLookup[i] = insertUpdateLookupField.getLookupKeys().get(i).getKeyLookup();
-          }
-        }
-
-        if (insertUpdateLookupField.getLookupKeys().size() > 0) {
-          keyStream = new String[insertUpdateLookupField.getLookupKeys().size()];
-          for (int i = 0; i < insertUpdateLookupField.getLookupKeys().size(); i++) {
-            keyStream[i] = insertUpdateLookupField.getLookupKeys().get(i).getKeyStream();
-          }
-        }
-
-        if (insertUpdateLookupField.getValueFields().size() > 0) {
-          updateLookup = new String[insertUpdateLookupField.getValueFields().size()];
-          for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
-            updateLookup[i] = insertUpdateLookupField.getValueFields().get(i).getUpdateLookup();
-          }
-        }
-
-        if (insertUpdateLookupField.getValueFields().size() > 0) {
-          updateStream = new String[insertUpdateLookupField.getValueFields().size()];
-          for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
-            updateStream[i] = insertUpdateLookupField.getValueFields().get(i).getUpdateStream();
-          }
-        }
-
-        IRowMeta tableFields =
-            RowMetaUtils.getRowMetaForUpdate(
-                prev, keyLookup, keyStream, updateLookup, updateStream);
-
-        if (!Utils.isEmpty(insertUpdateLookupField.getTableName())) {
-          Database db = new Database(loggingObject, variables, databaseMeta);
-          try {
-            db.connect();
-
-            String schemaTable =
-                databaseMeta.getQuotedSchemaTableCombination(
-                    variables,
-                    variables.resolve(insertUpdateLookupField.getSchemaName()),
-                    variables.resolve(insertUpdateLookupField.getTableName()));
-            String crTable = db.getDDL(schemaTable, tableFields, null, false, null, true);
-
-            String crIndex = "";
-            String[] idxFields = null;
-
-            if (keyLookup != null && keyLookup.length > 0) {
-              idxFields = new String[keyLookup.length];
-              for (int i = 0; i < keyLookup.length; i++) {
-                idxFields[i] = keyLookup[i];
-              }
-            } else {
-              retval.setError(
-                  BaseMessages.getString(PKG, "InsertUpdateMeta.CheckResult.MissingKeyFields"));
-            }
-
-            // Key lookup dimensions...
-            if (idxFields != null
-                && idxFields.length > 0
-                && !db.checkIndexExists(
-                    variables.resolve(insertUpdateLookupField.getSchemaName()),
-                    variables.resolve(insertUpdateLookupField.getTableName()),
-                    idxFields)) {
-              String indexname =
-                  "idx_" + variables.resolve(insertUpdateLookupField.getTableName()) + "_lookup";
-              crIndex =
-                  db.getCreateIndexStatement(
-                      schemaTable, indexname, idxFields, false, false, false, true);
-            }
-
-            String sql = crTable + crIndex;
-            if (sql.length() == 0) {
-              retval.setSql(null);
-            } else {
-              retval.setSql(sql);
-            }
-          } catch (HopException e) {
-            retval.setError(
-                BaseMessages.getString(PKG, "InsertUpdateMeta.ReturnValue.ErrorOccurred")
-                    + e.getMessage());
-          }
-        } else {
-          retval.setError(
-              BaseMessages.getString(
-                  PKG, "InsertUpdateMeta.ReturnValue.NoTableDefinedOnConnection"));
-        }
-      } else {
-        retval.setError(
-            BaseMessages.getString(PKG, "InsertUpdateMeta.ReturnValue.NotReceivingAnyFields"));
-      }
-    } else {
-      retval.setError(
-          BaseMessages.getString(PKG, "InsertUpdateMeta.ReturnValue.NoConnectionDefined"));
+    if ( StringUtils.isEmpty(connectionName)) {
+      sqlStatement.setError(BaseMessages.getString(PKG, "InsertUpdateMeta.ReturnValue.NoConnectionDefined"));
+      return sqlStatement;
     }
 
-    return retval;
+    DatabaseMeta databaseMeta;
+
+    try {
+      databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(connectionName);
+      if (databaseMeta == null) {
+        sqlStatement.setError(
+            "Error finding database connection " + connectionName + " in the metadata");
+        return sqlStatement;
+      }
+    } catch (Exception e) {
+      sqlStatement.setError(
+          "Error loading database connection "
+              + connectionName
+              + " from Hop metadata: "
+              + Const.getSimpleStackTrace(e));
+      return sqlStatement;
+    }
+
+    if (prev != null && prev.size() > 0) {
+      String[] keyLookup = null;
+      String[] keyStream = null;
+      String[] updateLookup = null;
+      String[] updateStream = null;
+
+      if (insertUpdateLookupField.getLookupKeys().size() > 0) {
+        keyLookup = new String[insertUpdateLookupField.getLookupKeys().size()];
+        for (int i = 0; i < insertUpdateLookupField.getLookupKeys().size(); i++) {
+          keyLookup[i] = insertUpdateLookupField.getLookupKeys().get(i).getKeyLookup();
+        }
+      }
+
+      if (insertUpdateLookupField.getLookupKeys().size() > 0) {
+        keyStream = new String[insertUpdateLookupField.getLookupKeys().size()];
+        for (int i = 0; i < insertUpdateLookupField.getLookupKeys().size(); i++) {
+          keyStream[i] = insertUpdateLookupField.getLookupKeys().get(i).getKeyStream();
+        }
+      }
+
+      if (insertUpdateLookupField.getValueFields().size() > 0) {
+        updateLookup = new String[insertUpdateLookupField.getValueFields().size()];
+        for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
+          updateLookup[i] = insertUpdateLookupField.getValueFields().get(i).getUpdateLookup();
+        }
+      }
+
+      if (insertUpdateLookupField.getValueFields().size() > 0) {
+        updateStream = new String[insertUpdateLookupField.getValueFields().size()];
+        for (int i = 0; i < insertUpdateLookupField.getValueFields().size(); i++) {
+          updateStream[i] = insertUpdateLookupField.getValueFields().get(i).getUpdateStream();
+        }
+      }
+
+      IRowMeta tableFields =
+          RowMetaUtils.getRowMetaForUpdate(prev, keyLookup, keyStream, updateLookup, updateStream);
+
+      if (!Utils.isEmpty(insertUpdateLookupField.getTableName())) {
+        Database db = new Database(loggingObject, variables, databaseMeta);
+        try {
+          db.connect();
+
+          String schemaTable =
+              databaseMeta.getQuotedSchemaTableCombination(
+                  variables,
+                  variables.resolve(insertUpdateLookupField.getSchemaName()),
+                  variables.resolve(insertUpdateLookupField.getTableName()));
+          String crTable = db.getDDL(schemaTable, tableFields, null, false, null, true);
+
+          String crIndex = "";
+          String[] idxFields = null;
+
+          if (keyLookup != null && keyLookup.length > 0) {
+            idxFields = new String[keyLookup.length];
+            System.arraycopy(keyLookup, 0, idxFields, 0, keyLookup.length);
+          } else {
+            sqlStatement.setError(
+                BaseMessages.getString(PKG, "InsertUpdateMeta.CheckResult.MissingKeyFields"));
+          }
+
+          // Key lookup dimensions...
+          if (idxFields != null && !db.checkIndexExists(
+                  variables.resolve(insertUpdateLookupField.getSchemaName()),
+                  variables.resolve(insertUpdateLookupField.getTableName()),
+                  idxFields)) {
+            String indexName =
+                "idx_" + variables.resolve(insertUpdateLookupField.getTableName()) + "_lookup";
+            crIndex =
+                db.getCreateIndexStatement(
+                    schemaTable, indexName, idxFields, false, false, false, true);
+          }
+
+          String sql = crTable + Const.CR + crIndex;
+          if (sql.length() == 0) {
+            sqlStatement.setSql(null);
+          } else {
+            sqlStatement.setSql(sql);
+          }
+        } catch (HopException e) {
+          sqlStatement.setError(
+              BaseMessages.getString(PKG, "InsertUpdateMeta.ReturnValue.ErrorOccurred")
+                  + e.getMessage());
+        }
+      } else {
+        sqlStatement.setError(
+            BaseMessages.getString(PKG, "InsertUpdateMeta.ReturnValue.NoTableDefinedOnConnection"));
+      }
+    } else {
+      sqlStatement.setError(
+          BaseMessages.getString(PKG, "InsertUpdateMeta.ReturnValue.NotReceivingAnyFields"));
+    }
+
+    return sqlStatement;
   }
 
   @Override

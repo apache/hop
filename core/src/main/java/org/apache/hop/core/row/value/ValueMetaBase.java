@@ -31,6 +31,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.json.simple.JSONObject;
 import org.w3c.dom.Node;
 
 import java.io.*;
@@ -5492,5 +5493,24 @@ public class ValueMetaBase implements IValueMeta {
   public Class<?> getNativeDataTypeClass() throws HopValueException {
     // Not implemented for base class
     throw new HopValueException(getTypeDesc() + " does not implement this method");
+  }
+
+  @Override
+  public void storeMetaInJson(JSONObject jValue) throws HopException {
+    jValue.put("name", getName());
+    jValue.put("type", getType());
+    jValue.put("length", getLength());
+    jValue.put("precision", getPrecision());
+    jValue.put("conversionMask", getConversionMask());
+  }
+
+  @Override
+  public void loadMetaFromJson(JSONObject jValue) {
+    long length = (long) jValue.get("length");
+    setLength((int) length);
+    long precision = (long) jValue.get("precision");
+    setPrecision((int) precision);
+    String conversionMask = (String) jValue.get("conversionMask");
+    setConversionMask(conversionMask);
   }
 }

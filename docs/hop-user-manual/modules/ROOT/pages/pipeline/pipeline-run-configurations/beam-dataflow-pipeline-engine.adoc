@@ -116,7 +116,7 @@ The default is up to the Dataflow service.
 You must be allowlisted to use it.
 
 |Dataflow Service Options
-|Comma separated list of service options.  Service options are set by the user and configure the service. This decouples service side feature availability from the Apache Beam release cycle.
+|This is a comma separated list of options in the format `option=value,option2=value2,...`. It serves as a catch-all option for the Dataflow service. This helps if Beam is missing some service related options and if new options are added in the future older Beam versions could still use them through these catch-all options.
 
 |User agent|A user agent string as per https://tools.ietf.org/html/rfc2616[RFC2616], describing the pipeline to external services.
 |Temp location|Cloud Storage path for temporary files.

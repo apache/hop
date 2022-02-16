@@ -56,6 +56,11 @@
             <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>org.apache.kafka:kafka-clients:jar</include>
+                <include>io.confluent:kafka-schema-registry-client:jar</include>
+                <include>io.confluent:kafka-avro-serializer:jar</include>
+                <include>io.confluent:common-config:jar</include>
+                <include>io.confluent:common-utils:jar</include>
+                <include>com.101tec:zkclient:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

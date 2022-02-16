@@ -576,6 +576,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         emptyAndCommitBatchBuffers(true);
       } finally {
         data.db.disconnect();
+        data.db = null;
       }
       super.dispose();
     }

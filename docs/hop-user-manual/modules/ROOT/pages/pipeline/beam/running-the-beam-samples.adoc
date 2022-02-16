@@ -1,0 +1,83 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[RunningTheBeamSamples]]
+:imagesdir: ../assets/images
+:description: Follow the instruction on this page to set up a minimal installation to run the Apache Hop samples for the Apache Beam run configurations for Apache Spark, Apache Flink and Google Cloud Dataflow.
+
+:toc:
+
+= Running the Apache Beam samples
+
+== Prerequisites
+
+The steps on this page and the detail pages for Spark, Flink and Google Dataflow will set up everything you need to run the pipelines in the Hop samples project.
+
+=== Java
+
+You'll already have Java installed to run Apache Hop.
+
+Even though Hop runs fine on Java versions higher than 8, both Apache Hop and Apache Beam are built with java 8.
+
+Make sure you're using a Java 8 runtime to avoid any potential issues, either by setting java 8 as your default JRE or through the `JAVA_HOME` environment variable.
+
+Double-check your java version with the `java -version` command. Your output should look similar to the one below.
+
+[source, shell]
+----
+openjdk version "1.8.0_312"
+OpenJDK Runtime Environment (build 1.8.0_312-b10)
+OpenJDK 64-Bit Server VM (build 25.312-b10, mixed mode)
+----
+
+=== the samples project
+
+The Hop samples project comes with a number of sample pipelines for Apache Beam. Your default Hop installation comes with the samples project by default. If your Hop installation doesn't come with this project, create a new project and point its Home folder to `<HOP>/config/projects/samples`.
+
+The Samples project contains the following pipeline run configurations
+
+* local: the native local run configuration. We'll be ignoring this run configuration in the context of this guide.
+* Dataflow: the Apache Beam run configuration for Google Cloud Dataflow.
+* Direct: the direct runner Apache Beam run configuration. The https://beam.apache.org/documentation/runners/direct/[Direct Runner] executes pipelines on your machine and is designed to validate that pipelines adhere to the Apache Beam model as closely as possible. Instead of focusing on efficient pipeline execution, the Direct Runner performs additional checks to ensure that users do not rely on semantics that are not guaranteed by the model.
+* Flink: the Apache Beam run configuration for Apache Flink.
+* Spark:the Apache Beam run configuration for Apache Spark.
+
+image:beam/beam-run-configurations.png[Apache Beam Run Configurations in Apache Hop, width="45%"]
+
+
+=== Build your Hop Fat Jar
+
+Apache Beam requires a so-called `fat jar` that bundles all required Java classes and their dependencies into a single jar file.
+
+Build this jar for your Hop installation through `Tools -> Generate a Hop fat jar`.
+
+Save this file in a convenient location and file name. Either store this outside of your project folder or add it to your `.gitignore`. You don't want to accidentally add hundreds of MB to your git repository.
+
+=== Flink and Spark: export your project metadata
+
+You'll need to pass your project's metadata to JSON to pass it to either `spark-submit` or `flink run`.
+
+Export your project metadata through `Tools -> Export metadata to JSON`.
+
+Save this file in a convenient location and file name. Either store this outside of your project folder or add it to your `.gitignore`. Your project's metadata folder should already be in version control , you don't want to add this full metadata point-in-time export once again.
+
+== Running the samples for Direct runner, Flink and Spark
+
+* xref:pipeline/beam/beam-samples-direct-runner.adoc[Direct Runner]
+* xref:pipeline/beam/beam-samples-flink.adoc[Apache Flink]
+* xref:pipeline/beam/beam-samples-spark.adoc[Apache Spark]
+* Google Cloud Dataflow: TODO
+

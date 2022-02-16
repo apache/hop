@@ -1,0 +1,55 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/avro/
+:language: en_US
+:description: This page describes how Hop supports the Avro data type.
+
+= Avro
+
+From https://avro.apache.org[avro.apache.org]:
+
+Apache Avro™ is a data serialization system. To learn more about Avro, please read the https://avro.apache.org/docs/current/[current documentation].
+
+Hop supports Avro through a number of plugins.
+First and foremost we support Avro as a data type called "Avro Record".  It simply describes a class of type `org.apache.avro.generic.GenericRecord`.  This in turn encapsulates both an Avro schema and a set of values.
+
+== Pipeline Transforms
+
+* xref:pipeline/transforms/avro-decode.adoc[Avro Decode]: This allows you to extract Hop values from an Avro Record data type.
+* xref:pipeline/transforms/avro-encode.adoc[Avro Encode]: This allows you to extract Hop values from an Avro Record data type.
+
+== Kafka Producer transforms
+
+If you want to send or receive Avro records using the Hop Kafka transforms it's important to set a few options:
+
+|===
+|Option |Description |Example
+
+
+|`value.converter.schema.registry.url`
+|Specify the URL of your Confluent schema registry.
+|http://confluent-server:8081
+
+|`schema.registry.url`
+|Specify the URL of your Confluent schema registry.
+|http://confluent-server:8081
+
+|`auto.register.schemas`
+|Instruct Kafka to automatically register the schema of the Avro record in the Confluent schema registry.
+|true
+
+|===

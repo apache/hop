@@ -98,7 +98,7 @@ public class KafkaConsumerField {
         DoubleDeserializer.class.getName()),
     Avro(
         "Avro",
-        IValueMeta.TYPE_STRING,
+        IValueMeta.TYPE_AVRO,
         "io.confluent.kafka.serializers.KafkaAvroSerializer",
         "io.confluent.kafka.serializers.KafkaAvroDeserializer");
 

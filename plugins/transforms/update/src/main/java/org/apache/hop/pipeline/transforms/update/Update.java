@@ -569,6 +569,8 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
         if (dispose) {
           data.db.closePreparedStatement(data.prepStatementUpdate);
           data.db.closePreparedStatement(data.prepStatementLookup);
+          data.prepStatementUpdate = null;
+          data.prepStatementLookup = null;
         }
       } catch (HopDatabaseException e) {
         logError(
@@ -578,7 +580,10 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
                 + e.toString());
         setErrors(1);
       } finally {
-        if (dispose) data.db.disconnect();
+        if (dispose) {
+          data.db.disconnect();
+          data.db = null;
+        }
       }
     }
   }

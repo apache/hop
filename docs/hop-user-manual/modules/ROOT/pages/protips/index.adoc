@@ -26,16 +26,13 @@ A lot of Hop's default behavior can be customized through global variables.
 Check xref:variables.adoc[full list of variables] to check them all.
 A couple of useful and often overlooked environment variables can be set (outside of Hop):
 
-HOP_AUDIT_FOLDER::
-Set this variable to a valid path on your machine to store Hop's audit information.
-This information includes last opened files per project, zoom size and lots more.
+include::../snippets/variables/hop-audit-folder.adoc[]
 
-HOP_CONFIG_FOLDER::
-Hop stores your configuration in the `config` folder by default.
-Set this environment variable to point to a folder outside of your Hop installation to keep your configuration, projects and environment list etc, no matter which Hop version or installation you use.
+include::../snippets/variables/hop-config-folder.adoc[]
 
-HOP_PLUGIN_BASE_FOLDERS::
-Set this variable to point Hop to a comma separated list of folders where you want Hop to look for additional plugins.
+include::../snippets/variables/hop-plugin-base-folders.adoc[]
+
+include::../snippets/variables/hop-shared-jdbc-folder.adoc[]
 
 == Keyboard Shortcuts and Mouse actions
 

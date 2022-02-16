@@ -65,7 +65,8 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
     if (first && !meta.isFileField()) {
       data.files = meta.getFiles(this);
       if (data.files == null || data.files.nrOfFiles() == 0) {
-        throw new HopException(BaseMessages.getString(PKG, "PropertyInput.Log.NoFiles"));
+        setOutputDone(); // signal end to receiver(s)
+        return false;
       }
 
       handleMissingFiles();

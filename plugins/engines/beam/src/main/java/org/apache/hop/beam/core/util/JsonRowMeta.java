@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.core.util;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -35,7 +36,7 @@ public class JsonRowMeta {
    * @param rowMeta The row to convert to JSON
    * @return
    */
-  public static String toJson(IRowMeta rowMeta) {
+  public static String toJson(IRowMeta rowMeta) throws HopException {
 
     JSONObject jRowMeta = new JSONObject();
 
@@ -44,15 +45,9 @@ public class JsonRowMeta {
 
     for (int v = 0; v < rowMeta.size(); v++) {
       IValueMeta valueMeta = rowMeta.getValueMeta(v);
-
       JSONObject jValue = new JSONObject();
+      valueMeta.storeMetaInJson(jValue);
       jValues.add(jValue);
-
-      jValue.put("name", valueMeta.getName());
-      jValue.put("type", valueMeta.getType());
-      jValue.put("length", valueMeta.getLength());
-      jValue.put("precision", valueMeta.getPrecision());
-      jValue.put("conversionMask", valueMeta.getConversionMask());
     }
 
     return jRowMeta.toJSONString();
@@ -67,14 +62,7 @@ public class JsonRowMeta {
     JSONArray jValues = (JSONArray) jRowMeta.get("values");
     for (int v = 0; v < jValues.size(); v++) {
       JSONObject jValue = (JSONObject) jValues.get(v);
-      String name = (String) jValue.get("name");
-      long type = (long) jValue.get("type");
-      long length = (long) jValue.get("length");
-      long precision = (long) jValue.get("precision");
-      String conversionMask = (String) jValue.get("conversionMask");
-      IValueMeta valueMeta =
-          ValueMetaFactory.createValueMeta(name, (int) type, (int) length, (int) precision);
-      valueMeta.setConversionMask(conversionMask);
+      IValueMeta valueMeta = ValueMetaFactory.loadValueMetaFromJson(jValue);
       rowMeta.addValueMeta(valueMeta);
     }
 

@@ -44,13 +44,15 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/avro-decode.html",
     keywords = "i18n::AvroDecodeMeta.keyword")
-@InjectionSupported(localizationPrefix = "AvroInputMeta.Injection.")
 public class AvroDecodeMeta extends BaseTransformMeta
     implements ITransformMeta<AvroFileInput, AvroDecodeData> {
   private static final Class<?> PKG = AvroDecodeMeta.class; // For Translator
 
   @HopMetadataProperty(key = "source_field")
   private String sourceFieldName;
+
+  @HopMetadataProperty(key = "remove_source_field")
+  private boolean removingSourceField;
 
   @HopMetadataProperty(key = "ignore_missing")
   private boolean ignoringMissingPaths;
@@ -60,6 +62,7 @@ public class AvroDecodeMeta extends BaseTransformMeta
 
   public AvroDecodeMeta() {
     sourceFieldName = "avro";
+    removingSourceField = true;
     ignoringMissingPaths = true;
     targetFields = new ArrayList<>();
   }
@@ -111,6 +114,14 @@ public class AvroDecodeMeta extends BaseTransformMeta
   /** @param sourceFieldName The sourceFieldName to set */
   public void setSourceFieldName(String sourceFieldName) {
     this.sourceFieldName = sourceFieldName;
+  }
+
+  public boolean isRemovingSourceField() {
+    return removingSourceField;
+  }
+
+  public void setRemovingSourceField(boolean removingSourceField) {
+    this.removingSourceField = removingSourceField;
   }
 
   /**
