@@ -30,11 +30,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DynamicWaitTimesTest extends TestCase {
 
   DynamicWaitTimes.SingleStreamStatus status;
-  AtomicInteger adjustTimes = new AtomicInteger();
+  AtomicInteger activeStreamIndex = new AtomicInteger();
 
   public void testSingleStreamStatus() {
     IRowSet rowSet = new BlockingRowSet(3);
-    status = DynamicWaitTimes.build(Collections.singletonList(rowSet));
+    status = DynamicWaitTimes.build(Collections.singletonList(rowSet), () -> 0);
     assertEquals(1, status.get());
     status.adjust(true, rowSet);
     assertEquals(2, status.get());
@@ -48,47 +48,55 @@ public class DynamicWaitTimesTest extends TestCase {
     List<IRowSet> rowSetList =
         new ArrayList<>(
             Arrays.asList(new BlockingRowSet(1), new BlockingRowSet(2), new BlockingRowSet(7)));
-    status = DynamicWaitTimes.build(rowSetList);
+    status = DynamicWaitTimes.build(rowSetList, () -> activeStreamIndex.get());
     for (IRowSet iRowSet : rowSetList) {
       status.adjust(false, iRowSet);
       assertEquals(1, status.get());
       assertFalse(status.allowAdjust());
+      activeStreamIndex.incrementAndGet();
     }
 
     // first. all input stream timeout
-    testAPeriod(rowSetList);
-    assertFalse(status.allowAdjust());
+    activeStreamIndex.set(0);
+    testAPeriod(rowSetList, 10);
+    assertTrue(status.allowAdjust());
 
     // second. reset a input stream
+    activeStreamIndex.set(0);
     status.doReset(0);
-    testAPeriod(rowSetList);
-    assertFalse(status.allowAdjust());
+    testAPeriod(rowSetList, 4);
+    assertTrue(status.allowAdjust());
 
     // third. remove a input stream
+    activeStreamIndex.set(0);
     status.adjust(true, rowSetList.get(0));
     status.adjust(true, rowSetList.get(1));
     status.remove(rowSetList.get(1));
     rowSetList.remove(1);
-    testAPeriod(rowSetList);
-    assertFalse(status.allowAdjust());
+    testAPeriod(rowSetList, 10);
+    assertTrue(status.allowAdjust());
 
     // four. remove again
+    activeStreamIndex.set(0);
     status.remove(rowSetList.get(1));
     rowSetList.remove(1);
-    testAPeriod(rowSetList);
+    testAPeriod(rowSetList, 10);
     assertFalse(status.allowAdjust());
-    testAPeriod(rowSetList);
+    testAPeriod(rowSetList, 10);
     assertFalse(status.allowAdjust());
 
+    activeStreamIndex.set(0);
     status.remove(rowSetList.get(0));
     rowSetList.remove(0);
-    testAPeriod(rowSetList);
+    testAPeriod(rowSetList, 10);
   }
 
-  private void testAPeriod(List<IRowSet> rowSetList) {
-    for (int j = 0; j < rowSetList.size() * 10; j++) {
+  private void testAPeriod(List<IRowSet> rowSetList, int times) {
+    for (int j = 0; j < rowSetList.size() * times; j++) {
+      activeStreamIndex.set(0);
       for (IRowSet iRowSet : rowSetList) {
         status.adjust(true, iRowSet);
+        activeStreamIndex.incrementAndGet();
       }
     }
   }
