@@ -123,8 +123,11 @@ final class DynamicWaitTimes {
     @Override
     public void remove(IRowSet rowSet) {
       int index = supplier.get();
-      Assert.assertTrue(
-          streamList.get(index).equals(rowSet), "Removed a input steam, before switch next stream");
+      if (!streamList.get(index).equals(rowSet)) {
+        // get index for some merge flow transformations
+        index = streamList.indexOf(rowSet);
+      }
+      Assert.assertTrue(index > -1, "Removed input steam at {0}, before switch next stream", index);
       streamList.remove(index);
       statusList.remove(index);
       if (!streamList.isEmpty()) {
