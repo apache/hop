@@ -113,6 +113,7 @@ public class CheckResultDialog extends Dialog {
 
     wNoOK = new Button(shell, SWT.CHECK);
     wNoOK.setText(STRING_SHOW_SUCESSFUL);
+    props.setLook(wNoOK);
     FormData fd = new FormData();
     fd.left = new FormAttachment(0, 0);
     fd.bottom = new FormAttachment(wClose, -2 * margin);

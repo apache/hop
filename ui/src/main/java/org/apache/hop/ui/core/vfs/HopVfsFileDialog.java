@@ -249,7 +249,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     GridLayout gridLayout = new GridLayout((browsingDirectories) ? 2 : 3, false);
     gridLayout.marginWidth = 0;
     navigateComposite.setLayout(gridLayout);
-
+    props.setLook(navigateComposite);
+    
     FormData fdNavigationForm = new FormData();
     fdNavigationForm.left = new FormAttachment(0, 0);
     fdNavigationForm.top = new FormAttachment(0, 0);
@@ -260,6 +261,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     //
     ToolBar navigateToolBar = new ToolBar(navigateComposite, SWT.LEFT | SWT.HORIZONTAL);
     navigateToolBar.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
+    props.setLook(navigateToolBar);
 
     navigateToolbarWidgets = new GuiToolbarWidgets();
     navigateToolbarWidgets.registerGuiPluginObject(this);
@@ -279,7 +281,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       wFilters.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false));
       props.setLook(wFilters);
     }
-
+    
     // Above this we have a sash form
     //
     SashForm sashForm = new SashForm(shell, SWT.HORIZONTAL);

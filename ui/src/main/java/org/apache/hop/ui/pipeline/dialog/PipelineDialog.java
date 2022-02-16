@@ -38,7 +38,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
@@ -77,7 +76,7 @@ public class PipelineDialog extends Dialog {
 
   private Text wExtendedDescription;
 
-  private CCombo wPipelineStatus;
+  private Combo wPipelineStatus;
 
   // Pipeline version
   private Text wPipelineVersion;
@@ -347,15 +346,15 @@ public class PipelineDialog extends Dialog {
     fdlPipelineStatus.right = new FormAttachment(middle, 0);
     fdlPipelineStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
     wlPipelineStatus.setLayoutData(fdlPipelineStatus);
-    wPipelineStatus = new CCombo(wPipelineComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wPipelineStatus = new Combo(wPipelineComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wPipelineStatus.add(BaseMessages.getString(PKG, "PipelineDialog.Draft_PipelineStatus.Label"));
     wPipelineStatus.add(
         BaseMessages.getString(PKG, "PipelineDialog.Production_PipelineStatus.Label"));
     wPipelineStatus.add("");
     wPipelineStatus.select(-1); // +1: starts at -1
     wPipelineStatus.addSelectionListener(lsModSel);
-
     props.setLook(wPipelineStatus);
+    
     FormData fdPipelineStatus = new FormData();
     fdPipelineStatus.left = new FormAttachment(middle, 0);
     fdPipelineStatus.top = new FormAttachment(wExtendedDescription, margin * 2);

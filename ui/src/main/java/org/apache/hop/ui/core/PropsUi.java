@@ -483,9 +483,18 @@ public class PropsUi extends Props {
                     2, 0, control.getBounds().width - 8, control.getBounds().height - 20);
               });
         }
+        else if (control instanceof Combo) {
+          if (PropsUi.instance.isDarkMode()) {
+            background = GuiResource.getInstance().getColorLightGray();
+          } else {
+            background = GuiResource.getInstance().getColorDemoGray();
+          }          
+        }
         font = null;
         break;
       case WIDGET_STYLE_FIXED:
+        foreground = gui.getColorBlack();
+        background = gui.getColorWhite();
         font = gui.getFontFixed();
         break;
       case WIDGET_STYLE_TABLE:
