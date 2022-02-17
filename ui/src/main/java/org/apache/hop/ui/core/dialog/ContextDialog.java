@@ -352,7 +352,7 @@ public class ContextDialog extends Dialog {
     //
     Composite searchComposite = new Composite(shell, SWT.NONE);
     searchComposite.setLayout(new GridLayout(3, false));
-    props.setLook(searchComposite);
+    props.setLook(searchComposite, Props.WIDGET_STYLE_TOOLBAR);
     FormData fdlSearchComposite = new FormData();
     fdlSearchComposite.top = new FormAttachment(0, 0);
     fdlSearchComposite.left = new FormAttachment(0, 0);
@@ -361,7 +361,7 @@ public class ContextDialog extends Dialog {
 
     Label wlSearch = new Label(searchComposite, SWT.LEFT);
     wlSearch.setText(BaseMessages.getString(PKG, "ContextDialog.Search.Label.Text"));
-    props.setLook(wlSearch);
+    props.setLook(wlSearch, Props.WIDGET_STYLE_TOOLBAR);
 
     wSearch =
         new Text(
@@ -382,14 +382,25 @@ public class ContextDialog extends Dialog {
 
     // Add a description label at the bottom...
     //
-    wlTooltip = new Label(shell, SWT.LEFT);
+    Composite wTooltipComposite = new Composite(shell, SWT.NONE);
+    GridLayout gdlTooltipComposite = new GridLayout(1, false);
+    gdlTooltipComposite.marginLeft = Const.FORM_MARGIN;
+    gdlTooltipComposite.marginRight = Const.FORM_MARGIN;
+    gdlTooltipComposite.marginTop = Const.FORM_MARGIN;
+    gdlTooltipComposite.marginBottom = Const.FORM_MARGIN;
+    wTooltipComposite.setLayout(new GridLayout(1, false));
+    props.setLook(wTooltipComposite, Props.WIDGET_STYLE_TOOLBAR);
+    
     FormData fdlTooltip = new FormData();
-    fdlTooltip.left = new FormAttachment(0, Const.FORM_MARGIN);
-    fdlTooltip.right = new FormAttachment(100, -Const.FORM_MARGIN);
-    fdlTooltip.top =
-        new FormAttachment(100, -Const.FORM_MARGIN - (int) (props.getZoomFactor() * 50));
-    fdlTooltip.bottom = new FormAttachment(100, -Const.FORM_MARGIN);
-    wlTooltip.setLayoutData(fdlTooltip);
+    fdlTooltip.left = new FormAttachment(0, 0);
+    fdlTooltip.right = new FormAttachment(100, 0);
+    fdlTooltip.top = new FormAttachment(100, - (int) (props.getZoomFactor() * 50));
+    fdlTooltip.bottom = new FormAttachment(100, 0);
+    wTooltipComposite.setLayoutData(fdlTooltip);
+    
+    wlTooltip = new Label(wTooltipComposite, SWT.LEFT);
+    wlTooltip.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+    props.setLook(wlTooltip, Props.WIDGET_STYLE_TOOLBAR);
 
     // The rest of the dialog is used to draw the actions...
     //
@@ -400,7 +411,7 @@ public class ContextDialog extends Dialog {
     fdCanvas.left = new FormAttachment(0, 0);
     fdCanvas.right = new FormAttachment(100, 0);
     fdCanvas.top = new FormAttachment(searchComposite, 0);
-    fdCanvas.bottom = new FormAttachment(wlTooltip, 0);
+    fdCanvas.bottom = new FormAttachment(wTooltipComposite, 0);
     wScrolledComposite.setLayoutData(fdCanvas);
     wScrolledComposite.setExpandHorizontal(true);
 

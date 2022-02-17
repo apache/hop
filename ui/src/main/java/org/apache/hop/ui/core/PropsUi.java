@@ -451,10 +451,6 @@ public class PropsUi extends Props {
   }
 
   public void setLook(Control widget) {
-    if (widget instanceof Combo) {
-      return; // Just keep the default
-    }
-
     setLook(widget, WIDGET_STYLE_DEFAULT);
 
     if (widget instanceof Composite) {
@@ -474,6 +470,8 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_DEFAULT:
         background = gui.getColorWhite();
         foreground = gui.getColorBlack();
+        font = null;        
+
         if (control instanceof Group && OS.contains("mac")) {
           control.addPaintListener(
               paintEvent -> {
@@ -483,9 +481,17 @@ public class PropsUi extends Props {
                     2, 0, control.getBounds().width - 8, control.getBounds().height - 20);
               });
         }
-        font = null;
+        else if (control instanceof Combo) {
+          if (Const.isWindows() && isDarkMode()) {
+            background = gui.getColorBackground();
+          } else {
+            return; // Just keep the default
+          }
+        }        
         break;
       case WIDGET_STYLE_FIXED:
+        foreground = gui.getColorBlack();
+        background = gui.getColorWhite();
         font = gui.getFontFixed();
         break;
       case WIDGET_STYLE_TABLE:
@@ -505,19 +511,19 @@ public class PropsUi extends Props {
         break;
       case WIDGET_STYLE_TOOLBAR:
         foreground = gui.getColorBlack();
-        if (PropsUi.instance.isDarkMode()) {
-          background = GuiResource.getInstance().getColorLightGray();
+        if (isDarkMode()) {
+          background = gui.getColorLightGray();
         } else {
-          background = GuiResource.getInstance().getColorDemoGray();
+          background = gui.getColorDemoGray();
         }
         break;
       case WIDGET_STYLE_TAB:
-        background = GuiResource.getInstance().getColorWhite();
-        foreground = GuiResource.getInstance().getColorBlack();
+        background = gui.getColorWhite();
+        foreground = gui.getColorBlack();
         CTabFolder tabFolder = (CTabFolder) control;
         tabFolder.setBorderVisible(true);
         // need to make a copy of the tab selection background color to get around bug
-        Color c = GuiResource.getInstance().getColorTab();
+        Color c = gui.getColorTab();
         Color tabColor = new Color(c.getDevice(), c.getRed(), c.getGreen(), c.getBlue());
         tabFolder.setSelectionBackground(tabColor);
         break;

@@ -40,7 +40,6 @@ import org.apache.hop.ui.util.HelpUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
@@ -86,7 +85,7 @@ public class WorkflowDialog extends Dialog {
 
   private Text wExtendedDescription;
 
-  private CCombo wWorkflowStatus;
+  private Combo wWorkflowStatus;
 
   // Workflow version
   private Text wVersion;
@@ -104,8 +103,6 @@ public class WorkflowDialog extends Dialog {
   private Text wModUser;
 
   private Text wModDate;
-
-  private int previousLogTableIndex = 0;
 
   private ArrayList<IWorkflowDialogPlugin> extraTabs;
 
@@ -331,7 +328,7 @@ public class WorkflowDialog extends Dialog {
     fdlWorkflowStatus.right = new FormAttachment(middle, 0);
     fdlWorkflowStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
     wlWorkflowStatus.setLayoutData(fdlWorkflowStatus);
-    wWorkflowStatus = new CCombo(wWorkflowComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wWorkflowStatus = new Combo(wWorkflowComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wWorkflowStatus.add(BaseMessages.getString(PKG, "WorkflowDialog.Draft_WorkflowStatus.Label"));
     wWorkflowStatus.add(
         BaseMessages.getString(PKG, "WorkflowDialog.Production_WorkflowStatus.Label"));
