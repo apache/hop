@@ -186,6 +186,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   /** the rowsets on the output, size() == nr of target transforms */
   private List<IRowSet> outputRowSets;
 
+  private DynamicWaitTimes.SingleStreamStatus waitingTime;
+
   private final ReadWriteLock outputRowSetsLock = new ReentrantReadWriteLock();
 
   /** the rowset for the error rows */
@@ -1504,6 +1506,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return row;
   }
 
+
   private Object[] handleGetRow() throws HopException {
 
     // Are we pausing the transform? If so, stall forever...
@@ -1584,15 +1587,20 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       // rowset, then switch to another etc.
       // We can use timeouts to switch from one to another...
       //
+      if (waitingTime == null) {
+        waitingTime = DynamicWaitTimes.build(inputRowSets, this::getCurrentInputRowSetNr);
+      }
       while (row == null && !isStopped()) {
         // Get a row from the input in row set ...
         // Timeout immediately if nothing is there to read.
         // We will then switch to the next row set to read from...
         //
-        row = inputRowSet.getRowWait(1, TimeUnit.MILLISECONDS);
+        row = inputRowSet.getRowWait(waitingTime.get(), TimeUnit.MILLISECONDS);
+        boolean timeout = false;
         if (row != null) {
           incrementLinesRead();
           blockPointer++;
+          waitingTime.reset();
         } else {
           // Try once more...
           // If row is still empty and the row set is done, we remove the row
@@ -1615,7 +1623,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
               // elements when removing.
               inputRowSetsLock.writeLock().lock();
               try {
-                inputRowSets.remove(inputRowSet);
+                removeRowSetFromInputRowSets(inputRowSet);
                 if (inputRowSets.isEmpty()) {
                   return null; // We're completely done.
                 }
@@ -1626,9 +1634,14 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
             } else {
               incrementLinesRead();
             }
+          } else {
+            timeout = true;
           }
           nextInputStream();
           inputRowSet = currentInputStream();
+          // only change delay time when input stream don't switch.
+          // else switch active stream and reset min delay time
+          waitingTime.adjust(timeout, inputRowSet);
         }
       }
 
@@ -1893,7 +1906,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       //
       rowData = rowSet.getRow();
       if (rowData == null) {
-
+        if (waitingTime == null) {
+          waitingTime = DynamicWaitTimes.build(inputRowSets, this::getCurrentInputRowSetNr);
+        }
         // Must release the read lock before acquisition of the write lock to prevent deadlocks.
         //
         // But #handleGetRowFrom() can be called either from outside or from handleGetRow().
@@ -1910,7 +1925,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         // elements when removing.
         inputRowSetsLock.writeLock().lock();
         try {
-          inputRowSets.remove(rowSet);
+          removeRowSetFromInputRowSets(rowSet);
 
           // Downgrade to read lock by restoring to the previous state before releasing the write
           // lock
@@ -2900,6 +2915,14 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       inputRowSets.add(rowSet);
     } finally {
       inputRowSetsLock.writeLock().unlock();
+    }
+  }
+
+  private void removeRowSetFromInputRowSets(IRowSet rowSet) {
+    inputRowSets.remove(rowSet);
+    waitingTime.remove(rowSet);
+    if (currentInputRowSetNr > 0) {
+      currentInputRowSetNr--;
     }
   }
 
