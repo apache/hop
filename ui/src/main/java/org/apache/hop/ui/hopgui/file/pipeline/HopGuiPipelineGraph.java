@@ -1713,6 +1713,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   protected void addHop(IStream stream) {
+    if(candidate == null) {
+      return;
+    }
     switch (stream.getStreamType()) {
       case ERROR:
         addErrorHop();
