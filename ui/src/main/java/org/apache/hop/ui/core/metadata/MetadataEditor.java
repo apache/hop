@@ -264,6 +264,10 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
       throw new HopException(BaseMessages.getString(PKG, "MetadataEditor.Error.NoName"));
     }
 
+    if(StringUtils.startsWith(name, "$")) {
+      throw new HopException(BaseMessages.getString(PKG, "MetadataEditor.Error.IncorrectName"));
+    }
+
     // The serializer of the metadata
     //
     IHopMetadataSerializer<T> serializer = manager.getSerializer();
