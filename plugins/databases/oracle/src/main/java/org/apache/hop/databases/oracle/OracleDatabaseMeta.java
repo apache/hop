@@ -743,11 +743,11 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @Override
   public String getStartQuote() {
-    return "";
+    return "\"";
   }
 
   @Override
   public String getEndQuote() {
-    return "";
+    return "\"";
   }
 }
