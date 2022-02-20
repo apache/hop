@@ -156,12 +156,12 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
 
   @Override
   public String getStartQuote() {
-    return "";
+    return "[";
   }
 
   @Override
   public String getEndQuote() {
-    return "";
+    return "]";
   }
 
   @Override
