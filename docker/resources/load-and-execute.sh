@@ -153,11 +153,15 @@ if [ -n "${HOP_PROJECT_FOLDER}" ]; then
   log "Registering project ${HOP_PROJECT_NAME} in the Hop container configuration"
   log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --project=${HOP_PROJECT_NAME} --project-create --project-home='${HOP_PROJECT_FOLDER}' --project-config-file='${HOP_PROJECT_CONFIG_FILE_NAME}'"
 
-  "${DEPLOYMENT_PATH}"/hop/hop-conf.sh \
-    --project="${HOP_PROJECT_NAME}" \
-    --project-create \
-    --project-home="${HOP_PROJECT_FOLDER}" \
-    --project-config-file="${HOP_PROJECT_CONFIG_FILE_NAME}"
+  if $("${DEPLOYMENT_PATH}"/hop/hop-conf.sh -pl | grep -q -E "^  ${HOP_PROJECT_NAME} :"); then
+    log "project ${HOP_PROJECT_NAME} already exists"
+  else
+    "${DEPLOYMENT_PATH}"/hop/hop-conf.sh \
+      --project="${HOP_PROJECT_NAME}" \
+      --project-create \
+      --project-home="${HOP_PROJECT_FOLDER}" \
+      --project-config-file="${HOP_PROJECT_CONFIG_FILE_NAME}"
+  fi
 
   HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --project=${HOP_PROJECT_NAME}"
 
@@ -173,12 +177,16 @@ if [ -n "${HOP_PROJECT_FOLDER}" ]; then
     log "Registering environment ${HOP_ENVIRONMENT_NAME} in the Hop container configuration"
     log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --environment-create --environment=${HOP_ENVIRONMENT_NAME} --environment-project=${HOP_PROJECT_NAME} --environment-config-files='${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}'"
 
-    "${DEPLOYMENT_PATH}"/hop/hop-conf.sh \
-      --environment="${HOP_ENVIRONMENT_NAME}" \
-      --environment-create \
-      --environment-project="${HOP_PROJECT_NAME}" \
-      --environment-purpose="Apache Hop docker container" \
-      --environment-config-files="${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}"
+    if $("${DEPLOYMENT_PATH}"/hop/hop-conf.sh -el | grep -q -E -x "^  ${HOP_ENVIRONMENT_NAME}"); then
+      log "environment ${HOP_ENVIRONMENT_NAME} already exists"
+    else
+      "${DEPLOYMENT_PATH}"/hop/hop-conf.sh \
+        --environment="${HOP_ENVIRONMENT_NAME}" \
+        --environment-create \
+        --environment-project="${HOP_PROJECT_NAME}" \
+        --environment-purpose="Apache Hop docker container" \
+        --environment-config-files="${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}"
+    fi
 
     HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --environment=${HOP_ENVIRONMENT_NAME}"
   else
