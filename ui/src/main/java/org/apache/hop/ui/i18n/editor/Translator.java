@@ -1115,6 +1115,7 @@ public class Translator {
 
     applyChangedValue();
 
+    wTodo.setRedraw(false);
     wTodo.removeAll();
     wKey.setText("");
     wMain.setText("");
@@ -1147,6 +1148,11 @@ public class Translator {
       }
       wTodo.setItems(todoItems);
     }
+    if (wTodo.getSelectionCount() == 0 && wTodo.getItemCount() > 0) {
+      wTodo.setSelection(0);
+      wTodo.notifyListeners(SWT.Selection, new Event());
+    }
+    wTodo.setRedraw(true);
   }
 
   private java.util.List<KeyOccurrence> getTodoList(
@@ -1231,7 +1237,9 @@ public class Translator {
 
   public void refreshPackages() {
     int index = wPackages.getSelectionIndex();
+    int topIndex = wPackages.table.getTopIndex();
 
+    wPackages.table.setRedraw(false);
     // OK, we have a distinct list of packages to work with...
     wPackages.table.removeAll();
 
@@ -1292,10 +1300,13 @@ public class Translator {
       }
     }
 
+    if (topIndex > 0) {
+      wPackages.table.setTopIndex(topIndex);
+    }
     if (index >= 0) {
       wPackages.table.setSelection(index);
-      wPackages.table.showSelection();
     }
+    wPackages.table.setRedraw(true);
   }
 
   private String getShortSourceFolder(String rootFolder, String sourceFolder) {
