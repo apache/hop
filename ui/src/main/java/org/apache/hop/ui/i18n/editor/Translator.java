@@ -1115,6 +1115,7 @@ public class Translator {
 
     applyChangedValue();
 
+    wTodo.setRedraw(false);
     wTodo.removeAll();
     wKey.setText("");
     wMain.setText("");
@@ -1147,6 +1148,11 @@ public class Translator {
       }
       wTodo.setItems(todoItems);
     }
+    if (wTodo.getSelectionCount() == 0 && wTodo.getItemCount() > 0) {
+      wTodo.setSelection(0);
+      wTodo.notifyListeners(SWT.Selection, new Event());
+    }
+    wTodo.setRedraw(true);
   }
 
   private java.util.List<KeyOccurrence> getTodoList(
