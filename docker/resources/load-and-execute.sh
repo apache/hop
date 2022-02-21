@@ -201,7 +201,7 @@ if [ -z "${HOP_FILE_PATH}" ]; then
   write_server_config
   log "Starting a hop-server on port "${HOP_SERVER_PORT}
   "${DEPLOYMENT_PATH}"/hop/hop-server.sh \
-    ${HOP_EXEC_OPTIONS} \
+    "${HOP_EXEC_OPTIONS}" \
     /tmp/hop-server.xml \
     2>&1 | tee ${HOP_LOG_PATH}
 
