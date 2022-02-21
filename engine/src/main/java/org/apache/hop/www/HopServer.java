@@ -62,6 +62,7 @@ import picocli.CommandLine.Parameters;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class HopServer implements Runnable, IHasHopMetadataProvider {
   private static final Class<?> PKG = HopServer.class; // For Translator
@@ -441,6 +442,11 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
   }
 
   public static void main(String[] args) {
+    String[] arguments =
+        Stream.of(args)
+            .flatMap(a -> Stream.of(a.split("(?=--)")))
+            .filter(a -> !a.isEmpty())
+            .toArray(String[]::new);
 
     HopServer hopServer = new HopServer();
 
@@ -448,7 +454,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
       // Create the command line options...
       //
       picocli.CommandLine cmd = new picocli.CommandLine(hopServer);
-
       // Apply the system properties to the JVM
       //
       hopServer.applySystemProperties();
@@ -465,7 +470,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
       // Clear the jar file cache so that we don't waste memory...
       //
       JarCache.getInstance().clear();
-      
+
       // Set up the metadata to use
       //
       hopServer.metadataProvider =
@@ -490,7 +495,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
 
       // This will calculate the option values and put them in HopRun or the plugin classes
       //
-      picocli.CommandLine.ParseResult parseResult = cmd.parseArgs(args);
+      picocli.CommandLine.ParseResult parseResult = cmd.parseArgs(arguments);
 
       if (picocli.CommandLine.printHelpIfRequested(parseResult)) {
         printExtraUsageExamples();
@@ -633,7 +638,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     public HopServerCommandException(final String message, final Throwable cause) {
       super(message, cause);
     }
-
   }
 
   /**
