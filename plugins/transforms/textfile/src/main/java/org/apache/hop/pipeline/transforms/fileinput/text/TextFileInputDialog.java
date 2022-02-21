@@ -471,17 +471,18 @@ public class TextFileInputDialog extends BaseTransformDialog
    * compression mode in the content tab depending on it*/
   private void checkCompressedFile() {
     if (wFilenameList.getItemCount() > 0) {
-      String[] fileRecord = wFilenameList.getItem(0);
-      String fileExtension = FilenameUtils.getExtension(fileRecord[0]);
-      Collection<ICompressionProvider> compProviders =
-          CompressionProviderFactory.getInstance().getCompressionProviders();
-      for (ICompressionProvider provider : compProviders) {
-        if (provider.getDefaultExtension() != null
-            && provider.getDefaultExtension().equals(fileExtension)) {
-          int toBeSelected = ArrayUtils.indexOf(wCompression.getItems(), provider.getName());
-          wCompression.select(toBeSelected);
-          wCompression.setEnabled(true);
-          return;
+      for (int i = 0; i < wFilenameList.getItemCount(); i++) {
+        String[] fileRecord = wFilenameList.getItem(i);
+        String fileExtension = FilenameUtils.getExtension(fileRecord[i]);
+        Collection<ICompressionProvider> compProviders =
+            CompressionProviderFactory.getInstance().getCompressionProviders();
+        for (ICompressionProvider provider : compProviders) {
+          if (provider.getDefaultExtension() != null
+              && provider.getDefaultExtension().equals(fileExtension)) {
+            int toBeSelected = ArrayUtils.indexOf(wCompression.getItems(), provider.getName());
+            wCompression.select(toBeSelected);
+            return;
+          }
         }
       }
       wCompression.select(
@@ -1150,7 +1151,6 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdCompression.top = new FormAttachment(wNrLinesDocHeader, margin);
     fdCompression.right = new FormAttachment(100, 0);
     wCompression.setLayoutData(fdCompression);
-    wCompression.setEnabled(false);
 
     Label wlNoempty = new Label(wContentComp, SWT.RIGHT);
     wlNoempty.setText(BaseMessages.getString(PKG, "TextFileInputDialog.NoEmpty.Label"));
