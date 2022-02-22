@@ -29,18 +29,17 @@ import java.util.Map;
 public class HopServerWorkflowStatusLoadSaveTester extends LoadSaveBase<HopServerWorkflowStatus> {
 
   public HopServerWorkflowStatusLoadSaveTester(
-      Class<HopServerWorkflowStatus> clazz, List<String> commonAttributes) {
+      Class<HopServerWorkflowStatus> clazz, List<String> commonAttributes) throws HopException {
     super(clazz, commonAttributes);
   }
 
   public HopServerWorkflowStatusLoadSaveTester(
       Class<HopServerWorkflowStatus> clazz,
-      List<String> commonAttributes,
-      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap) {
+      List<String> attributes,
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap) throws HopException {
     super(
         clazz,
-        commonAttributes,
-        new ArrayList<>(),
+        attributes,
         new HashMap<>(),
         new HashMap<>(),
         fieldLoadSaveValidatorAttributeMap,
@@ -54,10 +53,10 @@ public class HopServerWorkflowStatusLoadSaveTester extends LoadSaveBase<HopServe
   protected void testXmlRoundTrip() throws HopException {
     HopServerWorkflowStatus metaToSave = createMeta();
     Map<String, IFieldLoadSaveValidator<?>> validatorMap =
-        createValidatorMapAndInvokeSetters(xmlAttributes, metaToSave);
+        createValidatorMapAndInvokeSetters(attributes, metaToSave);
 
     String xml = metaToSave.getXml();
     HopServerWorkflowStatus metaLoaded = HopServerWorkflowStatus.fromXml(xml);
-    validateLoadedMeta(xmlAttributes, validatorMap, metaToSave, metaLoaded);
+    validateLoadedMeta(attributes, validatorMap, metaToSave, metaLoaded);
   }
 }

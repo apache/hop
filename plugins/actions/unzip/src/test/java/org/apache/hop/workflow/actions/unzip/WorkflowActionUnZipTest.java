@@ -38,7 +38,7 @@ public class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<A
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
         "zipfilename",
         "wildcard",

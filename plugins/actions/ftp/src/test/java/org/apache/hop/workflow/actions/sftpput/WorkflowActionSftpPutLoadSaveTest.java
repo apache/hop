@@ -38,34 +38,32 @@ public class WorkflowActionSftpPutLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
-        new String[] {
-          "serverName",
-          "serverPort",
-          "userName",
-          "password",
-          "scpDirectory",
-          "localDirectory",
-          "wildcard",
-          "copyPrevious",
-          "copyPreviousFiles",
-          "addFilenameResut",
-          "useKeyFile",
-          "keyFilename",
-          "keyPassPhrase",
-          "compression",
-          "proxyType",
-          "proxyHost",
-          "proxyPort",
-          "proxyUsername",
-          "proxyPassword",
-          "createRemoteFolder",
-          "afterFtps",
-          "destinationFolder",
-          "createDestinationFolder",
-          "successWhenNoFile"
-        });
+            "serverName",
+            "serverPort",
+            "userName",
+            "password",
+            "scpDirectory",
+            "localDirectory",
+            "wildcard",
+            "copyPrevious",
+            "copyPreviousFiles",
+            "addFilenameResut",
+            "useKeyFile",
+            "keyFilename",
+            "keyPassPhrase",
+            "compression",
+            "proxyType",
+            "proxyHost",
+            "proxyPort",
+            "proxyUsername",
+            "proxyPassword",
+            "createRemoteFolder",
+            "afterFtps",
+            "destinationFolder",
+            "createDestinationFolder",
+            "successWhenNoFile");
   }
 
   @Override

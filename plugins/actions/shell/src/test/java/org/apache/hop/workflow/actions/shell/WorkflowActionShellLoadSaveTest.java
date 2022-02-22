@@ -39,24 +39,22 @@ public class WorkflowActionShellLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
-        new String[] {
-          "filename",
-          "workDirectory",
-          "argFromPrevious",
-          "execPerRow",
-          "setLogfile",
-          "logfile",
-          "setAppendLogfile",
-          "logext",
-          "addDate",
-          "addTime",
-          "insertScript",
-          "script",
-          "logFileLevel",
-          "arguments"
-        });
+            "filename",
+            "workDirectory",
+            "argFromPrevious",
+            "execPerRow",
+            "setLogfile",
+            "logfile",
+            "setAppendLogfile",
+            "logext",
+            "addDate",
+            "addTime",
+            "insertScript",
+            "script",
+            "logFileLevel",
+            "arguments");
   }
 
   @Override

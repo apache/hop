@@ -21,14 +21,13 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FieldsChangeSequenceMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -39,25 +38,33 @@ public class FieldsChangeSequenceMetaTest {
   }
 
   @Test
-  public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList("start", "increment", "resultFieldName");
+  public void testTransformMeta() throws Exception {
+    LoadSaveTester<FieldsChangeSequenceMeta> tester =
+        new LoadSaveTester<>(FieldsChangeSequenceMeta.class);
 
-    Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("start", "getStart");
-    getterMap.put("increment", "getIncrement");
-    getterMap.put("resultfieldName", "getResultFieldName");
-    // getterMap.put( "name", "getFieldName" );
+    tester.getFieldLoadSaveValidatorFactory().registerValidator(
+            FieldsChangeSequenceMeta.class.getDeclaredField("fields").getGenericType().toString(),
+            new ListLoadSaveValidator<>(new FieldChangeSequenceFieldValidator()));
 
-    Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("start", "setStart");
-    setterMap.put("increment", "setIncrement");
-    setterMap.put("resultfieldName", "setResultFieldName");
-    // setterMap.put( "name", "setFieldName" );
+    tester.testSerialization();
+  }
 
-    LoadSaveTester loadSaveTester =
-        new LoadSaveTester(FieldsChangeSequenceMeta.class, attributes, getterMap, setterMap);
-    // LoadSaveTester loadSaveTester = new LoadSaveTester( FieldsChangeSequenceMeta.class,
-    // attributes );
-    loadSaveTester.testSerialization();
+  private static final class FieldChangeSequenceFieldValidator
+      implements IFieldLoadSaveValidator<FieldsChangeSequenceField> {
+
+    @Override
+    public FieldsChangeSequenceField getTestObject() {
+      return new FieldsChangeSequenceField(UUID.randomUUID().toString());
+    }
+
+    @Override
+    public boolean validateTestObject(FieldsChangeSequenceField testObject, Object actual) {
+      if (!(actual instanceof FieldsChangeSequenceField)) {
+        return false;
+      }
+      FieldsChangeSequenceField actualObject = (FieldsChangeSequenceField) actual;
+
+      return testObject.getName().equals(actualObject.getName());
+    }
   }
 }

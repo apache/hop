@@ -110,7 +110,6 @@ public class GetFilesRowsCountMetaTest implements IInitializer<ITransformMeta> {
         new LoadSaveTester(
             GetFilesRowsCountMeta.class,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

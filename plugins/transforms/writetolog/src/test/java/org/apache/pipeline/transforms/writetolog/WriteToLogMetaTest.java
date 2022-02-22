@@ -80,7 +80,6 @@ public class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.httppost;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+import java.util.Objects;
+
 public class HttpPostQuery {
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.QueryFieldName")
@@ -54,4 +56,17 @@ public class HttpPostQuery {
   }
 
   public HttpPostQuery() {}
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    HttpPostQuery that = (HttpPostQuery) o;
+    return Objects.equals(name, that.name) && Objects.equals(parameter, that.parameter);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, parameter);
+  }
 }

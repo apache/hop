@@ -255,7 +255,6 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

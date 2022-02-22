@@ -37,7 +37,7 @@ public class WorkflowActionEvalFilesMetricsLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
         new String[] {
           "resultFilenamesWildcard",

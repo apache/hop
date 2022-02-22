@@ -36,7 +36,7 @@ public class WorkflowActionTruncateTablesLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(new String[] {"database", "argFromPrevious", "tableNames", "schemaNames"});
   }
 

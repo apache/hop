@@ -13,27 +13,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
-package org.apache.hop.workflow.actions.deletefile;
 
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+package org.apache.hop.neo4j.transforms.importer;
 
-import java.util.Arrays;
-import java.util.List;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.pipeline.TransformLoadSaveTester;
+import org.junit.Test;
 
-public class WorkflowActionDeleteFileLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionDeleteFile> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+public class ImporterMetaTest {
 
-  @Override
-  protected Class<ActionDeleteFile> getActionClass() {
-    return ActionDeleteFile.class;
-  }
+  @Test
+  public void testSerialization() throws HopException {
 
-  @Override
-  protected List<String> listAttributes() {
-    return Arrays.asList("filename", "failIfFileNotExists");
+    TransformLoadSaveTester<ImporterMeta> tester =
+        new TransformLoadSaveTester<>(ImporterMeta.class);
+    tester.testSerialization();
   }
 }

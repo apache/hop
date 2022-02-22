@@ -126,7 +126,6 @@ public class YamlInputMetaTest implements IInitializer<YamlInputMeta> {
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

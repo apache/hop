@@ -97,7 +97,6 @@ public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

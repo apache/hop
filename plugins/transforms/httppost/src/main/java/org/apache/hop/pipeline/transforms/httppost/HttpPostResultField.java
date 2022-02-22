@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.httppost;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+import java.util.Objects;
+
 public class HttpPostResultField {
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.ResultFieldCode")
@@ -86,5 +88,18 @@ public class HttpPostResultField {
 
   public HttpPostResultField() {
     this.code = "result";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    HttpPostResultField that = (HttpPostResultField) o;
+    return Objects.equals(code, that.code) && Objects.equals(name, that.name) && Objects.equals(responseTimeFieldName, that.responseTimeFieldName) && Objects.equals(responseHeaderFieldName, that.responseHeaderFieldName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(code, name, responseTimeFieldName, responseHeaderFieldName);
   }
 }

@@ -34,7 +34,7 @@ public class WorkflowActionTableExistsLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
-    return Arrays.asList(new String[] {"tablename", "schemaname", "database"});
+  protected List<String> listAttributes() {
+    return Arrays.asList("tablename", "schemaname", "database");
   }
 }
