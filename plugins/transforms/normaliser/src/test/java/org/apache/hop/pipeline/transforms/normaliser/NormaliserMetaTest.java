@@ -56,7 +56,6 @@ public class NormaliserMetaTest implements IInitializer<NormaliserMeta> {
         new LoadSaveTester<>(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

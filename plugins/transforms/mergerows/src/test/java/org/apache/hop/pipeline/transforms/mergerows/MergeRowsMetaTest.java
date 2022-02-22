@@ -57,7 +57,6 @@ public class MergeRowsMetaTest implements IInitializer<ITransformMeta> {
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             new HashMap<>(),
             new HashMap<>(),
             attrValidatorMap,

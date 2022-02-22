@@ -34,39 +34,37 @@ public class WorkflowActionPGPEncryptFilesLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
-        new String[] {
-          "gpgLocation",
-          "argFromPrevious",
-          "includeSubFolders",
-          "addResultFileNames",
-          "destinationIsAFile",
-          "createDestinationFolder",
-          "addDate",
-          "addTime",
-          "specifyFormat",
-          "dateTimeFormat",
-          "nrErrorsLessThan",
-          "successCondition",
-          "addDateBeforeExtension",
-          "doNotKeepFolderStructure",
-          "ifFileExists",
-          "destinationFolder",
-          "ifMovedFileExists",
-          "movedDateTimeFormat",
-          "createMoveToFolder",
-          "addMovedDate",
-          "addMovedTime",
-          "specifyMoveFormat",
-          "addMovedDateBeforeExtension",
-          "asciiMode",
-          "actionType",
-          "sourceFileFolder",
-          "userId",
-          "destinationFileFolder",
-          "wildcard"
-        });
+            "gpgLocation",
+            "argFromPrevious",
+            "includeSubFolders",
+            "addResultFileNames",
+            "destinationIsAFile",
+            "createDestinationFolder",
+            "addDate",
+            "addTime",
+            "specifyFormat",
+            "dateTimeFormat",
+            "nrErrorsLessThan",
+            "successCondition",
+            "addDateBeforeExtension",
+            "doNotKeepFolderStructure",
+            "ifFileExists",
+            "destinationFolder",
+            "ifMovedFileExists",
+            "movedDateTimeFormat",
+            "createMoveToFolder",
+            "addMovedDate",
+            "addMovedTime",
+            "specifyMoveFormat",
+            "addMovedDateBeforeExtension",
+            "asciiMode",
+            "actionType",
+            "sourceFileFolder",
+            "userId",
+            "destinationFileFolder",
+            "wildcard");
   }
 
   @Override

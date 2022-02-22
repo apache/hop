@@ -55,7 +55,6 @@ public class SetValueFieldMetaTest implements IInitializer<SetValueFieldMeta> {
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

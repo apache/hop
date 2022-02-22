@@ -90,7 +90,7 @@ public class PGBulkLoaderTest {
   public void testCreateCommandLine() throws Exception {
     PGBulkLoaderMeta meta = mock(PGBulkLoaderMeta.class);
     doReturn(new DatabaseMeta()).when(meta).getDatabaseMeta();
-    doReturn(new ArrayList<>()).when(meta).getMapping();
+    doReturn(new ArrayList<>()).when(meta).getMappings();
     PGBulkLoaderData data = mock(PGBulkLoaderData.class);
 
     PGBulkLoader spy =

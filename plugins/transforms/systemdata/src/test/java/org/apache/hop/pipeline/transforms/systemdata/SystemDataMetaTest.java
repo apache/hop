@@ -135,7 +135,6 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

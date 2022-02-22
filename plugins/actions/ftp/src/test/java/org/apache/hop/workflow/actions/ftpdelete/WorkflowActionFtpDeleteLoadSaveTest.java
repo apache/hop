@@ -37,34 +37,32 @@ public class WorkflowActionFtpDeleteLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
-        new String[] {
-          "protocol",
-          "serverName",
-          "serverPort",
-          "userName",
-          "password",
-          "remoteDirectory",
-          "wildcard",
-          "timeout",
-          "activeConnection",
-          "useProxy",
-          "proxyHost",
-          "proxyPort",
-          "proxyUsername",
-          "proxyPassword",
-          "usePublicKey",
-          "keyFilename",
-          "keyFilePass",
-          "limitSuccess",
-          "successCondition",
-          "copyPrevious",
-          "socksProxyHost",
-          "socksProxyPort",
-          "socksProxyUsername",
-          "socksProxyPassword"
-        });
+            "protocol",
+            "serverName",
+            "serverPort",
+            "userName",
+            "password",
+            "remoteDirectory",
+            "wildcard",
+            "timeout",
+            "activeConnection",
+            "useProxy",
+            "proxyHost",
+            "proxyPort",
+            "proxyUsername",
+            "proxyPassword",
+            "usePublicKey",
+            "keyFilename",
+            "keyFilePass",
+            "limitSuccess",
+            "successCondition",
+            "copyPrevious",
+            "socksProxyHost",
+            "socksProxyPort",
+            "socksProxyUsername",
+            "socksProxyPassword");
   }
 
   @Override

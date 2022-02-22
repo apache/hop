@@ -84,7 +84,6 @@ public class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
         new LoadSaveTester<>(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

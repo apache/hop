@@ -34,16 +34,14 @@ public class WorkflowActionSetVariablesLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
-        new String[] {
-          "replaceVars",
-          "filename",
-          "fileVariableType",
-          "variableName",
-          "variableValue",
-          "variableType"
-        });
+            "replaceVars",
+            "filename",
+            "fileVariableType",
+            "variableName",
+            "variableValue",
+            "variableType");
   }
 
   @Override

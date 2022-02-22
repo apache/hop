@@ -54,7 +54,7 @@ public class WorkflowActionZipFileLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     // NOTE: Many of these "properties" refer to the method to get at the variable. In these cases
     // the member variables
     // and their getters/setters don't follow the bean getter/setter pattern.

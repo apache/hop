@@ -112,8 +112,7 @@ public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
     transformLoadSaveTester =
         new TransformLoadSaveTester(
             testMetaClass,
-            attributes,
-            attributes,
+                attributes,
             getterMap,
             setterMap,
             attrValidatorMap,

@@ -49,7 +49,7 @@ public class MergeJoinMetaTest {
 
   LoadSaveTester loadSaveTester;
 
-  public MergeJoinMetaTest() {
+  public MergeJoinMetaTest() throws HopException {
     // SwitchCaseMeta bean-like attributes
     List<String> attributes =
         Arrays.asList(

@@ -76,7 +76,7 @@ public class HttpPostMeta extends BaseTransformMeta
   private String url;
 
   @HopMetadataProperty(key = "lookup", injectionGroupDescription = "HTTPPOST.Injection.lookupfield")
-  private List<HttpPostLoookupField> lookupfield = new ArrayList<>();
+  private List<HttpPostLookupField> lookupFields = new ArrayList<>();
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.urlInField")
   private boolean urlInField;
@@ -108,7 +108,7 @@ public class HttpPostMeta extends BaseTransformMeta
   @HopMetadataProperty(
       key = "result",
       injectionGroupDescription = "HTTPPOST.Injection.httpPostResultField")
-  private List<HttpPostResultField> httpPostResultField = new ArrayList<>();
+  private List<HttpPostResultField> resultFields = new ArrayList<>();
 
   public HttpPostMeta() {
     super(); // allocate BaseTransformMeta
@@ -200,20 +200,20 @@ public class HttpPostMeta extends BaseTransformMeta
     return requestEntity;
   }
 
-  public List<HttpPostLoookupField> getLookupfield() {
-    return lookupfield;
+  public List<HttpPostLookupField> getLookupFields() {
+    return lookupFields;
   }
 
-  public void setLookupfield(List<HttpPostLoookupField> lookupfield) {
-    this.lookupfield = lookupfield;
+  public void setLookupFields(List<HttpPostLookupField> lookupFields) {
+    this.lookupFields = lookupFields;
   }
 
-  public List<HttpPostResultField> getHttpPostResultField() {
-    return httpPostResultField;
+  public List<HttpPostResultField> getResultFields() {
+    return resultFields;
   }
 
-  public void setHttpPostResultField(List<HttpPostResultField> httpPostResultField) {
-    this.httpPostResultField = httpPostResultField;
+  public void setResultFields(List<HttpPostResultField> resultFields) {
+    this.resultFields = resultFields;
   }
 
   @Override
@@ -227,8 +227,8 @@ public class HttpPostMeta extends BaseTransformMeta
   public void setDefault() {
     encoding = DEFAULT_ENCODING;
     postAFile = false;
-    lookupfield.add(new HttpPostLoookupField());
-    httpPostResultField.add(new HttpPostResultField());
+    lookupFields.add(new HttpPostLookupField());
+    resultFields.add(new HttpPostResultField());
     socketTimeout = String.valueOf(DEFAULT_SOCKET_TIMEOUT);
     connectionTimeout = String.valueOf(DEFAULT_CONNECTION_TIMEOUT);
     closeIdleConnectionsTime = String.valueOf(DEFAULT_CLOSE_CONNECTIONS_TIME);
@@ -243,23 +243,23 @@ public class HttpPostMeta extends BaseTransformMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (!Utils.isEmpty(httpPostResultField.get(0).getName())) {
-      IValueMeta v = new ValueMetaString(httpPostResultField.get(0).getName());
+    if (!Utils.isEmpty(resultFields.get(0).getName())) {
+      IValueMeta v = new ValueMetaString(resultFields.get(0).getName());
       inputRowMeta.addValueMeta(v);
     }
 
-    if (!Utils.isEmpty(httpPostResultField.get(0).getCode())) {
-      IValueMeta v = new ValueMetaInteger(httpPostResultField.get(0).getCode());
+    if (!Utils.isEmpty(resultFields.get(0).getCode())) {
+      IValueMeta v = new ValueMetaInteger(resultFields.get(0).getCode());
       inputRowMeta.addValueMeta(v);
     }
-    if (!Utils.isEmpty(httpPostResultField.get(0).getResponseTimeFieldName())) {
+    if (!Utils.isEmpty(resultFields.get(0).getResponseTimeFieldName())) {
       IValueMeta v =
           new ValueMetaInteger(
-              variables.resolve(httpPostResultField.get(0).getResponseTimeFieldName()));
+              variables.resolve(resultFields.get(0).getResponseTimeFieldName()));
       inputRowMeta.addValueMeta(v);
     }
     String headerFieldName =
-        variables.resolve(httpPostResultField.get(0).getResponseHeaderFieldName());
+        variables.resolve(resultFields.get(0).getResponseHeaderFieldName());
     if (!Utils.isEmpty(headerFieldName)) {
       IValueMeta v = new ValueMetaString(headerFieldName);
       v.setOrigin(name);

@@ -35,7 +35,7 @@ public class WorkflowActionTelnetLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList("hostname", "port", "timeout");
   }
 

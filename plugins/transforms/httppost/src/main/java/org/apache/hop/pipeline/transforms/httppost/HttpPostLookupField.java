@@ -22,7 +22,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HttpPostLoookupField {
+public class HttpPostLookupField {
 
   @HopMetadataProperty(
       key = "query",
@@ -50,16 +50,16 @@ public class HttpPostLoookupField {
     this.argumentField = argumentField;
   }
 
-  public HttpPostLoookupField(
+  public HttpPostLookupField(
       List<HttpPostQuery> postQuery, List<HttpPostArgumentField> argumentField) {
     this.queryField = postQuery;
     this.argumentField = argumentField;
   }
 
-  public HttpPostLoookupField(HttpPostLoookupField httpPostLoookupField) {
-    this.queryField = httpPostLoookupField.queryField;
-    this.argumentField = httpPostLoookupField.argumentField;
+  public HttpPostLookupField(HttpPostLookupField httpPostLookupField) {
+    this.queryField = httpPostLookupField.queryField;
+    this.argumentField = httpPostLookupField.argumentField;
   }
 
-  public HttpPostLoookupField() {}
+  public HttpPostLookupField() {}
 }

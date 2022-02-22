@@ -223,7 +223,6 @@ public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
         new LoadSaveTester(
             LoadFileInputMeta.class,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

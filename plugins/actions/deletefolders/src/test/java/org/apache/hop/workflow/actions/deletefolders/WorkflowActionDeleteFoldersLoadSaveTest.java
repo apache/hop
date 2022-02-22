@@ -34,7 +34,7 @@ public class WorkflowActionDeleteFoldersLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList("argFromPrevious", "success_condition", "limit_folders");
   }
 

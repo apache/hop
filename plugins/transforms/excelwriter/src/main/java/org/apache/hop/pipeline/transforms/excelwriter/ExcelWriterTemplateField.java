@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.excelwriter;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+import java.util.Objects;
+
 public class ExcelWriterTemplateField {
 
   /** Flag: use a template */
@@ -61,6 +63,19 @@ public class ExcelWriterTemplateField {
     this.templateSheetHidden = templateSheetHidden;
     this.templateFileName = templateFileName;
     this.templateSheetName = templateSheetName;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ExcelWriterTemplateField that = (ExcelWriterTemplateField) o;
+    return templateEnabled == that.templateEnabled && templateSheetEnabled == that.templateSheetEnabled && templateSheetHidden == that.templateSheetHidden && Objects.equals(templateFileName, that.templateFileName) && Objects.equals(templateSheetName, that.templateSheetName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(templateEnabled, templateSheetEnabled, templateSheetHidden, templateFileName, templateSheetName);
   }
 
   /** @return Returns the template. */

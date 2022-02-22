@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.pgbulkloader;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+import java.util.Objects;
+
 public class PGBulkLoaderMappingMeta {
   private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
 
@@ -50,6 +52,20 @@ public class PGBulkLoaderMappingMeta {
     this.fieldTable = m.fieldTable;
     this.fieldStream = m.fieldStream;
     this.dateMask = m.dateMask;
+  }
+
+  public PGBulkLoaderMappingMeta(String fieldTable, String fieldStream, String dateMask) {
+    this.fieldTable = fieldTable;
+    this.fieldStream = fieldStream;
+    this.dateMask = dateMask;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    PGBulkLoaderMappingMeta that = (PGBulkLoaderMappingMeta) o;
+    return Objects.equals(fieldTable, that.fieldTable) && Objects.equals(fieldStream, that.fieldStream) && Objects.equals(dateMask, that.dateMask);
   }
 
   public String getFieldTable() {

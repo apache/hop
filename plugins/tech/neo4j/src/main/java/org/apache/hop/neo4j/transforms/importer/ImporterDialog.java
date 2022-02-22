@@ -312,7 +312,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     // Ignore empty strings?
     //
     Label wlIgnoreEmptyStrings = new Label(wComposite, SWT.RIGHT);
-    wlIgnoreEmptyStrings.setText("Ignore extra columns? ");
+    wlIgnoreEmptyStrings.setText("Ignore empty strings? ");
     props.setLook(wlIgnoreEmptyStrings);
     FormData fdlIgnoreEmptyStrings = new FormData();
     fdlIgnoreEmptyStrings.left = new FormAttachment(0, 0);
@@ -506,7 +506,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     // The max memory used
     //
     Label wlMaxMemory = new Label(wComposite, SWT.RIGHT);
-    wlMaxMemory.setText("Max memory) ");
+    wlMaxMemory.setText("Max memory ");
     props.setLook(wlMaxMemory);
     FormData fdlMaxMemory = new FormData();
     fdlMaxMemory.left = new FormAttachment(0, 0);
@@ -527,7 +527,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     // to hold the biggest single value in the input data.
     //
     Label wlReadBufferSize = new Label(wComposite, SWT.RIGHT);
-    wlReadBufferSize.setText("Read buffer size) ");
+    wlReadBufferSize.setText("Read buffer size ");
     props.setLook(wlReadBufferSize);
     FormData fdlReadBufferSize = new FormData();
     fdlReadBufferSize.left = new FormAttachment(0, 0);
@@ -547,7 +547,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     // Processors
     //
     Label wlProcessors = new Label(wComposite, SWT.RIGHT);
-    wlProcessors.setText("Processors) ");
+    wlProcessors.setText("Processors ");
     props.setLook(wlProcessors);
     FormData fdlProcessors = new FormData();
     fdlProcessors.left = new FormAttachment(0, 0);
