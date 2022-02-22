@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.gui;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
@@ -120,7 +121,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
           new CLabel(parent, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
       label.setText(Const.NVL(toolbarItem.getLabel(), ""));
       label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
-      label.setBackground(toolBar.getBackground());
+      props.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
       label.pack();
       labelSeparator.setWidth(label.getSize().x);
       labelSeparator.setControl(label);
@@ -135,8 +136,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         CLabel label =
             new CLabel(parent, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
         label.setText(Const.NVL(toolbarItem.getLabel(), ""));
-        label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
-        label.setBackground(toolBar.getBackground());
+        label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));        
+        props.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
         label.pack();
         labelSeparator.setWidth(label.getSize().x);
         labelSeparator.setControl(label);
@@ -176,6 +177,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             new Combo(parent, SWT.SINGLE | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
         combo.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
         combo.setItems(getComboItems(toolbarItem));
+        props.setLook(combo);
         combo.pack();
         comboSeparator.setWidth(
             calculateComboWidth(combo)
@@ -190,6 +192,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         combo.addListener(SWT.DefaultSelection, listener);
         toolItemMap.put(toolbarItem.getId(), comboSeparator);
         widgetsMap.put(toolbarItem.getId(), combo);
+        props.setLook(combo, Props.WIDGET_STYLE_TOOLBAR);
         break;
 
       case CHECKBOX:
@@ -198,7 +201,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             new Button(parent, SWT.CHECK | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
         checkbox.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
         checkbox.setText(Const.NVL(toolbarItem.getLabel(), ""));
-        checkbox.setBackground(toolBar.getBackground());
+        props.setLook(checkbox);
         checkbox.pack();
         checkboxSeparator.setWidth(
             checkbox.getSize().x

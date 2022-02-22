@@ -49,7 +49,7 @@ public class WorkflowActionSNMPTrapTest extends WorkflowActionLoadSaveTestSuppor
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
         "serverName",
         "port",

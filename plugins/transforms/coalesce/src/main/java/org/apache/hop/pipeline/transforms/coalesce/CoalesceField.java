@@ -61,6 +61,14 @@ public class CoalesceField implements Cloneable {
     super();
   }
 
+  public CoalesceField(String name, String type, boolean removeFields, String inputFields, List<String> cache) {
+    this.name = name;
+    this.type = type;
+    this.removeFields = removeFields;
+    this.inputFields = inputFields;
+    this.cache = cache;
+  }
+
   public CoalesceField(CoalesceField cloned) {
     super();
     this.name = cloned.name;

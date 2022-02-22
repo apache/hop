@@ -34,7 +34,7 @@ public class WorkflowActionSendNagiosPassiveCheckTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
         "port",
         "serverName",

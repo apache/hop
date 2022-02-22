@@ -59,7 +59,6 @@ public class ConstantMetaTest implements IInitializer<ConstantMeta> {
         new LoadSaveTester<>(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

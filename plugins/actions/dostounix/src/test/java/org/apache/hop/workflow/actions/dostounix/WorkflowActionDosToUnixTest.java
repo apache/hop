@@ -34,7 +34,7 @@ public class WorkflowActionDosToUnixTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList("nr_errors_less_than", "success_condition", "resultfilenames");
   }
 

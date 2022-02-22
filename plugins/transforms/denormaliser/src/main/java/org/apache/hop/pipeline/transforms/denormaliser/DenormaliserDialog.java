@@ -36,9 +36,6 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -56,8 +53,6 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
   private CCombo wKeyField;
 
   private final DenormaliserMeta input;
-
-  private boolean gotPreviousFields = false;
 
   public DenormaliserDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -124,18 +119,6 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     fdKeyField.right = new FormAttachment(100, 0);
     wKeyField.setLayoutData(fdKeyField);
 
-    wKeyField.addMouseListener(
-        new MouseAdapter() {
-          @Override
-          public void mouseUp(MouseEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getPreviousFieldNames();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
     Label wlGroup = new Label(shell, SWT.NONE);
     wlGroup.setText(BaseMessages.getString(PKG, "DenormaliserDialog.Group.Label"));
     props.setLook(wlGroup);
@@ -147,11 +130,11 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     int nrKeyCols = 1;
     int nrKeyRows = (input.getGroupFields() != null ? input.getGroupFields().size() : 1);
 
-    ColumnInfo[] ciKey = new ColumnInfo[nrKeyCols];
+    final ColumnInfo[] ciKey = new ColumnInfo[nrKeyCols];
     ciKey[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.GroupField"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
             false);
 
     wGroup =
@@ -192,7 +175,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
             ? input.getDenormaliserTargetFields().size()
             : 1);
 
-    ColumnInfo[] ciTarget =
+    final ColumnInfo[] ciTarget =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.TargetFieldname"),
@@ -200,7 +183,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
               false),
           new ColumnInfo(
               BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.ValueFieldname"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
               false),
           new ColumnInfo(
               BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Keyvalue"),
@@ -289,6 +272,31 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
+        
+    // Search the fields in the background
+    shell.getDisplay().asyncExec(() -> {
+        String keyValue = wKeyField.getText();
+        try {
+            IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformName);
+            
+            if (rowMeta != null) {
+              String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
+
+              for (String fieldName:fieldNames) {
+                wKeyField.add(fieldName);
+              }              
+              ciKey[0].setComboValues(fieldNames);  
+              ciTarget[1].setComboValues(fieldNames);
+            }
+        } catch (Exception e) {
+          logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+        }
+        finally {
+          if (keyValue != null) {
+            wKeyField.setText(keyValue);
+          }          
+        }
+    });
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -494,37 +502,6 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
           BaseMessages.getString(PKG, "DenormaliserDialog.FailedToGetFields.DialogTitle"),
           BaseMessages.getString(PKG, "DenormaliserDialog.FailedToGetFields.DialogMessage"),
           ke);
-    }
-  }
-
-  private void getPreviousFieldNames() {
-    if (!gotPreviousFields) {
-      String keyValue = wKeyField.getText();
-      try {
-        wKeyField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-
-        if (r != null) {
-          r.getFieldNames();
-
-          for (int i = 0; i < r.getFieldNames().length; i++) {
-            wKeyField.add(r.getFieldNames()[i]);
-          }
-        }
-        if (keyValue != null) {
-          wKeyField.setText(keyValue);
-        }
-        gotPreviousFields = true;
-      } catch (HopException ke) {
-        if (keyValue != null) {
-          wKeyField.setText(keyValue);
-        }
-        new ErrorDialog(
-            shell,
-            BaseMessages.getString(PKG, "DenormaliserDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "DenormaliserDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
     }
   }
 }

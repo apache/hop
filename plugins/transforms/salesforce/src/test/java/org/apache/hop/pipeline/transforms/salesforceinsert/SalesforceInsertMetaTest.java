@@ -150,8 +150,7 @@ public class SalesforceInsertMetaTest {
     TransformLoadSaveTester<SalesforceInsertMeta> transformLoadSaveTester =
         new TransformLoadSaveTester(
             SalesforceInsertMeta.class,
-            attributes,
-            attributes,
+                attributes,
             getterMap,
             setterMap,
             fieldLoadSaveValidators,

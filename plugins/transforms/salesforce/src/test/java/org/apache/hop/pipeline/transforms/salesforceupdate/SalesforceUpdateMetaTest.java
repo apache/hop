@@ -151,8 +151,7 @@ public class SalesforceUpdateMetaTest {
     TransformLoadSaveTester<SalesforceUpdateMeta> transformLoadSaveTester =
         new TransformLoadSaveTester(
             SalesforceUpdateMeta.class,
-            attributes,
-            attributes,
+                attributes,
             getterMap,
             setterMap,
             fieldLoadSaveValidators,

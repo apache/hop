@@ -62,7 +62,6 @@ public class RowsFromResultMetaTest implements IInitializer<ITransformMeta> {
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

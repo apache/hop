@@ -22,16 +22,17 @@ import org.apache.hop.core.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 final class DynamicWaitTimes {
 
   static final long MAX_TIMEOUT = 1000;
 
-  static SingleStreamStatus build(List<IRowSet> rowSets) {
+  static SingleStreamStatus build(List<IRowSet> rowSets, Supplier<Integer> supplier) {
     if (rowSets.size() == 1) {
       return new SingleStreamStatus();
     }
-    return new MultiStreamStatus(new ArrayList<>(rowSets));
+    return new MultiStreamStatus(new ArrayList<>(rowSets), supplier);
   }
 
   static class SingleStreamStatus {
@@ -72,30 +73,31 @@ final class DynamicWaitTimes {
   private static class MultiStreamStatus extends SingleStreamStatus {
     private final List<IRowSet> streamList;
     private final List<SingleStreamStatus> statusList;
-    private int index;
+    private final Supplier<Integer> supplier;
 
-    MultiStreamStatus(List<IRowSet> rowSets) {
+    MultiStreamStatus(List<IRowSet> rowSets, Supplier<Integer> supplier) {
       this.streamList = rowSets;
+      this.supplier = supplier;
       this.statusList = new ArrayList<>(rowSets.size());
       for (int i = 0; i < rowSets.size(); i++) {
         statusList.add(new SingleStreamStatus());
       }
-      index = 0;
     }
 
     @Override
     public long get() {
-      SingleStreamStatus stream = statusList.get(index);
+      SingleStreamStatus stream = statusList.get(supplier.get());
       return stream.active ? stream.get() : 0;
     }
 
     @Override
     public void reset() {
-      statusList.get(index).reset();
+      statusList.get(supplier.get()).reset();
     }
 
     @Override
     public void adjust(boolean timeout, IRowSet nextIfExist) {
+      final int index = supplier.get();
       if (index == -1) {
         return;
       }
@@ -108,8 +110,7 @@ final class DynamicWaitTimes {
         // reset delay time when switch next stream
         int nextIndex = streamList.indexOf(nextIfExist);
         Assert.assertTrue(nextIndex == 0 || nextIndex == index + 1);
-        index = nextIndex;
-        current = statusList.get(index);
+        current = statusList.get(nextIndex);
         if (activeIfNeed()) {
           current.reset();
           return;
@@ -121,15 +122,15 @@ final class DynamicWaitTimes {
 
     @Override
     public void remove(IRowSet rowSet) {
-      Assert.assertTrue(
-          streamList.get(index).equals(rowSet), "Removed a input steam, before switch next stream");
+      int index = supplier.get();
+      if (!streamList.get(index).equals(rowSet)) {
+        // get index for some merge flow transformations
+        index = streamList.indexOf(rowSet);
+      }
+      Assert.assertTrue(index > -1, "Removed input steam at {0}, before switch next stream", index);
       streamList.remove(index);
       statusList.remove(index);
-      index--;
       if (!streamList.isEmpty()) {
-        if (index == -1){
-          index = 0;
-        }
         // reactive all stream
         if (activeIfNeed()) {
           statusList.forEach(SingleStreamStatus::reset);

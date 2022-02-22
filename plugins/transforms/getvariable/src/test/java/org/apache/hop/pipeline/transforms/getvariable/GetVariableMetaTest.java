@@ -85,7 +85,6 @@ public class GetVariableMetaTest implements IInitializer<GetVariableMeta> {
         new LoadSaveTester<>(
             testMetaClass,
             attributes,
-            Collections.emptyList(),
             getterMap,
             setterMap,
             attrValidatorMap,

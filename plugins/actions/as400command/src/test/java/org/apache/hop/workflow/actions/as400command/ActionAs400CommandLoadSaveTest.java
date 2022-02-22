@@ -34,7 +34,7 @@ public class ActionAs400CommandLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
         new String[] {"server", "user", "password", "proxyHost", "proxyPort", "command"});
   }

@@ -36,7 +36,7 @@ public class WorkflowActionWriteToLogLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList("logmessage", "loglevel", "logsubject");
   }
 

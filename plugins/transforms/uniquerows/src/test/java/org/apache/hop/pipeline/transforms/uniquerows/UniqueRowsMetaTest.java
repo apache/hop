@@ -24,30 +24,13 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.*;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UniqueRowsMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
   public void testRoundTrip() throws HopException {
-    List<String> attributes =
-        Arrays.asList("count_rows", "count_field", "reject_duplicate_row", "error_description");
-
-    Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("count_rows", "isCountRows");
-    getterMap.put("count_field", "getCountField");
-    getterMap.put("reject_duplicate_row", "isRejectDuplicateRow");
-    getterMap.put("error_description", "getErrorDescription");
-
-    Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("count_rows", "setCountRows");
-    setterMap.put("count_field", "setCountField");
-    setterMap.put("reject_duplicate_row", "setRejectDuplicateRow");
-    setterMap.put("error_description", "setErrorDescription");
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
 
@@ -59,16 +42,37 @@ public class UniqueRowsMetaTest {
 
     fieldLoadSaveValidatorAttributeMap.put("name", stringArrayLoadSaveValidator);
     fieldLoadSaveValidatorAttributeMap.put("case_insensitive", booleanArrayLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put(
+        "compareFields", new ListLoadSaveValidator<>(new UniqueFieldLoadSaveTester()));
 
     LoadSaveTester loadSaveTester =
         new LoadSaveTester(
             UniqueRowsMeta.class,
-            attributes,
-            getterMap,
-            setterMap,
+            new ArrayList<>(),
+            new HashMap<>(),
+            new HashMap<>(),
             fieldLoadSaveValidatorAttributeMap,
             new HashMap<>());
 
     loadSaveTester.testSerialization();
+  }
+
+  private static final class UniqueFieldLoadSaveTester
+      implements IFieldLoadSaveValidator<UniqueField> {
+
+    @Override
+    public UniqueField getTestObject() {
+      return new UniqueField(UUID.randomUUID().toString(), new Random().nextBoolean());
+    }
+
+    @Override
+    public boolean validateTestObject(UniqueField testObject, Object actual) {
+      if (!(actual instanceof UniqueField)) {
+        return false;
+      }
+      UniqueField actualObject = (UniqueField) actual;
+      return testObject.getName().equals(actualObject.getName())
+          && testObject.isCaseInsensitive() == actualObject.isCaseInsensitive();
+    }
   }
 }

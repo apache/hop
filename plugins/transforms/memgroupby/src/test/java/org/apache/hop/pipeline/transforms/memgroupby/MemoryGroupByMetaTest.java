@@ -75,7 +75,6 @@ public class MemoryGroupByMetaTest implements IInitializer<MemoryGroupByMeta> {
         new LoadSaveTester<>(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             new HashMap<>(),
             new HashMap<>(),
             attrValidatorMap,

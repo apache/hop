@@ -33,7 +33,7 @@ public class WorkflowActionDelayLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList("maximumTimeout", "scaleTime");
   }
 }

@@ -34,41 +34,39 @@ public class WorkflowActionMailLoadSaveTest extends WorkflowActionLoadSaveTestSu
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
-        new String[] {
-          "server",
-          "port",
-          "destination",
-          "destinationCc",
-          "destinationBCc",
-          "replyAddress",
-          "replyName",
-          "subject",
-          "includeDate",
-          "contactPerson",
-          "contactPhone",
-          "comment",
-          "includingFiles",
-          "zipFiles",
-          "zipFilename",
-          "usingAuthentication",
-          "usingSecureAuthentication",
-          "authenticationUser",
-          "authenticationPassword",
-          "onlySendComment",
-          "useHTML",
-          "usePriority",
-          "encoding",
-          "priority",
-          "importance",
-          "sensitivity",
-          "secureConnectionType",
-          "replyToAddresses",
-          "fileType",
-          "embeddedimages",
-          "contentids"
-        });
+            "server",
+            "port",
+            "destination",
+            "destinationCc",
+            "destinationBCc",
+            "replyAddress",
+            "replyName",
+            "subject",
+            "includeDate",
+            "contactPerson",
+            "contactPhone",
+            "comment",
+            "includingFiles",
+            "zipFiles",
+            "zipFilename",
+            "usingAuthentication",
+            "usingSecureAuthentication",
+            "authenticationUser",
+            "authenticationPassword",
+            "onlySendComment",
+            "useHTML",
+            "usePriority",
+            "encoding",
+            "priority",
+            "importance",
+            "sensitivity",
+            "secureConnectionType",
+            "replyToAddresses",
+            "fileType",
+            "embeddedimages",
+            "contentids");
   }
 
   @Override

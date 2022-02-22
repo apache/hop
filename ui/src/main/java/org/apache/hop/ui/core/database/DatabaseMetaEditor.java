@@ -309,6 +309,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdDatabaseSpecificComp.right = new FormAttachment(100, 0);
     fdDatabaseSpecificComp.top = new FormAttachment(lastControl, margin);
     wDatabaseSpecificComp.setLayoutData(fdDatabaseSpecificComp);
+    props.setLook(wDatabaseSpecificComp);    
     lastControl = wDatabaseSpecificComp;
 
     // Now add the database plugin specific widgets

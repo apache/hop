@@ -278,6 +278,7 @@ public class PropertyInputMeta extends BaseTransformMeta
   }
 
   public void setFileRequired(String[] fileRequiredin) {
+    this.fileRequired = new String[fileRequiredin.length];
     for (int i = 0; i < fileRequiredin.length; i++) {
       this.fileRequired[i] = getRequiredFilesCode(fileRequiredin[i]);
     }
@@ -910,13 +911,9 @@ public class PropertyInputMeta extends BaseTransformMeta
   }
 
   public FileInputList getFiles(IVariables variables) {
-    String[] required = new String[fileName.length];
     boolean[] subdirs = new boolean[fileName.length]; // boolean arrays are defaulted to false.
-    for (int i = 0; i < required.length; i++) {
-      required[i] = "Y";
-    }
     return FileInputList.createFileList(
-        variables, fileName, fileMask, excludeFileMask, required, subdirs);
+        variables, fileName, fileMask, excludeFileMask, fileRequired, subdirs);
   }
 
   @Override

@@ -33,7 +33,7 @@ public class WorkflowActionDeleteFileLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList("filename", "failIfFileNotExists");
   }
 }

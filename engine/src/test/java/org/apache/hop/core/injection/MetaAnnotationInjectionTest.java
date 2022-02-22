@@ -124,7 +124,7 @@ public class MetaAnnotationInjectionTest {
     assertEquals(123, obj.fint);
     assertEquals(1234567891213L, obj.flong);
     assertNull(obj.getSub().getFiles());
-    assertNull(obj.getSub().getFilenames());
+    assertEquals("f2", obj.getSub().getFilenames()[0]);
 
     obj.getSub().files = new MetaBeanLevel3[] {new MetaBeanLevel3(), new MetaBeanLevel3()};
     obj.getSub().filenames = new String[] {"", "", ""};
@@ -133,7 +133,7 @@ public class MetaAnnotationInjectionTest {
     assertEquals(2, obj.getSub().getFiles().length);
     assertEquals("f1", obj.getSub().getFiles()[0].getName());
     assertEquals("f1", obj.getSub().getFiles()[1].getName());
-    assertArrayEquals(new String[] {"f2", "f2", "f2"}, obj.getSub().getFilenames());
+    assertArrayEquals(new String[] {null, null, null, "f2"}, obj.getSub().getFilenames());
   }
 
   @Test

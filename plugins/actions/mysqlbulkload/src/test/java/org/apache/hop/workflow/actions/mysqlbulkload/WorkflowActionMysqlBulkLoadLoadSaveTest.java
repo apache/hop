@@ -34,24 +34,22 @@ public class WorkflowActionMysqlBulkLoadLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
-        new String[] {
-          "schemaname",
-          "tablename",
-          "filename",
-          "separator",
-          "enclosed",
-          "escaped",
-          "linestarted",
-          "lineterminated",
-          "replacedata",
-          "ignorelines",
-          "listattribut",
-          "localInfile",
-          "prorityvalue",
-          "addFileToResult",
-          "database"
-        });
+            "schemaname",
+            "tablename",
+            "filename",
+            "separator",
+            "enclosed",
+            "escaped",
+            "linestarted",
+            "lineterminated",
+            "replacedata",
+            "ignorelines",
+            "listattribut",
+            "localInfile",
+            "prorityvalue",
+            "addFileToResult",
+            "database");
   }
 }
