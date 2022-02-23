@@ -1979,7 +1979,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     // If the source transform is partitioned but this one isn't, throw an error
     //
-    if (transformMeta.isPartitioned() && !sourceTransformMeta.isPartitioned()) {
+    if (!transformMeta.isPartitioned() && sourceTransformMeta.isPartitioned()) {
       throw new HopTransformException(
           "The info transform to read data from called ["
               + sourceTransformMeta.getName()
