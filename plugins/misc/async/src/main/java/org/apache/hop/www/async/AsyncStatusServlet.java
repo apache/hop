@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.www;
+package org.apache.hop.www.async;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +31,7 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.www.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

@@ -18,6 +18,10 @@ REM
 
 echo off
 setlocal
+
+REM switch to script directory
+cd /D %~dp0
+
 set LIBSPATH=lib
 set SWTJAR=libswt\win64
 

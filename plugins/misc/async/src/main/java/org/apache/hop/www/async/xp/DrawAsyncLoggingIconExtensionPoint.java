@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.www.xp;
+package org.apache.hop.www.async.xp;
 
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -25,10 +25,8 @@ import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowPainterExtension;
-import org.apache.hop.workflow.action.ActionMeta;
-import org.apache.hop.www.Defaults;
+import org.apache.hop.www.async.Defaults;
 
 import java.util.Map;
 
