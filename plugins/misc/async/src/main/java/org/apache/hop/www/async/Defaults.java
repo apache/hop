@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.www;
+package org.apache.hop.www.async;
 
 public class Defaults {
   public static final String ASYNC_STATUS_GROUP = "ASYNC_STATUS_GROUP";
