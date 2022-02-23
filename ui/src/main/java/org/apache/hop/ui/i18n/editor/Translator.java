@@ -337,6 +337,8 @@ public class Translator {
   }
 
   private void addListeners() {
+    // System-level shortcut, like command + Q on macOS
+    display.addListener(SWT.Close, event -> event.doit = quitFile());
     // In case someone dares to press the [X] in the corner ;-)
     shell.addShellListener(
         new ShellAdapter() {
