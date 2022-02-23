@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.www.xp;
+package org.apache.hop.www.async.xp;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -32,8 +32,8 @@ import org.apache.hop.server.HttpUtil;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.apache.hop.www.AsyncWebService;
-import org.apache.hop.www.Defaults;
+import org.apache.hop.www.async.AsyncWebService;
+import org.apache.hop.www.async.Defaults;
 import org.apache.hop.www.HopServerPipelineStatus;
 
 import java.io.IOException;

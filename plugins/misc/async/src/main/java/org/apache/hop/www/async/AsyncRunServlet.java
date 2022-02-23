@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.www;
+package org.apache.hop.www.async;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
@@ -37,6 +37,10 @@ import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
+import org.apache.hop.www.BaseHttpServlet;
+import org.apache.hop.www.IHopServerPlugin;
+import org.apache.hop.www.PipelineMap;
+import org.apache.hop.www.WebServiceServlet;
 import org.json.simple.JSONObject;
 
 import javax.servlet.ServletException;
