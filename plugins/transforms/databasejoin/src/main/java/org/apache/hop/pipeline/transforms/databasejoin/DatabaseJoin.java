@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.databasejoin;
 
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -97,64 +98,64 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     }
     final ResultSet rs;
     try {
-    // Construct the parameters row...
-    Object[] lookupRowData = new Object[data.lookupRowMeta.size()];
-    for (int i = 0; i < data.keynrs.length; i++) {
-      lookupRowData[i] = rowData[data.keynrs[i]];
-    }
-
-    // Set the values on the prepared statement (for faster exec.)
-    rs = data.db.openQuery(data.pstmt, data.lookupRowMeta, lookupRowData);
-
-    // Get a row from the database...
-    //
-    Object[] add = data.db.getRow(rs);
-    IRowMeta addMeta = data.db.getReturnRowMeta();
-
-    incrementLinesInput();
-
-    int counter = 0;
-    while (add != null && (meta.getRowLimit() == 0 || counter < meta.getRowLimit())) {
-      counter++;
-
-      Object[] newRow = RowDataUtil.resizeArray(rowData, data.outputRowMeta.size());
-      int newIndex = rowMeta.size();
-      for (int i = 0; i < addMeta.size(); i++) {
-        newRow[newIndex++] = add[i];
-      }
-      // we have to clone, otherwise we only get the last new value
-      putRow(data.outputRowMeta, data.outputRowMeta.cloneRow(newRow));
-
-      if (log.isRowLevel()) {
-        logRowlevel(
-            BaseMessages.getString(PKG, "DatabaseJoin.Log.PutoutRow")
-                + data.outputRowMeta.getString(newRow));
+      // Construct the parameters row...
+      Object[] lookupRowData = new Object[data.lookupRowMeta.size()];
+      for (int i = 0; i < data.keynrs.length; i++) {
+        lookupRowData[i] = rowData[data.keynrs[i]];
       }
 
-      // Get a new row
-      if (meta.getRowLimit() == 0 || counter < meta.getRowLimit()) {
-        add = data.db.getRow(rs);
-        incrementLinesInput();
-      }
-    }
+      // Set the values on the prepared statement (for faster exec.)
+      rs = data.db.openQuery(data.pstmt, data.lookupRowMeta, lookupRowData);
 
-    // Nothing found? Perhaps we have to put something out after all?
-    if (counter == 0 && meta.isOuterJoin()) {
-      if (data.notfound == null) {
-        // Just return null values for all values...
-        //
-        data.notfound = new Object[data.db.getReturnRowMeta().size()];
-      }
-      Object[] newRow = RowDataUtil.resizeArray(rowData, data.outputRowMeta.size());
-      int newIndex = rowMeta.size();
-      for (int i = 0; i < data.notfound.length; i++) {
-        newRow[newIndex++] = data.notfound[i];
-      }
-      putRow(data.outputRowMeta, newRow);
-    }
+      // Get a row from the database...
+      //
+      Object[] add = data.db.getRow(rs);
+      IRowMeta addMeta = data.db.getReturnRowMeta();
 
-    data.db.closeQuery(rs);
-    } finally{
+      incrementLinesInput();
+
+      int counter = 0;
+      while (add != null && (meta.getRowLimit() == 0 || counter < meta.getRowLimit())) {
+        counter++;
+
+        Object[] newRow = RowDataUtil.resizeArray(rowData, data.outputRowMeta.size());
+        int newIndex = rowMeta.size();
+        for (int i = 0; i < addMeta.size(); i++) {
+          newRow[newIndex++] = add[i];
+        }
+        // we have to clone, otherwise we only get the last new value
+        putRow(data.outputRowMeta, data.outputRowMeta.cloneRow(newRow));
+
+        if (log.isRowLevel()) {
+          logRowlevel(
+              BaseMessages.getString(PKG, "DatabaseJoin.Log.PutoutRow")
+                  + data.outputRowMeta.getString(newRow));
+        }
+
+        // Get a new row
+        if (meta.getRowLimit() == 0 || counter < meta.getRowLimit()) {
+          add = data.db.getRow(rs);
+          incrementLinesInput();
+        }
+      }
+
+      // Nothing found? Perhaps we have to put something out after all?
+      if (counter == 0 && meta.isOuterJoin()) {
+        if (data.notfound == null) {
+          // Just return null values for all values...
+          //
+          data.notfound = new Object[data.db.getReturnRowMeta().size()];
+        }
+        Object[] newRow = RowDataUtil.resizeArray(rowData, data.outputRowMeta.size());
+        int newIndex = rowMeta.size();
+        for (int i = 0; i < data.notfound.length; i++) {
+          newRow[newIndex++] = data.notfound[i];
+        }
+        putRow(data.outputRowMeta, newRow);
+      }
+
+      data.db.closeQuery(rs);
+    } finally {
       dbLock.unlock();
     }
   }
@@ -213,16 +214,16 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
    */
   @Override
   public void stopRunning() throws HopException {
-    if ( this.isStopped() || data.isDisposed() ) {
+    if (this.isStopped() || data.isDisposed()) {
       return;
     }
 
     dbLock.lock();
 
     try {
-      if ( data.db != null && data.db.getConnection() != null && !data.isCanceled ) {
-        data.db.cancelStatement( data.pstmt );
-        setStopped( true );
+      if (data.db != null && data.db.getConnection() != null && !data.isCanceled) {
+        data.db.cancelStatement(data.pstmt);
+        setStopped(true);
         data.isCanceled = true;
       }
     } finally {
@@ -241,41 +242,43 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
       }
       dbLock.lock();
       try {
-      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
-      if (databaseMeta == null) {
-        logError(
-            BaseMessages.getString(PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
-        return false;
-      }
-
-      data.db = new Database(this, this, databaseMeta);
-
-      try {
-        data.db.connect();
-
-        if (log.isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "DatabaseJoin.Log.ConnectedToDB"));
+        DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+        if (databaseMeta == null) {
+          logError(
+              BaseMessages.getString(
+                  PKG, "DatabaseJoin.Init.ConnectionMissing", getTransformName()));
+          return false;
         }
 
-        String sql = meta.getSql();
-        if (meta.isReplaceVariables()) {
-          sql = resolve(sql);
-        }
-        // Prepare the SQL statement
-        data.pstmt = data.db.prepareSql(sql);
-        if (log.isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "DatabaseJoin.Log.SQLStatement", sql));
-        }
-        data.db.setQueryLimit(meta.getRowLimit());
+        data.db = new Database(this, this, databaseMeta);
 
-        return true;
-      } catch (HopException e) {
-        logError(BaseMessages.getString(PKG, "DatabaseJoin.Log.DatabaseError") + e.getMessage(), e);
-        if (data.db != null) {
-          data.db.disconnect();
+        try {
+          data.db.connect();
+
+          if (log.isDetailed()) {
+            logDetailed(BaseMessages.getString(PKG, "DatabaseJoin.Log.ConnectedToDB"));
+          }
+
+          String sql = meta.getSql();
+          if (meta.isReplaceVariables()) {
+            sql = resolve(sql);
+          }
+          // Prepare the SQL statement
+          data.pstmt = data.db.prepareSql(sql);
+          if (log.isDebug()) {
+            logDebug(BaseMessages.getString(PKG, "DatabaseJoin.Log.SQLStatement", sql));
+          }
+          data.db.setQueryLimit(meta.getRowLimit());
+
+          return true;
+        } catch (HopException e) {
+          logError(
+              BaseMessages.getString(PKG, "DatabaseJoin.Log.DatabaseError") + e.getMessage(), e);
+          if (data.db != null) {
+            data.db.disconnect();
+          }
         }
-      }
-      } finally{
+      } finally {
         dbLock.unlock();
       }
     }
@@ -286,15 +289,21 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
   @Override
   public void dispose() {
     dbLock.lock();
-
     try {
-    if (data.db != null) {
-      data.db.disconnect();
-      data.db = null;
-    }
-
-    super.dispose();
-    } finally{
+      if (data.pstmt != null) {
+        data.db.closePreparedStatement(data.pstmt);
+        data.pstmt = null;
+      }
+      super.dispose();
+    } catch (HopDatabaseException e) {
+      logError("Unexpected error closing statement : " + e.toString());
+      setErrors(1);
+      stopAll();
+    } finally {
+      if (data.db != null) {
+        data.db.disconnect();
+        data.db = null;
+      }
       dbLock.unlock();
     }
   }

@@ -559,6 +559,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
           if (getErrors() == 0) {
             if (dispose) {
               data.db.emptyAndCommit(data.prepStatementUpdate, meta.isUseBatchUpdate());
+              data.prepStatementUpdate = null;
             } else {
               data.db.commit();
             }
@@ -567,9 +568,10 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData>
           }
         }
         if (dispose) {
-          data.db.closePreparedStatement(data.prepStatementUpdate);
-          data.db.closePreparedStatement(data.prepStatementLookup);
-          data.prepStatementUpdate = null;
+          // Check if prepStatementLookup is closed correctly
+          if (data.prepStatementLookup != null) {
+            data.db.closePreparedStatement(data.prepStatementLookup);
+          }
           data.prepStatementLookup = null;
         }
       } catch (HopDatabaseException e) {

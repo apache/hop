@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.hop.www;
+package org.apache.hop.www.async;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.hop.www.HopServerPipelineStatus;
 
 import java.util.ArrayList;
 import java.util.Date;

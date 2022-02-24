@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.www.xp;
+package org.apache.hop.www.async.xp;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
@@ -29,7 +29,7 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExtension;
-import org.apache.hop.www.AsyncWebService;
+import org.apache.hop.www.async.AsyncWebService;
 
 @ExtensionPoint(
     id = "ActionLogIconClickedExtensionPoint",

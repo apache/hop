@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.www;
+package org.apache.hop.www.async;
 
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
