@@ -31,6 +31,8 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.*;
 import org.apache.hop.core.variables.DescribedVariable;
+import org.apache.hop.core.variables.VariableRegistry;
+import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.imp.ImportPluginType;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
@@ -109,22 +111,22 @@ public class HopEnvironment {
         pluginTypes.forEach(PluginRegistry::addPluginType);
         PluginRegistry.init();
 
-        // Also read the list of variables.
+        // Register the native variables and the variables from the various the plugins
         //
-        HopVariablesList.init();
+        VariableRegistry.init();
 
         // If the HopConfig system properties is empty, initialize with the variables...
         // or if new variables are added
         //
         HopConfig hopConfig = HopConfig.getInstance();
-        for(DescribedVariable describedVariable : HopVariablesList.getInstance().getEnvironmentVariables() ) {          
+        for(DescribedVariable describedVariable : VariableRegistry.getInstance().getDescribedVariables(VariableScope.APPLICATION, VariableScope.ENGINE) ) {          
           DescribedVariable variable = hopConfig.findDescribedVariable(describedVariable.getName());
           if ( variable==null ) {
-            // Add variable if not exist
+            // Add the variable if it does not exist
             hopConfig.setDescribedVariable(new DescribedVariable(describedVariable));
           }
           else {
-            // Update variable description
+            // Update the variable description
             variable.setDescription(describedVariable.getDescription());            
           }
         }           

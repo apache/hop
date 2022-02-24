@@ -15,25 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.hop.core.util;
+package org.apache.hop.core.variables;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.HopVariablesList;
-import org.apache.hop.core.variables.DescribedVariable;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-/** Created by Yury_Bakhmutski on 11/4/2015. */
-public class HopVariablesListTest {
+public class VariableRegistryTest {
 
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  
   @Test
   public void testInit() throws Exception {
-    HopVariablesList variablesList = HopVariablesList.getInstance();
-    variablesList.init();
 
-    DescribedVariable describedVariable =
-        variablesList.findEnvironmentVariable(Const.HOP_PASSWORD_ENCODER_PLUGIN);
+    VariableRegistry.init();
+    
+    VariableRegistry registry = VariableRegistry.getInstance();
+    DescribedVariable describedVariable =  registry.findDescribedVariable(Const.HOP_PASSWORD_ENCODER_PLUGIN);
     assertNotNull(describedVariable);
 
     boolean actual = Boolean.valueOf(describedVariable.getValue());

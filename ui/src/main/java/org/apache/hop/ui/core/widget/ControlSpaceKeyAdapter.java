@@ -18,10 +18,10 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.HopVariablesList;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -230,10 +230,11 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
   }
 
   public static String[] getVariableNames(IVariables variables) {
+    // Deprecated variables will be displayed with the suffix (deprecated).
     String[] variableNames = variables.getVariableNames();
     for (int i = 0; i < variableNames.length; i++) {
-      for (int j = 0; j < Const.DEPRECATED_VARIABLES.length; j++) {
-        if (variableNames[i].equals(Const.DEPRECATED_VARIABLES[j])) {
+      for (String deprecatedName : VariableRegistry.getInstance().getDeprecatedVariableNames()) {
+        if (variableNames[i].equals(deprecatedName)) {
           variableNames[i] = variableNames[i] + Const.getDeprecatedPrefix();
           break;
         }
@@ -246,10 +247,10 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
 
     // The internal Hop variables...
     //
-    Set<String> hopVariablesSet = HopVariablesList.getInstance().getVariablesSet();
+    Set<String> hopVariablesSet = VariableRegistry.getInstance().getVariableNames();
 
     // The Deprecated variables...
-    Set<String> deprecatedSet = new HashSet<>(Arrays.asList(Const.DEPRECATED_VARIABLES));
+    Set<String> deprecatedSet = new HashSet<>(VariableRegistry.getInstance().getDeprecatedVariableNames());
 
     // The Hop system settings variables
     //

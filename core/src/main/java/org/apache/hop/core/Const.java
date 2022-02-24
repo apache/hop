@@ -26,6 +26,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variable;
+import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.awt.*;
@@ -104,7 +105,7 @@ public class Const {
   /*
    The name of the history folder in which the Hop local audit manager saves data
   */
-  @Variable(editable=false, description="The name of the history folder in which the Hop local audit manager saves data.")
+  @Variable(scope=VariableScope.SYSTEM, description="The name of the history folder in which the Hop local audit manager saves data.")
   public static final String HOP_AUDIT_FOLDER =
       NVL(
           System.getProperty("HOP_AUDIT_FOLDER"),
@@ -113,7 +114,7 @@ public class Const {
   /*
    The name of the history folder in which the Hop local audit manager saves data
   */
-  @Variable(editable=false, description="The name of the history folder in which the Hop local audit manager saves data.")
+  @Variable(scope=VariableScope.SYSTEM, description="The name of the history folder in which the Hop local audit manager saves data.")
   public static final String HOP_CONFIG_FOLDER =
       NVL(
           System.getProperty("HOP_CONFIG_FOLDER"),
@@ -123,21 +124,28 @@ public class Const {
    * The name of the variable which configures whether or not we should automatically create a
    * config file when it's missing
    */
-  @Variable(editable=false, value="N", description="Set this variable to 'Y' to automatically create config file when it's missing.")
+  @Variable(scope=VariableScope.SYSTEM, value="N", description="Set this variable to 'Y' to automatically create config file when it's missing.")
   public static final String HOP_AUTO_CREATE_CONFIG = "HOP_AUTO_CREATE_CONFIG";
 
+  /**
+   * The system environment variable pointing to the alternative location for the Hop metadata
+   * folder
+   */
+  @Variable(scope=VariableScope.SYSTEM, description="The variable which points to the alternative location for the Hop metadata.")
+  public static final String HOP_METADATA_FOLDER = "HOP_METADATA_FOLDER";
+
   /** The variable which points to a shared folder with JDBC drivers in them. */
-  @Variable(editable=false, description="The variable which points to a shared folder with JDBC drivers in them.")
+  @Variable(scope=VariableScope.SYSTEM, description="The variable which points to a shared folder with JDBC drivers in them.")
   public static final String HOP_SHARED_JDBC_FOLDER = "HOP_SHARED_JDBC_FOLDER";
 
   /** The operating system the hop platform runs on */
-  @Variable(editable=false, description="The operating system the hop platform runs on.")
+  @Variable(scope=VariableScope.SYSTEM, description="The operating system the hop platform runs on.")
   public static final String HOP_PLATFORM_OS = "HOP_PLATFORM_OS";
 
   /** The runtime that is being used */
-  @Variable(editable=false, description="The runtime that is being used.")
-  public static final String HOP_PLATFORM_RUNTIME = "HOP_PLATFORM_RUNTIME";
-
+  @Variable(scope=VariableScope.SYSTEM, description="The runtime that is being used.")
+  public static final String HOP_PLATFORM_RUNTIME = "HOP_PLATFORM_RUNTIME";  
+  
   /** An empty ("") String. */
   public static final String EMPTY_STRING = "";
 
@@ -280,14 +288,7 @@ public class Const {
         Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME,
         Const.INTERNAL_VARIABLE_WORKFLOW_NAME,
       };
-
-  /*
-   * Deprecated variables array.
-   * Variables in this array will display with the prefix (deprecated) and will be moved
-   * at the bottom of the variables dropdown when pressing ctrl+space
-   * */
-  public static final String[] DEPRECATED_VARIABLES = new String[] {};
-
+  
   /** The pipeline filename directory */
   public static final String INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY =
       INTERNAL_VARIABLE_PREFIX + ".Pipeline.Filename.Directory";
@@ -420,32 +421,32 @@ public class Const {
    * System wide flag to set the maximum number of log lines that are kept internally by Hop. Set to
    * 0 to keep all rows (default)
    */
-  @Variable(editable=false, value="0", description="The maximum number of log lines that are kept internally by Hop. Set to 0 to keep all rows (default)")
+  @Variable(scope=VariableScope.APPLICATION, value="0", description="The maximum number of log lines that are kept internally by Hop. Set to 0 to keep all rows (default)")
   public static final String HOP_MAX_LOG_SIZE_IN_LINES = "HOP_MAX_LOG_SIZE_IN_LINES";
 
   /**
    * System wide flag to set the maximum age (in minutes) of a log line while being kept internally
    * by Hop. Set to 0 to keep all rows indefinitely (default)
    */
-  @Variable(editable=false, value="1440", description="The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)")
+  @Variable(scope=VariableScope.APPLICATION, value="1440", description="The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)")
   public static final String HOP_MAX_LOG_TIMEOUT_IN_MINUTES = "HOP_MAX_LOG_TIMEOUT_IN_MINUTES";
 
   /**
    * System wide flag to determine whether standard error will be redirected to Hop logging
    * facilities. Will redirect if the value is equal ignoring case to the string "Y"
    */
-  @Variable(editable=false, value="N", description="Set this variable to 'Y' to redirect stderr to Hop logging.")
+  @Variable(scope=VariableScope.SYSTEM, value="N", description="Set this variable to 'Y' to redirect stderr to Hop logging.")
   public static final String HOP_REDIRECT_STDERR = "HOP_REDIRECT_STDERR";
 
   /**
    * System wide flag to determine whether standard out will be redirected to Hop logging
    * facilities. Will redirect if the value is equal ignoring case to the string "Y"
    */
-  @Variable(editable=false, value="N", description="Set this variable to 'Y' to redirect stdout to Hop logging.")
+  @Variable(scope=VariableScope.SYSTEM, value="N", description="Set this variable to 'Y' to redirect stdout to Hop logging.")
   public static final String HOP_REDIRECT_STDOUT = "HOP_REDIRECT_STDOUT";
 
   /** System wide flag to log stack traces in a simpler, more human readable format */
-  @Variable(editable=false, value="N", description="Set this variable to 'Y' to log stack traces in a simpler, more human readable format.")
+  @Variable(scope=VariableScope.SYSTEM, value="N", description="Set this variable to 'Y' to log stack traces in a simpler, more human readable format.")
   public static final String HOP_SIMPLE_STACK_TRACES = "HOP_SIMPLE_STACK_TRACES";
 
   public static final boolean isUsingSimpleStackTraces() {
@@ -478,6 +479,7 @@ public class Const {
    * purposes.
    */
   @Variable(value="5000", description="The maximum number of action results kept in memory for logging purposes.")
+  @Deprecated
   public static final String HOP_MAX_ACTIONS_LOGGED = "HOP_MAX_ACTIONS_LOGGED";
 
   /**
@@ -488,24 +490,12 @@ public class Const {
   public static final String HOP_MAX_LOGGING_REGISTRY_SIZE = "HOP_MAX_LOGGING_REGISTRY_SIZE";
 
   /** A variable to configure the hop log tab refresh delay. */
-  @Variable(value="1000", description="The hop log tab refresh delay.")
+  @Variable(scope=VariableScope.APPLICATION, value="1000", description="The hop log tab refresh delay.")
   public static final String HOP_LOG_TAB_REFRESH_DELAY = "HOP_LOG_TAB_REFRESH_DELAY";
 
   /** A variable to configure the hop log tab refresh period. */
-  @Variable(value="1000", description="The hop log tab refresh period.")
+  @Variable(scope=VariableScope.APPLICATION, value="1000", description="The hop log tab refresh period.")
   public static final String HOP_LOG_TAB_REFRESH_PERIOD = "HOP_LOG_TAB_REFRESH_PERIOD";
-
-  /**
-   * The name of the system wide variable that can contain the name of the SAP Connection factory
-   * for the test button in the DB dialog. This defaults to
-   */
-  @Variable(description="")
-  public static final String HOP_SAP_CONNECTION_FACTORY = "HOP_SAP_CONNECTION_FACTORY";
-
-  /** The default SAP ERP connection factory */
-  @Variable(description="")
-  public static final String HOP_SAP_CONNECTION_FACTORY_DEFAULT_NAME =
-      "org.apache.hop.pipeline.transforms.sapinput.sap.SAPConnectionFactory";
 
   /**
    * Name of the environment variable to specify additional classes to scan for plugin annotations
@@ -662,12 +652,6 @@ public class Const {
 
   /** The release type of this compilation */
   public static final ReleaseType RELEASE = ReleaseType.GA;
-
-  /**
-   * The system environment variable pointing to the alternative location for the Hop metadata
-   * folder
-   */
-  public static final String HOP_METADATA_FOLDER = "HOP_METADATA_FOLDER";
 
   /** A variable to configure turning on/off detailed subjects in log. */
   @Variable(value="N", description="Set this variable to 'Y' to precede transform/action name in log lines with the complete path to the transform/action. Useful to perfectly identify where a problem happened in our process.")

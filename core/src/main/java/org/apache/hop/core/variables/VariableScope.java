@@ -14,23 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.hop.core.variables;
 
-import java.lang.annotation.*;
-
-/**
- * Static final field annotated with "Variable" are automatically
- * recognized and registered as a described variable.
- */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface Variable {
-  /** The default value */
-  String value() default "";
-  /** The description of the variable, can be translated i18n::key */
-  String description() default "";
-  /** The scope of variable defines how a specific variable is accessible and propagated */
-  VariableScope scope() default VariableScope.ENGINE;
+public enum VariableScope {
+  /** System setting variable declaration, used to start application */
+  SYSTEM,
+  /** Application variable declaration, used only by the local application */
+  APPLICATION,
+  /** Engine variable declaration, used by workflow or pipeline engines */
+  ENGINE
 }
