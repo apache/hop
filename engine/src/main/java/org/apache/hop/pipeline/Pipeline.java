@@ -97,7 +97,7 @@ public abstract class Pipeline
   protected ILogChannel log;
 
   /** The log level. */
-  protected LogLevel logLevel = LogLevel.BASIC;
+  protected LogLevel logLevel = DefaultLogLevel.getLogLevel();
 
   /** The container object id. */
   protected String containerObjectId;

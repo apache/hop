@@ -3822,7 +3822,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                                 pauseResume();
                               } else {
                                 pipelineRunDelegate.executePipeline(
-                                    hopGui.getLog(), pipelineMeta, false, false, LogLevel.BASIC);
+                                    hopGui.getLog(), pipelineMeta, false, false, DefaultLogLevel.getLogLevel());
                                 ServerPushSessionFacade.stop();
                               }
                             } catch (Throwable e) {
