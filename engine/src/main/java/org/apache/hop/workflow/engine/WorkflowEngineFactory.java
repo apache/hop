@@ -19,7 +19,6 @@ package org.apache.hop.workflow.engine;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -32,7 +31,7 @@ import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 
 public class WorkflowEngineFactory {
 
-  public static <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine(
+  public static final <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine(
       IVariables variables,
       String runConfigurationName,
       IHopMetadataProvider metadataProvider,
@@ -74,13 +73,10 @@ public class WorkflowEngineFactory {
     workflowEngine.setMetadataProvider(metadataProvider);
     workflowMeta.setMetadataProvider(metadataProvider);
 
-    // Set the latest log level selected
-    DefaultLogLevel.setLogLevel(parentLogging.getLogLevel());
-
     return workflowEngine;
   }
 
-  private static <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine(
+  private static final <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine(
       WorkflowRunConfiguration workflowRunConfiguration,
       T workflowMeta,
       ILoggingObject parentLogging)

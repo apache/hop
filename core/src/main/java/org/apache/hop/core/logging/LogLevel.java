@@ -40,10 +40,10 @@ public enum LogLevel {
     BaseMessages.getString(PKG, "LogWriter.Level.Rowlevel.LongDesc"),
   };
 
-  private final int level;
-  private final String code;
+  private int level;
+  private String code;
 
-  LogLevel(int level, String code) {
+  private LogLevel(int level, String code) {
     this.level = level;
     this.code = code;
   }
@@ -121,5 +121,14 @@ public enum LogLevel {
   /** @return An array of log level descriptions, sorted by level (0==Nothing, 6=Row Level) */
   public static String[] getLogLevelDescriptions() {
     return logLevelDescriptions;
+  }
+
+  /** @return An array of log level codes, sorted by level (0==Nothing, 6=Row Level) */
+  public static String[] logLogLevelCodes() {
+    String[] codes = new String[values().length];
+    for (int i = 0; i < codes.length; i++) {
+      codes[i] = values()[i].getCode();
+    }
+    return codes;
   }
 }

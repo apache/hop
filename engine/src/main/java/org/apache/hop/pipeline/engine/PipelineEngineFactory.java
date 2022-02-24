@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.engine;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
@@ -105,9 +104,6 @@ public class PipelineEngineFactory {
     //
     pipelineEngine.setMetadataProvider(metadataProvider);
     pipelineMeta.setMetadataProvider(metadataProvider);
-
-    // Set the latest log level selected
-    DefaultLogLevel.setLogLevel(pipelineEngine.getLogLevel());
 
     return pipelineEngine;
   }
