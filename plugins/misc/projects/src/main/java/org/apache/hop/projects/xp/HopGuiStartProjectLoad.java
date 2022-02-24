@@ -53,7 +53,7 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
     try {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
-      // Only move forward if the projects system is enabled...
+      // Only move forward if the "projects" system is enabled.
       //
       if (ProjectsConfigSingleton.getConfig().isEnabled()) {
         logChannelInterface.logBasic("Projects enabled");
@@ -62,29 +62,28 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
         //
         String lastProjectName = null;
 
-        // Let's see in the audit logs
+        // Let's see in the audit logs what the last opened project is.
         //
-        List<AuditEvent> auditEvents =
-            AuditManager.getActive()
-                .findEvents(
-                    ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
-                    ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
-                    true);
+        List<AuditEvent> auditEvents = AuditManager.findEvents(
+                ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
+                ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
+                "open",
+                1,
+                true);
         if (auditEvents.isEmpty()) {
           lastProjectName = config.getDefaultProject();
         } else {
           logChannelInterface.logDetailed(
               "Audit events found for hop-gui/project : " + auditEvents.size());
 
-          for (AuditEvent auditEvent : auditEvents) {
-            lastProjectName = auditEvent.getName();
-            if (StringUtils.isNotEmpty(lastProjectName)) {
-              if (config.findProjectConfig(lastProjectName) != null) {
-                // The last existing project to open was found.
-                //
-                break;
-              }
-            }
+          AuditEvent lastEvent = auditEvents.get(0);
+          long eventTime = lastEvent.getDate().getTime();
+
+          lastProjectName = lastEvent.getName();
+          if (config.findProjectConfig(lastProjectName) == null) {
+            // The last existing project to open was not found.
+            //
+            lastProjectName=null;
           }
         }
 
@@ -95,17 +94,31 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
 
             logChannelInterface.logBasic("Enabling project : '" + lastProjectName + "'");
 
-            LifecycleEnvironment environment = null;
-            List<LifecycleEnvironment> environments =
-                config.findEnvironmentsOfProject(lastProjectName);
-            if (!environments.isEmpty()) {
-              environment = environments.get(0);
+            LifecycleEnvironment lastEnvironment = null;
+
+            // What was the last environment for this project?
+            //
+            List<AuditEvent> envEvents = AuditManager.findEvents(
+                    ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
+                    ProjectsUtil.STRING_ENVIRONMENT_AUDIT_TYPE,
+                    "open",
+                    100,
+                    true);
+
+            // Find the last selected environment for this project.
+            //
+            for (AuditEvent envEvent : envEvents) {
+              LifecycleEnvironment environment = config.findEnvironment(envEvent.getName());
+              if (environment!=null && lastProjectName.equals(environment.getProjectName())) {
+                lastEnvironment = environment;
+                break;
+              }
             }
 
             // Set system variables for HOP_HOME, HOP_METADATA_FOLDER, ...
             // Sets the namespace in HopGui to the name of the project
             //
-            ProjectsGuiPlugin.enableHopGuiProject(lastProjectName, project, environment);
+            ProjectsGuiPlugin.enableHopGuiProject(lastProjectName, project, lastEnvironment);
 
             // Don't open the files twice
             //

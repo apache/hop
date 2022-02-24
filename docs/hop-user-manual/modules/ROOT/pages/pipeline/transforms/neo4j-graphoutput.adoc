@@ -72,16 +72,23 @@ For the very specific cases when you want to create relationships between 2 node
 |Sometimes you want to select a relationship in your graph model based on input data.
 Here are the 4 different types of relationship mappings you can apply to steer this behavior:
 
-* No mapping : the line is ignored
-* Do not update relationships between specified nodes: you can specify the source and target node labels between you don't want to update any relationships
-* Update specific relationship using field value: You can specify the field to look at and the value to consider for the relationship you want to select.
-* Update all relationships between the specified nodes (Default): all the relationships between the specified source and target node, as defined in the graph model are updated (merged and properties updated).
+* `No mapping` : the line is ignored
+
+* `Do not update relationships between specified nodes`: you can specify the source and target node labels between you don't want to update any relationships
+
+* `Update specific relationship using field value`: You can specify the field to look at and the value to consider for the relationship you want to select.
+
+* `Update all relationships between the specified nodes (Default)`: all the relationships between the specified source and target node, as defined in the graph model are updated (merged and properties updated).
 
 |Node label mappings tab
 |In case you want to select specific labels from the ones specified in the graph model you can create mapping entries in this tab.
 Here are the node mapping types:
 
-* Select all defined labels (default): when updating nodes all the labels from the graph model are selected.
-* Use a field value to select a specific label: for the specified node we look at the input field you like and if it matches the value the label is selected.
-* Select the first label: for the specified node we only use the first label from the graph model.
+* `Select all defined labels (default)`: when matching/merging nodes all the labels from the graph model are selected.
+
+* `Use a field value to select a specific label`: for the specified node we look at the input field you like and if it matches the value the label is selected to match/merge on.
+
+* `Add the specified label if a field contains a specific value`: for the node that is selected, set the selected label if a field contains a specific value.
+
+* `Select the first label`: for the specified node we only use the first label from the graph model to match/merge on.
 |===

@@ -193,10 +193,50 @@ public class ProjectsGuiPlugin {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
 
+    // What is the last used environment?
+    //
     LifecycleEnvironment environment = null;
-    List<LifecycleEnvironment> environments = config.findEnvironmentsOfProject(projectName);
-    if (!environments.isEmpty()) {
-      environment = environments.get(0);
+
+    // See in the audit logs if there was a recent environment opened.
+    // We limit ourselves to 1 event, the last one.
+    //
+    try {
+      List<AuditEvent> environmentAuditEvents =
+          AuditManager.findEvents(
+              ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
+              ProjectsUtil.STRING_ENVIRONMENT_AUDIT_TYPE,
+              "open",
+              100,
+              true);
+      for (AuditEvent auditEvent : environmentAuditEvents) {
+        String environmentName = auditEvent.getName();
+        if (StringUtils.isNotEmpty(environmentName)) {
+          environment = config.findEnvironment(environmentName);
+          // See that the project belongs to the environment
+          //
+          if (projectName.equals(environment.getProjectName())) {
+            // We found what we've been looking for
+            break;
+          } else {
+            // The project doesn't to the last selected environment
+            // Since we selected the project it is the driver of the selection.
+            // Keep looking.
+            //
+            environment=null;
+          }
+        }
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error reading the last used environment from the audit logs", e);
+    }
+
+    // If there is no recent usage select the first environment.
+    //
+    if (environment == null) {
+      List<LifecycleEnvironment> environments = config.findEnvironmentsOfProject(projectName);
+      if (!environments.isEmpty()) {
+        environment = environments.get(0);
+      }
     }
 
     try {
@@ -991,8 +1031,10 @@ public class ProjectsGuiPlugin {
               OutputStream outputStream = HopVfs.getOutputStream(zipFilename, false);
               ZipOutputStream zos = new ZipOutputStream(outputStream);
               FileObject projectDirectory = HopVfs.getFileObject(projectHome);
-              String projectHomeFolder = HopVfs.getFileObject(projectHome).getParent().getName().getURI();
-              zipFile(projectDirectory, projectDirectory.getName().getURI(), zos, projectHomeFolder);
+              String projectHomeFolder =
+                  HopVfs.getFileObject(projectHome).getParent().getName().getURI();
+              zipFile(
+                  projectDirectory, projectDirectory.getName().getURI(), zos, projectHomeFolder);
               zos.close();
               outputStream.close();
               monitor.done();
@@ -1022,7 +1064,11 @@ public class ProjectsGuiPlugin {
     }
   }
 
-  public void zipFile(FileObject fileToZip, String filename, ZipOutputStream zipOutputStream, String projectHomeParent)
+  public void zipFile(
+      FileObject fileToZip,
+      String filename,
+      ZipOutputStream zipOutputStream,
+      String projectHomeParent)
       throws IOException {
     if (fileToZip.isHidden()) {
       return;
@@ -1032,12 +1078,17 @@ public class ProjectsGuiPlugin {
         zipOutputStream.putNextEntry(new ZipEntry(filename.replaceAll(projectHomeParent, "")));
         zipOutputStream.closeEntry();
       } else {
-        zipOutputStream.putNextEntry(new ZipEntry(filename.replaceAll(projectHomeParent, "") + "/"));
+        zipOutputStream.putNextEntry(
+            new ZipEntry(filename.replaceAll(projectHomeParent, "") + "/"));
         zipOutputStream.closeEntry();
       }
       FileObject[] children = fileToZip.getChildren();
       for (FileObject childFile : children) {
-        zipFile(childFile, filename + "/" + childFile.getName().getBaseName(), zipOutputStream, projectHomeParent);
+        zipFile(
+            childFile,
+            filename + "/" + childFile.getName().getBaseName(),
+            zipOutputStream,
+            projectHomeParent);
       }
       return;
     }

@@ -173,7 +173,11 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
                   System.out.print(filename + " : ");
                 }
                 System.out.print(
-                    searchResult.getComponent() + " : " + searchResult.getDescription());
+                    searchResult.getComponent()
+                        + "("
+                        + Const.NVL(searchResult.getValue(), "")
+                        + ") : "
+                        + searchResult.getDescription());
                 System.out.println();
               }
             }

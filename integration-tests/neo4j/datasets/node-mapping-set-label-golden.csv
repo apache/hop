@@ -1,0 +1,7 @@
+ip,label1,label2
+8.8.8.8,IPAddress,Public
+8.8.8.8,IPAddress,
+192.168.1.1,IPAddress,
+142.250.179.196,IPAddress,Public
+142.250.179.196,IPAddress,
+127.0.0.1,IPAddress,
