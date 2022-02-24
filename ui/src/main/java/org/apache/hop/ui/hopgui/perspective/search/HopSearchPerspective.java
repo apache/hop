@@ -62,9 +62,7 @@ public class HopSearchPerspective implements IHopPerspective {
   public static final String AUDIT_TYPE_SEARCH_STRING = "search-string";
 
   private HopGui hopGui;
-  private Composite parent;
   private Composite composite;
-  private FormData formData;
   private List<ISearchablesLocation> searchablesLocations;
   private String[] locations;
   private Combo wLocations;
@@ -151,7 +149,6 @@ public class HopSearchPerspective implements IHopPerspective {
   @Override
   public void initialize(HopGui hopGui, Composite parent) {
     this.hopGui = hopGui;
-    this.parent = parent;
 
     PropsUi props = PropsUi.getInstance();
 
@@ -164,7 +161,7 @@ public class HopSearchPerspective implements IHopPerspective {
     layout.marginBottom = props.getMargin();
     composite.setLayout(layout);
 
-    formData = new FormData();
+    FormData formData = new FormData();
     formData.left = new FormAttachment(0, 0);
     formData.top = new FormAttachment(0, 0);
     formData.right = new FormAttachment(100, 0);
@@ -305,6 +302,11 @@ public class HopSearchPerspective implements IHopPerspective {
           false,
           true),
       new ColumnInfo(
+              BaseMessages.getString(PKG, "HopSearchPerspective.ResultsTable.Value.Field"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              true),
+      new ColumnInfo(
           BaseMessages.getString(PKG, "HopSearchPerspective.ResultsTable.Description.Field"),
           ColumnInfo.COLUMN_TYPE_TEXT,
           false,
@@ -443,6 +445,7 @@ public class HopSearchPerspective implements IHopPerspective {
       item.setText(c++, Const.NVL(searchable.getFilename(), ""));
       item.setText(c++, Const.NVL(searchable.getLocation(), ""));
       item.setText(c++, Const.NVL(searchResult.getMatchingString(), ""));
+      item.setText(c++, Const.NVL(searchResult.getValue(), ""));
       item.setText(c++, Const.NVL(searchResult.getDescription(), ""));
 
       allSearchResults.add(searchResult);

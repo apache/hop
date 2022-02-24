@@ -23,17 +23,16 @@ public class SearchResult implements ISearchResult {
   private String matchingString;
   private String description;
   private String component;
+  private String value;
 
-  public SearchResult(ISearchable matchingSearchable, String matchingString, String description) {
-    this(matchingSearchable, matchingString, description, null);
-  }
 
   public SearchResult(
-      ISearchable matchingSearchable, String matchingString, String description, String component) {
+      ISearchable matchingSearchable, String matchingString, String description, String component, String value) {
     this.matchingSearchable = matchingSearchable;
     this.matchingString = matchingString;
     this.description = description;
     this.component = component;
+    this.value = value;
   }
 
   /**
@@ -94,5 +93,14 @@ public class SearchResult implements ISearchResult {
   /** @param component The component to set */
   public void setComponent(String component) {
     this.component = component;
+  }
+
+  @Override
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
   }
 }
