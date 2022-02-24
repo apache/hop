@@ -72,7 +72,6 @@ limitations under the License.
       <loglevel>Basic</loglevel>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>
@@ -148,7 +147,6 @@ ok;</script>
       <loglevel>Basic</loglevel>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>
@@ -176,7 +174,7 @@ var txt = previous_result.getLogText();
 var ok = true;
 
 var expectedValues = [ 
-   "Insert a Dummy transform to resolve this situation",
+   "The info transform to read data from called [lookup] is partitioned when transform [lookup value] isn't.  Make sure both are partitioned or neither.",
    "ERROR",
  ];
 
