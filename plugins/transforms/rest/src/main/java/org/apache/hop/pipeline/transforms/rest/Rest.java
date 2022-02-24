@@ -23,7 +23,6 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.uri.UriComponent;
-import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
 import com.sun.jersey.client.apache4.config.DefaultApacheHttpClient4Config;
 import com.sun.jersey.client.urlconnection.HTTPSProperties;
@@ -45,9 +44,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.json.simple.JSONObject;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
@@ -59,6 +56,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 public class Rest extends BaseTransform<RestMeta, RestData>
@@ -105,7 +103,7 @@ public class Rest extends BaseTransform<RestMeta, RestData>
         logDetailed(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", data.realUrl));
       }
       // create an instance of the com.sun.jersey.api.client.Client class
-      client = ApacheHttpClient4.create(data.config);
+      client = Client.create(data.config);
       if (data.basicAuthentication != null) {
         client.addFilter(data.basicAuthentication);
       }
@@ -325,14 +323,7 @@ public class Rest extends BaseTransform<RestMeta, RestData>
       // SSL TRUST STORE CONFIGURATION
       if (!Utils.isEmpty(data.trustStoreFile)) {
         try (FileInputStream trustFileStream = new FileInputStream(data.trustStoreFile)) {
-          KeyStore trustStore = KeyStore.getInstance("JKS");
-          trustStore.load(trustFileStream, data.trustStorePassword.toCharArray());
-          TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-          tmf.init(trustStore);
-
-          SSLContext ctx = SSLContext.getInstance("SSL");
-          ctx.init(null, tmf.getTrustManagers(), null);
-
+          SSLContext ctx=getSslContext(trustFileStream);
           HostnameVerifier hv =
               (hostname, session) -> {
                 if (isDebug()) {
@@ -360,6 +351,67 @@ public class Rest extends BaseTransform<RestMeta, RestData>
         }
       }
     }
+  }
+
+  private SSLContext getSslContext(FileInputStream trustFileStream) throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException, KeyManagementException {
+    TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+    // Using null here initialises the TMF with the default trust store.
+    tmf.init((KeyStore) null);
+
+    // Get hold of the default trust manager
+    X509TrustManager defaultTm = null;
+    for (TrustManager tm : tmf.getTrustManagers()) {
+      if (tm instanceof X509TrustManager) {
+        defaultTm = (X509TrustManager) tm;
+        break;
+      }
+    }
+
+    // Load the trustStore which needs to be imported
+    KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+    trustStore.load(trustFileStream, data.trustStorePassword.toCharArray());
+
+    trustFileStream.close();
+
+    tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+    tmf.init(trustStore);
+
+    // Get hold of the default trust manager
+    X509TrustManager trustManager = null;
+    for (TrustManager tm : tmf.getTrustManagers()) {
+      if (tm instanceof X509TrustManager) {
+        trustManager = (X509TrustManager) tm;
+        break;
+      }
+    }
+
+    final X509TrustManager finalDefaultTm = defaultTm;
+    final X509TrustManager finalTrustManager = trustManager;
+    X509TrustManager customTm = new X509TrustManager() {
+      @Override
+      public X509Certificate[] getAcceptedIssuers() {
+        return finalDefaultTm.getAcceptedIssuers();
+      }
+
+      @Override
+      public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        try {
+          finalTrustManager.checkServerTrusted(chain, authType);
+        } catch (CertificateException e) {
+          finalDefaultTm.checkServerTrusted(chain, authType);
+        }
+      }
+
+      @Override
+      public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        finalDefaultTm.checkClientTrusted(chain, authType);
+      }
+    };
+
+    SSLContext sslContext = SSLContext.getInstance("SSL");
+    sslContext.init(null, new TrustManager[] { customTm }, null);
+
+    return sslContext;
   }
 
   protected MultivaluedMap<String, String> searchForHeaders(ClientResponse response) {
