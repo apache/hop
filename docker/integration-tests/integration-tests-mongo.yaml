@@ -33,7 +33,7 @@ services:
       - "27017"
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo 127.0.0.1:27017/test --quiet
-      interval: 20s
+      interval: 30s
       timeout: 10s
       retries: 6
-      start_period: 120s      
+      start_period: 240s      
