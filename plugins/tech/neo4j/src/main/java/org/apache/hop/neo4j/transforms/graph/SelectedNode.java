@@ -27,15 +27,17 @@ public class SelectedNode {
   private GraphNode node;
   private ModelTargetHint hint;
   private List<String> labels;
+  private List<String> labelsToSet;
 
   public SelectedNode() {
     this.labels = new ArrayList<>();
   }
 
-  public SelectedNode(GraphNode node, ModelTargetHint hint, List<String> labels) {
+  public SelectedNode(GraphNode node, ModelTargetHint hint, List<String> labels, List<String> labelsToSet) {
     this.node = node;
     this.hint = hint;
     this.labels = labels;
+    this.labelsToSet = labelsToSet;
   }
 
   @Override
@@ -102,5 +104,13 @@ public class SelectedNode {
   /** @param labels The labels to set */
   public void setLabels(List<String> labels) {
     this.labels = labels;
+  }
+
+  public List<String> getLabelsToSet() {
+    return labelsToSet;
+  }
+
+  public void setLabelsToSet(List<String> labelsToSet) {
+    this.labelsToSet = labelsToSet;
   }
 }
