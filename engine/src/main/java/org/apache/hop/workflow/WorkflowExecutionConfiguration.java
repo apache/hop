@@ -22,7 +22,6 @@ import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -60,7 +59,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration, 
     variablesMap = new HashMap<>();
     extensionOptions = new HashMap<>();
 
-    logLevel = DefaultLogLevel.getLogLevel();
+    logLevel = LogLevel.BASIC;
 
     clearingLog = true;
   }
