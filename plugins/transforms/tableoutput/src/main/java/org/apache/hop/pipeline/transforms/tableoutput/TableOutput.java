@@ -576,10 +576,16 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         emptyAndCommitBatchBuffers(true);
       } finally {
         data.db.disconnect();
+        // Free data structures to enable GC
         data.db = null;
+        data.preparedStatements = null;
+        data.batchBuffer = null;
+        data.commitCounterMap = null;
+        data.outputRowMeta = null;
       }
-      super.dispose();
     }
+
+    super.dispose();
   }
 
   // Force the batched up rows to the database in a single-threaded scenario
