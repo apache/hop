@@ -118,8 +118,6 @@
         <org.eclipse.commands.version>3.9.600</org.eclipse.commands.version>
         <org.eclipse.equinox.version>3.10.600</org.eclipse.equinox.version>
         <rhino.version>1.7.12</rhino.version>
-        <httpclient.version>4.5.13</httpclient.version>
-        <httpccore.version>4.4.13</httpccore.version>
         <commons-codec.version>1.10</commons-codec.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
