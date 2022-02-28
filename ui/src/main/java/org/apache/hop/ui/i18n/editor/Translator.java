@@ -1274,7 +1274,7 @@ public class Translator {
     // Sort the source folders...
     //
     java.util.List<String> sourceFolders = new ArrayList<>(sourceMessagesPackages.keySet());
-    Collections.sort(sourceFolders);
+    sourceFolders.sort(this::pathDepthFirstComparator);
     for (String sourceFolder : sourceFolders) {
       Map<String, java.util.List<KeyOccurrence>> messagesPackages =
           sourceMessagesPackages.get(sourceFolder);
@@ -1376,6 +1376,14 @@ public class Translator {
 
   public String toString() {
     return APP_NAME;
+  }
+
+  private int pathDepthFirstComparator(String path1, String path2) {
+    int rs = Integer.compare(path1.split("/").length, path2.split("/").length);
+    if (rs == 0) {
+      return path1.compareTo(path2);
+    }
+    return rs;
   }
 
   public static void main(String[] args) throws Exception {
