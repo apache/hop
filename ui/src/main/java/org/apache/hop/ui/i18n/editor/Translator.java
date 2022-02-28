@@ -145,11 +145,16 @@ public class Translator {
 
   public void readFiles() throws HopFileException {
     log.logBasic(BaseMessages.getString(PKG, "i18n.Log.ScanningSourceDirectories"));
+    HopFileException collisionException = null;
     try {
       // Find and read read all the messages files in the root folder
       //
       BundlesStore bundlesStore = new BundlesStore(rootFolder);
-      bundlesStore.findAllMessagesBundles();
+      try {
+        bundlesStore.findAllMessagesBundles();
+      } catch (HopFileException e) {
+        collisionException = e;
+      }
 
       // Find all the source directories in the root folder and crawl through them
       //
@@ -257,6 +262,9 @@ public class Translator {
           BaseMessages.getString(PKG, "i18n.Log.UnableToGetFiles", sourceDirectories.toString()),
           e);
     }
+    if (collisionException != null) {
+      throw collisionException;
+    }
   }
 
   public void loadConfiguration(String configFile, String sourceFolder) throws Exception {
@@ -309,11 +317,15 @@ public class Translator {
     try {
       readFiles();
     } catch (Exception e) {
-      new ErrorDialog(
-          shell,
-          "Error reading translations",
-          "There was an unexpected error reading the translations",
-          e);
+      shell
+          .getDisplay()
+          .asyncExec(
+              () ->
+                  new ErrorDialog(
+                      shell,
+                      "Error reading translations",
+                      "There was an unexpected error reading the translations",
+                      e));
     }
 
     // Put something on the screen
