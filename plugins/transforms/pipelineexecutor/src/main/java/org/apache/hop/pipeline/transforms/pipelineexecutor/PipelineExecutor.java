@@ -46,7 +46,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   private static final Class<?> PKG = PipelineExecutorMeta.class; // For Translator
   private final ReentrantLock executionLock = new ReentrantLock();
 
-  public PipelineExecutor(
+  public  PipelineExecutor(
       TransformMeta transformMeta,
       PipelineExecutorMeta meta,
       PipelineExecutorData data,
@@ -255,8 +255,9 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     }
     pipelineExecutorData.groupTimeStart = System.currentTimeMillis();
 
-    // Clear log buffer before new pipeline gets executed
-    discardLogLines(pipelineExecutorData);
+    if (first) {
+      discardLogLines(pipelineExecutorData);
+    }
 
     IPipelineEngine<PipelineMeta> executorPipeline = createInternalPipeline();
     pipelineExecutorData.setExecutorPipeline(executorPipeline);
