@@ -192,12 +192,12 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
       hopGui.getLog().logError("Unable to obtain a list of pipeline run configurations", e);
     }
 
+    Map<String, String> pipelineUsageMap = null;
     String lastGlobalRunConfig =
         AuditManagerGuiUtil.getLastUsedValue(AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS);
     String lastPipelineRunConfig = null;
     if (StringUtils.isNotEmpty(abstractMeta.getName())) {
-      Map<String, String> pipelineUsageMap =
-          AuditManagerGuiUtil.getUsageMap(MAP_TYPE_PIPELINE_RUN_CONFIG_USAGE);
+      pipelineUsageMap = AuditManagerGuiUtil.getUsageMap(MAP_TYPE_PIPELINE_RUN_CONFIG_USAGE);
       lastPipelineRunConfig = pipelineUsageMap.get(abstractMeta.getName());
     }
 
@@ -251,8 +251,11 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
       }
     }
 
-    wLogLevel.select(configuration.getLogLevel().getLevel());
-
+    if (pipelineUsageMap != null && pipelineUsageMap.containsKey(LOG_LEVEL)) {
+      wLogLevel.select(Integer.parseInt(pipelineUsageMap.get(LOG_LEVEL)));
+    } else {
+      wLogLevel.select(configuration.getLogLevel().getLevel());
+}
     getParamsData();
     getVariablesData();
   }
@@ -306,9 +309,9 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
         Map<String, String> usageMap =
             AuditManagerGuiUtil.getUsageMap(MAP_TYPE_PIPELINE_RUN_CONFIG_USAGE);
         usageMap.put(abstractMeta.getName(), runConfigurationName);
+        usageMap.put("LOG_LEVEL", String.valueOf(wLogLevel.getSelectionIndex()));
         AuditManagerGuiUtil.saveUsageMap(MAP_TYPE_PIPELINE_RUN_CONFIG_USAGE, usageMap);
       }
-
       configuration.setClearingLog(wClearLog.getSelection());
       configuration.setLogLevel(LogLevel.values()[wLogLevel.getSelectionIndex()]);
 

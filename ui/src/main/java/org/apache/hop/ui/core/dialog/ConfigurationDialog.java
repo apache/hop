@@ -71,6 +71,8 @@ public abstract class ConfigurationDialog extends Dialog {
 
   protected HopGui hopGui;
 
+  public static final String LOG_LEVEL = "LOG_LEVEL";
+
   public ConfigurationDialog(
       Shell parent, IExecutionConfiguration configuration, AbstractMeta meta) {
     super(parent);
