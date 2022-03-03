@@ -103,9 +103,7 @@ pipeline {
                     deleteDir()
                 }
 
-                //sh "mvn $MAVEN_PARAMS -DaltDeploymentRepository=snapshot-repo::default::file:./local-snapshots-dir clean deploy"
-                //switch to clean install for now
-                sh "mvn $MAVEN_PARAMS clean install"
+                sh "mvn $MAVEN_PARAMS -DaltDeploymentRepository=snapshot-repo::default::file:./local-snapshots-dir clean deploy"
             }
             post {
                 always {
@@ -126,6 +124,7 @@ pipeline {
         }
         stage('Build Hop Docker Image') {
             when {
+                branch 'master'
                 anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
             steps {
@@ -142,6 +141,7 @@ pipeline {
         }
         stage('Build Hop Web Docker Image') {
             when {
+                branch 'master'
                 anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
             steps {
