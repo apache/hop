@@ -23,7 +23,7 @@
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-databases-cockroachdb</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0</version>
 
     <dependencies>
         <dependency>
@@ -48,7 +48,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-databases</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.2.0</version>
     </parent>
 
     <properties>

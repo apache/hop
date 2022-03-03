@@ -18,6 +18,5 @@
 name: tech-manual
 title: Technical Documentation
 version: 1.2.0
-prerelease: true
 nav:
   - modules/ROOT/nav.adoc

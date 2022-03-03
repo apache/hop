@@ -25,7 +25,7 @@
     <parent>
         <artifactId>hop-plugins-transforms</artifactId>
         <groupId>org.apache.hop</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.2.0</version>
     </parent>
     <artifactId>hop-transform-salesforce</artifactId>
 

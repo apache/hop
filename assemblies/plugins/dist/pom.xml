@@ -22,7 +22,7 @@
   <parent>
     <artifactId>hop-assemblies-plugins</artifactId>
     <groupId>org.apache.hop</groupId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -517,7 +517,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-action-repeat</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -1886,7 +1886,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-randomvalue</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -1899,7 +1899,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-regexeval</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -1912,7 +1912,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-replacestring</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -3098,7 +3098,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-tech-avro</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -3111,7 +3111,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-tech-aws</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -3124,7 +3124,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-tech-azure</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -3137,7 +3137,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-tech-cassandra</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -3150,7 +3150,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-tech-dropbox</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -3163,7 +3163,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-tech-google</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -3189,7 +3189,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-tech-parquet</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -3267,7 +3267,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-engines-beam</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -3280,7 +3280,7 @@
     <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-valuetypes-json</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
