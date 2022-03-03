@@ -20,6 +20,7 @@ package org.apache.hop.core.row.value;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -49,6 +50,7 @@ public class ValueMetaBaseLenientStringConversionTest {
   }
 
   @Test
+  @Ignore
   public void testStrToIntStrict() throws Exception {
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N");
 

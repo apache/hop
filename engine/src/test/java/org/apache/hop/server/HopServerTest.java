@@ -34,6 +34,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.protocol.HttpContext;
 import org.junit.AfterClass;
@@ -52,7 +53,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -99,12 +100,12 @@ public class HopServerTest {
     doReturn(closeableHttpResponseMock).when(httpClient).execute(any(HttpPost.class));
     doReturn(closeableHttpResponseMock)
         .when(httpClient)
-        .execute(any(HttpPost.class), any(HttpClientContext.class));
+        .execute(any(HttpPost.class), nullable(HttpClientContext.class));
 
     hopServer = spy(new HopServer());
     variables = new Variables();
     doReturn(httpClient).when(hopServer).getHttpClient();
-    doReturn("response_body").when(hopServer).getResponseBodyAsString(any(InputStream.class));
+    doReturn("response_body").when(hopServer).getResponseBodyAsString(nullable(InputStream.class));
   }
 
   private HttpResponse mockResponse(int statusCode, String entityText) throws IOException {
@@ -121,16 +122,30 @@ public class HopServerTest {
 
   @Test(expected = HopException.class)
   public void testExecService() throws Exception {
+    String nonExistingAppName = "wrong_app_name";
     HttpGet httpGetMock = mock(HttpGet.class);
-    URI uriMock = new URI("fake");
+
+    URI uriMock = new URI(nonExistingAppName);
     doReturn(uriMock).when(httpGetMock).getURI();
+
+    HttpClient clientMock = mock(HttpClient.class);
+    when(clientMock.execute(any(HttpUriRequest.class), any(HttpContext.class)))
+        .then(
+            invocation -> {
+              HttpUriRequest request = invocation.getArgument(0);
+              if (request.getURI().equals(uriMock)) {
+                return mockResponse(404, "");
+              }
+              return mockResponse(200, "");
+            });
+    when(hopServer.getHttpClient()).thenReturn(clientMock);
+
     doReturn(httpGetMock)
         .when(hopServer)
-        .buildExecuteServiceMethod(
-            any(IVariables.class), anyString(), anyMapOf(String.class, String.class));
+        .buildExecuteServiceMethod(any(IVariables.class), anyString(), anyMap());
     hopServer.setHostname("hostNameStub");
     hopServer.setUsername("userNAmeStub");
-    hopServer.execService(Variables.getADefaultVariableSpace(), "wrong_app_name");
+    hopServer.execService(Variables.getADefaultVariableSpace(), nonExistingAppName);
     fail("Incorrect connection details had been used, but no exception was thrown");
   }
 

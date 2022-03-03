@@ -36,7 +36,6 @@ import java.util.regex.Pattern;
 
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
 public class RegexEval_EmptyStringVsNull_Test {
   private TransformMockHelper<RegexEvalMeta, ITransformData> helper;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

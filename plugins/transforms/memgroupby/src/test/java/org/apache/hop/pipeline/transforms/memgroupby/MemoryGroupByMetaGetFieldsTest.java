@@ -34,9 +34,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
@@ -119,7 +118,7 @@ public class MemoryGroupByMetaGetFieldsTest {
 
     verify(rowMeta, times(1)).clear();
     verify(rowMeta, times(1)).addRowMeta(any());
-    assertEquals(null, rowMeta.searchValueMeta("minDate").getConversionMask());
+    assertNull(rowMeta.searchValueMeta("minDate").getConversionMask());
   }
 
   @Test

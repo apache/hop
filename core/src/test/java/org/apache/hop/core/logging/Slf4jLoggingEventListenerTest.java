@@ -74,7 +74,6 @@ public class Slf4jLoggingEventListenerTest {
   @Test
   public void testAddLogEventPipeline() {
     when(logObjProvider.apply(logChannelId)).thenReturn(loggingObject);
-    when(loggingObject.getLogChannelId()).thenReturn(logChannelId);
     when(loggingObject.getObjectType()).thenReturn(LoggingObjectType.PIPELINE);
     when(loggingObject.getFilename()).thenReturn("filename");
     when(message.getLevel()).thenReturn(LogLevel.BASIC);
@@ -91,7 +90,6 @@ public class Slf4jLoggingEventListenerTest {
   @Test
   public void testAddLogEventJob() {
     when(logObjProvider.apply(logChannelId)).thenReturn(loggingObject);
-    when(loggingObject.getLogChannelId()).thenReturn(logChannelId);
     when(loggingObject.getObjectType()).thenReturn(LoggingObjectType.WORKFLOW);
     when(loggingObject.getFilename()).thenReturn("filename");
     when(message.getLevel()).thenReturn(LogLevel.BASIC);

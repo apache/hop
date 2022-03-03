@@ -29,10 +29,7 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,8 +41,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class DatabaseMetaTest {
@@ -188,15 +185,13 @@ public class DatabaseMetaTest {
     doCallRealMethod().when(databaseMeta2).setIDatabase(any(IDatabase.class));
     doCallRealMethod().when(databaseMeta2).setName(anyString());
     doCallRealMethod().when(databaseMeta2).getName();
-    doCallRealMethod()
-        .when(databaseMeta2)
-        .verifyAndModifyDatabaseName(any(ArrayList.class), anyString());
+    doCallRealMethod().when(databaseMeta2).verifyAndModifyDatabaseName(any(ArrayList.class), any());
     databaseMeta2.setIDatabase(odbm2);
     databaseMeta2.setName("test");
 
     databaseMeta2.verifyAndModifyDatabaseName(list, null);
 
-    assertTrue(!databaseMeta.getName().equals(databaseMeta2.getName()));
+    assertNotEquals(databaseMeta.getName(), databaseMeta2.getName());
   }
 
   @Test

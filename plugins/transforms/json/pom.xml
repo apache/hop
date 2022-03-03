@@ -39,7 +39,7 @@
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
         <mockito-all.version>1.9.5</mockito-all.version>
         <dependency.com.tinkerpop.blueprints.version>2.6.0</dependency.com.tinkerpop.blueprints.version>
-        <dependency.org.powermock.version>1.6.0</dependency.org.powermock.version>
+        <dependency.org.powermock.version>2.0.9</dependency.org.powermock.version>
         <json-smart.version>2.2</json-smart.version>
         <json-path.version>2.1.0</json-path.version>
         <jsch.version>0.1.54</jsch.version>
@@ -86,7 +86,7 @@
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
+            <artifactId>powermock-api-mockito2</artifactId>
             <version>${powermock-api-mockito.version}</version>
             <scope>test</scope>
         </dependency>

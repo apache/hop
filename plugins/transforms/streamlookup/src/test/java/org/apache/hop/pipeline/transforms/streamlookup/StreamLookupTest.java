@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.streamlookup;
 
-import junit.framework.Assert;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.exception.HopException;
@@ -40,8 +39,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -55,7 +54,7 @@ public class StreamLookupTest {
   @Before
   public void setUp() {
     smh = new TransformMockHelper<>("StreamLookup", StreamLookupMeta.class, StreamLookupData.class);
-    when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
+    when(smh.logChannelFactory.create(any(), nullable(ILoggingObject.class)))
         .thenReturn(smh.iLogChannel);
     when(smh.pipeline.isRunning()).thenReturn(true);
   }
@@ -153,12 +152,12 @@ public class StreamLookupTest {
     doCallRealMethod()
         .when(meta)
         .getFields(
-            any(IRowMeta.class),
-            anyString(),
-            any(IRowMeta[].class),
-            any(TransformMeta.class),
-            any(IVariables.class),
-            any(IHopMetadataProvider.class));
+            nullable(IRowMeta.class),
+            nullable(String.class),
+            nullable(IRowMeta[].class),
+            nullable(TransformMeta.class),
+            nullable(IVariables.class),
+            nullable(IHopMetadataProvider.class));
 
     return meta;
   }
@@ -192,14 +191,14 @@ public class StreamLookupTest {
       Object[] rowData = outputRowSet.getRow();
       if (rowData != null) {
         IRowMeta rowMeta = outputRowSet.getRowMeta();
-        Assert.assertEquals("Output row is of wrong size", 3, rowMeta.size());
+        assertEquals("Output row is of wrong size", 3, rowMeta.size());
         rowNumber++;
         // Verify output
         for (int valueIndex = 0; valueIndex < rowMeta.size(); valueIndex++) {
           String expectedValue = expectedOutput[valueIndex] + rowNumber;
           Object actualValue =
               rowMeta.getValueMeta(valueIndex).convertToNormalStorageType(rowData[valueIndex]);
-          Assert.assertEquals(
+          assertEquals(
               "Unexpected value at row " + rowNumber + " position " + valueIndex,
               expectedValue,
               actualValue);
@@ -207,7 +206,7 @@ public class StreamLookupTest {
       }
     }
 
-    Assert.assertEquals("Incorrect output row number", 2, rowNumber);
+    assertEquals("Incorrect output row number", 2, rowNumber);
   }
 
   @Test
