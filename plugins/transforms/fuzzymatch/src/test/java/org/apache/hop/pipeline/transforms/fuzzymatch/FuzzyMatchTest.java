@@ -41,10 +41,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/** User: Dzmitry Stsiapanau Date: 10/16/13 Time: 6:23 PM */
 public class FuzzyMatchTest {
   @InjectMocks private FuzzyMatchHandler fuzzyMatch;
   private TransformMockHelper<FuzzyMatchMeta, FuzzyMatchData> mockHelper;

@@ -56,7 +56,7 @@ public class CheckSumMeta extends BaseTransformMeta
   private static final Class<?> PKG = CheckSumMeta.class; // For Translator
 
   public enum CheckSumType implements IEnumHasCode {
-    NONE("", ""),
+    NONE("NONE", ""),
     CRC32("CRC32", BaseMessages.getString(PKG, "CheckSumMeta.Type.CRC32")),
     ADLER32("ADLER32", BaseMessages.getString(PKG, "CheckSumMeta.Type.ADLER32")),
     MD5("MD5", BaseMessages.getString(PKG, "CheckSumMeta.Type.MD5")),

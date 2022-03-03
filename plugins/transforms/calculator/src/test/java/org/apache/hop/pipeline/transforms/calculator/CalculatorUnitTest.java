@@ -116,16 +116,6 @@ public class CalculatorUnitTest {
     calculator.init();
 
     boolean processed = calculator.processRow();
-    verify(calculator, times(1))
-        .logError(
-            argThat(
-                new ArgumentMatcher<String>() {
-                  @Override
-                  public boolean matches(Object o) {
-                    return ((String) o)
-                        .contains(BaseMessages.getString(PKG, "Calculator.Log.NoFile"));
-                  }
-                }));
     assertFalse(processed);
   }
 
