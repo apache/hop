@@ -1645,7 +1645,7 @@ This product bundles poi-scratchpad 4.1.2, which is available under a
 This product bundles poi-scratchpad 5.2.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles postgresql 42.2.23, which is available under a
+This product bundles postgresql 42.3.3, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
 
 This product bundles proto-google-cloud-bigquerystorage-v1beta2 0.128.2, which is available under a
