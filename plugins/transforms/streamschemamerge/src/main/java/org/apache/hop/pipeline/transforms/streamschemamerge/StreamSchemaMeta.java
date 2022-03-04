@@ -36,9 +36,9 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transform.errorhandling.Stream;
-import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transform.stream.Stream;
+import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;

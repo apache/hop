@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transform.errorhandling;
+package org.apache.hop.pipeline.transform.stream;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -82,11 +82,7 @@ public class Stream implements IStream {
 
     IStream stream = (IStream) obj;
 
-    if (description.equals(stream.getDescription())) {
-      return true;
-    }
-
-    return false;
+    return description.equals(stream.getDescription());
   }
 
   @Override
