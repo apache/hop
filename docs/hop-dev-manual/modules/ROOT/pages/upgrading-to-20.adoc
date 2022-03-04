@@ -31,3 +31,14 @@ We are renaming boolean getters and setters to the `isBoolean` or `hasBoolean` n
 === pull requests affecting this
 
 https://github.com/apache/hop/pull/1291
+
+== HOP-1888: Rename package org.apache.hop.pipeline.transform.errorhandling
+
+The package name `org.apache.hop.pipeline.transform.errorhandling` did not cover the actual content of the package, therefore it has been renamed to `org.apache.hop.pipeline.transform.stream`
+
+If you use the errorhandling package in your plugin you will have to rename it to stream in order for it to be found in the next release.
+
+=== pull requests affecting this
+
+https://github.com/apache/hop/pull/1289
+
