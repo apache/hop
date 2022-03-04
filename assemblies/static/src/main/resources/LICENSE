@@ -1621,28 +1621,28 @@ This product bundles perfmark-api 0.23.0, which is available under a
 This product bundles picocli 3.7.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles poi 4.1.2, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles poi 5.2.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles poi-ooxml 4.1.2, which is available under a
+This product bundles poi 5.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles poi-ooxml 5.2.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles poi-ooxml-schemas 4.1.2, which is available under a
+This product bundles poi-ooxml 5.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles poi-ooxml-lite 5.2.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles poi-scratchpad 4.1.2, which is available under a
+This product bundles poi-ooxml-lite 5.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles poi-scratchpad 5.2.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles poi-scratchpad 5.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles postgresql 42.3.3, which is available under a

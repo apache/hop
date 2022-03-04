@@ -37,7 +37,7 @@
     <description></description>
 
     <properties>
-        <poi.version>5.2.0</poi.version>
+        <poi.version>5.2.1</poi.version>
         <xerces.version>2.12.2</xerces.version>
     </properties>
 
