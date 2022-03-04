@@ -36,13 +36,13 @@ public class Exasol4DatabaseMetaTest {
   public void testSettings() throws Exception {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(8563, nativeMeta.getDefaultDatabasePort());
-    assertFalse(nativeMeta.supportsAutoInc());
+    assertFalse(nativeMeta.isSupportsAutoInc());
     assertEquals("com.exasol.jdbc.EXADriver", nativeMeta.getDriverClass());
     assertEquals("jdbc:exa:FOO:BAR", nativeMeta.getURL("FOO", "BAR", "IGNORED"));
-    assertTrue(nativeMeta.supportsOptionsInURL());
-    assertFalse(nativeMeta.supportsSequences());
+    assertTrue(nativeMeta.isSupportsOptionsInURL());
+    assertFalse(nativeMeta.isSupportsSequences());
     assertTrue(nativeMeta.useSchemaNameForTableList());
-    assertFalse(nativeMeta.supportsSynonyms());
+    assertFalse(nativeMeta.isSupportsSynonyms());
     assertEquals(
         new String[] {
           "ABSOLUTE",
@@ -481,13 +481,13 @@ public class Exasol4DatabaseMetaTest {
     assertEquals(
         "http://www.exasol.com/knowledge-center.html", nativeMeta.getExtraOptionsHelpText());
     assertTrue(
-        nativeMeta.checkIndexExists(
+        nativeMeta.hasIndex(
             null, "NOT-THERE", "NOT-THERE", null)); // Always returns true - this is a bug IMO
-    assertFalse(nativeMeta.requiresCreateTablePrimaryKeyAppend());
-    assertFalse(nativeMeta.supportsPreparedStatementMetadataRetrieval());
+    assertFalse(nativeMeta.isRequiresCreateTablePrimaryKeyAppend());
+    assertFalse(nativeMeta.isSupportsPreparedStatementMetadataRetrieval());
     assertEquals(-1, nativeMeta.getMaxColumnsInIndex());
-    assertFalse(nativeMeta.releaseSavepoint());
-    assertFalse(nativeMeta.supportsErrorHandlingOnBatchUpdates());
+    assertFalse(nativeMeta.isReleaseSavepoint());
+    assertFalse(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
   }
 
   @Test

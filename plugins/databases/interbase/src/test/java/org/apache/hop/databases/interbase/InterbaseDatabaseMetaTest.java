@@ -37,7 +37,7 @@ public class InterbaseDatabaseMetaTest {
   public void testSettings() throws Exception {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(3050, nativeMeta.getDefaultDatabasePort());
-    assertFalse(nativeMeta.supportsAutoInc());
+    assertFalse(nativeMeta.isSupportsAutoInc());
     assertEquals(0, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
     assertEquals("interbase.interclient.Driver", nativeMeta.getDriverClass());
@@ -46,8 +46,8 @@ public class InterbaseDatabaseMetaTest {
         "jdbc:interbase://FOO:/WIBBLE",
         nativeMeta.getURL("FOO", "", "WIBBLE")); // Pretty sure this is a bug (colon after foo)
     assertTrue(nativeMeta.isFetchSizeSupported());
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsSynonyms());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsSynonyms());
     assertArrayEquals(
         new String[] {
           "ABSOLUTE",
@@ -738,9 +738,9 @@ public class InterbaseDatabaseMetaTest {
           "ZONE"
         },
         nativeMeta.getReservedWords());
-    assertFalse(nativeMeta.supportsTimeStampToDateConversion());
-    assertFalse(nativeMeta.supportsBatchUpdates());
-    assertFalse(nativeMeta.supportsGetBlob());
+    assertFalse(nativeMeta.isSupportsTimeStampToDateConversion());
+    assertFalse(nativeMeta.isSupportsBatchUpdates());
+    assertFalse(nativeMeta.isSupportsGetBlob());
   }
 
   @Test

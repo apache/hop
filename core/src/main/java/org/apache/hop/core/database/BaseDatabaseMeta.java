@@ -395,13 +395,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if we can set a Stream on a field in a PreparedStatement. False if not.
    */
   @Override
-  public boolean supportsSetCharacterStream() {
+  public boolean isSupportsSetCharacterStream() {
     return true;
   }
 
   /** @return Whether or not the database can use auto increment type of fields (pk) */
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     return true;
   }
 
@@ -464,19 +464,19 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if we need a placeholder for auto increment fields in insert statements.
    */
   @Override
-  public boolean needsPlaceHolder() {
+  public boolean isNeedsPlaceHolder() {
     return false;
   }
 
   /** @return true if the database supports schemas */
   @Override
-  public boolean supportsSchemas() {
+  public boolean isSupportsSchemas() {
     return true;
   }
 
   /** @return true if the database supports catalogs */
   @Override
-  public boolean supportsCatalogs() {
+  public boolean isSupportsCatalogs() {
     return true;
   }
 
@@ -485,7 +485,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     not on a non-ANSI database type!)
    */
   @Override
-  public boolean supportsEmptyTransactions() {
+  public boolean isSupportsEmptyTransactions() {
     return true;
   }
 
@@ -557,25 +557,25 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   /** @return true if the database supports transactions. */
   @Override
-  public boolean supportsTransactions() {
+  public boolean isSupportsTransactions() {
     return true;
   }
 
   /** @return true if the database supports sequences */
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return false;
   }
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return true;
   }
 
   /** @return true if the database JDBC driver supports the setLong command */
   @Override
-  public boolean supportsSetLong() {
+  public boolean isSupportsSetLong() {
     return true;
   }
 
@@ -609,7 +609,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   /** @return true if reserved words need to be double quoted ("password", "select", ...) */
   @Override
-  public boolean quoteReservedWords() {
+  public boolean isQuoteReservedWords() {
     return true;
   }
 
@@ -654,13 +654,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   /** @return true if the database supports views */
   @Override
-  public boolean supportsViews() {
+  public boolean isSupportsViews() {
     return true;
   }
 
   /** @return true if the database supports synonyms */
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return false;
   }
 
@@ -703,7 +703,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database supports roundinf of floating point data on update/insert
    */
   @Override
-  public boolean supportsFloatRoundingOnUpdate() {
+  public boolean isSupportsFloatRoundingOnUpdate() {
     return true;
   }
 
@@ -732,7 +732,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     doesn't support this!
    */
   @Override
-  public boolean supportsTimeStampToDateConversion() {
+  public boolean isSupportsTimeStampToDateConversion() {
     return true;
   }
 
@@ -741,7 +741,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     support this!
    */
   @Override
-  public boolean supportsBatchUpdates() {
+  public boolean isSupportsBatchUpdates() {
     return true;
   }
 
@@ -762,7 +762,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     false: map to a string.
    */
   @Override
-  public boolean supportsBooleanDataType() {
+  public boolean isSupportsBooleanDataType() {
     String supportsBooleanString = getAttributeProperty(ATTRIBUTE_SUPPORTS_BOOLEAN_DATA_TYPE, "N");
     return "Y".equalsIgnoreCase(supportsBooleanString);
   }
@@ -777,7 +777,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database supports the Timestamp data type (nanosecond precision and all)
    */
   @Override
-  public boolean supportsTimestampDataType() {
+  public boolean isSupportsTimestampDataType() {
     String supportsTimestamp = getAttributeProperty(ATTRIBUTE_SUPPORTS_TIMESTAMP_DATA_TYPE, "N");
     return "Y".equalsIgnoreCase(supportsTimestamp);
   }
@@ -793,7 +793,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   /** @return true if reserved words' case should be preserved */
   @Override
-  public boolean preserveReservedCase() {
+  public boolean isPreserveReservedCase() {
     String usePool = getAttributeProperty(ATTRIBUTE_PRESERVE_RESERVED_WORD_CASE, "Y");
     return "Y".equalsIgnoreCase(usePool);
   }
@@ -871,7 +871,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     Properties object.
    */
   @Override
-  public boolean supportsOptionsInURL() {
+  public boolean isSupportsOptionsInURL() {
     return true;
   }
 
@@ -886,7 +886,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     getBytes() to get the data.
    */
   @Override
-  public boolean supportsGetBlob() {
+  public boolean isSupportsGetBlob() {
     return true;
   }
 
@@ -906,7 +906,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database supports setting the maximum number of return rows in a resultset.
    */
   @Override
-  public boolean supportsSetMaxRows() {
+  public boolean isSupportsSetMaxRows() {
     return true;
   }
 
@@ -1051,7 +1051,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @throws HopDatabaseException
    */
   @Override
-  public boolean checkIndexExists(
+  public boolean hasIndex(
       Database database, String schemaName, String tableName, String[] idxFields)
       throws HopDatabaseException {
 
@@ -1103,7 +1103,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     AS/400 and DB2 support this.
    */
   @Override
-  public boolean supportsSequenceNoMaxValueOption() {
+  public boolean isSupportsSequenceNoMaxValueOption() {
     return false;
   }
 
@@ -1112,7 +1112,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     fields, required for Cache.
    */
   @Override
-  public boolean requiresCreateTablePrimaryKeyAppend() {
+  public boolean isRequiresCreateTablePrimaryKeyAppend() {
     return false;
   }
 
@@ -1121,7 +1121,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     null. Only required for DB2 and Vertica
    */
   @Override
-  public boolean requiresCastToVariousForIsNull() {
+  public boolean isRequiresCastToVariousForIsNull() {
     return false;
   }
 
@@ -1141,7 +1141,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     False if the query needs to be executed first.
    */
   @Override
-  public boolean supportsPreparedStatementMetadataRetrieval() {
+  public boolean isSupportsPreparedStatementMetadataRetrieval() {
     return true;
   }
 
@@ -1150,7 +1150,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     statement (even if the statement has been executed)
    */
   @Override
-  public boolean supportsResultSetMetadataRetrievalOnly() {
+  public boolean isSupportsResultSetMetadataRetrievalOnly() {
     return false;
   }
 
@@ -1165,7 +1165,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   /** @return true if the database supports newlines in a SQL statements. */
   @Override
-  public boolean supportsNewLinesInSql() {
+  public boolean isSupportsNewLinesInSql() {
     return true;
   }
 
@@ -1188,7 +1188,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     updates.
    */
   @Override
-  public boolean supportsErrorHandlingOnBatchUpdates() {
+  public boolean IsSupportsErrorHandlingOnBatchUpdates() {
     return true;
   }
 
@@ -1481,7 +1481,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   /** @return true if the database name is a required parameter */
   @Override
-  public boolean requiresName() {
+  public boolean isRequiresName() {
     return true;
   }
 
@@ -1491,7 +1491,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return
    */
   @Override
-  public boolean releaseSavepoint() {
+  public boolean isReleaseSavepoint() {
     return releaseSavepoint;
   }
 
@@ -1566,7 +1566,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     use it (default to false)
    */
   @Override
-  public boolean useSafePoints() {
+  public boolean isUseSafePoints() {
     return false;
   }
 
@@ -1576,7 +1576,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     when an error occurs.
    */
   @Override
-  public boolean supportsErrorHandling() {
+  public boolean isSupportsErrorHandling() {
     return true;
   }
 
@@ -1691,7 +1691,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   /** @return true if the database supports autoGeneratedKeys */
   @Override
-  public boolean supportsAutoGeneratedKeys() {
+  public boolean isSupportsAutoGeneratedKeys() {
     return true;
   }
 
@@ -1732,7 +1732,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   @Override
-  public boolean fullExceptionLog(Exception e) {
+  public boolean isFullExceptionLog(Exception e) {
     return true;
   }
 

@@ -82,22 +82,22 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     return true;
   }
 
   @Override
-  public boolean supportsGetBlob() {
+  public boolean isSupportsGetBlob() {
     return true;
   }
 
   @Override
-  public boolean supportsSetCharacterStream() {
+  public boolean isSupportsSetCharacterStream() {
     return false;
   }
 
@@ -162,7 +162,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         retval += "TIMESTAMP";
         break;
       case IValueMeta.TYPE_BOOLEAN:
-        if (supportsBooleanDataType()) {
+        if (isSupportsBooleanDataType()) {
           retval += "BOOLEAN";
         } else {
           retval += "CHAR(1)";
@@ -277,7 +277,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    *     False if the query needs to be executed first.
    */
   @Override
-  public boolean supportsPreparedStatementMetadataRetrieval() {
+  public boolean isSupportsPreparedStatementMetadataRetrieval() {
     return false;
   }
 }

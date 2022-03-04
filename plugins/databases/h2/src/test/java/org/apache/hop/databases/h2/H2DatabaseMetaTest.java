@@ -87,11 +87,11 @@ public class H2DatabaseMetaTest {
 
     assertTrue(nativeMeta.isFetchSizeSupported());
     assertEquals("FOO.BAR", nativeMeta.getSchemaTableCombination("FOO", "BAR"));
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertTrue(nativeMeta.supportsAutoInc());
-    assertTrue(nativeMeta.supportsGetBlob());
-    assertFalse(nativeMeta.supportsSetCharacterStream());
-    assertFalse(nativeMeta.supportsPreparedStatementMetadataRetrieval());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertTrue(nativeMeta.isSupportsAutoInc());
+    assertTrue(nativeMeta.isSupportsGetBlob());
+    assertFalse(nativeMeta.isSupportsSetCharacterStream());
+    assertFalse(nativeMeta.isSupportsPreparedStatementMetadataRetrieval());
   }
 
   @Test

@@ -73,7 +73,7 @@ public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {
    * @return false
    */
   @Override
-  public boolean supportsSetMaxRows() {
+  public boolean isSupportsSetMaxRows() {
     return false;
   }
 }

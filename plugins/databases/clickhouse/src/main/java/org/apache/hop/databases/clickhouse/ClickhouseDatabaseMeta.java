@@ -246,39 +246,39 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
 
   /** @return true if the database supports schemas */
   @Override
-  public boolean supportsSchemas() {
+  public boolean isSupportsSchemas() {
     return false;
   }
 
   /** @return true if the database supports transactions. */
   @Override
-  public boolean supportsTransactions() {
+  public boolean isSupportsTransactions() {
     return false;
   }
 
   /** @return true if the database supports views */
   @Override
-  public boolean supportsViews() {
+  public boolean isSupportsViews() {
     return true;
   }
 
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return false;
   }
 
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return true;
   }
 
   @Override
-  public boolean supportsBooleanDataType() {
+  public boolean isSupportsBooleanDataType() {
     return false;
   }
 
   @Override
-  public boolean supportsErrorHandlingOnBatchUpdates() {
+  public boolean IsSupportsErrorHandlingOnBatchUpdates() {
     return true;
   }
 
@@ -390,7 +390,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   @Override
-  public boolean releaseSavepoint() {
+  public boolean isReleaseSavepoint() {
     return false;
   }
 
@@ -412,7 +412,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return true if the database resultsets support getTimeStamp() to retrieve date-time. (Date)
    */
   @Override
-  public boolean supportsTimeStampToDateConversion() {
+  public boolean isSupportsTimeStampToDateConversion() {
     return false;
   }
 }

@@ -73,7 +73,7 @@ public class OracleDatabaseMetaTest {
     // according to the features of the DB as we know them
 
     assertEquals(1521, nativeMeta.getDefaultDatabasePort());
-    assertFalse(nativeMeta.supportsAutoInc());
+    assertFalse(nativeMeta.isSupportsAutoInc());
     assertEquals("oracle.jdbc.driver.OracleDriver", nativeMeta.getDriverClass());
     assertEquals("jdbc:oracle:thin:@FOO:1024:BAR", nativeMeta.getURL("FOO", "1024", "BAR"));
     assertEquals("jdbc:oracle:thin:@FOO:11:BAR", nativeMeta.getURL("FOO", "11", ":BAR"));
@@ -84,11 +84,11 @@ public class OracleDatabaseMetaTest {
     assertEquals("jdbc:oracle:thin:@FOO:1234:BAR", nativeMeta.getURL("FOO", "1234", "BAR"));
     assertEquals(
         "jdbc:oracle:thin:@", nativeMeta.getURL("", "", "")); // Pretty sure this is a bug...
-    assertFalse(nativeMeta.supportsOptionsInURL());
-    assertTrue(nativeMeta.supportsSequences());
-    assertTrue(nativeMeta.supportsSequenceNoMaxValueOption());
+    assertFalse(nativeMeta.isSupportsOptionsInURL());
+    assertTrue(nativeMeta.isSupportsSequences());
+    assertTrue(nativeMeta.isSupportsSequenceNoMaxValueOption());
     assertTrue(nativeMeta.useSchemaNameForTableList());
-    assertTrue(nativeMeta.supportsSynonyms());
+    assertTrue(nativeMeta.isSupportsSynonyms());
     String[] reservedWords =
         new String[] {
           "ACCESS",
@@ -208,14 +208,14 @@ public class OracleDatabaseMetaTest {
     assertEquals(
         "http://download.oracle.com/docs/cd/B19306_01/java.102/b14355/urls.htm#i1006362",
         nativeMeta.getExtraOptionsHelpText());
-    assertTrue(nativeMeta.requiresCreateTablePrimaryKeyAppend());
-    assertFalse(nativeMeta.supportsPreparedStatementMetadataRetrieval());
+    assertTrue(nativeMeta.isRequiresCreateTablePrimaryKeyAppend());
+    assertFalse(nativeMeta.isSupportsPreparedStatementMetadataRetrieval());
     String quoteTest1 = "FOO 'BAR' \r TEST \n";
     String quoteTest2 = "FOO 'BAR' \\r TEST \\n";
     assertEquals(
         "'FOO ''BAR'' '||chr(10)||' TEST '||chr(13)||''", nativeMeta.quoteSqlString(quoteTest1));
     assertEquals("'FOO ''BAR'' \\r TEST \\n'", nativeMeta.quoteSqlString(quoteTest2));
-    assertFalse(nativeMeta.releaseSavepoint());
+    assertFalse(nativeMeta.isReleaseSavepoint());
     Variables v = new Variables();
     v.setVariable("FOOVARIABLE", "FOOVALUE");
 
@@ -223,9 +223,9 @@ public class OracleDatabaseMetaTest {
     dm.setIDatabase(nativeMeta);
     assertEquals("TABLESPACE FOOVALUE", nativeMeta.getTablespaceDDL(v, dm, "${FOOVARIABLE}"));
     assertEquals("", nativeMeta.getTablespaceDDL(v, dm, ""));
-    assertFalse(nativeMeta.supportsErrorHandlingOnBatchUpdates());
+    assertFalse(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
     assertEquals(2000, nativeMeta.getMaxVARCHARLength());
-    assertFalse(nativeMeta.supportsTimestampDataType());
+    assertFalse(nativeMeta.isSupportsTimestampDataType());
     assertEquals(32, nativeMeta.getMaxColumnsInIndex());
   }
 
@@ -487,20 +487,20 @@ public class OracleDatabaseMetaTest {
                   }
                 });
     Mockito.when(db.getDatabaseMeta()).thenReturn(dm);
-    assertTrue(nativeMeta.checkIndexExists(db, "", "FOO", new String[] {"ROW1COL2", "ROW2COL2"}));
-    assertFalse(nativeMeta.checkIndexExists(db, "", "FOO", new String[] {"ROW2COL2", "NOTTHERE"}));
-    assertFalse(nativeMeta.checkIndexExists(db, "", "FOO", new String[] {"NOTTHERE", "ROW1COL2"}));
+    assertTrue(nativeMeta.hasIndex(db, "", "FOO", new String[] {"ROW1COL2", "ROW2COL2"}));
+    assertFalse(nativeMeta.hasIndex(db, "", "FOO", new String[] {"ROW2COL2", "NOTTHERE"}));
+    assertFalse(nativeMeta.hasIndex(db, "", "FOO", new String[] {"NOTTHERE", "ROW1COL2"}));
   }
 
   @Test
   public void testSupportsSavepoint() {
-    assertFalse(nativeMeta.releaseSavepoint());
+    assertFalse(nativeMeta.isReleaseSavepoint());
   }
 
   @Test
   public void testSupportsSequence() {
     String dbType = nativeMeta.getClass().getSimpleName();
-    assertTrue(dbType, nativeMeta.supportsSequences());
+    assertTrue(dbType, nativeMeta.isSupportsSequences());
     assertFalse(dbType + ": List of Sequences", Utils.isEmpty(nativeMeta.getSqlListOfSequences()));
     assertFalse(
         dbType + ": Sequence Exists", Utils.isEmpty(nativeMeta.getSqlSequenceExists("testSeq")));

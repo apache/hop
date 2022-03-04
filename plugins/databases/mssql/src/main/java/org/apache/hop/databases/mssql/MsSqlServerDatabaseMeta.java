@@ -77,7 +77,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   }
 
   @Override
-  public boolean supportsCatalogs() {
+  public boolean isSupportsCatalogs() {
     return false;
   }
 
@@ -141,13 +141,13 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
   /** @return true if the database supports synonyms */
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return false;
   }
 
@@ -264,7 +264,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
         retval += "DATETIME";
         break;
       case IValueMeta.TYPE_BOOLEAN:
-        if (supportsBooleanDataType()) {
+        if (isSupportsBooleanDataType()) {
           retval += "BIT";
         } else {
           retval += "CHAR(1)";
@@ -740,7 +740,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
    * @throws HopDatabaseException
    */
   @Override
-  public boolean checkIndexExists(
+  public boolean hasIndex(
       Database database, String schemaName, String tableName, String[] idxFields)
       throws HopDatabaseException {
 
@@ -808,7 +808,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   }
 
   @Override
-  public boolean supportsSchemas() {
+  public boolean isSupportsSchemas() {
     return true;
   }
 
@@ -842,12 +842,12 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   }
 
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return true;
   }
 
   @Override
-  public boolean supportsSequenceNoMaxValueOption() {
+  public boolean isSupportsSequenceNoMaxValueOption() {
     return true;
   }
 
@@ -870,12 +870,12 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   }
 
   @Override
-  public boolean useSafePoints() {
+  public boolean isUseSafePoints() {
     return false;
   }
 
   @Override
-  public boolean supportsErrorHandlingOnBatchUpdates() {
+  public boolean IsSupportsErrorHandlingOnBatchUpdates() {
     return true;
   }
 
