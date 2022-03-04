@@ -108,7 +108,6 @@ rm -rf source_version
 
 Check if the unpacked archive contains following files and if they are correct
 
-* DISCLAIMER
 * LICENSE
 ** check if mentioned licenses are available in the licenses folder
 * NOTICE
@@ -140,7 +139,7 @@ cd hop
 
 == Extra checks
 
-You can also check for unwanted binary files on the checked out tag
+You can also check for unwanted binary files on the checked out tag (note: this requires the .git folder to still be present)
 
 [source,bash]
 ----
