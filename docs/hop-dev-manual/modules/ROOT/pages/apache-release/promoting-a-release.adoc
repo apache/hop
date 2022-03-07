@@ -43,41 +43,23 @@ svn co https://dist.apache.org/repos/dist/release/hop/ hop_public_release
 
 ----
 
-Create a new folder in the hop_public_release location with the version number and copy the artifacts
+svn move the files from the staging area to the release area
 
 [source,bash]
 ----
 cd hop_public_release
 svn mkdir X.XX
-cp ../hop_release/apache-hop-X.XX-rcX/* X.XX
-----
-
-Remove the rc from the files and fix the link in the sha512 file
-
-[source,bash]
-----
-
-#Rename Files
-mv apache-hop-X.XX-rcX.tar.gz apache-hop-X.XX.tar.gz
-mv apache-hop-X.XX-rcX.tar.gz.asc apache-hop-X.XX.tar.gz.asc
-mv apache-hop-X.XX-rcX.tar.gz.sha512 apache-hop-X.XX.tar.gz.sha512
-
-#Remove rcx from sha512
-vi apache-hop-X.XX.tar.gz.sha512
-#Remove rcx and save
-----
-
-Test if both key and sha512 still work
-
-[source,bash]
-----
-gpg --verify apache-hop-X.XX.tar.gz.asc
-sha512sum -c apache-hop-X.XX.tar.gz.sha512
+cd X.XX
+svn mv ~/svn/hop_release/apache-hop-X.XX-rcX/* .
+svn commit -m 'Move release files for Apache hop 1.2.0-rc1'
 ----
 
 == Creating Dockerhub Artifacts
 
 To create the docker images you can use the build used to create the client, go to the folder with the code and do following steps
+
+first take a copy of the source code release and build the software
+(could be that you still have the build from the creating a release steps)
 
 [source,bash]
 ----
@@ -86,12 +68,26 @@ unzip ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp
 unzip ./assemblies/plugins/dist/target/hop-assemblies-*.zip -d ./assemblies/plugins/dist/target/
 
 # Create image (make sure to add correct version)
-docker build . -f docker/Dockerfile -t docker.io/apache/hop:X.XX -t docker.io/apache/hop:latest
-
-# Push to dockerhub
-docker image push --all-tags docker.io/apache/hop
+docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile -t docker.io/apache/hop:X.XX -t docker.io/apache/hop:latest --push
 
 # Create and push Hop Web
 docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t docker.io/apache/hop-web:X.XX -t docker.io/apache/hop-web:latest --push
 
 ----
+
+== Update the website
+
+edit following file and add a new release
+
+hop-website/content/download/index.adoc
+
+Update following file to add the release branch to the documentation
+
+hop-website/site.yaml
+
+
+Update following file to redirect the release to the latest version on the website
+
+hop-website/.htaccess
+
+push all changes to the master branch
