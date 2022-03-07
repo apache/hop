@@ -53,6 +53,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.ConcatFields",
     description = "i18n::BaseTransform.TypeTooltipDesc.ConcatFields",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::ConcatFieldsMeta.keyword",
     documentationUrl = "/pipeline/transforms/concatfields.html")
 public class ConcatFieldsMeta extends BaseTransformMeta<ConcatFields, ConcatFieldsData> {
 
@@ -143,8 +144,6 @@ public class ConcatFieldsMeta extends BaseTransformMeta<ConcatFields, ConcatFiel
 
   @Override
   public void setDefault() {
-    //    super.setDefault();
-    //    createparentfolder = true; // Default createparentfolder to true
     separator = ";";
     enclosure = "\"";
     setSpecifyingFormat(false);
@@ -153,7 +152,8 @@ public class ConcatFieldsMeta extends BaseTransformMeta<ConcatFields, ConcatFiel
     disableEnclosureFix = false;
     padded = false;
 
-    int i, nrFields = 0;
+    int i;
+    int nrFields = 0;
 
     allocate(nrFields);
 
@@ -284,7 +284,6 @@ public class ConcatFieldsMeta extends BaseTransformMeta<ConcatFields, ConcatFiel
 
   @Override
   public String getXml() {
-    //    String retval = super.getXml();
     StringBuilder retval = new StringBuilder(800);
     retval.append("    ").append(XmlHandler.addTagValue("separator", separator));
     retval.append("    ").append(XmlHandler.addTagValue("enclosure", enclosure));

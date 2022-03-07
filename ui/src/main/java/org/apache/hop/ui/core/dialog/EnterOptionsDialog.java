@@ -37,6 +37,7 @@ import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -54,12 +55,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Allows you to set the configurable options for the Hop environment
- *
- * @author Matt
- * @since 15-12-2003
- */
+/** Allows you to set the configurable options for the Hop environment */
 public class EnterOptionsDialog extends Dialog {
   private static final Class<?> PKG = EnterOptionsDialog.class; // For Translator
 
@@ -71,24 +67,18 @@ public class EnterOptionsDialog extends Dialog {
 
   private CTabFolder wTabFolder;
 
-  private FontData fixedFontData, graphFontData, noteFontData;
-  private Font fixedFont, graphFont, noteFont;
-  private RGB backgroundRGB, graphColorRGB, tabColorRGB;
-  private Color background, graphColor, tabColor;
+  private FontData fixedFontData;
+  private FontData graphFontData;
+  private FontData noteFontData;
+  private Font fixedFont;
+  private Font graphFont;
+  private Font noteFont;
 
   private Canvas wFFont;
 
   private Canvas wGFont;
 
   private Canvas wNFont;
-
-  private Canvas wBGColor;
-
-  private Canvas wGrColor;
-
-  private Canvas wTabColor;
-
-  private Text wFilename;
 
   private Text wIconSize;
 
@@ -99,8 +89,6 @@ public class EnterOptionsDialog extends Dialog {
   private Text wMiddlePct;
 
   private Text wGridSize;
-
-  private Button wOriginalLook;
 
   private Button wDarkMode;
 
@@ -137,6 +125,8 @@ public class EnterOptionsDialog extends Dialog {
   private Button wbUseGlobalFileBookmarks;
 
   private Button wAutoCollapse;
+
+  private Button wbTableOutputSortMappings;
 
   private class PluginWidgetContents {
     public GuiCompositeWidgets compositeWidgets;
@@ -181,6 +171,7 @@ public class EnterOptionsDialog extends Dialog {
 
     addGeneralTab();
     addLookTab();
+    addTransformsTab();
     addPluginTabs();
 
     // Some buttons
@@ -448,219 +439,6 @@ public class EnterOptionsDialog extends Dialog {
           pe.gc.drawText(name, (max.width - size.x) / 2, (max.height - size.y) / 2, true);
         });
 
-    // Background color
-    nr++;
-    Label wlBGColor = new Label(wLookComp, SWT.RIGHT);
-    wlBGColor.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.BackgroundColor.Label"));
-    props.setLook(wlBGColor);
-    FormData fdlBGColor = new FormData();
-    fdlBGColor.left = new FormAttachment(0, 0);
-    fdlBGColor.right = new FormAttachment(middle, -margin);
-    fdlBGColor.top = new FormAttachment(0, nr * h + margin + 10);
-    wlBGColor.setLayoutData(fdlBGColor);
-
-    Button wdBGcolor = new Button(wLookComp, SWT.PUSH);
-    props.setLook(wdBGcolor);
-
-    FormData fddBGColor = layoutResetOptionButton(wdBGcolor);
-    fddBGColor.right = new FormAttachment(100, 0); // to the right of the
-    // dialog
-    fddBGColor.top = new FormAttachment(0, nr * h + margin);
-    fddBGColor.bottom = new FormAttachment(0, (nr + 1) * h + margin);
-    wdBGcolor.setLayoutData(fddBGColor);
-    wdBGcolor.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            background.dispose();
-
-            backgroundRGB =
-                new RGB(
-                    ConstUi.COLOR_BACKGROUND_RED,
-                    ConstUi.COLOR_BACKGROUND_GREEN,
-                    ConstUi.COLOR_BACKGROUND_BLUE);
-            background = new Color(display, backgroundRGB);
-            wBGColor.setBackground(background);
-            wBGColor.redraw();
-          }
-        });
-
-    Button wbBGColor = new Button(wLookComp, SWT.PUSH);
-    props.setLook(wbBGColor);
-
-    FormData fdbBGColor = layoutEditOptionButton(wbBGColor);
-    fdbBGColor.right = new FormAttachment(wdBGcolor, -margin); // to the
-    // left of
-    // the
-    // "default"
-    // button
-    fdbBGColor.top = new FormAttachment(0, nr * h + margin);
-    fdbBGColor.bottom = new FormAttachment(0, (nr + 1) * h + margin);
-    wbBGColor.setLayoutData(fdbBGColor);
-    wbBGColor.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            ColorDialog cd = new ColorDialog(shell);
-            cd.setRGB(props.getBackgroundRGB());
-            RGB newbg = cd.open();
-            if (newbg != null) {
-              backgroundRGB = newbg;
-              background.dispose();
-              background = new Color(display, backgroundRGB);
-              wBGColor.setBackground(background);
-              wBGColor.redraw();
-            }
-          }
-        });
-
-    wBGColor = new Canvas(wLookComp, SWT.BORDER);
-    props.setLook(wBGColor);
-    wBGColor.setBackground(background);
-    FormData fdBGColor = new FormData();
-    fdBGColor.left = new FormAttachment(middle, 0);
-    fdBGColor.right = new FormAttachment(wbBGColor, -margin);
-    fdBGColor.top = new FormAttachment(0, nr * h + margin);
-    fdBGColor.bottom = new FormAttachment(0, (nr + 1) * h + margin);
-    wBGColor.setLayoutData(fdBGColor);
-
-    // Graph background color
-    nr++;
-    Label wlGrColor = new Label(wLookComp, SWT.RIGHT);
-    wlGrColor.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.BackgroundColorGraph.Label"));
-    props.setLook(wlGrColor);
-    FormData fdlGrColor = new FormData();
-    fdlGrColor.left = new FormAttachment(0, 0);
-    fdlGrColor.right = new FormAttachment(middle, -margin);
-    fdlGrColor.top = new FormAttachment(0, nr * h + margin + 10);
-    wlGrColor.setLayoutData(fdlGrColor);
-
-    Button wdGrColor = new Button(wLookComp, SWT.PUSH);
-    props.setLook(wdGrColor);
-
-    FormData fddGrColor = layoutResetOptionButton(wdGrColor);
-    fddGrColor.right = new FormAttachment(100, 0);
-    fddGrColor.top = new FormAttachment(0, nr * h + margin);
-    fddGrColor.bottom = new FormAttachment(0, (nr + 1) * h + margin);
-    wdGrColor.setLayoutData(fddGrColor);
-    wdGrColor.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            graphColor.dispose();
-
-            graphColorRGB =
-                new RGB(
-                    ConstUi.COLOR_GRAPH_RED, ConstUi.COLOR_GRAPH_GREEN, ConstUi.COLOR_GRAPH_BLUE);
-            graphColor = new Color(display, graphColorRGB);
-            wGrColor.setBackground(graphColor);
-            wGrColor.redraw();
-          }
-        });
-
-    Button wbGrColor = new Button(wLookComp, SWT.PUSH);
-    props.setLook(wbGrColor);
-
-    FormData fdbGrColor = layoutEditOptionButton(wbGrColor);
-    fdbGrColor.right = new FormAttachment(wdGrColor, -margin);
-    fdbGrColor.top = new FormAttachment(0, nr * h + margin);
-    fdbGrColor.bottom = new FormAttachment(0, (nr + 1) * h + margin);
-    wbGrColor.setLayoutData(fdbGrColor);
-    wbGrColor.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            ColorDialog cd = new ColorDialog(shell);
-            cd.setRGB(props.getGraphColorRGB());
-            RGB newbg = cd.open();
-            if (newbg != null) {
-              graphColorRGB = newbg;
-              graphColor.dispose();
-              graphColor = new Color(display, graphColorRGB);
-              wGrColor.setBackground(graphColor);
-              wGrColor.redraw();
-            }
-          }
-        });
-
-    wGrColor = new Canvas(wLookComp, SWT.BORDER);
-    props.setLook(wGrColor);
-    wGrColor.setBackground(graphColor);
-    FormData fdGrColor = new FormData();
-    fdGrColor.left = new FormAttachment(middle, 0);
-    fdGrColor.right = new FormAttachment(wbGrColor, -margin);
-    fdGrColor.top = new FormAttachment(0, nr * h + margin);
-    fdGrColor.bottom = new FormAttachment(0, (nr + 1) * h + margin);
-    wGrColor.setLayoutData(fdGrColor);
-
-    // Tab selected color
-    nr++;
-    Label wlTabColor = new Label(wLookComp, SWT.RIGHT);
-    wlTabColor.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.TabColor.Label"));
-    props.setLook(wlTabColor);
-    FormData fdlTabColor = new FormData();
-    fdlTabColor.left = new FormAttachment(0, 0);
-    fdlTabColor.right = new FormAttachment(middle, -margin);
-    fdlTabColor.top = new FormAttachment(0, nr * h + margin + 10);
-    wlTabColor.setLayoutData(fdlTabColor);
-
-    Button wdTabColor = new Button(wLookComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wdTabColor);
-
-    FormData fddTabColor = layoutResetOptionButton(wdTabColor);
-    fddTabColor.right = new FormAttachment(100, 0);
-    fddTabColor.top = new FormAttachment(0, nr * h + margin);
-    fddTabColor.bottom = new FormAttachment(0, (nr + 1) * h + margin);
-    wdTabColor.setLayoutData(fddTabColor);
-    wdTabColor.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            tabColor.dispose();
-
-            tabColorRGB =
-                new RGB(ConstUi.COLOR_TAB_RED, ConstUi.COLOR_TAB_GREEN, ConstUi.COLOR_TAB_BLUE);
-            tabColor = new Color(display, tabColorRGB);
-            wTabColor.setBackground(tabColor);
-            wTabColor.redraw();
-          }
-        });
-
-    Button wbTabColor = new Button(wLookComp, SWT.PUSH);
-    props.setLook(wbTabColor);
-
-    FormData fdbTabColor = layoutEditOptionButton(wbTabColor);
-    fdbTabColor.right = new FormAttachment(wdTabColor, -margin);
-    fdbTabColor.top = new FormAttachment(0, nr * h + margin);
-    fdbTabColor.bottom = new FormAttachment(0, (nr + 1) * h + margin);
-    wbTabColor.setLayoutData(fdbTabColor);
-    wbTabColor.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            ColorDialog cd = new ColorDialog(shell);
-            cd.setRGB(props.getTabColorRGB());
-            RGB newbg = cd.open();
-            if (newbg != null) {
-              tabColorRGB = newbg;
-              tabColor.dispose();
-              tabColor = new Color(display, tabColorRGB);
-              wTabColor.setBackground(tabColor);
-              wTabColor.redraw();
-            }
-          }
-        });
-
-    wTabColor = new Canvas(wLookComp, SWT.BORDER);
-    props.setLook(wTabColor);
-    wTabColor.setBackground(tabColor);
-    FormData fdTabColor = new FormData();
-    fdTabColor.left = new FormAttachment(middle, 0);
-    fdTabColor.right = new FormAttachment(wbTabColor, -margin);
-    fdTabColor.top = new FormAttachment(0, nr * h + margin);
-    fdTabColor.bottom = new FormAttachment(0, (nr + 1) * h + margin);
-    wTabColor.setLayoutData(fdTabColor);
-
     // IconSize line
     Label wlIconSize = new Label(wLookComp, SWT.RIGHT);
     wlIconSize.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.IconSize.Label"));
@@ -668,7 +446,7 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdlIconSize = new FormData();
     fdlIconSize.left = new FormAttachment(0, 0);
     fdlIconSize.right = new FormAttachment(middle, -margin);
-    fdlIconSize.top = new FormAttachment(wTabColor, margin);
+    fdlIconSize.top = new FormAttachment(wNFont, margin);
     wlIconSize.setLayoutData(fdlIconSize);
     wIconSize = new Text(wLookComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wIconSize.setText(Integer.toString(props.getIconSize()));
@@ -757,23 +535,6 @@ public class EnterOptionsDialog extends Dialog {
     fdShowCanvasGrid.top = new FormAttachment(wlShowCanvasGrid, 0, SWT.CENTER);
     wShowCanvasGrid.setLayoutData(fdShowCanvasGrid);
 
-    // Show original look
-    Label wlOriginalLook = new Label(wLookComp, SWT.RIGHT);
-    wlOriginalLook.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.UseOSLook.Label"));
-    props.setLook(wlOriginalLook);
-    FormData fdlOriginalLook = new FormData();
-    fdlOriginalLook.left = new FormAttachment(0, 0);
-    fdlOriginalLook.top = new FormAttachment(wShowCanvasGrid, margin);
-    fdlOriginalLook.right = new FormAttachment(middle, -margin);
-    wlOriginalLook.setLayoutData(fdlOriginalLook);
-    wOriginalLook = new Button(wLookComp, SWT.CHECK);
-    props.setLook(wOriginalLook);
-    wOriginalLook.setSelection(props.isOSLookShown());
-    FormData fdOriginalLook = new FormData();
-    fdOriginalLook.left = new FormAttachment(middle, 0);
-    fdOriginalLook.top = new FormAttachment(wlOriginalLook, 0, SWT.CENTER);
-    fdOriginalLook.right = new FormAttachment(100, 0);
-    wOriginalLook.setLayoutData(fdOriginalLook);
 
     // Show original look
     Label wlDarkMode = new Label(wLookComp, SWT.RIGHT);
@@ -781,7 +542,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook(wlDarkMode);
     FormData fdlDarkMode = new FormData();
     fdlDarkMode.left = new FormAttachment(0, 0);
-    fdlDarkMode.top = new FormAttachment(wlOriginalLook, 2 * margin);
+    fdlDarkMode.top = new FormAttachment(wShowCanvasGrid, 2 * margin);
     fdlDarkMode.right = new FormAttachment(middle, -margin);
     wlDarkMode.setLayoutData(fdlDarkMode);
     wDarkMode = new Button(wLookComp, SWT.CHECK);
@@ -792,6 +553,8 @@ public class EnterOptionsDialog extends Dialog {
     fdDarkMode.top = new FormAttachment(wlDarkMode, 0, SWT.CENTER);
     fdDarkMode.right = new FormAttachment(100, 0);
     wDarkMode.setLayoutData(fdDarkMode);
+    wlDarkMode.setEnabled(Const.isWindows());
+    wDarkMode.setEnabled(Const.isWindows());
 
     // DefaultLocale line
     Label wlDefaultLocale = new Label(wLookComp, SWT.RIGHT);
@@ -841,6 +604,72 @@ public class EnterOptionsDialog extends Dialog {
     // ///////////////////////////////////////////////////////////
   }
 
+  private void addTransformsTab() {
+    // ////////////////////////
+    // START OF TRANSFORMS TAB///
+    // /
+
+    CTabItem wTransformTab = new CTabItem(wTabFolder, SWT.NONE);
+    wTransformTab.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.Transform.Label"));
+
+    FormLayout transformLayout = new FormLayout();
+    transformLayout.marginWidth = 3;
+    transformLayout.marginHeight = 3;
+
+    ScrolledComposite sTransformComp =
+        new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    sTransformComp.setLayout(new FillLayout());
+
+    Composite wTransformComp = new Composite(sTransformComp, SWT.NONE);
+    props.setLook(wTransformComp);
+    wTransformComp.setLayout(transformLayout);
+
+    // Use DB Cache?
+    Label wlTableOutputSortMappings = new Label(wTransformComp, SWT.RIGHT);
+    wlTableOutputSortMappings.setText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.TableOutput.SortMappings.Label"));
+    props.setLook(wlTableOutputSortMappings);
+    FormData fdlSortMappings = new FormData();
+    fdlSortMappings.left = new FormAttachment(0, 0);
+    fdlSortMappings.top = new FormAttachment(0, margin);
+    fdlSortMappings.right = new FormAttachment(middle, -margin);
+    wlTableOutputSortMappings.setLayoutData(fdlSortMappings);
+
+    wbTableOutputSortMappings = new Button(wTransformComp, SWT.CHECK);
+    props.setLook(wbTableOutputSortMappings);
+    wbTableOutputSortMappings.setSelection(props.useDBCache());
+    FormData fdUseCache = new FormData();
+    fdUseCache.left = new FormAttachment(middle, 0);
+    fdUseCache.top = new FormAttachment(wlTableOutputSortMappings, 0, SWT.CENTER);
+    fdUseCache.right = new FormAttachment(100, 0);
+    wbTableOutputSortMappings.setLayoutData(fdUseCache);
+
+    wbTableOutputSortMappings.setSelection(props.sortTableOutputMappings());
+
+    FormData fdTransformsComp = new FormData();
+    fdTransformsComp.left = new FormAttachment(0, 0);
+    fdTransformsComp.right = new FormAttachment(100, 0);
+    fdTransformsComp.top = new FormAttachment(0, 0);
+    fdTransformsComp.bottom = new FormAttachment(100, 100);
+    wTransformComp.setLayoutData(fdTransformsComp);
+
+    wTransformComp.pack();
+
+    Rectangle bounds = wTransformComp.getBounds();
+
+    sTransformComp.setContent(wTransformComp);
+    sTransformComp.setExpandHorizontal(true);
+    sTransformComp.setExpandVertical(true);
+    sTransformComp.setMinWidth(bounds.width);
+    sTransformComp.setMinHeight(bounds.height);
+
+    wTransformTab.setControl(sTransformComp);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF TRANSFORMS TAB
+    // ///////////////////////////////////////////////////////////
+  }
+
   private void addGeneralTab() {
     // ////////////////////////
     // START OF GENERAL TAB///
@@ -868,7 +697,7 @@ public class EnterOptionsDialog extends Dialog {
     fdlFilename.right = new FormAttachment(middle, -margin);
     fdlFilename.top = new FormAttachment(0, margin);
     wlFilename.setLayoutData(fdlFilename);
-    wFilename = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    Text wFilename = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFilename.setText(Const.NVL(HopConfig.getInstance().getConfigFilename(), ""));
     wFilename.setEditable(false);
     props.setLook(wFilename);
@@ -1159,7 +988,6 @@ public class EnterOptionsDialog extends Dialog {
     fdbUseGlobalFileBookmarks.top = new FormAttachment(wlUseGlobalFileBookmarks, 0, SWT.CENTER);
     fdbUseGlobalFileBookmarks.right = new FormAttachment(100, 0);
     wbUseGlobalFileBookmarks.setLayoutData(fdbUseGlobalFileBookmarks);
-    lastControl = wbUseGlobalFileBookmarks;
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);
@@ -1223,7 +1051,7 @@ public class EnterOptionsDialog extends Dialog {
           props.setLook(wPluginsComp);
           wPluginsComp.setLayout(new FormLayout());
 
-          GuiCompositeWidgets compositeWidgets = new GuiCompositeWidgets(hopGui.getVariables(), 20);
+          GuiCompositeWidgets compositeWidgets = new GuiCompositeWidgets(hopGui.getVariables());
           compositeWidgets.createCompositeWidgets(
               sourceData, null, wPluginsComp, GUI_WIDGETS_PARENT_ID, null);
           compositeWidgets.setWidgetsContents(sourceData, wPluginsComp, GUI_WIDGETS_PARENT_ID);
@@ -1311,10 +1139,6 @@ public class EnterOptionsDialog extends Dialog {
     graphFont.dispose();
     noteFont.dispose();
 
-    background.dispose();
-    graphColor.dispose();
-    tabColor.dispose();
-
     shell.dispose();
   }
 
@@ -1330,18 +1154,6 @@ public class EnterOptionsDialog extends Dialog {
 
     noteFontData = props.getNoteFont();
     noteFont = new Font(display, noteFontData);
-
-    backgroundRGB = props.getBackgroundRGB();
-    if (backgroundRGB == null) {
-      backgroundRGB = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND).getRGB();
-    }
-    background = new Color(display, backgroundRGB);
-
-    graphColorRGB = props.getGraphColorRGB();
-    graphColor = new Color(display, graphColorRGB);
-
-    tabColorRGB = props.getTabColorRGB();
-    tabColor = new Color(display, tabColorRGB);
   }
 
   private void cancel() {
@@ -1354,9 +1166,6 @@ public class EnterOptionsDialog extends Dialog {
     props.setFixedFont(fixedFontData);
     props.setGraphFont(graphFontData);
     props.setNoteFont(noteFontData);
-    props.setBackgroundRGB(backgroundRGB);
-    props.setGraphColorRGB(graphColorRGB);
-    props.setTabColorRGB(tabColorRGB);
     props.setIconSize(Const.toInt(wIconSize.getText(), props.getIconSize()));
     props.setLineWidth(Const.toInt(wLineWidth.getText(), props.getLineWidth()));
     props.setMiddlePct(Const.toInt(wMiddlePct.getText(), props.getMiddlePct()));
@@ -1372,13 +1181,14 @@ public class EnterOptionsDialog extends Dialog {
     props.setShowCopyOrDistributeWarning(wCopyDistrib.getSelection());
     props.setShowCanvasGridEnabled(wShowCanvasGrid.getSelection());
     props.setExitWarningShown(wExitWarning.getSelection());
-    props.setOSLookShown(wOriginalLook.getSelection());
     props.setDarkMode(wDarkMode.getSelection());
     props.setShowToolTips(wToolTip.getSelection());
     props.setAutoCollapseCoreObjectsTree(wAutoCollapse.getSelection());
     props.setShowingHelpToolTips(wHelpTip.getSelection());
     props.setUseDoubleClickOnCanvas(wbUseDoubleClick.getSelection());
     props.setUseGlobalFileBookmarks(wbUseGlobalFileBookmarks.getSelection());
+
+    props.setTableOutputSortMappings(wbTableOutputSortMappings.getSelection());
 
     int defaultLocaleIndex = wDefaultLocale.getSelectionIndex();
     if (defaultLocaleIndex < 0 || defaultLocaleIndex >= GlobalMessages.localeCodes.length) {

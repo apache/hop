@@ -47,6 +47,7 @@ import java.util.List;
     name = "i18n::RegexEval.Name",
     description = "i18n::RegexEval.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+    keywords = "i18n::RegexEvalMeta.keyword",
     documentationUrl = "/pipeline/transforms/regexeval.html")
 public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
   private static final Class<?> PKG = RegexEvalMeta.class; // For Translator
@@ -555,7 +556,7 @@ public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "RegexEvalMeta.CheckResult.ConnectedTransformOK",
@@ -565,7 +566,7 @@ public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "RegexEvalMeta.CheckResult.NoInputReceived"),
               transformMeta);
       remarks.add(cr);
@@ -575,14 +576,14 @@ public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
     if (!Utils.isEmpty(matcher)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "RegexEvalMeta.CheckResult.MatcherOK"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "RegexEvalMeta.CheckResult.NoMatcher"),
               transformMeta);
       remarks.add(cr);
@@ -592,14 +593,14 @@ public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
     if (!Utils.isEmpty(resultfieldname)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "RegexEvalMeta.CheckResult.ResultFieldnameOK"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "RegexEvalMeta.CheckResult.NoResultFieldname"),
               transformMeta);
       remarks.add(cr);

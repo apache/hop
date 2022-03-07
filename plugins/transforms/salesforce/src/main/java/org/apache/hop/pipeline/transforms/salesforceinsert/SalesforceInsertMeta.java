@@ -42,11 +42,12 @@ import java.util.List;
     name = "i18n::SalesforceInsert.TypeLongDesc.SalesforceInsert",
     description = "i18n::SalesforceInsert.TypeTooltipDesc.SalesforceInsert",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+    keywords = "i18n::SalesforceInsertMeta.keyword",
     image = "FFO.svg",
     documentationUrl = "/pipeline/transforms/salesforceinsert.html")
 public class SalesforceInsertMeta
     extends SalesforceTransformMeta<SalesforceInsert, SalesforceInsertData> {
-  private static Class<?> PKG = SalesforceInsertMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInsertMeta.class; // For Translator
 
   /** Field value to update */
   private String[] updateLookup;
@@ -282,13 +283,13 @@ public class SalesforceInsertMeta
     if (input != null && input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceInsertMeta.CheckResult.NoInputExpected"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceInsertMeta.CheckResult.NoInput"),
               transformMeta);
     }
@@ -298,13 +299,13 @@ public class SalesforceInsertMeta
     if (getUpdateLookup().length == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SalesforceInsertMeta.CheckResult.NoFields"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SalesforceInsertMeta.CheckResult.FieldsOk"),
               transformMeta);
     }

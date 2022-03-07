@@ -13,11 +13,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.model;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.ArrayList;
@@ -103,6 +104,47 @@ public class GraphRelationship {
       }
     }
     return null;
+  }
+
+  /**
+   * Validate the integrity of this relationship: make sure that there is a name and a label and
+   * that the referenced nodes can be found in the provided list.
+   *
+   * @param nodes the list of nodes to validate the source and target nodes with.
+   */
+  public void validateIntegrity(List<GraphNode> nodes) throws HopException {
+    if (StringUtils.isEmpty(name)) {
+      throw new HopException("A relationship in a graph model needs to have a name");
+    }
+    if (StringUtils.isEmpty(label)) {
+      throw new HopException("A graph relationship needs to have a label");
+    }
+    boolean sourceFound = false;
+    boolean targetFound = false;
+    for (GraphNode node : nodes) {
+      if (node.getName().equals(getNodeSource())) {
+        sourceFound = true;
+      }
+      if (node.getName().equals(getNodeTarget())) {
+        targetFound = true;
+      }
+    }
+    if (!sourceFound) {
+      throw new HopException(
+          "Source node '"
+              + getNodeSource()
+              + "' of relationship '"
+              + name
+              + "' can not be found in the model");
+    }
+    if (!targetFound) {
+      throw new HopException(
+          "Target node '"
+              + getNodeTarget()
+              + "' of relationship '"
+              + name
+              + "' can not be found in the model");
+    }
   }
 
   public String getName() {

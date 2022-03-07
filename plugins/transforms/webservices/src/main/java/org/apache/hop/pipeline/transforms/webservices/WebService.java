@@ -56,6 +56,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLInputFactory;
@@ -83,8 +84,6 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
   public static final String NS_PREFIX = "ns";
 
   private int nbRowProcess;
-
-  // private long requestTime;
 
   private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 
@@ -372,7 +371,6 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
 
       HttpEntity requestEntity = new ByteArrayEntity(xml.toString().getBytes("UTF-8"));
       vHttpMethod.setEntity(requestEntity);
-      // long currentRequestTime = Const.nanoTime();
       HttpResponse httpResponse = cachedHttpClient.execute(vHttpMethod);
       int responseCode = httpResponse.getStatusLine().getStatusCode();
       if (responseCode == HttpStatus.SC_MOVED_PERMANENTLY) {
@@ -407,7 +405,6 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
                 Const.NVL(new String(EntityUtils.toString(httpEntity, charSet.toString())), ""),
                 cachedURLService));
       }
-      // requestTime += Const.nanoTime() - currentRequestTime;
     } catch (UnknownHostException e) {
       throw new HopTransformException(
           BaseMessages.getString(PKG, "WebServices.ERROR0013.UnknownHost", cachedURLService), e);
@@ -585,6 +582,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
       DocumentBuilderFactory documentBuilderFactory =
           XmlParserFactoryProducer.createSecureDocBuilderFactory();
       documentBuilderFactory.setNamespaceAware(true);
+      documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
       DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 
@@ -607,6 +606,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
        */
 
       TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
       transformer = transformerFactory.newTransformer();
 
       transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
@@ -639,7 +640,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
           //
           StringWriter nodeXML = new StringWriter();
           transformer.transform(new DOMSource(bodyNode), new StreamResult(nodeXML));
-          String xml = response; // nodeXML.toString();
+          String xml = response;
           Object[] outputRowData = createNewRow(rowData);
           int index = rowData == null ? 0 : getInputRowMeta().size();
           outputRowData[index++] = xml;
@@ -836,6 +837,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     // TODO Very empirical : see if we can do something better here
     try {
       XMLInputFactory vFactory = XMLInputFactory.newInstance();
+      vFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      vFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
       XMLStreamReader vReader = vFactory.createXMLStreamReader(stringReader);
 
       Object[] outputRowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());

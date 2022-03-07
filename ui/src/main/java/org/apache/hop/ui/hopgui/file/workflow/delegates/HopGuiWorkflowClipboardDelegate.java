@@ -102,7 +102,6 @@ public class HopGuiWorkflowClipboardDelegate {
       ActionMeta[] actions = new ActionMeta[nr];
       ArrayList<String> actionsOldNames = new ArrayList<>(nr);
 
-      // Point min = new Point(locaction.x, locaction.y);
       Point min = new Point(99999999, 99999999);
 
       // Load the entries...

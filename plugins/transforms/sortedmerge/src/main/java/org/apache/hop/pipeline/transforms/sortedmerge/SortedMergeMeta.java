@@ -50,6 +50,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.SortedMerge",
     description = "i18n::BaseTransform.TypeTooltipDesc.SortedMerge",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::SortedMergeMeta.keyword",
     documentationUrl = "/pipeline/transforms/sortedmerge.html")
 public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeData> {
   private static final Class<?> PKG = SortedMergeMeta.class; // For Translator

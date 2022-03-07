@@ -210,18 +210,10 @@ public interface ITransformMeta {
    */
   IRowMeta getTableFields(IVariables variables);
 
-  /**
-   * This method is added to exclude certain transforms from layout checking.
-   *
-   * @since 2.5.0
-   */
+  /** This method is added to exclude certain transforms from layout checking. */
   boolean excludeFromRowLayoutVerification();
 
-  /**
-   * This method is added to exclude certain transforms from copy/distribute checking.
-   *
-   * @since 4.0.0
-   */
+  /** This method is added to exclude certain transforms from copy/distribute checking. */
   boolean excludeFromCopyDistributeVerification();
 
   ITransform createTransform(

@@ -16,11 +16,12 @@ under the License.
 ////
 [[BeamFlinkPipelineEngine]]
 :imagesdir: ../assets/images
-:description: Apache Hop supports running pipelines on Apache Flink over Apache Beam. The Flink runner supports two modes: Local Direct Flink Runner and Flink Runner. The Flink Runner and Flink are suitable for large scale, continuous jobs.
-
+:description: Apache Hop supports running pipelines on Apache Flink using an Apache Beam Flink runner. This page describes how to configure this runner.
 = Apache Beam Flink Pipeline Engine
 
 == Beam Flink
+
+This runner allows you to run Hop pipelines on https://flink.apache.org[Apache Flink] version 1.13.
 
 The Flink runner supports two modes: Local Direct Flink Runner and Flink Runner.
 
@@ -81,3 +82,70 @@ Set this to BATCH_FORCED if pipelines get blocked, see https://issues.apache.org
 |Hop streaming transforms buffer size|The internal buffer size to use.|
 |Fat jar file location|Fat jar location.|
 |===
+
+== Running with Flink Run
+
+You can also execute using the 'bin/flink run' command.
+There is a main class you can use with the `--class` option of the run command:
+
+[source]
+----
+org.apache.hop.beam.run.MainBeam
+----
+
+It accepts 3 arguments:
+
+|===
+|Argument|Description
+
+|1
+|The filename of the pipeline to execute.
+
+|2
+|The filename of the metadata to load (JSON).
+You can export metadata in the Hop GUI under the tools menu (part of the Beam plugin in ```plugins/engines/beam``` )
+
+|3
+|The name of the pipeline run configuration to use
+|===
+
+The Flink run command also needs a fat jar as an argument.
+This can be generated in the Hop GUI under the tools menu or using command:
+
+[source,bash]
+----
+sh hop-config.sh -fj /path/to/fat.jar
+----
+
+**Important** : project configurations, environments and these things are not valid in the context of the Flink runtime.
+This is a TODO for the Hop community to think how we can do this best.
+Your input is welcome.
+In the meantime pass variables to the JVM by setting these in the conf/flink-conf.yml file by adding a line:
+
+[source,yaml]
+----
+env.java.opts: -DPROJECT_HOME=/path/to/project-home
+----
+
+In general, it is better not to use relative paths like `${Internal.Entry.Current.Folder}` when specifying filenames when executing pipelines remotely.
+It's usually better to pick a few root folders as variables.
+PROJECT_HOME is as good as any variable to use.
+
+An example Flink run command might look like this:
+
+[source,bash]
+----
+bin/flink run \
+  --class org.apache.hop.beam.run.MainBeam \
+  --parallelism 2 \
+  -D PROJECT_HOME=/my/project/home \
+  /path/to/apache-hop-fat.jar \
+  /my/project/home/pipeline.hpl \
+  metadata-export.json \
+  FlinkRunConfig
+----
+
+== Flink embedded
+
+You can specify a master of `[local]` to run using an embedded Flink engine.
+It's primarily used for testing locally.

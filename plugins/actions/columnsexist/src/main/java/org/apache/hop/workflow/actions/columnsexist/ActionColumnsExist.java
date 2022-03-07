@@ -43,18 +43,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This defines a column exists action.
- *
- * @author Samatar
- * @since 16-06-2008
- */
+/** This defines a column exists action. */
 @Action(
     id = "COLUMNS_EXIST",
     name = "i18n::ActionColumnsExist.Name",
     description = "i18n::ActionColumnsExist.Description",
     image = "ColumnsExist.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+    keywords = "i18n::ActionColumnsExist.keyword",
     documentationUrl = "/workflow/actions/columnsexist.html")
 public class ActionColumnsExist extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionColumnsExist.class; // For Translator

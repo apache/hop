@@ -16,15 +16,18 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Metadata Injection transform inserts data from various sources into a pipeline at runtime.
 
 :openvar: ${
 :closevar: }
+
 = Metadata Injection
 
 == Description
 
-Metadata injection inserts data from various sources into a pipeline at runtime.
-This insertion reduces repetitive ETL tasks.
+The Metadata Injection transform inserts data from various sources into a pipeline at runtime.
+
+This is typically used to automate repetitive ETL tasks.
 
 For example, you might have a simple pipeline to load transaction data values from a supplier, filter specific values, and output them to a file.
 If you have more than one supplier, you would need to run this simple pipeline for each supplier.
@@ -85,6 +88,8 @@ The Source field dialog box opens.
 - Manually entering a value.
 - Using an internal variable to set the value ({openvar}Internal.transform.Unique.Count{closevar} for example).
 - Using a combination of manually specified values and parameter values ({openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt for example).
+
+When specifying constant values for grouped lists of values like fields or filenames please note that there isn't a good solution for that.  Best practice is to use a xref:pipeline/transforms/datagrid.adoc[Data Grid] transform to inject a complete set of constant values.  You can map those in this metadata injection transform. It will do its best to accommodate you by allowing you to inject a single row in the group with the specified constant value.
 
 ==== Injecting Metadata into the ETL Metadata Injection transform
 

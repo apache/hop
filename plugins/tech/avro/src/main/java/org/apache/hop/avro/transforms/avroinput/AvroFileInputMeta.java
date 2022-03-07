@@ -17,12 +17,12 @@
 
 package org.apache.hop.avro.transforms.avroinput;
 
-import org.apache.hop.avro.type.ValueMetaAvroRecord;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "avro_input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/avro-file-input.html",
-    keywords = {"Avro", "Read Avro"})
+    keywords = "i18n::AvroFileInputMeta.keyword")
 @InjectionSupported(localizationPrefix = "AvroInputMeta.Injection.")
 public class AvroFileInputMeta extends BaseTransformMeta<AvroFileInput, AvroFileInputData> {
 

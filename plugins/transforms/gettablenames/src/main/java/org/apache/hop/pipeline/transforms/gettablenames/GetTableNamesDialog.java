@@ -220,7 +220,9 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wSchemaField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Disable focuslost
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -237,10 +239,10 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     props.setLook(wSettings);
     wSettings.setText(BaseMessages.getString(PKG, "GetTableNamesDialog.wSettings.Label"));
 
-    FormLayout SettingsgroupLayout = new FormLayout();
-    SettingsgroupLayout.marginWidth = 10;
-    SettingsgroupLayout.marginHeight = 10;
-    wSettings.setLayout(SettingsgroupLayout);
+    FormLayout settingsgroupLayout = new FormLayout();
+    settingsgroupLayout.marginWidth = 10;
+    settingsgroupLayout.marginHeight = 10;
+    wSettings.setLayout(settingsgroupLayout);
 
     // Include Catalogs
     wlIncludeCatalog = new Label(wSettings, SWT.RIGHT);
@@ -447,10 +449,10 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     props.setLook(wOutputFields);
     wOutputFields.setText(BaseMessages.getString(PKG, "GetTableNamesDialog.wOutputFields.Label"));
 
-    FormLayout OutputFieldsgroupLayout = new FormLayout();
-    OutputFieldsgroupLayout.marginWidth = 10;
-    OutputFieldsgroupLayout.marginHeight = 10;
-    wOutputFields.setLayout(OutputFieldsgroupLayout);
+    FormLayout outputFieldsgroupLayout = new FormLayout();
+    outputFieldsgroupLayout.marginWidth = 10;
+    outputFieldsgroupLayout.marginHeight = 10;
+    wOutputFields.setLayout(outputFieldsgroupLayout);
 
     // TablenameField fieldname ...
     Label wlTablenameField = new Label(wOutputFields, SWT.RIGHT);

@@ -39,6 +39,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",
     description = "i18n::BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "i18n::BlockUntilTransformsFinishMeta.keyword",
     documentationUrl = "/pipeline/transforms/blockuntiltransformsfinish.html")
 public class BlockUntilTransformsFinishMeta extends BaseTransformMeta<BlockUntilTransformsFinish, BlockUntilTransformsFinishData> {
 
@@ -76,7 +77,7 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta<BlockUntil
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(
                   PKG, "BlockUntilTransformsFinishMeta.CheckResult.NotReceivingFields"),
               transformMeta);
@@ -84,14 +85,14 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta<BlockUntil
       if (blockingTransforms.size() > 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG, "BlockUntilTransformsFinishMeta.CheckResult.AllTransformsFound"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_WARNING,
+                ICheckResult.TYPE_RESULT_WARNING,
                 BaseMessages.getString(
                     PKG, "BlockUntilTransformsFinishMeta.CheckResult.NoTransformsEntered"),
                 transformMeta);
@@ -103,14 +104,14 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta<BlockUntil
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "BlockUntilTransformsFinishMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG,
                   "BlockUntilTransformsFinishMeta.CheckResult.NoInputReceivedFromOtherTransforms"),

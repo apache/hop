@@ -42,12 +42,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Generates a number of (empty or the same) rows
- *
- * @author Matt
- * @since 4-apr-2003
- */
+/** Generates a number of (empty or the same) rows */
 public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorData> {
 
   private static final Class<?> PKG = RowGeneratorMeta.class; // For Translator

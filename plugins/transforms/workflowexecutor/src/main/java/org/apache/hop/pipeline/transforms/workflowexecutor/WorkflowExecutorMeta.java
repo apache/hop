@@ -64,9 +64,8 @@ import java.util.Map;
     description = "i18n::WorkflowExecutor.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl = "/pipeline/transforms/workflowexecutor.html",
-    keywords = "")
+    keywords = "i18n::WorkflowExecutorMeta.keyword")
 public class WorkflowExecutorMeta extends BaseTransformMeta<WorkflowExecutor, WorkflowExecutorData> {
-
   private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
   /** The name of the workflow run configuration to execute with */

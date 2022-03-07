@@ -16,14 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Execute A Process transform executes a shell script (on the host that runs the pipeline). This transform is similar to the Shell workflow action, but can be used in a pipeline to execute for every row.
 
 = Execute a process
 
 == Description
 
-You can use the Execute a process transform to execute a shell script on the host where a workflow will run.
+The Execute A Process transform executes a shell script (on the host that runs the pipeline).
 
-* The transform is similar to the workflow action Shell, but can be used in a pipeline to execute for every row.
+The transform is similar to the xref:workflow/actions/shell.adoc[Shell] workflow action, but can be used in a pipeline to execute for every row.
 
 == Options
 
@@ -36,8 +37,7 @@ Arguments can also be used.
 |Fail if not success|Checking this option means if the exit status is different than zero the transform fails.
 You can use error handling to get these rows.
 |Output line delimiter|Without defining a line delimiter, all returned lines are collapsed into a single string with no line delimiters.
-This option is available since 5.0 and by default empty for backward compatibility.
-You can set to any line delimiter and special characters can be set with the format $[value], e.g. $[0D] for CR or $[0D,0A] for CR/LF (since 5.0).
+You can set to any line delimiter and special characters can be set with the format $[value], e.g. $[0D] for CR or $[0D,0A] for CR/LF.
 |Result fieldname|Specify here the name of the result fieldname (STRING) added to the output stream of the pipeline.
 This field is populated by the output stream (stdout) of the process.
 |Error fieldname|Specify here the name of the error fieldname (STRING) added to the output stream of the pipeline.

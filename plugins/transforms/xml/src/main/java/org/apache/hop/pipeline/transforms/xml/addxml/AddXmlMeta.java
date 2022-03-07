@@ -51,6 +51,7 @@ import java.util.List;
     name = "i18n::AddXML.name",
     description = "i18n::AddXML.description",
     categoryDescription = "i18n::AddXML.category",
+    keywords = "i18n::AddXmlMeta.keyword",
     documentationUrl = "/pipeline/transforms/addxml.html")
 @InjectionSupported(
     localizationPrefix = "AddXMLMeta.Injection.",
@@ -284,7 +285,7 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "AddXMLMeta.CheckResult.FieldsReceived", "" + prev.size()),
               transformMeta);
@@ -304,12 +305,12 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
       if (errorFound) {
         errorMessage =
             BaseMessages.getString(PKG, "AddXMLMeta.CheckResult.FieldsNotFound", errorMessage);
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "AddXMLMeta.CheckResult.AllFieldsFound"),
                 transformMeta);
         remarks.add(cr);
@@ -320,14 +321,14 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "AddXMLMeta.CheckResult.ExpectedInputOk"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "AddXMLMeta.CheckResult.ExpectedInputError"),
               transformMeta);
       remarks.add(cr);

@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Salesforce Upsert transform updates existing records and inserts new records into your Salesforce database using the Salesforce Web Service.
 
 = Salesforce Upsert
 

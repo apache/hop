@@ -42,7 +42,13 @@ Hop wants to make it easy for Hop developers to use one or more projects alongsi
 A project is the collection of all the files you need in your data orchestration solution.
 This typically includes metadata, pipelines, workflows, reference files, documentation and so on.
 To match standard development best practices you would check all these files into a version control system like git.
+
+TIP: project variables should only be used when you need variables on the project level. All variables to connect to infrastructure, e.g. database connection parameters, mail servers etc that take different values in different environments should be created at the environment level.
+
+TIP: Project configurations are stored in hop-config.json, which is read from `hop/config` by default. Use the `${HOP_CONFIG_FOLDER}` operating system variable to store your Hop configuration in a folder outside your Hop folder. This will let you keep your project list if you switch Hop installations or upgrade to a newer Hop version.
+
 Projects can inherit metadata and variables from a parent project.
+
 Projects in Hop Gui will remember opened files, zoom levels and other UI settings.
 
 === Environments

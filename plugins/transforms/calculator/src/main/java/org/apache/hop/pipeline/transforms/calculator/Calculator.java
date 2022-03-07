@@ -30,19 +30,13 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.CalculationType;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Calculate new field values using pre-defined functions.
- *
- * @author Matt
- * @since 8-sep-2005
- */
+/** Calculate new field values using pre-defined functions. */
 public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
 
   private static final Class<?> PKG = CalculatorMeta.class; // For Translator
@@ -220,9 +214,6 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
       CalculatorMetaFunction fn = meta.getFunctions().get(i);
       if (!Utils.isEmpty(fn.getFieldName())) {
         IValueMeta targetMeta = data.getCalcRowMeta().getValueMeta(index);
-
-        // Get the metadata & the data...
-        // IValueMeta metaTarget = data.calcRowMeta.getValueMeta(i);
 
         IValueMeta metaA = null;
         Object dataA = null;

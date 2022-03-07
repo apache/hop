@@ -20,9 +20,14 @@ package org.apache.hop.imports.kettle;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.SingletonUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -33,6 +38,7 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -43,6 +49,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class KettleImportDialog extends Dialog {
+
   private static final Class<?> PKG = KettleImportDialog.class;
 
   public static final String LAST_USED_IMPORT_SOURCE_FOLDER = "ImportFolder";
@@ -56,6 +63,10 @@ public class KettleImportDialog extends Dialog {
   public static final String LAST_USED_IMPORT_SKIP_EXISTING = "ImportSkipExisting";
   public static final String LAST_USED_IMPORT_SKIP_HIDDEN = "ImportSkipHidden";
   public static final String LAST_USED_IMPORT_SKIP_FOLDERS = "ImportSkipFolders";
+  public static final String LAST_USED_IMPORT_PIPELINE_RUN_CONFIGURATION =
+      "ImportPipelineRunConfiguration";
+  public static final String LAST_USED_IMPORT_WORKFLOW_RUN_CONFIGURATION =
+      "ImportWorkflowRunConfiguration";
 
   private final IVariables variables;
 
@@ -71,6 +82,9 @@ public class KettleImportDialog extends Dialog {
   private TextVar wShared;
   private TextVar wJdbcProps;
   private TextVar wTargetConfigFile;
+
+  private Combo wPipelineRunConfiguration;
+  private Combo wWorkflowRunConfiguration;
   private Combo wImportProject;
   private Button wImportInExisting;
   private Button wbImportPath;
@@ -382,7 +396,91 @@ public class KettleImportDialog extends Dialog {
     fdTargetConfigFile.top = new FormAttachment(wlTargetConfigFile, 0, SWT.CENTER);
     wTargetConfigFile.setLayoutData(fdTargetConfigFile);
     wTargetConfigFile.setEditable(false);
+
     lastControl = wTargetConfigFile;
+
+    Label wlPipelineRunConfiguration = new Label(shell, SWT.RIGHT);
+    wlPipelineRunConfiguration.setText(
+        BaseMessages.getString(PKG, "KettleImportDialog.Pipeline.RunConfiguration.Label"));
+    props.setLook(wlPipelineRunConfiguration);
+    FormData fdlPipelineRunConfiguration = new FormData();
+    fdlPipelineRunConfiguration.left = new FormAttachment(0, 0);
+    fdlPipelineRunConfiguration.right = new FormAttachment(middle, 0);
+    fdlPipelineRunConfiguration.top = new FormAttachment(lastControl, margin);
+    wlPipelineRunConfiguration.setLayoutData(fdlPipelineRunConfiguration);
+
+    wPipelineRunConfiguration = new Combo(shell, SWT.READ_ONLY);
+    props.setLook(wlPipelineRunConfiguration);
+    FormData fdPipelineRunConfiguration = new FormData();
+    fdPipelineRunConfiguration.left = new FormAttachment(middle, margin);
+    fdPipelineRunConfiguration.top = new FormAttachment(wlPipelineRunConfiguration, 0, SWT.CENTER);
+    fdPipelineRunConfiguration.right = new FormAttachment(100, 0);
+    wPipelineRunConfiguration.setLayoutData(fdPipelineRunConfiguration);
+    props.setLook(wPipelineRunConfiguration);
+
+    HopGui hopGui = HopGui.getInstance();
+    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+
+    try {
+      List<String> runConfigurations =
+          metadataProvider.getSerializer(PipelineRunConfiguration.class).listObjectNames();
+
+      try {
+        ExtensionPointHandler.callExtensionPoint(
+            HopGui.getInstance().getLog(),
+            variables,
+            HopExtensionPoint.HopGuiRunConfiguration.id,
+            new Object[] {runConfigurations, PipelineMeta.XML_TAG});
+      } catch (HopException e) {
+        // Ignore errors
+      }
+
+      wPipelineRunConfiguration.setItems(runConfigurations.toArray(new String[0]));
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error getting pipeline run configurations", e);
+    }
+
+    lastControl = wPipelineRunConfiguration;
+
+    Label wlWorkflowRunConfiguration = new Label(shell, SWT.RIGHT);
+    wlWorkflowRunConfiguration.setText(
+        BaseMessages.getString(PKG, "KettleImportDialog.Workflow.RunConfiguration.Label"));
+    props.setLook(wlWorkflowRunConfiguration);
+    FormData fdlWorkflowRunConfiguration = new FormData();
+    fdlWorkflowRunConfiguration.left = new FormAttachment(0, 0);
+    fdlWorkflowRunConfiguration.right = new FormAttachment(middle, 0);
+    fdlWorkflowRunConfiguration.top = new FormAttachment(lastControl, margin);
+    wlWorkflowRunConfiguration.setLayoutData(fdlWorkflowRunConfiguration);
+
+    wWorkflowRunConfiguration = new Combo(shell, SWT.READ_ONLY);
+    props.setLook(wlWorkflowRunConfiguration);
+    FormData fdWorkflowRunConfiguration = new FormData();
+    fdWorkflowRunConfiguration.left = new FormAttachment(middle, margin);
+    fdWorkflowRunConfiguration.top = new FormAttachment(wlWorkflowRunConfiguration, 0, SWT.CENTER);
+    fdWorkflowRunConfiguration.right = new FormAttachment(100, 0);
+    wWorkflowRunConfiguration.setLayoutData(fdWorkflowRunConfiguration);
+    props.setLook(wWorkflowRunConfiguration);
+
+    try {
+      List<String> runConfigurations =
+          metadataProvider.getSerializer(WorkflowRunConfiguration.class).listObjectNames();
+
+      try {
+        ExtensionPointHandler.callExtensionPoint(
+            HopGui.getInstance().getLog(),
+            variables,
+            HopExtensionPoint.HopGuiRunConfiguration.id,
+            new Object[] {runConfigurations, PipelineMeta.XML_TAG});
+      } catch (HopException e) {
+        // Ignore errors
+      }
+
+      wWorkflowRunConfiguration.setItems(runConfigurations.toArray(new String[0]));
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error getting workflow run configurations", e);
+    }
+
+    lastControl = wWorkflowRunConfiguration;
 
     Label separator = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdLine = new FormData();
@@ -462,6 +560,10 @@ public class KettleImportDialog extends Dialog {
     AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_SHARED_FILE, wShared.getText());
     AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_JDBC_FILE, wJdbcProps.getText());
     AuditManagerGuiUtil.addLastUsedValue(LAST_USED_IMPORT_CONFIG_FILE, wTargetConfigFile.getText());
+    AuditManagerGuiUtil.addLastUsedValue(
+        LAST_USED_IMPORT_PIPELINE_RUN_CONFIGURATION, wPipelineRunConfiguration.getText());
+    AuditManagerGuiUtil.addLastUsedValue(
+        LAST_USED_IMPORT_WORKFLOW_RUN_CONFIGURATION, wWorkflowRunConfiguration.getText());
     AuditManagerGuiUtil.addLastUsedValue(
         LAST_USED_IMPORT_SKIP_EXISTING, wSkipExisting.getSelection() ? "true" : "false");
     AuditManagerGuiUtil.addLastUsedValue(
@@ -560,6 +662,10 @@ public class KettleImportDialog extends Dialog {
       kettleImport.setSkippingExistingTargetFiles(wSkipExisting.getSelection());
       kettleImport.setSkippingHiddenFilesAndFolders(wSkipHidden.getSelection());
       kettleImport.setSkippingFolders(wSkipFolders.getSelection());
+      kettleImport.setDefaultPipelineRunConfiguration(
+          Const.NVL(wPipelineRunConfiguration.getText(), ""));
+      kettleImport.setDefaultWorkflowRunConfiguration(
+          Const.NVL(wWorkflowRunConfiguration.getText(), ""));
 
       // We're going to run the import in a progress dialog with a monitor...
       //

@@ -27,15 +27,8 @@ import java.sql.SQLException;
 
 /**
  * Vertica Analytic Database version 5 and later (changed driver class name)
- *
- * @author DEinspanjer
- * @author Matt
- * @author Jens
- * @since 2009-03-16
- * @since May-2008
- * @since Aug-2012
  */
-@DatabaseMetaPlugin(type = "VERTICA5", typeDescription = "Vertica 5")
+@DatabaseMetaPlugin(type = "VERTICA5", typeDescription = "Vertica 5", documentationUrl = "/database/databases/vertica.html")
 @GuiPlugin(id = "GUI-Vertica5DatabaseMeta")
 public class Vertica5DatabaseMeta extends VerticaDatabaseMeta {
   @Override

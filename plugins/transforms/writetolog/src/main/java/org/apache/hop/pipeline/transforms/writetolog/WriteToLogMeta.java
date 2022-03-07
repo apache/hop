@@ -42,6 +42,7 @@ import java.util.List;
     name = "i18n::WriteToLog.Name",
     description = "i18n::WriteToLog.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+    keywords = "i18n::WriteToLogMeta.keyword",
     documentationUrl = "/pipeline/transforms/writetolog.html")
 public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData> {
   private static final Class<?> PKG = WriteToLogMeta.class; // For Translator
@@ -255,7 +256,7 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "WriteToLogMeta.CheckResult.TransformRecevingData", prev.size() + ""),
               transformMeta);
@@ -276,13 +277,13 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
         errorMessage =
             BaseMessages.getString(PKG, "WriteToLogMeta.CheckResult.FieldsFound", errorMessage);
 
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         if (fieldName.length > 0) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(PKG, "WriteToLogMeta.CheckResult.AllFieldsFound"),
                   transformMeta);
           remarks.add(cr);
@@ -301,14 +302,14 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "WriteToLogMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "WriteToLogMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

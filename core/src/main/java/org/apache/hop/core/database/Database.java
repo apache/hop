@@ -77,7 +77,6 @@ public class Database implements IVariables, ILoggingObject {
   private PreparedStatement pstmtSeq;
   private CallableStatement cstmt;
 
-  // private ResultSetMetaData rsmd;
   private DatabaseMetaData dbmd;
 
   private IRowMeta rowMeta;
@@ -115,10 +114,9 @@ public class Database implements IVariables, ILoggingObject {
       valueMetaPluginClasses = ValueMetaFactory.getValueMetaPluginClasses();
       Collections.sort(
           valueMetaPluginClasses,
-          (o1, o2) -> {
-            // Reverse the sort list
-            return (Integer.valueOf(o1.getType()).compareTo(Integer.valueOf(o2.getType()))) * -1;
-          });
+          (o1, o2) ->
+              // Reverse the sort list
+              (Integer.valueOf(o1.getType()).compareTo(Integer.valueOf(o2.getType()))) * -1);
     } catch (Exception e) {
       throw new RuntimeException("Unable to get list of instantiated value meta plugin classes", e);
     }
@@ -175,7 +173,11 @@ public class Database implements IVariables, ILoggingObject {
   @Override
   public boolean equals(Object obj) {
     Database other = (Database) obj;
-    return this.databaseMeta.equals(other.databaseMeta);
+    if (other == null) {
+      return false;
+    } else {
+      return this.databaseMeta.equals(other.databaseMeta);
+    }
   }
 
   /**
@@ -409,10 +411,7 @@ public class Database implements IVariables, ILoggingObject {
 
         connection = DriverManager.getConnection(url, properties);
       }
-    } catch (SQLException e) {
-      throw new HopDatabaseException(
-          "Error connecting to database: (using class " + classname + ")", e);
-    } catch (Throwable e) {
+    } catch (Exception e) {
       throw new HopDatabaseException(
           "Error connecting to database: (using class " + classname + ")", e);
     }
@@ -513,13 +512,12 @@ public class Database implements IVariables, ILoggingObject {
       try {
         closeConnectionOnly();
       } catch (
-          HopDatabaseException ignoredKde) { // The only exception thrown from closeConnectionOnly()
-        // cannot do anything about this but log it
+          HopDatabaseException hde) {
         log.logError(
             "Error disconnecting from database - closeConnectionOnly failed:"
                 + Const.CR
-                + ignoredKde.getMessage());
-        log.logError(Const.getStackTracker(ignoredKde));
+                + hde.getMessage());
+        log.logError(Const.getStackTracker(hde));
       }
     }
   }
@@ -919,7 +917,7 @@ public class Database implements IVariables, ILoggingObject {
         try {
           keys.close();
         } catch (SQLException e) {
-          throw new HopDatabaseException("Unable to close resultset of auto-generated keys", e);
+          log.logError("Unable to close resultset of auto-generated keys", e);
         }
       }
     }
@@ -1088,22 +1086,24 @@ public class Database implements IVariables, ILoggingObject {
 
       written++;
 
-      if (handleCommit) { // some transforms handle the commit themselves (see e.g.
+      if (handleCommit
+          && !isAutoCommit()
+          && (written % commitsize)
+              == 0) { // some transforms handle the commit themselves (see e.g.
         // TableOutput transform)
-        if (!isAutoCommit() && (written % commitsize) == 0) {
-          if (useBatchInsert) {
-            isBatchUpdate = true;
-            debug = "insertRow executeBatch commit";
-            ps.executeBatch();
-            commit();
-            ps.clearBatch();
-          } else {
-            debug = "insertRow normal commit";
-            commit();
-          }
-          written = 0;
-          rowsAreSafe = true;
+
+        if (useBatchInsert) {
+          isBatchUpdate = true;
+          debug = "insertRow executeBatch commit";
+          ps.executeBatch();
+          commit();
+          ps.clearBatch();
+        } else {
+          debug = "insertRow normal commit";
+          commit();
         }
+        written = 0;
+        rowsAreSafe = true;
       }
 
       return rowsAreSafe;
@@ -1168,7 +1168,6 @@ public class Database implements IVariables, ILoggingObject {
     emptyAndCommit(ps, batch, batchCounter, true);
   }
 
-
   /**
    * Close the prepared statement of the insert statement.
    *
@@ -1178,8 +1177,9 @@ public class Database implements IVariables, ILoggingObject {
    * @param closeStatement Set to true if we want to close the statement
    * @throws HopDatabaseException
    */
-  public void emptyAndCommit(PreparedStatement ps, boolean batch, int batchCounter, boolean closeStatement)
-          throws HopDatabaseException {
+  public void emptyAndCommit(
+      PreparedStatement ps, boolean batch, int batchCounter, boolean closeStatement)
+      throws HopDatabaseException {
     boolean isBatchUpdate = false;
     try {
       if (ps != null) {
@@ -1206,8 +1206,7 @@ public class Database implements IVariables, ILoggingObject {
 
         // Close statement only if explicitly needed
         //
-        if (closeStatement)
-          ps.close();
+        if (closeStatement) ps.close();
       }
     } catch (BatchUpdateException ex) {
       throw createHopDatabaseBatchException("Error updating batch", ex);
@@ -1280,23 +1279,21 @@ public class Database implements IVariables, ILoggingObject {
         prepStmt.close();
       } else {
         String sqlStripped = databaseMeta.stripCR(sql);
-        Statement stmt = connection.createStatement();
-        resultSet = stmt.execute(sqlStripped);
-        count = stmt.getUpdateCount();
-        stmt.close();
+        try (Statement stmt = connection.createStatement()) {
+          resultSet = stmt.execute(sqlStripped);
+          count = stmt.getUpdateCount();
+        }
       }
       String upperSql = sql.toUpperCase();
-      if (!resultSet) {
+      if (!resultSet && count > 0) {
         // if the result is a resultset, we don't do anything with it!
         // You should have called something else!
-        if (count > 0) {
-          if (upperSql.startsWith("INSERT")) {
-            result.setNrLinesOutput(count);
-          } else if (upperSql.startsWith("UPDATE")) {
-            result.setNrLinesUpdated(count);
-          } else if (upperSql.startsWith("DELETE")) {
-            result.setNrLinesDeleted(count);
-          }
+        if (upperSql.startsWith("INSERT")) {
+          result.setNrLinesOutput(count);
+        } else if (upperSql.startsWith("UPDATE")) {
+          result.setNrLinesUpdated(count);
+        } else if (upperSql.startsWith("DELETE")) {
+          result.setNrLinesDeleted(count);
         }
       }
 
@@ -2022,10 +2019,8 @@ public class Database implements IVariables, ILoggingObject {
     }
 
     // Store in cache!!
-    if (dbcache != null && entry != null) {
-      if (fields != null) {
-        dbcache.put(entry, fields);
-      }
+    if (dbcache != null && fields != null) {
+      dbcache.put(entry, fields);
     }
 
     return fields;
@@ -2765,15 +2760,13 @@ public class Database implements IVariables, ILoggingObject {
 
       Object[] ret = getRow(res, lazyConversion);
 
-      if (failOnMultipleResults) {
-        if (ret != null && res.next()) {
-          // if the previous row was null, there's no reason to try res.next()
-          // again.
-          // on DB2 this will even cause an exception (because of the buggy DB2
-          // JDBC driver).
-          throw new HopDatabaseException(
-              "Only 1 row was expected as a result of a lookup, and at least 2 were found!");
-        }
+      if (failOnMultipleResults && ret != null && res.next()) {
+        // if the previous row was null, there's no reason to try res.next()
+        // again.
+        // on DB2 this will even cause an exception (because of the buggy DB2
+        // JDBC driver).
+        throw new HopDatabaseException(
+            "Only 1 row was expected as a result of a lookup, and at least 2 were found!");
       }
       return ret;
     } catch (SQLException ex) {
@@ -2885,17 +2878,13 @@ public class Database implements IVariables, ILoggingObject {
     // At the end, before the closing of the statement, we might need to add
     // some constraints...
     // Technical keys
-    if (tk != null) {
-      if (databaseMeta.requiresCreateTablePrimaryKeyAppend()) {
-        retval.append(", PRIMARY KEY (").append(tk).append(")").append(Const.CR);
-      }
+    if (tk != null && databaseMeta.requiresCreateTablePrimaryKeyAppend()) {
+      retval.append(", PRIMARY KEY (").append(tk).append(")").append(Const.CR);
     }
 
     // Primary keys
-    if (pk != null) {
-      if (databaseMeta.requiresCreateTablePrimaryKeyAppend()) {
-        retval.append(", PRIMARY KEY (").append(pk).append(")").append(Const.CR);
-      }
+    if (pk != null && databaseMeta.requiresCreateTablePrimaryKeyAppend()) {
+      retval.append(", PRIMARY KEY (").append(pk).append(")").append(Const.CR);
     }
     retval.append(")").append(Const.CR);
 
@@ -3090,14 +3079,14 @@ public class Database implements IVariables, ILoggingObject {
         try {
           rs.close();
         } catch (Exception e) {
-          throw new HopDatabaseException("Unable to close resultset", e);
+          log.logError("Unable to close resultset", e);
         }
 
         if (pstmt != null) {
           try {
             pstmt.close();
           } catch (Exception e) {
-            throw new HopDatabaseException("Unable to close prepared statement pstmt", e);
+            log.logError("Unable to close prepared statement pstmt", e);
           }
           pstmt = null;
         }
@@ -3105,7 +3094,7 @@ public class Database implements IVariables, ILoggingObject {
           try {
             selStmt.close();
           } catch (Exception e) {
-            throw new HopDatabaseException("Unable to close prepared statement sel_stmt", e);
+            log.logError("Unable to close prepared statement sel_stmt", e);
           }
           selStmt = null;
         }
@@ -3487,10 +3476,9 @@ public class Database implements IVariables, ILoggingObject {
   public Map<String, Collection<String>> getTableMap(String schemanamein, Map<String, String> props)
       throws HopDatabaseException {
     String schemaname = schemanamein;
-    if (schemaname == null) {
-      if (databaseMeta.useSchemaNameForTableList()) {
-        schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
-      }
+    if (schemaname == null && databaseMeta.useSchemaNameForTableList()) {
+
+      schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
     }
     Map<String, Collection<String>> tableMap = new HashMap<>();
     ResultSet alltables = null;
@@ -3605,10 +3593,8 @@ public class Database implements IVariables, ILoggingObject {
     }
 
     String schemaname = schemanamein;
-    if (schemaname == null) {
-      if (databaseMeta.useSchemaNameForTableList()) {
-        schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
-      }
+    if (schemaname == null && databaseMeta.useSchemaNameForTableList()) {
+      schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
     }
 
     Map<String, Collection<String>> viewMap = new HashMap<>();
@@ -3708,10 +3694,8 @@ public class Database implements IVariables, ILoggingObject {
     }
 
     String schemaname = schemanamein;
-    if (schemaname == null) {
-      if (databaseMeta.useSchemaNameForTableList()) {
-        schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
-      }
+    if (schemaname == null && databaseMeta.useSchemaNameForTableList()) {
+      schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
     }
     Map<String, Collection<String>> synonymMap = new HashMap<>();
     ResultSet alltables = null;
@@ -4223,7 +4207,7 @@ public class Database implements IVariables, ILoggingObject {
    * @param tableName The table to create
    * @throws HopDatabaseException
    */
-  public String getDDLCreationTable(String tableName, IRowMeta fields) throws HopDatabaseException {
+  public String getDDLCreationTable(String tableName, IRowMeta fields) {
     String retval;
 
     // First, check for reserved SQL in the input row r...
@@ -4420,12 +4404,12 @@ public class Database implements IVariables, ILoggingObject {
           allkeys.close();
         }
       } catch (SQLException e) {
-        throw new HopDatabaseException(
+        log.logError(
             "Error closing connection while searching primary keys in table [" + tableName + "]",
             e);
       }
     }
-    return names.toArray(new String[names.size()]);
+    return names.toArray(new String[0]);
   }
 
   /**

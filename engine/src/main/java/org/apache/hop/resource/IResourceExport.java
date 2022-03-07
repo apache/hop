@@ -23,11 +23,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 import java.util.Map;
 
-/**
- * The classes implementing this interface allow their used resources to be exported.
- *
- * @author Matt
- */
+/** The classes implementing this interface allow their used resources to be exported. */
 public interface IResourceExport {
 
   /**

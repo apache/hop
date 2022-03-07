@@ -21,8 +21,6 @@ import java.lang.annotation.*;
 
 /**
  * This annotation signals to the plugin system that the class is a database metadata plugin.
- *
- * @author matt
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -33,4 +31,6 @@ public @interface DatabaseMetaPlugin {
   String typeDescription();
 
   String classLoaderGroup() default "";
+  
+  String documentationUrl() default "";
 }

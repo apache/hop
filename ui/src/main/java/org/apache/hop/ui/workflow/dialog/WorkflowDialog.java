@@ -40,7 +40,6 @@ import org.apache.hop.ui.util.HelpUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
@@ -54,12 +53,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.ArrayList;
 
-/**
- * Allows you to edit the Workflow settings. Just feed it a WorkflowMeta object.
- *
- * @author Matt Casters
- * @since 02-jul-2003
- */
+/** Allows you to edit the Workflow settings. Just feed it a WorkflowMeta object. */
 public class WorkflowDialog extends Dialog {
   private static final Class<?> PKG = WorkflowDialog.class; // For Translator
 
@@ -71,7 +65,8 @@ public class WorkflowDialog extends Dialog {
   private Button wNameFilenameSync;
   private Text wFilename;
 
-  protected Button wOk, wCancel;
+  protected Button wOk;
+  protected Button wCancel;
 
   private final IVariables variables;
   private WorkflowMeta workflowMeta;
@@ -90,7 +85,7 @@ public class WorkflowDialog extends Dialog {
 
   private Text wExtendedDescription;
 
-  private CCombo wWorkflowStatus;
+  private Combo wWorkflowStatus;
 
   // Workflow version
   private Text wVersion;
@@ -108,8 +103,6 @@ public class WorkflowDialog extends Dialog {
   private Text wModUser;
 
   private Text wModDate;
-
-  private int previousLogTableIndex = 0;
 
   private ArrayList<IWorkflowDialogPlugin> extraTabs;
 
@@ -335,7 +328,7 @@ public class WorkflowDialog extends Dialog {
     fdlWorkflowStatus.right = new FormAttachment(middle, 0);
     fdlWorkflowStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
     wlWorkflowStatus.setLayoutData(fdlWorkflowStatus);
-    wWorkflowStatus = new CCombo(wWorkflowComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wWorkflowStatus = new Combo(wWorkflowComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wWorkflowStatus.add(BaseMessages.getString(PKG, "WorkflowDialog.Draft_WorkflowStatus.Label"));
     wWorkflowStatus.add(
         BaseMessages.getString(PKG, "WorkflowDialog.Production_WorkflowStatus.Label"));
@@ -552,13 +545,13 @@ public class WorkflowDialog extends Dialog {
     CTabItem wSettingsTab = new CTabItem(wTabFolder, SWT.NONE);
     wSettingsTab.setText(BaseMessages.getString(PKG, "WorkflowDialog.SettingsTab.Label"));
 
-    FormLayout LogLayout = new FormLayout();
-    LogLayout.marginWidth = props.getMargin();
-    LogLayout.marginHeight = props.getMargin();
+    FormLayout logLayout = new FormLayout();
+    logLayout.marginWidth = props.getMargin();
+    logLayout.marginHeight = props.getMargin();
 
     Composite wSettingsComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wSettingsComp);
-    wSettingsComp.setLayout(LogLayout);
+    wSettingsComp.setLayout(logLayout);
 
     FormData fdLogComp = new FormData();
     fdLogComp.left = new FormAttachment(0, 0);

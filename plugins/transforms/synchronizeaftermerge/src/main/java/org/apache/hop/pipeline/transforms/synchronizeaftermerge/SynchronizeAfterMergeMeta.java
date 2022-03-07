@@ -55,6 +55,7 @@ import java.util.List;
     name = "i18n::SynchronizeAfterMerge.Name",
     description = "i18n::SynchronizeAfterMerge.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+    keywords = "i18n::SynchronizeAfterMergeMeta.keyword",
     documentationUrl = "/pipeline/transforms/synchronizeaftermerge.html")
 public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfterMerge, SynchronizeAfterMergeData> {
   private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // For Translator
@@ -120,13 +121,13 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
   private boolean performLookup;
 
   @Injection(name = "ORDER_INSERT")
-  private String OrderInsert;
+  private String orderInsert;
 
   @Injection(name = "ORDER_UPDATE")
-  private String OrderUpdate;
+  private String orderUpdate;
 
   @Injection(name = "ORDER_DELETE")
-  private String OrderDelete;
+  private String orderDelete;
 
   public SynchronizeAfterMergeMeta() {
     super(); // allocate BaseTransformMeta
@@ -178,27 +179,27 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
   }
 
   public String getOrderInsert() {
-    return OrderInsert;
+    return orderInsert;
   }
 
   public String getOrderUpdate() {
-    return OrderUpdate;
+    return orderUpdate;
   }
 
   public String getOrderDelete() {
-    return OrderDelete;
+    return orderDelete;
   }
 
   public void setOrderInsert(String insert) {
-    this.OrderInsert = insert;
+    this.orderInsert = insert;
   }
 
   public void setOrderUpdate(String update) {
-    this.OrderUpdate = update;
+    this.orderUpdate = update;
   }
 
   public void setOrderDelete(String delete) {
-    this.OrderDelete = delete;
+    this.orderDelete = delete;
   }
 
   public void setOperationOrderField(String operationOrderField) {
@@ -364,7 +365,8 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
       throws HopXmlException {
     this.metadataProvider = metadataProvider;
     try {
-      int nrkeys, nrvalues;
+      int nrkeys;
+      int nrvalues;
       this.databases = databases;
       String con = XmlHandler.getTagValue(transformNode, "connection");
       databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
@@ -379,9 +381,9 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "tablename_in_field"));
       tablenameField = XmlHandler.getTagValue(transformNode, "tablename_field");
       operationOrderField = XmlHandler.getTagValue(transformNode, "operation_order_field");
-      OrderInsert = XmlHandler.getTagValue(transformNode, "order_insert");
-      OrderUpdate = XmlHandler.getTagValue(transformNode, "order_update");
-      OrderDelete = XmlHandler.getTagValue(transformNode, "order_delete");
+      orderInsert = XmlHandler.getTagValue(transformNode, "order_insert");
+      orderUpdate = XmlHandler.getTagValue(transformNode, "order_update");
+      orderDelete = XmlHandler.getTagValue(transformNode, "order_delete");
 
       Node lookup = XmlHandler.getSubNode(transformNode, "lookup");
       nrkeys = XmlHandler.countNodes(lookup, "key");
@@ -440,9 +442,9 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
     schemaName = "";
     tableName = BaseMessages.getString(PKG, "SynchronizeAfterMergeMeta.DefaultTableName");
     operationOrderField = null;
-    OrderInsert = null;
-    OrderUpdate = null;
-    OrderDelete = null;
+    orderInsert = null;
+    orderUpdate = null;
+    orderDelete = null;
     performLookup = false;
 
     int nrkeys = 0;
@@ -486,9 +488,9 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
     retval
         .append("    ")
         .append(XmlHandler.addTagValue("operation_order_field", operationOrderField));
-    retval.append("    ").append(XmlHandler.addTagValue("order_insert", OrderInsert));
-    retval.append("    ").append(XmlHandler.addTagValue("order_update", OrderUpdate));
-    retval.append("    ").append(XmlHandler.addTagValue("order_delete", OrderDelete));
+    retval.append("    ").append(XmlHandler.addTagValue("order_insert", orderInsert));
+    retval.append("    ").append(XmlHandler.addTagValue("order_update", orderUpdate));
+    retval.append("    ").append(XmlHandler.addTagValue("order_delete", orderDelete));
 
     retval.append("    <lookup>").append(Const.CR);
     retval.append("      ").append(XmlHandler.addTagValue("schema", schemaName));
@@ -538,7 +540,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
         if (!Utils.isEmpty(tableName)) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(PKG, "SynchronizeAfterMergeMeta.CheckResult.TableNameOK"),
                   transformMeta);
           remarks.add(cr);
@@ -552,7 +554,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
           if (r != null) {
             cr =
                 new CheckResult(
-                    CheckResult.TYPE_RESULT_OK,
+                    ICheckResult.TYPE_RESULT_OK,
                     BaseMessages.getString(
                         PKG, "SynchronizeAfterMergeMeta.CheckResult.TableExists"),
                     transformMeta);
@@ -575,11 +577,11 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
               }
             }
             if (errorFound) {
-              cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+              cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             } else {
               cr =
                   new CheckResult(
-                      CheckResult.TYPE_RESULT_OK,
+                      ICheckResult.TYPE_RESULT_OK,
                       BaseMessages.getString(
                           PKG, "SynchronizeAfterMergeMeta.CheckResult.AllLookupFieldsFound"),
                       transformMeta);
@@ -608,11 +610,11 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
               }
             }
             if (errorFound) {
-              cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+              cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             } else {
               cr =
                   new CheckResult(
-                      CheckResult.TYPE_RESULT_OK,
+                      ICheckResult.TYPE_RESULT_OK,
                       BaseMessages.getString(
                           PKG,
                           "SynchronizeAfterMergeMeta.CheckResult.AllFieldsToUpdateFoundInTargetTable"),
@@ -623,7 +625,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
             errorMessage =
                 BaseMessages.getString(
                     PKG, "SynchronizeAfterMergeMeta.CheckResult.CouldNotReadTableInfo");
-            cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             remarks.add(cr);
           }
         }
@@ -632,7 +634,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
         if (prev != null && prev.size() > 0) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(
                       PKG,
                       "SynchronizeAfterMergeMeta.CheckResult.TransformReceivingDatas",
@@ -675,11 +677,11 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
             }
           }
           if (errorFound) {
-            cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           } else {
             cr =
                 new CheckResult(
-                    CheckResult.TYPE_RESULT_OK,
+                    ICheckResult.TYPE_RESULT_OK,
                     BaseMessages.getString(
                         PKG, "SynchronizeAfterMergeMeta.CheckResult.AllFieldsFoundInInput"),
                     transformMeta);
@@ -708,11 +710,11 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
             }
           }
           if (errorFound) {
-            cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           } else {
             cr =
                 new CheckResult(
-                    CheckResult.TYPE_RESULT_OK,
+                    ICheckResult.TYPE_RESULT_OK,
                     BaseMessages.getString(
                         PKG, "SynchronizeAfterMergeMeta.CheckResult.AllFieldsFoundInInput2"),
                     transformMeta);
@@ -780,7 +782,8 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
                           PKG, "SynchronizeAfterMergeMeta.CheckResult.FieldsTypeDifferent")
                       + Const.CR
                       + errorMsgDiffField;
-              cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMsgDiffField, transformMeta);
+              cr =
+                  new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMsgDiffField, transformMeta);
             }
             if (errorDiffLenField) {
               errorMsgDiffLenField =
@@ -790,7 +793,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
                       + errorMsgDiffLenField;
               cr =
                   new CheckResult(
-                      CheckResult.TYPE_RESULT_WARNING, errorMsgDiffLenField, transformMeta);
+                      ICheckResult.TYPE_RESULT_WARNING, errorMsgDiffLenField, transformMeta);
             }
             remarks.add(cr);
           }
@@ -800,7 +803,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
               BaseMessages.getString(
                       PKG, "SynchronizeAfterMergeMeta.CheckResult.MissingFieldsInInput3")
                   + Const.CR;
-          cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+          cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           remarks.add(cr);
         }
       } catch (HopException e) {
@@ -808,7 +811,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
             BaseMessages.getString(
                     PKG, "SynchronizeAfterMergeMeta.CheckResult.DatabaseErrorOccurred")
                 + e.getMessage();
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } finally {
         db.disconnect();
@@ -816,7 +819,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
     } else {
       errorMessage =
           BaseMessages.getString(PKG, "SynchronizeAfterMergeMeta.CheckResult.InvalidConnection");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
 
@@ -824,7 +827,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "SynchronizeAfterMergeMeta.CheckResult.TransformReceivingInfoFromOtherTransforms"),
@@ -833,7 +836,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SynchronizeAfterMergeMeta.CheckResult.NoInputError"),
               transformMeta);
       remarks.add(cr);

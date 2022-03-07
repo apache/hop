@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The YAML Input transform reads data from YAML structures, files or incoming fields.
 
-= Yaml Input
+= YAML Input
 
 == Description
 
-The Yaml Input transform
+The YAML Input transform reads data from YAML structures, files or incoming fields.
 
 == Options
 

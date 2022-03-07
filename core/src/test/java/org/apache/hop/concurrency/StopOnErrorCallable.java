@@ -23,8 +23,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * A convenient class to derive from as it takes care of handling crashes during execution of
  * callable
- *
- * @author Andrey Khayrutdinov
  */
 abstract class StopOnErrorCallable<T> implements Callable<T> {
 

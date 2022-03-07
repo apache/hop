@@ -45,6 +45,7 @@ import java.util.List;
     name = "i18n::PGPDecryptStream.Name",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Cryptography",
+    keywords = "i18n::PGPDecryptStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/pgpdecryptstream.html")
 public class PGPDecryptStreamMeta extends BaseTransformMeta<PGPDecryptStream, PGPDecryptStreamData> {
   private static final Class<?> PKG = PGPDecryptStreamMeta.class; // For Translator
@@ -219,49 +220,49 @@ public class PGPDecryptStreamMeta extends BaseTransformMeta<PGPDecryptStream, PG
     if (Utils.isEmpty(gpgLocation)) {
       errorMessage =
           BaseMessages.getString(PKG, "PGPDecryptStreamMeta.CheckResult.GPGLocationMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "PGPDecryptStreamMeta.CheckResult.GPGLocationOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
     }
     if (!isPassphraseFromField()) {
       // Check static pass-phrase
       if (Utils.isEmpty(passhrase)) {
         errorMessage =
             BaseMessages.getString(PKG, "PGPDecryptStreamMeta.CheckResult.PassphraseMissing");
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         errorMessage = BaseMessages.getString(PKG, "PGPDecryptStreamMeta.CheckResult.PassphraseOK");
-        cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       }
     }
     if (Utils.isEmpty(resultfieldname)) {
       errorMessage =
           BaseMessages.getString(PKG, "PGPDecryptStreamMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "PGPDecryptStreamMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
     if (Utils.isEmpty(streamfield)) {
       errorMessage =
           BaseMessages.getString(PKG, "PGPDecryptStreamMeta.CheckResult.StreamFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } else {
       errorMessage = BaseMessages.getString(PKG, "PGPDecryptStreamMeta.CheckResult.StreamFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
     // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "PGPDecryptStreamMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -269,7 +270,7 @@ public class PGPDecryptStreamMeta extends BaseTransformMeta<PGPDecryptStream, PG
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "PGPDecryptStreamMeta.CheckResult.NoInpuReceived"),
               transformMeta);
       remarks.add(cr);

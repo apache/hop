@@ -31,13 +31,16 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.logging.*;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
+import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchableProvider;
@@ -49,7 +52,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.server.HopServer;
@@ -169,7 +172,7 @@ public class HopGui
 
   private String id;
 
-  private IHopMetadataProvider metadataProvider;
+  private MultiMetadataProvider metadataProvider;
 
   private HopGuiEventsHandler eventsHandler;
 
@@ -260,11 +263,6 @@ public class HopGui
   public static void main(String[] arguments) {
     try {
 
-      /*
-            System.out.println("Sleeping for 10s for debugging");
-            Thread.sleep(10000);
-      */
-
       setupConsoleLogging();
       HopEnvironment.init();
       OsHelper.setAppName();
@@ -286,6 +284,10 @@ public class HopGui
       // - Load perspectives
       //
       HopGuiEnvironment.init();
+      
+      // Clear the jar file cache so that we don't waste memory...
+      //
+      JarCache.getInstance().clear();
 
       try {
         ExtensionPointHandler.callExtensionPoint(
@@ -429,7 +431,7 @@ public class HopGui
         item.setData(perspective);
         item.addListener(
             SWT.Selection,
-            (event) -> setActivePerspective((IHopPerspective) event.widget.getData()));
+            event -> setActivePerspective((IHopPerspective) event.widget.getData()));
 
         ClassLoader classLoader = pluginRegistry.getClassLoader(perspectivePlugin);
         Image image =
@@ -442,6 +444,15 @@ public class HopGui
         if (image != null) {
           item.setImage(image);
         }
+        
+        // See if there's a shortcut for the perspective, add it to tooltip...      
+        KeyboardShortcut shortcut =
+            GuiRegistry.getInstance()
+                .findKeyboardShortcut(
+                    perspectiveClass.getName(), "activate", Const.isOSX());
+        if (shortcut != null) {
+          item.setToolTipText(item.getToolTipText()+" ("+shortcut.toString()+')');
+        }
 
         if (first) {
           first = false;
@@ -452,7 +463,7 @@ public class HopGui
       new ErrorDialog(shell, "Error", "Error loading perspectives", e);
     }
   }
-
+  
   private static Display setupDisplay() {
     // Bootstrap Hop
     //
@@ -1132,13 +1143,13 @@ public class HopGui
    * @return value of metadataProvider
    */
   @Override
-  public IHopMetadataProvider getMetadataProvider() {
+  public MultiMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
 
   /** @param metadataProvider The metadataProvider to set */
   @Override
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
+  public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
     updateMetadataManagers();
   }

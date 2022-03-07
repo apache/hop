@@ -46,7 +46,8 @@ import java.util.Map;
     name = "i18n::CubeOutput.Name",
     description = "i18n::CubeOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl = "/pipeline/transforms/cubeoutput.html")
+    keywords = "i18n::CubeOutputMeta.keyword",
+    documentationUrl = "/pipeline/transforms/serialize-to-file.html")
 public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData> {
 
   private static final Class<?> PKG = CubeOutputMeta.class; // For Translator
@@ -165,7 +166,7 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "CubeOutputMeta.CheckResult.ReceivingFields", String.valueOf(prev.size())),
               transformMeta);
@@ -174,7 +175,7 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
 
     cr =
         new CheckResult(
-            CheckResult.TYPE_RESULT_COMMENT,
+            ICheckResult.TYPE_RESULT_COMMENT,
             BaseMessages.getString(PKG, "CubeOutputMeta.CheckResult.FileSpecificationsNotChecked"),
             transformMeta);
     remarks.add(cr);

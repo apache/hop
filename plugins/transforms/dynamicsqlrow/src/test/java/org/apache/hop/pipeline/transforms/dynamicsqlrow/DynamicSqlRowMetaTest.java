@@ -21,7 +21,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.DatabaseMetaLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -40,16 +39,14 @@ public class DynamicSqlRowMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
-            "sql", "sqlFieldName", "rowLimit", "outerJoin", "variableReplace", "databaseMeta");
+            "sql", "sqlFieldName", "rowLimit", "outerJoin", "replaceVariables", "connection");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("databaseMeta", new DatabaseMetaLoadSaveValidator());
-
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =

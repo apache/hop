@@ -40,15 +40,11 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.databaselookup.readallcache.ReadAllCache;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Looks up values in a database using keys from input streams.
- *
- * @author Matt
- * @since 26-apr-2003
- */
+/** Looks up values in a database using keys from input streams. */
 public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLookupData> {
 
   private static final Class<?> PKG = DatabaseLookupMeta.class; // For Translator
@@ -169,25 +165,15 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
             BaseMessages.getString(PKG, "DatabaseLookup.Log.FoundResultsAfterLookup")
                 + Arrays.toString(add));
       }
-      // Trim field if required
-      String[] trimTypes = data.returnTrimTypes;
-      int[] types = data.returnValueTypes;
 
-      for (int i = 0; i < types.length; i++) {
-        // If type is String and trim is required do that
-        if (types[i] == IValueMeta.TYPE_STRING
-            && ValueMetaBase.getTrimTypeByCode(trimTypes[i]) != IValueMeta.TRIM_TYPE_NONE) {
-          IValueMeta expected = data.returnMeta.getValueMeta(i);
-          add[i] =
-              expected.convertDataFromString(
-                  (String) add[i], expected, "", "", ValueMetaBase.getTrimTypeByCode(trimTypes[i]));
-        } else if (types[i] != IValueMeta.TYPE_STRING
-            && ValueMetaBase.getTrimTypeByCode(trimTypes[i]) != IValueMeta.TRIM_TYPE_NONE) {
-          logBasic(
-              "WARNING - TrimType is applied only to String fields - Affected field: "
-                  + IValueMeta.getTypeDescription(types[i]));
-        }
+      // Trim the fields if required
+      for (int i : data.trimIndexes) {
+        IValueMeta expected = data.returnMeta.getValueMeta(i);
+        add[i] =
+                expected.convertDataFromString(
+                        (String) add[i], expected, "", "", ValueMetaBase.getTrimTypeByCode(data.returnTrimTypes[i]));
       }
+
       // Only verify the data types if the data comes from the DB, NOT when we have a cache hit
       // In that case, we already know the data type is OK.
       if (!cacheHit) {
@@ -197,6 +183,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
         // as the returned lookup row, but since we make the lookup row
         // that should not be a problem.
         //
+        int[] types = data.returnValueTypes;
         for (int i = 0; i < types.length; i++) {
           IValueMeta returned = data.db.getReturnRowMeta().getValueMeta(i);
           IValueMeta expected = data.returnMeta.getValueMeta(i);
@@ -228,9 +215,10 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
     List<KeyField> keyFields = meta.getLookup().getKeyFields();
     data.keytypes = new int[keyFields.size()];
 
+    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
     String schemaTable =
-        meta.getDatabaseMeta()
-            .getQuotedSchemaTableCombination(this, meta.getSchemaName(), meta.getTableName());
+        databaseMeta.getQuotedSchemaTableCombination(
+            this, meta.getSchemaName(), meta.getTableName());
 
     IRowMeta fields = data.db.getTableFields(schemaTable);
     if (fields != null) {
@@ -361,6 +349,8 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       String[] returnRename = new String[returnValues.size()];
       data.returnTrimTypes = new String[returnValues.size()];
 
+      data.trimIndexes = new ArrayList<>();
+
       for (int i = 0; i < returnValues.size(); i++) {
         returnField[i] = returnValues.get(i).getTableField();
         returnRename[i] =
@@ -437,6 +427,17 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
 
       initReturnMeta();
 
+      // See which return values need to be trimmed...
+      //
+      data.trimIndexes = new ArrayList();
+      for (int i = 0; i < returnValues.size(); i++) {
+        if (data.returnValueTypes[i] == IValueMeta.TYPE_STRING
+            && ValueMetaBase.getTrimTypeByCode(data.returnTrimTypes[i])
+                != IValueMeta.TRIM_TYPE_NONE) {
+          data.trimIndexes.add(i);
+        }
+      }
+
       // If the user selected to load all data into the cache at startup, that's what we do now...
       //
       if (meta.isCached() && meta.isLoadingAllDataInCache()) {
@@ -485,7 +486,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   }
 
   private void loadAllTableDataIntoTheCache() throws HopException {
-    DatabaseMeta dbMeta = meta.getDatabaseMeta();
+    DatabaseMeta dbMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
     Database db = getDatabase(dbMeta);
     connectDatabase(db);
@@ -622,13 +623,15 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   public boolean init() {
 
     if (super.init()) {
-      if (meta.getDatabaseMeta() == null) {
+
+      if (Utils.isEmpty(meta.getConnection())) {
         logError(
             BaseMessages.getString(
                 PKG, "DatabaseLookup.Init.ConnectionMissing", getTransformName()));
         return false;
       }
-      data.db = getDatabase(meta.getDatabaseMeta());
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+      data.db = getDatabase(databaseMeta);
       try {
         connectDatabase(data.db);
 
@@ -676,6 +679,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
     // Recover memory immediately, allow in-memory data to be garbage collected
     //
     data.cache = null;
+    data.db = null;
 
     super.dispose();
   }

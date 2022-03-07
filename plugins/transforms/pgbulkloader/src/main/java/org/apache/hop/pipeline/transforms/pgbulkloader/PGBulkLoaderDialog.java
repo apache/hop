@@ -325,7 +325,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     wlReturn.setLayoutData(fdlReturn);
 
     int upInsCols = 3;
-    int upInsRows = (input.getMapping() != null ? input.getMapping().size() : 1);
+    int upInsRows = (input.getMappings() != null ? input.getMappings().size() : 1);
 
     ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
@@ -436,9 +436,9 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
   public void getData() {
     logDebug(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Log.GettingKeyInfo"));
 
-    if (input.getMapping() != null) {
-      for (int i = 0; i < input.getMapping().size(); i++) {
-        PGBulkLoaderMappingMeta mapping = input.getMapping().get(i);
+    if (input.getMappings() != null) {
+      for (int i = 0; i < input.getMappings().size(); i++) {
+        PGBulkLoaderMappingMeta mapping = input.getMappings().get(i);
         TableItem item = wReturn.table.getItem(i);
         if (mapping.getFieldTable() != null) {
           item.setText(1, mapping.getFieldTable());
@@ -674,8 +674,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
   private void getInfo(PGBulkLoaderMeta inf) {
     int nrFields = wReturn.nrNonEmpty();
 
-    // inf.allocate(nrFields);
-    inf.getMapping().clear();
+    inf.getMappings().clear();
 
     inf.setDbNameOverride(wDbNameOverride.getText());
 
@@ -695,7 +694,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
       } else {
         mapping.setDateMask("");
       }
-      inf.getMapping().add(mapping);
+      inf.getMappings().add(mapping);
     }
 
     inf.setSchemaName(wSchema.getText());

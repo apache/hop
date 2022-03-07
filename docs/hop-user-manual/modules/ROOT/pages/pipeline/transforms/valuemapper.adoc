@@ -16,13 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Value Mapper transform maps string values from one value to another.
 
 = Value Mapper
 
 == Description
 
 The Value Mapper transform maps string values from one value to another.
+
 Mapping is usually solved by storing the conversion table in a database.
+
 The Value Mapper provides you with a simple alternative.
 
 For example, if you want to replace language codes:

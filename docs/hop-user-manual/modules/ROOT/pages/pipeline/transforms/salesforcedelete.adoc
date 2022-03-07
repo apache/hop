@@ -16,10 +16,12 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Salesforce Delete transform deletes records directly from your Salesforce database using the Salesforce Web Service.
 
 = Salesforce Delete
 
 The Salesforce Delete transform deletes records directly from your Salesforce database using the Salesforce Web Service.
+
 You can delete a batch of records by indicating a starting point (Fieldname id) and the amount of records (Batch Size) to delete.
 
 You can also use the following other transforms to modify your Salesforce database:

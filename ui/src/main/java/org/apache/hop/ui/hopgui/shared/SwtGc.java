@@ -186,16 +186,26 @@ public class SwtGc implements IGc {
         return GuiResource.getInstance().getSwtImageContextMenu();
       case TRUE:
         return GuiResource.getInstance().getSwtImageTrue();
+      case TRUE_DISABLED:
+        return GuiResource.getInstance().getSwtImageTrueDisabled();
       case FALSE:
         return GuiResource.getInstance().getSwtImageFalse();
+      case FALSE_DISABLED:
+        return GuiResource.getInstance().getSwtImageFalseDisabled();
       case ERROR:
         return GuiResource.getInstance().getSwtImageError();
+      case ERROR_DISABLED:
+        return GuiResource.getInstance().getSwtImageErrorDisabled();
       case SUCCESS:
         return GuiResource.getInstance().getSwtImageSuccess();
       case INFO:
         return GuiResource.getInstance().getSwtImageInfo();
+      case INFO_DISABLED:
+        return GuiResource.getInstance().getSwtImageInfoDisabled();
       case TARGET:
         return GuiResource.getInstance().getSwtImageTarget();
+      case TARGET_DISABLED:
+        return GuiResource.getInstance().getSwtImageTargetDisabled();
       case INPUT:
         return GuiResource.getInstance().getSwtImageInput();
       case OUTPUT:
@@ -204,6 +214,8 @@ public class SwtGc implements IGc {
         return GuiResource.getInstance().getSwtImageArrow();
       case COPY_ROWS:
         return GuiResource.getInstance().getSwtImageCopyRows();
+      case COPY_ROWS_DISABLED:
+        return GuiResource.getInstance().getSwtImageCopyRowsDisabled();
       case LOAD_BALANCE:
         return GuiResource.getInstance().getSwtImageBalance();
       case CHECKPOINT:
@@ -211,9 +223,13 @@ public class SwtGc implements IGc {
       case DB:
         return GuiResource.getInstance().getSwtImageDatabase();
       case PARALLEL:
-        return GuiResource.getInstance().getSwtImageParallelHop();
+        return GuiResource.getInstance().getSwtImageParallel();
+      case PARALLEL_DISABLED:
+        return GuiResource.getInstance().getSwtImageParallelDisabled();
       case UNCONDITIONAL:
-        return GuiResource.getInstance().getSwtImageUnconditionalHop();
+        return GuiResource.getInstance().getSwtImageUnconditional();
+      case UNCONDITIONAL_DISABLED:
+        return GuiResource.getInstance().getSwtImageUnconditionalDisabled();
       case BUSY:
         return GuiResource.getInstance().getSwtImageBusy();
       case INJECT:

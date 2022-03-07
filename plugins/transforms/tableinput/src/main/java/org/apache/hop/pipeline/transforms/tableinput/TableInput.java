@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -37,12 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * Reads information from a database table by using freehand SQL
- *
- * @author Matt
- * @since 8-apr-2003
- */
+/** Reads information from a database table by using freehand SQL */
 public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
 
   private static final Class<?> PKG = TableInputMeta.class; // For Translator
@@ -288,6 +284,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     } finally {
       if (data.db != null) {
         data.db.disconnect();
+        data.db = null;
       }
     }
 
@@ -321,7 +318,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
         passed = false;
       }
 
-      if (meta.getDatabaseMeta() == null) {
+      if (meta.getConnection() == null) {
         logError(BaseMessages.getString(PKG, "TableInput.Exception.DatabaseConnectionsIsNeeded"));
         passed = false;
       }
@@ -330,18 +327,19 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       }
 
       data.infoStream = meta.getTransformIOMeta().getInfoStreams().get(0);
-      if (meta.getDatabaseMeta() == null) {
-        logError(
-            BaseMessages.getString(PKG, "TableInput.Init.ConnectionMissing", getTransformName()));
-        return false;
+      if (meta.getLookup() != null) {
+        // Set reference to input transform
+        data.infoStream.setSubject(meta.getLookup());
       }
-      data.db = new Database(this, this, meta.getDatabaseMeta());
+
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+
+      data.db = new Database(this, this, databaseMeta);
       data.db.setQueryLimit(Const.toInt(resolve(meta.getRowLimit()), 0));
 
       try {
         data.db.connect();
-
-        if (meta.getDatabaseMeta().isRequiringTransactionsOnQueries()) {
+        if (databaseMeta.isRequiringTransactionsOnQueries()) {
           data.db.setCommit(100); // needed for PGSQL it seems...
         }
         if (log.isDetailed()) {

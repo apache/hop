@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,6 +60,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionFTPPut.Description",
     image = "FTPPut.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
+    keywords = "i18n::ActionFtpPut.keyword",
     documentationUrl = "/workflow/actions/ftpput.html")
 public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtpPut.class; // For Translator
@@ -441,7 +442,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);
-    long filesput = 0;
+    long filesPut = 0;
 
     if (log.isDetailed()) {
       logDetailed(BaseMessages.getString(PKG, "ActionFtpPut.Log.Starting"));
@@ -523,6 +524,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
           try {
             fileExist = FtpClientUtil.fileExists(ftpclient, file);
           } catch (Exception e) {
+            logError("Error checking for file existence on FTP server for file: " + file, e);
             // Assume file does not exist !!
           }
 
@@ -546,10 +548,27 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
 
             String localFilename = realLocalDirectory + Const.FILE_SEPARATOR + file;
             try (InputStream inputStream = HopVfs.getInputStream(localFilename)) {
-              ftpclient.storeFile(file, inputStream);
+              if (fileExist) {
+                boolean deleted = ftpclient.deleteFile(file);
+                if (!deleted) {
+                  log.logError(
+                      "Deletion of (existing) file '"
+                          + file
+                          + "' on the FTP server was not successful with reply string: "
+                          + ftpclient.getReplyString());
+                }
+              }
+              boolean success = ftpclient.storeFile(file, inputStream);
+              if (success) {
+                filesPut++;
+              } else {
+                log.logError(
+                    "Transfer of file '"
+                        + localFilename
+                        + "' to the FTP server was not successful with reply string: "
+                        + ftpclient.getReplyString());
+              }
             }
-
-            filesput++;
 
             // Delete the file if this is needed!
             if (remove) {
@@ -564,8 +583,8 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
       }
 
       result.setResult(true);
-      if (log.isDetailed()) {
-        logDebug(BaseMessages.getString(PKG, "ActionFtpPut.Log.WeHavePut", "" + filesput));
+      if (log.isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "ActionFtpPut.Log.WeHavePut", "" + filesPut));
       }
     } catch (Exception e) {
       result.setNrErrors(1);

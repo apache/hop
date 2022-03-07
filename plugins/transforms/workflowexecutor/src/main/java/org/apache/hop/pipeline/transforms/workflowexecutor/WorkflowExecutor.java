@@ -38,7 +38,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -46,14 +45,8 @@ import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
 import java.util.ArrayList;
 
-/**
- * Execute a workflow for every input row.
- *
- * @author Matt
- * @since 22-nov-2005
- */
+/** Execute a workflow for every input row. */
 public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, WorkflowExecutorData> {
-
   private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
   public WorkflowExecutor(
@@ -216,15 +209,6 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
     // Copy the parameters
     data.executorWorkflow.copyParametersFromDefinitions(data.executorWorkflowMeta);
-
-    // data.executorWorkflow.setInteractive(); TODO: pass interactivity through the pipeline too for
-    // drill-down.
-
-    // TODO
-    /*
-     * if (data.executorWorkflow.isInteractive()) {
-     * data.executorWorkflow.getJobEntryListeners().addAll(parentWorkflow.getJobEntryListeners()); }
-     */
 
     // Pass the accumulated rows
     //

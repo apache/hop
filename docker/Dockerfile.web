@@ -16,24 +16,37 @@
 # under the License.
 #
 
-FROM tomcat:jdk8
+FROM tomcat:9-jdk8-openjdk
 LABEL maintainer="Apache Hop Team"
-ENV HOP_WEB_THEME=light
-ENV HOP_CONFIG_FOLDER=${CATALINA_HOME}/webapps/ROOT/config
-ENV HOP_AUDIT_FOLDER=${CATALINA_HOME}/webapps/ROOT/audit
-ENV JAVA_OPTS='-Xms1g -Xmx2g -DHOP_CONFIG_FOLDER=${HOP_CONFIG_FOLDER} -DHOP_AUDIT_FOLDER=${HOP_AUDIT_FOLDER} -DHOP_WEB_THEME=${HOP_WEB_THEME}'
+ENV HOP_AES_ENCODER_KEY=
+ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
+ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
+# specify the hop log level
+ENV HOP_LOG_LEVEL="Basic"
+# any JRE settings you want to pass on
+# The “-XX:+AggressiveHeap” tells the container to use all memory assigned to the container. 
+# this removed the need to calculate the necessary heap Xmx
+ENV HOP_OPTIONS="-XX:+AggressiveHeap"
+ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
+ENV HOP_PLUGIN_BASE_FOLDERS="plugins"
+# path to jdbc drivers
+ENV HOP_SHARED_JDBC_FOLDER=
+ENV HOP_WEB_THEME="light"
+
+# Set TOMCAT start variables
+ENV CATALINA_OPTS='${HOP_OPTIONS} -DHOP_AES_ENCODER_KEY="${HOP_AES_ENCODER_KEY}" -DHOP_AUDIT_FOLDER="${HOP_AUDIT_FOLDER}" -DHOP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}" -DHOP_LOG_LEVEL="${HOP_LOG_LEVEL}" -DHOP_PASSWORD_ENCODER_PLUGIN="${HOP_PASSWORD_ENCODER_PLUGIN}" -DHOP_PLUGIN_BASE_FOLDERS="${HOP_PLUGIN_BASE_FOLDERS}" -DHOP_SHARED_JDBC_FOLDER="${HOP_SHARED_JDBC_FOLDER}" -DHOP_WEB_THEME="${HOP_WEB_THEME}"'
 
 # Cleanup and create folder
 RUN rm -rf webapps/* \
-    && mkdir ${CATALINA_HOME}/webapps/ROOT \
-    && export HOP_AUDIT_FOLDER="${HOP_AUDIT_FOLDER}" \
-    && export HOP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}" \
-    && export HOP_WEB_THEME="${HOP_WEB_THEME}"
+    && mkdir "${CATALINA_HOME}"/webapps/ROOT
 
 # Copy resources
+COPY ./assemblies/web/target/webapp/ "${CATALINA_HOME}"/webapps/ROOT/
+COPY ./assemblies/plugins/dist/target/plugins "${CATALINA_HOME}"/plugins
 
-COPY ./assemblies/web/target/webapp/ ${CATALINA_HOME}/webapps/ROOT/
-COPY ./assemblies/plugins/dist/target/plugins ${CATALINA_HOME}/plugins
+COPY ./docker/resources/run-web.sh /tmp/
 
 # Fix hop-config.json
-RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' webapps/ROOT/config/hop-config.json
+RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' "${CATALINA_HOME}"/webapps/ROOT/config/hop-config.json
+
+CMD ["/bin/bash", "/tmp/run-web.sh"]

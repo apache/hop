@@ -31,7 +31,12 @@ public class WorkflowPainterExtension {
   public WorkflowMeta workflowMeta;
   public WorkflowHopMeta workflowHop;
   public final ActionMeta actionMeta;
-  public int x1, y1, x2, y2, mx, my;
+  public int x1;
+  public int y1;
+  public int x2;
+  public int y2;
+  public int mx;
+  public int my;
   public Point offset;
   public int iconSize;
 

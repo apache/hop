@@ -27,13 +27,13 @@ Hop wants to allow data engineers to be able to deliver high quality work, deliv
 
 We want Hop to be completely open source, and are eager to hear your feedback on our https://chat.project-hop.org[chat] and just as eager to see your bug tickets and feature request in https://issues.apache.org/jira/projects/HOP/issues[JIRA].
 
-As an open source first project, we started the https://www.apache.org/[Apache Software Foundation] https://incubator.apache.org/[incubation] process in September 2020 and aim to become and ASF https://projects.apache.org/[top level project] as soon as possible.
+As an open source first project, we started the https://www.apache.org/[Apache Software Foundation] https://incubator.apache.org/[incubation] process in September 2020 and graduated as and ASF https://projects.apache.org/[top level project] in December 2021.
 
 Check our https://hop.apache.org/docs/qa/[Q&A] for more information on why Hop was created and what the project is all about.
 
 == Concepts
 
-A couple of things have been renamed to align Apache Hop (Incubating) with modern data processing platforms.
+A couple of things have been renamed to align Apache Hop with modern data processing platforms.
 
 **_A lot_** has changed behind the scenes, but don't worry, if you're familiar with Kettle/PDI, you'll feel right at home immediately.
 

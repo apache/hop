@@ -58,6 +58,7 @@ import java.util.Map.Entry;
     name = "i18n::BaseTransform.TypeLongDesc.MetaInject",
     description = "i18n::BaseTransform.TypeTooltipDesc.MetaInject",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::MetaInjectMeta.keyword",
     documentationUrl = "/pipeline/transforms/metainject.html")
 @InjectionSupported(
     localizationPrefix = "MetaInject.Injection.",
@@ -73,7 +74,9 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
   private static final String MAPPING = "mapping";
 
   private static final String FILENAME = "filename";
+  private static final String RUN_CONFIG = "run_configuration";
   private static final String TARGET_FILE = "target_file";
+  private static final String CREATE_PARENT_FOLDER = "create_parent_folder";
   private static final String NO_EXECUTION = "no_execution";
   private static final String SOURCE_TRANSFORM = "source_transform";
 
@@ -120,6 +123,10 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
   @Injection(name = "STREAMING_TARGET_TRANSFORM")
   private String streamTargetTransformName;
 
+  private String runConfigurationName;
+
+  private boolean createParentFolder;
+
   public MetaInjectMeta() {
     super(); // allocate BaseTransformMeta
     targetSourceMapping = new HashMap<>();
@@ -139,6 +146,7 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
     StringBuilder retval = new StringBuilder(500);
 
     retval.append("    ").append(XmlHandler.addTagValue(FILENAME, fileName));
+    retval.append("    ").append(XmlHandler.addTagValue(RUN_CONFIG, runConfigurationName));
 
     retval.append("    ").append(XmlHandler.addTagValue(SOURCE_TRANSFORM, sourceTransformName));
     retval.append("    ").append(XmlHandler.openTag(SOURCE_OUTPUT_FIELDS));
@@ -161,6 +169,7 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
     retval.append("    ").append(XmlHandler.closeTag(SOURCE_OUTPUT_FIELDS));
 
     retval.append("    ").append(XmlHandler.addTagValue(TARGET_FILE, targetFile));
+    retval.append("    ").append(XmlHandler.addTagValue(CREATE_PARENT_FOLDER, createParentFolder));
     retval.append("    ").append(XmlHandler.addTagValue(NO_EXECUTION, noExecution));
 
     if ((streamSourceTransformName == null) && (streamSourceTransform != null)) {
@@ -200,6 +209,7 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
       throws HopXmlException {
     try {
       fileName = XmlHandler.getTagValue(transformNode, FILENAME);
+      runConfigurationName = XmlHandler.getTagValue(transformNode, RUN_CONFIG);
 
       sourceTransformName = XmlHandler.getTagValue(transformNode, SOURCE_TRANSFORM);
       Node outputFieldsNode = XmlHandler.getSubNode(transformNode, SOURCE_OUTPUT_FIELDS);
@@ -217,6 +227,7 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
       }
 
       targetFile = XmlHandler.getTagValue(transformNode, TARGET_FILE);
+      createParentFolder = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, CREATE_PARENT_FOLDER));
       noExecution = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, NO_EXECUTION));
 
       streamSourceTransformName = XmlHandler.getTagValue(transformNode, STREAM_SOURCE_TRANSFORM);
@@ -434,6 +445,22 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
     this.noExecution = noExecution;
   }
 
+  public String getRunConfigurationName() {
+    return runConfigurationName;
+  }
+
+  public void setRunConfigurationName(String runConfigurationName) {
+    this.runConfigurationName = runConfigurationName;
+  }
+
+  public boolean isCreateParentFolder() {
+    return createParentFolder;
+  }
+
+  public void setCreateParentFolder(boolean createParentFolder) {
+    this.createParentFolder = createParentFolder;
+  }
+
   /**
    * @return The objects referenced in the transform, like a mapping, a pipeline, a workflow, ...
    */
@@ -570,6 +597,12 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
   private static SourceTransformField createSourceTransformField(MetaInjectMapping mappingEntry) {
     return new SourceTransformField(
         mappingEntry.getSourceTransform(), mappingEntry.getSourceField());
+  }
+
+  @Override
+  public void setDefault() {
+    super.setDefault();
+    createParentFolder = true;
   }
 
   @Override

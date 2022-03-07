@@ -27,11 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Some base data for file-based input transforms.
- *
- * @author Alexander Buloichik
- */
+/** Some base data for file-based input transforms. */
 public class BaseFileInputTransformData extends BaseTransformData {
 
   public IFileErrorHandler dataErrorLineHandler;
@@ -59,7 +55,6 @@ public class BaseFileInputTransformData extends BaseTransformData {
   public IRowMeta convertRowMeta;
 
   public int nr_repeats;
-  // public boolean isLastFile;
 
   public Map<String, Boolean> rejectedFiles = new HashMap<>();
 

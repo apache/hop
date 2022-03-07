@@ -168,12 +168,14 @@ public class BlockUntilTransformsFinishDialog extends BaseTransformDialog
     List<String> entries = new ArrayList<>();
     for (String previousTransform : previousTransforms) {
       if (!previousTransform.equals(transformName)) {
-        if (nextTransforms != null) {
+        if (nextTransforms != null && nextTransforms.length > 0) {
           for (String nextTransform : nextTransforms) {
             if (!nextTransform.equals(previousTransform)) {
               entries.add(previousTransform);
             }
           }
+        } else {
+          entries.add(previousTransform);
         }
       }
     }

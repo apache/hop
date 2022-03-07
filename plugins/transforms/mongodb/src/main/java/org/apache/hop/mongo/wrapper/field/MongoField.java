@@ -58,6 +58,7 @@ public class MongoField implements Comparable<MongoField> {
    * documents for paths/types
    */
   @Injection(name = "FIELD_ARRAY_INDEX", group = "FIELDS")
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   public transient String arrayIndexInfo;
 
   /**
@@ -65,6 +66,7 @@ public class MongoField implements Comparable<MongoField> {
    * determine paths/types.
    */
   @Injection(name = "FIELD_PERCENTAGE", group = "FIELDS")
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   public transient int percentageOfSample = -1;
 
   /**
@@ -72,8 +74,10 @@ public class MongoField implements Comparable<MongoField> {
    * numerator might be larger than denominator if this path is encountered multiple times in an
    * array within one document.
    */
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   public transient String occurrenceFraction = "";
 
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   public transient Class<?> mongoType;
 
   /**
@@ -82,6 +86,7 @@ public class MongoField implements Comparable<MongoField> {
    * catch-all
    */
   @Injection(name = "FIELD_DISPARATE_TYPES", group = "FIELDS")
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   public transient boolean disparateTypes;
 
   /** The index that this field is in the output row structure */

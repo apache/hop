@@ -99,7 +99,6 @@ public class HopGuiPipelineClipboardDelegate {
       TransformMeta[] transforms = new TransformMeta[nr];
       ArrayList<String> transformOldNames = new ArrayList<>(nr);
 
-      // Point min = new Point(loc.x, loc.y);
       Point min = new Point(99999999, 99999999);
 
       // Load the transforms...
@@ -196,8 +195,11 @@ public class HopGuiPipelineClipboardDelegate {
         // Handle pasting multiple times, need to update source and target transform names
         int srcTransformPos =
             transformOldNames.indexOf(transformErrorMeta.getSourceTransform().getName());
-        int tgtTransformPos =
-            transformOldNames.indexOf(transformErrorMeta.getTargetTransform().getName());
+        int tgtTransformPos = -1;
+        if (transformErrorMeta.getTargetTransform() != null) {
+          tgtTransformPos =
+              transformOldNames.indexOf(transformErrorMeta.getTargetTransform().getName());
+        }
         TransformMeta sourceTransform =
             pipelineMeta.findTransform(transforms[srcTransformPos].getName());
         if (sourceTransform != null) {

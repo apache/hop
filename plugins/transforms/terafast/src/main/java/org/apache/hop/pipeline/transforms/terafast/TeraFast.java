@@ -58,10 +58,6 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
 
   private PrintStream dataFilePrintStream;
 
-  private List<Integer> columnSortOrder;
-
-  private IRowMeta tableRowMeta;
-
   private SimpleDateFormat simpleDateFormat;
 
   public TeraFast(
@@ -178,16 +174,16 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
       // thus the columns in the generated datafile are always in the same order and have the same
       // size as in the
       // targetTable
-      this.tableRowMeta = this.meta.getRequiredFields(this);
+      IRowMeta tableRowMeta = this.meta.getRequiredFields(this);
       IRowMeta streamRowMeta =
           this.getPipelineMeta().getPrevTransformFields(this, this.getTransformMeta());
-      this.columnSortOrder = new ArrayList<>(this.tableRowMeta.size());
-      for (int i = 0; i < this.tableRowMeta.size(); i++) {
-        IValueMeta column = this.tableRowMeta.getValueMeta(i);
+      List<Integer> columnSortOrder = new ArrayList<>(tableRowMeta.size());
+      for (int i = 0; i < tableRowMeta.size(); i++) {
+        IValueMeta column = tableRowMeta.getValueMeta(i);
         int tableIndex = this.meta.getTableFieldList().getValue().indexOf(column.getName());
         if (tableIndex >= 0) {
           String streamField = this.meta.getStreamFieldList().getValue().get(tableIndex);
-          this.columnSortOrder.add(streamRowMeta.indexOfValue(streamField));
+          columnSortOrder.add(streamRowMeta.indexOfValue(streamField));
         }
       }
     }

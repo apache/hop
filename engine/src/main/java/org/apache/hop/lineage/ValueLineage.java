@@ -28,8 +28,6 @@ import java.util.List;
  * This class contains value lineage information.<br>
  * That means that we will have information on where and how a certain value is originating, being
  * manipulated etc.<br>
- *
- * @author matt
  */
 public class ValueLineage {
   private PipelineMeta pipelineMeta;

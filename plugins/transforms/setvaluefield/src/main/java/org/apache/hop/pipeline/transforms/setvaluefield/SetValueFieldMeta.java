@@ -18,141 +18,66 @@
 package org.apache.hop.pipeline.transforms.setvaluefield;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
+import java.util.ArrayList;
 import java.util.List;
 
-@InjectionSupported(
-    localizationPrefix = "SetValueField.Injection.",
-    groups = {"FIELDS"})
 @Transform(
     id = "SetValueField",
     image = "setvaluefield.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.SetValueField",
-    description = "i18n::BaseTransform.TypeTooltipDesc.SetValueField",
+    name = "i18n::SetValueField.Name",
+    description = "i18n::SetValueField.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::SetValueFieldMeta.keyword",
     documentationUrl = "/pipeline/transforms/setvaluefield.html")
 public class SetValueFieldMeta extends BaseTransformMeta<SetValueField, SetValueFieldData> {
   private static final Class<?> PKG = SetValueFieldMeta.class; // For Translator
-
-  @Injection(name = "FIELD_NAME", group = "FIELDS")
-  private String[] fieldName;
-
-  @Injection(name = "REPLACE_BY_FIELD_VALUE", group = "FIELDS")
-  private String[] replaceByFieldValue;
-
+  
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields",
+      injectionGroupDescription = "SetValueField.Injection.SetFields")
+  private List<SetField> fields = new ArrayList<>();
+    
   public SetValueFieldMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
   }
 
-  /** @return Returns the fieldName. */
-  public String[] getFieldName() {
-    return fieldName;
+  public SetValueFieldMeta(SetValueFieldMeta clone) {
+    super();
+    for (SetField field : clone.getFields()) {
+      fields.add(new SetField(field));
+    }
+  }
+  
+  public List<SetField> getFields() {
+    return fields;
   }
 
-  /** @param fieldName The fieldName to set. */
-  public void setFieldName(String[] fieldName) {
-    this.fieldName = fieldName;
-  }
-
-  /** @return Returns the replaceByFieldValue. */
-  public String[] getReplaceByFieldValue() {
-    return replaceByFieldValue;
-  }
-
-  /** @param replaceByFieldValue The replaceByFieldValue to set. */
-  public void setReplaceByFieldValue(String[] replaceByFieldValue) {
-    this.replaceByFieldValue = replaceByFieldValue;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
-  public void allocate(int count) {
-    fieldName = new String[count];
-    replaceByFieldValue = new String[count];
+  public void setFields(List<SetField> fields) {
+    this.fields = fields;
   }
 
   @Override
   public Object clone() {
-    SetValueFieldMeta retval = (SetValueFieldMeta) super.clone();
-
-    int count = fieldName.length;
-
-    retval.allocate(count);
-    System.arraycopy(fieldName, 0, retval.fieldName, 0, count);
-    System.arraycopy(replaceByFieldValue, 0, retval.replaceByFieldValue, 0, count);
-
-    return retval;
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int count = XmlHandler.countNodes(fields, "field");
-
-      allocate(count);
-
-      for (int i = 0; i < count; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        fieldName[i] = XmlHandler.getTagValue(fnode, "name");
-        replaceByFieldValue[i] = XmlHandler.getTagValue(fnode, "replaceby");
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "SetValueFieldMeta.Exception.UnableToReadTransformMetaFromXML"),
-          e);
-    }
+    return new SetValueFieldMeta(this);
   }
 
   @Override
   public void setDefault() {
-    int count = 0;
-
-    allocate(count);
-
-    for (int i = 0; i < count; i++) {
-      fieldName[i] = "field" + i;
-      replaceByFieldValue[i] = "";
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    <fields>" + Const.CR);
-
-    for (int i = 0; i < fieldName.length; i++) {
-      retval.append("      <field>" + Const.CR);
-      retval.append("        " + XmlHandler.addTagValue("name", fieldName[i]));
-      retval.append("        " + XmlHandler.addTagValue("replaceby", replaceByFieldValue[i]));
-      retval.append("        </field>" + Const.CR);
-    }
-    retval.append("      </fields>" + Const.CR);
-
-    return retval.toString();
+    fields = new ArrayList<>();
   }
 
   @Override
@@ -170,13 +95,13 @@ public class SetValueFieldMeta extends BaseTransformMeta<SetValueField, SetValue
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "SetValueFieldMeta.CheckResult.NoReceivingFieldsError"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "SetValueFieldMeta.CheckResult.TransformReceivingFieldsOK",
@@ -189,40 +114,42 @@ public class SetValueFieldMeta extends BaseTransformMeta<SetValueField, SetValue
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "SetValueFieldMeta.CheckResult.TransformRecevingInfoFromOtherTransforms"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SetValueFieldMeta.CheckResult.NoInputReceivedError"),
               transformMeta);
     }
     remarks.add(cr);
 
-    if (fieldName == null && fieldName.length == 0) {
+    if (fields==null || fields.isEmpty()) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SetValueFieldMeta.CheckResult.FieldsSelectionEmpty"),
               transformMeta);
       remarks.add(cr);
     } else {
-      for (int i = 0; i < fieldName.length; i++) {
-        if (Utils.isEmpty(replaceByFieldValue[i])) {
+      int i = 1;
+      for (SetField field:fields) {
+        if (Utils.isEmpty(field.getReplaceByField())) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_ERROR,
+                  ICheckResult.TYPE_RESULT_ERROR,
                   BaseMessages.getString(
                       PKG,
                       "SetValueFieldMeta.CheckResult.ReplaceByValueMissing",
-                      fieldName[i],
+                      field.getFieldName(),
                       "" + i),
                   transformMeta);
           remarks.add(cr);
         }
+        i++;
       }
     }
   }

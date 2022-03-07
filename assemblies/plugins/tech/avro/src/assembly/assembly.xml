@@ -51,7 +51,6 @@
             <useProjectArtifact>false</useProjectArtifact>
             <scope>runtime</scope>
             <includes>
-                <include>org.apache.avro:avro:jar</include>
                 <include>org.codehaus.jackson:jackson-core-asl:jar</include>
                 <include>org.codehaus.jackson:jackson-mapper-asl:jar</include>
                 <include>com.thoughtworks.paranamer:paranamer:jar</include>

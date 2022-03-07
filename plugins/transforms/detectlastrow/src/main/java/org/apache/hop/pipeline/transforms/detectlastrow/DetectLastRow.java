@@ -26,9 +26,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Detect last row in a stream
- */
+/** Detect last row in a stream */
 public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRowData> {
 
   private static final Class<?> PKG = DetectLastRowMeta.class; // For Translator
@@ -79,7 +77,7 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
         }
 
         // copy row to output rowset(s)
-        putRow(data.outputRowMeta, outputRow); 
+        putRow(data.outputRowMeta, outputRow);
 
         if (log.isRowLevel()) {
           logRowlevel(
@@ -100,7 +98,7 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
       outputRow =
           RowDataUtil.addRowData(previousRow, getInputRowMeta().size(), data.getFalseArray());
       // copy row to output rowset(s)
-      putRow(data.outputRowMeta, outputRow); 
+      putRow(data.outputRowMeta, outputRow);
 
       if (log.isRowLevel()) {
         logRowlevel(

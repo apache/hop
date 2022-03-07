@@ -16,10 +16,11 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Neo4j Split Graph transforms splits the nodes and relationships of a graph data type.
 
 = Neo4j Split Graph
 
-This transforms splits the nodes and relationships of a graph data type.
+The Neo4j Split Graph transforms splits the nodes and relationships of a graph data type.
 
 == Options
 

@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Execute Unit Tests transform fetches and executes the available unit tests for the current project.
 
 = Execute Unit Tests
 
 == Description
 
-This transform fetches and executes the available unit tests for the current project.
+The Execute Unit Tests transform fetches and executes the available xref:pipeline/pipeline-unit-testing.adoc[unit tests] for the current project.
 
 == Options
 

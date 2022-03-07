@@ -22,8 +22,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 /**
  * An interface for pipeline transforms that connect to a database table. For example a table output
  * transform or a bulk loader.
- *
- * @author jamesdixon
  */
 public interface IProvidesDatabaseConnectionInformation {
 

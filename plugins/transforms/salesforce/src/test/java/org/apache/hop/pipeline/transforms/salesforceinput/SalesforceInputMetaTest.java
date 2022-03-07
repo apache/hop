@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.salesforceinput;
 
-import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.encryption.Encr;
@@ -54,7 +53,7 @@ public class SalesforceInputMetaTest {
   public static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
-    PluginRegistry.init(true);
+    PluginRegistry.init();
     String passwordEncoderPluginID =
         Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
     Encr.init(passwordEncoderPluginID);
@@ -114,8 +113,7 @@ public class SalesforceInputMetaTest {
     TransformLoadSaveTester<SalesforceInputMeta> transformLoadSaveTester =
         new TransformLoadSaveTester(
             SalesforceInputMeta.class,
-            attributes,
-            attributes,
+                attributes,
             getterMap,
             setterMap,
             fieldLoadSaveValidators,
@@ -169,7 +167,7 @@ public class SalesforceInputMetaTest {
     meta.check(remarks, null, null, null, null, null, null, null, null);
     boolean hasError = false;
     for (ICheckResult cr : remarks) {
-      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
+      if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
@@ -183,7 +181,7 @@ public class SalesforceInputMetaTest {
     meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
     for (ICheckResult cr : remarks) {
-      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
+      if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
@@ -204,7 +202,7 @@ public class SalesforceInputMetaTest {
     hasError = false;
     int errorCount = 0;
     for (ICheckResult cr : remarks) {
-      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
+      if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
         errorCount++;
       }
@@ -232,7 +230,7 @@ public class SalesforceInputMetaTest {
     meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
     for (ICheckResult cr : remarks) {
-      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
+      if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
         errorCount++;
       }

@@ -40,12 +40,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the ping action settings.
- *
- * @author Samatar Hassan
- * @since Mar-2007
- */
+/** This dialog allows you to edit the ping action settings. */
 public class ActionPingDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionPing.class; // For Translator
 

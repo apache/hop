@@ -40,6 +40,7 @@ import java.util.List;
     name = "i18n::BlockingTransform.Name",
     description = "i18n::BlockingTransform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "i18n::BlockingTransformMeta.keyword",
     documentationUrl = "/pipeline/transforms/blockingtransform.html")
 public class BlockingTransformMeta extends BaseTransformMeta<BlockingTransform, BlockingTransformData> {
 

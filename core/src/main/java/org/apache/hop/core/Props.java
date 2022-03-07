@@ -29,22 +29,19 @@ import java.util.Map;
 /**
  * We use Props to store all kinds of user interactive information such as the selected colors,
  * fonts, positions of windows, etc.
- *
- * @author Matt
- * @since 15-12-2003
  */
 public class Props implements Cloneable {
   private static final Class<?> PKG = Const.class; // For Translator
+
+  protected static final String NO = "N";
+
+  protected static final String YES = "Y";
 
   private static final String STRING_USER_PREFERENCES = "User preferences";
 
   public static final String STRING_FONT_FIXED_NAME = "FontFixedName";
   public static final String STRING_FONT_FIXED_SIZE = "FontFixedSize";
   public static final String STRING_FONT_FIXED_STYLE = "FontFixedStyle";
-
-  public static final String STRING_FONT_DEFAULT_NAME = "FontDefaultName";
-  public static final String STRING_FONT_DEFAULT_SIZE = "FontDefaultSize";
-  public static final String STRING_FONT_DEFAULT_STYLE = "FontDefaultStyle";
 
   public static final String STRING_FONT_GRAPH_NAME = "FontGraphName";
   public static final String STRING_FONT_GRAPH_SIZE = "FontGraphSize";
@@ -53,18 +50,6 @@ public class Props implements Cloneable {
   public static final String STRING_FONT_NOTE_NAME = "FontNoteName";
   public static final String STRING_FONT_NOTE_SIZE = "FontNoteSize";
   public static final String STRING_FONT_NOTE_STYLE = "FontNoteStyle";
-
-  public static final String STRING_BACKGROUND_COLOR_R = "BackgroundColorR";
-  public static final String STRING_BACKGROUND_COLOR_G = "BackgroundColorG";
-  public static final String STRING_BACKGROUND_COLOR_B = "BackgroundColorB";
-
-  public static final String STRING_GRAPH_COLOR_R = "GraphColorR";
-  public static final String STRING_GRAPH_COLOR_G = "GraphColorG";
-  public static final String STRING_GRAPH_COLOR_B = "GraphColorB";
-
-  public static final String STRING_TAB_COLOR_R = "TabColorR";
-  public static final String STRING_TAB_COLOR_G = "TabColorG";
-  public static final String STRING_TAB_COLOR_B = "TabColorB";
 
   public static final String STRING_ZOOM_FACTOR = "ZoomFactor";
   public static final String STRING_ICON_SIZE = "IconSize";
@@ -89,11 +74,12 @@ public class Props implements Cloneable {
 
   public static final String STRING_SHOW_CANVAS_GRID = "ShowCanvasGrid";
   public static final String STRING_SHOW_EXIT_WARNING = "ShowExitWarning";
-  public static final String STRING_SHOW_OS_LOOK = "ShowOSLook";
 
   public static final String STRING_CUSTOM_PARAMETER = "CustomParameter";
 
   public static final String STRING_DEFAULT_PREVIEW_SIZE = "DefaultPreviewSize";
+
+  public static final String TABLEOUTPUT_SORT_MAPPINGS = "TableOutputSortMappings";
 
   protected ILogChannel log;
 
@@ -153,6 +139,15 @@ public class Props implements Cloneable {
   public boolean useDBCache() {
     String use = getProperty(STRING_USE_DB_CACHE);
     return !"N".equalsIgnoreCase(use);
+  }
+
+  public boolean sortTableOutputMappings() {
+    String sortMappings = getProperty(TABLEOUTPUT_SORT_MAPPINGS);
+    return YES.equalsIgnoreCase(sortMappings); // Default = OFF
+  }
+
+  public void setTableOutputSortMappings(boolean value) {
+    setProperty(TABLEOUTPUT_SORT_MAPPINGS, value ? YES : NO);
   }
 
   /**

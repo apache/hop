@@ -43,6 +43,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.NumberRange",
     description = "i18n::BaseTransform.TypeTooltipDesc.NumberRange",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::NumberRangeMeta.keyword",
     documentationUrl = "/pipeline/transforms/numberrange.html")
 public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeData> {
 
@@ -173,7 +174,7 @@ public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeD
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               "Transform is connected to previous one, receiving " + prev.size() + " fields",
               transforminfo);
       remarks.add(cr);
@@ -183,14 +184,14 @@ public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeD
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               "Transform is receiving info from other transforms.",
               transforminfo);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               "No input received from other transforms!",
               transforminfo);
       remarks.add(cr);

@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.pluginexplorer;
 
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -65,7 +66,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 
   private HopGui hopGui;
   private Composite composite;
-  private CCombo wPluginType;
+  private Combo wPluginType;
   private TableView wPluginView;
 
   private Map<String, List<Object[]>> dataMap;
@@ -117,13 +118,14 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 
     composite = new Composite(parent, SWT.NONE);
     composite.setLayout(new FormLayout());
-
+    props.setLook(composite);
+    
     FormData formData = new FormData();
     formData.left = new FormAttachment(0, 0);
     formData.top = new FormAttachment(0, 0);
     formData.right = new FormAttachment(100, 0);
     formData.bottom = new FormAttachment(100, 0);
-    composite.setLayoutData(formData);
+    composite.setLayoutData(formData);   
 
     Label label = new Label(composite, SWT.LEFT);
     label.setText(BaseMessages.getString(PKG, "PluginExplorerPerspective.PluginType.Label"));
@@ -131,8 +133,9 @@ public class HopPluginExplorePerspective implements IHopPerspective {
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(0, props.getMargin());
     label.setLayoutData(fdlFields);
+    props.setLook(label);
 
-    wPluginType = new CCombo(composite, SWT.LEFT | SWT.READ_ONLY | SWT.BORDER);
+    wPluginType = new Combo(composite, SWT.LEFT | SWT.READ_ONLY | SWT.BORDER);
     wPluginType.setItems(pluginsType);
     wPluginType.setText(selectedPluginType);
     props.setLook(wPluginType);
@@ -148,7 +151,8 @@ public class HopPluginExplorePerspective implements IHopPerspective {
             refresh();
           }
         });
-
+    props.setLook(wPluginType, Props.WIDGET_STYLE_TOOLBAR);
+    
     IRowMeta rowMeta = metaMap.get(selectedPluginType);
     ColumnInfo[] colinf = new ColumnInfo[rowMeta.size()];
     for (int i = 0; i < rowMeta.size(); i++) {

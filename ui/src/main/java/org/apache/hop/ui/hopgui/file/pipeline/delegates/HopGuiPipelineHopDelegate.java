@@ -40,7 +40,6 @@ import java.util.List;
 
 public class HopGuiPipelineHopDelegate {
 
-  // TODO: move i18n package to HopGui
   private static final Class<?> PKG = HopGui.class; // For Translator
 
   private HopGui hopGui;
@@ -136,24 +135,36 @@ public class HopGuiPipelineHopDelegate {
             re);
       }
 
-      verifyCopyDistribute(pipelineMeta, newHop.getFromTransform());
+      // Verify copy distribution only if the new hop are not for error handling
+      if (!newHop.isErrorHop()) {
+        verifyCopyDistribute(pipelineMeta, newHop.getFromTransform());
+      }
     }
 
     return ok;
   }
 
-  public void verifyCopyDistribute(PipelineMeta pipelineMeta, TransformMeta fr) {
-    List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms(fr);
-    int nrNextTransforms = nextTransforms.size();
+  public void verifyCopyDistribute(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
+
+    // Count normal hop
+    //
+    List<PipelineHopMeta> hops = pipelineMeta.findAllPipelineHopFrom(transformMeta);
+    int hopCount = 0;
+    for (PipelineHopMeta hop : hops) {
+      // Ignore hop for error handling
+      if (hop.isEnabled() && !hop.isErrorHop()) {
+        hopCount++;
+      }
+    }
 
     // don't show it for 3 or more hops, by then you should have had the
     // message
-    if (nrNextTransforms == 2) {
-      boolean distributes = fr.getTransform().excludeFromCopyDistributeVerification();
+    if (hopCount == 2) {
+      boolean distributes = transformMeta.getTransform().excludeFromCopyDistributeVerification();
       boolean customDistribution = false;
 
       if (props.showCopyOrDistributeWarning()
-          && !fr.getTransform().excludeFromCopyDistributeVerification()) {
+          && !transformMeta.getTransform().excludeFromCopyDistributeVerification()) {
         MessageDialogWithToggle md =
             new MessageDialogWithToggle(
                 hopGui.getShell(),
@@ -161,8 +172,8 @@ public class HopGuiPipelineHopDelegate {
                 BaseMessages.getString(
                     PKG,
                     "HopGui.Dialog.CopyOrDistribute.Message",
-                    fr.getName(),
-                    Integer.toString(nrNextTransforms)),
+                    transformMeta.getName(),
+                    Integer.toString(hopCount)),
                 SWT.ICON_WARNING,
                 getRowDistributionLabels(),
                 BaseMessages.getString(PKG, "HopGui.Message.Warning.NotShowWarning"),
@@ -174,16 +185,16 @@ public class HopGuiPipelineHopDelegate {
       }
 
       if (distributes) {
-        fr.setDistributes(true);
-        fr.setRowDistribution(null);
+        transformMeta.setDistributes(true);
+        transformMeta.setRowDistribution(null);
       } else if (customDistribution) {
 
         IRowDistribution rowDistribution = pipelineGraph.askUserForCustomDistributionMethod();
 
-        fr.setDistributes(true);
-        fr.setRowDistribution(rowDistribution);
+        transformMeta.setDistributes(true);
+        transformMeta.setRowDistribution(rowDistribution);
       } else {
-        fr.setDistributes(false);
+        transformMeta.setDistributes(false);
       }
 
       pipelineGraph.redraw();

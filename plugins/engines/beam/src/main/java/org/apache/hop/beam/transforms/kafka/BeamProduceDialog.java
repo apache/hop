@@ -25,6 +25,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -32,6 +34,8 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
+
+import java.util.List;
 
 public class BeamProduceDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = BeamProduce.class; // For Translator
@@ -44,6 +48,7 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
   private TextVar wTopic;
   private TextVar wKeyField;
   private TextVar wMessageField;
+  private TableView wConfigOptions;
 
   public BeamProduceDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -70,6 +75,17 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
 
     middle = props.getMiddlePct();
     margin = Const.MARGIN;
+
+    // Buttons go at the very bottom
+    //
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(
+            shell, new Button[] {wOk, wCancel}, margin, null);
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -158,16 +174,36 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     wMessageField.setLayoutData(fdMessageField);
     lastControl = wMessageField;
 
-    // Buttons go at the very bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, lastControl);
+    ColumnInfo[] columns =
+            new ColumnInfo[] {
+                    new ColumnInfo(
+                            BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Parameter"),
+                            ColumnInfo.COLUMN_TYPE_TEXT,
+                            false),
+                    new ColumnInfo(
+                            BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Value"),
+                            ColumnInfo.COLUMN_TYPE_TEXT,
+                            false),
+                    new ColumnInfo(
+                            BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Type"),
+                            ColumnInfo.COLUMN_TYPE_CCOMBO,
+                            ConfigOption.Type.getTypeNames(),
+                            false),
+            };
+    columns[0].setUsingVariables(true);
+    columns[1].setUsingVariables(true);
+
+    wConfigOptions =
+            new TableView(
+                    variables, shell, SWT.NONE, columns, input.getConfigOptions().size(), null, props);
+    props.setLook(wConfigOptions);
+    FormData fdConfigOptions = new FormData();
+    fdConfigOptions.left = new FormAttachment(0, 0);
+    fdConfigOptions.right = new FormAttachment(100, 0);
+    fdConfigOptions.top = new FormAttachment(lastControl, margin);
+    fdConfigOptions.bottom = new FormAttachment(wOk, -margin * 2);
+    wConfigOptions.setLayoutData(fdConfigOptions);
+
 
     getData();
 
@@ -183,6 +219,15 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     wTopic.setText(Const.NVL(input.getTopic(), ""));
     wKeyField.setText(Const.NVL(input.getKeyField(), ""));
     wMessageField.setText(Const.NVL(input.getMessageField(), ""));
+
+    for (int i = 0; i < input.getConfigOptions().size(); i++) {
+      ConfigOption option = input.getConfigOptions().get(i);
+      TableItem item = wConfigOptions.table.getItem(i);
+      item.setText(1, Const.NVL(option.getParameter(), ""));
+      item.setText(2, Const.NVL(option.getValue(), ""));
+      item.setText(3, option.getType() != null ? option.getType().name() : "");
+    }
+    wConfigOptions.optimizeTableView();
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -211,6 +256,15 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     in.setTopic(wTopic.getText());
     in.setKeyField(wKeyField.getText());
     in.setMessageField(wMessageField.getText());
+
+    in.getConfigOptions().clear();
+    List<TableItem> nonEmptyItems = wConfigOptions.getNonEmptyItems();
+    for (TableItem item : nonEmptyItems) {
+      String parameter = item.getText(1);
+      String value = item.getText(2);
+      ConfigOption.Type type = ConfigOption.Type.getTypeFromName(item.getText(3));
+      in.getConfigOptions().add(new ConfigOption(parameter, value, type));
+    }
 
     input.setChanged();
   }

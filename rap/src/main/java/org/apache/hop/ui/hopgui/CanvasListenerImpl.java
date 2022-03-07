@@ -46,7 +46,6 @@ public class CanvasListenerImpl extends ClientListener implements ISingletonProv
             IOUtils.toString(CanvasListenerImpl.class.getResourceAsStream("canvas-light.js"));
       }
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
     return canvasScript;

@@ -20,30 +20,24 @@ package org.apache.hop.neo4j.shared;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopConfigException;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-import org.neo4j.driver.AuthTokens;
-import org.neo4j.driver.Config;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Logging;
-import org.neo4j.driver.Record;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.SessionConfig;
-import org.neo4j.driver.Value;
+import org.neo4j.driver.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -101,11 +95,16 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private String version4Variable;
 
+  @HopMetadataProperty private boolean automatic;
+
+  @HopMetadataProperty private String automaticVariable;
+
   public NeoConnection() {
     boltPort = "7687";
     browserPort = "7474";
     manualUrls = new ArrayList<>();
     version4 = true;
+    automatic = true;
   }
 
   public NeoConnection(IVariables parent) {
@@ -137,6 +136,8 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     this.maxTransactionRetryTime = source.maxTransactionRetryTime;
     this.version4 = source.version4;
     this.version4Variable = source.version4Variable;
+    this.automatic = source.automatic;
+    this.automaticVariable = source.automaticVariable;
   }
 
   @Override
@@ -185,10 +186,10 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
   /**
    * Test this connection to Neo4j
    *
-   * @throws Exception In case anything goes wrong
+   * @throws HopException In case anything goes wrong
    * @param variables
    */
-  public void test(IVariables variables) throws Exception {
+  public void test(IVariables variables) throws HopException {
 
     try (Driver driver = getDriver(LogChannel.GENERAL, variables)) {
       SessionConfig.Builder builder = SessionConfig.builder();
@@ -204,7 +205,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
         int zero = value.asInt();
         assert (zero == 0);
       } catch (Exception e) {
-        throw new Exception("Unable to connect to database '" + name + "' : " + e.getMessage(), e);
+        throw new HopException("Unable to connect to database '" + name + "' : " + e.getMessage(), e);
       }
     }
   }
@@ -225,9 +226,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
       List<String> serverStrings = new ArrayList<>();
       String serversString = variables.resolve(server);
       if (isUsingRouting(variables)) {
-        for (String serverString : serversString.split(",")) {
-          serverStrings.add(serverString);
-        }
+        Collections.addAll(serverStrings, serversString.split(","));
       } else {
         serverStrings.add(serversString);
       }
@@ -248,11 +247,12 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     /*
      * Construct the following URL:
      *
+     * neo4://hostname:port
      * bolt://hostname:port
      * bolt+routing://core-server:port/?policy=MyPolicy
      */
     String url = "";
-    if (isUsingRouting(variables)) {
+    if (isAutomatic(variables) || isUsingRouting(variables)) {
       url += "neo4j";
     } else {
       url += "bolt";
@@ -270,7 +270,12 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     }
 
     String routingPolicyString = variables.resolve(routingPolicy);
-    if (isUsingRouting(variables) && StringUtils.isNotEmpty(routingPolicyString)) {
+
+    // We don't add these options if the automatic flag is set
+    //
+    if (!isAutomatic(variables)
+        && isUsingRouting(variables)
+        && StringUtils.isNotEmpty(routingPolicyString)) {
       try {
         url += "?policy=" + URLEncoder.encode(routingPolicyString, "UTF-8");
       } catch (Exception e) {
@@ -309,7 +314,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     if (!Utils.isEmpty(usingEncryptionVariable)) {
       String value = variables.resolve(usingEncryptionVariable);
       if (!Utils.isEmpty(value)) {
-        return ValueMetaString.convertStringToBoolean(value);
+        return ValueMetaBase.convertStringToBoolean(value);
       }
     }
     return false;
@@ -319,23 +324,13 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     if (!Utils.isEmpty(trustAllCertificatesVariable)) {
       String value = variables.resolve(trustAllCertificatesVariable);
       if (!Utils.isEmpty(value)) {
-        return ValueMetaString.convertStringToBoolean(value);
+        return ValueMetaBase.convertStringToBoolean(value);
       }
     }
     return false;
   }
 
-  public boolean version4VariableSet(IVariables variables) {
-    if (!Utils.isEmpty(version4Variable)) {
-      String value = variables.resolve(version4Variable);
-      if (!Utils.isEmpty(value)) {
-        return ValueMetaString.convertStringToBoolean(value);
-      }
-    }
-    return false;
-  }
-
-  public Driver getDriver(ILogChannel log, IVariables variables) {
+  public Driver getDriver(ILogChannel log, IVariables variables) throws HopConfigException {
 
     try {
       List<URI> uris = getURIs(variables);
@@ -343,14 +338,19 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
       String realUsername = variables.resolve(username);
       String realPassword = Encr.decryptPasswordOptionallyEncrypted(variables.resolve(password));
       Config.ConfigBuilder configBuilder;
-      if (encryptionVariableSet(variables) || usingEncryption) {
-        configBuilder = Config.builder().withEncryption();
-        if (trustAllCertificatesVariableSet(variables) || trustAllCertificates) {
-          configBuilder =
-              configBuilder.withTrustStrategy(Config.TrustStrategy.trustAllCertificates());
+
+      if (!isAutomatic(variables)) {
+        if (encryptionVariableSet(variables) || usingEncryption) {
+          configBuilder = Config.builder().withEncryption();
+          if (trustAllCertificatesVariableSet(variables) || trustAllCertificates) {
+            configBuilder =
+                configBuilder.withTrustStrategy(Config.TrustStrategy.trustAllCertificates());
+          }
+        } else {
+          configBuilder = Config.builder().withoutEncryption();
         }
       } else {
-        configBuilder = Config.builder().withoutEncryption();
+        configBuilder = Config.builder();
       }
       if (StringUtils.isNotEmpty(connectionLivenessCheckTimeout)) {
         long seconds = Const.toLong(variables.resolve(connectionLivenessCheckTimeout), -1L);
@@ -405,7 +405,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
             uris.get(0), AuthTokens.basic(realUsername, realPassword), config);
       }
     } catch (URISyntaxException e) {
-      throw new RuntimeException(
+      throw new HopConfigException(
           "URI syntax problem, check your settings, hostnames especially.  For routing use comma separated server values.",
           e);
     }
@@ -415,10 +415,27 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     if (!Utils.isEmpty(routingVariable)) {
       String value = variables.resolve(routingVariable);
       if (!Utils.isEmpty(value)) {
-        return ValueMetaString.convertStringToBoolean(value);
+        return ValueMetaBase.convertStringToBoolean(value);
       }
     }
     return routing;
+  }
+
+  /**
+   * Checks both the automaticVariable String and automatic boolean to see if this connection is to
+   * be configured automatically.
+   *
+   * @param variables Used to resolve variable expressions
+   * @return True if the connection is to be configured automatically.
+   */
+  public boolean isAutomatic(IVariables variables) {
+    if (StringUtils.isEmpty(automaticVariable)) {
+      return isAutomatic();
+    } else {
+      String automaticString = variables.resolve(automaticVariable);
+      Boolean auto = ValueMetaBase.convertStringToBoolean(automaticString);
+      return auto != null && auto;
+    }
   }
 
   /**
@@ -743,5 +760,33 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
   /** @param version4Variable The version4Variable to set */
   public void setVersion4Variable(String version4Variable) {
     this.version4Variable = version4Variable;
+  }
+
+  /**
+   * If a connection is set to automatic the Neo4j Java driver figures out encryption and routing
+   * settings automatically. It results in using a neo4j://hostname:port URL
+   *
+   * @return True if the Neo4j connection is automatic
+   */
+  public boolean isAutomatic() {
+    return automatic;
+  }
+
+  /** @param automatic The automatic flag to be set. */
+  public void setAutomatic(boolean automatic) {
+    this.automatic = automatic;
+  }
+
+  /** @return A variable expression which allows you to enable or disable the automatic flag */
+  public String getAutomaticVariable() {
+    return automaticVariable;
+  }
+
+  /**
+   * @param automaticVariable The variable expression to set which allows you to enable or disable
+   *     the automatic flag
+   */
+  public void setAutomaticVariable(String automaticVariable) {
+    this.automaticVariable = automaticVariable;
   }
 }

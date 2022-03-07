@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Avro Decode transform allows you to decode an Avro field and convert it to Hop fields.
 
 = Avro Decode
 
 == Description
 
-The "Avro Decode" transform allows you to decode an Avro field and convert them to Hop fields.
+The Avro Decode transform allows you to decode an Avro field and convert it to Hop fields.
 
 == Options
 
@@ -46,7 +47,7 @@ Note: The "Avro type" column is informational only.
 It's not used at runtime.
 
 |Get fields button
-|You can use the "Get fields" button to retrieve the fields to read from an Avro file.
+|You can use the "Get fields" button to retrieve the fields from the schema present in the metadata of the specified Avro Record source field.  If there's no metadata in this field, in case of sourcing from a Kafka consumer for example, you can opt to read from an Avro file.
 
 |===
 

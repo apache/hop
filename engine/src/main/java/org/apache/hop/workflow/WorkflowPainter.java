@@ -416,7 +416,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
   }
 
   /** Calculates line coordinates from center to center. */
-  protected void drawLine(WorkflowHopMeta workflowHop, boolean is_candidate) throws HopException {
+  protected void drawLine(WorkflowHopMeta workflowHop, boolean isCandidate) throws HopException {
     int[] line = getLine(workflowHop.getFromAction(), workflowHop.getToAction());
 
     gc.setLineWidth(lineWidth);
@@ -429,7 +429,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     }
 
     EImage arrow;
-    if (is_candidate) {
+    if (isCandidate) {
       color = EColor.BLUE;
       arrow = EImage.ARROW_CANDIDATE;
     } else if (workflowHop.isEnabled()) {
@@ -443,7 +443,6 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
         } else {
           color = EColor.HOP_FALSE;
           arrow = EImage.ARROW_FALSE;
-          // gc.setLineStyle( ELineStyle.DASH );
         }
       }
     } else {
@@ -485,12 +484,12 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       Object startObject,
       Object endObject)
       throws HopException {
-    int mx, my;
-    int a, b, dist;
+    int mx;
+    int my;
+    int a;
+    int b;
+    int dist;
     double angle;
-
-    // gc.setLineWidth(1);
-    // WuLine(gc, black, x1, y1, x2, y2);
 
     gc.drawLine(x1, y1, x2, y2);
 
@@ -542,8 +541,8 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
         // in between 2 points
         mx = (int) (x1 + factor * (x2 - x1) / 2);
         my = (int) (y1 + factor * (y2 - y1) / 2);
-
-        gc.drawImage(EImage.PARALLEL, mx, my, magnification, angle);
+        EImage image = (workflowHop.isEnabled()) ? EImage.PARALLEL : EImage.PARALLEL_DISABLED;
+        gc.drawImage(image, mx, my, magnification, angle);
         areaOwners.add(
             new AreaOwner(
                 AreaType.WORKFLOW_HOP_PARALLEL_ICON,
@@ -555,18 +554,18 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
                 subject,
                 workflowHop));
       } else {
-        EImage hopsIcon;
+        EImage image;
         if (workflowHop.isUnconditional()) {
-          hopsIcon = EImage.UNCONDITIONAL;
+          image = (workflowHop.isEnabled()) ? EImage.UNCONDITIONAL : EImage.UNCONDITIONAL_DISABLED;
         } else {
           if (workflowHop.getEvaluation()) {
-            hopsIcon = EImage.TRUE;
+            image = (workflowHop.isEnabled()) ? EImage.TRUE : EImage.TRUE_DISABLED;
           } else {
-            hopsIcon = EImage.FALSE;
+            image = (workflowHop.isEnabled()) ? EImage.FALSE : EImage.FALSE_DISABLED;
           }
         }
 
-        gc.drawImage(hopsIcon, mx, my, magnification);
+        gc.drawImage(image, mx, my, magnification);
         areaOwners.add(
             new AreaOwner(
                 AreaType.WORKFLOW_HOP_ICON,

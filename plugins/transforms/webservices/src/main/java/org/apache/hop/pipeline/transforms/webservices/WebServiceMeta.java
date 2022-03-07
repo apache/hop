@@ -45,6 +45,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.WebServiceLookup",
     description = "i18n::BaseTransform.TypeTooltipDesc.WebServiceLookup",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+    keywords = "i18n::WebServiceMeta.keyword",
     documentationUrl = "/pipeline/transforms/webservices.html")
 public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData> {
   public static final String XSD_NS_URI = "http://www.w3.org/2001/XMLSchema";
@@ -195,7 +196,7 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               "Transform is connected to previous one, receiving " + prev.size() + " fields",
               transformMeta);
       remarks.add(cr);
@@ -205,14 +206,14 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               "Transform is receiving info from other transforms.",
               transformMeta);
       remarks.add(cr);
     } else if (getInFieldArgumentName() != null || getInFieldContainerName() != null) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               "No input received from other transforms!",
               transformMeta);
       remarks.add(cr);

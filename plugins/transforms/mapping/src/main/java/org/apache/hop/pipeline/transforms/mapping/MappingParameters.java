@@ -25,10 +25,6 @@ import org.w3c.dom.Node;
  * We need out mapping to be parameterized.<br>
  * This we do with the use of environment variables.<br>
  * That way we can set one variable to another, etc.<br>
- *
- * @author matt
- * @version 3.0
- * @since 2007-06-27
  */
 public class MappingParameters implements Cloneable {
 

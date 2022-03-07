@@ -59,7 +59,7 @@ limitations under the License.
         </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>272</xloc>
+      <xloc>336</xloc>
       <yloc>96</yloc>
       <attributes_hac/>
     </action>

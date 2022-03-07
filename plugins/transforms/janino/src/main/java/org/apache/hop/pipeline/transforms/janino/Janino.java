@@ -35,13 +35,9 @@ import org.codehaus.janino.ExpressionEvaluator;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Calculate new field values using pre-defined functions.
- *
- * @author Matt
- * @since 8-sep-2005
- */
+/** Calculate new field values using pre-defined functions. */
 public class Janino extends BaseTransform<JaninoMeta, JaninoData> {
+
   private static final Class<?> PKG = JaninoMeta.class; // For Translator
 
   public Janino(

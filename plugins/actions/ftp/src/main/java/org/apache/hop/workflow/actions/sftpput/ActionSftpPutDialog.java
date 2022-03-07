@@ -48,12 +48,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.net.InetAddress;
 
-/**
- * This dialog allows you to edit the FTP Put action settings.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** This dialog allows you to edit the FTP Put action settings. */
 public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionSftpPut.class; // For Translator
   private static final String[] FILETYPES =
@@ -221,10 +216,10 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     props.setLook(wServerSettings);
     wServerSettings.setText(
         BaseMessages.getString(PKG, "ActionSftpPut.ServerSettings.Group.Label"));
-    FormLayout ServerSettingsgroupLayout = new FormLayout();
-    ServerSettingsgroupLayout.marginWidth = 10;
-    ServerSettingsgroupLayout.marginHeight = 10;
-    wServerSettings.setLayout(ServerSettingsgroupLayout);
+    FormLayout serverSettingsgroupLayout = new FormLayout();
+    serverSettingsgroupLayout.marginWidth = 10;
+    serverSettingsgroupLayout.marginHeight = 10;
+    wServerSettings.setLayout(serverSettingsgroupLayout);
 
     // ServerName line
     Label wlServerName = new Label(wServerSettings, SWT.RIGHT);
@@ -342,7 +337,6 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     FormData fdbKeyFilename = new FormData();
     fdbKeyFilename.right = new FormAttachment(100, 0);
     fdbKeyFilename.top = new FormAttachment(wUsePublicKey, 0);
-    // fdbKeyFilename.height = 22;
     wbKeyFilename.setLayoutData(fdbKeyFilename);
 
     wKeyFilename = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -544,10 +538,10 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     Composite wFilesComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wFilesComp);
 
-    FormLayout FilesLayout = new FormLayout();
-    FilesLayout.marginWidth = 3;
-    FilesLayout.marginHeight = 3;
-    wFilesComp.setLayout(FilesLayout);
+    FormLayout filesLayout = new FormLayout();
+    filesLayout.marginWidth = 3;
+    filesLayout.marginHeight = 3;
+    wFilesComp.setLayout(filesLayout);
 
     // ////////////////////////
     // START OF Source files GROUP///
@@ -821,10 +815,10 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     Group wTargetFiles = new Group(wFilesComp, SWT.SHADOW_NONE);
     props.setLook(wTargetFiles);
     wTargetFiles.setText(BaseMessages.getString(PKG, "ActionSftpPut.TargetFiles.Group.Label"));
-    FormLayout TargetFilesgroupLayout = new FormLayout();
-    TargetFilesgroupLayout.marginWidth = 10;
-    TargetFilesgroupLayout.marginHeight = 10;
-    wTargetFiles.setLayout(TargetFilesgroupLayout);
+    FormLayout targetFilesgroupLayout = new FormLayout();
+    targetFilesgroupLayout.marginWidth = 10;
+    targetFilesgroupLayout.marginHeight = 10;
+    wTargetFiles.setLayout(targetFilesgroupLayout);
 
     // FtpDirectory line
     Label wlScpDirectory = new Label(wTargetFiles, SWT.RIGHT);
@@ -973,7 +967,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private boolean connectToSftp(boolean checkFolder, String Remotefoldername) {
+  private boolean connectToSftp(boolean checkFolder, String remotefoldername) {
     boolean retval = false;
     try {
       WorkflowMeta workflowMeta = getWorkflowMeta();
@@ -1004,7 +998,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
         retval = true;
       }
       if (checkFolder) {
-        retval = sftpclient.folderExists(Remotefoldername);
+        retval = sftpclient.folderExists(remotefoldername);
       }
 
     } catch (Exception e) {

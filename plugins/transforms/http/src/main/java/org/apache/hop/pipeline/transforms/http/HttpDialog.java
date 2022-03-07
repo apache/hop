@@ -176,10 +176,10 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
 
     Group gSettings = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
     gSettings.setText(BaseMessages.getString(PKG, "HTTPDialog.SettingsGroup.Label"));
-    FormLayout SettingsLayout = new FormLayout();
-    SettingsLayout.marginWidth = 3;
-    SettingsLayout.marginHeight = 3;
-    gSettings.setLayout(SettingsLayout);
+    FormLayout settingsLayout = new FormLayout();
+    settingsLayout.marginWidth = 3;
+    settingsLayout.marginHeight = 3;
+    gSettings.setLayout(settingsLayout);
     props.setLook(gSettings);
 
     // The URL to use
@@ -374,10 +374,10 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
 
     Group gOutputFields = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
     gOutputFields.setText(BaseMessages.getString(PKG, "HTTPDialog.OutputFieldsGroup.Label"));
-    FormLayout OutputFieldsLayout = new FormLayout();
-    OutputFieldsLayout.marginWidth = 3;
-    OutputFieldsLayout.marginHeight = 3;
-    gOutputFields.setLayout(OutputFieldsLayout);
+    FormLayout outputFieldsLayout = new FormLayout();
+    outputFieldsLayout.marginWidth = 3;
+    outputFieldsLayout.marginHeight = 3;
+    gOutputFields.setLayout(outputFieldsLayout);
     props.setLook(gOutputFields);
 
     // Result line...

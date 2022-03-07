@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Generate Random Value transform generates random numbers, integers, strings, UUIDs and more.
 
 = Generate Random Value
 
 == Description
 
-This transform generates random numbers, integers, strings and even UUID.
+The Generate Random Value transform generates random numbers, integers, strings, UUIDs and more.
 
 == Options
 

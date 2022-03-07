@@ -37,12 +37,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 
-/**
- * Converts input rows to one or more XML files.
- *
- * @author Matt
- * @since 14-jan-2006
- */
+/** Converts input rows to one or more XML files. */
 public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
   private static final Class<?> PKG = AddXml.class; // For Translator
 
@@ -127,7 +122,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
           node.setAttribute(element, value);
 
         } else {
-            /* encode as subnode */
+          /* encode as subnode */
           if (!element.equals(meta.getRootNode())) {
             Element e = xmldoc.createElement(element);
             Node n = xmldoc.createTextNode(value);

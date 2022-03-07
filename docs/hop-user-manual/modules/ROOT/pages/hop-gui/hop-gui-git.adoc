@@ -15,7 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../../assets/images
-:description: Managing your work in version control is crucial in serious Hop projects. Hop's file explorer perspective offers the basic functionality to manage your work in git: pull, push, visual diff, commit etc are all available from a user friendly ui.
+:description: Version control is an important aspect of any serious data orchestration project.. Hop's file explorer perspective offers the basic functionality to manage your work in git: pull, push, visual diff, commit etc are all available from a user friendly ui.
 
 = Working with git
 
@@ -24,25 +24,34 @@ Hop wants to make it as easy as possible to manage versions for your workflows a
 
 == File Explorer Toolbar
 
-The toolbar in the file explorer's tree dialog will enable the git options when it detects the project's root directory is a git repository (has a `.git` folder).
+If you open the file explorer for a project that is not version controlled in git, the git icons in the file explorer's main toolbar (top left) will be shown as greyed-out and disabled.
 
-image::hop-gui/hop-gui-no-git.png[No git available,width="30%"]
+image::hop-gui/hop-gui-no-git.png[No git available,width="50%"]
 
-If git was found, the toolbar will be shown with the git options enabled.
+If git was found (ie the project has a `.git` folder in the project root), these buttons in this toolbar are enabled.
 
-image::hop-gui/hop-gui-git-toolbar.png[Git toolbar,width="30%"]
+image::hop-gui/hop-gui-git-toolbar.png[Git toolbar,width="50%"]
 
-The options available in this toolbar are:
+The available options to work with files and the available git operations in this toolbar are briefly discussed below.
 
-* Open selected file
-* Delete Selected File
-* Refresh
-* Git info
-* Git Add
-* Git revert file to last committed version (HEAD)
-* Git commit
-* Git push
-* Git pull
+[options="header", width="90%", cols="1,2,5,1"]
+|===
+|icon|action|description|shortcut
+|image:icons/arrow-right.svg[width="24px"]|Open selected file|Opens the selected file in the appropriate editor (pipeline or workflow editor for workflows and pipelines, text editor for other files|double-click
+|image:icons/folder-add.svg[width="24px"]|Add folder|adds a new folder at the selected location. A popup is shown for the folder name|
+|image:icons/delete.svg[width="24px"]|Delete Selected File|Deletes the selected file|DEL
+|image:icons/rename.svg[width="24px"]|Rename the selected file|Makes the selected file name editable to allow renaming|F2
+|image:icons/refresh.svg[width="24px"]|Refresh|Refreshes the projects folder and file structure|
+|image:icons/git-info.svg[width="24px"]|Git info|Populates the file explorer's git dialog with version information for the selected file.|
+|image:icons/git-add.svg[width="24px"]|Git Add|Add the selected file to version control|
+|image:icons/git-revert.svg[width="24px"]|Git Revert|Revert file to last committed version (HEAD)|
+|image:icons/git-commit.svg[width="24px"]|Git commit|Commit the latest changes for the selected file (providing a commit message)|
+|image:icons/push.svg[width="24px"]|Git push|Push the recent changes to the remote repository|
+|image:icons/pull.svg[width="24px"]|Git pull|Pull the latest changes from the remote repository|
+|===
+
+NOTE: Only the available options are availabe at a given time. E.g. `git add` will not be available for files that already are in version control.
+
 
 == File Explorer Tree
 

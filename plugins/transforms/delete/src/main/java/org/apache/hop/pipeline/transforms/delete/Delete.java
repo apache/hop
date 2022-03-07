@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -102,10 +103,10 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
       data.schemaTable =
-          meta.getDatabaseMeta()
-              .getQuotedSchemaTableCombination(
-                  this, meta.getLookup().getSchemaName(), meta.getLookup().getTableName());
+          databaseMeta.getQuotedSchemaTableCombination(
+              this, meta.getLookup().getSchemaName(), meta.getLookup().getTableName());
 
       // lookup the values!
       if (log.isDetailed()) {
@@ -184,9 +185,9 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
 
   // Lookup certain fields in a table
   public void prepareDelete(IRowMeta rowMeta) throws HopDatabaseException {
-    DatabaseMeta databaseMeta = meta.getDatabaseMeta();
-    data.deleteParameterRowMeta = new RowMeta();
+    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
+    data.deleteParameterRowMeta = new RowMeta();
     String sql = "DELETE FROM " + data.schemaTable + Const.CR;
 
     sql += "WHERE ";
@@ -226,11 +227,20 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
   @Override
   public boolean init() {
     if (super.init()) {
-      if (meta.getDatabaseMeta() == null) {
+
+      if (Utils.isEmpty(meta.getConnection())) {
         logError(BaseMessages.getString(PKG, "Delete.Init.ConnectionMissing", getTransformName()));
         return false;
       }
-      data.db = new Database(this, variables, meta.getDatabaseMeta());
+
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+      if (databaseMeta == null) {
+        logError(BaseMessages.getString(PKG, "Delete.Init.ConnectionMissing", getTransformName()));
+        return false;
+      }
+
+      data.db = new Database(this, variables, databaseMeta);
+
       try {
         data.db.connect();
 
@@ -271,20 +281,20 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
             data.db.rollback();
           }
         }
-        if (dispose)
-          data.db.closeUpdate();
+        if (dispose) data.db.closeUpdate();
       } catch (HopDatabaseException e) {
         logError(
-                BaseMessages.getString(PKG, "Delete.Log.UnableToCommitUpdateConnection")
-                        + data.db
-                        + "] :"
-                        + e.toString());
+            BaseMessages.getString(PKG, "Delete.Log.UnableToCommitUpdateConnection")
+                + data.db
+                + "] :"
+                + e.toString());
         setErrors(1);
       } finally {
-        if (dispose)
+        if (dispose) {
           data.db.disconnect();
+          data.db = null;
+        }
       }
     }
-
   }
 }

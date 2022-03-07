@@ -370,10 +370,10 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
       final IRowMeta row = this.pipelineMeta.getPrevTransformFields(variables, this.transformName);
       if (row != null) {
         ITableItemInsertListener listener =
-            (tableItem, value) -> {
-              // possible to check format of input fields
-              return true;
-            };
+            (tableItem, value) ->
+                // possible to check format of input fields
+                true;
+
         BaseTransformDialog.getFieldsFromPrevious(
             row, this.wReturn, 1, new int[] {1, 2}, new int[] {}, -1, -1, listener);
       }

@@ -37,12 +37,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the webservice available action.
- *
- * @author Samatar
- * @since 05-11-2009
- */
+/** This dialog allows you to edit the webservice available action. */
 public class ActionWebServiceAvailableDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionWebServiceAvailable.class; // For Translator
 

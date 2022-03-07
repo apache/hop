@@ -25,19 +25,19 @@
     <parent>
         <artifactId>hop-assemblies-plugins-databases</artifactId>
         <groupId>org.apache.hop</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-databases-h2</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Databases H2</name>
     <description></description>
 
     <properties>
-        <h2.version>1.4.200</h2.version>
+        <h2.version>2.0.206</h2.version>
     </properties>
 
 

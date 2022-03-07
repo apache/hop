@@ -432,14 +432,6 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
       meta.getFields().add(field);
     }
-
-    // Performs checks...
-    /*
-     * Commented out verification : if variables are used, this check is a pain!
-     *
-     * long longLimit = Const.toLong(variables.environmentSubstitute( wLimit.getText()), -1L ); if (longLimit<0) { throw
-     * new HopException( BaseMessages.getString(PKG, "RowGeneratorDialog.Wrong.RowLimit.Number") ); }
-     */
   }
 
   /**

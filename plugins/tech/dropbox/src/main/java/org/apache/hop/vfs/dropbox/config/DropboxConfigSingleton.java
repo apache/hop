@@ -26,6 +26,8 @@ import org.apache.hop.core.logging.LogChannel;
 
 public class DropboxConfigSingleton {
 
+  public static final String HOP_CONFIG_DROPBOX_KEY = "dropbox";
+
   private static DropboxConfigSingleton configSingleton;
 
   private DropboxConfig config;
@@ -34,7 +36,7 @@ public class DropboxConfigSingleton {
     // Load from the HopConfig store
     //
     Object configObject =
-        HopConfig.getInstance().getConfigMap().get(DropboxConfig.HOP_CONFIG_DROPBOX_CONFIG_KEY);
+        HopConfig.getInstance().getConfigMap().get(HOP_CONFIG_DROPBOX_KEY);
     if (configObject == null) {
       config = new DropboxConfig();
     } else {
@@ -45,17 +47,13 @@ public class DropboxConfigSingleton {
       } catch (Exception e) {
         LogChannel.GENERAL.logError(
             "Error reading Dropbox configuration, check property '"
-                + DropboxConfig.HOP_CONFIG_DROPBOX_CONFIG_KEY
+                + HOP_CONFIG_DROPBOX_KEY
                 + "' in the Hop config json file",
             e);
         config = new DropboxConfig();
       }
     }
-    HopConfig.getInstance().getConfigMap().put(DropboxConfig.HOP_CONFIG_DROPBOX_CONFIG_KEY, config);
-  }
-
-  public static DropboxConfigSingleton getInstance() {
-    return configSingleton;
+    HopConfig.getInstance().getConfigMap().put(HOP_CONFIG_DROPBOX_KEY, config);
   }
 
   public static DropboxConfig getConfig() {
@@ -67,7 +65,7 @@ public class DropboxConfigSingleton {
 
   public static void saveConfig() throws HopException {
     HopConfig.getInstance()
-        .saveOption(DropboxConfig.HOP_CONFIG_DROPBOX_CONFIG_KEY, configSingleton.config);
+        .saveOption(HOP_CONFIG_DROPBOX_KEY, configSingleton.config);
     HopConfig.getInstance().saveToFile();
   }
 }

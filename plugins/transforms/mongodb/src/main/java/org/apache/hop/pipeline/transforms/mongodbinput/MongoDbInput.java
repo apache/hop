@@ -36,7 +36,7 @@ import com.mongodb.ServerAddress;
 import com.mongodb.util.JSON;
 
 public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputData> {
-  private static Class<?> PKG = MongoDbInputMeta.class; // For i18n - Translator
+  private static final Class<?> PKG = MongoDbInputMeta.class; // For i18n - Translator
 
   private boolean serverDetermined;
   private Object[] currentInputRowDrivingQuery = null;

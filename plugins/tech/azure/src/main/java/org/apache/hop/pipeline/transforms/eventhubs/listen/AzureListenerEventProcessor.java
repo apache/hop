@@ -48,8 +48,8 @@ public class AzureListenerEventProcessor implements IEventProcessor {
   private EventData lastData;
 
   public AzureListenerEventProcessor(
-      AzureListener Transform, AzureListenerData data, int checkpointBatchingSize) {
-    this.azureTransform = Transform;
+      AzureListener transform, AzureListenerData data, int checkpointBatchingSize) {
+    this.azureTransform = transform;
     this.azureData = data;
     this.checkpointBatchingSize = checkpointBatchingSize;
 

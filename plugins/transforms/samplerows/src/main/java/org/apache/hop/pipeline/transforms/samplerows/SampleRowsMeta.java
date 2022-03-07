@@ -44,6 +44,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.SampleRows",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
+    keywords = "i18n::SampleRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/samplerows.html")
 public class SampleRowsMeta extends BaseTransformMeta<SampleRows, SampleRowsData> {
   private static final Class<?> PKG = SampleRowsMeta.class; // For Translator
@@ -144,13 +145,13 @@ public class SampleRowsMeta extends BaseTransformMeta<SampleRows, SampleRowsData
     if (Utils.isEmpty(linesrange)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SampleRowsMeta.CheckResult.LinesRangeMissing"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SampleRowsMeta.CheckResult.LinesRangeOk"),
               transformMeta);
     }
@@ -165,7 +166,7 @@ public class SampleRowsMeta extends BaseTransformMeta<SampleRows, SampleRowsData
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "SampleRowsMeta.CheckResult.TransformRecevingData", prev.size() + ""),
               transformMeta);
@@ -176,13 +177,13 @@ public class SampleRowsMeta extends BaseTransformMeta<SampleRows, SampleRowsData
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "SampleRowsMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "SampleRowsMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

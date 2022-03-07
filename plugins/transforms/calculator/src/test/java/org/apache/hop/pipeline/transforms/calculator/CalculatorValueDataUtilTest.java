@@ -181,7 +181,7 @@ public class CalculatorValueDataUtilTest {
   @Test
   public void checksumCRC32NullPathTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingFile,false );
+    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingFile, false);
     assertEquals(0, checksum);
   }
 

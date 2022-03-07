@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
+import org.apache.avro.generic.GenericRecord;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
@@ -24,13 +25,18 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.kafka.clients.consumer.Consumer;
 
+import java.util.List;
+
 public class KafkaConsumerInputData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
-  public Consumer consumer;
-  public int batch;
+  public Consumer<Object, Object> consumer;
+  public int batchDuration;
+  public int batchSize;
   public RowProducer rowProducer;
   public SingleThreadedPipelineExecutor executor;
   public boolean isKafkaConsumerClosing;
+  public List<Object[]> incomingRowsBuffer;
+
 
   /** */
   public KafkaConsumerInputData() {

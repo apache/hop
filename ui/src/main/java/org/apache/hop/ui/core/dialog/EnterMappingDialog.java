@@ -39,9 +39,6 @@ import java.util.Comparator;
 
 /**
  * Shows a user 2 lists of strings and allows the linkage of values between values in the 2 lists
- *
- * @author Matt
- * @since 23-03-2006
  */
 public class EnterMappingDialog extends Dialog {
   private static final Class<?> PKG = EnterMappingDialog.class; // For Translator
@@ -84,8 +81,6 @@ public class EnterMappingDialog extends Dialog {
 
   private Button wSourceHide;
   private Button wTargetHide;
-  private Button wSourceAuto;
-  private Button wTargetAuto;
 
   private List wResult;
 
@@ -194,7 +189,7 @@ public class EnterMappingDialog extends Dialog {
     wTargetHide.addListener(SWT.Selection, e -> refreshMappings());
 
     // Automatic source selection
-    wSourceAuto = new Button(shell, SWT.CHECK);
+    Button wSourceAuto = new Button(shell, SWT.CHECK);
     wSourceAuto.setText(
         BaseMessages.getString(PKG, "EnterMappingDialog.AutoTargetSelection.Label"));
     wSourceAuto.setSelection(true);
@@ -206,7 +201,7 @@ public class EnterMappingDialog extends Dialog {
     wSourceAuto.setLayoutData(fdSourceAuto);
 
     // Automatic target selection
-    wTargetAuto = new Button(shell, SWT.CHECK);
+    Button wTargetAuto = new Button(shell, SWT.CHECK);
     wTargetAuto.setText(
         BaseMessages.getString(PKG, "EnterMappingDialog.AutoSourceSelection.Label"));
     wTargetAuto.setSelection(false);
@@ -483,9 +478,11 @@ public class EnterMappingDialog extends Dialog {
     // Refresh the results...
     wResult.removeAll();
 
-    // Sort the mappings by result string
+    // Sort the mappings by result string if required
     //
-    Collections.sort(mappings, Comparator.comparing(this::getMappingResultString));
+    if (props.sortTableOutputMappings()) {
+      Collections.sort(mappings, Comparator.comparing(this::getMappingResultString));
+    }
 
     for (int i = 0; i < mappings.size(); i++) {
       SourceToTargetMapping mapping = mappings.get(i);

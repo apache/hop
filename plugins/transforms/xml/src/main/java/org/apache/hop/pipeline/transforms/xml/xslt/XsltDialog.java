@@ -56,12 +56,14 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
   private static final Class<?> PKG = XsltMeta.class; // For Translator
 
   private LabelTextVar wResultField;
-  private CCombo wField, wXSLField;
+  private CCombo wField;
+  private CCombo wXSLField;
 
   private Label wlFilename;
   private Label wlXSLField;
 
-  private Button wbbFilename, wXSLFileField;
+  private Button wbbFilename;
+  private Button wXSLFileField;
 
   private final XsltMeta input;
 
@@ -176,13 +178,15 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Disable FocusLost
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
-            PopulateFields(wField);
+            populateFields(wField);
             shell.setCursor(null);
             busy.dispose();
           }
@@ -236,10 +240,10 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook(wXSLFileGroup);
     wXSLFileGroup.setText(BaseMessages.getString(PKG, "XsltDialog.XSL.Group.Label"));
 
-    FormLayout XSLFileGroupLayout = new FormLayout();
-    XSLFileGroupLayout.marginWidth = 10;
-    XSLFileGroupLayout.marginHeight = 10;
-    wXSLFileGroup.setLayout(XSLFileGroupLayout);
+    FormLayout xslFileGroupLayout = new FormLayout();
+    xslFileGroupLayout.marginWidth = 10;
+    xslFileGroupLayout.marginHeight = 10;
+    wXSLFileGroup.setLayout(xslFileGroupLayout);
 
     // Is XSL source defined in a Field?
     Label wlXSLFileField = new Label(wXSLFileGroup, SWT.RIGHT);
@@ -290,13 +294,15 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wXSLField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Disable FocusLost
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
             Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
             shell.setCursor(busy);
-            PopulateFields(wXSLField);
+            populateFields(wXSLField);
             shell.setCursor(null);
             busy.dispose();
           }
@@ -609,7 +615,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     }
   }
 
-  private void PopulateFields(CCombo cc) {
+  private void populateFields(CCombo cc) {
     if (cc.isDisposed()) {
       return;
     }
@@ -733,7 +739,6 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
 
     Const.sortStrings(fieldNames);
     colinf[0].setComboValues(fieldNames);
-    // colinfHeaders[0].setComboValues(fieldNames);
   }
 
   private void get() {

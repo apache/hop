@@ -28,6 +28,7 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -54,7 +55,11 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     WorkflowExecutionConfiguration workflowExecutionConfiguration =
         workflowConfiguration.getWorkflowExecutionConfiguration();
 
-    IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
+    IHopMetadataProvider metadataProvider =
+        new MultiMetadataProvider(
+            variables,
+            getServerConfig().getMetadataProvider(),
+            workflowConfiguration.getMetadataProvider());
 
     WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
 
@@ -103,7 +108,11 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     PipelineExecutionConfiguration pipelineExecutionConfiguration =
         pipelineConfiguration.getPipelineExecutionConfiguration();
 
-    IHopMetadataProvider metadataProvider = pipelineConfiguration.getMetadataProvider();
+    IHopMetadataProvider metadataProvider =
+        new MultiMetadataProvider(
+            variables,
+            getServerConfig().getMetadataProvider(),
+            pipelineConfiguration.getMetadataProvider());
 
     String serverObjectId = UUID.randomUUID().toString();
     SimpleLoggingObject servletLoggingObject =

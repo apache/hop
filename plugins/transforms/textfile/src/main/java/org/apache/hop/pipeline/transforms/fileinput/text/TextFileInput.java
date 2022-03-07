@@ -30,9 +30,6 @@ import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
 /**
  * Read all sorts of text files, convert them to rows and writes these to one or more output
  * streams.
- *
- * @author Matt
- * @since 4-apr-2003
  */
 public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData> {
 

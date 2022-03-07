@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -87,18 +87,6 @@ public class UserDefinedJavaClass
     super.addRowListener(rowListener);
   }
 
-  //  public void addTransformListener( TransformListener transformListener ) {
-  //    if ( child == null ) {
-  //      addTransformListenerImpl( transformListener );
-  //    } else {
-  //      child.addTransformListener( transformListener );
-  //    }
-  //  }
-
-  //  public void addTransformListenerImpl( TransformListener transformListener ) {
-  //    super.addTransformListener( transformListener );
-  //  }
-
   @Override
   public boolean checkFeedback(long lines) {
     if (child == null) {
@@ -151,7 +139,7 @@ public class UserDefinedJavaClass
     return super.decrementLinesWritten();
   }
 
-  public void disposeImpl(ITransform smi, ITransformData sdi) {
+  public void disposeImpl() {
     super.dispose();
   }
 
@@ -206,14 +194,6 @@ public class UserDefinedJavaClass
   public IRowSet findOutputRowSetImpl(String from, int fromcopy, String to, int tocopy) {
     return super.findOutputRowSet(from, fromcopy, to, tocopy);
   }
-
-  //  public int getClusterSize() {
-  //    if ( child == null ) {
-  //      return getClusterSizeImpl();
-  //    } else {
-  //      return child.getClusterSize();
-  //    }
-  //  }
 
   public int getCopyImpl() {
     return super.getCopy();
@@ -475,30 +455,6 @@ public class UserDefinedJavaClass
     return super.getRowListeners();
   }
 
-  //  public long getRuntime() {
-  //    if ( child == null ) {
-  //      return getRuntimeImpl();
-  //    } else {
-  //      return child.getRuntime();
-  //    }
-  //  }
-
-  //  public int getServerNr() {
-  //    if ( child == null ) {
-  //      return getServerNrImpl();
-  //    } else {
-  //      return child.getServerNr();
-  //    }
-  //  }
-
-  //  public int getServerNrImpl() {
-  //    if ( child == null ) {
-  //      return getServerNrImpl();
-  //    } else {
-  //      return super.getServerNr();
-  //    }
-  //  }
-
   @Override
   public ComponentExecutionStatus getStatus() {
     if (child == null) {
@@ -698,7 +654,8 @@ public class UserDefinedJavaClass
     return super.incrementLinesWritten();
   }
 
-  public boolean init(ITransform transformMetaInterface, ITransformData iTransformData) {
+  @Override
+  public boolean init() {
     if (meta.cookErrors.size() > 0) {
       return false;
     }
@@ -709,9 +666,9 @@ public class UserDefinedJavaClass
     }
 
     if (child == null) {
-      return initImpl(transformMetaInterface, data);
+      return initImpl();
     } else {
-      return child.init(transformMetaInterface, data);
+      return child.init();
     }
   }
 
@@ -728,7 +685,7 @@ public class UserDefinedJavaClass
     super.initBeforeStart();
   }
 
-  public boolean initImpl(ITransform transformMetaInterface, ITransformData iTransformData) {
+  public boolean initImpl() {
     return super.init();
   }
 
@@ -795,18 +752,6 @@ public class UserDefinedJavaClass
   public boolean isStoppedImpl() {
     return super.isStopped();
   }
-
-  //  public boolean isUsingThreadPriorityManagment() {
-  //    if ( child == null ) {
-  //      return isUsingThreadPriorityManagmentImpl();
-  //    } else {
-  //      return child.isUsingThreadPriorityManagment();
-  //    }
-  //  }
-
-  //  public boolean isUsingThreadPriorityManagmentImpl() {
-  //    return super.isUsingThreadPriorityManagment();
-  //  }
 
   @Override
   public void logBasic(String s) {
@@ -937,30 +882,6 @@ public class UserDefinedJavaClass
   public void markStopImpl() {
     super.markStop();
   }
-
-  //  public void openRemoteInputTransformSocketsOnce() throws HopTransformException {
-  //    if ( child == null ) {
-  //      openRemoteInputTransformSocketsOnceImpl();
-  //    } else {
-  //      child.openRemoteInputTransformSocketsOnce();
-  //    }
-  //  }
-
-  //  public void openRemoteInputTransformSocketsOnceImpl() throws HopTransformException {
-  //    super.openRemoteInputTransformSocketsOnce();
-  //  }
-
-  //  public void openRemoteOutputTransformSocketsOnce() throws HopTransformException {
-  //    if ( child == null ) {
-  //      openRemoteOutputTransformSocketsOnceImpl();
-  //    } else {
-  //      child.openRemoteOutputTransformSocketsOnce();
-  //    }
-  //  }
-
-  //  public void openRemoteOutputTransformSocketsOnceImpl() throws HopTransformException {
-  //    super.openRemoteOutputTransformSocketsOnce();
-  //  }
 
   @Override
   public boolean outputIsDone() {
@@ -1247,18 +1168,6 @@ public class UserDefinedJavaClass
     super.setOutputRowSets(outputRowSets);
   }
 
-  //  public void setTransformListeners( List<TransformListener> transformListeners ) {
-  //    if ( child == null ) {
-  //      setTransformListenersImpl( transformListeners );
-  //    } else {
-  //      child.setTransformListeners( transformListeners );
-  //    }
-  //  }
-
-  //  public void setTransformListenersImpl( List<TransformListener> transformListeners ) {
-  //    super.setTransformListeners( transformListeners );
-  //  }
-
   @Override
   public void setVariable(String variableName, String variableValue) {
     if (child == null) {
@@ -1299,6 +1208,7 @@ public class UserDefinedJavaClass
     super.stopRunning();
   }
 
+  @Override
   public String toString() {
     if (child == null) {
       return toStringImpl();

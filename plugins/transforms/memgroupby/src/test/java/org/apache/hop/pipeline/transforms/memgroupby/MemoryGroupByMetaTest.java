@@ -46,7 +46,7 @@ public class MemoryGroupByMetaTest implements IInitializer<MemoryGroupByMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
             "alwaysGivingBackOneRow",
@@ -75,7 +75,6 @@ public class MemoryGroupByMetaTest implements IInitializer<MemoryGroupByMeta> {
         new LoadSaveTester<>(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             new HashMap<>(),
             new HashMap<>(),
             attrValidatorMap,

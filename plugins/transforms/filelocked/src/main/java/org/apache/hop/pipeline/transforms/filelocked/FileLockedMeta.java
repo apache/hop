@@ -42,6 +42,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.FileLocked",
     description = "i18n::BaseTransform.TypeTooltipDesc.FileLocked",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+    keywords = "i18n::FileLockedMeta.keyword",
     documentationUrl = "/pipeline/transforms/checkfilelocked.html")
 public class FileLockedMeta extends BaseTransformMeta<FileLocked, FileLockedData> {
   private static final Class<?> PKG = FileLockedMeta.class; // For Translator

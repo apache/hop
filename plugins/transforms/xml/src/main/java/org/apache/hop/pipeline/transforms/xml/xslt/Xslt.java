@@ -38,13 +38,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-/**
- * Executes a XSL Transform on the values in the input stream.
- *
- * @author Samatar
- * @since 15-Oct-2007
- */
+/** Executes a XSL Transform on the values in the input stream. */
 public class Xslt extends BaseTransform<XsltMeta, XsltData> {
+
   private static final Class<?> PKG = XsltMeta.class; // For Translator
 
   static final String JAXP_SCHEMA_LANGUAGE =
@@ -269,7 +265,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> {
       }
 
       // add new values to the row.
-      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
     } catch (Exception e) {
       String errorMessage = e.getClass().toString() + ": " + e.getMessage();

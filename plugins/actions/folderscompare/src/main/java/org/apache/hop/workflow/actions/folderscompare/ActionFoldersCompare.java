@@ -58,6 +58,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionFoldersCompare.Description",
     image = "FoldersCompare.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+    keywords = "i18n::ActionFoldersCompare.keyword",
     documentationUrl = "/workflow/actions/folderscompare.html")
 public class ActionFoldersCompare extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFoldersCompare.class; // For Translator
@@ -198,7 +199,8 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
           new DataInputStream(
               new BufferedInputStream(HopVfs.getInputStream(HopVfs.getFilename(file2))));
 
-      char ch1, ch2;
+      char ch1;
+      char ch2;
       while (in1.available() != 0 && in2.available() != 0) {
         ch1 = (char) in1.readByte();
         ch2 = (char) in2.readByte();
@@ -408,9 +410,9 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                       if (filefolder2.getType() == FileType.FILE) {
                         // Let's compare file size
                         if (comparefilesize) {
-                          long filefolder1_size = filefolder1.getContent().getSize();
-                          long filefolder2_size = filefolder2.getContent().getSize();
-                          if (filefolder1_size != filefolder2_size) {
+                          long filefolder1Size = filefolder1.getContent().getSize();
+                          long filefolder2Size = filefolder2.getContent().getSize();
+                          if (filefolder1Size != filefolder2Size) {
                             ok = false;
                             if (log.isDetailed()) {
                               logDetailed(
@@ -424,13 +426,13 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                                       PKG,
                                       "ActionFoldersCompare.Log.SizeFileIs",
                                       filefolder1.toString(),
-                                      "" + filefolder1_size));
+                                      "" + filefolder1Size));
                               logDetailed(
                                   BaseMessages.getString(
                                       PKG,
                                       "ActionFoldersCompare.Log.SizeFileIs",
                                       filefolder2.toString(),
-                                      "" + filefolder2_size));
+                                      "" + filefolder2Size));
                             }
                           }
                         }
@@ -454,7 +456,6 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                       }
                     }
                   }
-                  // logBasic(entree.getKey() + " - " + entree.getValue());
                 }
 
                 result.setResult(ok);

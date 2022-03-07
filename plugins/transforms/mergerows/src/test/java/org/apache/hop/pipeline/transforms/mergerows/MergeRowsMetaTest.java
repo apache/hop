@@ -41,7 +41,7 @@ public class MergeRowsMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes = Arrays.asList("flagField", "keyFields", "valueFields");
 
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
@@ -57,7 +57,6 @@ public class MergeRowsMetaTest implements IInitializer<ITransformMeta> {
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             new HashMap<>(),
             new HashMap<>(),
             attrValidatorMap,

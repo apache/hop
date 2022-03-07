@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.addsequence;
 import org.apache.hop.core.Counter;
 import org.apache.hop.core.Counters;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -32,12 +33,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Adds a sequential number to a stream of rows.
- *
- * @author Matt
- * @since 13-may-2003
- */
+/** Adds a sequential number to a stream of rows. */
 public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
 {
 
@@ -148,7 +144,16 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
       data.realSchemaName = resolve(meta.getSchemaName());
       data.realSequenceName = resolve(meta.getSequenceName());
       if (meta.isDatabaseUsed()) {
-        Database db = new Database(this, this, meta.getDatabaseMeta());
+
+        if (Utils.isEmpty(meta.getConnection())) {
+          logError(
+              BaseMessages.getString(
+                  PKG, "InsertUpdate.Init.ConnectionMissing", getTransformName()));
+          return false;
+        }
+
+        DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+        Database db = new Database(this, this, databaseMeta);
         data.setDb(db);
         try {
           data.getDb().connect();

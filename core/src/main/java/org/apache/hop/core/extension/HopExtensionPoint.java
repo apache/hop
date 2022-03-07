@@ -71,6 +71,7 @@ public enum HopExtensionPoint {
   WorkflowPainterEnd("Draw workflow or plugin metadata at the end (on top of all the rest)"),
 
   WorkflowGraphMouseDown("A left or right button was clicked in a workflow"),
+  WorkflowGraphMouseUp("A mouse up event occurred on the workflow canvas"),
   WorkflowBeforeOpen("A workflow file is about to be opened"),
   WorkflowAfterOpen("A workflow file was opened"),
   WorkflowBeforeSave("A workflow file is about to be saved"),
@@ -102,8 +103,11 @@ public enum HopExtensionPoint {
   BeforeCheckTransform("Right before a transform is about to be verified."),
   AfterCheckTransform("After a transform has been checked for warnings/errors."),
 
+  HopServerInit("Right before the Hop webserver starts"),
   HopServerStartup("Right after the Hop webserver has started and is fully functional"),
   HopServerShutdown("Right before the Hop webserver will shut down"),
+  HopServerCalculateFilename(
+      "Right after the server configuration filename is determined, before it is used"),
 
   HopGuiFileOpenDialog(
       "Allows you to modify the file dialog before it's shown. If you want to show your own, set doIt to false ("),
@@ -146,17 +150,17 @@ public enum HopExtensionPoint {
 
   public String id;
 
-  public String description;
+  private String description;
 
-  public Class<?> providedClass;
+  private Class<?> providedClass;
 
-  private HopExtensionPoint(String description) {
+  HopExtensionPoint(String description) {
     this.id = name();
     this.description = description;
     this.providedClass = Object.class;
   }
 
-  private HopExtensionPoint(String id, String description, Class<?> providedClass) {
+  HopExtensionPoint(String id, String description, Class<?> providedClass) {
     this.id = id;
     this.description = description;
     this.providedClass = providedClass;

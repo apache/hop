@@ -37,7 +37,6 @@ import java.util.Map;
 
 import static org.junit.Assert.fail;
 
-/** @author Andrey Khayrutdinov */
 public class MappingInputMetaCloningTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -72,7 +71,7 @@ public class MappingInputMetaCloningTest {
   @Before
   public void setUp() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList("fieldName", "fieldType", "fieldLength", "fieldPrecision");
 

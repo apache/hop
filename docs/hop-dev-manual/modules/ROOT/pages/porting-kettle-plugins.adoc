@@ -22,10 +22,29 @@ under the License.
 
 You no longer need a Pentaho specific *$HOME/.m2/settings.xml*
 
-- Change group *pentaho-kettle* to *org.hop*
+- Change group *pentaho-kettle* to *org.apache.hop*
 - Change dependency *kettle-core* to *hop-core*
 - Change dependency *kettle-engine* to *hop-engine*
 - Change dependency *kettle-ui-swt* to *hop-ui-swt*
+
+Hop doesn't publish artifacts to Maven Central (yet). You need to include the Apache repository in your `pom.xml`.
+
+[source, xml]
+----
+  <repositories>
+    <repository>
+      <id>Apache</id>
+      <url>https://repository.apache.org/snapshots/</url>
+      <name>Apache Repository</name>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>
+  </repositories>
+----
 
 == API changes
 

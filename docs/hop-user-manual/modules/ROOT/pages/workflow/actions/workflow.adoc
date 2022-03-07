@@ -16,20 +16,25 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Workflow action executes a previously defined workflow from the current workflow.
 
 :openvar: ${
 :closevar: }
+
 = Workflow
 
 == Description
 
-You can use the Workflow action to execute a previously defined workflow.
+The Workflow action executes a previously defined workflow from the current workflow.
 
 For ease of use, it is also possible to create a new workflow within the dialog, pressing the New Workflow button.
 
 Use the Workflow action to execute a previously defined workflow.
+
 This allows you to perform "functional decomposition." That is, you use them to break out workflows into more manageable units.
+
 For example, you would not write a data warehouse load using one workflow that contains 500 actions.
+
 It is better to create smaller workflows and aggregate them.
 
 == Options

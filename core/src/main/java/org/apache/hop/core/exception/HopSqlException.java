@@ -17,12 +17,7 @@
 
 package org.apache.hop.core.exception;
 
-/**
- * This is an exception thrown during parsing of SQL by Hop.
- *
- * @author Matt
- * @since 29-JUN-2012
- */
+/** This is an exception thrown during parsing of SQL by Hop. */
 public class HopSqlException extends HopException {
   private static final long serialVersionUID = 2358671508821350095L;
 

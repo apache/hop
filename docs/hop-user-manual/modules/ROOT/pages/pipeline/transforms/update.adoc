@@ -16,13 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Update transform looks up a row in a table using one or more lookup keys and updates it if needed.
 
 = Update
 
 == Description
 
-The Update transform first looks up a row in a table using one or more lookup keys.
-If the row can't be found nothing is done.
+The Update transform looks up a row in a table using one or more lookup keys and updates it if needed.
+
+If the row can't be found, nothing is done.
+
 If the row is found the row in the table is updated.
 
 == Options

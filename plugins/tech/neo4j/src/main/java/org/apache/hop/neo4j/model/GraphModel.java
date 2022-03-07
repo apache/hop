@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.neo4j.model;
@@ -268,7 +267,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
     if (object == this) {
       return true;
     }
-    return ((GraphModel) object).getName().equalsIgnoreCase(name);
+    return name.equalsIgnoreCase(((GraphModel) object).getName());
   }
 
   public GraphModel(GraphModel source) {
@@ -384,5 +383,36 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
       }
     }
     return null;
+  }
+
+  /**
+   * Find a relationship with source and target, case insensitive
+   *
+   * @param source
+   * @param target
+   * @return the relationship or null if nothing was found.
+   */
+  public List<GraphRelationship> findRelationships(String source, String target) {
+    List<GraphRelationship> list = new ArrayList<>();
+    for (GraphRelationship relationship : relationships) {
+      if (relationship.getNodeSource().equalsIgnoreCase(source)
+          && relationship.getNodeTarget().equalsIgnoreCase(target)) {
+        list.add(relationship);
+      }
+    }
+    return list;
+  }
+
+  /**
+   * Validate the basic integrity of this graph model. Make sure that all nodes have a primary key
+   * property. Make sure that all nodes and relationships have at least one label.
+   */
+  public void validateIntegrity() throws HopException {
+    for (GraphNode node : nodes) {
+      node.validateIntegrity();
+    }
+    for (GraphRelationship relationship : relationships) {
+      relationship.validateIntegrity(nodes);
+    }
   }
 }

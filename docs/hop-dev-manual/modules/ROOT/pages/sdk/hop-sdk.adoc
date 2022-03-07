@@ -249,3 +249,40 @@ Result result = workflowEngine.startExecution();
 
 ----
 
+## Logging
+
+### Logging Registry
+
+Everything that executes something worth our time is registering its own Log Channel in the hop `LoggingRegistry`.
+Every log channel gets its own unique ID with which we can see where a log line came from.
+You can access the Logging Registry using `LoggingRegistry.getInstance()`.
+It contains the execution hierarchy of Hop work.
+For example if you have the log channel ID of a parent you can see all its children with `getLogChannelChildren()` which will give you all the IDs of the child log channels.
+What we get is in effect the execution lineage.
+
+## Log lines
+
+Whenever a log channel logs something using `logBasic()` or other logging variants, that text along with some basic information is kept in the Hop Log Store.
+You can get that one with `HopLogStore.getInstance()`.
+The logging lines are kept as logging events or class `HopLoggingEvent` in a logging buffer `LoggingBuffer` which you can access using `HopLogStore.getInstance().getAppender()`.
+
+If you want to grab the logging output of a pipeline, transform, workflow, action, ... you need to start with the ID of the log channel associated with that runtime object.
+Usually you can do `getLogChannel()` and then get the ID or the shortcut: `getLogChannelId()`.
+
+If you want to get detailed information about every logging event you can ask for a list with:
+
+[source,java]
+----
+int lastNr = HopLogStore.getLastBufferLineNr();
+List<HopLoggingEvent> events = getLogBufferFromTo( logChannelId, false, 0, lastNr);
+----
+
+The details allow you to see which line was an error, what the timestamp was, to which executable it belonged and so on.
+
+If you just want to see the flattened logging text you can ask the appender for the information:
+
+[source,java]
+----
+StringBuffer loggingText = HopLogStore.getAppender().getBuffer(logChannelId);
+----
+

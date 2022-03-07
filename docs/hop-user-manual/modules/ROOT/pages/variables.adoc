@@ -242,11 +242,10 @@ Set to 0 to keep all snapshots indefinitely (default)
 
 Set the environment variables listed below in your operating system to configure Hop's startup behavior:
 
-[options="header",width="90%"]
-|===
-|Variable name|Default Value|Description
-|HOP_AUDIT_FOLDER||Set this variable to a valid path on your machine to store Hop's audit information.
-This information includes last opened files per project, zoom size and lots more.
-|HOP_CONFIG_FOLDER||Set this variable to a valid path on your machine to store Hop's configuration outside of your Hop installation's `config` folder
-|HOP_PLUGIN_BASE_FOLDERS||Set this variable to point Hop to a comma separated list of folders where you want Hop to look for additional plugins.
-|===
+include::snippets/variables/hop-audit-folder.adoc[]
+
+include::snippets/variables/hop-config-folder.adoc[]
+
+include::snippets/variables/hop-plugin-base-folders.adoc[]
+
+include::snippets/variables/hop-shared-jdbc-folder.adoc[]

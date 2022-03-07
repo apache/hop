@@ -41,6 +41,7 @@ import java.net.URLConnection;
     description = "i18n::ActionWebServiceAvailable.Description",
     image = "WebServiceAvailable.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+    keywords = "i18n::ActionWebServiceAvailable.keyword",
     documentationUrl = "/workflow/actions/webserviceavailable.html")
 public class ActionWebServiceAvailable extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWebServiceAvailable.class; // For Translator

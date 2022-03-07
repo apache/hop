@@ -38,6 +38,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.RowsToResult",
     description = "i18n::BaseTransform.TypeTooltipDesc.RowsToResult",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
+    keywords = "i18n::RowsToResultMeta.keyword",
     documentationUrl = "/pipeline/transforms/copyrowstoresult.html")
 public class RowsToResultMeta extends BaseTransformMeta<RowsToResult, RowsToResultData> {
   private static final Class<?> PKG = RowsToResult.class; // For Translator

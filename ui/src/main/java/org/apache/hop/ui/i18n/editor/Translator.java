@@ -64,6 +64,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Supplier;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -337,6 +339,13 @@ public class Translator {
   }
 
   private void addListeners() {
+    // Kill process, press Ctrl + C in terminal window
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new TranslateShutdownHook(
+                shell, () -> !store.getChangedBundleFiles().isEmpty(), () -> saveFiles(true)));
+    // System-level shortcut, like command + Q on macOS
+    display.addListener(SWT.Close, event -> event.doit = quitFile());
     // In case someone dares to press the [X] in the corner ;-)
     shell.addShellListener(
         new ShellAdapter() {
@@ -875,6 +884,10 @@ public class Translator {
   }
 
   protected boolean saveFiles() {
+    return saveFiles(false);
+  }
+
+  private boolean saveFiles(boolean force) {
 
     // Check if we hve a last value changed but pending to be considered as such.
     if (!Utils.isEmpty(lastValue)) {
@@ -904,7 +917,7 @@ public class Translator {
               BaseMessages.getString(PKG, "i18nDialog.ChangedFiles"),
               BaseMessages.getString(PKG, "i18nDialog.ChangedMessagesFiles"),
               msg.toString());
-      if (dialog.open() != null) {
+      if (dialog.open() != null || force) {
         try {
           for (BundleFile bundleFile : changedBundleFiles) {
             bundleFile.write();
@@ -1115,6 +1128,7 @@ public class Translator {
 
     applyChangedValue();
 
+    wTodo.setRedraw(false);
     wTodo.removeAll();
     wKey.setText("");
     wMain.setText("");
@@ -1147,6 +1161,11 @@ public class Translator {
       }
       wTodo.setItems(todoItems);
     }
+    if (wTodo.getSelectionCount() == 0 && wTodo.getItemCount() > 0) {
+      wTodo.setSelection(0);
+      wTodo.notifyListeners(SWT.Selection, new Event());
+    }
+    wTodo.setRedraw(true);
   }
 
   private java.util.List<KeyOccurrence> getTodoList(
@@ -1231,7 +1250,9 @@ public class Translator {
 
   public void refreshPackages() {
     int index = wPackages.getSelectionIndex();
+    int topIndex = wPackages.table.getTopIndex();
 
+    wPackages.table.setRedraw(false);
     // OK, we have a distinct list of packages to work with...
     wPackages.table.removeAll();
 
@@ -1292,10 +1313,13 @@ public class Translator {
       }
     }
 
+    if (topIndex > 0) {
+      wPackages.table.setTopIndex(topIndex);
+    }
     if (index >= 0) {
       wPackages.table.setSelection(index);
-      wPackages.table.showSelection();
     }
+    wPackages.table.setRedraw(true);
   }
 
   private String getShortSourceFolder(String rootFolder, String sourceFolder) {
@@ -1374,6 +1398,43 @@ public class Translator {
     } catch (Throwable e) {
       log.logError(BaseMessages.getString(PKG, "i18n.UnexpectedError", e.getMessage()));
       log.logError(Const.getStackTracker(e));
+    }
+  }
+
+  private static class TranslateShutdownHook extends Thread {
+    final Shell shell;
+    final Supplier<Boolean> ifNeedSupplier;
+    final Runnable doSaveRunnable;
+    CountDownLatch exitLatch;
+
+    public TranslateShutdownHook(
+        Shell shell, Supplier<Boolean> ifNeedSupplier, Runnable doSaveRunnable) {
+      this.shell = shell;
+      this.ifNeedSupplier = ifNeedSupplier;
+      this.doSaveRunnable = doSaveRunnable;
+    }
+
+    @Override
+    public void run() {
+      if (!ifNeedSupplier.get()) {
+        return;
+      }
+
+      exitLatch = new CountDownLatch(1);
+      shell.getDisplay().asyncExec(this::asyncSaveFile);
+      try {
+        exitLatch.await();
+      } catch (InterruptedException ignore) {
+      }
+    }
+
+    private void asyncSaveFile() {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      mb.setText(BaseMessages.getString("i18nDialog.Information.Title"));
+      mb.setMessage(BaseMessages.getString("i18nDialog.ForceSaveChanges.Message"));
+      mb.open();
+      doSaveRunnable.run();
+      exitLatch.countDown();
     }
   }
 }

@@ -28,11 +28,7 @@ import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.util.List;
 
-/**
- * Utils for file-based input transforms.
- *
- * @author Alexander Buloichik
- */
+/** Utils for file-based input transforms. */
 public class BaseFileInputTransformUtils {
 
   public static void handleMissingFiles(

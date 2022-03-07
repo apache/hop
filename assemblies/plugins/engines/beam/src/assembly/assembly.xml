@@ -72,9 +72,6 @@
         <include>com.esotericsoftware:kryo-shaded</include>
         <include>com.esotericsoftware:minlog</include>
         <include>com.esotericsoftware.minlog:minlog</include>
-        <include>com.fasterxml.jackson.core:jackson-annotations</include>
-        <include>com.fasterxml.jackson.core:jackson-core</include>
-        <include>com.fasterxml.jackson.core:jackson-databind</include>
         <include>com.fasterxml.jackson.module:jackson-module-paranamer</include>
         <include>com.fasterxml.jackson.module:jackson-module-scala_2.11</include>
         <include>com.github.stephenc.findbugs:findbugs-annotations</include>
@@ -133,6 +130,8 @@
         <include>com.google.flogger:flogger</include>
         <include>com.google.flogger:flogger-system-backend</include>
         <include>com.google.flogger:google-extensions</include>
+        <include>com.google.guava:guava</include>
+        <include>com.google.guava:failureaccess</include>
         <include>com.google.http-client:google-http-client</include>
         <include>com.google.http-client:google-http-client-apache-v2</include>
         <include>com.google.http-client:google-http-client-appengine</include>
@@ -156,7 +155,7 @@
         <include>com.squareup.okhttp:okhttp</include>
         <include>com.squareup.okio:okio</include>
         <include>com.thoughtworks.paranamer:paranamer</include>
-        <include>com.twitter:chill_2.11</include>
+        <include>com.twitter:chill_2.12</include>
         <include>com.twitter:chill-java</include>
         <include>com.typesafe.akka:akka-actor_2.11</include>
         <include>com.typesafe.akka:akka-protobuf_2.11</include>
@@ -174,7 +173,6 @@
         <include>io.dropwizard.metrics:metrics-jvm</include>
         <include>io.github.classgraph:classgraph</include>
 
-        <!--<include>io.grpc:grpc-all</include>-->
 
         <include>io.grpc:grpc-alts</include>
         <include>io.grpc:grpc-api</include>
@@ -189,9 +187,6 @@
         <include>io.grpc:grpc-protobuf-lite</include>
         <include>io.grpc:grpc-stub</include>
         <include>io.grpc:grpc-testing</include>
-
-        <!--<include>io.netty:netty-all</include>-->
-
         <include>io.netty:netty</include>
         <include>io.netty:netty-buffer</include>
         <include>io.netty:netty-codec</include>
@@ -204,7 +199,6 @@
         <include>io.netty:netty-resolver</include>
         <include>io.netty:netty-tcnative-boringssl-static</include>
         <include>io.netty:netty-transport</include>
-
         <include>io.opencensus:opencensus-api</include>
         <include>io.opencensus:opencensus-contrib-grpc-metrics</include>
         <include>io.opencensus:opencensus-contrib-grpc-util</include>
@@ -218,10 +212,8 @@
         <include>javax.xml.bind:jaxb-api</include>
         <include>javax.xml.stream:stax-api</include>
         <include>joda-time:joda-time</include>
-        <include>log4j:log4j</include>
         <include>net.razorvine:pyrolite</include>
         <include>net.sf.py4j:py4j</include>
-        <include>org.apache.avro:avro</include>
         <include>org.apache.avro:avro-ipc</include>
         <include>org.apache.avro:avro-mapred</include>
         <include>org.apache.beam:beam-model-fn-execution</include>
@@ -230,10 +222,10 @@
         <include>org.apache.beam:beam-runners-core-construction-java</include>
         <include>org.apache.beam:beam-runners-core-java</include>
         <include>org.apache.beam:beam-runners-direct-java</include>
-        <include>org.apache.beam:beam-runners-flink-1.11</include>
+        <include>org.apache.beam:beam-runners-flink-1.13</include>
         <include>org.apache.beam:beam-runners-google-cloud-dataflow-java</include>
         <include>org.apache.beam:beam-runners-java-fn-execution</include>
-        <include>org.apache.beam:beam-runners-spark</include>
+        <include>org.apache.beam:beam-runners-spark-3</include>
         <include>org.apache.beam:beam-sdks-java-core</include>
         <include>org.apache.beam:beam-sdks-java-extensions-google-cloud-platform-core</include>
         <include>org.apache.beam:beam-sdks-java-extensions-join-library</include>
@@ -251,7 +243,6 @@
         <include>org.apache.beam:beam-vendor-sdks-java-extensions-protobuf</include>
         <include>org.apache.hbase:hbase-shaded-client</include>
         <include>org.apache.commons:commons-crypto</include>
-        <include>org.apache.commons:commons-math3</include>
         <include>org.apache.curator:curator-client</include>
         <include>org.apache.curator:curator-framework</include>
         <include>org.apache.curator:curator-recipes</include>
@@ -291,15 +282,14 @@
         <include>org.apache.htrace:htrace-core</include>
         <include>org.apache.ivy:ivy</include>
         <include>org.apache.kafka:kafka-clients</include>
-        <include>org.apache.logging.log4j:log4j-api</include>
-        <include>org.apache.spark:spark-core_2.11</include>
-        <include>org.apache.spark:spark-kvstore_2.11</include>
-        <include>org.apache.spark:spark-launcher_2.11</include>
-        <include>org.apache.spark:spark-network-common_2.11</include>
-        <include>org.apache.spark:spark-network-shuffle_2.11</include>
-        <include>org.apache.spark:spark-streaming_2.11</include>
-        <include>org.apache.spark:spark-tags_2.11</include>
-        <include>org.apache.spark:spark-unsafe_2.11</include>
+        <include>org.apache.spark:spark-core_2.12</include>
+        <include>org.apache.spark:spark-kvstore_2.12</include>
+        <include>org.apache.spark:spark-launcher_2.12</include>
+        <include>org.apache.spark:spark-network-common_2.12</include>
+        <include>org.apache.spark:spark-network-shuffle_2.12</include>
+        <include>org.apache.spark:spark-streaming_2.12</include>
+        <include>org.apache.spark:spark-tags_2.12</include>
+        <include>org.apache.spark:spark-unsafe_2.12</include>
         <include>org.apache.xbean:xbean-asm6-shaded</include>
         <include>org.apache.zookeeper:zookeeper</include>
         <include>org.clapper:grizzled-slf4j_2.11</include>
@@ -308,6 +298,7 @@
         <include>org.codehaus.jackson:jackson-mapper-asl</include>
         <include>org.codehaus.jackson:jackson-xc</include>
         <include>org.codehaus.mojo:animal-sniffer-annotations</include>
+        <include>org.codehaus.woodstox:woodstox-core-asl</include>
         <include>org.conscrypt:conscrypt-openjdk-uber</include>
         <include>org.fusesource.leveldbjni:leveldbjni-all</include>
         <include>org.glassfish.hk2.external:aopalliance-repackaged</include>

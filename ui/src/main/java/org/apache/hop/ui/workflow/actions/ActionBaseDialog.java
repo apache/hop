@@ -48,7 +48,6 @@ import org.eclipse.swt.widgets.*;
 
 import java.io.IOException;
 
-/** Created by bmorrise on 1/6/17. */
 public abstract class ActionBaseDialog extends ActionDialog {
   public static final Class<?> PKG = ActionBaseDialog.class;
 
@@ -66,7 +65,8 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected Label wlName;
   protected Text wName;
-  protected FormData fdlName, fdName;
+  protected FormData fdlName;
+  protected FormData fdName;
 
   protected Button wSetLogfile;
 
@@ -102,12 +102,12 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected Button wWaitingToFinish;
 
-  protected Button wFollowingAbortRemotely;
-
   protected Group gExecution;
 
-  protected Button wOk, wCancel;
-  protected Listener lsOk, lsCancel;
+  protected Button wOk;
+  protected Button wCancel;
+  protected Listener lsOk;
+  protected Listener lsCancel;
 
   protected Shell shell;
 
@@ -197,7 +197,8 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wPath.setLayoutData(fdPath);
 
     wlRunConfiguration = new Label(shell, SWT.LEFT);
-    wlRunConfiguration.setText("Run configuration"); // TODO i18n
+    wlRunConfiguration.setText(
+        BaseMessages.getString(PKG, "ActionPipeline.RunConfiguration.Label"));
     props.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
@@ -547,11 +548,6 @@ public abstract class ActionBaseDialog extends ActionDialog {
       }
     }
   }
-
-  //  protected void setRadioButtons() {
-  //    wLocal.setVisible( wbLocal.getSelection() );
-  //    wServer.setVisible( wbServer.getSelection() );
-  //  }
 
   protected void setActive() {
 

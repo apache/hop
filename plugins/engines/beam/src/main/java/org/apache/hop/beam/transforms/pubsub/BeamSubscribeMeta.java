@@ -49,6 +49,7 @@ import java.util.Map;
     description = "Subscribe to data from a Pub/Sub topic",
     image = "beam-gcp-pubsub-subscribe.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
+    keywords = "i18n::BeamSubscribeMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamgcpsubscriber.html")
 public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubscribeData> implements IBeamPipelineTransformHandler {
 

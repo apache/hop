@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.action.GuiContextAction;
+import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -73,6 +74,22 @@ import java.util.Map;
 
 @GuiPlugin
 public class TestingGuiPlugin {
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DEFINE_INPUT_DATA_SET =
+      "pipeline-graph-transform-20200-define-input-data-set";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_CLEAR_INPUT_DATA_SET =
+      "pipeline-graph-transform-20210-clear-input-data-set";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DEFINE_GOLDEN_DATA_SET =
+      "pipeline-graph-transform-20220-define-golden-data-set";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_CLEAR_GOLDEN_DATA_SET =
+      "pipeline-graph-transform-20240-clear-golden-data-set";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ENABLE_TWEAK_REMOVE_TRANSFORM =
+      "pipeline-graph-transform-20800-enable-tweak-remove-transform";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_REMOVE_TRANSFORM =
+      "pipeline-graph-transform-20810-disable-tweak-remove-transform";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ENABLE_TWEAK_BYPASS_TRANSFORM =
+      "pipeline-graph-transform-20820-enable-tweak-bypass-transform";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_BYPASS_TRANSFORM =
+      "pipeline-graph-transform-20830-disable-tweak-bypass-transform";
   protected static Class<?> PKG = TestingGuiPlugin.class; // For Translator
 
   public static final String ID_TOOLBAR_ITEM_UNIT_TEST_EDIT =
@@ -125,7 +142,7 @@ public class TestingGuiPlugin {
 
   /** We set an input data set */
   @GuiContextAction(
-      id = "pipeline-graph-transform-20200-define-input-data-set",
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DEFINE_INPUT_DATA_SET,
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::TestingGuiPlugin.ContextAction.SetInputDataset.Name",
@@ -275,7 +292,7 @@ public class TestingGuiPlugin {
 
   /** We set an golden data set on the selected unit test */
   @GuiContextAction(
-      id = "pipeline-graph-transform-20210-clear-input-data-set",
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_CLEAR_INPUT_DATA_SET,
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Delete,
       name = "i18n::TestingGuiPlugin.ContextAction.ClearInputDataset.Name",
@@ -338,7 +355,7 @@ public class TestingGuiPlugin {
 
   /** We set an golden data set on the selected unit test */
   @GuiContextAction(
-      id = "pipeline-graph-transform-20220-define-golden-data-set",
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DEFINE_GOLDEN_DATA_SET,
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::TestingGuiPlugin.ContextAction.SetGoldenDataset.Name",
@@ -492,7 +509,7 @@ public class TestingGuiPlugin {
 
   /** We set an golden data set on the selected unit test */
   @GuiContextAction(
-      id = "pipeline-graph-transform-20240-clear-golden-data-set",
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_CLEAR_GOLDEN_DATA_SET,
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Delete,
       name = "i18n::TestingGuiPlugin.ContextAction.ClearGoldenDataset.Name",
@@ -533,9 +550,59 @@ public class TestingGuiPlugin {
     context.getPipelineGraph().updateGui();
   }
 
+  @GuiContextActionFilter(parentId = HopGuiPipelineTransformContext.CONTEXT_ID)
+  public boolean filterTestingActions(
+      String contextActionId, HopGuiPipelineTransformContext context) {
+    PipelineUnitTest currentTest = getCurrentUnitTest(context.getPipelineMeta());
+
+    // Input & golden data set handling
+    //
+    if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DEFINE_INPUT_DATA_SET.equals(contextActionId)) {
+      return currentTest != null
+          && currentTest.findInputLocation(context.getTransformMeta().getName()) == null;
+    }
+    if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_CLEAR_INPUT_DATA_SET.equals(contextActionId)) {
+      return currentTest != null
+          && currentTest.findInputLocation(context.getTransformMeta().getName()) != null;
+    }
+    if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DEFINE_GOLDEN_DATA_SET.equals(contextActionId)) {
+      return currentTest != null
+          && currentTest.findGoldenLocation(context.getTransformMeta().getName()) == null;
+    }
+    if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_CLEAR_GOLDEN_DATA_SET.equals(contextActionId)) {
+      return currentTest != null
+          && currentTest.findGoldenLocation(context.getTransformMeta().getName()) != null;
+    }
+
+    // Tweaks
+    //
+    PipelineUnitTestTweak tweak = null;
+    if (currentTest != null) {
+      tweak = currentTest.findTweak(context.getTransformMeta().getName());
+    }
+    if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ENABLE_TWEAK_REMOVE_TRANSFORM.equals(contextActionId)) {
+      return currentTest != null && tweak == null;
+    }
+    if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_REMOVE_TRANSFORM.equals(contextActionId)) {
+      return currentTest != null
+          && tweak != null
+          && tweak.getTweak() == PipelineTweak.REMOVE_TRANSFORM;
+    }
+    if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ENABLE_TWEAK_BYPASS_TRANSFORM.equals(contextActionId)) {
+      return currentTest != null && tweak == null;
+    }
+    if (ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_BYPASS_TRANSFORM.equals(contextActionId)) {
+      return currentTest != null
+          && tweak != null
+          && tweak.getTweak() == PipelineTweak.BYPASS_TRANSFORM;
+    }
+
+    return true;
+  }
+
   /** Create a new data set with the output from */
   @GuiContextAction(
-      id = "pipeline-graph-transform-20400-clear-golden-data-set",
+      id = "pipeline-graph-transform-20400-create-data-set-from-transform",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Delete,
       name = "i18n::TestingGuiPlugin.ContextAction.CreateDataset.Name",
@@ -1095,6 +1162,11 @@ public class TestingGuiPlugin {
   }
 
   public static final PipelineUnitTest getCurrentUnitTest(PipelineMeta pipelineMeta) {
+    // When rendering a pipeline on a server status page we never have a current unit test
+    //
+    if ("Server".equalsIgnoreCase(Const.getHopPlatformRuntime())) {
+      return null;
+    }
     Map<String, Object> stateMap = getStateMap(pipelineMeta);
     if (stateMap == null) {
       return null;
@@ -1106,7 +1178,7 @@ public class TestingGuiPlugin {
   }
 
   @GuiContextAction(
-      id = "pipeline-graph-transform-20800-enable-tweak-remove-transform",
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ENABLE_TWEAK_REMOVE_TRANSFORM,
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::TestingGuiPlugin.ContextAction.RemoveFromTest.Name",
@@ -1121,7 +1193,7 @@ public class TestingGuiPlugin {
   }
 
   @GuiContextAction(
-      id = "pipeline-graph-transform-20810-disable-tweak-remove-transform",
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_REMOVE_TRANSFORM,
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::TestingGuiPlugin.ContextAction.IncludeInTest.Name",
@@ -1147,7 +1219,7 @@ public class TestingGuiPlugin {
   }
 
   @GuiContextAction(
-      id = "pipeline-graph-transform-20820-enable-tweak-bypass-transform",
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ENABLE_TWEAK_BYPASS_TRANSFORM,
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::TestingGuiPlugin.ContextAction.BypassInTest.Name",
@@ -1164,7 +1236,7 @@ public class TestingGuiPlugin {
   }
 
   @GuiContextAction(
-      id = "pipeline-graph-transform-20830-disable-tweak-bypass-transform",
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_BYPASS_TRANSFORM,
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::TestingGuiPlugin.ContextAction.RemoveBypassInTest.Name",

@@ -21,9 +21,6 @@ import org.apache.hop.core.Const;
 
 /**
  * This is an exception thrown by file handling (I/O) when an End Of File marker has been reached.
- *
- * @author Matt
- * @since 30-MAR-2004
  */
 public class HopFileException extends HopException {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C13L;

@@ -46,6 +46,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.MergeJoin",
     description = "i18n::BaseTransform.TypeTooltipDesc.MergeJoin",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
+    keywords = "i18n::MergeJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/mergejoin.html")
 public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
   private static final Class<?> PKG = MergeJoinMeta.class; // For Translator

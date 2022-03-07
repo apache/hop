@@ -36,6 +36,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.MappingOutput",
     image = "MPO.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
+    keywords = "i18n::MappingOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/mapping-output.html")
 public class MappingOutputMeta extends BaseTransformMeta<MappingOutput, MappingOutputData> {
 

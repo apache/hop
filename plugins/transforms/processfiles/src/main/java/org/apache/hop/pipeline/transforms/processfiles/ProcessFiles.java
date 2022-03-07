@@ -224,7 +224,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
       // add filename to result filenames?
       if (meta.isAddResultFilenames()
           && meta.getOperationType() != ProcessFilesMeta.OPERATION_TYPE_DELETE
-          && data.sourceFile.getType() == FileType.FILE) {
+          && data.targetFile.getType() == FileType.FILE) {
         // Add this to the result file names...
         ResultFile resultFile =
             new ResultFile(
@@ -238,7 +238,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
         if (log.isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "ProcessFiles.Log.FilenameAddResult", data.sourceFile.toString()));
+                  PKG, "ProcessFiles.Log.FilenameAddResult", data.targetFile.toString()));
         }
       }
 

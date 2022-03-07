@@ -104,7 +104,9 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
 
         HopServerPipelineStatus pipelineStatus =
             new HopServerPipelineStatus(entry.getName(), entry.getId(), statusDescription);
-        pipelineStatus.setLogDate(pipeline.getExecutionStartDate());
+        pipelineStatus.setLogDate(new Date());
+        pipelineStatus.setExecutionStartDate(pipeline.getExecutionStartDate());
+        pipelineStatus.setExecutionEndDate(pipeline.getExecutionEndDate());
         pipelineStatus.setPaused(pipeline.isPaused());
         serverStatus.getPipelineStatusList().add(pipelineStatus);
       }
@@ -112,10 +114,12 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       for (HopServerObjectEntry entry : actions) {
         IWorkflowEngine<WorkflowMeta> workflow = getWorkflowMap().getWorkflow(entry);
         String status = workflow.getStatusDescription();
-        HopServerWorkflowStatus jobStatus =
+        HopServerWorkflowStatus workflowStatus =
             new HopServerWorkflowStatus(entry.getName(), entry.getId(), status);
-        jobStatus.setLogDate(workflow.getExecutionStartDate());
-        serverStatus.getWorkflowStatusList().add(jobStatus);
+        workflowStatus.setLogDate(new Date());
+        workflowStatus.setExecutionStartDate(workflow.getExecutionStartDate());
+        workflowStatus.setExecutionEndDate(workflow.getExecutionEndDate());
+        serverStatus.getWorkflowStatusList().add(workflowStatus);
       }
 
       if (useXml) {
@@ -644,10 +648,6 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
               + htmlClass
               + "></div>");
       out.println("<table border=\"" + tableBorder + "\">");
-      //      out.print( "<tr> <th class=\"cellTableHeader\">"
-      //          + BaseMessages.getString( PKG, "GetStatusServlet.Parameter.Title" ) + "</th> <th
-      // class=\"cellTableHeader\">"
-      //          + BaseMessages.getString( PKG, "GetStatusServlet.Value.Title" ) + "</th> </tr>" );
 
       // The max number of log lines in the back-end
       //
@@ -741,8 +741,6 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       // Click function for stop button
       out.println("function repositionActions( element, elementFrom ) {");
       out.println("element.style.left = ( 10 + elementFrom.getBoundingClientRect().left ) + 'px';");
-      // out.println( "element.style.top = document.getElementById( 'pipeline-table' ).offsetTop +
-      // 'px';" );
       out.println("}");
 
       // Click function for resume button

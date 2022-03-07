@@ -29,12 +29,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-/**
- * Responsible for tracking the execution of a workflow as a hierarchy.
- *
- * @author Matt
- * @since 30-mar-2006
- */
+/** Responsible for tracking the execution of a workflow as a hierarchy. */
 public class WorkflowTracker<T extends WorkflowMeta> {
   /**
    * The trackers for each individual action. Since we invoke LinkedList.removeFirst() there is no
@@ -195,10 +190,8 @@ public class WorkflowTracker<T extends WorkflowMeta> {
       while (it.hasPrevious()) {
         WorkflowTracker tracker = it.previous();
         ActionResult result = tracker.getActionResult();
-        if (result != null) {
-          if (actionMeta.getName().equals(result.getActionName())) {
-            return tracker;
-          }
+        if (result != null && actionMeta.getName().equals(result.getActionName())) {
+          return tracker;
         }
       }
     } finally {

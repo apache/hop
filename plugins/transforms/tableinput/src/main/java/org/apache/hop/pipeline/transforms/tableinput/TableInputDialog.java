@@ -33,7 +33,6 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -42,7 +41,6 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -62,7 +60,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
   private StyledTextComp wSql;
 
-  private CCombo wDatefrom;
+  private CCombo wDataFrom;
 
   private TextVar wLimit;
 
@@ -72,7 +70,6 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   private Button wVariables;
 
   private final TableInputMeta input;
-  private boolean changedInDialog;
 
   private Label wlPosition;
 
@@ -92,7 +89,6 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
     ModifyListener lsMod =
         e -> {
-          changedInDialog = false; // for prompting if dialog is simply closed
           input.setChanged();
         };
     changed = input.hasChanged();
@@ -126,8 +122,9 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
 
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), lsMod);
+    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
@@ -136,7 +133,6 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wPreview.setText(BaseMessages.getString(PKG, "System.Button.Preview"));
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    // wHelp = createHelpButton(shell, transformMeta);
 
     setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
 
@@ -192,21 +188,21 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     fdlDatefrom.right = new FormAttachment(middle, -margin);
     fdlDatefrom.bottom = new FormAttachment(wlEachRow, -margin);
     wlDatefrom.setLayoutData(fdlDatefrom);
-    wDatefrom = new CCombo(shell, SWT.BORDER);
-    props.setLook(wDatefrom);
+    wDataFrom = new CCombo(shell, SWT.BORDER);
+    props.setLook(wDataFrom);
 
     List<TransformMeta> previousTransforms =
         pipelineMeta.findPreviousTransforms(pipelineMeta.findTransform(transformName));
     for (TransformMeta transformMeta : previousTransforms) {
-      wDatefrom.add(transformMeta.getName());
+      wDataFrom.add(transformMeta.getName());
     }
 
-    wDatefrom.addModifyListener(lsMod);
+    wDataFrom.addModifyListener(lsMod);
     FormData fdDatefrom = new FormData();
     fdDatefrom.left = new FormAttachment(middle, 0);
     fdDatefrom.right = new FormAttachment(100, 0);
     fdDatefrom.bottom = new FormAttachment(wlDatefrom, 0, SWT.CENTER);
-    wDatefrom.setLayoutData(fdDatefrom);
+    wDataFrom.setLayoutData(fdDatefrom);
 
     // Replace variables in SQL?
     //
@@ -323,11 +319,10 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wPreview.addListener(SWT.Selection, e -> preview());
     wOk.addListener(SWT.Selection, e -> ok());
     wbTable.addListener(SWT.Selection, e -> getSql());
-    wDatefrom.addListener(SWT.Selection, e -> setFlags());
-    wDatefrom.addListener(SWT.FocusOut, e -> setFlags());
+    wDataFrom.addListener(SWT.Selection, e -> setFlags());
+    wDataFrom.addListener(SWT.FocusOut, e -> setFlags());
 
     getData();
-    changedInDialog = false; // for prompting if dialog is simply closed
     input.setChanged(changed);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -351,23 +346,17 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
+
     if (input.getSql() != null) {
       wSql.setText(input.getSql());
     }
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
+
     wLimit.setText(Const.NVL(input.getRowLimit(), ""));
-
-    IStream infoStream = input.getTransformIOMeta().getInfoStreams().get(0);
-    if (infoStream.getTransformMeta() != null) {
-      wDatefrom.setText(infoStream.getTransformName());
-      wEachRow.setSelection(input.isExecuteEachInputRow());
-    } else {
-      wEachRow.setEnabled(false);
-      wlEachRow.setEnabled(false);
-    }
-
+    wDataFrom.setText(Const.NVL(input.getLookup(), ""));
+    wEachRow.setSelection(input.isExecuteEachInputRow());
     wVariables.setSelection(input.isVariableReplacementActive());
 
     setSqlToolTip();
@@ -377,21 +366,6 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wTransformName.setFocus();
   }
 
-  private void checkCancel(ShellEvent e) {
-    if (changedInDialog) {
-      int save = HopGuiWorkflowGraph.showChangedWarning(shell, wTransformName.getText());
-      if (save == SWT.CANCEL) {
-        e.doit = false;
-      } else if (save == SWT.YES) {
-        ok();
-      } else {
-        cancel();
-      }
-    } else {
-      cancel();
-    }
-  }
-
   private void cancel() {
     transformName = null;
     input.setChanged(changed);
@@ -399,16 +373,22 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void getInfo(TableInputMeta meta, boolean preview) {
+
+    meta.setConnection(wConnection.getText());
+
     meta.setSql(
         preview && !Utils.isEmpty(wSql.getSelectionText())
             ? wSql.getSelectionText()
             : wSql.getText());
-    meta.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
-    meta.setRowLimit(wLimit.getText());
-    IStream infoStream = input.getTransformIOMeta().getInfoStreams().get(0);
-    infoStream.setTransformMeta(pipelineMeta.findTransform(wDatefrom.getText()));
+
+    meta.setRowLimit(wLimit.getText());  
     meta.setExecuteEachInputRow(wEachRow.getSelection());
     meta.setVariableReplacementActive(wVariables.getSelection());
+    meta.setLookup(wDataFrom.getText());
+    
+    // Force recreate TransformIOMeta and update info stream
+    meta.resetTransformIoMeta();
+    meta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
   }
 
   private void ok() {
@@ -421,7 +401,8 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
     getInfo(input, false);
 
-    if (input.getDatabaseMeta() == null) {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    if (databaseMeta == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "TableInputDialog.SelectValidConnection"));
       mb.setText(BaseMessages.getString(PKG, "TableInputDialog.DialogCaptionError"));
@@ -433,7 +414,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void getSql() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(
@@ -514,7 +495,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void setFlags() {
-    if (!Utils.isEmpty(wDatefrom.getText())) {
+    if (!Utils.isEmpty(wDataFrom.getText())) {
       // The foreach check box...
       wEachRow.setEnabled(true);
       wlEachRow.setEnabled(true);

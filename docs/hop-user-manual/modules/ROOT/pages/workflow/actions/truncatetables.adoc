@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Truncate Tables action truncates one or several tables at once without writing 0 SQL command.
 
 = Truncate Tables
 
 == Description
 
-The Truncate Tables action allows you to truncate one or several tables at once without writing 0 SQL command.
+The Truncate Tables action truncates one or several tables at once without writing 0 SQL command.
 
 == Options
 

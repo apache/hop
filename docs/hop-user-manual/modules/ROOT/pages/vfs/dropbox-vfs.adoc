@@ -39,7 +39,7 @@ You need to set up an OAuth 2.0 access for Dropbox by using stored access tokens
 Give a unique name for your app.
 Then, click Create App.
 Dropbox displays the App Settings panel for the app that you created
-.. In the App Settings page, click Generated Access Token
+.. In the App Settings page, select Access token expiration to 'No expiration' and then click Generated Access Token
 .. Note the value of the access token that you created
 
 . Specify this access token in the Hop system configuration:
@@ -57,10 +57,10 @@ Once done you will see a `dropbox` entry in the central `hop-config.json` file:
 
 == Usage and testing
 
-To test if the configuration works you can simply put a small CSV file in Google Drive and then use File/Open in Hop GUI.
+To test if the configuration works you can simply put a small CSV file in Dropbox and then use File/Open in Hop GUI.
 Then you type in dropbox:// as a file location and hit enter (or click the refresh button).
 Browse to the CSV file you uploaded and open it.
 If all is configured correctly you should be able to see the content in the Hop GUI.
 
-
+NOTE: A the moment, this implementation can't upload file larger than 150 MB. 
 

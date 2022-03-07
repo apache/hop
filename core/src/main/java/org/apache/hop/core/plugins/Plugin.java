@@ -28,8 +28,6 @@ import java.util.Map;
 /**
  * This describes the plugin itself, the IDs it listens too, what libraries (jar files) it uses, the
  * names, the i18n details, etc.
- *
- * @author matt
  */
 public class Plugin implements IPlugin, Comparable<Plugin> {
 

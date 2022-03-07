@@ -18,9 +18,15 @@
 package org.apache.hop.core.svg;
 
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
-import org.apache.batik.bridge.*;
+import org.apache.batik.bridge.BridgeContext;
+import org.apache.batik.bridge.DocumentLoader;
+import org.apache.batik.bridge.GVTBuilder;
+import org.apache.batik.bridge.UserAgent;
+import org.apache.batik.bridge.UserAgentAdapter;
 import org.apache.batik.gvt.GraphicsNode;
+import org.apache.batik.util.SVGConstants;
 import org.apache.batik.util.XMLResourceDescriptor;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVfs;
@@ -108,7 +114,7 @@ public class SvgCache {
         GVTBuilder builder = new GVTBuilder();
         GraphicsNode root = builder.build(context, svgDocument);
 
-        // We need to go through the document to figure it out unfortunately.
+        // We need to go through the document to figure it out, unfortunately.
         // It is slower but should always work.
         //
         Rectangle2D primitiveBounds = root.getPrimitiveBounds();
@@ -117,6 +123,21 @@ public class SvgCache {
         height = (float) primitiveBounds.getHeight();
         x = (float) primitiveBounds.getX();
         y = (float) primitiveBounds.getY();
+
+        if (width <= 1 || height <= 1) {
+          // See if we can use a viewbox...
+          //
+          String attributeNS = elSVG.getAttributeNS(null, SVGConstants.SVG_VIEW_BOX_ATTRIBUTE);
+          if (StringUtils.isNotEmpty(attributeNS)) {
+            String[] parts = attributeNS.split(" ");
+            if (parts.length == 4) {
+              // Usually this is in the form "0 0 100 200" : x y width height
+              //
+              width = (float) Const.toDouble(parts[2], 0.0);
+              height = (float) Const.toDouble(parts[3], 0.0);
+            }
+          }
+        }
       }
 
       if (width <= 1 || height <= 1) {

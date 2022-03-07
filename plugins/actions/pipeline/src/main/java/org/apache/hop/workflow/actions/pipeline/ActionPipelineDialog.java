@@ -54,12 +54,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import java.util.List;
 
-/**
- * This dialog allows you to edit the pipeline action (ActionPipeline)
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** This dialog allows you to edit the pipeline action (ActionPipeline) */
 public class ActionPipelineDialog extends ActionBaseDialog implements IActionDialog {
   private static final Class<?> PKG = ActionPipeline.class; // For Translator
 
@@ -130,15 +125,6 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     fdWait.top = new FormAttachment(wClearFiles, 10);
     fdWait.left = new FormAttachment(0, 0);
     wWaitingToFinish.setLayoutData(fdWait);
-
-    wFollowingAbortRemotely = new Button(gExecution, SWT.CHECK);
-    props.setLook(wFollowingAbortRemotely);
-    wFollowingAbortRemotely.setText(
-        BaseMessages.getString(PKG, "ActionPipeline.AbortRemote.Label"));
-    FormData fdFollow = new FormData();
-    fdFollow.top = new FormAttachment(wWaitingToFinish, 10);
-    fdFollow.left = new FormAttachment(0, 0);
-    wFollowingAbortRemotely.setLayoutData(fdFollow);
 
     wbGetParams.addSelectionListener(
         new SelectionAdapter() {
@@ -274,7 +260,6 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     wClearRows.setSelection(action.clearResultRows);
     wClearFiles.setSelection(action.clearResultFiles);
     wWaitingToFinish.setSelection(action.isWaitingToFinish());
-    wFollowingAbortRemotely.setSelection(action.isFollowingAbortRemotely());
     wAppendLogfile.setSelection(action.setAppendLogfile);
 
     wbLogFilename.setSelection(action.setAppendLogfile);
@@ -391,7 +376,6 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     actionPipeline.setRunConfiguration(wRunConfiguration.getText());
     actionPipeline.setAppendLogfile = wAppendLogfile.getSelection();
     actionPipeline.setWaitingToFinish(wWaitingToFinish.getSelection());
-    actionPipeline.setFollowingAbortRemotely(wFollowingAbortRemotely.getSelection());
   }
 
   @Override

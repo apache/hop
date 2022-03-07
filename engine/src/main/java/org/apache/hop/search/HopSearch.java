@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,6 +37,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import picocli.CommandLine;
 import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.Option;
@@ -73,7 +74,7 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
 
   private CommandLine cmd;
   private IVariables variables;
-  private IHopMetadataProvider metadataProvider;
+  private MultiMetadataProvider metadataProvider;
 
   protected List<ISearchablesLocation> searchablesLocations;
 
@@ -172,7 +173,11 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
                   System.out.print(filename + " : ");
                 }
                 System.out.print(
-                    searchResult.getComponent() + " : " + searchResult.getDescription());
+                    searchResult.getComponent()
+                        + "("
+                        + Const.NVL(searchResult.getValue(), "")
+                        + ") : "
+                        + searchResult.getDescription());
                 System.out.println();
               }
             }
@@ -186,16 +191,20 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
   }
 
   private void buildMetadataProvider() throws HopException {
+    List<IHopMetadataProvider> providers = new ArrayList<>();
+
     String folder = variables.getVariable(Const.HOP_METADATA_FOLDER);
     if (StringUtils.isEmpty(folder)) {
-      metadataProvider = new JsonMetadataProvider();
+      providers.add(new JsonMetadataProvider());
     } else {
       ITwoWayPasswordEncoder passwordEncoder = Encr.getEncoder();
       if (passwordEncoder == null) {
         passwordEncoder = new HopTwoWayPasswordEncoder();
       }
-      metadataProvider = new JsonMetadataProvider(passwordEncoder, folder, variables);
+      providers.add(new JsonMetadataProvider(passwordEncoder, folder, variables));
     }
+
+    metadataProvider = new MultiMetadataProvider(Encr.getEncoder(), providers, variables);
   }
 
   /**
@@ -218,13 +227,13 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
    * @return value of metadataProvider
    */
   @Override
-  public IHopMetadataProvider getMetadataProvider() {
+  public MultiMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
 
   /** @param metadataProvider The metadataProvider to set */
   @Override
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
+  public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
 

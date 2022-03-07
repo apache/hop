@@ -28,7 +28,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -45,15 +44,10 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.List;
 
-/**
- * Converts input rows to one or more XML files.
- *
- * @author Matt
- * @since 14-jan-2006
- */
+/** Converts input rows to one or more XML files. */
 public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
+
   private static final Class<?> PKG = XmlJoinMeta.class; // For Translator
 
   private Transformer transformer;
@@ -76,17 +70,16 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
     // if first row we do some initializing and process the first row of the target XML Transform
     if (first) {
       first = false;
-      int targetField_id = -1;
+      int targetFieldId = -1;
 
       // Find the row sets to read from
       //
-      List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
-      String targetStreamTransformName = infoStreams.get(0).getTransformName();
+      String targetStreamTransformName = meta.getTargetXmlTransform();
       if (StringUtils.isEmpty(targetStreamTransformName)) {
         throw new HopException(
             "Please specify which transform to read the XML target stream rows from");
       }
-      String sourceStreamTransformName = infoStreams.get(1).getTransformName();
+      String sourceStreamTransformName = meta.getSourceXmlTransform();
       if (StringUtils.isEmpty(sourceStreamTransformName)) {
         throw new HopException(
             "Please specify which transform to read the XML source stream rows from");
@@ -121,11 +114,11 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
       String[] targetStreamFieldNames = targetStreamRowMeta.getFieldNames();
       for (int i = 0; i < targetStreamFieldNames.length; i++) {
         if (meta.getTargetXmlField().equals(targetStreamFieldNames[i])) {
-          targetField_id = i;
+          targetFieldId = i;
         }
       }
       // Throw exception if target field has not been found
-      if (targetField_id == -1) {
+      if (targetFieldId == -1) {
         throw new HopException(
             BaseMessages.getString(
                 PKG, "XmlJoin.Exception.FieldNotFound", meta.getTargetXmlField()));
@@ -145,7 +138,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
       data.outputRowData = rTarget.clone();
 
       // get the target xml structure and create a DOM
-      String strTarget = (String) rTarget[targetField_id];
+      String strTarget = (String) rTarget[targetFieldId];
       // parse the XML as a W3C Document
 
       InputSource inputSource = new InputSource(new StringReader(strTarget));

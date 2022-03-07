@@ -46,7 +46,8 @@ public class SalesforceConnection {
   private static final FieldType ID_FIELD_TYPE = FieldType.id;
   private static final FieldType REFERENCE_FIELD_TYPE = FieldType.reference;
 
-  private static Class<?> PKG = SalesforceConnection.class; // For Translator
+  private static final
+  Class<?> PKG = SalesforceConnection.class; // For Translator
 
   private String url;
   private String username;
@@ -696,7 +697,7 @@ public class SalesforceConnection {
     }
   }
 
-  public String[] getAllAvailableObjects(boolean OnlyQueryableObjects) throws HopException {
+  public String[] getAllAvailableObjects(boolean onlyQueryableObjects) throws HopException {
     DescribeGlobalResult dgr = null;
     List<String> objects = null;
     DescribeGlobalSObjectResult[] sobjectResults = null;
@@ -711,7 +712,7 @@ public class SalesforceConnection {
 
       for (int i = 0; i < nrObjects; i++) {
         DescribeGlobalSObjectResult o = dgr.getSobjects()[i];
-        if ((OnlyQueryableObjects && o.isQueryable()) || !OnlyQueryableObjects) {
+        if ((onlyQueryableObjects && o.isQueryable()) || !onlyQueryableObjects) {
           objects.add(o.getName());
         }
       }

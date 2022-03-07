@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-properties-file.csv",
+  "name": "golden-properties-input",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "key"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "value"
+    }
+  ],
+  "folder_name": ""
+}

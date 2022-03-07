@@ -27,6 +27,7 @@ import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -111,7 +112,11 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
       servletLoggingObject.setContainerObjectId(serverObjectId);
       servletLoggingObject.setLogLevel(pipelineExecutionConfiguration.getLogLevel());
 
-      IHopMetadataProvider metadataProvider = pipelineConfiguration.getMetadataProvider();
+      IHopMetadataProvider metadataProvider =
+          new MultiMetadataProvider(
+              variables,
+              getServerConfig().getMetadataProvider(),
+              pipelineConfiguration.getMetadataProvider());
 
       String runConfigurationName = pipelineExecutionConfiguration.getRunConfiguration();
       final IPipelineEngine<PipelineMeta> pipeline =

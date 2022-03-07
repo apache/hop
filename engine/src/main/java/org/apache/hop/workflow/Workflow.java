@@ -56,9 +56,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * loaded from a .hwf file, or it is generated dynamically. The declared parameters of the workflow
  * definition are then queried using listParameters() and assigned values using calls to
  * setParameterValue(..).
- *
- * @author Matt Casters
- * @since 07-apr-2003
  */
 public abstract class Workflow extends Variables
     implements IVariables,
@@ -270,7 +267,7 @@ public abstract class Workflow extends Variables
     } catch (Throwable je) {
       log.logError(
           BaseMessages.getString(PKG, "Workflow.Log.ErrorExecWorkflow", je.getMessage()), je);
-      // log.logError(Const.getStackTracker(je));
+
       //
       // we don't have result object because execute() threw a curve-ball.
       // So we create a new error object.
@@ -387,16 +384,29 @@ public abstract class Workflow extends Variables
       if (startpoint.isStart()) {
         // Perform optional looping in the special Start action...
         //
-        // long iteration = 0;
 
         boolean isFirst = true;
+
+        // Use a result obj coming from input otherwise init an empty Result object
+        Result inputRes = null;
+        if (result != null) {
+          inputRes = result;
+        } else {
+          inputRes = new Result();
+        }
+
+        // Perhaps there is already a list of input rows available?
+        if (getSourceRows() != null) {
+          inputRes.setRows(getSourceRows());
+        }
+
         ActionStart jes = (ActionStart) startpoint.getAction();
         while ((jes.isRepeat() || isFirst) && !isStopped()) {
           isFirst = false;
           res =
               executeFromStart(
                   0,
-                  null,
+                  inputRes,
                   startpoint,
                   null,
                   BaseMessages.getString(PKG, "Workflow.Reason.Started"));
@@ -715,7 +725,7 @@ public abstract class Workflow extends Variables
 
         // Now execute!
         //
-        // if (we launch in parallel, fire the execution off in a new thread...
+        // if we launch in parallel, fire the execution off in a new thread...
         //
         if (actionMeta.isLaunchingInParallel()) {
           threadActions.add(nextAction);

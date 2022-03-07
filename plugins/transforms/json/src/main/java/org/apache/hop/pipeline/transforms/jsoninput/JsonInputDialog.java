@@ -55,6 +55,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.*;
@@ -64,7 +65,8 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
 
   private CTabFolder wTabFolder;
 
-  private Label wlFilename, wlSourceIsAFile;
+  private Label wlFilename;
+  private Label wlSourceIsAFile;
   private Button wbbFilename; // Browse: add file or directory
   private Button wbdFilename; // Delete
   private Button wbeFilename; // Edit
@@ -81,10 +83,12 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
 
   private Label wlSourceField;
   private CCombo wFieldValue;
-  private Button wSourceStreamField, wSourceIsAFile;
+  private Button wSourceStreamField;
+  private Button wSourceIsAFile;
 
   private Label wlInclFilename;
-  private Button wInclFilename, wAddResult;
+  private Button wInclFilename;
+  private Button wAddResult;
 
   private Label wlReadUrl;
   private Button wReadUrl;
@@ -362,13 +366,13 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
 
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "JsonInputDialog.Button.SelectFields"));
-    fdGet = new FormData();
-    fdGet.left = new FormAttachment(50, 0);
-    fdGet.bottom = new FormAttachment(100, 0);
-    wGet.setLayoutData(fdGet);
     wGet.addListener(SWT.Selection, e -> get());
 
-    setButtonPositions(new Button[] {wGet}, margin, null);
+    Button wGetSnippet = new Button(wFieldsComp, SWT.PUSH);
+    wGetSnippet.setText(BaseMessages.getString(PKG, "JsonInputDialog.Button.SelectFieldsSnippet"));
+    wGetSnippet.addListener(SWT.Selection, e -> getFromSnippet());
+
+    setButtonPositions(new Button[] {wGet, wGetSnippet}, margin, null);
 
     final int FieldsRows = input.getInputFields().length;
 
@@ -461,6 +465,24 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wFieldsTab.setControl(wFieldsComp);
   }
 
+  private void getFromSnippet() {
+
+    EnterTextDialog getFromSnippetDialog =
+        new EnterTextDialog(
+            shell,
+            BaseMessages.getString(PKG, "JsonInputDialog.Button.SelectFieldsSnippet"),
+            BaseMessages.getString(PKG, "JsonInputDialog.GetFieldsFromSnippet.Message"),
+            "",
+            true);
+    String text = getFromSnippetDialog.open();
+
+    // if getFromSnippetDialog dialog is cancelled, the text will be null
+    if (text != null) {
+      refreshFields(new ByteArrayInputStream(text.getBytes()));
+      wFields.optimizeTableView();
+    }
+  }
+
   private void addContentTab() {
     // ////////////////////////
     // START OF CONTENT TAB///
@@ -484,10 +506,10 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wConf);
     wConf.setText(BaseMessages.getString(PKG, "JsonInputDialog.wConf.Label"));
 
-    FormLayout ConfgroupLayout = new FormLayout();
-    ConfgroupLayout.marginWidth = 10;
-    ConfgroupLayout.marginHeight = 10;
-    wConf.setLayout(ConfgroupLayout);
+    FormLayout confgroupLayout = new FormLayout();
+    confgroupLayout.marginWidth = 10;
+    confgroupLayout.marginHeight = 10;
+    wConf.setLayout(confgroupLayout);
 
     // Ignore Empty File
     // ignore empty files flag
@@ -619,10 +641,10 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wAdditionalFields.setText(
         BaseMessages.getString(PKG, "JsonInputDialog.wAdditionalFields.Label"));
 
-    FormLayout AdditionalFieldsgroupLayout = new FormLayout();
-    AdditionalFieldsgroupLayout.marginWidth = 10;
-    AdditionalFieldsgroupLayout.marginHeight = 10;
-    wAdditionalFields.setLayout(AdditionalFieldsgroupLayout);
+    FormLayout additionalFieldsgroupLayout = new FormLayout();
+    additionalFieldsgroupLayout.marginWidth = 10;
+    additionalFieldsgroupLayout.marginHeight = 10;
+    wAdditionalFields.setLayout(additionalFieldsgroupLayout);
 
     wlInclFilename = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclFilename.setText(BaseMessages.getString(PKG, "JsonInputDialog.InclFilename.Label"));
@@ -710,10 +732,10 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wAddFileResult);
     wAddFileResult.setText(BaseMessages.getString(PKG, "JsonInputDialog.wAddFileResult.Label"));
 
-    FormLayout AddFileResultgroupLayout = new FormLayout();
-    AddFileResultgroupLayout.marginWidth = 10;
-    AddFileResultgroupLayout.marginHeight = 10;
-    wAddFileResult.setLayout(AddFileResultgroupLayout);
+    FormLayout addFileResultgroupLayout = new FormLayout();
+    addFileResultgroupLayout.marginWidth = 10;
+    addFileResultgroupLayout.marginHeight = 10;
+    wAddFileResult.setLayout(addFileResultgroupLayout);
 
     wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "JsonInputDialog.AddResult.Label"));
@@ -1172,7 +1194,6 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
   }
 
   private void setCompositeEnabled(Composite comp, boolean enabled) {
-    // TODO: move to TableView?
     comp.setEnabled(enabled);
     for (Control child : comp.getChildren()) {
       child.setEnabled(enabled);
@@ -1416,28 +1437,34 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
       FileInputList files = meta.getFiles(variables);
       for (FileObject fileObject : files.getFiles()) {
         try (InputStream inputStream = HopVfs.getInputStream(fileObject)) {
-          // Extract all useful paths from the file...
-          //
-          Set<String> paths = extractPaths(inputStream);
-          List<String> pathsList = new ArrayList<>(paths);
-          Collections.sort(pathsList);
-
-          for (String path : pathsList) {
-            int dotIndex = path.lastIndexOf('.');
-            if (dotIndex > 0) {
-              String name = path.substring(dotIndex + 1);
-              TableItem item = new TableItem(wFields.table, SWT.NONE);
-              item.setText(1, name);
-              item.setText(2, path);
-              item.setText(3, "String");
-            }
-          }
+          refreshFields(inputStream);
         }
       }
       wFields.optimizeTableView();
-
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error sampling JSON file(s)", e);
+    }
+  }
+
+  private void refreshFields(InputStream inputStream) {
+    try {
+      // Extract all useful paths from the file...
+      Set<String> paths = extractPaths(inputStream);
+      List<String> pathsList = new ArrayList<>(paths);
+      Collections.sort(pathsList);
+
+      for (String path : pathsList) {
+        int dotIndex = path.lastIndexOf('.');
+        if (dotIndex > 0) {
+          String name = path.substring(dotIndex + 1);
+          TableItem item = new TableItem(wFields.table, SWT.NONE);
+          item.setText(1, name);
+          item.setText(2, path);
+          item.setText(3, "String");
+        }
+      }
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Fail to extract the path(s)", e);
     }
   }
 
@@ -1453,10 +1480,10 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
       String name = parser.currentName();
       switch (jsonToken) {
         case START_OBJECT:
-          currentPath.push(name); // {
+          currentPath.push(name);
           break;
         case END_OBJECT:
-          currentPath.pop(); // }
+          currentPath.pop();
           break;
         case START_ARRAY:
           currentPath.push(name); // name : [

@@ -19,6 +19,7 @@ package org.apache.hop.base;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -32,20 +33,18 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
 import org.apache.test.util.JavaBeanManipulator;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/** @author Andrey Khayrutdinov */
 public abstract class LoadSaveBase<T> {
 
-  final Class<T> clazz;
-  protected final List<String> xmlAttributes;
+  protected final Class<T> clazz;
+  protected final List<String> attributes;
   protected final JavaBeanManipulator<T> manipulator;
   protected final IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory;
   protected final IInitializer<T> initializer;
@@ -53,16 +52,20 @@ public abstract class LoadSaveBase<T> {
 
   public LoadSaveBase(
       Class<T> clazz,
-      List<String> commonAttributes,
-      List<String> xmlAttributes,
+      List<String> attributes,
       Map<String, String> getterMap,
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
-      IInitializer<T> initializer) {
+      IInitializer<T> initializer) throws HopException {
     this.clazz = clazz;
-    this.xmlAttributes = concat(commonAttributes, xmlAttributes);
-    this.manipulator = new JavaBeanManipulator<>(clazz, this.xmlAttributes, getterMap, setterMap);
+    this.attributes = new ArrayList(attributes);
+
+    // Add automatically determinable attributes from the HopMetadataProperty annotation
+    addHopMetadataPropertyCommonAttributes();
+
+    // Add unknown getters and setters for all attributes.
+    this.manipulator = new JavaBeanManipulator<>(clazz, this.attributes, getterMap, setterMap);
     this.initializer = initializer;
 
     Map<IGetter<?>, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorMethodMap =
@@ -79,16 +82,14 @@ public abstract class LoadSaveBase<T> {
 
   public LoadSaveBase(
       Class<T> clazz,
-      List<String> commonAttributes,
-      List<String> xmlAttributes,
+      List<String> attributes,
       Map<String, String> getterMap,
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap) {
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap) throws HopException {
     this(
         clazz,
-        commonAttributes,
-        xmlAttributes,
+        attributes,
         getterMap,
         setterMap,
         fieldLoadSaveValidatorAttributeMap,
@@ -96,15 +97,36 @@ public abstract class LoadSaveBase<T> {
         null);
   }
 
-  public LoadSaveBase(Class<T> clazz, List<String> commonAttributes) {
+  public LoadSaveBase(Class<T> clazz, List<String> attributes) throws HopException {
     this(
         clazz,
-        commonAttributes,
-        new ArrayList<>(),
+        attributes,
         new HashMap<>(),
         new HashMap<>(),
         new HashMap<>(),
         new HashMap<>());
+  }
+
+  private void addHopMetadataPropertyCommonAttributes() throws HopException {
+    try {
+      List<Field> fields = new ArrayList(Arrays.asList(clazz.getFields()));
+      fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+      for (Field field : fields) {
+        // Skip transient fields
+        if (Modifier.isTransient(field.getModifiers())) {
+          continue;
+        }
+        HopMetadataProperty annotation = field.getAnnotation(HopMetadataProperty.class);
+        if (annotation!=null) {
+          String attribute = field.getName();
+          if (!attributes.contains(attribute)) {
+            attributes.add(attribute);
+          }
+        }
+      }
+    } catch(Exception e) {
+      throw new HopException("Error adding common attributes from Hop metadata properties", e);
+    }
   }
 
   public T createMeta() {
@@ -190,7 +212,7 @@ public abstract class LoadSaveBase<T> {
                   + value);
         }
       } catch (Exception e) {
-        throw new RuntimeException("Error validating " + attribute, e);
+        throw new RuntimeException("Error validating attribute: " + attribute, e);
       }
     }
   }
@@ -216,5 +238,9 @@ public abstract class LoadSaveBase<T> {
         addDatabase(meta);
       }
     }
+  }
+
+  public IFieldLoadSaveValidatorFactory getFieldLoadSaveValidatorFactory() {
+    return fieldLoadSaveValidatorFactory;
   }
 }

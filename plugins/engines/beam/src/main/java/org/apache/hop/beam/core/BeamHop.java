@@ -56,9 +56,6 @@ public class BeamHop {
 
       XmlHandlerCache.getInstance();
 
-      // LOG.info( "Registering " + transformPluginClasses.size() + " extra transform plugins, and "
-      // + xpPluginClasses.size() + " XP plugins" );
-
       // Register extra classes from the plugins...
       // If they're already in the classpath, this should be fast.
       //
@@ -79,7 +76,6 @@ public class BeamHop {
 
             // The plugin class is already in the classpath so we simply call Class.forName() on it.
             //
-            // LOG.info( "Registering transform plugin class: " + transformPluginClass );
             transformPluginType.handlePluginAnnotation(
                 transformPluginClass, annotation, new ArrayList<>(), true, null);
           } else {
@@ -105,8 +101,7 @@ public class BeamHop {
             ExtensionPoint annotation = xpPluginClass.getAnnotation(ExtensionPoint.class);
 
             // The plugin class is already in the classpath so we simply call Class.forName() on it.
-            //
-            // LOG.info( "Registering transform plugin class: " + xpPluginClass );
+
             xpPluginType.handlePluginAnnotation(
                 xpPluginClass, annotation, new ArrayList<>(), true, null);
           } else {
@@ -124,9 +119,7 @@ public class BeamHop {
       Class<? extends IPluginType> pluginTypeClass,
       String pluginClassName) {
     PluginMainClassType classType = pluginTypeClass.getAnnotation(PluginMainClassType.class);
-    // System.out.println("Found class type : "+classType+" as main plugin class");
     List<IPlugin> plugins = registry.getPlugins(pluginTypeClass);
-    // System.out.println("Found "+plugins.size()+" plugins of type "+pluginTypeClass);
     for (IPlugin plugin : plugins) {
       String mainClassName = plugin.getClassMap().get(classType.value());
       if (mainClassName != null && pluginClassName.equals(mainClassName)) {

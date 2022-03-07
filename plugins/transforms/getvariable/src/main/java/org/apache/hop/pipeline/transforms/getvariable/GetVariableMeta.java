@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -53,6 +53,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.GetVariable",
     description = "i18n::BaseTransform.TypeTooltipDesc.GetVariable",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
+    keywords = "i18n::GetVariableMeta.keyword",
     documentationUrl = "/pipeline/transforms/getvariable.html")
 public class GetVariableMeta extends BaseTransformMeta<GetVariable, GetVariableData> {
   private static final Class<?> PKG = GetVariableMeta.class; // For Translator
@@ -154,19 +155,6 @@ public class GetVariableMeta extends BaseTransformMeta<GetVariable, GetVariableD
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    // Determine the maximum length...
-    //
-    int length = -1;
-    for (int i = 0; i < fieldDefinitions.length; i++) {
-      String variableString = fieldDefinitions[i].getVariableString();
-      if (variableString != null) {
-        String string = variables.resolve(variableString);
-        if (string.length() > length) {
-          length = string.length();
-        }
-      }
-    }
-
     IRowMeta row = new RowMeta();
     for (int i = 0; i < fieldDefinitions.length; i++) {
       IValueMeta v;
@@ -178,11 +166,7 @@ public class GetVariableMeta extends BaseTransformMeta<GetVariable, GetVariableD
         throw new HopTransformException(e);
       }
       int fieldLength = fieldDefinitions[i].getFieldLength();
-      if (fieldLength < 0) {
-        v.setLength(length);
-      } else {
-        v.setLength(fieldLength);
-      }
+      v.setLength(fieldLength);
       int fieldPrecision = fieldDefinitions[i].getFieldPrecision();
       if (fieldPrecision >= 0) {
         v.setPrecision(fieldPrecision);

@@ -43,6 +43,7 @@ import java.util.List;
     name = "i18n::XMLInputStream.name",
     description = "i18n::XMLInputStream.description",
     categoryDescription = "i18n::XMLInputStream.category",
+    keywords = "i18n::XmlInputStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/xmlinputstream.html")
 public class XmlInputStreamMeta extends BaseTransformMeta<XmlInputStream, XmlInputStreamData> {
   private static final int DEFAULT_STRING_LEN_FILENAME = 256; // default length for XML path

@@ -40,12 +40,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Folders compare action settings.
- *
- * @author Samatar Hassan
- * @since 25-11-2007
- */
+/** This dialog allows you to edit the Folders compare action settings. */
 public class ActionFoldersCompareDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionFoldersCompare.class; // For Translator
 

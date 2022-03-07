@@ -21,8 +21,7 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 
-/** @author mbatchelor */
-@DatabaseMetaPlugin(type = "REDSHIFT", typeDescription = "Redshift")
+@DatabaseMetaPlugin(type = "REDSHIFT", typeDescription = "Redshift", documentationUrl = "/database/databases/redshift.html")
 @GuiPlugin(id = "GUI-RedshiftDatabaseMeta")
 public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {
 

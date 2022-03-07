@@ -18,4 +18,5 @@
 
 <dependencies>
     <folder>../pipelineexecutor</folder>
+    <folder>../../tech/avro</folder>
 </dependencies>

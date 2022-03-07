@@ -432,6 +432,12 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
             }
           }
 
+          // Disable trying to run a unit test on the remote node.
+          // It's pretty useless.
+          // We should figure out a way for the testing plugin to change this without hard-coding this line.
+          //
+          pipeline.setVariable("__UnitTest_Run__", "N");
+
           pipeline.prepareExecution();
 
           // Create producers so we can efficiently pass data

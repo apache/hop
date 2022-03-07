@@ -22,8 +22,6 @@ import java.lang.annotation.*;
 /**
  * Classes annotated with "ValueMetaPlugin" are automatically recognized and registered as a new
  * data type in the form of a IValueMeta class.
- *
- * @author matt
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

@@ -468,8 +468,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           gc.setLineWidth(1);
           gc.fillRoundRectangle(popupX, popupY, popupWidth, popupHeight, 7, 7);
           // draw the title columns
-          // gc.setBackground(EColor.BACKGROUND);
-          // gc.fillRoundRectangle(popupX, popupY, titleWidth+MINI_ICON_MARGIN, popupHeight, 7, 7);
           gc.setBackground(EColor.LIGHTGRAY);
           gc.drawRoundRectangle(popupX, popupY, popupWidth, popupHeight, 7, 7);
 
@@ -927,7 +925,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         if (fs.isSendingErrorRowsToTransform(ts)) {
           color = EColor.RED;
           linestyle = ELineStyle.DASH;
-          // activeLinewidth = lineWidth + 1;
           arrow = EImage.ARROW_ERROR;
         } else {
           color = EColor.HOP_DEFAULT;
@@ -1012,8 +1009,11 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       Object startObject,
       Object endObject)
       throws HopException {
-    int mx, my;
-    int a, b, dist;
+    int mx;
+    int my;
+    int a;
+    int b;
+    int dist;
     double angle;
 
     gc.drawLine(x1, y1, x2, y2);
@@ -1073,8 +1073,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         ITransformIOMeta ioMeta = fs.getTransform().getTransformIOMeta();
         IStream targetStream = ioMeta.findTargetStream(ts);
         if (targetStream != null) {
-          EImage hopsIcon = BasePainter.getStreamIconImage(targetStream.getStreamIcon());
-          gc.drawImage(hopsIcon, mx, my, magnification);
+          EImage image =
+              BasePainter.getStreamIconImage(targetStream.getStreamIcon(), pipelineHop.isEnabled());
+          gc.drawImage(image, mx, my, magnification);
 
           areaOwners.add(
               new AreaOwner(
@@ -1110,7 +1111,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
         // Draw the copy icon on the hop
         //
-        gc.drawImage(EImage.COPY_ROWS, mx, my, magnification);
+        EImage image = (pipelineHop.isEnabled()) ? EImage.COPY_ROWS : EImage.COPY_ROWS_DISABLED;
+        gc.drawImage(image, mx, my, magnification);
 
         areaOwners.add(
             new AreaOwner(
@@ -1119,7 +1121,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       }
 
       if (errorHop) {
-        gc.drawImage(EImage.ERROR, mx, my, magnification);
+        EImage image = (pipelineHop.isEnabled()) ? EImage.ERROR : EImage.ERROR_DISABLED;
+        gc.drawImage(image, mx, my, magnification);
         areaOwners.add(new AreaOwner(AreaType.HOP_ERROR_ICON, mx, my, 16, 16, offset, fs, ts));
         mx += 16;
       }
@@ -1131,7 +1134,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               && ts.equals(endHopTransform)
               && fs.equals(startHopTransform))
           || Const.indexOfString(fs.getName(), infoTransformNames) >= 0) {
-        gc.drawImage(EImage.INFO, mx, my, magnification);
+        EImage image = (pipelineHop.isEnabled()) ? EImage.INFO : EImage.INFO_DISABLED;
+        gc.drawImage(image, mx, my, magnification);
         areaOwners.add(new AreaOwner(AreaType.HOP_INFO_ICON, mx, my, 16, 16, offset, fs, ts));
         mx += 16;
       }

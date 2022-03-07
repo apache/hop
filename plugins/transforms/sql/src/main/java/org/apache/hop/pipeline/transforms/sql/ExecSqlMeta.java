@@ -23,24 +23,18 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -53,6 +47,7 @@ import java.util.List;
     name = "i18n::ExecSql.Name",
     description = "i18n::ExecSql.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+    keywords = "i18n::ExecSqlMeta.keyword",
     documentationUrl = "/pipeline/transforms/execsql.html")
 @InjectionSupported(
     localizationPrefix = "ExecSqlMeta.Injection.",
@@ -60,70 +55,87 @@ import java.util.List;
 public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
   private static final Class<?> PKG = ExecSqlMeta.class; // For Translator
 
-  private DatabaseMeta databaseMeta;
+  @HopMetadataProperty(
+      key = "connection",
+      injectionKeyDescription = "ExecSqlMeta.Injection.CONNECTIONNAME")
+  private String connection;
 
-  @Injection(name = "SQL")
+  @HopMetadataProperty(injectionKeyDescription = "ExecSqlMeta.Injection.SQL", injectionKey = "SQL")
   private String sql;
 
-  @Injection(name = "EXECUTE_FOR_EACH_ROW")
+  @HopMetadataProperty(
+      key = "execute_each_row",
+      injectionKeyDescription = "ExecSqlMeta.Injection.EXECUTE_FOR_EACH_ROW",
+      injectionKey = "EXECUTE_FOR_EACH_ROW")
   private boolean executedEachInputRow;
 
-  @Injection(name = "PARAMETER_NAME", group = "PARAMETERS")
-  private String[] arguments;
-
-  @Injection(name = "UPDATE_STATS_FIELD")
+  @HopMetadataProperty(
+      key = "update_field",
+      injectionKeyDescription = "ExecSqlMeta.Injection.UPDATE_STATS_FIELD",
+      injectionKey = "UPDATE_STATS_FIELD")
   private String updateField;
 
-  @Injection(name = "INSERT_STATS_FIELD")
+  @HopMetadataProperty(
+      key = "insert_field",
+      injectionKeyDescription = "ExecSqlMeta.Injection.INSERT_STATS_FIELD",
+      injectionKey = "INSERT_STATS_FIELD")
   private String insertField;
 
-  @Injection(name = "DELETE_STATS_FIELD")
+  @HopMetadataProperty(
+      key = "delete_field",
+      injectionKeyDescription = "ExecSqlMeta.Injection.DELETE_STATS_FIELD",
+      injectionKey = "DELETE_STATS_FIELD")
   private String deleteField;
 
-  @Injection(name = "READ_STATS_FIELD")
+  @HopMetadataProperty(
+      key = "read_field",
+      injectionKeyDescription = "ExecSqlMeta.Injection.READ_STATS_FIELD",
+      injectionKey = "READ_STATS_FIELD")
   private String readField;
 
-  @Injection(name = "EXECUTE_AS_SINGLE_STATEMENT")
+  @HopMetadataProperty(
+      key = "single_statement",
+      injectionKeyDescription = "ExecSqlMeta.Injection.EXECUTE_AS_SINGLE_STATEMENT",
+      injectionKey = "EXECUTE_AS_SINGLE_STATEMENT")
   private boolean singleStatement;
 
-  @Injection(name = "REPLACE_VARIABLES")
+  @HopMetadataProperty(
+      key = "replace_variables",
+      injectionKeyDescription = "ExecSqlMeta.Injection.REPLACE_VARIABLES",
+      injectionKey = "REPLACE_VARIABLES")
   private boolean replaceVariables;
 
-  @Injection(name = "QUOTE_STRINGS")
+  @HopMetadataProperty(
+      injectionKeyDescription = "ExecSqlMeta.Injection.QUOTE_STRINGS",
+      injectionKey = "QUOTE_STRINGS")
   private boolean quoteString;
 
-  @Injection(name = "BIND_PARAMETERS")
-  private boolean setParams;
+  @HopMetadataProperty(
+      key = "set_params",
+      injectionKeyDescription = "ExecSqlMeta.Injection.BIND_PARAMETERS",
+      injectionKey = "BIND_PARAMETERS")
+  private boolean params;
 
-  @Injection(name = "CONNECTIONNAME")
-  public void setConnection(String connectionName) {
-    databaseMeta =
-        DatabaseMeta.findDatabase(
-            getParentTransformMeta().getParentPipelineMeta().getDatabases(), connectionName);
-  }
+  @HopMetadataProperty(
+      key = "argument",
+      groupKey = "arguments",
+      injectionGroupKey = "PARAMETERS",
+      injectionGroupDescription = "ExecSqlMeta.Injection.PARAMETERS")
+  private List<ExecSqlArgumentItem> arguments;
 
   public ExecSqlMeta() {
     super();
+    arguments = new ArrayList<ExecSqlArgumentItem>();
   }
 
   /** @return Returns the true if we have to set params. */
   public boolean isParams() {
-    return this.setParams;
+    return this.params;
   }
 
   /** @param value set true if we have to set params. */
   public void setParams(boolean value) {
-    this.setParams = value;
-  }
-
-  /** @return Returns the database. */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
+    this.params = value;
   }
 
   /** @return Returns the sql. */
@@ -137,12 +149,12 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
   }
 
   /** @return Returns the arguments. */
-  public String[] getArguments() {
+  public List<ExecSqlArgumentItem> getArguments() {
     return arguments;
   }
 
   /** @param arguments The arguments to set. */
-  public void setArguments(String[] arguments) {
+  public void setArguments(List<ExecSqlArgumentItem> arguments) {
     this.arguments = arguments;
   }
 
@@ -197,61 +209,15 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
-  @Override
   public Object clone() {
     ExecSqlMeta retval = (ExecSqlMeta) super.clone();
-    int nrArgs = arguments.length;
-    retval.allocate(nrArgs);
-    System.arraycopy(arguments, 0, retval.arguments, 0, nrArgs);
     return retval;
-  }
-
-  public void allocate(int nrargs) {
-    arguments = new String[nrargs];
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      String con = XmlHandler.getTagValue(transformNode, "connection");
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
-      String eachRow = XmlHandler.getTagValue(transformNode, "execute_each_row");
-      executedEachInputRow = "Y".equalsIgnoreCase(eachRow);
-      singleStatement =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "single_statement"));
-      replaceVariables = "Y".equals(XmlHandler.getTagValue(transformNode, "replace_variables"));
-      quoteString = "Y".equals(XmlHandler.getTagValue(transformNode, "quoteString"));
-      setParams = "Y".equals(XmlHandler.getTagValue(transformNode, "set_params"));
-      sql = XmlHandler.getTagValue(transformNode, "sql");
-
-      insertField = XmlHandler.getTagValue(transformNode, "insert_field");
-      updateField = XmlHandler.getTagValue(transformNode, "update_field");
-      deleteField = XmlHandler.getTagValue(transformNode, "delete_field");
-      readField = XmlHandler.getTagValue(transformNode, "read_field");
-
-      Node argsnode = XmlHandler.getSubNode(transformNode, "arguments");
-      int nrArguments = XmlHandler.countNodes(argsnode, "argument");
-      allocate(nrArguments);
-      for (int i = 0; i < nrArguments; i++) {
-        Node argnode = XmlHandler.getSubNodeByNr(argsnode, "argument", i);
-        arguments[i] = XmlHandler.getTagValue(argnode, "name");
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ExecSqlMeta.Exception.UnableToLoadTransformMetaFromXML"), e);
-    }
   }
 
   @Override
   public void setDefault() {
-    databaseMeta = null;
     sql = "";
-    arguments = new String[0];
+    arguments = new ArrayList();
   }
 
   @Override
@@ -271,39 +237,6 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
-    retval.append("    ").append(XmlHandler.addTagValue("execute_each_row", executedEachInputRow));
-    retval.append("    ").append(XmlHandler.addTagValue("single_statement", singleStatement));
-    retval.append("    ").append(XmlHandler.addTagValue("replace_variables", replaceVariables));
-    retval.append("    ").append(XmlHandler.addTagValue("quoteString", quoteString));
-    retval.append("    ").append(XmlHandler.addTagValue("sql", sql));
-    retval.append("    ").append(XmlHandler.addTagValue("set_params", setParams));
-    retval.append("    ").append(XmlHandler.addTagValue("insert_field", insertField));
-    retval.append("    ").append(XmlHandler.addTagValue("update_field", updateField));
-    retval.append("    ").append(XmlHandler.addTagValue("delete_field", deleteField));
-    retval.append("    ").append(XmlHandler.addTagValue("read_field", readField));
-
-    retval.append("    <arguments>").append(Const.CR);
-    for (int i = 0; i < arguments.length; i++) {
-      retval
-          .append("       <argument>")
-          .append(XmlHandler.addTagValue("name", arguments[i], false))
-          .append("</argument>")
-          .append(Const.CR);
-    }
-    retval.append("    </arguments>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -315,6 +248,21 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
+
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "ExecSqlMeta.CheckResult.DatabaseMetaError", variables.resolve(connection)),
+              transformMeta);
+      remarks.add(cr);
+    }
 
     if (databaseMeta != null) {
       cr =
@@ -409,37 +357,39 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
     }
   }
 
+  @Override
   public void analyseImpact(
       IVariables variables,
       List<DatabaseImpact> impact,
       PipelineMeta pipelineMeta,
       TransformMeta transformMeta,
-      RowMeta prev,
+      IRowMeta prev,
       String[] input,
       String[] output,
-      RowMeta info)
+      IRowMeta info,
+      IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    DatabaseImpact ii =
-        new DatabaseImpact(
-            DatabaseImpact.TYPE_IMPACT_READ_WRITE,
-            pipelineMeta.getName(),
-            transformMeta.getName(),
-            databaseMeta.getDatabaseName(),
-            BaseMessages.getString(PKG, "ExecSqlMeta.DatabaseMeta.Unknown.Label"),
-            BaseMessages.getString(PKG, "ExecSqlMeta.DatabaseMeta.Unknown2.Label"),
-            BaseMessages.getString(PKG, "ExecSqlMeta.DatabaseMeta.Unknown3.Label"),
-            transformMeta.getName(),
-            sql,
-            BaseMessages.getString(PKG, "ExecSqlMeta.DatabaseMeta.Title"));
-    impact.add(ii);
-  }
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+      DatabaseImpact ii =
+          new DatabaseImpact(
+              DatabaseImpact.TYPE_IMPACT_READ_WRITE,
+              pipelineMeta.getName(),
+              transformMeta.getName(),
+              databaseMeta.getDatabaseName(),
+              BaseMessages.getString(PKG, "ExecSqlMeta.DatabaseMeta.Unknown.Label"),
+              BaseMessages.getString(PKG, "ExecSqlMeta.DatabaseMeta.Unknown2.Label"),
+              BaseMessages.getString(PKG, "ExecSqlMeta.DatabaseMeta.Unknown3.Label"),
+              transformMeta.getName(),
+              sql,
+              BaseMessages.getString(PKG, "ExecSqlMeta.DatabaseMeta.Title"));
+      impact.add(ii);
 
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
+    } catch (HopException e) {
+      throw new HopTransformException(
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
     }
   }
 
@@ -448,9 +398,9 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
     return replaceVariables;
   }
 
-  /** @param variableReplacementActive The variableReplacementActive to set. */
-  public void setVariableReplacementActive(boolean variableReplacementActive) {
-    this.replaceVariables = variableReplacementActive;
+  /** @param replaceVariables The variableReplacement to set. */
+  public void setReplaceVariables(boolean replaceVariables) {
+    this.replaceVariables = replaceVariables;
   }
 
   public boolean isQuoteString() {
@@ -459,6 +409,14 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
 
   public void setQuoteString(boolean quoteString) {
     this.quoteString = quoteString;
+  }
+
+  public String getConnection() {
+    return connection;
+  }
+
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   @Override

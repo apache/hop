@@ -82,19 +82,19 @@ public class TransformStatus {
     this.accumulatedRuntime = accumulatedRuntime + component.getExecutionDuration();
     this.statusDescription = component.getStatusDescription();
 
-    long in_proc = Math.max(linesInput, linesRead);
-    long out_proc = Math.max(linesOutput + linesUpdated, linesWritten + linesRejected);
+    long inProc = Math.max(linesInput, linesRead);
+    long outProc = Math.max(linesOutput + linesUpdated, linesWritten + linesRejected);
 
     float lapsed = ((float) accumulatedRuntime) / 1000;
-    double in_speed = 0;
-    double out_speed = 0;
+    double inSpeed = 0;
+    double outSpeed = 0;
 
     if (lapsed != 0) {
-      in_speed = Math.floor(10 * (in_proc / lapsed)) / 10;
-      out_speed = Math.floor(10 * (out_proc / lapsed)) / 10;
+      inSpeed = Math.floor(10 * (inProc / lapsed)) / 10;
+      outSpeed = Math.floor(10 * (outProc / lapsed)) / 10;
     }
 
-    double speedNumber = (in_speed > out_speed ? in_speed : out_speed);
+    double speedNumber = (inSpeed > outSpeed ? inSpeed : outSpeed);
 
     this.seconds = Math.floor((lapsed * 10) + 0.5) / 10;
     this.speed = lapsed == 0 ? "-" : " " + speedDf.format(speedNumber);

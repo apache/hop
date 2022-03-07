@@ -31,6 +31,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.json.simple.JSONObject;
 import org.w3c.dom.Node;
 
 import java.io.*;
@@ -3687,6 +3688,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   /*
+   * @deprecated
    * Do not use this method directly! It is for tests!
    */
   @Deprecated
@@ -3714,10 +3716,8 @@ public class ValueMetaBase implements IValueMeta {
 
       // If it's a string and the string is empty, it's a null value as well
       //
-      if (isString()) {
-        if (value.toString().length() == 0) {
-          return true;
-        }
+      if (isString() && value.toString().length() == 0) {
+        return true;
       }
 
       // We tried everything else so we assume this value is not null.
@@ -4134,13 +4134,12 @@ public class ValueMetaBase implements IValueMeta {
       // if the null_value is specified, we try to match with that.
       //
       if (!Utils.isEmpty(nullValue)) {
-        if (nullValue.length() <= pol.length()) {
+        if (nullValue.length() <= pol.length()
+            && pol.equalsIgnoreCase(Const.rightPad(new StringBuilder(nullValue), pol.length()))) {
           // If the polled value is equal to the spaces right-padded null_value,
           // we have a match
           //
-          if (pol.equalsIgnoreCase(Const.rightPad(new StringBuilder(nullValue), pol.length()))) {
-            return emptyValue;
-          }
+          return emptyValue;
         }
       } else {
         // Verify if there are only spaces in the polled value...
@@ -4773,11 +4772,9 @@ public class ValueMetaBase implements IValueMeta {
 
             // MySQL: max resolution is double precision floating point (double)
             // The (12,31) that is given back is not correct
-            if (databaseMeta.getIDatabase().isMySqlVariant()) {
-              if (precision >= length) {
-                precision = -1;
-                length = -1;
-              }
+            if (databaseMeta.getIDatabase().isMySqlVariant() && precision >= length) {
+              precision = -1;
+              length = -1;
             }
 
             // if the length or precision needs a BIGNUMBER
@@ -4800,13 +4797,14 @@ public class ValueMetaBase implements IValueMeta {
             }
           }
 
-          if (databaseMeta.getIDatabase().isPostgresVariant()) {
+          if (databaseMeta.getIDatabase().isPostgresVariant()
+              && type == Types.NUMERIC
+              && length == 0
+              && precision == 0) {
             // undefined size => arbitrary precision
-            if (type == Types.NUMERIC && length == 0 && precision == 0) {
-              valtype = IValueMeta.TYPE_BIGNUMBER;
-              length = -1;
-              precision = -1;
-            }
+            valtype = IValueMeta.TYPE_BIGNUMBER;
+            length = -1;
+            precision = -1;
           }
 
           if (databaseMeta.getIDatabase().isOracleVariant()) {
@@ -5091,13 +5089,14 @@ public class ValueMetaBase implements IValueMeta {
             }
           }
 
-          if (databaseMeta.getIDatabase().isPostgresVariant()) {
+          if (databaseMeta.getIDatabase().isPostgresVariant()
+              && originalColumnType == Types.NUMERIC
+              && length == 0
+              && precision == 0) {
             // undefined size => arbitrary precision
-            if (originalColumnType == Types.NUMERIC && length == 0 && precision == 0) {
-              valtype = IValueMeta.TYPE_BIGNUMBER;
-              length = -1;
-              precision = -1;
-            }
+            valtype = IValueMeta.TYPE_BIGNUMBER;
+            length = -1;
+            precision = -1;
           }
 
           if (databaseMeta.getIDatabase().isOracleVariant()) {
@@ -5494,5 +5493,24 @@ public class ValueMetaBase implements IValueMeta {
   public Class<?> getNativeDataTypeClass() throws HopValueException {
     // Not implemented for base class
     throw new HopValueException(getTypeDesc() + " does not implement this method");
+  }
+
+  @Override
+  public void storeMetaInJson(JSONObject jValue) throws HopException {
+    jValue.put("name", getName());
+    jValue.put("type", getType());
+    jValue.put("length", getLength());
+    jValue.put("precision", getPrecision());
+    jValue.put("conversionMask", getConversionMask());
+  }
+
+  @Override
+  public void loadMetaFromJson(JSONObject jValue) {
+    long length = (long) jValue.get("length");
+    setLength((int) length);
+    long precision = (long) jValue.get("precision");
+    setPrecision((int) precision);
+    String conversionMask = (String) jValue.get("conversionMask");
+    setConversionMask(conversionMask);
   }
 }

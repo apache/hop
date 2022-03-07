@@ -51,6 +51,7 @@ import java.util.List;
     name = "i18n::ValueMapper.Name",
     description = "i18n::ValueMapper.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::ValueMapperMeta.keyword",
     documentationUrl = "/pipeline/transforms/valuemapper.html")
 public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperData> {
   private static final Class<?> PKG = ValueMapperMeta.class; // For Translator
@@ -247,7 +248,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "ValueMapperMeta.CheckResult.ReceivingFieldsFromPreviousTransforms",
@@ -260,7 +261,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "ValueMapperMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -268,7 +269,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "ValueMapperMeta.CheckResult.NotReceivingInfoFromOtherTransforms"),
               transformMeta);

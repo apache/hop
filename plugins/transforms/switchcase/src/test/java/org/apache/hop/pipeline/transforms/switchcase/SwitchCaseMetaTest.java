@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.switchcase;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -26,13 +27,12 @@ import org.junit.ClassRule;
 
 import java.util.*;
 
-/** @author nhudak */
 public class SwitchCaseMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   LoadSaveTester<SwitchCaseMeta> loadSaveTester;
 
-  public SwitchCaseMetaTest() {
+  public SwitchCaseMetaTest() throws HopException {
     // SwitchCaseMeta bean-like attributes
     List<String> attributes =
         Arrays.asList(

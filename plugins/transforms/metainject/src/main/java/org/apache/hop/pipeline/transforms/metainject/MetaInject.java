@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.metainject;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
@@ -28,28 +29,24 @@ import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.RowProducer;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.*;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * Read a simple CSV file Just output Strings found in the file...
- *
- * @author Matt
- * @since 2007-07-05
- */
+/** Read a simple CSV file Just output Strings found in the file... */
 public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
   private static final Class<?> PKG = MetaInject.class; // For Translator
 
@@ -103,7 +100,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
      * in path, constants should be inserted into all arrays items
      */
     for (Entry<String, ITransformMeta> en : data.transformInjectionMetasMap.entrySet()) {
-      newInjectionConstants(en.getKey(), en.getValue());
+      newInjectionConstants(this, en.getKey(), en.getValue());
     }
     for (Entry<String, ITransformMeta> en : data.transformInjectionMetasMap.entrySet()) {
       en.getValue().searchInfoAndTargetTransforms(transforms);
@@ -240,8 +237,16 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     injectTrans.waitUntilFinished();
   }
 
-  Pipeline createInjectPipeline() {
-    return new LocalPipelineEngine(data.pipelineMeta, this, this);
+  Pipeline createInjectPipeline() throws HopException {
+    LocalPipelineEngine lpe = new LocalPipelineEngine(data.pipelineMeta, this, this);
+    if (!Utils.isEmpty(meta.getRunConfigurationName())) {
+      PipelineRunConfiguration prc =
+          metadataProvider
+              .getSerializer(PipelineRunConfiguration.class)
+              .load(meta.getRunConfigurationName());
+      lpe.setPipelineRunConfiguration(prc);
+    }
+    return lpe;
   }
 
   private void writeInjectedHpl(String targetFilPath) throws HopException {
@@ -259,10 +264,15 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
 
     OutputStream os = null;
     try {
+
+      if (meta.isCreateParentFolder()) {
+        createParentFolder(targetFilePath);
+      }
+
       os = HopVfs.getOutputStream(targetFilePath, false);
       os.write(XmlHandler.getXmlHeader().getBytes(Const.XML_ENCODING));
       os.write(data.pipelineMeta.getXml(this).getBytes(Const.XML_ENCODING));
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new HopException(
           "Unable to write target file (hpl after injection) to file '" + targetFilePath + "'", e);
     } finally {
@@ -271,6 +281,55 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
           os.close();
         } catch (Exception e) {
           throw new HopException(e);
+        }
+      }
+    }
+  }
+
+  private void createParentFolder(String filename) throws Exception {
+    // Check for parent folder
+    FileObject parentfolder = null;
+
+    try {
+      // Get parent folder
+      parentfolder = HopVfs.getFileObject(filename).getParent();
+
+      if (parentfolder.exists()) {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "MetaInject.Log.ParentFolderExist", HopVfs.getFriendlyURI(parentfolder)));
+        }
+      } else {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "MetaInject.Log.ParentFolderNotExist", HopVfs.getFriendlyURI(parentfolder)));
+        }
+        if (meta.isCreateParentFolder()) {
+          parentfolder.createFolder();
+          if (isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(
+                    PKG,
+                    "MetaInject.Log.ParentFolderCreated",
+                    HopVfs.getFriendlyURI(parentfolder)));
+          }
+        } else {
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG,
+                  "MetaInject.Log.ParentFolderNotExistCreateIt",
+                  HopVfs.getFriendlyURI(parentfolder),
+                  HopVfs.getFriendlyURI(filename)));
+        }
+      }
+    } finally {
+      if (parentfolder != null) {
+        try {
+          parentfolder.close();
+        } catch (Exception ex) {
+          // Ignore
         }
       }
     }
@@ -343,8 +402,12 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     }
   }
 
-  /** Inject constant values. */
-  private void newInjectionConstants(String targetTransform, ITransformMeta targetTransformMeta)
+  /** Inject constant values.
+   * @param variables
+   * @param targetTransform
+   * @param targetTransformMeta
+   */
+  private void newInjectionConstants(IVariables variables, String targetTransform, ITransformMeta targetTransformMeta)
       throws HopException {
     if (log.isDetailed()) {
       logDetailed("Handing transform '" + targetTransform + "' constants injection!");
@@ -366,8 +429,9 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
           // inject constant
           if (injector.hasProperty(targetTransformMeta, target.getAttributeKey())) {
             // target transform has specified key
+            String value = variables.resolve(source.getField());
             injector.setProperty(
-                targetTransformMeta, target.getAttributeKey(), null, source.getField());
+                targetTransformMeta, target.getAttributeKey(), null, value);
           } else {
             // target transform doesn't have specified key - just report but don't fail like in 6.0
             // (BACKLOG-6753)

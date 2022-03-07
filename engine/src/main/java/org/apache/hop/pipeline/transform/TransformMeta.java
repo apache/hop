@@ -47,12 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * This class contains everything that is needed to define a transform.
- *
- * @author Matt
- * @since 27-mei-2003
- */
+/** This class contains everything that is needed to define a transform. */
 public class TransformMeta
     implements Cloneable,
         Comparable<TransformMeta>,
@@ -447,7 +442,6 @@ public class TransformMeta
 
     this.attributesMap = copyStringMap(transformMeta.attributesMap);
 
-    // this.setShared(transformMeta.isShared());
     this.setChanged(true);
   }
 

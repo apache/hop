@@ -81,7 +81,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   private Composite parent;
 
   private Composite composite;
-  private FormData formData;
 
   private CTabFolder tabFolder;
 
@@ -112,6 +111,12 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
+
+    // Select the active file if there's any.
+    //
+    if (activeItem != null) {
+      tabFolder.setSelection(activeItem.getTabItem());
+    }
   }
 
   @Override
@@ -119,12 +124,12 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     IHopFileTypeHandler handler = getActiveFileTypeHandler();
     HopGui.getInstance()
         .handleFileCapabilities(handler.getFileType(), handler.hasChanged(), false, false);
+    setActiveFileTypeHandler(handler);
   }
 
   @Override
   public boolean isActive() {
-    return hopGui.isActivePerspective(
-        this); // composite != null && !composite.isDisposed() && composite.isVisible();;
+    return hopGui.isActivePerspective(this);
   }
 
   @Override
@@ -135,15 +140,12 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     PropsUi props = PropsUi.getInstance();
 
     composite = new Composite(parent, SWT.NONE);
-    // composite.setBackground( GuiResource.getInstance().getColorBackground() );
     FormLayout layout = new FormLayout();
-    // layout.marginLeft = props.getMargin();
-    // layout.marginTop = props.getMargin();
     layout.marginRight = props.getMargin();
     layout.marginBottom = props.getMargin();
     composite.setLayout(layout);
 
-    formData = new FormData();
+    FormData formData = new FormData();
     formData.left = new FormAttachment(0, 0);
     formData.top = new FormAttachment(0, 0);
     formData.right = new FormAttachment(100, 0);
@@ -180,7 +182,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     miClose.setText(BaseMessages.getString(PKG, "DataOrchestrationPerspective.Close.Button.Text"));
     miClose.addListener(
         SWT.Selection,
-        (event) -> {
+        event -> {
           if (activeItem != null) {
             activeItem.getTypeHandler().close();
           }
@@ -191,10 +193,10 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
         BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseOther.Button.Text"));
     miCloseOthers.addListener(
         SWT.Selection,
-        (event) -> {
+        event -> {
           TabItemHandler currentItem = activeItem;
           items.forEach(
-              (item) -> {
+              item -> {
                 if (!item.equals(currentItem)) {
                   // FIXME: Works only if you activate the item
                   activeItem = item;
@@ -208,14 +210,13 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
         BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseAll.Button.Text"));
     miCloseAll.addListener(
         SWT.Selection,
-        (event) -> {
-          items.forEach(
-              (item) -> {
-                // FIXME: Works only if you activate the item
-                activeItem = item;
-                item.getTypeHandler().close();
-              });
-        });
+        event ->
+            items.forEach(
+                item -> {
+                  // FIXME: Works only if you activate the item
+                  activeItem = item;
+                  item.getTypeHandler().close();
+                }));
 
     // Support reorder tab item
     new TabFolderReorder(tabFolder);

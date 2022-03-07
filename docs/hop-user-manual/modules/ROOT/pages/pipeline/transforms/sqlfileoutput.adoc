@@ -16,12 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The SQL File Output transform writes input data to a text file in the form of a set of SQL statements.
 
 = SQL File Output
 
 == Description
 
-This transform writes input data to a text file in the form of a set of SQL statements.
+The SQL File Output transform writes input data to a text file in the form of a set of SQL statements.
+
 The SQL is generated in the dialect of the selected database.
 
 == Options

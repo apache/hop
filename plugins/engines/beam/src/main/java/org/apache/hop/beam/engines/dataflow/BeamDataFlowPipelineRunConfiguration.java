@@ -34,7 +34,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @GuiPlugin
 public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfiguration
@@ -44,14 +47,26 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       order = "20000-dataflow-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
+      toolTip = "The project ID for your Google Cloud Project.",
       label = "Project ID")
   @HopMetadataProperty
   private String gcpProjectId;
 
   @GuiWidgetElement(
+      order = "20005-dataflow-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      toolTip = "Run the job as a specific service account, instead of the default GCE robot",
+      label = "Service account")
+  @HopMetadataProperty
+  private String gcpServiceAccount;
+
+  @GuiWidgetElement(
       order = "20010-dataflow-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
+      toolTip =
+          "The name of the Dataflow job being executed as it appears in Dataflow's jobs list and job details",
       label = "Application name")
   @HopMetadataProperty
   private String gcpAppName;
@@ -60,6 +75,9 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       order = "20020-dataflow-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
+      toolTip =
+          "Cloud Storage path for staging local files.\n"
+              + "Must be a valid Cloud Storage URL, beginning with gs://",
       label = "Staging location")
   @HopMetadataProperty
   private String gcpStagingLocation;
@@ -68,6 +86,9 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       order = "20030-dataflow-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
+      toolTip =
+          "The initial number of Google Compute Engine instances to use when executing your pipeline.\n"
+              + "This option determines how many workers the Dataflow service starts up when your job begins.",
       label = "Initial number of workers")
   @HopMetadataProperty
   private String gcpInitialNumberOfWorkers;
@@ -88,6 +109,11 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       order = "20050-dataflow-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
+      toolTip =
+          "The autoscaling mode for your Dataflow job.\n"
+              + "Possible values are THROUGHPUT_BASED to enable autoscaling, or NONE to disable.\n"
+              + "See https://cloud.google.com/dataflow/service/dataflow-service-desc#Autotuning "
+              + "to learn more about how autoscaling works in the Dataflow managed service.",
       label = "Auto scaling algorithm")
   @HopMetadataProperty
   private String gcpAutoScalingAlgorithm;
@@ -96,6 +122,18 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       order = "20060-dataflow-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
+      toolTip =
+          "The Compute Engine machine type that Dataflow uses when starting worker VMs.\n"
+              + "You can use any of the available Compute Engine machine type families as well"
+              + " as custom machine types.\n"
+              + "\n"
+              + "For best results, use n1 machine types.\n"
+              + "Shared core machine types, such as f1 and g1 series workers, are not supported "
+              + "under the Dataflow Service Level Agreement.\n"
+              + "\n"
+              + "Note that Dataflow bills by the number of vCPUs and GB of memory in workers.\n"
+              + "Billing is independent of the machine type family.\n"
+              + "Check https://cloud.google.com/compute/docs/machine-types to see the machine types for reference.",
       label = "Worker machine type")
   @HopMetadataProperty
   private String gcpWorkerMachineType;
@@ -104,6 +142,10 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       order = "20070-dataflow-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
+      toolTip =
+          "he type of persistent disk to use, specified by a full URL of the disk type resource.\n"
+              + "For more information see:\n"
+              + "https://cloud.google.com/compute/docs/disks#pdspecs",
       label = "Worker disk type")
   @HopMetadataProperty
   private String gcpWorkerDiskType;
@@ -112,6 +154,9 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       order = "20080-dataflow-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
+      toolTip =
+          "The disk size, in gigabytes, to use on each remote Compute Engine worker instance.\n"
+              + "If set, specify at least 30 GB to account for the worker boot image and local logs",
       label = "Disk size in GB")
   @HopMetadataProperty
   private String gcpDiskSizeGb;
@@ -120,6 +165,16 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       order = "20090-dataflow-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
+      toolTip =
+          "Specifies a Compute Engine region for launching worker instances to run your pipeline.\n"
+              + "This option is used to run workers in a different location than the region used to deploy, "
+              + "manage, and monitor jobs.\n"
+              + "The zone for workerRegion is "
+              + "https://cloud.google.com/dataflow/docs/concepts/regional-endpoints#autozone.\n"
+              + "\n"
+              + "Note: This option cannot be combined with workerZone or zone.\n"
+              + "\n"
+              + "More information: https://cloud.google.com/dataflow/docs/concepts/regional-endpoints",
       label = "Region")
   @HopMetadataProperty
   private String gcpRegion;
@@ -128,6 +183,12 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       order = "20100-dataflow-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
+      toolTip =
+          "Specifies a Compute Engine zone for launching worker instances to run your pipeline.\n"
+              + "This option is used to run workers in a different location than the region used to deploy, "
+              + "manage, and monitor jobs.\n"
+              + "\n"
+              + "Note: This option cannot be combined with workerRegion or zone.",
       label = "Zone")
   @HopMetadataProperty
   private String gcpZone;
@@ -165,6 +226,17 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
   @HopMetadataProperty
   private boolean gcpUsingPublicIps;
 
+  @GuiWidgetElement(
+      order = "20140-dataflow-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "Dataflow service options",
+      toolTip =
+          "Comma separated list of service options.  Service options are set by the user and configure the "
+              + "service. This decouples service side feature availability from the Apache Beam release cycle.")
+  @HopMetadataProperty
+  private String gcpDataflowServiceOptions;
+
   public BeamDataFlowPipelineRunConfiguration() {
     super();
     this.gcpAppName = "Hop";
@@ -175,6 +247,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
   public BeamDataFlowPipelineRunConfiguration(BeamDataFlowPipelineRunConfiguration config) {
     super(config);
     this.gcpProjectId = config.gcpProjectId;
+    this.gcpServiceAccount = config.gcpServiceAccount;
     this.gcpAppName = config.gcpAppName;
     this.gcpStagingLocation = config.gcpStagingLocation;
     this.gcpInitialNumberOfWorkers = config.gcpInitialNumberOfWorkers;
@@ -188,6 +261,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     this.gcpNetwork = config.gcpNetwork;
     this.gcpSubnetwork = config.gcpSubnetwork;
     this.gcpUsingPublicIps = config.gcpUsingPublicIps;
+    this.gcpDataflowServiceOptions = config.gcpDataflowServiceOptions;
   }
 
   @Override
@@ -207,12 +281,18 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     options.setProject(resolve(getGcpProjectId()));
     options.setAppName(resolve(getGcpAppName()));
     options.setStagingLocation(resolve(getGcpStagingLocation()));
+
+    if (StringUtils.isNotEmpty(getGcpServiceAccount())) {
+      options.setServiceAccount(resolve(getGcpServiceAccount()));
+    }
+
     if (StringUtils.isNotEmpty(getGcpInitialNumberOfWorkers())) {
       int numWorkers = Const.toInt(resolve(getGcpInitialNumberOfWorkers()), -1);
       if (numWorkers >= 0) {
         options.setNumWorkers(numWorkers);
       }
     }
+
     if (StringUtils.isNotEmpty(getGcpMaximumNumberOfWorkers())) {
       int numWorkers = Const.toInt(resolve(getGcpMaximumNumberOfWorkers()), -1);
       if (numWorkers >= 0) {
@@ -263,12 +343,20 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       options.setSubnetwork(subnetwork);
     }
 
+    // Pass unsupported options to the dataflow runner...
+    //
+    if (StringUtils.isNotEmpty(getGcpDataflowServiceOptions())) {
+      String serviceOptionsString = resolve(getGcpDataflowServiceOptions());
+      List<String> serviceOptions = Arrays.asList(serviceOptionsString.split(","));
+      options.setDataflowServiceOptions(serviceOptions);
+    }
+
     // Experimental feature...
     //
     options.setUsePublicIps(isGcpUsingPublicIps());
 
     if (StringUtils.isNotEmpty(getFatJar())) {
-      options.setFilesToStage(Arrays.asList(resolve(fatJar)));
+      options.setFilesToStage(Collections.singletonList(resolve(fatJar)));
     }
 
     return options;
@@ -291,6 +379,20 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
   /** @param gcpProjectId The gcpProjectId to set */
   public void setGcpProjectId(String gcpProjectId) {
     this.gcpProjectId = gcpProjectId;
+  }
+
+  /**
+   * Gets the GCP service account
+   *
+   * @return value of gcpServiceAccount
+   */
+  public String getGcpServiceAccount() {
+    return gcpServiceAccount;
+  }
+
+  /** @param gcpServiceAccount The GCP service account to set */
+  public void setGcpServiceAccount(String gcpServiceAccount) {
+    this.gcpServiceAccount = gcpServiceAccount;
   }
 
   /**
@@ -473,5 +575,19 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
   /** @param gcpUsingPublicIps The gcpUsingPublicIps to set */
   public void setGcpUsingPublicIps(boolean gcpUsingPublicIps) {
     this.gcpUsingPublicIps = gcpUsingPublicIps;
+  }
+
+  /**
+   * Gets the GCP Dataflow service options
+   *
+   * @return value of gcpDataflowServiceOptions
+   */
+  public String getGcpDataflowServiceOptions() {
+    return gcpDataflowServiceOptions;
+  }
+
+  /** @param gcpDataflowServiceOptions The dataflow service options to set */
+  public void setGcpDataflowServiceOptions(String gcpDataflowServiceOptions) {
+    this.gcpDataflowServiceOptions = gcpDataflowServiceOptions;
   }
 }

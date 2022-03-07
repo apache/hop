@@ -25,8 +25,6 @@ import java.util.Optional;
 /**
  * This interface describes the plugin itself, the IDs it listens too, what libraries (jar files) it
  * uses, the names, the i18n detailes, etc.
- *
- * @author matt
  */
 public interface IPlugin {
 

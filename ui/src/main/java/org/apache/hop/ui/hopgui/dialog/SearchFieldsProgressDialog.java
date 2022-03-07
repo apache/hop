@@ -29,10 +29,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.lang.reflect.InvocationTargetException;
 
-/**
- * @author Matt
- * @since 10-mrt-2005
- */
 public class SearchFieldsProgressDialog implements IRunnableWithProgress {
   private static final Class<?> PKG = SearchFieldsProgressDialog.class; // For Translator
 

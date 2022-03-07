@@ -28,11 +28,8 @@ import org.apache.hop.core.util.Utils;
 
 /**
  * Contains Hypersonic specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "HYPERSONIC", typeDescription = "Hypersonic")
+@DatabaseMetaPlugin(type = "HYPERSONIC", typeDescription = "Hypersonic", documentationUrl = "/database/databases/hypersonic.html" )
 @GuiPlugin(id = "GUI-HypersonicDatabaseMeta")
 public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

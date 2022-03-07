@@ -19,11 +19,7 @@ package org.apache.hop.core.gui.plugin;
 
 import java.lang.annotation.*;
 
-/**
- * This annotation signals to the plugin system that the class is a GUI plugin.
- *
- * @author matt
- */
+/** This annotation signals to the plugin system that the class is a GUI plugin. */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

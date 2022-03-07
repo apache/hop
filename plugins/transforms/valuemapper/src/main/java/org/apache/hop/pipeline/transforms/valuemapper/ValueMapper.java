@@ -25,17 +25,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.Hashtable;
 
-/**
- * Convert Values in a certain fields to other values
- *
- * @author Matt
- * @since 3-apr-2006
- */
+/** Convert Values in a certain fields to other values */
 public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData> {
   private static final Class<?> PKG = ValueMapperMeta.class; // For Translator
 

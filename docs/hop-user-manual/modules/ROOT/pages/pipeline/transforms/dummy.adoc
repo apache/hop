@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Dummy transform passes data without making any modifications. It functions as a placeholder for testing purposes or a way to combine multiple streams with the same field layout.
 
 = Dummy (do nothing)
 
 == Description
 
-This transform type does not do anything.
-It functions as a placeholder for testing purposes or a way to combine multiple streams with the same structure.
+The Dummy transform passes data without making any modifications.
+
+It functions as a placeholder for testing purposes or a way to combine multiple streams with the same field layout.
 
 == Options
 

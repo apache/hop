@@ -39,7 +39,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-/** @author Tatsiana_Kasiankova */
 public class XmlOutputTest {
 
   private TransformMockHelper<XmlOutputMeta, XmlOutputData> transformMockHelper;

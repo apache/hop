@@ -32,12 +32,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * Sets a field value to a constant if it is null
- *
- * @author Samatar
- * @since 30-06-2008
- */
+/** Sets a field value to a constant if it is null */
 public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
 
   private static final Class<?> PKG = IfNullMeta.class; // For Translator
@@ -111,13 +106,13 @@ public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
           data.setEmptyString = new boolean[typeLength];
 
           // return all type codes
-          HashSet<String> AlllistTypes = new HashSet<>();
+          HashSet<String> alllistTypes = new HashSet<>();
           for (int i = 0; i < IValueMeta.typeCodes.length; i++) {
-            AlllistTypes.add(IValueMeta.typeCodes[i]);
+            alllistTypes.add(IValueMeta.typeCodes[i]);
           }
 
           for (int i = 0; i < meta.getValueTypes().length; i++) {
-            if (!AlllistTypes.contains(meta.getValueTypes()[i].getTypeName())) {
+            if (!alllistTypes.contains(meta.getValueTypes()[i].getTypeName())) {
               throw new HopException(
                   BaseMessages.getString(
                       PKG,
@@ -165,7 +160,7 @@ public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
     try {
       updateFields(r);
 
-      putRow(data.outputRowMeta, r); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, r); // copy row to output rowset(s)
 
     } catch (Exception e) {
       boolean sendToErrorRow = false;

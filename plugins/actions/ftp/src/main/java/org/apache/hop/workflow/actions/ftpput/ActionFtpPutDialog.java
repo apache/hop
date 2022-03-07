@@ -45,12 +45,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the FTP Put action settings
- *
- * @author Samatar
- * @since 15-09-2007
- */
+/** This dialog allows you to edit the FTP Put action settings */
 public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionFtpPut.class; // For Translator
 
@@ -96,7 +91,10 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
 
   private LabelTextVar wProxyHost;
 
-  private LabelTextVar wSocksProxyHost, wSocksProxyPort, wSocksProxyUsername, wSocksProxyPassword;
+  private LabelTextVar wSocksProxyHost;
+  private LabelTextVar wSocksProxyPort;
+  private LabelTextVar wSocksProxyUsername;
+  private LabelTextVar wSocksProxyPassword;
 
   // These should not be translated, they are required to exist on all
   // platforms according to the documentation of "Charset".
@@ -199,11 +197,11 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     props.setLook(wServerSettings);
     wServerSettings.setText(BaseMessages.getString(PKG, "ActionFtpPut.ServerSettings.Group.Label"));
 
-    FormLayout ServerSettingsgroupLayout = new FormLayout();
-    ServerSettingsgroupLayout.marginWidth = 10;
-    ServerSettingsgroupLayout.marginHeight = 10;
+    FormLayout serverSettingsgroupLayout = new FormLayout();
+    serverSettingsgroupLayout.marginWidth = 10;
+    serverSettingsgroupLayout.marginHeight = 10;
 
-    wServerSettings.setLayout(ServerSettingsgroupLayout);
+    wServerSettings.setLayout(serverSettingsgroupLayout);
 
     // ServerName line
     Label wlServerName = new Label(wServerSettings, SWT.RIGHT);
@@ -377,10 +375,10 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     props.setLook(wAdvancedSettings);
     wAdvancedSettings.setText(
         BaseMessages.getString(PKG, "ActionFtpPut.AdvancedSettings.Group.Label"));
-    FormLayout AdvancedSettingsgroupLayout = new FormLayout();
-    AdvancedSettingsgroupLayout.marginWidth = 10;
-    AdvancedSettingsgroupLayout.marginHeight = 10;
-    wAdvancedSettings.setLayout(AdvancedSettingsgroupLayout);
+    FormLayout advancedSettingsgroupLayout = new FormLayout();
+    advancedSettingsgroupLayout.marginWidth = 10;
+    advancedSettingsgroupLayout.marginHeight = 10;
+    wAdvancedSettings.setLayout(advancedSettingsgroupLayout);
 
     // Binary mode selection...
     Label wlBinaryMode = new Label(wAdvancedSettings, SWT.RIGHT);
@@ -498,10 +496,10 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     Composite wFilesComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wFilesComp);
 
-    FormLayout FilesLayout = new FormLayout();
-    FilesLayout.marginWidth = 3;
-    FilesLayout.marginHeight = 3;
-    wFilesComp.setLayout(FilesLayout);
+    FormLayout filesLayout = new FormLayout();
+    filesLayout.marginWidth = 3;
+    filesLayout.marginHeight = 3;
+    wFilesComp.setLayout(filesLayout);
 
     // ////////////////////////
     // START OF Source SETTINGS GROUP///
@@ -509,10 +507,10 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     Group wSourceSettings = new Group(wFilesComp, SWT.SHADOW_NONE);
     props.setLook(wSourceSettings);
     wSourceSettings.setText(BaseMessages.getString(PKG, "ActionFtpPut.SourceSettings.Group.Label"));
-    FormLayout SourceSettinsgroupLayout = new FormLayout();
-    SourceSettinsgroupLayout.marginWidth = 10;
-    SourceSettinsgroupLayout.marginHeight = 10;
-    wSourceSettings.setLayout(SourceSettinsgroupLayout);
+    FormLayout sourceSettinsgroupLayout = new FormLayout();
+    sourceSettinsgroupLayout.marginWidth = 10;
+    sourceSettinsgroupLayout.marginHeight = 10;
+    wSourceSettings.setLayout(sourceSettinsgroupLayout);
 
     // Local (source) directory line
     Label wlLocalDirectory = new Label(wSourceSettings, SWT.RIGHT);
@@ -623,10 +621,10 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     Group wTargetSettings = new Group(wFilesComp, SWT.SHADOW_NONE);
     props.setLook(wTargetSettings);
     wTargetSettings.setText(BaseMessages.getString(PKG, "ActionFtpPut.TargetSettings.Group.Label"));
-    FormLayout TargetSettinsgroupLayout = new FormLayout();
-    TargetSettinsgroupLayout.marginWidth = 10;
-    TargetSettinsgroupLayout.marginHeight = 10;
-    wTargetSettings.setLayout(TargetSettinsgroupLayout);
+    FormLayout targetSettinsgroupLayout = new FormLayout();
+    targetSettinsgroupLayout.marginWidth = 10;
+    targetSettinsgroupLayout.marginHeight = 10;
+    wTargetSettings.setLayout(targetSettinsgroupLayout);
 
     // Remote Directory line
     Label wlRemoteDirectory = new Label(wTargetSettings, SWT.RIGHT);
@@ -697,10 +695,10 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     Composite wSocksProxyComp = new Composite(wTabFolder, SWT.NONE);
     props.setLook(wSocksProxyComp);
 
-    FormLayout SoxProxyLayout = new FormLayout();
-    SoxProxyLayout.marginWidth = 3;
-    SoxProxyLayout.marginHeight = 3;
-    wSocksProxyComp.setLayout(SoxProxyLayout);
+    FormLayout soxProxyLayout = new FormLayout();
+    soxProxyLayout.marginWidth = 3;
+    soxProxyLayout.marginHeight = 3;
+    wSocksProxyComp.setLayout(soxProxyLayout);
 
     // ////////////////////////////////////////////////////////
     // Start of Proxy Group
@@ -709,10 +707,10 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     props.setLook(wSocksProxy);
     wSocksProxy.setText(BaseMessages.getString(PKG, "ActionFtpPut.SocksProxy.Group.Label"));
 
-    FormLayout SocksProxyGroupLayout = new FormLayout();
-    SocksProxyGroupLayout.marginWidth = 10;
-    SocksProxyGroupLayout.marginHeight = 10;
-    wSocksProxy.setLayout(SocksProxyGroupLayout);
+    FormLayout socksProxyGroupLayout = new FormLayout();
+    socksProxyGroupLayout.marginWidth = 10;
+    socksProxyGroupLayout.marginHeight = 10;
+    wSocksProxy.setLayout(socksProxyGroupLayout);
 
     // host line
     wSocksProxyHost =

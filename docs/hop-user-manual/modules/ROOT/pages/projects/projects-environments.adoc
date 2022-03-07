@@ -31,9 +31,9 @@ To create a new project click the *Add a new project* button.
 image:hop-gui/environment/project-add.svg[Add a new project]
 
 
-This button opens the following dialogue:
+This button opens the following dialog:
 
-image:hop-gui/environment/create-project-dialogue.png[Create a project,width="60%"]
+image:hop-gui/environment/create-project-dialog.png[Create a project,width="90%"]
 
 .Project Properties
 [id="tab-proj-props",cols="20%,45%,5%,5%,25%",options="header"]
@@ -42,13 +42,14 @@ image:hop-gui/environment/create-project-dialogue.png[Create a project,width="60
 |Name|The project name|Yes|No|
 |Home folder|The folder where the project is located|Yes|No|
 |Configuration file (relative path)|The folder where the project's configuration json is located.|Yes|Yes|
+|Parent project to inherit from|The project to inherit metadata (e.g. connections) from|Yes|No|default
 |Description|A description for this environment|No|No|
 |Company|The company this environment belongs to|No|No|
 |Department|The department this environment is created for|No|No|
-|Metadata base folder|The folder where this environment's metadata will be stored|Yes|Yes|{openvar}ENVIRONMENT_HOME{closevar}/metadata
-|Unit test base path|The folder where this environment's unit tests will be stored|Yes|Yes|{openvar}ENVIRONMENT_HOME{closevar}
-|Data Sets CSV Folder|The folder where this environment's data files will be stored|Yes|Yes|{openvar}ENVIRONMENT_HOME{closevar}/datasets
-|Enforce execution in environment home|Give an error when trying to execute a pipeline or workflow which is not located in the environment home directory or in a sub-directory|Yes|Yes|checked
+|Metadata base folder|The folder where this environment's metadata will be stored|Yes|Yes|{openvar}PROJECT_HOME{closevar}/metadata
+|Unit test base path|The folder where this environment's unit tests will be stored|Yes|Yes|{openvar}PROJECT_HOME{closevar}
+|Data Sets CSV Folder|The folder where this environment's data files will be stored|Yes|Yes|{openvar}PROJECT_HOME{closevar}/datasets
+|Enforce execution in project home|Give an error when trying to execute a pipeline or workflow which is not located in the environment home directory or in a sub-directory|Yes|Yes|checked
 |Project variables to set|A list of variable names, values and variable descriptions to use with this project|No|Yes|
 |===
 
@@ -69,7 +70,7 @@ image:hop-gui/environment/create-environment-dialogue.png[Create an environment,
 |===
 |Property|Description|Variables Supported|Mandatory|Default
 |Name|The environment name|No|No|The last created project
-|Purpose a|The purpose of this environment
+|Purpose a|The purpose of this environment. A purpose is an indication of the environment type. You can add your own purposes in addition to the predefined ones:
 
 * Development
 * Testing
@@ -82,7 +83,14 @@ image:hop-gui/environment/create-environment-dialogue.png[Create an environment,
 |Configuration files|Files to use as configuration for this environment|No|No|
 |===
 
+Each environment will contain one or more environment files where you manage environment-specific variables.
+
+The edit button opens the environment file and lets you add variable key-value pairs.
+
+image::hop-gui/environment/environment-variables.png[Environment Variables, width="80%"]
+
 After creating an environment the user interface will switch to it.
+
 
 == Switch between projects and environments
 
@@ -115,7 +123,7 @@ image:hop-gui/environment/environment-edit.svg[Edit the selected environment]
 
 Clicking this button will re-open the project dialogue where changes can be made as described in <<tab-env-props>>.
 
-To delete a project click the *Delete the selected environment* button.
+To delete an environment click the *Delete the selected environment* button.
 
 image:hop-gui/environment/environment-delete.svg[Delete the selected environment]
 

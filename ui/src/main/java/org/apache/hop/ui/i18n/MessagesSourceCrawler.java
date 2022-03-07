@@ -37,11 +37,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This class takes care of crawling through the source code
- *
- * @author matt
- */
+/** This class takes care of crawling through the source code */
 public class MessagesSourceCrawler {
 
   /** The Hop source code */

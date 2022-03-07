@@ -16,21 +16,28 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Mail action sends a text or HTML email with optional file attachments.
 
 = Mail
 
 == Description
 
-Use the Mail action to send a text or HTML email with optional file attachments.
-This workflow action is used at the end of a workflow run in most instances.
+The Mail action sends a text or HTML email with optional file attachments.
+
+This action is used at the end of a workflow run in most instances.
+
 It can be used to announce both a workflow failure or success.
+
 For example, it is not uncommon at the end of a successful load, to send an email to a distribution list announcing that the load was successful and include a log file.
+
 If there are errors, an email can be sent to alert individuals on a distribution list.
 
 The Mail action requires an SMTP server.
+
 You can use authentication and security as part of the connection but you must have the SMTP credentials.
 
 You can attach files to your email messages such as error logs and regular logs.
+
 In addition, logs can be zipped into a single archive for convenience.
 
 == Options

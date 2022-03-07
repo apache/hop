@@ -35,6 +35,8 @@ import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.errors.WakeupException;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,12 +48,12 @@ public class KafkaConsumerInput
   private static final Class<?> PKG = KafkaConsumerInputMeta.class; // For Translator
 
   public KafkaConsumerInput(
-      TransformMeta transformMeta,
-      KafkaConsumerInputMeta meta,
-      KafkaConsumerInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
+          TransformMeta transformMeta,
+          KafkaConsumerInputMeta meta,
+          KafkaConsumerInputData data,
+          int copyNr,
+          PipelineMeta pipelineMeta,
+          Pipeline pipeline) {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
@@ -70,7 +72,9 @@ public class KafkaConsumerInput
       log.logError("Error determining output row metadata", e);
     }
 
-    data.batch = Const.toInt(resolve(meta.getBatchSize()), -1);
+    data.incomingRowsBuffer= new ArrayList<>();
+    data.batchDuration = Const.toInt(resolve(meta.getBatchDuration()), 0);
+    data.batchSize = Const.toInt(resolve(meta.getBatchSize()), 0);
 
     data.consumer = buildKafkaConsumer(this, meta);
 
@@ -104,7 +108,7 @@ public class KafkaConsumerInput
       logDetailed("Loaded sub-pipeline '" + realFilename + "'");
 
       LocalPipelineEngine kafkaPipeline =
-          new LocalPipelineEngine(subTransMeta, this, getPipeline());
+              new LocalPipelineEngine(subTransMeta, this, getPipeline());
       kafkaPipeline.prepareExecution();
       kafkaPipeline.setLogLevel(getPipeline().getLogLevel());
       kafkaPipeline.setPreviousResult(new Result());
@@ -121,9 +125,9 @@ public class KafkaConsumerInput
         if (iTransform instanceof InjectorMeta) {
           if (data.rowProducer != null) {
             throw new HopException(
-                "You can only have one copy of the injector transform '"
-                    + transformMeta.getName()
-                    + "' to accept the Kafka messages");
+                    "You can only have one copy of the injector transform '"
+                            + transformMeta.getName()
+                            + "' to accept the Kafka messages");
           }
           // Attach an injector to this transform
           //
@@ -133,7 +137,7 @@ public class KafkaConsumerInput
 
       if (data.rowProducer == null) {
         throw new HopException(
-            "Unable to find an Injector transform in the Kafka pipeline. Such a transform is needed to accept data from this Kafka Consumer transform.");
+                "Unable to find an Injector transform in the Kafka pipeline. Such a transform is needed to accept data from this Kafka Consumer transform.");
       }
 
       // See if we need to grab result records from the sub-pipeline...
@@ -142,24 +146,29 @@ public class KafkaConsumerInput
         ITransform transform = kafkaPipeline.findRunThread(meta.getSubTransform());
         if (transform == null) {
           throw new HopException(
-              "Unable to find transform '" + meta.getSubTransform() + "' to retrieve rows from");
+                  "Unable to find transform '" + meta.getSubTransform() + "' to retrieve rows from");
         }
         transform.addRowListener(
-            new RowAdapter() {
+                new RowAdapter() {
 
-              @Override
-              public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
-                  throws HopTransformException {
-                // Write this row to the next transform(s)
-                //
-                KafkaConsumerInput.this.putRow(rowMeta, row);
-              }
-            });
+                  @Override
+                  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
+                          throws HopTransformException {
+                    // Write this row to the next transform(s)
+                    //
+                    KafkaConsumerInput.this.putRow(rowMeta, row);
+                  }
+                });
       }
-
+      kafkaPipeline.setLogChannel(getLogChannel());
       kafkaPipeline.startThreads();
 
-      data.executor = new SingleThreadedPipelineExecutor(kafkaPipeline);
+      if (errorHandlingConditionIsSatisfied()) {
+        data.executor = new SingleThreadedPipelineExecutor(kafkaPipeline, true);
+      } else {
+        // If the conditions for error handling are not met init SingleThreadedExecutor normally
+        data.executor = new SingleThreadedPipelineExecutor(kafkaPipeline);
+      }
 
       // Initialize the sub-pipeline
       //
@@ -201,11 +210,11 @@ public class KafkaConsumerInput
     // The basics
     //
     config.put(
-        ConsumerConfig.GROUP_ID_CONFIG,
-        variables.resolve(Const.NVL(meta.getConsumerGroup(), "Apache Hop")));
+            ConsumerConfig.GROUP_ID_CONFIG,
+            variables.resolve(Const.NVL(meta.getConsumerGroup(), "Apache Hop")));
     config.put(
-        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-        variables.resolve(meta.getDirectBootstrapServers()));
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+            variables.resolve(meta.getDirectBootstrapServers()));
     config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, meta.isAutoCommit());
 
     // Timeout : max batch wait
@@ -227,7 +236,7 @@ public class KafkaConsumerInput
     String keySerializerClass = meta.getKeyField().getOutputType().getKafkaDeserializerClass();
     config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keySerializerClass);
     String valueSerializerClass =
-        meta.getMessageField().getOutputType().getKafkaDeserializerClass();
+            meta.getMessageField().getOutputType().getKafkaDeserializerClass();
     config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueSerializerClass);
 
     // Other options?
@@ -249,8 +258,9 @@ public class KafkaConsumerInput
     // If we get any, process them...
     //
     try {
-      ConsumerRecords<String, String> records =
-          data.consumer.poll(data.batch > 0 ? data.batch : Long.MAX_VALUE);
+      Duration duration = Duration.ofMillis(data.batchDuration > 0 ? data.batchDuration : Long.MAX_VALUE);
+      ConsumerRecords<Object, Object> records =
+              data.consumer.poll(duration);
 
       if (!data.isKafkaConsumerClosing) {
         if (records.isEmpty()) {
@@ -259,12 +269,15 @@ public class KafkaConsumerInput
         } else {
           // Grab the records...
           //
-          for (ConsumerRecord<String, String> record : records) {
+          for (ConsumerRecord<Object, Object> record : records) {
             Object[] outputRow = processMessageAsRow(record);
             data.rowProducer.putRow(data.outputRowMeta, outputRow);
+            if (errorHandlingConditionIsSatisfied()) {
+              data.incomingRowsBuffer.add(outputRow);
+            }
             incrementLinesInput();
           }
-
+          logBasic("Number of rows read: " + data.rowProducer.getRowSet().size());
           // Pass them to the single threaded transformation and do an iteration...
           //
           data.executor.oneIteration();
@@ -272,15 +285,38 @@ public class KafkaConsumerInput
           if (data.executor.isStopped() || data.executor.getErrors() > 0) {
             // An error occurred in the sub-transformation
             //
-            data.executor.getPipeline().stopAll();
-            setOutputDone();
-            stopAll();
-            return false;
+            logDebug("Executor's reported errors #: " + data.executor.getErrors());
+            if (data.executor.getErrors() > 0 && errorHandlingConditionIsSatisfied()) {
+              // If error handling is enabled return record that generates error in subpipeline
+              // For future improvements in managing rows that generates error in sub pipeline
+              // loop through the lines of the collected lines buffer even if we assume to have only one line
+              // in the buffer
+              for (int i = 0; i < data.incomingRowsBuffer.size(); i++) {
+                putError(
+                    data.outputRowMeta,
+                    data.incomingRowsBuffer.get(i),
+                    1L,
+                    "An error occurred while processing the subpipeline",
+                    null,
+                    "KAFKA001");
+              }
+            } else {
+              // Otherwise proceed normally
+              data.executor.getPipeline().stopAll();
+              setOutputDone();
+              stopAll();
+              return false;
+            }
           }
 
-          // Confirm everything is processed correctly...
+          // Confirm everything is processed. In case error handling is enabled, this is valid too because it helps in
+          // "removing" failing items from the kafka queue
           //
           data.consumer.commitAsync();
+          data.executor.buildExecutionSummary();
+          if (errorHandlingConditionIsSatisfied()) {
+            data.incomingRowsBuffer.clear();
+          }
         }
       }
     } catch (WakeupException e) {
@@ -290,10 +326,34 @@ public class KafkaConsumerInput
       setOutputDone();
       stopAll();
     }
+
+    if (data.executor.getErrors() > 0 && errorHandlingConditionIsSatisfied()) {
+      // Once we got an error in the called sub-pipeline, to be really safe we re-initialize it
+      // to be safe and having everything working properly once again
+      // Load and start the single threader transformation
+      //
+      try {
+        data.executor.getPipeline().stopAll();
+        data.executor.dispose();
+
+        data.rowProducer = null;
+
+        initSubPipeline();
+      } catch (Exception e) {
+        logError("Error initializing sub-transformation", e);
+        return false;
+      }
+    }
     return true;
   }
 
-  public Object[] processMessageAsRow(ConsumerRecord<String, String> record) {
+  private boolean errorHandlingConditionIsSatisfied () {
+    // Added a check to be sure that lines collecting for error handling is limited
+    // to the case of batchSize = 1.
+    return getTransformMeta().isDoingErrorHandling() && data.batchSize == 1;
+  }
+
+  public Object[] processMessageAsRow(ConsumerRecord<Object, Object> record) {
 
     Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
 

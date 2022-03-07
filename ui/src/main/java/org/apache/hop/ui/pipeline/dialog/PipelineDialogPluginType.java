@@ -23,11 +23,7 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
-/**
- * This plugin allows you to capture additional information concerning pipelines
- *
- * @author matt
- */
+/** This plugin allows you to capture additional information concerning pipelines */
 @PluginMainClassType(IPipelineDialogPlugin.class)
 @PluginAnnotationType(PipelineDialogPlugin.class)
 public class PipelineDialogPluginType extends BasePluginType<PipelineDialogPlugin> {

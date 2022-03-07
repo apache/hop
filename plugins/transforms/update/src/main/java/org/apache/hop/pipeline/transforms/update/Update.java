@@ -24,9 +24,9 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -199,6 +199,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     return outputRow;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     boolean sendToErrorRow = false;
@@ -217,10 +218,10 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       // What's the output Row format?
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
       data.schemaTable =
-          meta.getDatabaseMeta()
-              .getQuotedSchemaTableCombination(this, meta.getLookupField().getSchemaName(), meta.getLookupField().getTableName());
+          databaseMeta.getQuotedSchemaTableCombination(
+              this, meta.getLookupField().getSchemaName(), meta.getLookupField().getTableName());
 
       // lookup the values!
       if (log.isDetailed()) {
@@ -329,7 +330,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       Object[] outputRow =
           lookupValues(getInputRowMeta(), r); // add new values to the row in rowset[0].
       if (outputRow != null) {
-        putRow(data.outputRowMeta, outputRow); // copy non-ignored rows to output rowset(s);
+        putRow(data.outputRowMeta, outputRow); // copy non-ignored rows to output rowset(s)
       }
       if (checkFeedback(getLinesRead())) {
         if (log.isBasic()) {
@@ -361,7 +362,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     data.lookupParameterRowMeta = new RowMeta();
     data.lookupReturnRowMeta = new RowMeta();
 
-    DatabaseMeta databaseMeta = meta.getDatabaseMeta();
+    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
     String sql = "SELECT ";
 
@@ -433,7 +434,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
 
   // Lookup certain fields in a table
   public void prepareUpdate(IRowMeta rowMeta) throws HopDatabaseException {
-    DatabaseMeta databaseMeta = meta.getDatabaseMeta();
+    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
     data.updateParameterRowMeta = new RowMeta();
 
     String sql = "UPDATE " + data.schemaTable + Const.CR;
@@ -448,7 +449,8 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       }
       sql += databaseMeta.quoteField(fieldItem.getUpdateLookup());
       sql += " = ?" + Const.CR;
-      data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(fieldItem.getUpdateStream()));
+      data.updateParameterRowMeta.addValueMeta(
+          rowMeta.searchValueMeta(fieldItem.getUpdateStream()));
     }
 
     sql += "WHERE ";
@@ -504,17 +506,19 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     }
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
-      if (meta.getConnection() == null) {
+
+      if (Utils.isEmpty(meta.getConnection())) {
         logError(BaseMessages.getString(PKG, "Update.Init.ConnectionMissing", getTransformName()));
         return false;
       }
-      meta.setDatabaseMeta(getPipelineMeta().findDatabase(meta.getConnection(), variables));
 
-      // TODO DatabaseMeta
-      data.db = new Database(this, this, meta.getDatabaseMeta());
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+      data.db = new Database(this, this, databaseMeta);
+
       try {
         data.db.connect();
 
@@ -554,6 +558,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
           if (getErrors() == 0) {
             if (dispose) {
               data.db.emptyAndCommit(data.prepStatementUpdate, meta.isUseBatchUpdate());
+              data.prepStatementUpdate = null;
             } else {
               data.db.commit();
             }
@@ -562,21 +567,25 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
           }
         }
         if (dispose) {
-          data.db.closePreparedStatement(data.prepStatementUpdate);
-          data.db.closePreparedStatement(data.prepStatementLookup);
+          // Check if prepStatementLookup is closed correctly
+          if (data.prepStatementLookup != null) {
+            data.db.closePreparedStatement(data.prepStatementLookup);
+          }
+          data.prepStatementLookup = null;
         }
       } catch (HopDatabaseException e) {
         logError(
-                BaseMessages.getString(PKG, "Update.Log.UnableToCommitUpdateConnection")
-                        + data.db
-                        + "] :"
-                        + e.toString());
+            BaseMessages.getString(PKG, "Update.Log.UnableToCommitUpdateConnection")
+                + data.db
+                + "] :"
+                + e.toString());
         setErrors(1);
       } finally {
-        if (dispose)
+        if (dispose) {
           data.db.disconnect();
+          data.db = null;
+        }
       }
     }
-
   }
 }

@@ -272,7 +272,6 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     input.setTypeField(wTypefield.getText());
 
     int i;
-    // Table table = wFields.table;
 
     int nrFields = wFields.nrNonEmpty();
     input.allocate(nrFields);

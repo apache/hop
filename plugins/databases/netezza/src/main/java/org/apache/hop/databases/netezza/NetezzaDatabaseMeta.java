@@ -27,11 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Netezza specific information through static final members
- *
- * @author Biswapesh
- * @since 16-oct-2006
  */
-@DatabaseMetaPlugin(type = "NETEZZA", typeDescription = "Netezza")
+@DatabaseMetaPlugin(type = "NETEZZA", typeDescription = "Netezza", documentationUrl = "/database/databases/netezza.html")
 @GuiPlugin(id = "GUI-NetezzaDatabaseMeta")
 public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public static final int MAX_CHAR_LEN = 32767;

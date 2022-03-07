@@ -54,7 +54,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   protected Point area;
 
-  protected IScrollBar hori, vert;
+  protected IScrollBar hori;
+  protected IScrollBar vert;
 
   protected List<AreaOwner> areaOwners;
 
@@ -107,7 +108,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.areaOwners = areaOwners;
     areaOwners.clear(); // clear it before we start filling it up again.
 
-    // props = PropsUI.getInstance();
     this.iconSize = iconSize;
     this.miniIconSize = iconSize / 2;
     this.lineWidth = lineWidth;
@@ -123,18 +123,18 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.noteFontHeight = noteFontHeight;
   }
 
-  public static EImage getStreamIconImage(StreamIcon streamIcon) {
+  public static EImage getStreamIconImage(StreamIcon streamIcon, boolean enabled) {
     switch (streamIcon) {
       case TRUE:
-        return EImage.TRUE;
+        return (enabled) ? EImage.TRUE : EImage.TRUE_DISABLED;
       case FALSE:
-        return EImage.FALSE;
+        return (enabled) ? EImage.FALSE : EImage.FALSE_DISABLED;
       case ERROR:
-        return EImage.ERROR;
+        return (enabled) ? EImage.ERROR : EImage.ERROR_DISABLED;
       case INFO:
-        return EImage.INFO;
+        return (enabled) ? EImage.INFO : EImage.INFO_DISABLED;
       case TARGET:
-        return EImage.TARGET;
+        return (enabled) ? EImage.TARGET : EImage.TARGET_DISABLED;
       case INPUT:
         return EImage.INPUT;
       case OUTPUT:
@@ -186,19 +186,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     }
 
     Rectangle noteShape = new Rectangle(note.x, note.y, width, height);
-
-    /*
-    int[] noteShape = new int[] {
-      note.x, note.y, // Top left
-      note.x + width + 2 * margin, note.y, // Top right
-      note.x + width + 2 * margin, note.y + height, // bottom right 1
-      note.x + width, note.y + height + 2 * margin, // bottom right 2
-      note.x + width, note.y + height, // bottom right 3
-      note.x + width + 2 * margin, note.y + height, // bottom right 1
-      note.x + width, note.y + height + 2 * margin, // bottom right 2
-      note.x, note.y + height + 2 * margin // bottom left
-    };
-     */
 
     gc.setBackground(
         notePadMeta.getBackGroundColorRed(),
@@ -334,7 +321,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   }
 
   protected int calcArrowLength() {
-    return 19 + (lineWidth - 1) * 5; // arrowhead length;
+    return 19 + (lineWidth - 1) * 5; // arrowhead length
   }
 
   /** @return the magnification */

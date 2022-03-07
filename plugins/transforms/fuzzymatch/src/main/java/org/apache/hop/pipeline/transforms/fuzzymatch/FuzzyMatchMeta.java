@@ -49,6 +49,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.FuzzyMatch",
     description = "i18n::BaseTransform.TypeTooltipDesc.FuzzyMatch",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+    keywords = "i18n::FuzzyMatchMeta.keyword",
     documentationUrl = "/pipeline/transforms/fuzzymatch.html")
 public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData> {
   private static final Class<?> PKG = FuzzyMatchMeta.class; // For Translator
@@ -517,7 +518,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "FuzzyMatchMeta.CheckResult.TransformReceivingFields", prev.size() + ""),
               transformMeta);
@@ -530,14 +531,14 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
       if (idx < 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
                     PKG, "FuzzyMatchMeta.CheckResult.MainFieldNotFound", mainField),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "FuzzyMatchMeta.CheckResult.MainFieldFound", mainField),
                 transformMeta);
       }
@@ -546,7 +547,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "FuzzyMatchMeta.CheckResult.CouldNotFindFieldsFromPreviousTransforms"),
               transformMeta);
@@ -556,7 +557,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     if (info != null && info.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "FuzzyMatchMeta.CheckResult.TransformReceivingLookupData", info.size() + ""),
               transformMeta);
@@ -569,14 +570,14 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
       if (idx < 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
                     PKG, "FuzzyMatchMeta.CheckResult.FieldNotFoundInLookupStream", lookupField),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG, "FuzzyMatchMeta.CheckResult.FieldFoundInTheLookupStream", lookupField),
                 transformMeta);
@@ -613,7 +614,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "FuzzyMatchMeta.CheckResult.FieldsNotFoundFromInLookupSep"),
               transformMeta);
@@ -625,14 +626,14 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     if (infoStream.getTransformMeta() == null) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "FuzzyMatchMeta.CheckResult.SourceTransformNotSelected"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "FuzzyMatchMeta.CheckResult.SourceTransformIsSelected"),
               transformMeta);
       remarks.add(cr);
@@ -642,7 +643,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
       if (info != null) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG,
                     "FuzzyMatchMeta.CheckResult.SourceTransformExist",
@@ -652,7 +653,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
                     PKG,
                     "FuzzyMatchMeta.CheckResult.SourceTransformDoesNotExist",
@@ -666,7 +667,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     if (input.length >= 2) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "FuzzyMatchMeta.CheckResult.TransformReceivingInfoFromInputTransforms",
@@ -676,7 +677,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "FuzzyMatchMeta.CheckResult.NeedAtLeast2InputStreams", Const.CR, Const.CR),
               transformMeta);

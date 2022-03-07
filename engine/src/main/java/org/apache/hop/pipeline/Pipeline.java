@@ -65,9 +65,6 @@ import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.*;
  * This class represents the information and operations associated with the execution of a Pipeline.
  * It loads, instantiates, initializes, runs, and monitors the execution of the pipeline contained
  * in the specified PipelineMeta object.
- *
- * @author Matt
- * @since 07-04-2003
  */
 public abstract class Pipeline
     implements IVariables,
@@ -987,7 +984,7 @@ public abstract class Pipeline
       // Halt the other threads as well, signal end-of-the line to the outside
       // world...
       // Also explicitly call dispose() to clean up resources opened during
-      // init();
+      // init()
       //
       for (TransformInitThread initThread : initThreads) {
         TransformMetaDataCombi combi = initThread.getCombi();
@@ -1503,8 +1500,6 @@ public abstract class Pipeline
    * @return true the specified transform (or transform copy) has started, false otherwise
    */
   public boolean hasTransformStarted(String sname, int copy) {
-    // log.logDetailed("DIS: Checking wether of not ["+sname+"]."+cnr+" has started!");
-    // log.logDetailed("DIS: hasTransformStarted() looking in "+threads.size()+" threads");
     for (TransformMetaDataCombi sid : transforms) {
       boolean started =
           (sid.transformName != null && sid.transformName.equalsIgnoreCase(sname))
@@ -1835,52 +1830,6 @@ public abstract class Pipeline
 
     return string.toString();
   }
-
-  /**
-   * Gets the mapping inputs for each transform in the pipeline.
-   *
-   * @return an array of MappingInputs
-   */
-  // TODO: cleanup if no londer needed
-  //  public MappingInput[] findMappingInput() {
-  //    if ( transforms == null ) {
-  //      return null;
-  //    }
-  //
-  //    List<MappingInput> list = new ArrayList<>();
-  //
-  //    // Look in threads and find the MappingInput transform thread...
-  //    for ( int i = 0; i < transforms.size(); i++ ) {
-  //      TransformMetaDataCombi smdc = transforms.get( i );
-  //      ITransform transform = smdc.transform;
-  //      if ( transform.getTransformPluginId().equalsIgnoreCase( "MappingInput" ) ) {
-  //        list.add( (MappingInput) transform );
-  //      }
-  //    }
-  //    return list.toArray( new MappingInput[ list.size() ] );
-  //  }
-
-  /**
-   * Gets the mapping outputs for each transform in the pipeline.
-   *
-   * @return an array of MappingOutputs
-   */
-  //  TODO: cleanup if no londer needed
-  //  public MappingOutput[] findMappingOutput() {
-  //    List<MappingOutput> list = new ArrayList<>();
-  //
-  //    if ( transforms != null ) {
-  //      // Look in threads and find the MappingInput transform thread...
-  //      for ( int i = 0; i < transforms.size(); i++ ) {
-  //        TransformMetaDataCombi smdc = transforms.get( i );
-  //        ITransform transform = smdc.transform;
-  //        if ( transform.getTransformPluginId().equalsIgnoreCase( "MappingOutput" ) ) {
-  //          list.add( (MappingOutput) transform );
-  //        }
-  //      }
-  //    }
-  //    return list.toArray( new MappingOutput[ list.size() ] );
-  //  }
 
   /**
    * Find the ITransform (thread) by looking it up using the name.

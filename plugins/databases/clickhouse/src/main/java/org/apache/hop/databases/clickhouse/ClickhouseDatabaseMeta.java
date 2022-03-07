@@ -33,7 +33,7 @@ import org.apache.hop.core.util.Utils;
  *
  * <p>https://clickhouse.tech/docs/en/sql-reference/
  */
-@DatabaseMetaPlugin(type = "CLICKHOUSE", typeDescription = "ClickHouse")
+@DatabaseMetaPlugin(type = "CLICKHOUSE", typeDescription = "ClickHouse", documentationUrl = "/database/databases/clickhouse.html")
 @GuiPlugin(id = "GUI-ClickhouseDatabaseMeta")
 public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 

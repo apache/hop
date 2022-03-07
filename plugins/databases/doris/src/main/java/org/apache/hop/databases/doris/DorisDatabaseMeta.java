@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.databases.mariadb;
+package org.apache.hop.databases.doris;
 
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.databases.mysql.MySqlDatabaseMeta;
 
-@DatabaseMetaPlugin(type = "DORIS", typeDescription = "Apache Doris")
+@DatabaseMetaPlugin(type = "DORIS", typeDescription = "Apache Doris", documentationUrl = "/database/databases/doris.html")
 @GuiPlugin(id = "GUI-DorisDatabaseMeta")
 public class DorisDatabaseMeta extends MySqlDatabaseMeta {}

@@ -19,7 +19,9 @@ package org.apache.hop.ui.core.gui;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.ui.core.ConstUi;
@@ -28,10 +30,20 @@ import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
 
 /** This class contains the widgets for the GUI elements of a GUI Plugin */
 public class GuiToolbarWidgets extends BaseGuiWidgets {
@@ -109,7 +121,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
           new CLabel(parent, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
       label.setText(Const.NVL(toolbarItem.getLabel(), ""));
       label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
-      label.setBackground(toolBar.getBackground());
+      props.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
       label.pack();
       labelSeparator.setWidth(label.getSize().x);
       labelSeparator.setControl(label);
@@ -124,8 +136,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         CLabel label =
             new CLabel(parent, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
         label.setText(Const.NVL(toolbarItem.getLabel(), ""));
-        label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
-        label.setBackground(toolBar.getBackground());
+        label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));        
+        props.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
         label.pack();
         labelSeparator.setWidth(label.getSize().x);
         labelSeparator.setControl(label);
@@ -141,24 +153,11 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
       case BUTTON:
         ToolItem item = new ToolItem(toolBar, SWT.NONE);
-        if (StringUtils.isNotEmpty(toolbarItem.getImage())) {
-          item.setImage(
-              GuiResource.getInstance()
-                  .getImage(
-                      toolbarItem.getImage(),
-                      toolbarItem.getClassLoader(),
-                      ConstUi.SMALL_ICON_SIZE,
-                      ConstUi.SMALL_ICON_SIZE));
-        }
-        if (StringUtils.isNotEmpty(toolbarItem.getDisabledImage())) {
-          item.setDisabledImage(
-              GuiResource.getInstance()
-                  .getImage(
-                      toolbarItem.getDisabledImage(),
-                      toolbarItem.getClassLoader(),
-                      ConstUi.SMALL_ICON_SIZE,
-                      ConstUi.SMALL_ICON_SIZE));
-        }
+        setImages(
+            item,
+            toolbarItem.getClassLoader(),
+            toolbarItem.getImage(),
+            toolbarItem.getDisabledImage());
         if (StringUtils.isNotEmpty(toolbarItem.getToolTip())) {
           item.setToolTipText(toolbarItem.getToolTip());
         }
@@ -169,6 +168,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
                 toolbarItem.getListenerMethod());
         item.addListener(SWT.Selection, listener);
         toolItemMap.put(toolbarItem.getId(), item);
+        setToolItemKeyboardShortcut(item, toolbarItem);
         break;
 
       case COMBO:
@@ -177,6 +177,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             new Combo(parent, SWT.SINGLE | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
         combo.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
         combo.setItems(getComboItems(toolbarItem));
+        props.setLook(combo);
         combo.pack();
         comboSeparator.setWidth(
             calculateComboWidth(combo)
@@ -191,6 +192,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         combo.addListener(SWT.DefaultSelection, listener);
         toolItemMap.put(toolbarItem.getId(), comboSeparator);
         widgetsMap.put(toolbarItem.getId(), combo);
+        props.setLook(combo, Props.WIDGET_STYLE_TOOLBAR);
         break;
 
       case CHECKBOX:
@@ -199,7 +201,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             new Button(parent, SWT.CHECK | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
         checkbox.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
         checkbox.setText(Const.NVL(toolbarItem.getLabel(), ""));
-        checkbox.setBackground(toolBar.getBackground());
+        props.setLook(checkbox);
         checkbox.pack();
         checkboxSeparator.setWidth(
             checkbox.getSize().x
@@ -217,6 +219,42 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
       default:
         break;
+    }
+  }
+
+/**
+ * See if there's a shortcut worth mentioning and add it to tooltip...
+ * 
+ * @param toolItem
+ * @param guiToolbarItem
+ */
+  private void setToolItemKeyboardShortcut(ToolItem toolItem, GuiToolbarItem guiToolbarItem) {    
+    KeyboardShortcut shortcut =
+        GuiRegistry.getInstance()
+            .findKeyboardShortcut(
+                guiToolbarItem.getListenerClass(), guiToolbarItem.getListenerMethod(), Const.isOSX());
+    if (shortcut != null) {
+      toolItem.setToolTipText(toolItem.getToolTipText()+" ("+shortcut.toString()+')');
+    }
+  }
+  
+  private void setImages(
+      ToolItem item, ClassLoader classLoader, String location, String disabledLocation) {
+    GuiResource gr = GuiResource.getInstance();
+    int width = ConstUi.SMALL_ICON_SIZE;
+    int height = ConstUi.SMALL_ICON_SIZE;
+
+    if (StringUtils.isNotEmpty(location)) {
+      item.setImage(gr.getImage(location, classLoader, width, height));
+
+      Image disabledImage;
+      if (StringUtils.isNotEmpty(disabledLocation)) {
+        disabledImage = gr.getImage(disabledLocation, classLoader, width, height);
+      } else {
+        // Grayscale the normal image
+        disabledImage = gr.getImage(location, classLoader, width, height, true);
+      }
+      item.setDisabledImage(disabledImage);
     }
   }
 

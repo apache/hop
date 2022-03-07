@@ -55,6 +55,7 @@ import java.util.Map;
     name = "i18n::GetXMLData.name",
     description = "i18n::GetXMLData.description",
     categoryDescription = "i18n::GetXMLData.category",
+    keywords = "i18n::GetXmlDataMeta.keyword",
     documentationUrl = "/pipeline/transforms/getdatafromxml.html")
 public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData> {
   private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
@@ -114,7 +115,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
   private boolean inFields;
 
   /** Is a File */
-  private boolean IsAFile;
+  private boolean isAFile;
 
   /** Flag: add result filename * */
   private boolean addResultFile;
@@ -129,7 +130,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
   private boolean usetoken;
 
   /** Flag : do we ignore empty files */
-  private boolean IsIgnoreEmptyFile;
+  private boolean isIgnoreEmptyFile;
 
   /** Array of boolean values as string, indicating if we need to fetch sub folders. */
   private String[] includeSubFolders;
@@ -408,12 +409,12 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
 
   /** @return the IsIgnoreEmptyFile flag */
   public boolean isIgnoreEmptyFile() {
-    return IsIgnoreEmptyFile;
+    return isIgnoreEmptyFile;
   }
 
-  /** @param IsIgnoreEmptyFile the IsIgnoreEmptyFile to set */
-  public void setIgnoreEmptyFile(boolean IsIgnoreEmptyFile) {
-    this.IsIgnoreEmptyFile = IsIgnoreEmptyFile;
+  /** @param isIgnoreEmptyFile the isIgnoreEmptyFile to set */
+  public void setIgnoreEmptyFile(boolean isIgnoreEmptyFile) {
+    this.isIgnoreEmptyFile = isIgnoreEmptyFile;
   }
 
   /** @return the doNotFailIfNoFile flag */
@@ -467,11 +468,11 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
   }
 
   public boolean getIsAFile() {
-    return IsAFile;
+    return isAFile;
   }
 
-  public void setIsAFile(boolean IsAFile) {
-    this.IsAFile = IsAFile;
+  public void setIsAFile(boolean isAFile) {
+    this.isAFile = isAFile;
   }
 
   /** @return the prunePath */
@@ -532,7 +533,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     retval.append("    ").append(XmlHandler.addTagValue("readurl", readurl));
     retval.append("    ").append(XmlHandler.addTagValue("validating", validating));
     retval.append("    " + XmlHandler.addTagValue("usetoken", usetoken));
-    retval.append("    " + XmlHandler.addTagValue("IsIgnoreEmptyFile", IsIgnoreEmptyFile));
+    retval.append("    " + XmlHandler.addTagValue("IsIgnoreEmptyFile", isIgnoreEmptyFile));
     retval.append("    " + XmlHandler.addTagValue("doNotFailIfNoFile", doNotFailIfNoFile));
 
     retval.append("    ").append(XmlHandler.addTagValue("rownum_field", rowNumberField));
@@ -562,7 +563,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     retval.append("    ").append(XmlHandler.addTagValue("limit", rowLimit));
     retval.append("    ").append(XmlHandler.addTagValue("loopxpath", loopxpath));
     retval.append("    ").append(XmlHandler.addTagValue("IsInFields", inFields));
-    retval.append("    ").append(XmlHandler.addTagValue("IsAFile", IsAFile));
+    retval.append("    ").append(XmlHandler.addTagValue("IsAFile", isAFile));
     retval.append("    ").append(XmlHandler.addTagValue("XmlField", xmlField));
     retval.append("    ").append(XmlHandler.addTagValue("prunePath", prunePath));
     retval.append("    ").append(XmlHandler.addTagValue("shortFileFieldName", shortFileFieldName));
@@ -617,7 +618,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
       readurl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "readurl"));
       validating = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "validating"));
       usetoken = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "usetoken"));
-      IsIgnoreEmptyFile =
+      isIgnoreEmptyFile =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsIgnoreEmptyFile"));
       doNotFailIfNoFile =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "doNotFailIfNoFile"));
@@ -658,7 +659,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
       loopxpath = XmlHandler.getTagValue(transformNode, "loopxpath");
 
       inFields = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsInFields"));
-      IsAFile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsAFile"));
+      isAFile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsAFile"));
 
       xmlField = XmlHandler.getTagValue(transformNode, "XmlField");
       prunePath = XmlHandler.getTagValue(transformNode, "prunePath");
@@ -703,13 +704,13 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     sizeFieldName = null;
 
     usetoken = false;
-    IsIgnoreEmptyFile = false;
+    isIgnoreEmptyFile = false;
     doNotFailIfNoFile = true;
     includeFilename = false;
     filenameField = "";
     includeRowNumber = false;
     rowNumberField = "";
-    IsAFile = false;
+    isAFile = false;
     addResultFile = false;
     nameSpaceAware = false;
     ignorecomments = false;
@@ -870,14 +871,14 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     if (input.length <= 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoInputExpected"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoInput"),
               transformMeta);
       remarks.add(cr);
@@ -887,7 +888,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     if (getLoopXPath() == null || Utils.isEmpty(getLoopXPath())) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoLoopXpath"),
               transformMeta);
       remarks.add(cr);
@@ -895,7 +896,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     if (getInputFields().length <= 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoInputField"),
               transformMeta);
       remarks.add(cr);
@@ -905,32 +906,31 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
       if (Utils.isEmpty(getXMLField())) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoField"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.FieldOk"),
                 transformMeta);
         remarks.add(cr);
       }
     } else {
       FileInputList fileInputList = getFiles(variables);
-      // String files[] = getFiles();
       if (fileInputList == null || fileInputList.getFiles().size() == 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "GetXMLDataMeta.CheckResult.NoFiles"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG,
                     "GetXMLDataMeta.CheckResult.FilesOk",
@@ -1003,13 +1003,6 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
       throw new HopException(e);
     }
   }
-
-  /*
-    @Override
-    public TransformMetaInjection getTransformMetaInjectionInterface() {
-      return new GetXmlDataMetaInjection( this );
-    }
-  */
 
   @Override
   public PipelineMeta.PipelineType[] getSupportedPipelineTypes() {

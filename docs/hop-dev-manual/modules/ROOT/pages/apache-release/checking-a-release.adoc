@@ -26,7 +26,7 @@ There is no general rule on how to check a release, there is only a list on what
 == Possible checks that can be followed (Linux)
 
 Start by grabbing the artifacts mentioned in the vote mail.
-Either use the link provided in the mail or grab them https://dist.apache.org/repos/dist/dev/incubator/hop/[here].
+Either use the link provided in the mail or grab them https://dist.apache.org/repos/dist/dev/hop/[here].
 
 In these examples a folder to check everything in was created in `/tmp` and the artifacts are already in place.
 
@@ -42,26 +42,26 @@ First check would be to see if the keys and hashes are in order
 ----
 # check the sha512
 
-sha512sum -c apache-hop-X.XX-incubating-src.tar.gz.sha512
-sha512sum -c apache-hop-client-X.XX-incubating.zip.sha512
+sha512sum -c apache-hop-X.XX-src.tar.gz.sha512
+sha512sum -c apache-hop-client-X.XX.zip.sha512
 
 # should echo the artifact name and OK
 
 # check the gpg signature
 
-gpg --verify apache-hop-X.XX-incubating-src.tar.gz.asc
-gpg --verify apache-hop-client-X.XX-incubating.zip.asc
+gpg --verify apache-hop-X.XX-src.tar.gz.asc
+gpg --verify apache-hop-client-X.XX.zip.asc
 
 # if it prints out gpg: Can't check signature: No public key fetch the key from public keyserver
-# 1. Check if the keyid matches a known key in the KEYS file https://dist.apache.org/repos/dist/dev/incubator/hop/KEYS
+# 1. Check if the keyid matches a known key in the KEYS file https://dist.apache.org/repos/dist/dev/hop/KEYS
 # 2. grab the key from the public keyserver found in the release mail
 
 gpg --keyserver <KEY SERVER>  --receive-keys <KEY ID>
 
 # verify the package again
 
-gpg --verify apache-hop-X.XX-incubating-src.tar.gz.asc
-gpg --verify apache-hop-client-X.XX-incubating.zip.asc
+gpg --verify apache-hop-X.XX-src.tar.gz.asc
+gpg --verify apache-hop-client-X.XX.zip.asc
 
 # output should be:
 # gpg: Good signature from "Owner Name <Owner@apache.org>" [ultimate]
@@ -75,7 +75,7 @@ First step would be to download the matching source code from github.
 ----
 # replace branch with the branch name mentioned in the release mail
 
-git clone --depth 1 --branch X.XX-rcX https://github.com/apache/incubator-hop.git source_version
+git clone --depth 1 --branch X.XX-rcX https://github.com/apache/hop.git source_version
 
 # check if the git commit matches the commit mentioned in the release mail
 
@@ -94,11 +94,11 @@ final step is to see if the content of the source repository matches the content
 ----
 # unpack the downloaded source code
 
-tar -xvf apache-hop-X.XX-incubating-src.tar.gz
+tar -xvf apache-hop-X.XX-src.tar.gz
 
 # do a diff to see if they match
 
-diff -qr source_version apache-hop-X.XX-incubating
+diff -qr source_version apache-hop-X.XX
 
 # this should show no output indicating that all files match
 # the folder containing the source code can now be removed
@@ -119,7 +119,7 @@ Validate if all files contain the correct headers
 
 [source,bash]
 ----
-cd apache-hop-X.XX-incubating
+cd apache-hop-X.XX
 mvn apache-rat:check -debug
 ----
 

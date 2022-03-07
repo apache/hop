@@ -26,7 +26,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.logging.*;
 import org.apache.hop.core.parameters.*;
-import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -151,6 +150,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     extensionDataMap = new HashMap<>();
     logChannel = LogChannel.GENERAL;
     logLevel = LogLevel.BASIC;
+    workflowTracker = new WorkflowTracker(null);
   }
 
   @Override
@@ -201,7 +201,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       remoteWorkflowRunConfiguration =
           (RemoteWorkflowRunConfiguration) workflowRunConfiguration.getEngineRunConfiguration();
 
-      String hopServerName = remoteWorkflowRunConfiguration.getHopServerName();
+      String hopServerName = resolve(remoteWorkflowRunConfiguration.getHopServerName());
       if (StringUtils.isEmpty(hopServerName)) {
         throw new HopException("No remote Hop server was specified to run the workflow on");
       }

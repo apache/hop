@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.kafka.producer;
 
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.generic.IndexedRecord;
+import org.apache.avro.specific.SpecificData;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
@@ -66,15 +70,15 @@ public class KafkaProducerOutput
     if (first) {
       data.keyFieldIndex = getInputRowMeta().indexOfValue(resolve(meta.getKeyField()));
       data.messageFieldIndex = getInputRowMeta().indexOfValue(resolve(meta.getMessageField()));
-      IValueMeta keyValueMeta = getInputRowMeta().getValueMeta(data.keyFieldIndex);
-      IValueMeta msgValueMeta = getInputRowMeta().getValueMeta(data.messageFieldIndex);
+      data.keyValueMeta = getInputRowMeta().getValueMeta(data.keyFieldIndex);
+      data.msgValueMeta = getInputRowMeta().getValueMeta(data.messageFieldIndex);
 
       data.kafkaProducer =
           kafkaFactory.producer(
               meta,
               this::resolve,
-              KafkaConsumerField.Type.fromValueMeta(keyValueMeta),
-              KafkaConsumerField.Type.fromValueMeta(msgValueMeta));
+              KafkaConsumerField.Type.fromValueMeta(data.keyValueMeta),
+              KafkaConsumerField.Type.fromValueMeta(data.msgValueMeta));
 
       data.isOpen = true;
 
@@ -91,11 +95,17 @@ public class KafkaProducerOutput
         || StringUtils.isEmpty(r[data.keyFieldIndex].toString())) {
       producerRecord = new ProducerRecord<>(resolve(meta.getTopic()), r[data.messageFieldIndex]);
     } else {
-      producerRecord =
-          new ProducerRecord<>(
-              resolve(meta.getTopic()),
-              getInputRowMeta().getString(r, data.keyFieldIndex),
-              r[data.messageFieldIndex]);
+
+      Object nativeObject =
+          getInputRowMeta()
+              .getValueMeta(data.messageFieldIndex)
+              .getNativeDataType(r[data.messageFieldIndex]);
+
+        producerRecord =
+            new ProducerRecord<>(
+                resolve(meta.getTopic()),
+                getInputRowMeta().getString(r, data.keyFieldIndex),
+                nativeObject);
     }
 
     data.kafkaProducer.send(producerRecord);

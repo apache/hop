@@ -48,7 +48,7 @@ import static org.mockito.Mockito.*;
 
 public class XmlOutputMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  
+
   @BeforeClass
   public static void setUp() throws Exception {
     if (!HopClientEnvironment.isInitialized()) {

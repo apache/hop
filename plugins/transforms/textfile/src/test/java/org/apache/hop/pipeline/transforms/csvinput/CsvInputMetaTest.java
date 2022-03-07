@@ -67,7 +67,7 @@ public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
             "bufferSize",
@@ -112,8 +112,7 @@ public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
     transformLoadSaveTester =
         new TransformLoadSaveTester(
             testMetaClass,
-            attributes,
-            attributes,
+                attributes,
             getterMap,
             setterMap,
             attrValidatorMap,

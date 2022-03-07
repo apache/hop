@@ -20,7 +20,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -40,7 +39,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
@@ -55,138 +57,88 @@ import java.util.*;
 public class TokenReplacementDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator
 
-  private static final String[] YES_NO_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  private Group gInputText;
+  private Group gInputFile;
+  private Group gInputField;
+  private Group gOutputField;
+  private Group gOutputFile;
 
-  private CTabFolder wTabFolder;
-  private FormData fdTabFolder;
-
-  private CTabItem wInputTab, wOutputTab, wTokensTab;
-  private FormData fdInputComp, fdOutputComp, fdTokensComp;
-  private Group gInputText, gInputFile, gInputField;
-  private FormData fdgInputText, fdgInputFile, fdgInputField;
-  private Group gOutputField, gOutputFile;
-  private FormData fdgOutputField, fdgOutputFile;
-
-  private Label wlInputType;
   private CCombo wInputType;
-  private FormData fdlInputType, fdInputType;
 
   private Label wlInputText;
   private Text wInputText;
-  private FormData fdlInputText, fdInputText;
 
   private Label wlInputField;
   private ComboVar wInputField;
-  private FormData fdlInputField, fdInputField;
 
   private Label wlInputFilename;
   private Button wbInputFilename;
   private TextVar wInputFilename;
-  private FormData fdlInputFilename, fdbInputFilename, fdInputFilename;
 
   private Label wlInputFilenameInField;
   private Button wInputFilenameInField;
-  private FormData fdlInputFilenameInField, fdInputFilenameInField;
 
   private Label wlInputFilenameField;
   private ComboVar wInputFilenameField;
-  private FormData fdlInputFilenameField, fdInputFilenameField;
 
   private Label wlAddInputFilenameToResult;
   private Button wAddInputFilenameToResult;
-  private FormData fdlAddInputFilenameToResult, fdAddInputFilenameToResult;
 
-  private Label wlOutputType;
   private CCombo wOutputType;
-  private FormData fdlOutputType, fdOutputType;
 
   private Label wlOutputField;
   private TextVar wOutputField;
-  private FormData fdlOutputField, fdOutputField;
 
   private Label wlOutputFilename;
   private Button wbOutputFilename;
   private TextVar wOutputFilename;
-  private FormData fdlOutputFilename, fdbOutputFilename, fdOutputFilename;
 
-  private Label wlOutputFilenameInField;
   private Button wOutputFilenameInField;
-  private FormData fdlOutputFilenameInField, fdOutputFilenameInField;
 
   private Label wlOutputFilenameField;
   private ComboVar wOutputFilenameField;
-  private FormData fdlOutputFilenameField, fdOutputFilenameField;
 
   private Label wlAppendOutputFilename;
   private Button wAppendOutputFilename;
-  private FormData fdlAppendOutputFilename, fdAppendOutputFilename;
 
   private Label wlCreateParentFolder;
   private Button wCreateParentFolder;
-  private FormData fdlCreateParentFolder, fdCreateParentFolder;
 
-  private Label wlFormat;
   private CCombo wFormat;
-  private FormData fdlFormat, fdFormat;
 
-  private Label wlOutputFileEncoding;
   private CCombo wOutputFileEncoding;
-  private FormData fdlOutputFileEncoding, fdOutputFileEncoding;
 
   private Label wlOutputSplitEvery;
   private Text wOutputSplitEvery;
-  private FormData fdlOutputSplitEvery, fdOutputSplitEvery;
 
   private Label wlIncludeTransformNrInFilename;
   private Button wIncludeTransformNrInFilename;
-  private FormData fdlIncludeTransformNrInFilename, fdIncludeTransformNrInFilename;
 
   private Label wlIncludePartNrInFilename;
   private Button wIncludePartNrInFilename;
-  private FormData fdlIncludePartNrInFilename, fdIncludePartNrInFilename;
 
   private Label wlIncludeDateInFilename;
   private Button wIncludeDateInFilename;
-  private FormData fdlIncludeDateInFilename, fdIncludeDateInFilename;
 
   private Label wlIncludeTimeInFilename;
   private Button wIncludeTimeInFilename;
-  private FormData fdlIncludeTimeInFilename, fdIncludeTimeInFilename;
 
   private Label wlSpecifyDateFormat;
   private Button wSpecifyDateFormat;
-  private FormData fdlSpecifyDateFormat, fdSpecifyDateFormat;
 
   private Label wlDateFormat;
   private CCombo wDateFormat;
-  private FormData fdlDateFormat, fdDateFormat;
 
   private Label wlAddOutputFilenameToResult;
   private Button wAddOutputFilenameToResult;
-  private FormData fdlAddOutputFilenameToResult, fdAddOutputFilenameToResult;
 
-  private Label wlTokenStartString;
   private TextVar wTokenStartString;
-  private FormData fdlTokenStartString, fdTokenStartString;
 
-  private Label wlTokenEndString;
   private TextVar wTokenEndString;
-  private FormData fdlTokenEndString, fdTokenEndString;
 
   private TableView wFields;
-  private FormData fdFields;
 
   private ColumnInfo[] colinf;
-
-  private Button wUpdateTypes;
-  private FormData fdUpdateTypes;
-
-  private Link wDevelopedBy;
-  private FormData fdDevelopedBy;
 
   private final TokenReplacementMeta input;
 
@@ -211,13 +163,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     props.setLook(shell);
     setShellImage(shell, input);
 
-    ModifyListener lsMod =
-        new ModifyListener() {
-          @Override
-          public void modifyText(ModifyEvent e) {
-            input.setChanged();
-          }
-        };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -259,13 +205,13 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
 
-    wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF INPUT TAB///
     // /
-    wInputTab = new CTabItem(wTabFolder, SWT.NONE);
+    CTabItem wInputTab = new CTabItem(wTabFolder, SWT.NONE);
     wInputTab.setText(BaseMessages.getString(PKG, "TokenReplacementDialog.InputTab.TabTitle"));
 
     Composite wInputComp = new Composite(wTabFolder, SWT.NONE);
@@ -278,10 +224,10 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     //
     // Input Type
-    wlInputType = new Label(wInputComp, SWT.RIGHT);
+    Label wlInputType = new Label(wInputComp, SWT.RIGHT);
     wlInputType.setText(BaseMessages.getString(PKG, "TokenReplacementDialog.InputType.Label"));
     props.setLook(wlInputType);
-    fdlInputType = new FormData();
+    FormData fdlInputType = new FormData();
     fdlInputType.left = new FormAttachment(0, 0);
     fdlInputType.top = new FormAttachment(0, margin);
     fdlInputType.right = new FormAttachment(middle, -margin);
@@ -291,7 +237,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wInputType.setEditable(true);
     props.setLook(wInputType);
     wInputType.addModifyListener(lsMod);
-    fdInputType = new FormData();
+    FormData fdInputType = new FormData();
     fdInputType.left = new FormAttachment(middle, 0);
     fdInputType.top = new FormAttachment(0, margin);
     fdInputType.right = new FormAttachment(75, 0);
@@ -323,7 +269,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlInputText = new Label(gInputText, SWT.RIGHT);
     wlInputText.setText(BaseMessages.getString(PKG, "TokenReplacementDialog.InputText.Label"));
     props.setLook(wlInputText);
-    fdlInputText = new FormData();
+    FormData fdlInputText = new FormData();
     fdlInputText.left = new FormAttachment(0, 0);
     fdlInputText.right = new FormAttachment(middle, -margin);
     fdlInputText.top = new FormAttachment(0, margin);
@@ -334,14 +280,14 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
         new Text(gInputText, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     props.setLook(wInputText);
     wInputText.addModifyListener(lsMod);
-    fdInputText = new FormData();
+    FormData fdInputText = new FormData();
     fdInputText.left = new FormAttachment(middle, 0);
     fdInputText.top = new FormAttachment(0, margin);
     fdInputText.right = new FormAttachment(100, 0);
     fdInputText.bottom = new FormAttachment(100, -margin);
     wInputText.setLayoutData(fdInputText);
 
-    fdgInputText = new FormData();
+    FormData fdgInputText = new FormData();
     fdgInputText.left = new FormAttachment(0, 0);
     fdgInputText.right = new FormAttachment(100, 0);
     fdgInputText.top = new FormAttachment(wInputType, margin * 2);
@@ -363,7 +309,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlInputField = new Label(gInputField, SWT.RIGHT);
     wlInputField.setText(BaseMessages.getString(PKG, "TokenReplacementDialog.InputField.Label"));
     props.setLook(wlInputField);
-    fdlInputField = new FormData();
+    FormData fdlInputField = new FormData();
     fdlInputField.left = new FormAttachment(0, 0);
     fdlInputField.right = new FormAttachment(middle, -margin);
     fdlInputField.top = new FormAttachment(wInputType, margin);
@@ -372,7 +318,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wInputField = new ComboVar(variables, gInputField, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wInputField);
     wInputField.addModifyListener(lsMod);
-    fdInputField = new FormData();
+    FormData fdInputField = new FormData();
     fdInputField.left = new FormAttachment(middle, 0);
     fdInputField.top = new FormAttachment(wInputType, margin);
     fdInputField.right = new FormAttachment(100, 0);
@@ -381,7 +327,8 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wInputField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) { // Disable focuslost
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -394,7 +341,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
         });
     /* End */
 
-    fdgInputField = new FormData();
+    FormData fdgInputField = new FormData();
     fdgInputField.left = new FormAttachment(0, 0);
     fdgInputField.right = new FormAttachment(100, 0);
     fdgInputField.top = new FormAttachment(wInputType, margin * 2);
@@ -415,7 +362,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlInputFilename.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.InputFilename.Label"));
     props.setLook(wlInputFilename);
-    fdlInputFilename = new FormData();
+    FormData fdlInputFilename = new FormData();
     fdlInputFilename.left = new FormAttachment(0, 0);
     fdlInputFilename.top = new FormAttachment(0, margin);
     fdlInputFilename.right = new FormAttachment(middle, -margin);
@@ -424,7 +371,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wbInputFilename = new Button(gInputFile, SWT.PUSH | SWT.CENTER);
     props.setLook(wbInputFilename);
     wbInputFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
-    fdbInputFilename = new FormData();
+    FormData fdbInputFilename = new FormData();
     fdbInputFilename.right = new FormAttachment(100, 0);
     fdbInputFilename.top = new FormAttachment(0, 0);
     wbInputFilename.setLayoutData(fdbInputFilename);
@@ -432,7 +379,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wInputFilename = new TextVar(variables, gInputFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wInputFilename);
     wInputFilename.addModifyListener(lsMod);
-    fdInputFilename = new FormData();
+    FormData fdInputFilename = new FormData();
     fdInputFilename.left = new FormAttachment(middle, 0);
     fdInputFilename.top = new FormAttachment(0, margin);
     fdInputFilename.right = new FormAttachment(wbInputFilename, -margin);
@@ -444,7 +391,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlInputFilenameInField.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.FilenameInField.Label"));
     props.setLook(wlInputFilenameInField);
-    fdlInputFilenameInField = new FormData();
+    FormData fdlInputFilenameInField = new FormData();
     fdlInputFilenameInField.left = new FormAttachment(0, 0);
     fdlInputFilenameInField.top = new FormAttachment(wInputFilename, margin);
     fdlInputFilenameInField.right = new FormAttachment(middle, -margin);
@@ -452,7 +399,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     wInputFilenameInField = new Button(gInputFile, SWT.CHECK);
     props.setLook(wInputFilenameInField);
-    fdInputFilenameInField = new FormData();
+    FormData fdInputFilenameInField = new FormData();
     fdInputFilenameInField.left = new FormAttachment(middle, 0);
     fdInputFilenameInField.top = new FormAttachment(wInputFilename, margin);
     fdInputFilenameInField.right = new FormAttachment(100, 0);
@@ -471,7 +418,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlInputFilenameField.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.InputFilenameField.Label"));
     props.setLook(wlInputFilenameField);
-    fdlInputFilenameField = new FormData();
+    FormData fdlInputFilenameField = new FormData();
     fdlInputFilenameField.left = new FormAttachment(0, 0);
     fdlInputFilenameField.right = new FormAttachment(middle, -margin);
     fdlInputFilenameField.top = new FormAttachment(wInputFilenameInField, margin);
@@ -480,7 +427,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wInputFilenameField = new ComboVar(variables, gInputFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wInputFilenameField);
     wInputFilenameField.addModifyListener(lsMod);
-    fdInputFilenameField = new FormData();
+    FormData fdInputFilenameField = new FormData();
     fdInputFilenameField.left = new FormAttachment(middle, 0);
     fdInputFilenameField.top = new FormAttachment(wInputFilenameInField, margin);
     fdInputFilenameField.right = new FormAttachment(100, 0);
@@ -489,7 +436,9 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wInputFilenameField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Disable Focuslost
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -508,7 +457,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlAddInputFilenameToResult.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.AddInputFilenameToResult.Label"));
     props.setLook(wlAddInputFilenameToResult);
-    fdlAddInputFilenameToResult = new FormData();
+    FormData fdlAddInputFilenameToResult = new FormData();
     fdlAddInputFilenameToResult.left = new FormAttachment(0, 0);
     fdlAddInputFilenameToResult.top = new FormAttachment(wInputFilenameField, margin);
     fdlAddInputFilenameToResult.right = new FormAttachment(middle, -margin);
@@ -516,7 +465,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     wAddInputFilenameToResult = new Button(gInputFile, SWT.CHECK);
     props.setLook(wAddInputFilenameToResult);
-    fdAddInputFilenameToResult = new FormData();
+    FormData fdAddInputFilenameToResult = new FormData();
     fdAddInputFilenameToResult.left = new FormAttachment(middle, 0);
     fdAddInputFilenameToResult.top = new FormAttachment(wInputFilenameField, margin);
     fdAddInputFilenameToResult.right = new FormAttachment(100, 0);
@@ -529,13 +478,13 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
           }
         });
 
-    fdgInputFile = new FormData();
+    FormData fdgInputFile = new FormData();
     fdgInputFile.left = new FormAttachment(0, 0);
     fdgInputFile.right = new FormAttachment(100, 0);
     fdgInputFile.top = new FormAttachment(wInputType, margin * 2);
     gInputFile.setLayoutData(fdgInputFile);
 
-    fdInputComp = new FormData();
+    FormData fdInputComp = new FormData();
     fdInputComp.left = new FormAttachment(0, 0);
     fdInputComp.top = new FormAttachment(0, 0);
     fdInputComp.right = new FormAttachment(100, 0);
@@ -548,7 +497,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     // ////////////////////////
     // START OF OUTPUT TAB///
     // /
-    wOutputTab = new CTabItem(wTabFolder, SWT.NONE);
+    CTabItem wOutputTab = new CTabItem(wTabFolder, SWT.NONE);
     wOutputTab.setText(BaseMessages.getString(PKG, "TokenReplacementDialog.OutputTab.TabTitle"));
 
     Composite wOutputComp = new Composite(wTabFolder, SWT.NONE);
@@ -561,10 +510,10 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     //
     // Output Type
-    wlOutputType = new Label(wOutputComp, SWT.RIGHT);
+    Label wlOutputType = new Label(wOutputComp, SWT.RIGHT);
     wlOutputType.setText(BaseMessages.getString(PKG, "TokenReplacementDialog.OutputType.Label"));
     props.setLook(wlOutputType);
-    fdlOutputType = new FormData();
+    FormData fdlOutputType = new FormData();
     fdlOutputType.left = new FormAttachment(0, 0);
     fdlOutputType.top = new FormAttachment(0, margin);
     fdlOutputType.right = new FormAttachment(middle, -margin);
@@ -574,7 +523,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wOutputType.setEditable(true);
     props.setLook(wOutputType);
     wOutputType.addModifyListener(lsMod);
-    fdOutputType = new FormData();
+    FormData fdOutputType = new FormData();
     fdOutputType.left = new FormAttachment(middle, 0);
     fdOutputType.top = new FormAttachment(0, margin);
     fdOutputType.right = new FormAttachment(75, 0);
@@ -607,7 +556,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlOutputField = new Label(gOutputField, SWT.RIGHT);
     wlOutputField.setText(BaseMessages.getString(PKG, "TokenReplacementDialog.OutputField.Label"));
     props.setLook(wlOutputField);
-    fdlOutputField = new FormData();
+    FormData fdlOutputField = new FormData();
     fdlOutputField.left = new FormAttachment(0, 0);
     fdlOutputField.right = new FormAttachment(middle, -margin);
     fdlOutputField.top = new FormAttachment(0, margin);
@@ -616,7 +565,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wOutputField = new TextVar(variables, gOutputField, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wOutputField);
     wOutputField.addModifyListener(lsMod);
-    fdOutputField = new FormData();
+    FormData fdOutputField = new FormData();
     fdOutputField.left = new FormAttachment(middle, 0);
     fdOutputField.top = new FormAttachment(0, margin);
     fdOutputField.right = new FormAttachment(100, 0);
@@ -625,7 +574,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wOutputField.addModifyListener(lsMod);
     /* End */
 
-    fdgOutputField = new FormData();
+    FormData fdgOutputField = new FormData();
     fdgOutputField.left = new FormAttachment(0, 0);
     fdgOutputField.right = new FormAttachment(100, 0);
     fdgOutputField.top = new FormAttachment(wOutputType, margin * 2);
@@ -647,7 +596,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlOutputFilename.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.OutputFilename.Label"));
     props.setLook(wlOutputFilename);
-    fdlOutputFilename = new FormData();
+    FormData fdlOutputFilename = new FormData();
     fdlOutputFilename.left = new FormAttachment(0, 0);
     fdlOutputFilename.top = new FormAttachment(0, margin);
     fdlOutputFilename.right = new FormAttachment(middle, -margin);
@@ -656,7 +605,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wbOutputFilename = new Button(gOutputFile, SWT.PUSH | SWT.CENTER);
     props.setLook(wbOutputFilename);
     wbOutputFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
-    fdbOutputFilename = new FormData();
+    FormData fdbOutputFilename = new FormData();
     fdbOutputFilename.right = new FormAttachment(100, 0);
     fdbOutputFilename.top = new FormAttachment(0, 0);
     wbOutputFilename.setLayoutData(fdbOutputFilename);
@@ -664,7 +613,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wOutputFilename = new TextVar(variables, gOutputFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wOutputFilename);
     wOutputFilename.addModifyListener(lsMod);
-    fdOutputFilename = new FormData();
+    FormData fdOutputFilename = new FormData();
     fdOutputFilename.left = new FormAttachment(middle, 0);
     fdOutputFilename.top = new FormAttachment(0, margin);
     fdOutputFilename.right = new FormAttachment(wbOutputFilename, -margin);
@@ -672,11 +621,11 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     // File name in field line
     //
-    wlOutputFilenameInField = new Label(gOutputFile, SWT.RIGHT);
+    Label wlOutputFilenameInField = new Label(gOutputFile, SWT.RIGHT);
     wlOutputFilenameInField.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.FilenameInField.Label"));
     props.setLook(wlOutputFilenameInField);
-    fdlOutputFilenameInField = new FormData();
+    FormData fdlOutputFilenameInField = new FormData();
     fdlOutputFilenameInField.left = new FormAttachment(0, 0);
     fdlOutputFilenameInField.top = new FormAttachment(wOutputFilename, margin);
     fdlOutputFilenameInField.right = new FormAttachment(middle, -margin);
@@ -684,7 +633,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     wOutputFilenameInField = new Button(gOutputFile, SWT.CHECK);
     props.setLook(wOutputFilenameInField);
-    fdOutputFilenameInField = new FormData();
+    FormData fdOutputFilenameInField = new FormData();
     fdOutputFilenameInField.left = new FormAttachment(middle, 0);
     fdOutputFilenameInField.top = new FormAttachment(wOutputFilename, margin);
     fdOutputFilenameInField.right = new FormAttachment(100, 0);
@@ -703,7 +652,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlOutputFilenameField.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.OutputFilenameField.Label"));
     props.setLook(wlOutputFilenameField);
-    fdlOutputFilenameField = new FormData();
+    FormData fdlOutputFilenameField = new FormData();
     fdlOutputFilenameField.left = new FormAttachment(0, 0);
     fdlOutputFilenameField.right = new FormAttachment(middle, -margin);
     fdlOutputFilenameField.top = new FormAttachment(wOutputFilenameInField, margin);
@@ -712,7 +661,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wOutputFilenameField = new ComboVar(variables, gOutputFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wOutputFilenameField);
     wOutputFilenameField.addModifyListener(lsMod);
-    fdOutputFilenameField = new FormData();
+    FormData fdOutputFilenameField = new FormData();
     fdOutputFilenameField.left = new FormAttachment(middle, 0);
     fdOutputFilenameField.top = new FormAttachment(wOutputFilenameInField, margin);
     fdOutputFilenameField.right = new FormAttachment(100, 0);
@@ -721,7 +670,9 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wOutputFilenameField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Disable Focuslost
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -740,7 +691,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlAppendOutputFilename.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.AppendOutput.Label"));
     props.setLook(wlAppendOutputFilename);
-    fdlAppendOutputFilename = new FormData();
+    FormData fdlAppendOutputFilename = new FormData();
     fdlAppendOutputFilename.left = new FormAttachment(0, 0);
     fdlAppendOutputFilename.top = new FormAttachment(wOutputFilenameField, margin);
     fdlAppendOutputFilename.right = new FormAttachment(middle, -margin);
@@ -750,7 +701,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wAppendOutputFilename.setToolTipText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.AppendOutput.Tooltip"));
     props.setLook(wAppendOutputFilename);
-    fdAppendOutputFilename = new FormData();
+    FormData fdAppendOutputFilename = new FormData();
     fdAppendOutputFilename.left = new FormAttachment(middle, 0);
     fdAppendOutputFilename.top = new FormAttachment(wOutputFilenameField, margin);
     fdAppendOutputFilename.right = new FormAttachment(100, 0);
@@ -769,7 +720,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlCreateParentFolder.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.CreateParentFolder.Label"));
     props.setLook(wlCreateParentFolder);
-    fdlCreateParentFolder = new FormData();
+    FormData fdlCreateParentFolder = new FormData();
     fdlCreateParentFolder.left = new FormAttachment(0, 0);
     fdlCreateParentFolder.top = new FormAttachment(wAppendOutputFilename, margin);
     fdlCreateParentFolder.right = new FormAttachment(middle, -margin);
@@ -779,7 +730,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wCreateParentFolder.setToolTipText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.CreateParentFolder.Tooltip"));
     props.setLook(wCreateParentFolder);
-    fdCreateParentFolder = new FormData();
+    FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment(middle, 0);
     fdCreateParentFolder.top = new FormAttachment(wAppendOutputFilename, margin);
     fdCreateParentFolder.right = new FormAttachment(100, 0);
@@ -792,10 +743,10 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
           }
         });
 
-    wlFormat = new Label(gOutputFile, SWT.RIGHT);
+    Label wlFormat = new Label(gOutputFile, SWT.RIGHT);
     wlFormat.setText(BaseMessages.getString(PKG, "TokenReplacementDialog.Format.Label"));
     props.setLook(wlFormat);
-    fdlFormat = new FormData();
+    FormData fdlFormat = new FormData();
     fdlFormat.left = new FormAttachment(0, 0);
     fdlFormat.top = new FormAttachment(wCreateParentFolder, margin);
     fdlFormat.right = new FormAttachment(middle, -margin);
@@ -809,18 +760,18 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     }
     wFormat.select(0);
     wFormat.addModifyListener(lsMod);
-    fdFormat = new FormData();
+    FormData fdFormat = new FormData();
     fdFormat.left = new FormAttachment(middle, 0);
     fdFormat.top = new FormAttachment(wCreateParentFolder, margin);
     fdFormat.right = new FormAttachment(100, 0);
     wFormat.setLayoutData(fdFormat);
 
     // Encoding line
-    wlOutputFileEncoding = new Label(gOutputFile, SWT.RIGHT);
+    Label wlOutputFileEncoding = new Label(gOutputFile, SWT.RIGHT);
     wlOutputFileEncoding.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.Encoding.Label"));
     props.setLook(wlOutputFileEncoding);
-    fdlOutputFileEncoding = new FormData();
+    FormData fdlOutputFileEncoding = new FormData();
     fdlOutputFileEncoding.left = new FormAttachment(0, 0);
     fdlOutputFileEncoding.top = new FormAttachment(wFormat, margin);
     fdlOutputFileEncoding.right = new FormAttachment(middle, -margin);
@@ -830,7 +781,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wOutputFileEncoding.setEditable(true);
     props.setLook(wOutputFileEncoding);
     wOutputFileEncoding.addModifyListener(lsMod);
-    fdOutputFileEncoding = new FormData();
+    FormData fdOutputFileEncoding = new FormData();
     fdOutputFileEncoding.left = new FormAttachment(middle, 0);
     fdOutputFileEncoding.top = new FormAttachment(wFormat, margin);
     fdOutputFileEncoding.right = new FormAttachment(100, 0);
@@ -838,7 +789,9 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wOutputFileEncoding.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Disable focuslost
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -855,7 +808,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlOutputSplitEvery.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.OutputSplitEvery.Label"));
     props.setLook(wlOutputSplitEvery);
-    fdlOutputSplitEvery = new FormData();
+    FormData fdlOutputSplitEvery = new FormData();
     fdlOutputSplitEvery.left = new FormAttachment(0, 0);
     fdlOutputSplitEvery.right = new FormAttachment(middle, -margin);
     fdlOutputSplitEvery.top = new FormAttachment(wOutputFileEncoding, margin);
@@ -864,7 +817,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wOutputSplitEvery = new Text(gOutputFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wOutputSplitEvery);
     wOutputSplitEvery.addModifyListener(lsMod);
-    fdOutputSplitEvery = new FormData();
+    FormData fdOutputSplitEvery = new FormData();
     fdOutputSplitEvery.left = new FormAttachment(middle, 0);
     fdOutputSplitEvery.top = new FormAttachment(wOutputFileEncoding, margin);
     fdOutputSplitEvery.right = new FormAttachment(100, 0);
@@ -877,7 +830,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlIncludeTransformNrInFilename.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.IncludeTransformnr.Label"));
     props.setLook(wlIncludeTransformNrInFilename);
-    fdlIncludeTransformNrInFilename = new FormData();
+    FormData fdlIncludeTransformNrInFilename = new FormData();
     fdlIncludeTransformNrInFilename.left = new FormAttachment(0, 0);
     fdlIncludeTransformNrInFilename.top = new FormAttachment(wOutputSplitEvery, margin);
     fdlIncludeTransformNrInFilename.right = new FormAttachment(middle, -margin);
@@ -885,7 +838,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     wIncludeTransformNrInFilename = new Button(gOutputFile, SWT.CHECK);
     props.setLook(wIncludeTransformNrInFilename);
-    fdIncludeTransformNrInFilename = new FormData();
+    FormData fdIncludeTransformNrInFilename = new FormData();
     fdIncludeTransformNrInFilename.left = new FormAttachment(middle, 0);
     fdIncludeTransformNrInFilename.top = new FormAttachment(wOutputSplitEvery, margin);
     fdIncludeTransformNrInFilename.right = new FormAttachment(100, 0);
@@ -904,7 +857,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlIncludePartNrInFilename.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.IncludePartnr.Label"));
     props.setLook(wlIncludePartNrInFilename);
-    fdlIncludePartNrInFilename = new FormData();
+    FormData fdlIncludePartNrInFilename = new FormData();
     fdlIncludePartNrInFilename.left = new FormAttachment(0, 0);
     fdlIncludePartNrInFilename.top = new FormAttachment(wIncludeTransformNrInFilename, margin);
     fdlIncludePartNrInFilename.right = new FormAttachment(middle, -margin);
@@ -912,7 +865,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     wIncludePartNrInFilename = new Button(gOutputFile, SWT.CHECK);
     props.setLook(wIncludePartNrInFilename);
-    fdIncludePartNrInFilename = new FormData();
+    FormData fdIncludePartNrInFilename = new FormData();
     fdIncludePartNrInFilename.left = new FormAttachment(middle, 0);
     fdIncludePartNrInFilename.top = new FormAttachment(wIncludeTransformNrInFilename, margin);
     fdIncludePartNrInFilename.right = new FormAttachment(100, 0);
@@ -931,7 +884,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlIncludeDateInFilename.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.IncludeDate.Label"));
     props.setLook(wlIncludeDateInFilename);
-    fdlIncludeDateInFilename = new FormData();
+    FormData fdlIncludeDateInFilename = new FormData();
     fdlIncludeDateInFilename.left = new FormAttachment(0, 0);
     fdlIncludeDateInFilename.top = new FormAttachment(wIncludePartNrInFilename, margin);
     fdlIncludeDateInFilename.right = new FormAttachment(middle, -margin);
@@ -939,7 +892,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     wIncludeDateInFilename = new Button(gOutputFile, SWT.CHECK);
     props.setLook(wIncludeDateInFilename);
-    fdIncludeDateInFilename = new FormData();
+    FormData fdIncludeDateInFilename = new FormData();
     fdIncludeDateInFilename.left = new FormAttachment(middle, 0);
     fdIncludeDateInFilename.top = new FormAttachment(wIncludePartNrInFilename, margin);
     fdIncludeDateInFilename.right = new FormAttachment(100, 0);
@@ -958,7 +911,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlIncludeTimeInFilename.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.IncludeTime.Label"));
     props.setLook(wlIncludeTimeInFilename);
-    fdlIncludeTimeInFilename = new FormData();
+    FormData fdlIncludeTimeInFilename = new FormData();
     fdlIncludeTimeInFilename.left = new FormAttachment(0, 0);
     fdlIncludeTimeInFilename.top = new FormAttachment(wIncludeDateInFilename, margin);
     fdlIncludeTimeInFilename.right = new FormAttachment(middle, -margin);
@@ -966,7 +919,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     wIncludeTimeInFilename = new Button(gOutputFile, SWT.CHECK);
     props.setLook(wIncludeTimeInFilename);
-    fdIncludeTimeInFilename = new FormData();
+    FormData fdIncludeTimeInFilename = new FormData();
     fdIncludeTimeInFilename.left = new FormAttachment(middle, 0);
     fdIncludeTimeInFilename.top = new FormAttachment(wIncludeDateInFilename, margin);
     fdIncludeTimeInFilename.right = new FormAttachment(100, 0);
@@ -985,7 +938,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlSpecifyDateFormat.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.SpecifyFormat.Label"));
     props.setLook(wlSpecifyDateFormat);
-    fdlSpecifyDateFormat = new FormData();
+    FormData fdlSpecifyDateFormat = new FormData();
     fdlSpecifyDateFormat.left = new FormAttachment(0, 0);
     fdlSpecifyDateFormat.top = new FormAttachment(wIncludeTimeInFilename, margin);
     fdlSpecifyDateFormat.right = new FormAttachment(middle, -margin);
@@ -993,7 +946,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     wSpecifyDateFormat = new Button(gOutputFile, SWT.CHECK);
     props.setLook(wSpecifyDateFormat);
-    fdSpecifyDateFormat = new FormData();
+    FormData fdSpecifyDateFormat = new FormData();
     fdSpecifyDateFormat.left = new FormAttachment(middle, 0);
     fdSpecifyDateFormat.top = new FormAttachment(wIncludeTimeInFilename, margin);
     fdSpecifyDateFormat.right = new FormAttachment(100, 0);
@@ -1012,7 +965,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlDateFormat.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.DateTimeFormat.Label"));
     props.setLook(wlDateFormat);
-    fdlDateFormat = new FormData();
+    FormData fdlDateFormat = new FormData();
     fdlDateFormat.left = new FormAttachment(0, 0);
     fdlDateFormat.top = new FormAttachment(wSpecifyDateFormat, margin);
     fdlDateFormat.right = new FormAttachment(middle, -margin);
@@ -1022,7 +975,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wDateFormat.setEditable(true);
     props.setLook(wDateFormat);
     wDateFormat.addModifyListener(lsMod);
-    fdDateFormat = new FormData();
+    FormData fdDateFormat = new FormData();
     fdDateFormat.left = new FormAttachment(middle, 0);
     fdDateFormat.top = new FormAttachment(wSpecifyDateFormat, margin);
     fdDateFormat.right = new FormAttachment(75, 0);
@@ -1038,7 +991,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wlAddOutputFilenameToResult.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.AddOutputFilenameToResult.Label"));
     props.setLook(wlAddOutputFilenameToResult);
-    fdlAddOutputFilenameToResult = new FormData();
+    FormData fdlAddOutputFilenameToResult = new FormData();
     fdlAddOutputFilenameToResult.left = new FormAttachment(0, 0);
     fdlAddOutputFilenameToResult.top = new FormAttachment(wDateFormat, margin);
     fdlAddOutputFilenameToResult.right = new FormAttachment(middle, -margin);
@@ -1046,7 +999,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     wAddOutputFilenameToResult = new Button(gOutputFile, SWT.CHECK);
     props.setLook(wAddOutputFilenameToResult);
-    fdAddOutputFilenameToResult = new FormData();
+    FormData fdAddOutputFilenameToResult = new FormData();
     fdAddOutputFilenameToResult.left = new FormAttachment(middle, 0);
     fdAddOutputFilenameToResult.top = new FormAttachment(wDateFormat, margin);
     fdAddOutputFilenameToResult.right = new FormAttachment(100, 0);
@@ -1059,13 +1012,13 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
           }
         });
 
-    fdgOutputFile = new FormData();
+    FormData fdgOutputFile = new FormData();
     fdgOutputFile.left = new FormAttachment(0, 0);
     fdgOutputFile.right = new FormAttachment(100, 0);
     fdgOutputFile.top = new FormAttachment(wOutputType, margin * 2);
     gOutputFile.setLayoutData(fdgOutputFile);
 
-    fdOutputComp = new FormData();
+    FormData fdOutputComp = new FormData();
     fdOutputComp.left = new FormAttachment(0, 0);
     fdOutputComp.top = new FormAttachment(0, 0);
     fdOutputComp.right = new FormAttachment(100, 0);
@@ -1081,7 +1034,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     // Token tab...
     //
-    wTokensTab = new CTabItem(wTabFolder, SWT.NONE);
+    CTabItem wTokensTab = new CTabItem(wTabFolder, SWT.NONE);
     wTokensTab.setText(BaseMessages.getString(PKG, "TokenReplacementDialog.TokensTab.TabTitle"));
 
     FormLayout tokensLayout = new FormLayout();
@@ -1101,11 +1054,11 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wGet.setLayoutData(fdGet);
 
     // Token Start String
-    wlTokenStartString = new Label(wTokensComp, SWT.RIGHT);
+    Label wlTokenStartString = new Label(wTokensComp, SWT.RIGHT);
     wlTokenStartString.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.TokenStartString.Label"));
     props.setLook(wlTokenStartString);
-    fdlTokenStartString = new FormData();
+    FormData fdlTokenStartString = new FormData();
     fdlTokenStartString.left = new FormAttachment(0, 0);
     fdlTokenStartString.top = new FormAttachment(0, margin);
     fdlTokenStartString.right = new FormAttachment(middle, -margin);
@@ -1114,18 +1067,18 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wTokenStartString = new TextVar(variables, wTokensComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTokenStartString);
     wTokenStartString.addModifyListener(lsMod);
-    fdTokenStartString = new FormData();
+    FormData fdTokenStartString = new FormData();
     fdTokenStartString.left = new FormAttachment(middle, 0);
     fdTokenStartString.top = new FormAttachment(0, margin);
     fdTokenStartString.right = new FormAttachment(100, -margin);
     wTokenStartString.setLayoutData(fdTokenStartString);
 
     // Token End String
-    wlTokenEndString = new Label(wTokensComp, SWT.RIGHT);
+    Label wlTokenEndString = new Label(wTokensComp, SWT.RIGHT);
     wlTokenEndString.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.TokenEndString.Label"));
     props.setLook(wlTokenEndString);
-    fdlTokenEndString = new FormData();
+    FormData fdlTokenEndString = new FormData();
     fdlTokenEndString.left = new FormAttachment(0, 0);
     fdlTokenEndString.top = new FormAttachment(wTokenStartString, margin);
     fdlTokenEndString.right = new FormAttachment(middle, -margin);
@@ -1134,7 +1087,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wTokenEndString = new TextVar(variables, wTokensComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTokenEndString);
     wTokenEndString.addModifyListener(lsMod);
-    fdTokenEndString = new FormData();
+    FormData fdTokenEndString = new FormData();
     fdTokenEndString.left = new FormAttachment(middle, 0);
     fdTokenEndString.top = new FormAttachment(wTokenStartString, margin);
     fdTokenEndString.right = new FormAttachment(100, -margin);
@@ -1167,7 +1120,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
             lsMod,
             props);
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wTokenEndString, margin * 2);
     fdFields.right = new FormAttachment(100, 0);
@@ -1178,28 +1131,25 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     // Search the fields in the background
 
     final Runnable runnable =
-        new Runnable() {
-          @Override
-          public void run() {
-            TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-            if (transformMeta != null) {
-              try {
-                IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta != null) {
+            try {
+              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
-                // Remember these fields...
-                for (int i = 0; i < row.size(); i++) {
-                  inputFields.put(row.getValueMeta(i).getName(), i);
-                }
-                setComboBoxes();
-              } catch (HopException e) {
-                logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+              // Remember these fields...
+              for (int i = 0; i < row.size(); i++) {
+                inputFields.put(row.getValueMeta(i).getName(), i);
               }
+              setComboBoxes();
+            } catch (HopException e) {
+              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
             }
           }
         };
     new Thread(runnable).start();
 
-    fdTokensComp = new FormData();
+    FormData fdTokensComp = new FormData();
     fdTokensComp.left = new FormAttachment(0, 0);
     fdTokensComp.top = new FormAttachment(0, 0);
     fdTokensComp.right = new FormAttachment(100, 0);
@@ -1209,7 +1159,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     wTokensComp.layout();
     wTokensTab.setControl(wTokensComp);
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wTransformName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
@@ -1221,21 +1171,11 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
 
     // Whenever something changes, set the tooltip to the expanded version:
     wInputFilename.addModifyListener(
-        new ModifyListener() {
-          @Override
-          public void modifyText(ModifyEvent e) {
-            wInputFilename.setToolTipText(variables.resolve(wInputFilename.getText()));
-          }
-        });
+        e -> wInputFilename.setToolTipText(variables.resolve(wInputFilename.getText())));
 
     // Whenever something changes, set the tooltip to the expanded version:
     wOutputFilename.addModifyListener(
-        new ModifyListener() {
-          @Override
-          public void modifyText(ModifyEvent e) {
-            wOutputFilename.setToolTipText(variables.resolve(wOutputFilename.getText()));
-          }
-        });
+        e -> wOutputFilename.setToolTipText(variables.resolve(wOutputFilename.getText())));
 
     wbInputFilename.addListener(
         SWT.Selection,
@@ -1260,14 +1200,11 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
                 true));
 
     lsResize =
-        new Listener() {
-          @Override
-          public void handleEvent(Event event) {
-            Point size = shell.getSize();
-            wFields.setSize(size.x - 10, size.y - 50);
-            wFields.table.setSize(size.x - 10, size.y - 50);
-            wFields.redraw();
-          }
+        event -> {
+          Point size = shell.getSize();
+          wFields.setSize(size.x - 10, size.y - 50);
+          wFields.table.setSize(size.x - 10, size.y - 50);
+          wFields.redraw();
         };
     shell.addListener(SWT.Resize, lsResize);
 
@@ -1585,14 +1522,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null) {
-        ITableItemInsertListener listener =
-            new ITableItemInsertListener() {
-              @Override
-              public boolean tableItemInserted(TableItem tableItem, IValueMeta v) {
-
-                return true;
-              }
-            };
+        ITableItemInsertListener listener = (tableItem, v) -> true;
         getFieldsFromPrevious(r, wFields, 2, new int[] {2}, new int[] {1}, -1, -1, listener);
       }
     } catch (HopException ke) {

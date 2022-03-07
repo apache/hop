@@ -25,8 +25,6 @@ import org.apache.hop.core.variables.Variables;
  * This test is designed to check that jdbc url (with no extra parameters) remains valid (sure, we
  * check syntax only) after adding any extra parameters in spite of number of this parameters and
  * their validity.
- *
- * @author Ivan_Nikolaichuk
  */
 public class DatabaseMeta_AppendExtraParamsTest {
   private static final String CONN_TYPE_MSSQL = "MSSQL";

@@ -43,12 +43,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Unzip action settings.
- *
- * @author Samatar Hassan
- * @since 25-09-2007
- */
+/** This dialog allows you to edit the Unzip action settings. */
 public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionUnZip.class; // For Translator
 
@@ -62,7 +57,8 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
   private Text wName;
 
   private Label wlZipFilename;
-  private Button wbZipFilename, wbSourceDirectory;
+  private Button wbZipFilename;
+  private Button wbSourceDirectory;
   private TextVar wZipFilename;
 
   private ActionUnZip action;

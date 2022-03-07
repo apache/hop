@@ -17,6 +17,10 @@
 
 package org.apache.hop.beam.transforms.kafka;
 
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.coders.AvroGenericCoder;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamKafkaOutputTransform;
@@ -28,6 +32,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -36,6 +42,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +52,7 @@ import java.util.Map;
     description = "Send messages to a Kafka Topic (Producer)",
     image = "beam-kafka-output.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
+    keywords = "i18n::BeamProduceMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamkafkaproduce.html")
 public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> implements IBeamPipelineTransformHandler {
 
@@ -59,11 +67,15 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> i
   @HopMetadataProperty(key = "message_field")
   private String messageField;
 
+  @HopMetadataProperty(groupKey = "config_options", key = "config_option")
+  private List<ConfigOption> configOptions;
+
   public BeamProduceMeta() {
     bootstrapServers = "bootstrapServer1:9001,bootstrapServer2:9001";
     topic = "Topic1";
     keyField = "";
     messageField = "";
+    configOptions = new ArrayList<>();
   }
 
   @Override
@@ -113,13 +125,42 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> i
       PCollection<HopRow> input)
       throws HopException {
 
+    String[] parameters = new String[getConfigOptions().size()];
+    String[] values = new String[getConfigOptions().size()];
+    String[] types = new String[getConfigOptions().size()];
+    for (int i = 0; i < parameters.length; i++) {
+      ConfigOption option = getConfigOptions().get(i);
+      parameters[i] = variables.resolve(option.getParameter());
+      values[i] = variables.resolve(option.getValue());
+      types[i] =
+              option.getType() == null ? ConfigOption.Type.String.name() : option.getType().name();
+    }
+
+    String messageFieldName = variables.resolve(getMessageField());
+    IValueMeta messageValueMeta = rowMeta.searchValueMeta(messageFieldName);
+    if (messageValueMeta==null) {
+      throw new HopException("Error finding message/value field "+messageFieldName+" in the input rows");
+    }
+
+    // Register a coder for the short time that KV<HopRow, GenericRecord> exists in Beam
+    //
+    if (messageValueMeta.getType()==IValueMeta.TYPE_AVRO) {
+      ValueMetaAvroRecord valueMetaAvroRecord = (ValueMetaAvroRecord) messageValueMeta;
+      Schema schema = valueMetaAvroRecord.getSchema();
+      AvroCoder<GenericRecord> coder = AvroCoder.of(schema);
+      pipeline.getCoderRegistry().registerCoderForClass(GenericRecord.class, coder);
+    }
+
     BeamKafkaOutputTransform beamOutputTransform =
         new BeamKafkaOutputTransform(
             transformMeta.getName(),
             variables.resolve(getBootstrapServers()),
             variables.resolve(getTopic()),
             variables.resolve(getKeyField()),
-            variables.resolve(getMessageField()),
+            messageFieldName,
+            parameters,
+            values,
+            types,
             JsonRowMeta.toJson(rowMeta),
             transformPluginClasses,
             xpPluginClasses);
@@ -196,5 +237,13 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> i
   /** @param bootstrapServers The bootstrapServers to set */
   public void setBootstrapServers(String bootstrapServers) {
     this.bootstrapServers = bootstrapServers;
+  }
+
+  public List<ConfigOption> getConfigOptions() {
+    return configOptions;
+  }
+
+  public void setConfigOptions(List<ConfigOption> configOptions) {
+    this.configOptions = configOptions;
   }
 }

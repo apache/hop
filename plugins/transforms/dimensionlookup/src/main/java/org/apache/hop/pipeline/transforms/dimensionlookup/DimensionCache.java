@@ -33,8 +33,6 @@ import java.util.List;
  *
  * <p>The way to achieve that result is to keep a sorted list in memory. Because we want as few
  * conversion errors as possible, we'll use the same row as we get from the database.
- *
- * @author matt
  */
 public class DimensionCache implements Comparator<Object[]> {
   private IRowMeta rowMeta;

@@ -24,15 +24,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Detect empty stream. Pass one row data to the next transforms.
- *
- * @author Samatar
- * @since 30-08-2008
- */
+/** Detect empty stream. Pass one row data to the next transforms. */
 public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, DetectEmptyStreamData> {
 
   private static final Class<?> PKG = DetectEmptyStreamMeta.class; // For Translator

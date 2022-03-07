@@ -31,9 +31,6 @@ import java.util.Date;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-/***
- * @author Pavel Sakun
- */
 public class PDI_2875_Test {
   private static TransformMockHelper<TextFileInputMeta, TextFileInputData> smh;
   private final String VAR_NAME = "VAR";

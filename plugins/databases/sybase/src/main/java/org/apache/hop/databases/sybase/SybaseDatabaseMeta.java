@@ -27,11 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Sybase specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "SYBASE", typeDescription = "Sybase")
+@DatabaseMetaPlugin(type = "SYBASE", typeDescription = "Sybase", documentationUrl = "/database/databases/sybase.html")
 @GuiPlugin(id = "GUI-SybaseDatabaseMeta")
 public class SybaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override

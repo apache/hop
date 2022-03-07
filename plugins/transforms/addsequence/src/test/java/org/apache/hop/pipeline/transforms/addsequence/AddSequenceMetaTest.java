@@ -46,7 +46,7 @@ public class AddSequenceMetaTest {
         Arrays.asList(
             "valueName",
             "databaseUsed",
-            "databaseMeta",
+            "connection",
             "schemaName",
             "sequenceName",
             "counterUsed",

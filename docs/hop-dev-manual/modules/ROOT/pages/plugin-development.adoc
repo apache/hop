@@ -78,7 +78,7 @@ The information in the IPlugin objects is copied from the plugin annotations on 
 
 == Where are the Hop plugins?
 
-In Hop all optional plugins are in the https://github.com/apache/incubator-hop/tree/master/plugins[hop/plugins] folder which contains the plugin categories:
+In Hop all optional plugins are in the https://github.com/apache/hop/tree/master/plugins[hop/plugins] folder which contains the plugin categories:
 
 - database: relational database plugins
 - actions: workflow actions

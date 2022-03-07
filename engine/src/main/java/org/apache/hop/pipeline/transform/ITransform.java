@@ -38,8 +38,6 @@ import java.util.*;
  * The interface that any pipeline transform or plugin needs to implement.
  *
  * <p>Created on 12-AUG-2004
- *
- * @author Matt
  */
 public interface ITransform
     extends IVariables, IHasLogChannel, IEngineComponent, IExtensionData {

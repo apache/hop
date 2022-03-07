@@ -22,9 +22,20 @@ ORIGINDIR=$(pwd)
 BASEDIR=$(dirname $0)
 cd $BASEDIR
 
+# set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java
+if [ -n "$HOP_JAVA_HOME" ]; then
+  _HOP_JAVA=$HOP_JAVA_HOME/bin/java
+elif [ -n "$JAVA_HOME" ]; then
+  _HOP_JAVA=$JAVA_HOME/bin/java
+else
+  _HOP_JAVA="java"
+fi
+
 # Settings for all OSses
 #
-OPTIONS='-Xmx1g'
+if [ -z "$HOP_OPTIONS" ]; then
+  HOP_OPTIONS="-Xmx2048m"
+fi
 
 # optional line for attaching a debugger
 #
@@ -55,19 +66,23 @@ HOP_OPTIONS="${HOP_OPTIONS} -DHOP_PLATFORM_RUNTIME=Translator -DHOP_AUTO_CREATE_
 
 case $(uname -s) in
 Linux)
-  CLASSPATH="lib/*:libswt/linux/$(uname -m)/*"
+    if $($_HOP_JAVA -XshowSettings:properties -version 2>&1| grep -q "os.arch = aarch64"); then
+        CLASSPATH="lib/*:libswt/linux/arm64/*"
+    else
+        CLASSPATH="lib/*:libswt/linux/$(uname -m)/*"
+    fi
   ;;
 Darwin)
-  if [[ $(java -XshowSettings:properties -version 2>&1| grep "os.arch = ") == *"aarch64"* ]]; then
+  if $($_HOP_JAVA -XshowSettings:properties -version 2>&1| grep -q "os.arch = aarch64"); then
       CLASSPATH="lib/*:libswt/osx/arm64/*"
   else
-    CLASSPATH="lib/*:libswt/osx/x86_64/*"
+      CLASSPATH="lib/*:libswt/osx/x86_64/*"
   fi
   HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
   ;;
 esac
 
-java ${OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.ui.i18n.editor.Translator $@
+"$_HOP_JAVA" ${HOP_OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.ui.i18n.editor.Translator $@
 EXITCODE=$?
 
 cd ${ORIGINDIR}

@@ -117,11 +117,11 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     wStartAction.setToolTipText(
         BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.StartCopy.Tooltip"));
     props.setLook(wStartAction);
-    FormData fd_startJobCombo = new FormData();
-    fd_startJobCombo.top = new FormAttachment(wlStartAction, 0, SWT.CENTER);
-    fd_startJobCombo.left = new FormAttachment(wlStartAction, props.getMargin());
-    fd_startJobCombo.right = new FormAttachment(100, 0);
-    wStartAction.setLayoutData(fd_startJobCombo);
+    FormData fdStartJobCombo = new FormData();
+    fdStartJobCombo.top = new FormAttachment(wlStartAction, 0, SWT.CENTER);
+    fdStartJobCombo.left = new FormAttachment(wlStartAction, props.getMargin());
+    fdStartJobCombo.right = new FormAttachment(100, 0);
+    wStartAction.setLayoutData(fdStartJobCombo);
 
     WorkflowMeta workflowMeta = (WorkflowMeta) super.abstractMeta;
 
@@ -351,12 +351,11 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
       configuration.setLogLevel(LogLevel.values()[wLogLevel.getSelectionIndex()]);
 
       String startActionName = null;
-      if (!Utils.isEmpty(wStartAction.getText())) {
-        if (wStartAction.getSelectionIndex() >= 0) {
-          ActionMeta action =
-              ((WorkflowMeta) abstractMeta).getActions().get(wStartAction.getSelectionIndex());
-          startActionName = action.getName();
-        }
+      if (!Utils.isEmpty(wStartAction.getText()) && wStartAction.getSelectionIndex() >= 0) {
+
+        ActionMeta action =
+            ((WorkflowMeta) abstractMeta).getActions().get(wStartAction.getSelectionIndex());
+        startActionName = action.getName();
       }
       getConfiguration().setStartActionName(startActionName);
 

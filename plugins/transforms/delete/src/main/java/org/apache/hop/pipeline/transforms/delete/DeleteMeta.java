@@ -51,6 +51,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.Delete",
     description = "i18n::BaseTransform.TypeTooltipDesc.Delete",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+    keywords = "i18n::DeleteMeta.keyword",
     documentationUrl = "/pipeline/transforms/delete.html")
 public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   private static final Class<?> PKG = DeleteMeta.class; // For Translator
@@ -60,11 +61,8 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   private DeleteLookupField lookup;
 
   /** database connection */
-  @HopMetadataProperty(
-      key = "connection",
-      storeWithName = true,
-      injectionKeyDescription = "Delete.Injection.Connection")
-  private DatabaseMeta databaseMeta;
+  @HopMetadataProperty(key = "connection", injectionKeyDescription = "Delete.Injection.Connection")
+  private String connection;
 
   /** Commit size for inserts/updates */
   @HopMetadataProperty(
@@ -76,6 +74,14 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
     super();
     lookup = new DeleteLookupField();
     // allocate BaseTransformMeta
+  }
+
+  public String getConnection() {
+    return connection;
+  }
+
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   /** @return Returns the commitSize. */
@@ -111,19 +117,9 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
     this.commitSize = commitSize;
   }
 
-  /** @return Returns the database. */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
-  }
-
   public DeleteMeta(DeleteMeta obj) {
 
-    this.databaseMeta = obj.databaseMeta;
+    this.connection = obj.connection;
     this.commitSize = obj.commitSize;
     this.lookup = new DeleteLookupField(obj.lookup);
   }
@@ -135,7 +131,6 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
 
   @Override
   public void setDefault() {
-    databaseMeta = null;
     commitSize = "100";
     lookup.setSchemaName("");
     lookup.setTableName(BaseMessages.getString(PKG, "DeleteMeta.DefaultTableName.Label"));
@@ -166,6 +161,20 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     String errorMessage = "";
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "DeleteMeta.CheckResult.DatabaseMetaError", variables.resolve(connection)),
+              transformMeta);
+      remarks.add(cr);
+    }
 
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
@@ -331,6 +340,9 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
       TransformMeta transformMeta,
       IRowMeta prev,
       IHopMetadataProvider metadataProvider) {
+
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
+
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
@@ -413,6 +425,7 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
       IRowMeta info,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+
     if (prev != null) {
       // Lookup: we do a lookup on the natural keys
       List<DeleteKeyField> keyFields = lookup.getFields();
@@ -420,29 +433,32 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
         String keyStr = keyFields.get(i).getKeyStream();
         IValueMeta v = prev.searchValueMeta(keyStr);
 
-        DatabaseImpact ii =
-            new DatabaseImpact(
-                DatabaseImpact.TYPE_IMPACT_DELETE,
-                pipelineMeta.getName(),
-                transformMeta.getName(),
-                databaseMeta.getDatabaseName(),
-                lookup.getTableName(),
-                keyFields.get(i).getKeyLookup(),
-                keyFields.get(i).getKeyStream(),
-                v != null ? v.getOrigin() : "?",
-                "",
-                "Type = " + v.toStringMeta());
-        impact.add(ii);
+        try {
+          DatabaseMeta databaseMeta =
+              metadataProvider
+                  .getSerializer(DatabaseMeta.class)
+                  .load(variables.resolve(connection));
+          DatabaseImpact ii =
+              new DatabaseImpact(
+                  DatabaseImpact.TYPE_IMPACT_DELETE,
+                  pipelineMeta.getName(),
+                  transformMeta.getName(),
+                  databaseMeta.getDatabaseName(),
+                  lookup.getTableName(),
+                  keyFields.get(i).getKeyLookup(),
+                  keyFields.get(i).getKeyStream(),
+                  v != null ? v.getOrigin() : "?",
+                  "",
+                  "Type = " + v.toStringMeta());
+          impact.add(ii);
+        } catch (HopException e) {
+          throw new HopTransformException(
+              "Unable to get databaseMeta for connection: "
+                  + Const.CR
+                  + variables.resolve(connection),
+              e);
+        }
       }
-    }
-  }
-
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
     }
   }
 

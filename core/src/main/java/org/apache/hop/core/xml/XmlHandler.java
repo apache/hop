@@ -61,9 +61,6 @@ import java.util.zip.GZIPOutputStream;
 /**
  * This class contains a number of (static) methods to facilitate the retrieval of information from
  * XML Node(s).
- *
- * @author Matt
- * @since 04-04-2003
  */
 public class XmlHandler {
   // TODO Change impl for some standard XML processing (like StAX, for example) because ESAPI has
@@ -128,10 +125,8 @@ public class XmlHandler {
     children = n.getChildNodes();
     for (int i = 0; i < children.getLength(); i++) {
       childnode = children.item(i);
-      if (childnode.getNodeName().equalsIgnoreCase(tag)) {
-        if (childnode.getFirstChild() != null) {
-          return childnode.getFirstChild().getNodeValue();
-        }
+      if (childnode.getNodeName().equalsIgnoreCase(tag) && childnode.getFirstChild() != null) {
+        return childnode.getFirstChild().getNodeValue();
       }
     }
     return null;
@@ -185,10 +180,9 @@ public class XmlHandler {
     for (int i = 0; i < children.getLength(); i++) {
       childnode = children.item(i);
       if (childnode.getNodeName().equalsIgnoreCase(tag)
-          && childnode.getAttributes().getNamedItem(attribute) != null) {
-        if (childnode.getFirstChild() != null) {
-          return childnode.getFirstChild().getNodeValue();
-        }
+          && childnode.getAttributes().getNamedItem(attribute) != null
+          && childnode.getFirstChild() != null) {
+        return childnode.getFirstChild().getNodeValue();
       }
     }
     return null;
@@ -217,10 +211,8 @@ public class XmlHandler {
         NodeList tags = childnode.getChildNodes();
         for (int j = 0; j < tags.getLength(); j++) {
           Node tagnode = tags.item(j);
-          if (tagnode.getNodeName().equalsIgnoreCase(subtag)) {
-            if (tagnode.getFirstChild() != null) {
-              return tagnode.getFirstChild().getNodeValue();
-            }
+          if (tagnode.getNodeName().equalsIgnoreCase(subtag) && tagnode.getFirstChild() != null) {
+            return tagnode.getFirstChild().getNodeValue();
           }
         }
       }
@@ -853,8 +845,6 @@ public class XmlHandler {
    * @return The XML String for the tag.
    */
   public static String addTagValue(String tag, long l, boolean cr) {
-    // Tom modified this for performance
-    // return addTagValue(tag, ""+l, cr);
     return addTagValue(tag, String.valueOf(l), cr);
   }
 
@@ -957,7 +947,7 @@ public class XmlHandler {
    * @return The XML String for the tag.
    */
   public static String addTagValue(String tag, BigDecimal val, boolean cr) {
-    return addTagValue(tag, val != null ? val.toString() : (String) null, cr);
+    return addTagValue(tag, val != null ? val.toString() : null, cr);
   }
 
   /**
@@ -1206,12 +1196,7 @@ public class XmlHandler {
   }
 }
 
-/**
- * Handle external references and return an empty dummy document.
- *
- * @author jb
- * @since 2007-12-21
- */
+/** Handle external references and return an empty dummy document. */
 class DTDIgnoringEntityResolver implements EntityResolver {
   @Override
   public InputSource resolveEntity(java.lang.String publicID, java.lang.String systemID)

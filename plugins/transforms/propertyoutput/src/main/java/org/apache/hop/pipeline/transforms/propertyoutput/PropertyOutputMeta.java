@@ -50,6 +50,7 @@ import java.util.Map;
     name = "i18n::PropertyOutput.Name",
     description = "i18n::PropertyOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+    keywords = "i18n::PropertyOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/propertyoutput.html")
 public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, PropertyOutputData> {
   private static final Class<?> PKG = PropertyOutputMeta.class; // For Translator
@@ -367,7 +368,7 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "PropertyOutputMeta.CheckResult.FieldsReceived", "" + prev.size()),
               transformMeta);
@@ -375,7 +376,7 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "PropertyOutputMeta.CheckResult.NoFields"),
               transformMeta);
       remarks.add(cr);
@@ -385,14 +386,14 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "PropertyOutputMeta.CheckResult.ExpectedInputOk"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "PropertyOutputMeta.CheckResult.ExpectedInputError"),
               transformMeta);
       remarks.add(cr);
@@ -402,14 +403,14 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
     if (!Utils.isEmpty(fileName)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "PropertyOutputMeta.CheckResult.FilenameOk"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "PropertyOutputMeta.CheckResult.FilenameError"),
               transformMeta);
       remarks.add(cr);
@@ -464,9 +465,9 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
     return valuefield;
   }
 
-  /** @param KeyField the keyfield to set */
-  public void setKeyField(String KeyField) {
-    this.keyfield = KeyField;
+  /** @param keyField the keyfield to set */
+  public void setKeyField(String keyField) {
+    this.keyfield = keyField;
   }
 
   /** @param valuefield the valuefield to set */

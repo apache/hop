@@ -37,6 +37,7 @@ import java.util.List;
     description = "i18n::ProcessFiles.Description",
     name = "i18n::ProcessFiles.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+    keywords = "i18n::ProcessFilesMeta.keyword",
     documentationUrl = "/pipeline/transforms/processfiles.html")
 public class ProcessFilesMeta extends BaseTransformMeta<ProcessFiles, ProcessFilesData> {
   private static final Class<?> PKG = ProcessFilesMeta.class; // For Translator

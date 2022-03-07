@@ -26,18 +26,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Split a single String fields into multiple parts based on certain conditions.
- *
- * @author Matt
- * @author Daniel Einspanjer
- * @since 31-Okt-2003
- * @since 15-01-2008
- */
+/** Split a single String fields into multiple parts based on certain conditions. */
 public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitterData> {
+
   private static final Class<?> PKG = FieldSplitterMeta.class; // For Translator
 
   public FieldSplitter(

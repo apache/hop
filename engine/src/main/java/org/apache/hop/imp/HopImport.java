@@ -35,7 +35,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import picocli.CommandLine;
 import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.Option;
@@ -516,13 +516,13 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
    * @return value of metadataProvider
    */
   @Override
-  public IHopMetadataProvider getMetadataProvider() {
+  public MultiMetadataProvider getMetadataProvider() {
     return hopImport.getMetadataProvider();
   }
 
   /** @param metadataProvider The metadataProvider to set */
   @Override
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
+  public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
     hopImport.setMetadataProvider(metadataProvider);
   }
 

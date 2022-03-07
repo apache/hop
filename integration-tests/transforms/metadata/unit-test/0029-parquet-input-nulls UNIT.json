@@ -1,0 +1,48 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "str",
+          "data_set_field": "str"
+        },
+        {
+          "transform_field": "num",
+          "data_set_field": "num"
+        },
+        {
+          "transform_field": "dat",
+          "data_set_field": "dat"
+        },
+        {
+          "transform_field": "bool",
+          "data_set_field": "bool"
+        },
+        {
+          "transform_field": "big",
+          "data_set_field": "big"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "Validate",
+      "data_set_name": "golden-parquet-nulls"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0029-parquet-input-nulls UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0029-parquet-input-nulls.hpl",
+  "test_type": "UNIT_TEST"
+}

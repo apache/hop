@@ -60,9 +60,6 @@ import java.util.List;
  * Database connection) - A Combo Variable selection (editable ComboBox, for example containing all
  * connection values in the MetaStore) - New and Edit buttons (The latter opens up a generic
  * Metadata editor)
- *
- * @author Matt
- * @since 2019-12-17
  */
 public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   private static final Class<?> PKG = MetaSelectionLine.class; // For Translator
@@ -105,9 +102,30 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       String labelText,
       String toolTipText,
       boolean leftAlignedLabel) {
+    this(
+        variables,
+        metadataProvider,
+        managedClass,
+        parentComposite,
+        flags,
+        labelText,
+        toolTipText,
+        leftAlignedLabel,
+        true);
+  }
+
+  public MetaSelectionLine(
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      Class<T> managedClass,
+      Composite parentComposite,
+      int flags,
+      String labelText,
+      String toolTipText,
+      boolean leftAlignedLabel,
+      boolean negativeMargin) {
     super(parentComposite, SWT.NONE);
     this.variables = variables;
-    // this.classLoader = managedClass.getClassLoader();
     this.metadataProvider = metadataProvider;
     this.managedClass = managedClass;
     this.props = PropsUi.getInstance();
@@ -139,7 +157,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment(0, 0);
     if (!leftAlignedLabel) {
-      fdLabel.right = new FormAttachment(middle, -margin);
+      fdLabel.right = new FormAttachment(middle, negativeMargin ? -margin : 0);
     }
     fdLabel.top = new FormAttachment(0, margin);
     wLabel.setLayoutData(fdLabel);
@@ -155,8 +173,8 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
             getDisplay(),
             managedClass.getClassLoader(),
             metadata.image(),
-            ConstUi.SMALL_ICON_SIZE,
-            ConstUi.SMALL_ICON_SIZE);
+            (int) (ConstUi.SMALL_ICON_SIZE * props.getZoomFactor()),
+            (int) (ConstUi.SMALL_ICON_SIZE * props.getZoomFactor()));
 
     wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL);
     FormData fdToolBar = new FormData();
@@ -177,7 +195,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     if (leftAlignedLabel) {
       fdCombo.left = new FormAttachment(wLabel, margin, SWT.RIGHT);
     } else {
-      fdCombo.left = new FormAttachment(middle, 0);
+      fdCombo.left = new FormAttachment(middle, leftAlignedLabel ? 0 : margin);
     }
     fdCombo.right = new FormAttachment(wToolBar, -margin);
     fdCombo.top = new FormAttachment(wLabel, 0, SWT.CENTER);
@@ -231,7 +249,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 
     item.addListener(
         SWT.Selection,
-        (event) -> {
+        event -> {
           if (event.detail == SWT.ARROW) {
             Rectangle rect = item.getBounds();
             Point pt = new Point(rect.x, rect.y + rect.height);
@@ -247,9 +265,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     layout(true, true);
   }
 
-  protected void manageMetadata() {
-    // manager.openMetaStoreExplorer();
-  }
+  protected void manageMetadata() {}
 
   /**
    * We look at the managed class name, add Dialog to it and then simply us that class to edit the

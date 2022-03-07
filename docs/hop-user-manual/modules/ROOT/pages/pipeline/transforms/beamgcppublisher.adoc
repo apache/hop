@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Beam GCP Pub/Sub : Publish transform publishes messages to a Google Cloud Pub/Sub topic using the Beam execution engine.
 
 = Beam GCP Pub/Sub : Publish
 

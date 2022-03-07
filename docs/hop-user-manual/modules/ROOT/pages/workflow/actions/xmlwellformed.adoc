@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Check If XML File Is Well-Formed action verifies if one or more files contain well-formed (allowed) XML content.
 
-= Check if XML file is well formed
+= Check if XML file is well-formed
 
 == Description
 
-The Check if XML file is well formed action verifies if one or more files contain well formed (allowed) XML content.
+The Check If XML File Is Well-Formed action verifies if one or more files contain well-formed (allowed) XML content.
 
 == Options
 

@@ -41,7 +41,7 @@ public class StringCutMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
 
     List<String> attributesList = new ArrayList<>();
     Map<String, String> getterMap = new HashMap<>();
@@ -56,7 +56,6 @@ public class StringCutMetaTest implements IInitializer<ITransformMeta> {
         new LoadSaveTester(
             testMetaClass,
             attributesList,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,10 @@ public enum GuiElementType {
   NONE, // To disable default options
   PARENT, // Is a placeholder for children
   TEXT,
+  FILENAME, // Text widget with browse button
+  FOLDER, // Text widget with browse button
   COMBO,
   CHECKBOX,
+  METADATA, // Metadata selection line
   ;
 }

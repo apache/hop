@@ -134,7 +134,7 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
               BaseMessages.getString(PKG, "GetFieldsCapableTransformDialog.NoNewFields.Title"),
               BaseMessages.getString(PKG, "GetFieldsCapableTransformDialog.NoNewFields.Message"));
       // if there are no incoming fields at all, we leave the OK button handler as-is and simply
-      // dispose the dialog;
+      // dispose the dialog
       // if there are some incoming fields, we overwrite the OK button handler to show the
       // GetFieldsSampleDataDialog
       if (incomingFieldNames != null && incomingFieldNames.length > 0) {
@@ -267,7 +267,7 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
   default TableItem getTableItem(final String fieldName) {
     // try to find a table item corresponding to the current field name
     TableItem item = findTableItem(fieldName);
-    // if one doesn't exist, create a new one;
+    // if one doesn't exist, create a new one
     if (item == null) {
       item = new TableItem(getFieldsTable().table, SWT.NONE);
     }

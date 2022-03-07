@@ -39,12 +39,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Dialog to test a regular expression
- *
- * @author Samatar
- * @since 20-04-2009
- */
+/** Dialog to test a regular expression */
 public class RegexEvalHelperDialog extends Dialog {
   private static final Class<?> PKG = RegexEvalMeta.class; // For Translator
 
@@ -78,21 +73,21 @@ public class RegexEvalHelperDialog extends Dialog {
    * Dialog to allow someone to test regular expression
    *
    * @param parent The parent shell to use
-   * @param RegexScript The expression to test
-   * @param RegexOptions Any extended options for the regular expression
+   * @param regexScript The expression to test
+   * @param regexOptions Any extended options for the regular expression
    * @param canonicalEqualityFlagSet canonical equality choice
    */
   public RegexEvalHelperDialog(
       Shell parent,
       IVariables variables,
-      String RegexScript,
-      String RegexOptions,
+      String regexScript,
+      String regexOptions,
       boolean canonicalEqualityFlagSet) {
     super(parent, SWT.NONE);
     this.variables = variables;
     props = PropsUi.getInstance();
-    this.regexScript = RegexScript;
-    this.regexOptions = RegexOptions;
+    this.regexScript = regexScript;
+    this.regexOptions = regexOptions;
     this.errorDisplayed = false;
     this.canonicalEqualityFlagSet = canonicalEqualityFlagSet;
   }

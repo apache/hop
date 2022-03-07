@@ -24,6 +24,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -96,7 +97,11 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
       //
       WorkflowConfiguration workflowConfiguration =
           WorkflowConfiguration.fromXml(xml.toString(), variables);
-      IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
+      IHopMetadataProvider metadataProvider =
+          new MultiMetadataProvider(
+              variables,
+              getServerConfig().getMetadataProvider(),
+              workflowConfiguration.getMetadataProvider());
       WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
       WorkflowExecutionConfiguration workflowExecutionConfiguration =
           workflowConfiguration.getWorkflowExecutionConfiguration();

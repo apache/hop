@@ -97,7 +97,6 @@ public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
         new LoadSaveTester(
             JsonInputMeta.class,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attributesMap,

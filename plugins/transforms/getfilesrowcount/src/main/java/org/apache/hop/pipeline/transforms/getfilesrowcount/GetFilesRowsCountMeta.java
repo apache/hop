@@ -51,6 +51,7 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.GetFilesRowsCount",
     description = "i18n::BaseTransform.TypeTooltipDesc.GetFilesRowsCount",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    keywords = "i18n::GetFilesRowsCountMeta.keyword",
     documentationUrl = "/pipeline/transforms/getfilesrowcount.html")
 public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {
   private static final Class<?> PKG = GetFilesRowsCountMeta.class; // For Translator
@@ -61,7 +62,6 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
         BaseMessages.getString(PKG, "System.Combo.Yes")
       };
   public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
-  private static final String NO = "N";
   private static final String YES = "Y";
 
   public static final String DEFAULT_ROWSCOUNT_FIELDNAME = "rowscount";
@@ -85,10 +85,10 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
   private String rowsCountFieldName;
 
   /** The row separator type */
-  private String RowSeparatorFormat;
+  private String rowSeparatorFormat;
 
   /** The row separator */
-  private String RowSeparator;
+  private String rowSeparator;
 
   /** file name from previous fields */
   private boolean filefield;
@@ -112,17 +112,17 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
 
   /** @return Returns the row separator. */
   public String getRowSeparator() {
-    return RowSeparator;
+    return rowSeparator;
   }
 
-  /** @param RowSeparatorin The RowSeparator to set. */
-  public void setRowSeparator(String RowSeparatorin) {
-    this.RowSeparator = RowSeparatorin;
+  /** @param rowSeparatorin The RowSeparator to set. */
+  public void setRowSeparator(String rowSeparatorin) {
+    this.rowSeparator = rowSeparatorin;
   }
 
   /** @return Returns the row separator format. */
   public String getRowSeparatorFormat() {
-    return RowSeparatorFormat;
+    return rowSeparatorFormat;
   }
 
   /** @param isaddresult The isaddresult to set. */
@@ -175,9 +175,9 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
     this.filefield = filefield;
   }
 
-  /** @param RowSeparatorFormatin The RowSeparator_format to set. */
-  public void setRowSeparatorFormat(String RowSeparatorFormatin) {
-    this.RowSeparatorFormat = RowSeparatorFormatin;
+  /** @param rowSeparatorFormatin The RowSeparator_format to set. */
+  public void setRowSeparatorFormat(String rowSeparatorFormatin) {
+    this.rowSeparatorFormat = rowSeparatorFormatin;
   }
 
   /** @return Returns the fileMask. */
@@ -305,8 +305,8 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
     retval
         .append("    ")
         .append(XmlHandler.addTagValue("rows_count_fieldname", rowsCountFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("rowseparator_format", RowSeparatorFormat));
-    retval.append("    ").append(XmlHandler.addTagValue("row_separator", RowSeparator));
+    retval.append("    ").append(XmlHandler.addTagValue("rowseparator_format", rowSeparatorFormat));
+    retval.append("    ").append(XmlHandler.addTagValue("row_separator", rowSeparator));
     retval.append("    ").append(XmlHandler.addTagValue("isaddresult", isaddresult));
     retval.append("    ").append(XmlHandler.addTagValue("filefield", filefield));
     retval.append("    ").append(XmlHandler.addTagValue("filename_Field", outputFilenameField));
@@ -355,9 +355,9 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
       filesCountFieldName = XmlHandler.getTagValue(transformNode, "files_count_fieldname");
       rowsCountFieldName = XmlHandler.getTagValue(transformNode, "rows_count_fieldname");
 
-      RowSeparatorFormat =
+      rowSeparatorFormat =
           scrubOldRowSeparator(XmlHandler.getTagValue(transformNode, "rowseparator_format"));
-      RowSeparator = XmlHandler.getTagValue(transformNode, "row_separator");
+      rowSeparator = XmlHandler.getTagValue(transformNode, "row_separator");
 
       smartCount = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "smartCount"));
 
@@ -410,8 +410,8 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
     includeFilesCount = false;
     filesCountFieldName = "";
     rowsCountFieldName = "rowscount";
-    RowSeparatorFormat = "CR";
-    RowSeparator = "";
+    rowSeparatorFormat = "CR";
+    rowSeparator = "";
     int nrFiles = 0;
 
     allocate(nrFiles);
@@ -479,14 +479,14 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetFilesRowsCountMeta.CheckResult.NoInputExpected"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "GetFilesRowsCountMeta.CheckResult.NoInput"),
               transformMeta);
       remarks.add(cr);
@@ -497,14 +497,14 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
     if (fileInputList == null || fileInputList.getFiles().size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetFilesRowsCountMeta.CheckResult.NoFiles"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "GetFilesRowsCountMeta.CheckResult.FilesOk",
@@ -513,17 +513,17 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
       remarks.add(cr);
     }
 
-    if ((RowSeparatorFormat.equals("CUSTOM")) && (RowSeparator == null)) {
+    if ((rowSeparatorFormat.equals("CUSTOM")) && (rowSeparator == null)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "GetFilesRowsCountMeta.CheckResult.NoSeparator"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "GetFilesRowsCountMeta.CheckResult.SeparatorOk"),
               transformMeta);
       remarks.add(cr);

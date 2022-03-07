@@ -34,7 +34,7 @@ public class WorkflowActionFoldersCompareTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
         "filename1",
         "filename2",

@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.reflection.workflow.xp;
@@ -35,7 +34,6 @@ import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.reflection.pipeline.xp.PipelineStartLoggingXp;
 import org.apache.hop.reflection.workflow.meta.WorkflowLog;
 import org.apache.hop.reflection.workflow.transform.WorkflowLogging;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
@@ -47,9 +45,10 @@ import java.util.TimerTask;
     id = "WorkflowStartLoggingXp",
     extensionPointId = "WorkflowStart",
     description = "At the start of a workflow, handle any Workflow Log metadata objects")
-public class WorkflowStartLoggingXp implements IExtensionPoint<Workflow> {
+public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<WorkflowMeta>> {
   @Override
-  public void callExtensionPoint(ILogChannel log, IVariables variables, Workflow workflow)
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow)
       throws HopException {
 
     IHopMetadataProvider metadataProvider = workflow.getMetadataProvider();

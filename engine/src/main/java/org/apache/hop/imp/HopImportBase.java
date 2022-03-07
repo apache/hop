@@ -28,8 +28,8 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 import javax.xml.transform.dom.DOMSource;
 import java.io.InputStream;
@@ -47,6 +47,8 @@ public abstract class HopImportBase implements IHopImport {
   protected String jdbcPropertiesFilename;
   protected boolean skippingExistingTargetFiles;
   protected String targetConfigFilename;
+  protected String defaultPipelineRunConfiguration;
+  protected String defaultWorkflowRunConfiguration;
   protected boolean skippingHiddenFilesAndFolders;
   protected boolean skippingFolders;
 
@@ -62,7 +64,7 @@ public abstract class HopImportBase implements IHopImport {
   protected int connectionCounter;
   protected int variableCounter;
 
-  protected IHopMetadataProvider metadataProvider;
+  protected MultiMetadataProvider metadataProvider;
   protected IProgressMonitor monitor;
   protected String metadataTargetFolder;
 
@@ -92,7 +94,12 @@ public abstract class HopImportBase implements IHopImport {
     if (metadataProvider == null) {
       this.metadataTargetFolder = outputFolder.getName().getURI() + "/metadata";
       metadataProvider =
-          new JsonMetadataProvider(Encr.getEncoder(), this.metadataTargetFolder, variables);
+          new MultiMetadataProvider(
+              Encr.getEncoder(),
+              Arrays.asList(
+                  new JsonMetadataProvider(
+                      Encr.getEncoder(), this.metadataTargetFolder, variables)),
+              variables);
     }
     if (monitor != null) {
       monitor.setTaskName("Finding files to import");
@@ -408,13 +415,13 @@ public abstract class HopImportBase implements IHopImport {
    * @return value of metadataProvider
    */
   @Override
-  public IHopMetadataProvider getMetadataProvider() {
+  public MultiMetadataProvider getMetadataProvider() {
     return metadataProvider;
   }
 
   /** @param metadataProvider The metadataProvider to set */
   @Override
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
+  public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
 
@@ -432,6 +439,22 @@ public abstract class HopImportBase implements IHopImport {
   @Override
   public void setTargetConfigFilename(String targetConfigFilename) {
     this.targetConfigFilename = targetConfigFilename;
+  }
+
+  public String getDefaultPipelineRunConfiguration() {
+    return defaultPipelineRunConfiguration;
+  }
+
+  public void setDefaultPipelineRunConfiguration(String defaultPipelineRunConfiguration) {
+    this.defaultPipelineRunConfiguration = defaultPipelineRunConfiguration;
+  }
+
+  public String getDefaultWorkflowRunConfiguration() {
+    return defaultWorkflowRunConfiguration;
+  }
+
+  public void setDefaultWorkflowRunConfiguration(String defaultWorkflowRunConfiguration) {
+    this.defaultWorkflowRunConfiguration = defaultWorkflowRunConfiguration;
   }
 
   /**

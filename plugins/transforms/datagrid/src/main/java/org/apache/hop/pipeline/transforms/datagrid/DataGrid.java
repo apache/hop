@@ -28,12 +28,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Generates a number of (empty or the same) rows
- *
- * @author Matt
- * @since 4-apr-2003
- */
+/** Generates a number of (empty or the same) rows */
 public class DataGrid extends BaseTransform<DataGridMeta, DataGridData> {
 
   private static final Class<?> PKG = DataGridMeta.class; // For Translator

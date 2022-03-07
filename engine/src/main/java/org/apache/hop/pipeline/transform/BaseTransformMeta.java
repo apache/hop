@@ -337,6 +337,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
    * @return an array of database connections meta-data. Return an empty array if no connections are
    *     used.
    */
+  @Deprecated
   public DatabaseMeta[] getUsedDatabaseConnections() {
     return new DatabaseMeta[] {};
   }
@@ -349,20 +350,12 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
     return false;
   }
 
-  /**
-   * This method is added to exclude certain transforms from layout checking.
-   *
-   * @since 2.5.0
-   */
+  /** This method is added to exclude certain transforms from layout checking. */
   public boolean excludeFromRowLayoutVerification() {
     return false;
   }
 
-  /**
-   * This method is added to exclude certain transforms from copy/distribute checking.
-   *
-   * @since 4.0.0
-   */
+  /** This method is added to exclude certain transforms from copy/distribute checking. */
   public boolean excludeFromCopyDistributeVerification() {
     return false;
   }

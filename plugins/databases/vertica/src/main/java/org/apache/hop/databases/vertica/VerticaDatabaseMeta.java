@@ -27,13 +27,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 /**
  * Contains Vertica Analytic Database information through static final members
- *
- * @author DEinspanjer
- * @author Matt
- * @since 2009-03-16
- * @since May-2008
  */
-@DatabaseMetaPlugin(type = "VERTICA", typeDescription = "Vertica")
+@DatabaseMetaPlugin(type = "VERTICA", typeDescription = "Vertica", documentationUrl = "/database/databases/vertica.html")
 @GuiPlugin(id = "GUI-VerticaDatabaseMeta")
 public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 

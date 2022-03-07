@@ -40,7 +40,7 @@ public class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
             "useAuthentication",
@@ -84,7 +84,6 @@ public class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
         new LoadSaveTester<>(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

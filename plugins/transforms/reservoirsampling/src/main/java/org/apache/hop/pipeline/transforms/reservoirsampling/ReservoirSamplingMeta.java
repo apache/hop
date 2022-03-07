@@ -42,6 +42,7 @@ import java.util.Objects;
     description = "i18n::BaseTransform.TypeTooltipDesc.ReservoirSampling",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
+    keywords = "i18n::ReservoirSamplingMeta.keyword",
     documentationUrl = "/pipeline/transforms/reservoirsampling.html")
 public class ReservoirSamplingMeta extends BaseTransformMeta<ReservoirSampling, ReservoirSamplingData> {
 
@@ -206,7 +207,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta<ReservoirSampling, 
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               "Transform is connected to previous one, receiving " + prev.size() + " fields",
               transformMeta);
       remarks.add(cr);
@@ -216,14 +217,14 @@ public class ReservoirSamplingMeta extends BaseTransformMeta<ReservoirSampling, 
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               "Transform is receiving info from other transforms.",
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               "No input received from other transforms!",
               transformMeta);
       remarks.add(cr);

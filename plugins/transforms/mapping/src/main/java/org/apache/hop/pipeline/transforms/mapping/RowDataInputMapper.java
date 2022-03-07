@@ -21,11 +21,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.RowProducer;
 
-/**
- * This class renamed fields in rows before passing them to the row producer specified
- *
- * @author matt
- */
+/** This class renamed fields in rows before passing them to the row producer specified */
 public class RowDataInputMapper {
   private final RowProducer rowProducer;
   private final MappingIODefinition inputDefinition;

@@ -50,9 +50,9 @@ public class ZipFileMetaTest {
   private static final boolean CREATE_PARENT_FOLDER = true;
   private static final boolean KEEP_SOURCE_FOLDER = true;
   private static final String MOVE_TO_FOLDER_FIELD = "movetothisfolder";
-  
+
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  
+
   @Test
   public void testGettersSetters() {
     ZipFileMeta zipFileMeta = new ZipFileMeta();

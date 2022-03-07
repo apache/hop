@@ -37,12 +37,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 
-/**
- * Dialog to display the results of a verify operation.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** Dialog to display the results of a verify operation. */
 public class CheckResultDialog extends Dialog {
   private static final Class<?> PKG = CheckResultDialog.class; // For Translator
 
@@ -65,7 +60,9 @@ public class CheckResultDialog extends Dialog {
   private Shell shell;
   private final PropsUi props;
 
-  private Color red, green, yellow;
+  private Color red;
+  private Color green;
+  private Color yellow;
 
   private boolean showSuccessfulResults = false;
 
@@ -116,6 +113,7 @@ public class CheckResultDialog extends Dialog {
 
     wNoOK = new Button(shell, SWT.CHECK);
     wNoOK.setText(STRING_SHOW_SUCESSFUL);
+    props.setLook(wNoOK);
     FormData fd = new FormData();
     fd.left = new FormAttachment(0, 0);
     fd.bottom = new FormAttachment(wClose, -2 * margin);

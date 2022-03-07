@@ -703,7 +703,6 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent se) {
-            // wSeparator.insert("\t");
             wSeparator.getTextWidget().insert("\t");
           }
         });
@@ -1495,7 +1494,6 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     tfoi.setFastDump(wFastDump.getSelection());
 
     int i;
-    // Table table = wFields.table;
 
     int nrFields = wFields.nrNonEmpty();
 

@@ -25,10 +25,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.List;
 
-/**
- * @author Matt
- * @since 20-jan-2005
- */
 public class ExecSqlData extends BaseTransformData implements ITransformData {
   public Database db;
   public Result result;

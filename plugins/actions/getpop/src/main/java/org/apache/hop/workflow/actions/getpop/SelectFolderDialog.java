@@ -36,9 +36,6 @@ import javax.mail.MessagingException;
 /**
  * This dialog represents an explorer type of interface on a given IMAP connection. It shows the
  * folders defined
- *
- * @author Samatar
- * @since 12-08-2009
  */
 public class SelectFolderDialog extends Dialog {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator

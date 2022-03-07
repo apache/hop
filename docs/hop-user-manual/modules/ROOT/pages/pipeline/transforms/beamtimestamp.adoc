@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Beam Timestamp transform adds a custom timestamp using the Beam execution engine.
 
 = Beam Timestamp
 

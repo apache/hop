@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Beam Output transform writes files using a file definition with the Beam execution engine.
 
 = Beam Output
 

@@ -23,7 +23,10 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.*;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -47,47 +50,48 @@ import java.util.List;
     name = "i18n::DatabaseJoin.Name",
     description = "i18n::DatabaseJoin.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-    documentationUrl = "/pipeline/transforms/databasejoin.html",
-    keywords = "sql")
+    keywords = "i18n::DatabaseJoinMeta.keyword",
+    documentationUrl = "/pipeline/transforms/databasejoin.html")
 public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJoinData> {
 
   private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
 
-  @HopMetadataProperty(key = "connection",
+  @HopMetadataProperty(
+      key = "connection",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.Connection")
   private String connection;
-
-  /** Database connection */
-  private DatabaseMeta databaseMeta;
 
   /** SQL Statement */
   @HopMetadataProperty(key = "sql", injectionKeyDescription = "DatabaseJoinMeta.Injection.SQL")
   private String sql;
 
   /** Number of rows to return (0=ALL) */
-  @HopMetadataProperty(key = "rowlimit",
+  @HopMetadataProperty(
+      key = "rowlimit",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.RowLimit")
   private int rowLimit;
 
   /**
-   * false: don't return rows where nothing is found
-   * true: at least return one source row, the rest is NULL
+   * false: don't return rows where nothing is found true: at least return one source row, the rest
+   * is NULL
    */
-  @HopMetadataProperty(key = "outer_join",
+  @HopMetadataProperty(
+      key = "outer_join",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.OuterJoin")
   private boolean outerJoin;
 
   /** Fields to use as parameters (fill in the ? markers) */
-  @HopMetadataProperty(key = "field", groupKey = "parameter",
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "parameter",
       injectionGroupDescription = "DatabaseJoinMeta.Injection.Parameters",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.Field")
   private List<ParameterField> parameters = new ArrayList<>();
-  
-  /** 
-   * false: don't replace variable in script 
-   * true: replace variable in script 
-   */
-  @HopMetadataProperty(key = "replace_vars", injectionKeyDescription = "DatabaseJoinMeta.Injection.ReplaceVariables")
+
+  /** false: don't replace variable in script true: replace variable in script */
+  @HopMetadataProperty(
+      key = "replace_vars",
+      injectionKeyDescription = "DatabaseJoinMeta.Injection.ReplaceVariables")
   private boolean replaceVariables;
 
   public DatabaseJoinMeta() {
@@ -101,28 +105,18 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
     this.sql = clone.sql;
     this.rowLimit = clone.rowLimit;
     this.outerJoin = clone.outerJoin;
-    this.replaceVariables = clone.replaceVariables;    
+    this.replaceVariables = clone.replaceVariables;
     for (ParameterField field : clone.parameters) {
       parameters.add(new ParameterField(field));
     }
   }
-  
+
   public String getConnection() {
     return connection;
   }
 
   public void setConnection(String connection) {
     this.connection = connection;
-  }
-  
-  /** @return Returns the database. */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
   }
 
   /** @return Returns the outerJoin. */
@@ -140,7 +134,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
     return replaceVariables;
   }
 
-  /** @param replacevars The replacevars to set. */
+  /** @param enabled The replacevars to set. */
   public void setReplaceVariables(boolean enabled) {
     this.replaceVariables = enabled;
   }
@@ -172,7 +166,6 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
 
   @Override
   public void setDefault() {
-    databaseMeta = null;
     rowLimit = 0;
     sql = "";
     outerJoin = false;
@@ -184,14 +177,14 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
     IRowMeta param = new RowMeta();
 
     if (fields != null) {
-      for (ParameterField field: this.parameters) {
+      for (ParameterField field : this.parameters) {
         IValueMeta valueMeta = fields.searchValueMeta(field.getName());
         if (valueMeta != null) {
           param.addValueMeta(valueMeta);
         }
       }
     }
-        
+
     return param;
   }
 
@@ -205,8 +198,19 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    if (databaseMeta == null) {
+    if (connection == null) {
       return;
+    }
+
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      throw new HopTransformException(
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
     }
 
     Database db = new Database(loggingObject, variables, databaseMeta);
@@ -270,6 +274,22 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
 
     CheckResult cr;
     String errorMessage = "";
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG,
+                  "DatabaseJoinMeta.CheckResult.DatabaseMetaError",
+                  variables.resolve(connection)),
+              transformMeta);
+      remarks.add(cr);
+    }
 
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
@@ -294,12 +314,12 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
           } else {
             errorMessage =
                 BaseMessages.getString(PKG, "DatabaseJoinMeta.CheckResult.InvalidDBQuery");
-            cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+            cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
             remarks.add(cr);
           }
 
           int q = db.countParameters(variables.resolve(sql));
-          if (q != parameters.size() ) {
+          if (q != parameters.size()) {
             errorMessage =
                 BaseMessages.getString(
                         PKG, "DatabaseJoinMeta.CheckResult.DismatchBetweenParametersAndQuestion")
@@ -334,7 +354,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
           errorMessage = "";
           boolean errorFound = false;
 
-          for (ParameterField field: this.parameters) {
+          for (ParameterField field : this.parameters) {
             IValueMeta v = prev.searchValueMeta(field.getName());
             if (v == null) {
               if (first) {
@@ -401,19 +421,22 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
   public IRowMeta getTableFields(IVariables variables) {
     // Build a dummy parameter row...
     //
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     IRowMeta param = new RowMeta();
-    for (ParameterField field: this.parameters) {
+    for (ParameterField field : this.parameters) {
       IValueMeta v;
       try {
-        int id = ValueMetaFactory.getIdForValueMeta(field.getType());            
+        int id = ValueMetaFactory.getIdForValueMeta(field.getType());
         v = ValueMetaFactory.createValueMeta(field.getName(), id);
       } catch (HopPluginException e) {
         v = new ValueMetaNone(field.getName());
       }
       param.addValueMeta(v);
     }
-    
-    
+
     IRowMeta fields = null;
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
@@ -459,32 +482,32 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
         variables,
         metadataProvider);
 
-    if (out != null) {
-      for (int i = 0; i < out.size(); i++) {
-        IValueMeta outvalue = out.getValueMeta(i);
-        DatabaseImpact di =
-            new DatabaseImpact(
-                DatabaseImpact.TYPE_IMPACT_READ,
-                pipelineMeta.getName(),
-                transformMeta.getName(),
-                databaseMeta.getDatabaseName(),
-                "",
-                outvalue.getName(),
-                outvalue.getName(),
-                transformMeta.getName(),
-                variables.resolve(sql),
-                BaseMessages.getString(PKG, "DatabaseJoinMeta.DatabaseImpact.Title"));
-        impact.add(di);
-      }
-    }
-  }
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
 
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
+      if (out != null) {
+        for (int i = 0; i < out.size(); i++) {
+          IValueMeta outvalue = out.getValueMeta(i);
+          DatabaseImpact di =
+              new DatabaseImpact(
+                  DatabaseImpact.TYPE_IMPACT_READ,
+                  pipelineMeta.getName(),
+                  transformMeta.getName(),
+                  databaseMeta.getDatabaseName(),
+                  "",
+                  outvalue.getName(),
+                  outvalue.getName(),
+                  transformMeta.getName(),
+                  variables.resolve(sql),
+                  BaseMessages.getString(PKG, "DatabaseJoinMeta.DatabaseImpact.Title"));
+          impact.add(di);
+        }
+      }
+    } catch (HopException e) {
+      throw new HopTransformException(
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
     }
   }
 
@@ -492,7 +515,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
   public boolean supportsErrorHandling() {
     return true;
   }
-  
+
   public List<ParameterField> getParameters() {
     return parameters;
   }

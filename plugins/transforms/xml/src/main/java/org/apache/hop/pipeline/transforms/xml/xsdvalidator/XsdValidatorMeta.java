@@ -49,6 +49,7 @@ import java.util.Map;
     name = "i18n::XSDValidator.name",
     description = "i18n::XSDValidator.description",
     categoryDescription = "i18n::XSDValidator.category",
+    keywords = "i18n::XsdValidatorMeta.keyword",
     documentationUrl = "/pipeline/transforms/xsdvalidator.html")
 public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidatorData> {
   private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator
@@ -309,14 +310,14 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
     if (Utils.isEmpty(xmlStream)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.XMLStreamFieldEmpty"),
               transforminfo);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.XMLStreamFieldOK"),
               transforminfo);
       remarks.add(cr);
@@ -326,14 +327,14 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
     if (Utils.isEmpty(resultFieldname)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.ResultFieldEmpty"),
               transforminfo);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.ResultFieldOK"),
               transforminfo);
       remarks.add(cr);
@@ -343,7 +344,7 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
       if (Utils.isEmpty(xsdFilename)) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.XSDFieldEmpty"),
                 transforminfo);
         remarks.add(cr);
@@ -353,7 +354,7 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG,
                   "XsdValidatorMeta.CheckResult.ConnectedTransformOK",
@@ -363,7 +364,7 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.NoInputReceived"),
               transforminfo);
       remarks.add(cr);

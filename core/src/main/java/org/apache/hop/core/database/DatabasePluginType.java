@@ -25,8 +25,6 @@ import java.util.Map;
 
 /**
  * This class represents the transform plugin type.
- *
- * @author matt
  */
 public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> {
   private static DatabasePluginType pluginType;
@@ -87,7 +85,7 @@ public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> {
 
   @Override
   protected String extractDocumentationUrl(DatabaseMetaPlugin annotation) {
-    return null;
+    return annotation.documentationUrl();
   }
 
   @Override

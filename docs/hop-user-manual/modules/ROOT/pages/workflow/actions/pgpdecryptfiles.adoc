@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Decrypt Files With PGP action can be used to decrypt files.
 
 = Decrypt files with PGP
 
 == Description
 
-This workflow action can be used to decrypt files.
+The Decrypt Files With PGP action can be used to decrypt files.
 
 == Options
 

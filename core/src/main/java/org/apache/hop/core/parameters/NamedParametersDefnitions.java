@@ -22,11 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * This class is an implementation of INamedParameters.
- *
- * @author Sven Boden
- */
+/** This class is an implementation of INamedParameters. */
 public class NamedParametersDefnitions implements INamedParameterDefinitions {
   /** Map to store named parameters in. */
   protected Map<String, NamedParameterDefinition> params = new HashMap<>();

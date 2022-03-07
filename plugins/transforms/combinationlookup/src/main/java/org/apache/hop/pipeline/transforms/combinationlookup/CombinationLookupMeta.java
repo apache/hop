@@ -61,6 +61,7 @@ import java.util.Objects;
     description = "i18n::CombinationLookup.Description",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
+    keywords = "i18n::CombinationLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/combinationlookup.html")
 @InjectionSupported(localizationPrefix = "CombinationLookup.Injection.")
 public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, CombinationLookupData>
@@ -114,11 +115,7 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
   @Injection(name = "COMMIT_SIZE")
   private int commitSize;
 
-  /**
-   * Preload the cache, defaults to false
-   *
-   * @author nicow2
-   */
+  /** Preload the cache, defaults to false */
   @Injection(name = "PRELOAD_CACHE")
   private boolean preloadCache = false;
 
@@ -137,9 +134,9 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
   @Injection(name = "LAST_UPDATE_FIELD")
   private String lastUpdateField;
 
-  public static String CREATION_METHOD_AUTOINC = "autoinc";
-  public static String CREATION_METHOD_SEQUENCE = "sequence";
-  public static String CREATION_METHOD_TABLEMAX = "tablemax";
+  public static final String CREATION_METHOD_AUTOINC = "autoinc";
+  public static final String CREATION_METHOD_SEQUENCE = "sequence";
+  public static final String CREATION_METHOD_TABLEMAX = "tablemax";
 
   @Injection(name = "CONNECTIONNAME")
   public void setConnection(String connectionName) {
@@ -326,7 +323,8 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
       throws HopXmlException {
     this.databases = databases;
     try {
-      String commit, csize;
+      String commit;
+      String csize;
 
       schemaName = XmlHandler.getTagValue(transformNode, "schema");
       tableName = XmlHandler.getTagValue(transformNode, "table");
@@ -824,7 +822,7 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
             // What fields do we put int the index?
             // Only the hashcode or all fields?
             String crIndex = "";
-            String cr_uniqIndex = "";
+            String crUniqIndex = "";
             String[] idxFields = null;
             if (useHash) {
               if (hashField != null && hashField.length() > 0) {
@@ -859,10 +857,10 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
               String[] techKeyArr = new String[] {technicalKeyField};
               if (!db.checkIndexExists(schemaTable, techKeyArr)) {
                 String indexname = "idx_" + tableName + "_pk";
-                cr_uniqIndex =
+                crUniqIndex =
                     db.getCreateIndexStatement(
                         schemaTable, indexname, techKeyArr, true, true, false, true);
-                cr_uniqIndex += Const.CR;
+                crUniqIndex += Const.CR;
               }
             }
 
@@ -885,7 +883,7 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
                 crSeq += Const.CR;
               }
             }
-            retval.setSql(variables.resolve(crTable + cr_uniqIndex + crIndex + crSeq));
+            retval.setSql(variables.resolve(crTable + crUniqIndex + crIndex + crSeq));
           } catch (HopException e) {
             retval.setError(
                 BaseMessages.getString(PKG, "CombinationLookupMeta.ReturnValue.ErrorOccurred")
@@ -954,15 +952,6 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
               "",
               BaseMessages.getString(PKG, "CombinationLookupMeta.KeyLookup.Label"));
       impact.add(ii);
-    }
-  }
-
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
     }
   }
 

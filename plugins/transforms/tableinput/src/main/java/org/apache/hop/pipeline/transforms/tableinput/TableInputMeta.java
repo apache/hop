@@ -27,7 +27,6 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -35,11 +34,10 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
@@ -57,40 +55,33 @@ import java.util.List;
     description = "i18n::TableInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/tableinput.html",
-    keywords = "input, sql")
+    keywords = "i18n::TableInputMeta.keyword")
 @InjectionSupported(localizationPrefix = "TableInputMeta.Injection.")
 public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData> {
 
+
   private static final Class<?> PKG = TableInputMeta.class; // For Translator
 
-  private IHopMetadataProvider metadataProvider;
-
-  private DatabaseMeta databaseMeta;
-
-  @Injection(name = "SQL")
+  @HopMetadataProperty(key = "sql", injectionKey = "SQL")
   private String sql;
 
-  @Injection(name = "LIMIT")
+  @HopMetadataProperty(key = "limit", injectionKey = "LIMIT")
   private String rowLimit;
 
   /** Should I execute once per row? */
-  @Injection(name = "EXECUTE_FOR_EACH_ROW")
+  @HopMetadataProperty(key = "execute_each_row", injectionKey = "EXECUTE_FOR_EACH_ROW")
   private boolean executeEachInputRow;
 
-  @Injection(name = "REPLACE_VARIABLES")
+  @HopMetadataProperty(key = "variables_active", injectionKey = "REPLACE_VARIABLES")
   private boolean variableReplacementActive;
+
+  @HopMetadataProperty(key = "connection", injectionKey = "CONNECTIONNAME")
+  private String connection;
+
+  @HopMetadataProperty private String lookup;
 
   public TableInputMeta() {
     super();
-  }
-
-  @Injection(name = "CONNECTIONNAME")
-  public void setConnection(String connectionName) {
-    try {
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, connectionName);
-    } catch (HopXmlException e) {
-      throw new RuntimeException("Error loading conneciton '" + connectionName + "'", e);
-    }
   }
 
   /** @return Returns true if the transform should be run per row */
@@ -101,16 +92,6 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
   /** @param oncePerRow true if the transform should be run per row */
   public void setExecuteEachInputRow(boolean oncePerRow) {
     this.executeEachInputRow = oncePerRow;
-  }
-
-  /** @return Returns the database. */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
   }
 
   /** @return Returns the rowLimit. */
@@ -133,10 +114,20 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     this.sql = sql;
   }
 
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
+  public String getConnection() {
+    return connection;
+  }
+
+  public void setConnection(String connection) {
+    this.connection = connection;
+  }
+
+  public String getLookup() {
+    return lookup;
+  }
+
+  public void setLookup(String lookup) {
+    this.lookup = lookup;
   }
 
   @Override
@@ -145,31 +136,8 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     return retval;
   }
 
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    this.metadataProvider = metadataProvider;
-    try {
-      databaseMeta =
-          DatabaseMeta.loadDatabase(
-              metadataProvider, XmlHandler.getTagValue(transformNode, "connection"));
-      sql = XmlHandler.getTagValue(transformNode, "sql");
-      rowLimit = XmlHandler.getTagValue(transformNode, "limit");
-
-      String lookupFromTransformName = XmlHandler.getTagValue(transformNode, "lookup");
-      IStream infoStream = getTransformIOMeta().getInfoStreams().get(0);
-      infoStream.setSubject(lookupFromTransformName);
-
-      executeEachInputRow = "Y".equals(XmlHandler.getTagValue(transformNode, "execute_each_row"));
-      variableReplacementActive =
-          "Y".equals(XmlHandler.getTagValue(transformNode, "variables_active"));
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
-  }
-
   @Override
   public void setDefault() {
-    databaseMeta = null;
     sql = "SELECT <values> FROM <table name> WHERE <conditions>";
     rowLimit = "0";
   }
@@ -183,11 +151,19 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (databaseMeta == null) {
-      return; // TODO: throw an exception here
-    }
 
     boolean param = false;
+
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      throw new HopTransformException(
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
+    }
 
     Database db = new Database(loggingObject, variables, databaseMeta);
     super.databases = new Database[] {db}; // keep track of it for canceling purposes...
@@ -251,21 +227,21 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
+  public String getXml() throws HopException {
 
-    retval.append(
-        "    "
-            + XmlHandler.addTagValue(
-                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
-    retval.append("    " + XmlHandler.addTagValue("sql", sql));
-    retval.append("    " + XmlHandler.addTagValue("limit", rowLimit));
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+    lookup = infoStreams.get(0).getTransformName();
+
+    return super.getXml();
+  }
+
+  @Override
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    super.loadXml(transformNode, metadataProvider);
+
     IStream infoStream = getTransformIOMeta().getInfoStreams().get(0);
-    retval.append("    " + XmlHandler.addTagValue("lookup", infoStream.getTransformName()));
-    retval.append("    " + XmlHandler.addTagValue("execute_each_row", executeEachInputRow));
-    retval.append("    " + XmlHandler.addTagValue("variables_active", variableReplacementActive));
-
-    return retval.toString();
+    infoStream.setSubject(lookup);
   }
 
   @Override
@@ -280,6 +256,23 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
+
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG,
+                  "TableInputMeta.CheckResult.DatabaseMetaError",
+                  variables.resolve(connection)),
+              transformMeta);
+      remarks.add(cr);
+    }
 
     if (databaseMeta != null) {
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, "Connection exists", transformMeta);
@@ -424,7 +417,7 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
     for (IStream stream : infoStreams) {
       stream.setTransformMeta(
-          TransformMeta.findTransform(transforms, (String) stream.getSubject()));
+          TransformMeta.findTransform(transforms, stream.getSubject()));
     }
   }
 
@@ -441,38 +434,38 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    // Find the lookupfields...
-    IRowMeta out = new RowMeta();
-    // TODO: this builds, but does it work in all cases.
-    getFields(
-        out, transformMeta.getName(), new IRowMeta[] {info}, null, variables, metadataProvider);
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
 
-    if (out != null) {
-      for (int i = 0; i < out.size(); i++) {
-        IValueMeta outvalue = out.getValueMeta(i);
-        DatabaseImpact ii =
-            new DatabaseImpact(
-                DatabaseImpact.TYPE_IMPACT_READ,
-                pipelineMeta.getName(),
-                transformMeta.getName(),
-                databaseMeta.getDatabaseName(),
-                "",
-                outvalue.getName(),
-                outvalue.getName(),
-                transformMeta.getName(),
-                sql,
-                "read from one or more database tables via SQL statement");
-        impact.add(ii);
+      // Find the lookupfields...
+      IRowMeta out = new RowMeta();
+      // TODO: this builds, but does it work in all cases.
+      getFields(
+          out, transformMeta.getName(), new IRowMeta[] {info}, null, variables, metadataProvider);
+
+      if (out != null) {
+        for (int i = 0; i < out.size(); i++) {
+          IValueMeta outvalue = out.getValueMeta(i);
+          DatabaseImpact ii =
+              new DatabaseImpact(
+                  DatabaseImpact.TYPE_IMPACT_READ,
+                  pipelineMeta.getName(),
+                  transformMeta.getName(),
+                  databaseMeta.getDatabaseName(),
+                  "",
+                  outvalue.getName(),
+                  outvalue.getName(),
+                  transformMeta.getName(),
+                  sql,
+                  "read from one or more database tables via SQL statement");
+          impact.add(ii);
+        }
       }
-    }
-  }
-
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
+    } catch (HopException e) {
+      throw new HopTransformException(
+          "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
+          e);
     }
   }
 
@@ -503,34 +496,11 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
               null,
               BaseMessages.getString(PKG, "TableInputMeta.InfoStream.Description"),
               StreamIcon.INFO,
-              null);
+              lookup);
       ioMeta.addStream(stream);
       setTransformIOMeta(ioMeta);
     }
 
     return ioMeta;
-  }
-
-  @Override
-  public void resetTransformIoMeta() {
-    // Do nothing, don't reset as there is no need to do this.
-  }
-
-  /**
-   * For compatibility, wraps around the standard transform IO metadata
-   *
-   * @param transformMeta The transform where you read lookup data from
-   */
-  public void setLookupFromTransform(TransformMeta transformMeta) {
-    getTransformIOMeta().getInfoStreams().get(0).setTransformMeta(transformMeta);
-  }
-
-  /**
-   * For compatibility, wraps around the standard transform IO metadata
-   *
-   * @return The transform where you read lookup data from
-   */
-  public TransformMeta getLookupFromTransform() {
-    return getTransformIOMeta().getInfoStreams().get(0).getTransformMeta();
   }
 }

@@ -56,6 +56,7 @@ import java.util.Map;
     name = "i18n::XMLOutput.name",
     description = "i18n::XMLOutput.description",
     categoryDescription = "i18n::XMLOutput.category",
+    keywords = "i18n::XmlOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/xmloutput.html")
 @InjectionSupported(localizationPrefix = "XMLOutput.Injection.", groups = "OUTPUT_FIELDS")
 public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {

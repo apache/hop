@@ -98,6 +98,7 @@ import java.util.List;
     name = "i18n::SplitFields.Name",
     description = "i18n::SplitFields.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::FieldSplitterMeta.keyword",
     documentationUrl = "/pipeline/transforms/splitfields.html")
 public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSplitterData> {
   private static final Class<?> PKG = FieldSplitterMeta.class; // For Translator
@@ -451,10 +452,6 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
         v.setGroupingSymbol(getFieldGroup()[i]);
         v.setCurrencySymbol(getFieldCurrency()[i]);
         v.setTrimType(getFieldTrimType()[i]);
-        // TODO when implemented in UI
-        // v.setDateFormatLenient(dateFormatLenient);
-        // TODO when implemented in UI
-        // v.setDateFormatLocale(dateFormatLocale);
         if (i == 0 && idx >= 0) {
           // the first valueMeta (splitField) will be replaced
           r.setValueMeta(idx, v);
@@ -568,7 +565,7 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "FieldSplitterMeta.CheckResult.TransformReceivingFields", prev.size() + ""),
               transformMeta);
@@ -583,12 +580,12 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
                 PKG,
                 "FieldSplitterMeta.CheckResult.SplitedFieldNotPresentInInputStream",
                 splitField);
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG,
                     "FieldSplitterMeta.CheckResult.SplitedFieldFoundInInputStream",
@@ -601,7 +598,7 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
           BaseMessages.getString(
                   PKG, "FieldSplitterMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform")
               + Const.CR;
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
 
@@ -609,7 +606,7 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "FieldSplitterMeta.CheckResult.TransformReceivingInfoFromOtherTransform"),
               transformMeta);
@@ -617,7 +614,7 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "FieldSplitterMeta.CheckResult.NoInputReceivedFromOtherTransform"),
               transformMeta);

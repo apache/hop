@@ -33,12 +33,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Return tables name list from Database connection *
- *
- * @author Samatar
- * @since 03-Juin-2008
- */
+/** Return tables name list from Database connection * */
 public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableNamesData> {
 
   private static final Class<?> PKG = GetTableNamesMeta.class; // For Translator
@@ -142,7 +137,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
       throws HopDatabaseException, HopTransformException, HopValueException {
     if (meta.isIncludeSynonym()) {
       String[] synonyms = data.db.getSynonyms(data.realSchemaName, meta.isAddSchemaInOut());
-      String ObjectType = BaseMessages.getString(PKG, "GetTableNamesDialog.ObjectType.Synonym");
+      String objectType = BaseMessages.getString(PKG, "GetTableNamesDialog.ObjectType.Synonym");
 
       for (int i = 0; i < synonyms.length && !isStopped(); i++) {
         Object[] outputRowSyn = outputRow.clone();
@@ -153,7 +148,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         outputRowSyn[outputIndex++] = synonym;
 
         if (!Utils.isEmpty(data.realObjectTypeFieldName)) {
-          outputRowSyn[outputIndex++] = ObjectType;
+          outputRowSyn[outputIndex++] = objectType;
         }
         if (!Utils.isEmpty(data.realIsSystemObjectFieldName)) {
           outputRowSyn[outputIndex++] = Boolean.valueOf(data.db.isSystemTable(synonym));
@@ -162,7 +157,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
           outputRowSyn[outputIndex++] = null;
         }
         data.rownr++;
-        putRow(data.outputRowMeta, outputRowSyn); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, outputRowSyn); // copy row to output rowset(s)
 
         logInfo(outputRowSyn);
       }
@@ -173,7 +168,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
       throws HopDatabaseException, HopTransformException, HopValueException {
     if (meta.isIncludeProcedure()) {
       String[] procNames = data.db.getProcedures();
-      String ObjectType = BaseMessages.getString(PKG, "GetTableNamesDialog.ObjectType.Procedure");
+      String objectType = BaseMessages.getString(PKG, "GetTableNamesDialog.ObjectType.Procedure");
       for (int i = 0; i < procNames.length && !isStopped(); i++) {
         Object[] outputRowProc = outputRow.clone();
         int outputIndex = data.totalpreviousfields;
@@ -182,7 +177,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         outputRowProc[outputIndex++] = procName;
 
         if (!Utils.isEmpty(data.realObjectTypeFieldName)) {
-          outputRowProc[outputIndex++] = ObjectType;
+          outputRowProc[outputIndex++] = objectType;
         }
         if (!Utils.isEmpty(data.realIsSystemObjectFieldName)) {
           outputRowProc[outputIndex++] = Boolean.valueOf(data.db.isSystemTable(procName));
@@ -191,7 +186,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
           outputRowProc[outputIndex++] = null;
         }
         data.rownr++;
-        putRow(data.outputRowMeta, outputRowProc); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, outputRowProc); // copy row to output rowset(s)
 
         logInfo(outputRowProc);
       }
@@ -205,7 +200,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
       try {
         String[] viewNames = data.db.getViews(data.realSchemaName, meta.isAddSchemaInOut());
         String[] viewNamesWithoutSchema = data.db.getViews(data.realSchemaName, false);
-        String ObjectType = BaseMessages.getString(PKG, "GetTableNamesDialog.ObjectType.View");
+        String objectType = BaseMessages.getString(PKG, "GetTableNamesDialog.ObjectType.View");
         for (int i = 0; i < viewNames.length && !isStopped(); i++) {
           Object[] outputRowView = outputRow.clone();
           int outputIndex = data.totalpreviousfields;
@@ -215,7 +210,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
           outputRowView[outputIndex++] = viewName;
 
           if (!Utils.isEmpty(data.realObjectTypeFieldName)) {
-            outputRowView[outputIndex++] = ObjectType;
+            outputRowView[outputIndex++] = objectType;
           }
           if (!Utils.isEmpty(data.realIsSystemObjectFieldName)) {
             outputRowView[outputIndex++] =
@@ -226,7 +221,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
             outputRowView[outputIndex++] = null;
           }
           data.rownr++;
-          putRow(data.outputRowMeta, outputRowView); // copy row to output rowset(s);
+          putRow(data.outputRowMeta, outputRowView); // copy row to output rowset(s)
 
           logInfo(outputRowView);
         }
@@ -245,7 +240,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
       String[] tableNames = data.db.getTablenames(data.realSchemaName, meta.isAddSchemaInOut());
       String[] tableNamesWithoutSchema = data.db.getTablenames(data.realSchemaName, false);
 
-      String ObjectType = BaseMessages.getString(PKG, "GetTableNamesDialog.ObjectType.Table");
+      String objectType = BaseMessages.getString(PKG, "GetTableNamesDialog.ObjectType.Table");
 
       for (int i = 0; i < tableNames.length && !isStopped(); i++) {
         Object[] outputRowTable = outputRow.clone();
@@ -257,7 +252,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         outputRowTable[outputIndex++] = tableName;
 
         if (!Utils.isEmpty(data.realObjectTypeFieldName)) {
-          outputRowTable[outputIndex++] = ObjectType;
+          outputRowTable[outputIndex++] = objectType;
         }
         if (!Utils.isEmpty(data.realIsSystemObjectFieldName)) {
           outputRowTable[outputIndex++] =
@@ -282,9 +277,9 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
 
         if (pkc != null) {
           // add composite primary key (several fields in primary key)
-          int IndexOfLastClosedBracket = sql.lastIndexOf(")");
-          if (IndexOfLastClosedBracket > -1) {
-            sql = sql.substring(0, IndexOfLastClosedBracket);
+          int indexOfLastClosedBracket = sql.lastIndexOf(")");
+          if (indexOfLastClosedBracket > -1) {
+            sql = sql.substring(0, indexOfLastClosedBracket);
             sql += ", PRIMARY KEY (";
             for (int k = 0; k < pkc.length; k++) {
               if (k > 0) {
@@ -300,7 +295,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         }
 
         data.rownr++;
-        putRow(data.outputRowMeta, outputRowTable); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, outputRowTable); // copy row to output rowset(s)
 
         logInfo(outputRowTable);
       }
@@ -311,7 +306,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
       throws HopDatabaseException, HopTransformException, HopValueException {
     // Schemas
     if (meta.isIncludeSchema()) {
-      String ObjectType = BaseMessages.getString(PKG, "GetTableNamesDialog.ObjectType.Schema");
+      String objectType = BaseMessages.getString(PKG, "GetTableNamesDialog.ObjectType.Schema");
       // Views
       String[] schemaNames = new String[] {};
       if (!Utils.isEmpty(data.realSchemaName)) {
@@ -330,7 +325,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         outputRowSchema[outputIndex++] = schemaName;
 
         if (!Utils.isEmpty(data.realObjectTypeFieldName)) {
-          outputRowSchema[outputIndex++] = ObjectType;
+          outputRowSchema[outputIndex++] = objectType;
         }
         if (!Utils.isEmpty(data.realIsSystemObjectFieldName)) {
           outputRowSchema[outputIndex++] = Boolean.valueOf(data.db.isSystemTable(schemaName));
@@ -339,7 +334,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
           outputRowSchema[outputIndex++] = null;
         }
         data.rownr++;
-        putRow(data.outputRowMeta, outputRowSchema); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, outputRowSchema); // copy row to output rowset(s)
 
         logInfo(outputRowSchema);
       }
@@ -350,7 +345,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
       throws HopDatabaseException, HopTransformException, HopValueException {
     // Catalogs
     if (meta.isIncludeCatalog()) {
-      String ObjectType = BaseMessages.getString(PKG, "GetTableNames.ObjectType.Catalog");
+      String objectType = BaseMessages.getString(PKG, "GetTableNames.ObjectType.Catalog");
       // Views
       String[] catalogsNames = data.db.getCatalogs();
 
@@ -365,7 +360,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         outputRowCatalog[outputIndex++] = catalogName;
 
         if (!Utils.isEmpty(data.realObjectTypeFieldName)) {
-          outputRowCatalog[outputIndex++] = ObjectType;
+          outputRowCatalog[outputIndex++] = objectType;
         }
         if (!Utils.isEmpty(data.realIsSystemObjectFieldName)) {
           outputRowCatalog[outputIndex++] = Boolean.valueOf(data.db.isSystemTable(catalogName));
@@ -374,7 +369,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
           outputRowCatalog[outputIndex++] = null;
         }
         data.rownr++;
-        putRow(data.outputRowMeta, outputRowCatalog); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, outputRowCatalog); // copy row to output rowset(s)
 
         logInfo(outputRowCatalog);
       }

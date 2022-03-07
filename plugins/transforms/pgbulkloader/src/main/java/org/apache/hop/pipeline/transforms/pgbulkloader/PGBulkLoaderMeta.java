@@ -45,6 +45,7 @@ import java.util.List;
     description = "i18n::PGBulkLoader.Description",
     name = "i18n::PGBulkLoader.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
+    keywords = "i18n::PGBulkLoaderMeta.keyword",
     documentationUrl = "/pipeline/transforms/postgresbulkloader.html")
 public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoaderData> implements
         IProvidesDatabaseConnectionInformation {
@@ -72,9 +73,10 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
 
   /** Field value to dateMask after lookup */
   @HopMetadataProperty(
+      key = "mapping",
       injectionGroupKey = "mapping",
       injectionGroupDescription = "PGBulkLoader.Injection.Mapping.Label")
-  private List<PGBulkLoaderMappingMeta> mapping;
+  private List<PGBulkLoaderMappingMeta> mappings;
 
   /** Load action */
   @HopMetadataProperty(
@@ -127,36 +129,6 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
     super();
   }
 
-  /** @return Returns the database. */
-  @Override
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
-  }
-
-  /** @return Returns the tableName. */
-  @Override
-  public String getTableName() {
-    return tableName;
-  }
-
-  /** @param tableName The tableName to set. */
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  public List<PGBulkLoaderMappingMeta> getMapping() {
-    return mapping;
-  }
-
-  public void setMapping(List<PGBulkLoaderMappingMeta> mapping) {
-    this.mapping = mapping;
-  }
-
   @Override
   public void setDefault() {
     databaseMeta = null;
@@ -166,7 +138,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
     delimiter = ";";
     enclosure = "\"";
     stopOnError = false;
-    mapping = new ArrayList<>();
+    mappings = new ArrayList<>();
   }
 
   @Override
@@ -229,8 +201,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
             errorFound = false;
             errorMessage = "";
 
-            for (int i = 0; i < mapping.size(); i++) {
-              String field = mapping.get(i).getFieldTable();
+            for (int i = 0; i < mappings.size(); i++) {
+              String field = mappings.get(i).getFieldTable();
 
               IValueMeta v = r.searchValueMeta(field);
               if (v == null) {
@@ -280,8 +252,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
           errorMessage = "";
           boolean errorFound = false;
 
-          for (int i = 0; i < mapping.size(); i++) {
-            IValueMeta v = prev.searchValueMeta(mapping.get(i).getFieldStream());
+          for (int i = 0; i < mappings.size(); i++) {
+            IValueMeta v = prev.searchValueMeta(mappings.get(i).getFieldStream());
             if (v == null) {
               if (first) {
                 first = false;
@@ -290,7 +262,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
                         + Const.CR;
               }
               errorFound = true;
-              errorMessage += "\t\t" + mapping.get(i).getFieldStream() + Const.CR;
+              errorMessage += "\t\t" + mappings.get(i).getFieldStream() + Const.CR;
             }
           }
           if (errorFound) {
@@ -362,15 +334,17 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
         IRowMeta tableFields = new RowMeta();
 
         // Now change the field names
-        for (int i = 0; i < mapping.size(); i++) {
-          IValueMeta v = prev.searchValueMeta(mapping.get(i).getFieldStream());
+        for (int i = 0; i < mappings.size(); i++) {
+          IValueMeta v = prev.searchValueMeta(mappings.get(i).getFieldStream());
           if (v != null) {
             IValueMeta tableField = v.clone();
-            tableField.setName(mapping.get(i).getFieldTable());
+            tableField.setName(mappings.get(i).getFieldTable());
             tableFields.addValueMeta(tableField);
           } else {
             throw new HopTransformException(
-                "Unable to find field [" + mapping.get(i).getFieldStream() + "] in the input rows");
+                "Unable to find field ["
+                    + mappings.get(i).getFieldStream()
+                    + "] in the input rows");
           }
         }
 
@@ -424,8 +398,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
     if (prev != null) {
       /* DEBUG CHECK THIS */
       // Insert dateMask fields : read/write
-      for (int i = 0; i < mapping.size(); i++) {
-        IValueMeta v = prev.searchValueMeta(mapping.get(i).getFieldStream());
+      for (int i = 0; i < mappings.size(); i++) {
+        IValueMeta v = prev.searchValueMeta(mappings.get(i).getFieldStream());
 
         DatabaseImpact ii =
             new DatabaseImpact(
@@ -434,22 +408,13 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
                 transformMeta.getName(),
                 databaseMeta.getDatabaseName(),
                 variables.resolve(tableName),
-                mapping.get(i).getFieldTable(),
-                mapping.get(i).getFieldStream(),
+                mappings.get(i).getFieldTable(),
+                mappings.get(i).getFieldStream(),
                 v != null ? v.getOrigin() : "?",
                 "",
                 "Type = " + v.toStringMeta());
         impact.add(ii);
       }
-    }
-  }
-
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (databaseMeta != null) {
-      return new DatabaseMeta[] {databaseMeta};
-    } else {
-      return super.getUsedDatabaseConnections();
     }
   }
 
@@ -549,5 +514,35 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
 
   public void setStopOnError(boolean value) {
     this.stopOnError = value;
+  }
+
+  /** @return Returns the database. */
+  @Override
+  public DatabaseMeta getDatabaseMeta() {
+    return databaseMeta;
+  }
+
+  /** @param database The database to set. */
+  public void setDatabaseMeta(DatabaseMeta database) {
+    this.databaseMeta = database;
+  }
+
+  /** @return Returns the tableName. */
+  @Override
+  public String getTableName() {
+    return tableName;
+  }
+
+  /** @param tableName The tableName to set. */
+  public void setTableName(String tableName) {
+    this.tableName = tableName;
+  }
+
+  public List<PGBulkLoaderMappingMeta> getMappings() {
+    return mappings;
+  }
+
+  public void setMappings(List<PGBulkLoaderMappingMeta> mappings) {
+    this.mappings = mappings;
   }
 }

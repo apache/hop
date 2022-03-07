@@ -476,11 +476,10 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       try {
         data.commitSize = Integer.parseInt(resolve(meta.getCommitSize()));
 
-        if (meta.getConnection() != null) {
-          meta.setDatabaseMeta(getPipelineMeta().findDatabase(meta.getConnection(), variables));
-        }
+        if (Utils.isEmpty(meta.getConnection()))
+          throw new HopException(BaseMessages.getString(PKG, "TableOutput.Init.ConnectionMissing"));
 
-        data.databaseMeta = meta.getDatabaseMeta();
+        data.databaseMeta = this.getPipelineMeta().findDatabase(meta.getConnection(), variables);
         IDatabase dbInterface = data.databaseMeta.getIDatabase();
 
         // Batch updates are not supported on PostgreSQL (and look-a-likes)
@@ -519,28 +518,17 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
                   PKG, "TableOutput.Warning.ErrorHandlingIsNotFullySupportedWithBatchProcessing"));
         }
 
-        if (meta.getDatabaseMeta() == null) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "TableOutput.Exception.DatabaseNeedsToBeSelected"));
-        }
-        if (meta.getDatabaseMeta() == null) {
-          logError(
-              BaseMessages.getString(
-                  PKG, "TableOutput.Init.ConnectionMissing", getTransformName()));
-          return false;
-        }
-
         if (!dbInterface.supportsStandardTableOutput()) {
           throw new HopException(dbInterface.getUnsupportedTableOutputMessage());
         }
 
-        data.db = new Database(this, this, meta.getDatabaseMeta());
+        data.db = new Database(this, this, data.databaseMeta);
         data.db.connect();
 
         if (log.isBasic()) {
           logBasic(
               "Connected to database ["
-                  + meta.getDatabaseMeta()
+                  + meta.getConnection()
                   + "] (commit="
                   + data.commitSize
                   + ")");
@@ -559,7 +547,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
         return true;
       } catch (HopException e) {
-        logError("An error occurred intialising this transform: " + e.getMessage());
+        logError("An error occurred initializing this transform: " + e.getMessage());
         stopAll();
         setErrors(1);
       }
@@ -585,9 +573,16 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         emptyAndCommitBatchBuffers(true);
       } finally {
         data.db.disconnect();
+        // Free data structures to enable GC
+        data.db = null;
+        data.preparedStatements = null;
+        data.batchBuffer = null;
+        data.commitCounterMap = null;
+        data.outputRowMeta = null;
       }
-      super.dispose();
     }
+
+    super.dispose();
   }
 
   // Force the batched up rows to the database in a single-threaded scenario
@@ -652,5 +647,4 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       }
     }
   }
-
 }

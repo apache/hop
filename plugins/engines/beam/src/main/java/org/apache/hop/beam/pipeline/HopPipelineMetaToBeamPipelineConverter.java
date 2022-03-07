@@ -87,7 +87,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
       PipelineMeta pipelineMeta,
       IHopMetadataProvider metadataProvider,
       T pipelineRunConfiguration)
-      throws HopException, HopException {
+      throws HopException {
     this();
     this.variables = variables;
     this.pipelineMeta = pipelineMeta;
@@ -127,7 +127,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     }
   }
 
-  public void addDefaultTransformHandlers() throws HopException {
+  public void addDefaultTransformHandlers() {
     // Add the transform handlers for the special cases, functionality which Beams handles
     // specifically
     //
@@ -180,52 +180,56 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
   }
 
   public Pipeline createPipeline() throws Exception {
+    try {
+      ILogChannel log = LogChannel.GENERAL;
 
-    ILogChannel log = LogChannel.GENERAL;
+      // Create a new Pipeline
+      //
+      RunnerType runnerType = pipelineRunConfiguration.getRunnerType();
+      Class<? extends PipelineRunner<?>> runnerClass = getPipelineRunnerClass(runnerType);
 
-    // Create a new Pipeline
-    //
-    RunnerType runnerType = pipelineRunConfiguration.getRunnerType();
-    Class<? extends PipelineRunner<?>> runnerClass = getPipelineRunnerClass(runnerType);
+      PipelineOptions pipelineOptions = pipelineRunConfiguration.getPipelineOptions();
+      // The generic options
+      //
+      pipelineOptions.setUserAgent(variables.resolve(pipelineRunConfiguration.getUserAgent()));
+      pipelineOptions.setTempLocation(
+          variables.resolve(pipelineRunConfiguration.getTempLocation()));
+      pipelineOptions.setJobName(sanitizeJobName(pipelineMeta.getName()));
 
-    PipelineOptions pipelineOptions = pipelineRunConfiguration.getPipelineOptions();
-    // The generic options
-    //
-    pipelineOptions.setUserAgent(variables.resolve(pipelineRunConfiguration.getUserAgent()));
-    pipelineOptions.setTempLocation(variables.resolve(pipelineRunConfiguration.getTempLocation()));
-    pipelineOptions.setJobName(sanitizeJobName(pipelineMeta.getName()));
+      pipelineOptions.setRunner(runnerClass);
+      Pipeline pipeline = Pipeline.create(pipelineOptions);
 
-    pipelineOptions.setRunner(runnerClass);
-    Pipeline pipeline = Pipeline.create(pipelineOptions);
+      pipeline.getCoderRegistry().registerCoderForClass(HopRow.class, new HopRowCoder());
 
-    pipeline.getCoderRegistry().registerCoderForClass(HopRow.class, new HopRowCoder());
+      log.logBasic("Created Apache Beam pipeline with name '" + pipelineOptions.getJobName() + "'");
 
-    log.logBasic("Created Apache Beam pipeline with name '" + pipelineOptions.getJobName() + "'");
+      // Keep track of which transform outputs which Collection
+      //
+      Map<String, PCollection<HopRow>> transformCollectionMap = new HashMap<>();
 
-    // Keep track of which transform outputs which Collection
-    //
-    Map<String, PCollection<HopRow>> transformCollectionMap = new HashMap<>();
+      // Handle io
+      //
+      handleBeamInputTransforms(log, transformCollectionMap, pipeline);
 
-    // Handle io
-    //
-    handleBeamInputTransforms(log, transformCollectionMap, pipeline);
+      // Transform all the other transforms...
+      //
+      handleGenericTransform(transformCollectionMap, pipeline);
 
-    // Transform all the other transforms...
-    //
-    handleGenericTransform(transformCollectionMap, pipeline);
+      // Output handling
+      //
+      handleBeamOutputTransforms(log, transformCollectionMap, pipeline);
 
-    // Output handling
-    //
-    handleBeamOutputTransforms(log, transformCollectionMap, pipeline);
-
-    return pipeline;
+      return pipeline;
+    } catch (Throwable e) {
+      throw new Exception("Error converting Hop pipeline to Beam", e);
+    }
   }
 
   /**
    * Clean up the name for Dataflow and others...
    *
-   * @param name
-   * @return
+   * @param name The name of the job to sanitize for Beam
+   * @return The sanitezed name without spaces and other special characters
    */
   private String sanitizeJobName(String name) {
     String newName = name.toLowerCase();
@@ -357,7 +361,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
 
   private void handleGenericTransform(
       Map<String, PCollection<HopRow>> transformCollectionMap, Pipeline pipeline)
-      throws HopException, IOException {
+      throws HopException {
 
     ILogChannel log = LogChannel.GENERAL;
 
@@ -400,7 +404,6 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
         // Transforms like Merge Join or Merge have no io, only info transforms reaching in
         //
         if (previousTransforms.isEmpty()) {
-          firstPreviousTransform = null;
           rowMeta = new RowMeta();
         } else {
 
@@ -475,7 +478,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
             //
             input =
                 inputList.apply(
-                    transformMeta.getName() + " Flatten", Flatten.<HopRow>pCollections());
+                    transformMeta.getName() + " Flatten", Flatten.pCollections());
           }
         }
 
@@ -518,9 +521,8 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
   /**
    * Find the Beam Input transforms, return them
    *
-   * @throws HopException
    */
-  private List<TransformMeta> findBeamInputs() throws HopException {
+  private List<TransformMeta> findBeamInputs() {
     List<TransformMeta> transforms = new ArrayList<>();
     for (TransformMeta transformMeta : pipelineMeta.getPipelineHopTransforms(false)) {
 
@@ -539,7 +541,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     return transforms;
   }
 
-  private List<TransformMeta> findBeamOutputs() throws HopException {
+  private List<TransformMeta> findBeamOutputs() {
     List<TransformMeta> transforms = new ArrayList<>();
     for (TransformMeta transformMeta : pipelineMeta.getPipelineHopTransforms(false)) {
       IBeamPipelineTransformHandler transformHandler =
@@ -605,15 +607,15 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     //
     int totalIterations = transformsSize * 2;
 
-    boolean isBefore = false;
+    boolean isBefore;
     boolean forwardChange = false;
     boolean backwardChange = false;
 
     boolean lastForwardChange = true;
     boolean keepSortingForward = true;
 
-    TransformMeta one = null;
-    TransformMeta two = null;
+    TransformMeta one;
+    TransformMeta two;
 
     long startTime = System.currentTimeMillis();
 

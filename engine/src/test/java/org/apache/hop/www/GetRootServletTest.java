@@ -29,7 +29,6 @@ import static org.mockito.Mockito.*;
 /**
  * Tests for GetRootServlet class
  *
- * @author Pavel Sakun
  * @see GetRootServlet
  */
 public class GetRootServletTest {

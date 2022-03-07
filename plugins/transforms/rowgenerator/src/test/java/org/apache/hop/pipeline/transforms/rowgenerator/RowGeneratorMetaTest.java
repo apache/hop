@@ -49,7 +49,7 @@ public class RowGeneratorMetaTest implements IInitializer<ITransformMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
             "neverEnding", "intervalInMs", "rowTimeField", "lastTimeField", "rowLimit", "fields");
@@ -85,7 +85,6 @@ public class RowGeneratorMetaTest implements IInitializer<ITransformMeta> {
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

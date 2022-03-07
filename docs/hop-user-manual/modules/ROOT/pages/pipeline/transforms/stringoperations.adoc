@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The String Operations transform can perform trim, case conversion, padding and other string operations on an incoming Hop field.
 
 = String operations
 
 == Description
 
-With the String Operations transform, you can perform the following string operations on an incoming Hop field:
+The String Operations transform can perform the following string operations on an incoming Hop field:
 
 * Trim (remove leading and/or trailing spaces).
 * Convert to upper or lowercase.

@@ -42,8 +42,6 @@ import static org.junit.Assert.*;
  *   <li>3
  *   <li>100
  * </ul>
- *
- * @author Andrey Khayrutdinov
  */
 public abstract class IndexTestBase<T extends Index> {
 

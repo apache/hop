@@ -105,11 +105,13 @@ public class HopGuiFileDelegate {
     }
 
     IHopFileTypeHandler fileTypeHandler = hopFile.openFile(hopGui, filename, hopGui.getVariables());
-    hopGui.handleFileCapabilities(hopFile, fileTypeHandler.hasChanged(), false, false);
+    if (fileTypeHandler != null) {
+      hopGui.handleFileCapabilities(hopFile, fileTypeHandler.hasChanged(), false, false);
 
-    // Also save the state of Hop GUI
-    //
-    hopGui.auditDelegate.writeLastOpenFiles();
+      // Also save the state of Hop GUI
+      //
+      hopGui.auditDelegate.writeLastOpenFiles();
+    }
 
     return fileTypeHandler;
   }
@@ -162,7 +164,10 @@ public class HopGuiFileDelegate {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType fileType = typeHandler.getFileType();
       if (fileType.hasCapability(IHopFileType.CAPABILITY_SAVE)) {
-        if (StringUtils.isEmpty(typeHandler.getFilename())) {
+        // Metadata just needs to be saved.
+        //
+        if (StringUtils.isEmpty(typeHandler.getFilename())
+            && !fileType.hasCapability(IHopFileType.CAPABILITY_HANDLE_METADATA)) {
           // Ask for the filename: saveAs
           //
           fileSaveAs();

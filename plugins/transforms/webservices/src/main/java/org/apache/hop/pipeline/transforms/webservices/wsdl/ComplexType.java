@@ -130,21 +130,6 @@ public final class ComplexType implements java.io.Serializable {
     // *** noop ***
   }
 
-  // private void processAttribute(Element attribute) {
-  // // <complexType name="ArrayOf_xsd_short">
-  // // <complexContent>
-  // // <restriction base="soapenc:Array">
-  // // <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:short[]"/>
-  // // </restriction>
-  // // </complexContent>
-  // // </complexType>
-  // if (attribute.hasAttribute("wsdl:arrayType")) {
-  // String attributeName = attribute.getAttribute("ref");
-  // String arrayType = attribute.getAttribute("wsdl:arrayType");
-  // _elements.put(attributeName, _wsdlTypes.getTypeQName(arrayType));
-  // }
-  // }
-
   /**
    * Process a 'choice' element.
    *
@@ -208,12 +193,6 @@ public final class ComplexType implements java.io.Serializable {
     } else if ((child = DomUtils.getChildElementByName(complexRestriction, "sequence")) != null) {
       processSequence(child);
     }
-    // else if (DomUtils.getChildElementByName(complexRestriction, "attribute") != null) {
-    // List<Element> attributes = DomUtils.getChildElementsByName(complexRestriction, "attribute");
-    // for (Element attribute : attributes) {
-    // processAttribute(attribute);
-    // }
-    // }
   }
 
   /**

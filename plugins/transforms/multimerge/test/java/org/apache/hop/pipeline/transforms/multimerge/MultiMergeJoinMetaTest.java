@@ -40,7 +40,6 @@ import java.util.Map;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
-/** @author Tatsiana_Kasiankova */
 public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<MultiMergeJoinMeta> testMetaClass = MultiMergeJoinMeta.class;
@@ -50,7 +49,7 @@ public class MultiMergeJoinMetaTest implements IInitializer<ITransform> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     multiMergeMeta = new MultiMergeJoinMeta();
     List<String> attributes = Arrays.asList("joinType", "keyFields", "inputTransforms");
 

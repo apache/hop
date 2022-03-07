@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,7 @@ import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.svg.SvgSupport;
+import org.apache.hop.core.svg.*;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -36,7 +36,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -91,7 +90,7 @@ public class SwtSvgImageUtil {
   private static SwtUniversalImage getImageAsResourceInternal(Display display, String location) {
     SwtUniversalImage result = null;
 
-    result = loadFromCurrentClasspath(display, location);
+    result = loadFromCurrentClasspath(location);
 
     if (result == null) {
       result = loadFromBasedVFS(display, location);
@@ -146,11 +145,11 @@ public class SwtSvgImageUtil {
 
   private static SwtUniversalImage getUniversalImageInternal(
       Display display, ClassLoader classLoader, String filename) {
-    SwtUniversalImage result = loadFromClassLoader(display, classLoader, filename);
+    SwtUniversalImage result = loadFromClassLoader(classLoader, filename);
     if (result == null) {
-      result = loadFromClassLoader(display, classLoader, "/" + filename);
+      result = loadFromClassLoader(classLoader, "/" + filename);
       if (result == null) {
-        result = loadFromClassLoader(display, classLoader, "ui/images/" + filename);
+        result = loadFromClassLoader(classLoader, "ui/images/" + filename);
         if (result == null) {
           result = getImageAsResourceInternal(display, filename);
         }
@@ -163,7 +162,6 @@ public class SwtSvgImageUtil {
   public static SwtUniversalImage getUniversalImage(
       Display display, ClassLoader classLoader, String filename) {
     if (StringUtils.isBlank(filename)) {
-      // log.logError( "Unable to load blank image [" + filename + "]", new Exception() );
       return getImageAsResource(display, NO_IMAGE);
     }
 
@@ -191,26 +189,19 @@ public class SwtSvgImageUtil {
   }
 
   /** Internal image loading by ClassLoader.getResourceAsStream. */
-  private static SwtUniversalImage loadFromClassLoader(
-      Display display, ClassLoader classLoader, String location) {
-    InputStream s = null;
+  private static SwtUniversalImage loadFromClassLoader(ClassLoader classLoader, String location) {
     try {
-      s = classLoader.getResourceAsStream(location);
-    } catch (Throwable t) {
-      log.logDebug("Unable to load image from classloader [" + location + "]", t);
-    }
-    if (s == null) {
+      SvgCacheEntry cacheEntry = SvgCache.loadSvg(new SvgFile(location, classLoader));
+      SvgImage svgImage = new SvgImage(cacheEntry.getSvgDocument());
+      return new SwtUniversalImageSvg(svgImage);
+    } catch (Throwable e) {
+      log.logError("Error loading image from location '" + location + "'", e);
       return null;
-    }
-    try {
-      return loadImage(display, s, location);
-    } finally {
-      IOUtils.closeQuietly(s);
     }
   }
 
   /** Internal image loading by Thread.currentThread.getContextClassLoader.getResource. */
-  private static SwtUniversalImage loadFromCurrentClasspath(Display display, String location) {
+  private static SwtUniversalImage loadFromCurrentClasspath(String location) {
     ClassLoader cl = Thread.currentThread().getContextClassLoader();
     if (cl == null) {
       // Can't count on Thread.currentThread().getContextClassLoader() being non-null on Mac
@@ -226,20 +217,7 @@ public class SwtSvgImageUtil {
     if (res == null) {
       return null;
     }
-    InputStream s;
-    try {
-      s = res.openStream();
-    } catch (IOException ex) {
-      return null;
-    }
-    if (s == null) {
-      return null;
-    }
-    try {
-      return loadImage(display, s, location);
-    } finally {
-      IOUtils.closeQuietly(s);
-    }
+    return loadFromClassLoader(cl, location);
   }
 
   /** Internal image loading from Hop's user.dir VFS. */

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -71,6 +71,9 @@ public class HopGuiPipelineHopContext extends BaseGuiContextHandler implements I
     List<GuiAction> pluginActions = getPluginActions(true);
     if (pluginActions != null) {
       for (GuiAction pluginAction : pluginActions) {
+        // See if the action is applicable to the hop.
+        //
+
         actions.add(lambdaBuilder.createLambda(pluginAction, this, pipelineGraph));
       }
     }

@@ -43,9 +43,10 @@ import java.util.List;
     name = "i18n::SasInput.Transform.Name",
     description = "i18n::SasInput.Transform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    keywords = "i18n::SasInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/sasinput.html")
 public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
-  private static Class<?> PKG = SasInputMeta.class; // for i18n purposes,
+  private static final Class<?> PKG = SasInputMeta.class; // for i18n purposes,
 
   public static final String Xml_TAG_FIELD = "field";
 
@@ -150,7 +151,7 @@ public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
     if (Utils.isEmpty(getAcceptingField())) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "SASInput.Log.Error.InvalidAcceptingFieldName"),
               transformMeta);
       remarks.add(cr);

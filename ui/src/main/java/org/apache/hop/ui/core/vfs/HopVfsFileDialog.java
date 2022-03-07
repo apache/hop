@@ -136,7 +136,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private GuiToolbarWidgets browserToolbarWidgets;
   private GuiToolbarWidgets bookmarksToolbarWidgets;
   private Button wOk;
-  private SashForm sashForm;
   private Combo wFilters;
   private String message;
 
@@ -250,7 +249,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     GridLayout gridLayout = new GridLayout((browsingDirectories) ? 2 : 3, false);
     gridLayout.marginWidth = 0;
     navigateComposite.setLayout(gridLayout);
-
+    props.setLook(navigateComposite);
+    
     FormData fdNavigationForm = new FormData();
     fdNavigationForm.left = new FormAttachment(0, 0);
     fdNavigationForm.top = new FormAttachment(0, 0);
@@ -261,6 +261,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     //
     ToolBar navigateToolBar = new ToolBar(navigateComposite, SWT.LEFT | SWT.HORIZONTAL);
     navigateToolBar.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
+    props.setLook(navigateToolBar);
 
     navigateToolbarWidgets = new GuiToolbarWidgets();
     navigateToolbarWidgets.registerGuiPluginObject(this);
@@ -280,10 +281,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       wFilters.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false));
       props.setLook(wFilters);
     }
-
+    
     // Above this we have a sash form
     //
-    sashForm = new SashForm(shell, SWT.HORIZONTAL);
+    SashForm sashForm = new SashForm(shell, SWT.HORIZONTAL);
     FormData fdSashForm = new FormData();
     fdSashForm.left = new FormAttachment(0, 0);
     fdSashForm.top = new FormAttachment(navigateComposite, props.getMargin());
@@ -528,6 +529,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     if (activeFileObject == null) {
       return null;
     }
+    
     return activeFileObject.toString();
   }
 
@@ -591,6 +593,12 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private void okButton() {
     try {
       activeFileObject = HopVfs.getFileObject(wFilename.getText());
+            
+      if ( !this.browsingDirectories && activeFileObject.isFolder() ) {
+        navigateTo(HopVfs.getFilename(activeFileObject), true);
+        return;
+      }        
+      
       ok();
     } catch (Throwable e) {
       showError(

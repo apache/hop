@@ -46,12 +46,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the XSLT job entry settings.
- *
- * @author Samatar Hassan
- * @since 02-03-2007
- */
+/** This dialog allows you to edit the XSLT job entry settings. */
 public class XsltDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = Xslt.class; // For Translator
 

@@ -46,6 +46,7 @@ import java.util.List;
     name = "i18n::CheckSum.Name",
     description = "i18n::CheckSum.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::CheckSumMeta.keyword",
     documentationUrl = "/pipeline/transforms/addchecksum.html")
 public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
 
@@ -251,24 +252,24 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
 
     if (Utils.isEmpty(resultFieldName)) {
       errorMessage = BaseMessages.getString(PKG, "CheckSumMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
     } else {
       errorMessage = BaseMessages.getString(PKG, "CheckSumMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
     }
     remarks.add(cr);
 
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "CheckSumMeta.CheckResult.NotReceivingFields"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "CheckSumMeta.CheckResult.TransformRecevingData", prev.size() + ""),
               transformMeta);
@@ -290,20 +291,20 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
         errorMessage =
             BaseMessages.getString(PKG, "CheckSumMeta.CheckResult.FieldsFound", errorMessage);
 
-        cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
         if (!fields.isEmpty()) {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(PKG, "CheckSumMeta.CheckResult.AllFieldsFound"),
                   transformMeta);
           remarks.add(cr);
         } else {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_WARNING,
+                  ICheckResult.TYPE_RESULT_WARNING,
                   BaseMessages.getString(PKG, "CheckSumMeta.CheckResult.NoFieldsEntered"),
                   transformMeta);
           remarks.add(cr);
@@ -315,14 +316,14 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "CheckSumMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "CheckSumMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

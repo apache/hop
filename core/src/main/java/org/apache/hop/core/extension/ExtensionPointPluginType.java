@@ -23,11 +23,7 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
-/**
- * This class represents the extension point plugin type.
- *
- * @author matt
- */
+/** This class represents the extension point plugin type. */
 @PluginMainClassType(IExtensionPoint.class)
 @PluginAnnotationType(ExtensionPoint.class)
 public class ExtensionPointPluginType extends BasePluginType<ExtensionPoint> {

@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -39,8 +40,8 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
@@ -64,8 +65,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
   private Composite wGeneralComp;
   private Text wName;
-  private CCombo wConnectionType;
-  private Label wlManualUrl;
+  private Combo wConnectionType;
   private TextVar wManualUrl;
   private Label wlUsername;
   private TextVar wUsername;
@@ -236,15 +236,26 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlConnectionType.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlConnectionType.right = new FormAttachment(middle, 0);
     wlConnectionType.setLayoutData(fdlConnectionType);
-    wConnectionType = new CCombo(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wConnectionType);
-    wConnectionType.setEditable(true);
-    wConnectionType.setItems(getConnectionTypes());
 
+    ToolBar wToolBar = new ToolBar(wGeneralComp, SWT.FLAT | SWT.HORIZONTAL);
+    FormData fdToolBar = new FormData();
+    fdToolBar.right = new FormAttachment(100, 0);
+    fdToolBar.top = new FormAttachment(0, 0);
+    wToolBar.setLayoutData(fdToolBar);
+    props.setLook(wToolBar);
+
+    ToolItem item = new ToolItem(wToolBar, SWT.PUSH);
+    item.setImage(GuiResource.getInstance().getImageHelpWeb());
+    item.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.Help"));
+    item.addListener(SWT.Selection, e -> onHelpDatabaseType());
+
+    wConnectionType = new Combo(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wConnectionType.setItems(getConnectionTypes());
+    props.setLook(wConnectionType);
     FormData fdConnectionType = new FormData();
     fdConnectionType.top = new FormAttachment(wlConnectionType, 0, SWT.CENTER);
     fdConnectionType.left = new FormAttachment(middle, margin); // To the right of the label
-    fdConnectionType.right = new FormAttachment(100, 0);
+    fdConnectionType.right = new FormAttachment(wToolBar, -margin);
     wConnectionType.setLayoutData(fdConnectionType);
     Control lastControl = wConnectionType;
 
@@ -292,21 +303,18 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // Add a composite area
     //
     wDatabaseSpecificComp = new Composite(wGeneralComp, SWT.BACKGROUND);
-    // props.setLook(wDatabaseSpecificComp);
     wDatabaseSpecificComp.setLayout(new FormLayout());
     FormData fdDatabaseSpecificComp = new FormData();
     fdDatabaseSpecificComp.left = new FormAttachment(0, 0);
     fdDatabaseSpecificComp.right = new FormAttachment(100, 0);
-    fdDatabaseSpecificComp.top = new FormAttachment(lastControl, 2 * margin);
-    fdDatabaseSpecificComp.bottom = new FormAttachment(100, 0);
+    fdDatabaseSpecificComp.top = new FormAttachment(lastControl, margin);
     wDatabaseSpecificComp.setLayoutData(fdDatabaseSpecificComp);
+    props.setLook(wDatabaseSpecificComp);    
     lastControl = wDatabaseSpecificComp;
-
-    // wDatabaseSpecificComp.setBackground(wTabFolder.getDisplay().getSystemColor(SWT.COLOR_BLUE));
 
     // Now add the database plugin specific widgets
     //
-    guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables(), 8); // max 6 lines
+    guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables());
     guiCompositeWidgets.createCompositeWidgets(
         getMetadata().getIDatabase(),
         null,
@@ -328,7 +336,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     // manual URL field
     //
-    wlManualUrl = new Label(wGeneralComp, SWT.RIGHT);
+    Label wlManualUrl = new Label(wGeneralComp, SWT.RIGHT);
     props.setLook(wlManualUrl);
     wlManualUrl.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.ManualUrl"));
     FormData fdlManualUrl = new FormData();
@@ -397,8 +405,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     for (Control child : wDatabaseSpecificComp.getChildren()) {
       child.dispose();
     }
-    // System.out.println( "---- widgets cleared for class: " +
-    // workingMeta.getIDatabase().getClass().getName() );
 
     // Re-add the widgets
     //
@@ -417,9 +423,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
             setChanged();
           }
         });
-
-    // System.out.println( "---- widgets created for class: " +
-    // workingMeta.getIDatabase().getClass().getName() );
     addCompositeWidgetsUsernamePassword();
 
     // Put the data back
@@ -608,7 +611,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdSqlStatements.left = new FormAttachment(0, 0); // To the right of the label
     fdSqlStatements.right = new FormAttachment(100, 0);
     wSqlStatements.setLayoutData(fdSqlStatements);
-    // lastControl = wSqlStatements;
 
     FormData fdAdvancedComp = new FormData();
     fdAdvancedComp.left = new FormAttachment(0, 0);
@@ -665,7 +667,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         new TableView(
             manager.getVariables(),
             wOptionsComp,
-            SWT.NONE,
+            SWT.BORDER,
             optionsColumns,
             databaseMeta.getExtraOptions().size(),
             event -> setChanged(),
@@ -723,6 +725,17 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     }
   }
 
+  private void onHelpDatabaseType() {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    String name = wConnectionType.getText();
+    for (IPlugin plugin : registry.getPlugins(DatabasePluginType.class)) {
+      if (plugin.getName().equals(name)) {
+        HelpUtils.openHelp(getShell(), plugin);
+        break;
+      }
+    }
+  }
+
   @Override
   public void setWidgetsContent() {
 
@@ -738,8 +751,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         databaseMeta.getIDatabase(),
         wDatabaseSpecificComp,
         DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
-    // System.out.println( "---- widgets populated for class: " +
-    // workingMeta.getIDatabase().getClass().getName() );
 
     wManualUrl.setText(Const.NVL(databaseMeta.getManualUrl(), ""));
     wSupportsBoolean.setSelection(databaseMeta.supportsBooleanDataType());

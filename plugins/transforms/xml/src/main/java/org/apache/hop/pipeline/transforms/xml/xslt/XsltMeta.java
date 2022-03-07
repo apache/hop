@@ -44,6 +44,7 @@ import java.util.List;
     name = "i18n::XSLT.name",
     description = "i18n::XSLT.description",
     categoryDescription = "i18n::XSLT.category",
+    keywords = "i18n::XsltMeta.keyword",
     documentationUrl = "/pipeline/transforms/xslt.html")
 public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
   private static final Class<?> PKG = XsltMeta.class; // For Translator
@@ -344,7 +345,7 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
     if (prev != null && prev.size() > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "XsltMeta.CheckResult.ConnectedTransformOK", String.valueOf(prev.size())),
               transformMeta);
@@ -352,7 +353,7 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "XsltMeta.CheckResult.NoInputReceived"),
               transformMeta);
       remarks.add(cr);
@@ -379,7 +380,7 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
       // Result Field is missing !
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "XsltMeta.CheckResult.ErrorResultFieldNameMissing"),
               transformMeta);
       remarks.add(cr);
@@ -391,7 +392,7 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
         // Result Field is missing !
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "XsltMeta.CheckResult.ErrorResultXSLFieldNameMissing"),
                 transformMeta);
         remarks.add(cr);
@@ -399,7 +400,7 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
         // Result Field is provided !
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "XsltMeta.CheckResult.ErrorResultXSLFieldNameOK"),
                 transformMeta);
         remarks.add(cr);
@@ -409,22 +410,22 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
         // Result Field is missing !
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "XsltMeta.CheckResult.ErrorXSLFileNameMissing"),
                 transformMeta);
         remarks.add(cr);
 
       } else {
         // Check if it's exist and it's a file
-        String RealFilename = variables.resolve(xslFilename);
-        File f = new File(RealFilename);
+        String realFilename = variables.resolve(xslFilename);
+        File f = new File(realFilename);
 
         if (f.exists()) {
           if (f.isFile()) {
             cr =
                 new CheckResult(
                     ICheckResult.TYPE_RESULT_OK,
-                    BaseMessages.getString(PKG, "XsltMeta.CheckResult.FileExists", RealFilename),
+                    BaseMessages.getString(PKG, "XsltMeta.CheckResult.FileExists", realFilename),
                     transformMeta);
             remarks.add(cr);
           } else {
@@ -432,7 +433,7 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
                 new CheckResult(
                     ICheckResult.TYPE_RESULT_ERROR,
                     BaseMessages.getString(
-                        PKG, "XsltMeta.CheckResult.ExistsButNoFile", RealFilename),
+                        PKG, "XsltMeta.CheckResult.ExistsButNoFile", realFilename),
                     transformMeta);
             remarks.add(cr);
           }
@@ -440,7 +441,7 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_ERROR,
-                  BaseMessages.getString(PKG, "XsltMeta.CheckResult.FileNotExists", RealFilename),
+                  BaseMessages.getString(PKG, "XsltMeta.CheckResult.FileNotExists", realFilename),
                   transformMeta);
           remarks.add(cr);
         }

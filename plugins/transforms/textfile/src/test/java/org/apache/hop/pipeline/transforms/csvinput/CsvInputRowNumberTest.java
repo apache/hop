@@ -30,7 +30,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-/** @author Andrey Khayrutdinov */
 public class CsvInputRowNumberTest extends CsvInputUnitTestBase {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

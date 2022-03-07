@@ -34,7 +34,7 @@ public class WorkflowActionMsgBoxInfoTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList("bodymessage", "titremessage");
   }
 

@@ -16,16 +16,20 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Regex Evaluation transform matches the strings of an input field against a text pattern you define with a regular expression (regex).
 
 = Regex Evaluation
 
 == Description
 
-The Regex evaluation transform matches the strings of an input field against a text pattern you define with a regular expression (regex).
+The Regex Evaluation transform matches the strings of an input field against a text pattern you define with a regular expression (regex).
+
 This transform uses the java.util.regex package.
+
 The syntax for creating the regular expressions used by this transform is defined in the java.util.regex.Pattern javadoc.
 
 You can use this transform to parse a complex string of text and create new fields out of the input field with capture groups (defined by parentheses).
+
 For example, if you have an input field containing an author's name in quotes and the number of posts made by them, you can create two new fields in your pipeline - one for the name, and one for the number of posts as shown below:
 
 Text to parse:

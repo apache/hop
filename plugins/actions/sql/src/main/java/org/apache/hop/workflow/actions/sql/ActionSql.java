@@ -56,6 +56,7 @@ import java.util.List;
     description = "i18n::ActionSQL.Description",
     image = "sql.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
+    keywords = "i18n::ActionSql.keyword",
     documentationUrl = "/workflow/actions/sql.html")
 public class ActionSql extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSql.class; // For Translator
@@ -216,13 +217,14 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
               logDetailed(BaseMessages.getString(PKG, "ActionSQL.SQLFileExists", realfilename));
             }
 
-            InputStream IS = HopVfs.getInputStream(sqlFile);
+            InputStream inputStream = HopVfs.getInputStream(sqlFile);
             try {
-              InputStreamReader BIS = new InputStreamReader(new BufferedInputStream(IS, 500));
+              InputStreamReader inputStreamReader =
+                  new InputStreamReader(new BufferedInputStream(inputStream, 500));
               StringBuilder lineSB = new StringBuilder(256);
               lineSB.setLength(0);
 
-              BufferedReader buff = new BufferedReader(BIS);
+              BufferedReader buff = new BufferedReader(inputStreamReader);
               String sLine = null;
               theSql = Const.CR;
 
@@ -234,7 +236,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
                 }
               }
             } finally {
-              IS.close();
+              inputStream.close();
             }
           } catch (Exception e) {
             throw new HopDatabaseException(

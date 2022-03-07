@@ -45,12 +45,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Zip File action settings.
- *
- * @author Samatar Hassan
- * @since 27-02-2007
- */
+/** This dialog allows you to edit the Zip File action settings. */
 public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionZipFile.class; // For Translator
 
@@ -100,7 +95,8 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
   private Button wAddFileToResult;
 
-  private Button wbSourceDirectory, wbSourceFile;
+  private Button wbSourceDirectory;
+  private Button wbSourceFile;
 
   private Button wbMovetoDirectory;
 

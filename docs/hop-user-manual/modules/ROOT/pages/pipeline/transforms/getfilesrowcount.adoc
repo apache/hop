@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Get Files Row Count transform counts the number of rows in a file or set of files.
 
-= Get files rowcount
+= Get files Row Count
 
 == Description
 
-This transform counts the number of rows in a file or set of files.
+The Get Files Row Count transform counts the number of rows in a file or set of files.
 
 == Options
 

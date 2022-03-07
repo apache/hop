@@ -23,12 +23,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 import java.util.HashSet;
 
-/**
- * Describes an LDAP Input
- *
- * @author Samatar Hassan
- * @since 21-09-2007
- */
+/** Describes an LDAP Input */
 public class LdapInputField implements Cloneable {
   private static final Class<?> PKG = LdapInputMeta.class; // For Translator
 
@@ -287,24 +282,24 @@ public class LdapInputField implements Cloneable {
     return groupSymbol;
   }
 
-  public void setGroupSymbol(String group_symbol) {
-    this.groupSymbol = group_symbol;
+  public void setGroupSymbol(String groupSymbol) {
+    this.groupSymbol = groupSymbol;
   }
 
   public String getDecimalSymbol() {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol(String decimal_symbol) {
-    this.decimalSymbol = decimal_symbol;
+  public void setDecimalSymbol(String decimalSymbol) {
+    this.decimalSymbol = decimalSymbol;
   }
 
   public String getCurrencySymbol() {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol(String currency_symbol) {
-    this.currencySymbol = currency_symbol;
+  public void setCurrencySymbol(String currencySymbol) {
+    this.currencySymbol = currencySymbol;
   }
 
   public int getPrecision() {

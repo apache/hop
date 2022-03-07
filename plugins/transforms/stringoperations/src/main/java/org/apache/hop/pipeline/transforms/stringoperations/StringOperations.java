@@ -91,10 +91,10 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
     if (!Utils.isEmpty(rcode)) {
       switch (padType) {
         case StringOperationsMeta.PADDING_LEFT:
-          rcode = Const.Lpad(rcode, padChar, padLen);
+          rcode = Const.lpad(rcode, padChar, padLen);
           break;
         case StringOperationsMeta.PADDING_RIGHT:
-          rcode = Const.Rpad(rcode, padChar, padLen);
+          rcode = Const.rpad(rcode, padChar, padLen);
           break;
         default:
           break;
@@ -185,9 +185,9 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
 
   private Object[] processRow(IRowMeta rowMeta, Object[] row) throws HopException {
 
-    Object[] RowData = new Object[data.outputRowMeta.size()];
+    Object[] rowData = new Object[data.outputRowMeta.size()];
     // Copy the input fields.
-    System.arraycopy(row, 0, RowData, 0, rowMeta.size());
+    System.arraycopy(row, 0, rowData, 0, rowMeta.size());
     int j = 0; // Index into "new fields" area, past the first {data.inputFieldsNr} records
     for (int i = 0; i < data.nrFieldsInStream; i++) {
       if (data.inStreamNrs[i] >= 0) {
@@ -208,18 +208,18 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
                 data.removeSpecialCharacters[i]);
         if (Utils.isEmpty(data.outStreamNrs[i])) {
           // Update field
-          RowData[data.inStreamNrs[i]] = value;
+          rowData[data.inStreamNrs[i]] = value;
           data.outputRowMeta
               .getValueMeta(data.inStreamNrs[i])
               .setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
         } else {
           // create a new Field
-          RowData[data.inputFieldsNr + j] = value;
+          rowData[data.inputFieldsNr + j] = value;
           j++;
         }
       }
     }
-    return RowData;
+    return rowData;
   }
 
   @Override

@@ -22,7 +22,7 @@ import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 public interface IHopImport {
 
@@ -151,8 +151,8 @@ public interface IHopImport {
    *
    * @return value of metadataProvider
    */
-  IHopMetadataProvider getMetadataProvider();
+  MultiMetadataProvider getMetadataProvider();
 
   /** @param metadataProvider The metadataProvider to set */
-  void setMetadataProvider(IHopMetadataProvider metadataProvider);
+  void setMetadataProvider(MultiMetadataProvider metadataProvider);
 }

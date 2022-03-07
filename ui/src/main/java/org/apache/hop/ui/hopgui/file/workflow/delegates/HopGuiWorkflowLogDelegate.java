@@ -61,7 +61,6 @@ public class HopGuiWorkflowLogDelegate {
   private Text workflowLogText;
 
   /** The number of lines in the log tab */
-  // private int textSize;
   private Composite workflowLogComposite;
 
   private ToolBar toolbar;
@@ -229,15 +228,15 @@ public class HopGuiWorkflowLogDelegate {
     }
 
     if (err.size() > 0) {
-      String[] err_lines = new String[err.size()];
-      for (i = 0; i < err_lines.length; i++) {
-        err_lines[i] = err.get(i);
+      String[] errLines = new String[err.size()];
+      for (i = 0; i < errLines.length; i++) {
+        errLines[i] = err.get(i);
       }
 
       EnterSelectionDialog esd =
           new EnterSelectionDialog(
               workflowGraph.getShell(),
-              err_lines,
+              errLines,
               BaseMessages.getString(PKG, "WorkflowLog.Dialog.ErrorLines.Title"),
               BaseMessages.getString(PKG, "WorkflowLog.Dialog.ErrorLines.Message"));
       line = esd.open();

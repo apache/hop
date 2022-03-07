@@ -26,6 +26,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -34,6 +35,8 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
+
+import java.util.List;
 
 public class BeamConsumeDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = BeamConsume.class; // For Translator
@@ -47,6 +50,9 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
   private TextVar wGroupId;
   private TextVar wKeyField;
   private TextVar wMessageField;
+  private ComboVar wMessageType;
+  private TextVar wSchemaRegistryUrl;
+  private TextVar wSchemaRegistrySubject;
   private Button wUseProcessingTime;
   private Button wUseLogAppendTime;
   private Button wUseCreateTime;
@@ -194,6 +200,58 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     wMessageField.setLayoutData(fdMessageField);
     lastControl = wMessageField;
 
+    Label wlMessageType = new Label(shell, SWT.RIGHT);
+    wlMessageType.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.MessageType"));
+    props.setLook(wlMessageType);
+    FormData fdlMessageType = new FormData();
+    fdlMessageType.left = new FormAttachment(0, 0);
+    fdlMessageType.top = new FormAttachment(lastControl, margin);
+    fdlMessageType.right = new FormAttachment(middle, -margin);
+    wlMessageType.setLayoutData(fdlMessageType);
+    wMessageType = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMessageType.setItems(new String[] { "String", "Avro Record" });
+    props.setLook(wMessageType);
+    FormData fdMessageType = new FormData();
+    fdMessageType.left = new FormAttachment(middle, 0);
+    fdMessageType.top = new FormAttachment(wlMessageType, 0, SWT.CENTER);
+    fdMessageType.right = new FormAttachment(100, 0);
+    wMessageType.setLayoutData(fdMessageType);
+    lastControl = wMessageType;
+
+    Label wlSchemaRegistryUrl = new Label(shell, SWT.RIGHT);
+    wlSchemaRegistryUrl.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.SchemaRegistryUrl"));
+    props.setLook(wlSchemaRegistryUrl);
+    FormData fdlSchemaRegistryUrl = new FormData();
+    fdlSchemaRegistryUrl.left = new FormAttachment(0, 0);
+    fdlSchemaRegistryUrl.top = new FormAttachment(lastControl, margin);
+    fdlSchemaRegistryUrl.right = new FormAttachment(middle, -margin);
+    wlSchemaRegistryUrl.setLayoutData(fdlSchemaRegistryUrl);
+    wSchemaRegistryUrl = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wSchemaRegistryUrl);
+    FormData fdSchemaRegistryUrl = new FormData();
+    fdSchemaRegistryUrl.left = new FormAttachment(middle, 0);
+    fdSchemaRegistryUrl.top = new FormAttachment(wlSchemaRegistryUrl, 0, SWT.CENTER);
+    fdSchemaRegistryUrl.right = new FormAttachment(100, 0);
+    wSchemaRegistryUrl.setLayoutData(fdSchemaRegistryUrl);
+    lastControl = wSchemaRegistryUrl;
+
+    Label wlSchemaRegistrySubject = new Label(shell, SWT.RIGHT);
+    wlSchemaRegistrySubject.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.SchemaRegistrySubject"));
+    props.setLook(wlSchemaRegistrySubject);
+    FormData fdlSchemaRegistrySubject = new FormData();
+    fdlSchemaRegistrySubject.left = new FormAttachment(0, 0);
+    fdlSchemaRegistrySubject.top = new FormAttachment(lastControl, margin);
+    fdlSchemaRegistrySubject.right = new FormAttachment(middle, -margin);
+    wlSchemaRegistrySubject.setLayoutData(fdlSchemaRegistrySubject);
+    wSchemaRegistrySubject = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wSchemaRegistrySubject);
+    FormData fdSchemaRegistrySubject = new FormData();
+    fdSchemaRegistrySubject.left = new FormAttachment(middle, 0);
+    fdSchemaRegistrySubject.top = new FormAttachment(wlSchemaRegistrySubject, 0, SWT.CENTER);
+    fdSchemaRegistrySubject.right = new FormAttachment(100, 0);
+    wSchemaRegistrySubject.setLayoutData(fdSchemaRegistrySubject);
+    lastControl = wSchemaRegistrySubject;
+    
     Label wlUseProcessingTime = new Label(shell, SWT.RIGHT);
     wlUseProcessingTime.setText(BaseMessages.getString(PKG, "BeamProduceDialog.UseProcessingTime"));
     props.setLook(wlUseProcessingTime);
@@ -228,7 +286,6 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     wUseLogAppendTime.setLayoutData(fdUseLogAppendTime);
     lastControl = wUseLogAppendTime;
 
-    // private Button wUseCreateTime;
     Label wlUseCreateTime = new Label(shell, SWT.RIGHT);
     wlUseCreateTime.setText(BaseMessages.getString(PKG, "BeamProduceDialog.UseCreateTime"));
     props.setLook(wlUseCreateTime);
@@ -282,7 +339,6 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     wAllowCommitConsumed.setLayoutData(fdAllowCommitConsumed);
     lastControl = wlAllowCommitConsumed;
 
-    // private Button wAllowCommitConsumed;
     Label wlConfigOptions = new Label(shell, SWT.LEFT);
     wlConfigOptions.setText(BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions"));
     props.setLook(wlConfigOptions);
@@ -307,7 +363,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
               BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Type"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               ConfigOption.Type.getTypeNames(),
-              true),
+              false),
         };
     columns[0].setUsingVariables(true);
     columns[1].setUsingVariables(true);
@@ -322,7 +378,6 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     fdConfigOptions.top = new FormAttachment(lastControl, margin);
     fdConfigOptions.bottom = new FormAttachment(wOk, -margin * 2);
     wConfigOptions.setLayoutData(fdConfigOptions);
-    lastControl = wConfigOptions;
 
     wUseProcessingTime.addListener(
         SWT.Selection,
@@ -358,6 +413,9 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     wGroupId.setText(Const.NVL(input.getGroupId(), ""));
     wKeyField.setText(Const.NVL(input.getKeyField(), ""));
     wMessageField.setText(Const.NVL(input.getMessageField(), ""));
+    wMessageType.setText(Const.NVL(input.getMessageType(), ""));
+    wSchemaRegistryUrl.setText(Const.NVL(input.getSchemaRegistryUrl(), ""));
+    wSchemaRegistrySubject.setText(Const.NVL(input.getSchemaRegistrySubject(), ""));
 
     wUseProcessingTime.setSelection(input.isUsingProcessingTime());
     wUseLogAppendTime.setSelection(input.isUsingLogAppendTime());
@@ -373,9 +431,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
       item.setText(2, Const.NVL(option.getValue(), ""));
       item.setText(3, option.getType() != null ? option.getType().name() : "");
     }
-    wConfigOptions.removeEmptyRows();
-    wConfigOptions.setRowNums();
-    wConfigOptions.optWidth(true);
+    wConfigOptions.optimizeTableView();
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -404,17 +460,20 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     in.setTopics(wTopics.getText());
     in.setKeyField(wKeyField.getText());
     in.setMessageField(wMessageField.getText());
+    in.setMessageType(wMessageType.getText());
     in.setGroupId(wGroupId.getText());
+    in.setSchemaRegistryUrl(wSchemaRegistryUrl.getText());
+    in.setSchemaRegistrySubject(wSchemaRegistrySubject.getText());
 
     in.setUsingProcessingTime(wUseProcessingTime.getSelection());
     in.setUsingLogAppendTime(wUseLogAppendTime.getSelection());
     in.setUsingCreateTime(wUseCreateTime.getSelection());
     in.setRestrictedToCommitted(wRestrictToCommitted.getSelection());
     in.setAllowingCommitOnConsumedOffset(wAllowCommitConsumed.getSelection());
-    int nr = wConfigOptions.nrNonEmpty();
+
     in.getConfigOptions().clear();
-    for (int i = 0; i < nr; i++) {
-      TableItem item = wConfigOptions.getNonEmpty(i);
+    List<TableItem> nonEmptyItems = wConfigOptions.getNonEmptyItems();
+    for (TableItem item : nonEmptyItems) {
       String parameter = item.getText(1);
       String value = item.getText(2);
       ConfigOption.Type type = ConfigOption.Type.getTypeFromName(item.getText(3));

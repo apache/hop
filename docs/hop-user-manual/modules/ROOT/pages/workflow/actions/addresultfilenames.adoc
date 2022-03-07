@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Add Filenames To Result action adds a set of files or folders to the result list of the workflow action.
 
 = Add filenames to result
 
 == Description
 
-This workflow action allows you to add a set of files or folders to the result list of the workflow action.
-That list of filenames can then be used in the various workflow actions all around.
+The Add Filenames To Result action adds a set of files or folders to the result list of the workflow action.
+
+This list of filenames can then be used in the various workflow actions all around.
 
 == Options
 

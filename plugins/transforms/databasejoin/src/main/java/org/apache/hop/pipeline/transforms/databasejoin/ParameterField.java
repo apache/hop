@@ -21,9 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-/**
- * The parameters field.
- */
+/** The parameters field. */
 public class ParameterField implements Cloneable {
 
   /** The target field name */
@@ -38,7 +36,6 @@ public class ParameterField implements Cloneable {
       injectionKey = "TYPE",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.Parameter.Type")
   private String type = ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_NONE);
-
 
   public ParameterField() {
     super();
@@ -70,7 +67,7 @@ public class ParameterField implements Cloneable {
   public void setType(final String type) {
     this.type = type;
   }
-  
+
   public void setType(int id) {
     this.type = ValueMetaFactory.getValueMetaName(id);
   }

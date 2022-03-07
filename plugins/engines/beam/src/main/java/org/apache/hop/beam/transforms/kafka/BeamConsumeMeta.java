@@ -23,6 +23,7 @@ import org.apache.hop.beam.core.transform.BeamKafkaInputTransform;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -30,6 +31,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -48,6 +50,7 @@ import java.util.Map;
     description = "Get messages from Kafka topics (Kafka Consumer)",
     image = "beam-kafka-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
+    keywords = "i18n::BeamConsumeMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamkafkaconsume.html")
 public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> implements IBeamPipelineTransformHandler {
 
@@ -61,6 +64,15 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
 
   @HopMetadataProperty(key = "message_field")
   private String messageField;
+
+  @HopMetadataProperty(key = "message_type")
+  private String messageType;
+
+  @HopMetadataProperty(key = "schema_registry_url")
+  private String schemaRegistryUrl;
+
+  @HopMetadataProperty(key = "schema_registry_subject")
+  private String schemaRegistrySubject;
 
   @HopMetadataProperty(key = "group_id")
   private String groupId;
@@ -85,15 +97,11 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
 
   public BeamConsumeMeta() {
     super();
-    configOptions = new ArrayList<>();
-  }
-
-  @Override
-  public void setDefault() {
     bootstrapServers = "bootstrapServer1:9001,bootstrapServer2:9001";
     topics = "Topic1,Topic2";
     keyField = "key";
     messageField = "message";
+    messageType = "String";
     groupId = "GroupID";
     usingProcessingTime = true;
     usingLogAppendTime = false;
@@ -117,14 +125,21 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+    try {
+      IValueMeta keyValueMeta = new ValueMetaString(variables.resolve(keyField));
+      keyValueMeta.setOrigin(name);
+      inputRowMeta.addValueMeta(keyValueMeta);
 
-    IValueMeta keyValueMeta = new ValueMetaString(variables.resolve(keyField));
-    keyValueMeta.setOrigin(name);
-    inputRowMeta.addValueMeta(keyValueMeta);
-
-    IValueMeta messageValueMeta = new ValueMetaString(variables.resolve(messageField));
-    messageValueMeta.setOrigin(name);
-    inputRowMeta.addValueMeta(messageValueMeta);
+      // The default message type is String
+      String typeString = Const.NVL(variables.resolve(messageType), "String");
+      int type = ValueMetaFactory.getIdForValueMeta(typeString);
+      IValueMeta messageValueMeta =
+          ValueMetaFactory.createValueMeta(variables.resolve(messageField), type);
+      messageValueMeta.setOrigin(name);
+      inputRowMeta.addValueMeta(messageValueMeta);
+    } catch (Exception e) {
+      throw new HopTransformException("Error calculating transform output field layout", e);
+    }
   }
 
   @Override
@@ -185,6 +200,9 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
             parameters,
             values,
             types,
+            variables.resolve(getMessageType()),
+            variables.resolve(getSchemaRegistryUrl()),
+            variables.resolve(getSchemaRegistrySubject()),
             JsonRowMeta.toJson(outputRowMeta),
             transformPluginClasses,
             xpPluginClasses);
@@ -247,6 +265,30 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
   /** @param messageField The messageField to set */
   public void setMessageField(String messageField) {
     this.messageField = messageField;
+  }
+
+  public String getMessageType() {
+    return messageType;
+  }
+
+  public void setMessageType(String messageType) {
+    this.messageType = messageType;
+  }
+
+  public String getSchemaRegistryUrl() {
+    return schemaRegistryUrl;
+  }
+
+  public void setSchemaRegistryUrl(String schemaRegistryUrl) {
+    this.schemaRegistryUrl = schemaRegistryUrl;
+  }
+
+  public String getSchemaRegistrySubject() {
+    return schemaRegistrySubject;
+  }
+
+  public void setSchemaRegistrySubject(String schemaRegistrySubject) {
+    this.schemaRegistrySubject = schemaRegistrySubject;
   }
 
   /**

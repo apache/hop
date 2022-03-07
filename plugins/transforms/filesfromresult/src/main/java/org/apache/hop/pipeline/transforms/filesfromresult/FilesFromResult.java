@@ -28,12 +28,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Reads results from a previous pipeline in a Workflow
- *
- * @author Matt
- * @since 2-jun-2003
- */
+/** Reads results from a previous pipeline in a Workflow */
 public class FilesFromResult extends BaseTransform<FilesFromResultMeta, FilesFromResultData> {
 
   private static final Class<?> PKG = FilesFromResult.class; // For Translator

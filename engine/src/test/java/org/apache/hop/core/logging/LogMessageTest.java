@@ -29,7 +29,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/** @author Tatsiana_Kasiankova */
 public class LogMessageTest {
   private LogMessage logMessage;
 
@@ -39,7 +38,7 @@ public class LogMessageTest {
   private static String simpleLogChannelId;
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  
+
   @Before
   public void setUp() {
     treeLogChannelId = LoggingRegistry.getInstance().registerLoggingSource(getTreeLoggingObject());

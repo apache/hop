@@ -25,13 +25,9 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * Pivots data based on key-value pairs
- *
- * @author Matt
- * @since 17-jan-2006
- */
+/** Pivots data based on key-value pairs */
 public class Flattener extends BaseTransform<FlattenerMeta, FlattenerData> {
+
   private static final Class<?> PKG = FlattenerMeta.class; // For Translator
 
   public Flattener(

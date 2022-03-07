@@ -28,12 +28,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 import java.io.*;
 
-/**
- * This defines a GnuPG wrapper class.
- *
- * @author Samatar
- * @since 25-02-2011
- */
+/** This defines a GnuPG wrapper class. */
 public class GPG {
 
   private static final Class<?> PKG = ActionPGPEncryptFiles.class; // For Translator

@@ -35,6 +35,7 @@ Since metadata types are plugin types too, the available metadata types in your 
 By default, Hop contains the following metadata types:
 
 
+* xref:hop-server/async-web-service.adoc[Asynchronous Web Service]: Execute and query a workflow asynchronously through a web service.
 * xref:metadata-types/beam-file-definition.adoc[Beam File Definition]: Describes a file layout in a Beam Pipeline
 * xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection]: Describes a connection to a Cassandra cluster
 * xref:metadata-types/data-set.adoc[Data Set]: This defines a data set, a static pre-defined collection of rows
@@ -49,6 +50,6 @@ By default, Hop contains the following metadata types:
 * xref:metadata-types/pipeline-unit-test.adoc[Pipeline Unit Test]: Describes a test for a pipeline with alternative data sets as input from a certain transform and testing output against golden data
 * xref:metadata-types/rdbms-connection.adoc[Relational Database Connection]: Describes all the metadata needed to connect to a relational database
 * xref:metadata-types/splunk-connection.adoc[Splunk Connection]: Describes a Splunk connection
-* xref:metadata-types/web-service.adoc[Web Service]: Allows to run a pipeline to generate output for a servlet on Hop Server
+* xref:hop-server/web-service.adoc[Web Service]: Allows to run a pipeline to generate output for a servlet on Hop Server
 * xref:metadata-types/workflow-log.adoc[Workflow Log]: Allows to log the activity of a workflow with a pipeline
 * xref:metadata-types/workflow-run-config.adoc[Workflow Run Configuration]: Describes how to run a workflow

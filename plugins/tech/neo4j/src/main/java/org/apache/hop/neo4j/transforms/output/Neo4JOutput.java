@@ -27,11 +27,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.neo4j.core.GraphUsage;
-import org.apache.hop.neo4j.core.data.GraphData;
-import org.apache.hop.neo4j.core.data.GraphNodeData;
-import org.apache.hop.neo4j.core.data.GraphPropertyData;
-import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
-import org.apache.hop.neo4j.core.data.GraphRelationshipData;
+import org.apache.hop.neo4j.core.data.*;
 import org.apache.hop.neo4j.model.GraphPropertyType;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.neo4j.shared.NeoConnectionUtils;
@@ -44,20 +40,14 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.summary.Notification;
 import org.neo4j.driver.summary.ResultSummary;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputData> {
 
-  private static Class<?> PKG = Neo4JOutput.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      Neo4JOutput.class; // for i18n purposes, needed by Translator2!!
 
   public Neo4JOutput(
       TransformMeta s,

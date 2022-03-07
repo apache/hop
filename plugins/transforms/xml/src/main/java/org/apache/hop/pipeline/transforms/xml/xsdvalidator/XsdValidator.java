@@ -44,9 +44,6 @@ import java.io.StringReader;
 /**
  * Executes a xsd validator on the values in the input stream. New fields were calculated values can
  * then be put on the output stream.
- *
- * @author Samatar
- * @since 14-08-2007
  */
 public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorData> {
   private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator
@@ -176,7 +173,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
     try {
 
       // Get the XML field value
-      String XMLFieldvalue = getInputRowMeta().getString(row, data.xmlindex);
+      String xmlFieldvalue = getInputRowMeta().getString(row, data.xmlindex);
 
       boolean isvalid = false;
 
@@ -201,33 +198,33 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
         xsdfile = HopVfs.getFileObject(xsdfilename);
 
         // Get XML stream
-        Source sourceXML = new StreamSource(new StringReader(XMLFieldvalue));
+        Source sourceXML = new StreamSource(new StringReader(xmlFieldvalue));
 
         if (meta.getXMLSourceFile()) {
 
           // We deal with XML file
           // Get XML File
-          FileObject xmlfileValidator = HopVfs.getFileObject(XMLFieldvalue);
+          FileObject xmlfileValidator = HopVfs.getFileObject(xmlFieldvalue);
           if (xmlfileValidator == null || !xmlfileValidator.exists()) {
             logError(
                 BaseMessages.getString(
-                    PKG, "XsdValidator.Log.Error.XMLfileMissing", XMLFieldvalue));
+                    PKG, "XsdValidator.Log.Error.XMLfileMissing", xmlFieldvalue));
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "XsdValidator.Exception.XMLfileMissing", XMLFieldvalue));
+                    PKG, "XsdValidator.Exception.XMLfileMissing", xmlFieldvalue));
           }
           sourceXML = new StreamSource(xmlfileValidator.getContent().getInputStream());
         }
 
         // create the schema
-        Schema SchematXSD = null;
+        Schema schematXSD = null;
         if (xsdfile instanceof AbstractFileObject) {
           if (xsdfile.getName().getURI().contains("ram:///")) {
-            SchematXSD =
+            schematXSD =
                 factoryXSDValidator.newSchema(
                     new StreamSource(xsdfile.getContent().getInputStream()));
           } else {
-            SchematXSD = factoryXSDValidator.newSchema(new File(HopVfs.getFilename(xsdfile)));
+            schematXSD = factoryXSDValidator.newSchema(new File(HopVfs.getFilename(xsdfile)));
           }
         } else {
           // we should not get here as anything entered in that does not look like
@@ -240,12 +237,11 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
         if (meta.getXSDSource().equals(meta.NO_NEED)) {
           // ---Some documents specify the schema they expect to be validated against,
           // ---typically using xsi:noNamespaceSchemaLocation and/or xsi:schemaLocation attributes
-          // ---Schema SchematXSD = factoryXSDValidator.newSchema();
-          SchematXSD = factoryXSDValidator.newSchema();
+          schematXSD = factoryXSDValidator.newSchema();
         }
 
         // Create XSDValidator
-        Validator xsdValidator = SchematXSD.newValidator();
+        Validator xsdValidator = schematXSD.newValidator();
 
         // Prevent against XML Entity Expansion (XEE) attacks.
         // https://www.owasp.org/index.php/XML_Security_Cheat_Sheet#XML_Entity_Expansion
@@ -315,7 +311,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
       }
 
       // add new values to the row.
-      putRow(data.outputRowMeta, outputRowData2); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRowData2); // copy row to output rowset(s)
     } catch (HopException e) {
       boolean sendToErrorRow = false;
       String errorMessage = null;

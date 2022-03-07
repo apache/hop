@@ -17,13 +17,22 @@
 
 package org.apache.hop.beam.core.coder;
 
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericDatumReader;
+import org.apache.avro.generic.GenericDatumWriter;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.*;
+import org.apache.avro.specific.SpecificDatumReader;
+import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.beam.sdk.coders.AtomicCoder;
 import org.apache.beam.sdk.coders.CoderException;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -31,7 +40,7 @@ import java.util.Date;
 public class HopRowCoder extends AtomicCoder<HopRow> {
 
   @Override
-  public void encode(HopRow value, OutputStream outStream) throws CoderException, IOException {
+  public void encode(HopRow value, OutputStream outStream) throws IOException {
 
     Object[] row = value.getRow();
     ObjectOutputStream out = new ObjectOutputStream(outStream);
@@ -68,7 +77,7 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
   }
 
   @Override
-  public HopRow decode(InputStream inStream) throws CoderException, IOException {
+  public HopRow decode(InputStream inStream) throws IOException {
 
     ObjectInputStream in = new ObjectInputStream(inStream);
 
@@ -92,7 +101,7 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
   }
 
   @Override
-  public void verifyDeterministic() throws NonDeterministicException {
+  public void verifyDeterministic() {
     // Sure
   }
 
@@ -112,9 +121,15 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           out.writeLong(lng);
         }
         break;
+      case IValueMeta.TYPE_TIMESTAMP:
+        {
+          out.writeLong(((Timestamp) object).getTime());
+          out.writeInt(((Timestamp) object).getNanos());
+        }
+        break;
       case IValueMeta.TYPE_DATE:
         {
-          Long lng = ((Date) object).getTime();
+          long lng = ((Date) object).getTime();
           out.writeLong(lng);
         }
         break;
@@ -136,6 +151,44 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           out.writeUTF(bd.toString());
         }
         break;
+      case IValueMeta.TYPE_BINARY:
+        {
+          byte[] bytes = (byte[]) object;
+          out.write(bytes.length);
+          out.write(bytes);
+        }
+        break;
+      case IValueMeta.TYPE_INET:
+        {
+          InetAddress inetAddress = (InetAddress) object;
+          write(out, IValueMeta.TYPE_STRING, inetAddress.getHostName());
+          out.writeInt(inetAddress.getAddress().length == 4 ? 1 : 2);
+          out.write(inetAddress.getAddress());
+        }
+        break;
+      case IValueMeta.TYPE_AVRO:
+        {
+          // Write the schema and record. This way we can continue to do interesting things later
+          // on.
+          //
+          GenericRecord genericRecord = (GenericRecord) object;
+
+          try {
+            // Write the schema as a JSON string...
+            //
+            out.writeUTF(genericRecord.getSchema().toString(false));
+
+            // Now we perform the binary serialization of the data
+            //
+            ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("write", genericRecord.getSchema());
+            DataOutputStream dataOutputStream = new DataOutputStream(out);
+            valueMeta.writeData(dataOutputStream, genericRecord);
+            dataOutputStream.flush();
+          } catch (Exception e) {
+            throw new IOException("Error serializing Avro generic schema and record to String", e);
+          }
+        }
+        break;
       default:
         throw new IOException(
             "Data type not supported yet: " + objectType + " - " + object.toString());
@@ -149,39 +202,71 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
           int length = in.readInt();
           byte[] data = new byte[length];
           in.readFully(data);
-          String string = new String(data, StandardCharsets.UTF_8);
-          return string;
+          return new String(data, StandardCharsets.UTF_8);
         }
 
       case IValueMeta.TYPE_INTEGER:
         {
-          Long lng = in.readLong();
-          return lng;
+          return in.readLong();
+        }
+
+      case IValueMeta.TYPE_TIMESTAMP:
+        {
+          Timestamp timestamp = new Timestamp(in.readLong());
+          timestamp.setNanos(in.readInt());
+          return timestamp;
         }
 
       case IValueMeta.TYPE_DATE:
         {
-          Long lng = in.readLong();
-          return new Date(lng);
+          return new Date(in.readLong());
         }
 
       case IValueMeta.TYPE_BOOLEAN:
         {
-          boolean b = in.readBoolean();
-          return b;
+          return in.readBoolean();
         }
 
       case IValueMeta.TYPE_NUMBER:
         {
-          Double dbl = in.readDouble();
-          return dbl;
+          return in.readDouble();
         }
 
       case IValueMeta.TYPE_BIGNUMBER:
         {
-          String bd = in.readUTF();
-          return new BigDecimal(bd);
+          return new BigDecimal(in.readUTF());
         }
+
+      case IValueMeta.TYPE_BINARY:
+        {
+          byte[] bytes = new byte[in.readInt()];
+          in.read(bytes);
+          return bytes;
+        }
+
+      case IValueMeta.TYPE_INET:
+        {
+          String hostname = (String) read(in, IValueMeta.TYPE_STRING);
+          byte[] addr = new byte[in.readInt() == 1 ? 4 : 16];
+          in.read(addr);
+          return InetAddress.getByAddress(hostname, addr);
+        }
+
+      case IValueMeta.TYPE_AVRO:
+        {
+          try {
+            String schemaJson = in.readUTF();
+            Schema schema = new Schema.Parser().parse(schemaJson);
+            ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("read", schema);
+            DataInputStream dataInputStream = new DataInputStream(in);
+            GenericRecord genericRecord = (GenericRecord) valueMeta.readData(dataInputStream);
+            return genericRecord;
+          } catch (Exception e) {
+            throw new IOException(
+                "Error de-serializing Avro schema and generic record from JSON", e);
+          }
+        }
+
       default:
         throw new IOException("Data type not supported yet: " + objectType);
     }
@@ -194,11 +279,11 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
     if (object instanceof Long) {
       return IValueMeta.TYPE_INTEGER;
     }
-    if (object instanceof Date) {
-      return IValueMeta.TYPE_DATE;
-    }
     if (object instanceof Timestamp) {
       return IValueMeta.TYPE_TIMESTAMP;
+    }
+    if (object instanceof Date) {
+      return IValueMeta.TYPE_DATE;
     }
     if (object instanceof Boolean) {
       return IValueMeta.TYPE_BOOLEAN;
@@ -208,6 +293,15 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
     }
     if (object instanceof BigDecimal) {
       return IValueMeta.TYPE_BIGNUMBER;
+    }
+    if (object instanceof byte[]) {
+      return IValueMeta.TYPE_BINARY;
+    }
+    if (object instanceof InetAddress) {
+      return IValueMeta.TYPE_INET;
+    }
+    if (object instanceof GenericRecord) {
+      return IValueMeta.TYPE_AVRO;
     }
     throw new CoderException(
         "Data type for object class " + object.getClass().getName() + " isn't supported yet");

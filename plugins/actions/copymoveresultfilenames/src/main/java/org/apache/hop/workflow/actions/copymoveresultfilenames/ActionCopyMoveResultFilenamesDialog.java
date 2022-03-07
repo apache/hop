@@ -40,12 +40,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit the Copy/Move result filenames action settings.
- *
- * @author Samatar
- * @since 26-02-2008
- */
+/** This dialog allows you to edit the Copy/Move result filenames action settings. */
 public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCopyMoveResultFilenames.class; // For Translator
 
@@ -736,7 +731,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     }
 
     if (action.getSuccessCondition() != null) {
-      if (action.getSuccessCondition().equals(action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED)) {
+      if (action.getSuccessCondition().equals(action.SUCCESS_IF_AT_LEAST_X_FILES)) {
         wSuccessCondition.select(1);
       } else if (action.getSuccessCondition().equals(action.SUCCESS_IF_ERRORS_LESS)) {
         wSuccessCondition.select(2);
@@ -799,7 +794,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     action.setNrErrorsLessThan(wNrErrorsLessThan.getText());
 
     if (wSuccessCondition.getSelectionIndex() == 1) {
-      action.setSuccessCondition(action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED);
+      action.setSuccessCondition(action.SUCCESS_IF_AT_LEAST_X_FILES);
     } else if (wSuccessCondition.getSelectionIndex() == 2) {
       action.setSuccessCondition(action.SUCCESS_IF_ERRORS_LESS);
     } else {

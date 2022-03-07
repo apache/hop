@@ -33,6 +33,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -41,6 +43,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
 import org.w3c.dom.Node;
@@ -55,7 +58,7 @@ import java.util.stream.IntStream;
     name = "i18n::KafkaConsumer.TypeLongDesc",
     description = "i18n::KafkaConsumer.TypeTooltipDesc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
-    keywords = "kafka,consumer,input",
+    keywords = "i18n::KafkaConsumerInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/kafkaconsumer.html")
 @InjectionSupported(
     localizationPrefix = "KafkaConsumerInputMeta.Injection.",
@@ -116,9 +119,11 @@ public class KafkaConsumerInputMeta
   private KafkaConsumerField messageField;
 
   @Injection(name = "NAMES", group = "CONFIGURATION_PROPERTIES")
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   protected transient List<String> injectedConfigNames;
 
   @Injection(name = "VALUES", group = "CONFIGURATION_PROPERTIES")
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
   protected transient List<String> injectedConfigValues;
 
   @Injection(name = AUTO_COMMIT)
@@ -397,6 +402,7 @@ public class KafkaConsumerInputMeta
     return newClone;
   }
 
+
   @Override
   public void getFields(
       IRowMeta rowMeta,
@@ -426,10 +432,39 @@ public class KafkaConsumerInputMeta
                   }
                 });
       }
+
+      // Check if we get called from error path and only in that case, show fields that will dump the
+      // record coming from the kafka queue.
+      TransformErrorMeta transformErrorMeta = getParentTransformMeta().getTransformErrorMeta();
+      if (transformErrorMeta != null && transformErrorMeta.getTargetTransform().getName().equals(nextTransform.getName())) {
+        rowMeta.addValueMeta(createValueMetaString(getKeyField().getOutputName()));
+        rowMeta.addValueMeta(createValueMetaString(getMessageField().getOutputName()));
+        rowMeta.addValueMeta(createValueMetaString(getTopicField().getOutputName()));
+        rowMeta.addValueMeta(
+            createValueMetaInteger(getPartitionField().getOutputName()));
+        rowMeta.addValueMeta(
+            createValueMetaInteger(getOffsetField().getOutputName()));
+        rowMeta.addValueMeta(
+            createValueMetaInteger(getTimestampField().getOutputName()));
+      }
     } catch (HopException e) {
       getLog().logDebug("could not get fields, probable AEL");
       rowMeta.addRowMeta(getRowMeta(origin, variables));
     }
+  }
+
+  private IValueMeta createValueMetaString(String name) {
+    IValueMeta vm = new ValueMetaString(name);
+    vm.setOrigin(getParentTransformMeta().getName());
+
+    return vm;
+  }
+
+  private IValueMeta createValueMetaInteger(String name) {
+    IValueMeta vm = new ValueMetaInteger(name);
+    vm.setOrigin(getParentTransformMeta().getName());
+
+    return vm;
   }
 
   @Override
@@ -723,5 +758,10 @@ public class KafkaConsumerInputMeta
   /** @param autoCommit The autoCommit to set */
   public void setAutoCommit(boolean autoCommit) {
     this.autoCommit = autoCommit;
+  }
+
+  @Override
+  public boolean supportsErrorHandling() {
+    return true;
   }
 }

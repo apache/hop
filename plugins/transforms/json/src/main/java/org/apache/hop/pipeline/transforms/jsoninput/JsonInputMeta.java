@@ -62,6 +62,7 @@ import java.util.Map;
     documentationUrl = "/pipeline/transforms/jsoninput.html",
     name = "i18n::JsonInput.name",
     description = "i18n::JsonInput.description",
+    keywords = "i18n::JsonInputMeta.keyword",
     categoryDescription = "i18n::JsonInput.category")
 @InjectionSupported(
     localizationPrefix = "JsonInput.Injection.",
@@ -407,7 +408,7 @@ public class JsonInputMeta
 
   public void setFieldValue(String value) {
     this.valueField = value;
-    inputFiles.acceptingField = value; // TODO
+    inputFiles.acceptingField = value;
   }
 
   public boolean isInFields() {
@@ -703,7 +704,12 @@ public class JsonInputMeta
     return result;
   }
 
-  @Deprecated // ?needs to be public?
+  /**
+   * @deprecated
+   * @param nrFiles
+   * @param nrFields
+   */
+  @Deprecated
   public void allocate(int nrFiles, int nrFields) {
     initArrayFields(nrFiles, nrFields);
   }
@@ -820,14 +826,14 @@ public class JsonInputMeta
       if (input.length <= 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoInputExpected"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoInput"),
                 transformMeta);
         remarks.add(cr);
@@ -837,7 +843,7 @@ public class JsonInputMeta
     if (getInputFields().length <= 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoInputField"),
               transformMeta);
       remarks.add(cr);
@@ -847,32 +853,31 @@ public class JsonInputMeta
       if (Utils.isEmpty(getFieldValue())) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoField"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.FieldOk"),
                 transformMeta);
         remarks.add(cr);
       }
     } else {
       FileInputList fileInputList = getFiles(variables);
-      // String files[] = getFiles();
       if (fileInputList == null || fileInputList.getFiles().size() == 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoFiles"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG, "JsonInputMeta.CheckResult.FilesOk", "" + fileInputList.getFiles().size()),
                 transformMeta);

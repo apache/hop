@@ -17,14 +17,7 @@
 
 package org.apache.hop.server;
 
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
@@ -38,8 +31,6 @@ import java.security.cert.X509Certificate;
 /**
  * Encapsulates the Apache commons HTTP connection manager with a singleton. We can use this to
  * limit the number of open connections to hop servers.
- *
- * @author matt
  */
 public class ServerConnectionManager {
 
@@ -59,8 +50,7 @@ public class ServerConnectionManager {
             new X509TrustManager[] {getDefaultTrustManager()},
             new SecureRandom());
         SSLContext.setDefault(context);
-      } catch (Exception e) {
-        // log.logError( "Default SSL context hasn't been initialized", e );
+      } catch (Exception ignored) {
       }
     }
     manager = new PoolingHttpClientConnectionManager();
@@ -83,34 +73,6 @@ public class ServerConnectionManager {
     return HttpClients.custom().setConnectionManager(manager).build();
   }
 
-  public HttpClient createHttpClient(String user, String password) {
-    CredentialsProvider provider = new BasicCredentialsProvider();
-    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password);
-    provider.setCredentials(AuthScope.ANY, credentials);
-
-    return HttpClientBuilder.create()
-        .setDefaultCredentialsProvider(provider)
-        .setConnectionManager(manager)
-        .build();
-  }
-
-  public HttpClient createHttpClient(
-      String user, String password, String proxyHost, int proxyPort, AuthScope authScope) {
-    HttpHost httpHost = new HttpHost(proxyHost, proxyPort);
-
-    RequestConfig requestConfig = RequestConfig.custom().setProxy(httpHost).build();
-
-    CredentialsProvider provider = new BasicCredentialsProvider();
-    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password);
-    provider.setCredentials(authScope, credentials);
-
-    return HttpClientBuilder.create()
-        .setDefaultCredentialsProvider(provider)
-        .setDefaultRequestConfig(requestConfig)
-        .setConnectionManager(manager)
-        .build();
-  }
-
   public void shutdown() {
     manager.shutdown();
   }
@@ -126,8 +88,6 @@ public class ServerConnectionManager {
           throws CertificateException {
         for (X509Certificate cert : certs) {
           cert.checkValidity(); // validate date
-          // cert.verify( key ); // check by Public key
-          // cert.getBasicConstraints()!=-1 // check by CA
         }
       }
 

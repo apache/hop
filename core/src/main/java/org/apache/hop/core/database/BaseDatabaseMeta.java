@@ -35,9 +35,6 @@ import java.util.*;
 /**
  * This class contains the basic information on a database connection. It is not intended to be used
  * other than the inheriting classes such as OracleDatabaseInfo, ...
- *
- * @author Matt
- * @since 11-mrt-2005
  */
 public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
@@ -1073,11 +1070,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
         indexList =
             database.getDatabaseMetaData().getIndexInfo(null, null, schemaTable, false, true);
         while (indexList.next()) {
-          // String tablen = indexList.getString("TABLE_NAME");
-          // String indexn = indexList.getString("INDEX_NAME");
           String column = indexList.getString("COLUMN_NAME");
-          // int pos = indexList.getShort("ORDINAL_POSITION");
-          // int type = indexList.getShort("TYPE");
 
           int idx = Const.indexOfString(column, idxFields);
           if (idx >= 0) {
@@ -1671,9 +1664,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
           }
         }
       }
-      // else {
-      // swallow this character
-      // }
     }
     fieldname = newName.toString();
 

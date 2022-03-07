@@ -37,7 +37,6 @@ import static org.mockito.Mockito.when;
 /**
  * Tests for "Set field value to a constant" transform
  *
- * @author Pavel Sakun
  * @see SetValueConstant
  */
 public class SetValueConstantTest {

@@ -30,7 +30,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.*;
@@ -40,7 +39,7 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 
 public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenReplacementData> {
-  private static Class<?> PKG = TokenReplacementMeta.class; // For Translator
+  private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator
 
   public TokenReplacement(
       TransformMeta transformMeta,

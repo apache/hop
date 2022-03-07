@@ -40,8 +40,6 @@ import java.util.*;
  * This singleton is responsible for initializing the Hop client environment and remembering if it
  * is initialized. More specifically it loads client plugins like value meta plugins and other core
  * Hop functionality.
- *
- * @author matt
  */
 public class HopClientEnvironment {
   private static final Class<?> PKG = Const.class; // For Translator

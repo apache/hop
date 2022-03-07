@@ -22,11 +22,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * This defines the place where we need to inject an input data set
- *
- * @author matt
- */
+/** This defines the place where we need to inject an input data set */
 public class PipelineUnitTestSetLocation {
 
   @HopMetadataProperty(key = "transform_name")

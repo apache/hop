@@ -34,12 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Execute a process *
- *
- * @author Samatar
- * @since 03-11-2008
- */
+/** Execute a process * */
 public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData> {
 
   private static final Class<?> PKG = ExecProcessMeta.class; // For Translator
@@ -167,7 +162,7 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
       outputRow[rowIndex++] = processResult.getExistStatus();
 
       // add new values to the row.
-      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
       if (log.isRowLevel()) {
         logRowlevel(

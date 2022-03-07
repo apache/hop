@@ -16,13 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The De-normalizer transform allows you de-normalize data by looking up key-value pairs, with the option to convert data types in the process.
 
 = Row Denormaliser
 
 == Description
 
-The De-normalizer transform allows you de-normalize data by looking up key-value pairs.
-It also allows you to immediately convert data types.
+The De-normalizer transform allows you de-normalize data by looking up key-value pairs, with the option to convert data types in the process.
+
+Note: make sure to check the notes on this transform in the xref:pipeline/beam/getting-started-with-beam.adoc#_unsupported_transforms[Getting started with Beam] documentation.
 
 == Options
 

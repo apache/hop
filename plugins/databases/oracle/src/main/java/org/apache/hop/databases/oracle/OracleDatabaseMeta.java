@@ -29,11 +29,8 @@ import java.sql.ResultSet;
 
 /**
  * Contains Oracle specific information through static final members
- *
- * @author Matt
- * @since 11-mrt-2005
  */
-@DatabaseMetaPlugin(type = "ORACLE", typeDescription = "Oracle")
+@DatabaseMetaPlugin(type = "ORACLE", typeDescription = "Oracle", documentationUrl = "/database/databases/oracle.html")
 @GuiPlugin(id = "GUI-OracleDatabaseMeta")
 public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -746,11 +743,11 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @Override
   public String getStartQuote() {
-    return "";
+    return "\"";
   }
 
   @Override
   public String getEndQuote() {
-    return "";
+    return "\"";
   }
 }

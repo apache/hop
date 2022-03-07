@@ -41,7 +41,8 @@ import org.eclipse.swt.widgets.*;
 
 public class GenerateCsvDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = GenerateCsvMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      GenerateCsvMeta.class; // for i18n purposes, needed by Translator2!!
 
   private Text wTransformName;
 

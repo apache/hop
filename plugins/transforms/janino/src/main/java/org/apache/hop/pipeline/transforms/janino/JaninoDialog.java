@@ -193,10 +193,9 @@ public class JaninoDialog extends BaseTransformDialog implements ITransformDialo
     new Thread(runnable).start();
 
     wFields.addModifyListener(
-        arg0 -> {
-          // Now set the combo's
-          shell.getDisplay().asyncExec(() -> setComboBoxes());
-        });
+        arg0 ->
+            // Now set the combo's
+            shell.getDisplay().asyncExec(() -> setComboBoxes()));
 
     getData();
     currentMeta.setChanged(changed);
@@ -219,12 +218,6 @@ public class JaninoDialog extends BaseTransformDialog implements ITransformDialo
         .syncExec(
             () -> {
               // Add the newly create fields.
-              //
-              /*
-               * int nrNonEmptyFields = wFields.nrNonEmpty(); for (int i=0;i<nrNonEmptyFields;i++) { TableItem item =
-               * wFields.getNonEmpty(i); fields.put(item.getText(1), new Integer(1000000+i)); // The number is just to debug
-               * the origin of the fieldname }
-               */
 
               Set<String> keySet = fields.keySet();
               List<String> entries = new ArrayList<>(keySet);

@@ -32,10 +32,9 @@ import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
-/** @author Andrey Khayrutdinov */
 public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
 
-  private LoadSaveTester<T> tester;
+  protected LoadSaveTester<T> tester;
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
@@ -44,20 +43,16 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
 
   @Before
   public void setUp() throws Exception {
-    List<String> commonAttributes = listCommonAttributes();
-    List<String> xmlAttributes = listXmlAttributes();
+    List<String> attributes = listAttributes();
     Map<String, String> getters = createGettersMap();
     Map<String, String> setters = createSettersMap();
     Map<String, IFieldLoadSaveValidator<?>> attributeValidators = createAttributeValidatorsMap();
     Map<String, IFieldLoadSaveValidator<?>> typeValidators = createTypeValidatorsMap();
 
-    assertTrue(!commonAttributes.isEmpty() || !xmlAttributes.isEmpty());
-
     tester =
         new LoadSaveTester<>(
             getActionClass(),
-            commonAttributes,
-            xmlAttributes,
+            attributes,
             getters,
             setters,
             attributeValidators,
@@ -71,9 +66,7 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
 
   protected abstract Class<T> getActionClass();
 
-  protected abstract List<String> listCommonAttributes();
-
-  protected List<String> listXmlAttributes() {
+  protected List<String> listAttributes() {
     return Collections.emptyList();
   }
 

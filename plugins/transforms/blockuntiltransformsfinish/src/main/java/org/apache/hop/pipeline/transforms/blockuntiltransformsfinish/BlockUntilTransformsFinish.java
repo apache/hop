@@ -29,12 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-/**
- * Block all incoming rows until defined transforms finish processing rows.
- *
- * @author Samatar
- * @since 30-06-2008
- */
+/** Block all incoming rows until defined transforms finish processing rows. */
 public class BlockUntilTransformsFinish
     extends BaseTransform<BlockUntilTransformsFinishMeta, BlockUntilTransformsFinishData> {
 

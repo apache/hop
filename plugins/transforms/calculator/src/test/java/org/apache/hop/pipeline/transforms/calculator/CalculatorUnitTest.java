@@ -51,7 +51,6 @@ import static org.mockito.Mockito.*;
 /**
  * Unit tests for calculator transform
  *
- * @author Pavel Sakun
  * @see Calculator
  */
 public class CalculatorUnitTest {

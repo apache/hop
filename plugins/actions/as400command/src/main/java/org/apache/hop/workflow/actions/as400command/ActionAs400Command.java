@@ -23,13 +23,11 @@ import com.ibm.as400.access.CommandCall;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -39,7 +37,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -50,6 +47,7 @@ import java.util.List;
     description = "i18n::ActionAs400Command.Description",
     image = "as400command.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+    keywords = "i18n::ActionAs400Command.keyword",
     documentationUrl = "/workflow/actions/as400command.html")
 public class ActionAs400Command extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAs400Command.class; // For Translator
@@ -62,20 +60,22 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
 
   private static final String TAG_COMMAND = "command";
 
-  private static final String TAG_PROXY_HOST = "proxyHost";
-
-  private static final String TAG_PROXY_PORT = "proxyPort";
-
+  @HopMetadataProperty(key = TAG_SERVER)
   private String server;
 
+  @HopMetadataProperty(key = TAG_USER)
   private String user;
 
+  @HopMetadataProperty(key = TAG_PASSWORD, password = true)
   private String password;
 
+  @HopMetadataProperty(key = TAG_COMMAND)
   private String command;
 
+  @HopMetadataProperty(key = "proxyHost")
   private String proxyHost;
 
+  @HopMetadataProperty(key = "proxyPort")
   private String proxyPort;
 
   public ActionAs400Command(String name, String description) {
@@ -108,43 +108,8 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
     return new ActionAs400Command(this);
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder(100);
-
-    xml.append(super.getXml());
-    xml.append(XmlHandler.addTagValue(TAG_SERVER, server));
-    xml.append(XmlHandler.addTagValue(TAG_USER, user));
-    xml.append(
-        XmlHandler.addTagValue(TAG_PASSWORD, Encr.encryptPasswordIfNotUsingVariables(password)));
-    xml.append(XmlHandler.addTagValue(TAG_PROXY_HOST, proxyHost));
-    xml.append(XmlHandler.addTagValue(TAG_PROXY_PORT, proxyPort));
-    xml.append(XmlHandler.addTagValue(TAG_COMMAND, command));
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node node, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(node);
-
-      server = XmlHandler.getTagValue(node, TAG_SERVER);
-      user = XmlHandler.getTagValue(node, TAG_USER);
-      password =
-          Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(node, TAG_PASSWORD));
-      proxyHost = XmlHandler.getTagValue(node, TAG_PROXY_HOST);
-      proxyPort = XmlHandler.getTagValue(node, TAG_PROXY_PORT);
-      command = XmlHandler.getTagValue(node, TAG_COMMAND);
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionAS400Command.UnableToLoadFromXml.Label"), e);
-    }
-  }
-
   /** @return Returns the userName. */
-  public String getUserName() {
+  public String getUser() {
     return user;
   }
 
@@ -153,7 +118,7 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
    *
    * @param userName The userName to set.
    */
-  public void setUserName(final String userName) {
+  public void setUser(final String userName) {
     this.user = userName;
   }
 
@@ -172,12 +137,12 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
   }
 
   /** @return Returns the serverName. */
-  public String getServerName() {
+  public String getServer() {
     return server;
   }
 
   /** @param serverName The serverName to set. */
-  public void setServerName(String serverName) {
+  public void setServer(String serverName) {
     this.server = serverName;
   }
 
@@ -378,7 +343,7 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
             this,
             TAG_PASSWORD,
             remarks,
-            AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
+            AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
     ActionValidatorUtils.andValidator()
         .validate(
             this,

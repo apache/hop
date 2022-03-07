@@ -34,7 +34,7 @@ public class WorkflowActionDeleteResultFilenamesTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList("foldername", "specifywildcard", "wildcard", "wildcardexclude");
   }
 

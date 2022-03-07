@@ -27,8 +27,6 @@ import java.util.List;
 
 /**
  * Contains the properties of the inputs fields, target field name, target value type and options.
- *
- * @author Nicolas ADMENT
  */
 public class CoalesceField implements Cloneable {
 
@@ -61,6 +59,14 @@ public class CoalesceField implements Cloneable {
 
   public CoalesceField() {
     super();
+  }
+
+  public CoalesceField(String name, String type, boolean removeFields, String inputFields, List<String> cache) {
+    this.name = name;
+    this.type = type;
+    this.removeFields = removeFields;
+    this.inputFields = inputFields;
+    this.cache = cache;
   }
 
   public CoalesceField(CoalesceField cloned) {

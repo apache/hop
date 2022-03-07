@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -103,10 +103,6 @@ public abstract class TransformClassBase {
     parent.addRowListenerImpl(rowListener);
   }
 
-  //  public void addTransformListener( ITransformListener transformListener ) {
-  //    parent.addTransformListenerImpl( transformListener );
-  //  }
-
   public boolean checkFeedback(long lines) {
     return parent.checkFeedbackImpl(lines);
   }
@@ -138,10 +134,6 @@ public abstract class TransformClassBase {
   public IRowSet findOutputRowSet(String from, int fromcopy, String to, int tocopy) {
     return parent.findOutputRowSetImpl(from, fromcopy, to, tocopy);
   }
-
-  //  public int getClusterSize() {
-  //    return parent.getClusterSizeImpl();
-  //  }ITransformListener
 
   public int getCopy() {
     return parent.getCopyImpl();
@@ -305,8 +297,8 @@ public abstract class TransformClassBase {
     return parent.incrementLinesWrittenImpl();
   }
 
-  public boolean init(ITransform transformMetaInterface, ITransformData iTransformData) {
-    return parent.initImpl(transformMetaInterface, data);
+  public boolean init() {
+    return parent.initImpl();
   }
 
   public void initBeforeStart() throws HopTransformException {
@@ -332,10 +324,6 @@ public abstract class TransformClassBase {
   public boolean isStopped() {
     return parent.isStoppedImpl();
   }
-
-  //  public boolean isUsingThreadPriorityManagment() {
-  //    return parent.isUsingThreadPriorityManagmentImpl();
-  //  }
 
   public void logBasic(String s) {
     parent.logBasicImpl(s);

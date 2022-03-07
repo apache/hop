@@ -16,8 +16,9 @@ under the License.
 ////
 [[GettingStartedWithBeam]]
 :imagesdir: ../assets/images
-:description: Apache Beam is an advanced unified programming model that allows you to implement batch and streaming data processing jobs that run on any execution engine. Popular execution engines are for example Apache Spark, Apache Flink and Google Cloud Platform Dataflow. Apache Hop has run configurations to execute pipelines on all three of these engines over Apache Beam.
+:description: Apache Beam is an advanced unified programming model that allows you to implement and run batch and streaming data processing jobs.
 
+:toc:
 
 = Getting started with Apache Beam
 
@@ -43,6 +44,24 @@ Here is the documentation for the relevant plugins:
 * xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Beam Flink pipeline engine]
 * xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Beam Dataflow pipeline engine]
 * xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Beam Direct pipeline engine]
+
+[[supportedversions]]
+== What software versions are supported
+
+|===
+|Hop version |Beam version |Spark version |Flink version
+
+|1.0.0
+|2.32.0
+|2.4.8
+|1.11
+
+|1.1.0
+|2.35.0
+|3.1.2
+|1.13
+
+|===
 
 == How are my pipelines executed?
 
@@ -75,6 +94,7 @@ The Beam class used to perform this is: `org.apache.beam.sdk.extensions.joinlibr
 It can be either a fixed number, or it can generate rows indefinitely.
 When using the Beam engines it uses `org.apache.beam.sdk.io.synthetic.SyntheticBoundedSource` or `org.apache.beam.sdk.io.synthetic.SyntheticUnboundedSource`.
 
+[#_unsupported_transforms]
 === Unsupported transforms
 
 A few transforms are simply not supported because we haven't found a good way to do this on Beam yet:
@@ -83,7 +103,15 @@ A few transforms are simply not supported because we haven't found a good way to
 * xref:pipeline/transforms/groupby.adoc[Group By] : Use the `Memory Group By` instead
 * xref:pipeline/transforms/sort.adoc[Sort Rows]
 
-=== All other transforms
+The xref:pipeline/transforms/rowdenormaliser.adoc[Denormaliser] transform works technically correct on Apache Beam in release 1.1.0 and later.
+Even so you need to consider that the aggregation of the key-value pairs in that transform (in the general case) only happens on a sub-set of the rows.
+That is because in a Beam pipeline the order in which rows arrive is lost because they are continuously re-shuffled to maximize parallelism.
+This is different from the behavior of the "Local" Hop pipeline engine.
+
+To get around this issue you can apply a xref:pipeline/transforms/memgroupby.adoc[Memory Group By] transform across the whole dataset to grab the first non-null value of every field you de-normalised.
+This will produce the correct result.
+
+=== All others
 
 All other transforms are simply supported.
 They are wrapped in a bit of code to make the exact same code that runs on the Hop local pipeline engine work in a Beam pipeline.

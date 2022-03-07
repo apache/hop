@@ -38,6 +38,7 @@ import java.util.List;
     name = "i18n::ChangeFileEncoding.Name",
     description = "i18n::ChangeFileEncoding.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+    keywords = "i18n::ChangeFileEncodingMeta.keyword",
     documentationUrl = "/pipeline/transforms/changefileencoding.html")
 public class ChangeFileEncodingMeta extends BaseTransformMeta<ChangeFileEncoding, ChangeFileEncodingData> {
 

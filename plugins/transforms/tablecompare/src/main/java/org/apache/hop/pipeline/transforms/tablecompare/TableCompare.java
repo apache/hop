@@ -34,10 +34,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
 
-/**
- * @author Matt
- * @since 19-11-2009
- */
 public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareData> {
   private static final Class<?> PKG = TableCompare.class; // For Translator
 
@@ -188,7 +184,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
     Object[] fields = compareTables(getInputRowMeta(), r);
     Object[] outputRowData = RowDataUtil.addRowData(r, getInputRowMeta().size(), fields);
-    putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s);
+    putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
     return true;
   }
 
@@ -431,7 +427,8 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
         // Now grab rows of data and start comparing the individual rows ...
         //
-        IRowMeta oneMeta = null, twoMeta = null;
+        IRowMeta oneMeta = null;
+        IRowMeta twoMeta = null;
 
         Object[] one = data.referenceDb.getRow(refSet);
         if (one != null) {

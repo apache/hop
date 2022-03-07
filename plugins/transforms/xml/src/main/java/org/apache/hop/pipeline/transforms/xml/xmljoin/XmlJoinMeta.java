@@ -52,6 +52,7 @@ import java.util.List;
     name = "i18n::XmlJoin.name",
     description = "i18n::XmlJoin.description",
     categoryDescription = "i18n::XmlJoin.category",
+    keywords = "i18n::XmlJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/xmljoin.html")
 @InjectionSupported(localizationPrefix = "XmlJoin.Injection.")
 public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
@@ -118,10 +119,8 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
       throws HopXmlException {
     try {
 
-      List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-      infoStreams.get(0).setSubject(XmlHandler.getTagValue(transformNode, "targetXmlTransform"));
-      infoStreams.get(1).setSubject(XmlHandler.getTagValue(transformNode, "sourceXmlTransform"));
-
+      sourceXmlTransform = XmlHandler.getTagValue(transformNode, "sourceXmlTransform");
+      targetXmlTransform = XmlHandler.getTagValue(transformNode, "targetXmlTransform");
       valueXmlField = XmlHandler.getTagValue(transformNode, "valueXmlField");
       targetXmlField = XmlHandler.getTagValue(transformNode, "targetXmlField");
       sourceXmlField = XmlHandler.getTagValue(transformNode, "sourceXmlField");
@@ -140,7 +139,6 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
 
   @Override
   public void setDefault() {
-    // complexJoin = false;
     encoding = Const.XML_ENCODING;
   }
 
@@ -187,10 +185,8 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
   public String getXml() {
     StringBuffer xml = new StringBuffer(500);
 
-    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-    xml.append(XmlHandler.addTagValue("targetXmlTransform", infoStreams.get(0).getTransformName()));
-    xml.append(XmlHandler.addTagValue("sourceXmlTransform", infoStreams.get(1).getTransformName()));
-
+    xml.append("    ").append(XmlHandler.addTagValue("targetXmlTransform", targetXmlTransform));
+    xml.append("    ").append(XmlHandler.addTagValue("sourceXmlTransform", sourceXmlTransform));
     xml.append("    ").append(XmlHandler.addTagValue("valueXmlField", valueXmlField));
     xml.append("    ").append(XmlHandler.addTagValue("targetXmlField", targetXmlField));
     xml.append("    ").append(XmlHandler.addTagValue("sourceXmlField", sourceXmlField));
@@ -318,7 +314,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
           targetTransformFound = true;
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(
                       PKG, "XmlJoin.CheckResult.TargetXMLTransformFound", this.targetXmlTransform),
                   transformMeta);
@@ -328,7 +324,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
           sourceTransformFound = true;
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_OK,
+                  ICheckResult.TYPE_RESULT_OK,
                   BaseMessages.getString(
                       PKG, "XmlJoin.CheckResult.SourceXMLTransformFound", this.sourceXmlTransform),
                   transformMeta);

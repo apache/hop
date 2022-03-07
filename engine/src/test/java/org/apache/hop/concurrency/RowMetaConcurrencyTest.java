@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/** @author Andrey Khayrutdinov */
 public class RowMetaConcurrencyTest {
 
   private static final int cycles = 50;

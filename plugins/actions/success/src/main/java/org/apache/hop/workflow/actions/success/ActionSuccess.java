@@ -20,14 +20,11 @@ package org.apache.hop.workflow.actions.success;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -38,6 +35,7 @@ import java.util.List;
     description = "i18n::ActionSuccess.Description",
     image = "Success.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
+    keywords = "i18n::ActionSuccess.keyword",
     documentationUrl = "/workflow/actions/success.html")
 public class ActionSuccess extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSuccess.class; // For Translator
@@ -54,26 +52,6 @@ public class ActionSuccess extends ActionBase implements Cloneable, IAction {
   public Object clone() {
     ActionSuccess je = (ActionSuccess) super.clone();
     return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append(super.getXml());
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionSuccess.Meta.UnableToLoadFromXML"), e);
-    }
   }
 
   /**

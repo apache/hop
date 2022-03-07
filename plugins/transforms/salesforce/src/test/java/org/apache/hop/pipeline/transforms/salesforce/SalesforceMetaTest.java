@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.salesforce;
 
-import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.encryption.Encr;
@@ -47,7 +46,7 @@ public class SalesforceMetaTest {
   public static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
-    PluginRegistry.init(true);
+    PluginRegistry.init();
     String passwordEncoderPluginID =
         Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
     Encr.init(passwordEncoderPluginID);
@@ -66,7 +65,7 @@ public class SalesforceMetaTest {
     meta.check(remarks, null, null, null, null, null, null, null, null);
     boolean hasError = false;
     for (ICheckResult cr : remarks) {
-      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
+      if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
@@ -79,7 +78,7 @@ public class SalesforceMetaTest {
     meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
     for (ICheckResult cr : remarks) {
-      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
+      if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
@@ -94,7 +93,7 @@ public class SalesforceMetaTest {
     meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
     for (ICheckResult cr : remarks) {
-      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
+      if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }
@@ -108,7 +107,7 @@ public class SalesforceMetaTest {
     meta.check(remarks, null, null, null, null, null, null, null, null);
     hasError = false;
     for (ICheckResult cr : remarks) {
-      if (cr.getType() == CheckResult.TYPE_RESULT_ERROR) {
+      if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {
         hasError = true;
       }
     }

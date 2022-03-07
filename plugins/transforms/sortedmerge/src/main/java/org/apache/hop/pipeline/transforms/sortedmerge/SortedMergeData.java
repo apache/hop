@@ -24,13 +24,8 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class SortedMergeData extends BaseTransformData implements ITransformData {
   public int[] fieldIndices;
-  // public RowComparator rowComparator;
   public IRowMeta rowMeta;
   public List<RowSetRow> sortedBuffer;
   public Comparator<RowSetRow> comparator;

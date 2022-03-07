@@ -54,6 +54,7 @@ import java.util.Locale;
     name = "i18n::BaseTransform.TypeLongDesc.SortRows",
     description = "i18n::BaseTransform.TypeTooltipDesc.SortRows",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::SortRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/sort.html")
 public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData> implements Serializable {
   private static final long serialVersionUID = -9075883720765645655L;

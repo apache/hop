@@ -1,0 +1,132 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[RequirementsInstallationConfiguration]]
+:imagesdir: ../assets/images
+:description: The requirements and process to install Apache Hop in any environment are intentionally kept as simple as possible. This pages covers the requirements, basic and advanced installations.
+
+= Apache Hop requirements, installation and configuration
+
+== Overview
+
+The requirements and installation process for Apache Hop are intentionally kept as simple as possible.
+
+This page covers everything you need to know to install and run Apache Hop on your local desktop or server, from the very basics to more advanced configurations.
+
+Hop is designed to be as flexible and lightweight as possible, and is intended to blend in with your architecture, not the other way around. This makes the basic installation process extremely easy, but there's a lot of configuration that can be applied to make Hop behave exactly the way you want it to.
+
+TIP: Take a look at the xref:tech-manual::docker-container.adoc[Docker] page for instructions to run Hop in containers and Kubernetes environments.
+
+== System Requirements
+
+Hop's limited footprint should allow it to run on any modern physical or virtual machine.
+
+For the default Hop distribution, a minimum of 1 CPU/core and 4GB RAM should do, even though you can tweak Hop to run on machines with even less memory.
+
+Hop Runs on the following operating systems:
+
+* Windows 7 or higher
+* Linux (x86_64, ARM)
+* MacOS
+* any modern browser (Hop Web)
+
+== Java Runtime
+
+The only requirement Hop has on any supported operating system is the Java Runtime environment.
+
+Apache Hop is known to work well on the following widely used Java Runtimes:
+
+* https://www.java.com/[Oracle Java Runtime]
+* https://www.microsoft.com/openjdk[Microsoft OpenJDK] (OpenJDK builds for Windows, MacOS and Linux).
+* https://openjdk.java.net/install/[OpenJDK Java Runtime]
+
+Apache Hop works well with these 64-bit java runtimes for version 8 or higher.
+
+Other Java Runtimes may work but haven't been used and tested as extensively as the Oracle and OpenJDK JREs, so you may be pioneering. Feel free to open a https://hop.apache.org/community/tools/#jira[JIRA ticket] if you run into issues, but please mention your JRE and version.
+
+Run `java -version` if you're not sure which Java version is currently installed on your system. Your output should be similar to the one shown below.
+
+[source,shell]
+----
+openjdk version "1.8.0_312"
+OpenJDK Runtime Environment (build 1.8.0_312-b10)
+OpenJDK 64-Bit Server VM (build 25.312-b10, mixed mode)
+----
+
+Make sure to point the `JAVA_HOME` environment variable for your operating system to your desired JRE installation. Refer to your operating system's documentation for more information on environment variables.
+
+== Basic Installation
+
+The basic installation for Apache Hop couldn't be easier:
+
+* https://hop.apache.org/download/[download]
+* unzip
+* change to your newly unzipped `hop` directory
+* run:
+** `hop-gui.bat` (Windows) or `hop-gui.sh` (Linux, MacOS): run xref:hop-gui/index.adoc[Hop Gui]
+** `hop-run.bat` (Windows) or `hop-run.sh` (Linux, MacOS): xref:/hop-run/index.adoc[run workflows or pipelines] from the command line.
+** `hop-server.bat` (Windows) or `hop-server.sh` (Linux, MacOS): start a xref:/hop-server/index.adoc[Hop Server] instance.
+
+== Additional configuration
+
+=== JVM memory settings
+
+By default, Hop only sets a maximum for the JVM Heap size Hop can allocate.
+
+This parameter can be changed in the `hop-gui.bat` or `hop-gui.sh` or similar scripts for `hop-run` and `hop-server`.
+
+Identify the following line:
+`HOP_OPTIONS="-Xmx2048m"`
+
+The `-Xmx` parameter determines the maximum amount of memory the JVM can allocate and can be specified in MB or GB.
+
+For example:
+
+* `HOP_OPTIONS=-Xmx512m`: start Hop with maximum *512MB* of memory
+* `HOP_OPTIONS=-Xmx2048m`: start Hop with maximum *2048MB* (or 2GB) of memory
+* `HOP_OPTIONS=-Xmx4g`: start Hop with maximum *4GB* of memory
+
+Check the documentation for your JRE for more information about additional JVM configuration, tuning and garbage collection parameters. https://www.baeldung.com/jvm-parameters[This guide] may help you to get started.
+
+TIP: **Developers**: a couple of lines below the `-Xmx` parameter, you'll find another `HOP_OPTIONS` line that contains `-Xdebug`. Uncomment this line to allow debuggers to attach to your running Hop instance. Check the xref:dev-manual::setup-dev-environment.adoc[developer documentation] for more information.
+
+=== Hop environment variables
+
+The following (operating system) environment variables can add a lot of flexibility to configure Hop to your exact needs.
+
+include::snippets/variables/hop-audit-folder.adoc[]
+
+include::snippets/variables/hop-config-folder.adoc[]
+
+include::snippets/variables/hop-plugin-base-folders.adoc[]
+
+include::snippets/variables/hop-shared-jdbc-folder.adoc[]
+
+=== JDBC Drivers and other plugin dependencies
+
+Hop comes with built-in support for tens of databases and a large number of other technologies.
+
+Depending on the Apache and technology vendor's licenses, the required libraries may not be available in the default Apache Hop distribution.
+
+Download the necessary drivers or other required libraries and add them to your plugin's `lib` directory.
+
+For example, to add a JDBC driver for the MySQL database, download the MySQL JDBC jar file and add it to `<PATH>/hop/plugins/databases/mysql`.
+
+=== Technology configuration
+
+Hop comes with built-in support for lots of technologies that may require their own (installation and) configuration.
+
+Check the xref:technology/technology.adoc[technology] page for the platform you need to configure to find out more.

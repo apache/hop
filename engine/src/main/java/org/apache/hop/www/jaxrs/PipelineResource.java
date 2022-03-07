@@ -25,6 +25,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -192,7 +193,11 @@ public class PipelineResource {
     PipelineConfiguration pipelineConfiguration;
     try {
       pipelineConfiguration = PipelineConfiguration.fromXml(xml.toString());
-      IHopMetadataProvider metadataProvider = pipelineConfiguration.getMetadataProvider();
+      IHopMetadataProvider metadataProvider =
+          new MultiMetadataProvider(
+              HopServerSingleton.getHopServer().getVariables(),
+              HopServerSingleton.getHopServer().getConfig().getMetadataProvider(),
+              pipelineConfiguration.getMetadataProvider());
       PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
       ILogChannel log = HopServerSingleton.getInstance().getLog();
       if (log.isDetailed()) {

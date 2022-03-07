@@ -493,7 +493,6 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     props.setLook(wbGetFields);
     wbGetFields.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.GetFieldsBut"));
     fd = new FormData();
-    // fd.right = new FormAttachment(100, 0);
     fd.bottom = new FormAttachment(100, -margin * 2);
     fd.left = new FormAttachment(0, margin);
     wbGetFields.setLayoutData(fd);

@@ -31,7 +31,6 @@ import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
-/** @author Andrey Khayrutdinov */
 public class TextFileInputMetaLoadSaveTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -39,9 +38,8 @@ public class TextFileInputMetaLoadSaveTest {
 
   @Before
   public void setUp() throws Exception {
-    List<String> commonAttributes =
+    List<String> attributes =
         Arrays.asList("errorCountField", "errorFieldsField", "errorTextField", "length");
-    List<String> xmlAttributes = Collections.emptyList();
 
     Map<String, String> getters = new HashMap<>();
     getters.put("header", "hasHeader");
@@ -83,13 +81,10 @@ public class TextFileInputMetaLoadSaveTest {
         BaseFileField[].class.getCanonicalName(),
         new ArrayLoadSaveValidator<>(new TextFileInputFieldValidator()));
 
-    assertTrue(!commonAttributes.isEmpty() || !xmlAttributes.isEmpty());
-
     tester =
         new LoadSaveTester(
             TextFileInputMeta.class,
-            commonAttributes,
-            xmlAttributes,
+            attributes,
             getters,
             setters,
             attributeValidators,

@@ -27,10 +27,6 @@ import java.sql.PreparedStatement;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class DimensionLookupData extends BaseTransformData implements ITransformData {
   public Date valueDateNow;
 

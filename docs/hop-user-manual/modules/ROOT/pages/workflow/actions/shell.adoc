@@ -16,20 +16,28 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description:
 
 = Shell Action
 
 == Description
 
-The Shell action can be used to execute a shell script on the host where the workflow is running.
+The Shell action executes a shell script on the host where the workflow is running.
+
 For example, suppose you have a program that reads five data tables and creates a file in a specified format.
+
 You know the program works.
+
 Shell allows you to do portions of your work in Hop but reuse the program that reads the data tables as needed.
 
 The Shell workflow action is platform agnostic; you can use a batch file, UNIX, and so on.
+
 When you use a Shell workflow action, Hop makes a Java call to execute a program in a specified location.
+
 The return status is provided by the operating system call.
+
 For example, in batch scripting a return value of 1 indicates that the script was successful; a return value of 0 (zero) indicates that it was unsuccessful.
+
 You can pass command line arguments and set up logging for the Shell workflow action.
 
 == Options

@@ -38,12 +38,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit a JobEntryEval object.
- *
- * @author Matt
- * @since 19-06-2003
- */
+/** This dialog allows you to edit a JobEntryEval object. */
 public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionMsgBoxInfo.class; // For Translator
 

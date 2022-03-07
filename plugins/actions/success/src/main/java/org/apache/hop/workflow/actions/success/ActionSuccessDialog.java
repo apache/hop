@@ -36,12 +36,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * This dialog allows you to edit a Action Success object.
- *
- * @author Samatar
- * @since 10-03-2007
- */
+/** This dialog allows you to edit a Action Success object. */
 public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionSuccess.class; // For Translator
 
@@ -85,7 +80,7 @@ public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionSuccessDialog.Jobname.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "ActionSuccessDialog.ActionName.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);

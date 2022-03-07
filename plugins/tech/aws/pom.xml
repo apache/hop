@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-tech</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-plugins-tech-aws</artifactId>
@@ -34,9 +34,8 @@
 
     <properties>
         <!-- Third-party dependencies -->
-        <commons-io.version>1.4</commons-io.version>
-        <slf4j-api.version>1.7.7</slf4j-api.version>
-        <guava.version>19.0</guava.version>
+        <slf4j-api.version>1.7.32</slf4j-api.version>
+        <guava.version>31.0.1-jre</guava.version>
 
         <!-- Test dependencies -->
         <mockito.version>1.10.19</mockito.version>
@@ -51,12 +50,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

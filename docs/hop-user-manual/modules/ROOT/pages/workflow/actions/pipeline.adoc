@@ -16,15 +16,18 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description:
 
 :openvar: ${
 :closevar: }
+
 = Pipeline
 
 == Description
 
 The Pipeline action runs a previously-defined pipeline within a workflow.
-This action is the access point from your workflow to your ETL activity (pipeline).
+
+This action is the access point from your workflow to your actual data processing activity (pipeline).
 
 An example of a common workflow includes getting FTP files, checking existence of a necessary target database table, running a pipeline that populates that table, and e-mailing an error log if a pipeline fails.
 For this example, the Pipeline action defines which pipeline to run to populate the table.
@@ -52,7 +55,7 @@ Pipelines previously specified by reference are automatically converted to be sp
 |Option|Description
 |Run Configuration|The pipeline can run in different types of environment configurations.
 Specify a run configuration to control how the pipeline is executed.
-|Execute every input row|Runs the pipeline once for every input row (looping).
+|Execute for every result row|Runs the pipeline once for every result row from a previous pipeline (or workflow) in the current workflow.
 |Clear results rows before execution|Makes sure the results rows are cleared before the pipeline starts.
 |Clear results files before execution|Makes sure the results files are cleared before the pipeline starts.
 |Wait for remote pipeline to finish|If you selected Server as your environment type, choose this option to block the workflow until the pipeline runs on the server.
@@ -91,7 +94,7 @@ See Logging for more details.
 |===
 |Option|Description
 |Copy results to arguments|Copies the results from a previous pipeline as arguments of the pipeline using the Copy rows to result transform.
-If the Execute every input row option is selected then each row is a set of command-line arguments to be passed into the pipeline, otherwise only the first row is used to generate the command line arguments.
+If the 'Execute for every result row' option is selected then each row is a set of command-line arguments to be passed into the pipeline, otherwise only the first row is used to generate the command line arguments.
 |Arguments|Specify which command-line arguments will be passed to the pipeline.
 |===
 

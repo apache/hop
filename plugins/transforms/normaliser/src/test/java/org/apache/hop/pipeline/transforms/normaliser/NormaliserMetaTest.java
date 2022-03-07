@@ -39,7 +39,7 @@ public class NormaliserMetaTest implements IInitializer<NormaliserMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes = Arrays.asList("typeField", "normaliserFields");
 
     Map<String, String> getterMap = new HashMap<>();
@@ -56,7 +56,6 @@ public class NormaliserMetaTest implements IInitializer<NormaliserMeta> {
         new LoadSaveTester<>(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

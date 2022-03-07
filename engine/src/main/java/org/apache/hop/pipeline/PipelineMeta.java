@@ -978,7 +978,6 @@ public class PipelineMeta extends AbstractMeta
     return new RowMeta();
   }
 
-
   /**
    * Retrieve an array of preceding transforms for a certain destination transform. This includes
    * the info transforms.
@@ -1207,6 +1206,12 @@ public class PipelineMeta extends AbstractMeta
       // the transform but with the selected error fields added
       //
       row = getPrevTransformFields(variables, transformMeta);
+
+      // Check if row object is null that means the transform could be an input transform. In this case, get fields
+      // out from transform itself
+      if (row.isEmpty()) {
+        row = getThisTransformFields(variables, transformMeta, targetTransform, row, monitor);
+      }
 
       // Add to this the error fields...
       TransformErrorMeta transformErrorMeta = transformMeta.getTransformErrorMeta();

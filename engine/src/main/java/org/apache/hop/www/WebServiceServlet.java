@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ package org.apache.hop.www;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
-import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
@@ -30,10 +29,8 @@ import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -48,7 +45,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.UUID;
 
 @HopServerServlet(id = "webService", name = "Output the content of a field in a transform")
@@ -80,18 +76,7 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
 
     IVariables variables = pipelineMap.getHopServerConfig().getVariables();
 
-    MultiMetadataProvider metadataProvider =
-        new MultiMetadataProvider(Encr.getEncoder(), new ArrayList<>(), variables);
-    metadataProvider.getProviders().add(HopMetadataUtil.getStandardHopMetadataProvider(variables));
-
-    String metadataFolder = pipelineMap.getHopServerConfig().getMetadataFolder();
-    if (StringUtils.isNotEmpty(metadataFolder)) {
-      // Get the metadata from the specified metadata folder...
-      //
-      metadataProvider
-          .getProviders()
-          .add(new JsonMetadataProvider(Encr.getEncoder(), metadataFolder, variables));
-    }
+    IHopMetadataProvider metadataProvider = pipelineMap.getHopServerConfig().getMetadataProvider();
 
     String webServiceName = request.getParameter("service");
     if (StringUtils.isEmpty(webServiceName)) {

@@ -67,6 +67,7 @@ import com.google.common.annotations.VisibleForTesting;
     name = "i18n::BaseTransform.TypeLongDesc.TextFileInput",
     description = "i18n::BaseTransform.TypeTooltipDesc.TextFileInput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    keywords = "i18n::TextFileInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/textfileinput.html")
 public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFileInputData>
 implements IInputFileMeta {

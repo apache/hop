@@ -40,7 +40,7 @@ public class YamlInputMetaTest implements IInitializer<YamlInputMeta> {
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
             "includeFilename",
@@ -126,7 +126,6 @@ public class YamlInputMetaTest implements IInitializer<YamlInputMeta> {
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

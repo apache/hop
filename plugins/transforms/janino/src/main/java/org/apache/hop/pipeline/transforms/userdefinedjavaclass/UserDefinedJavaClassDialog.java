@@ -54,7 +54,7 @@ import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.*;
 import org.eclipse.swt.dnd.*;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -85,9 +85,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   private Tree wTree;
   private TreeItem wTreeClassesItem;
 
-  private Image imageActiveScript, imageInactiveScript;
-  private CTabFolder folder, wTabFolder;
-  private Menu cMenu, tMenu;
+  private Image imageActiveScript;
+  private Image imageInactiveScript;
+  private CTabFolder folder;
+  private CTabFolder wTabFolder;
+  private Menu cMenu;
+  private Menu tMenu;
 
   // Suport for Rename Tree
   private TreeItem[] lastItem;
@@ -113,16 +116,23 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
   private static final GuiResource guiResource = GuiResource.getInstance();
 
-  private TreeItem itemInput, itemInfo, itemOutput;
-  private IRowMeta inputRowMeta, infoRowMeta, outputRowMeta;
+  private TreeItem itemInput;
+  private TreeItem itemInfo;
+  private TreeItem itemOutput;
+  private IRowMeta inputRowMeta;
+  private IRowMeta infoRowMeta;
+  private IRowMeta outputRowMeta;
 
   private RowGeneratorMeta genMeta;
 
   private CTabItem fieldsTab;
 
   private int margin;
-  private TableView wInfoTransforms, wTargetTransforms, wParameters;
-  private String[] prevTransformNames, nextTransformNames;
+  private TableView wInfoTransforms;
+  private TableView wTargetTransforms;
+  private TableView wParameters;
+  private String[] prevTransformNames;
+  private String[] nextTransformNames;
 
   public UserDefinedJavaClassDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -256,7 +266,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     wlScript.setLayoutData(fdlScript);
 
     wlPosition = new Label(wTop, SWT.NONE);
-    wlPosition.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Position.Label"));
+    wlPosition.setText(
+        BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Position.Label", 1, 1));
     props.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(wTree, margin);
@@ -826,7 +837,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
         item.setText(getNextName(tabName));
         break;
     }
-    StyledTextComp wScript =
+    final StyledTextComp wScript =
         new StyledTextComp(
             variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, false);
     if ((tabCode != null) && tabCode.length() > 0) {
@@ -834,53 +845,20 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     } else {
       wScript.setText(snippitsHelper.getDefaultCode());
     }
-    item.setImage(imageInactiveScript);
+
     props.setLook(wScript, Props.WIDGET_STYLE_FIXED);
-
-    wScript.addKeyListener(
-        new KeyAdapter() {
-          @Override
-          public void keyPressed(KeyEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void keyReleased(KeyEvent e) {
-            setPosition();
-          }
-        });
-    wScript.addFocusListener(
-        new FocusAdapter() {
-          @Override
-          public void focusGained(FocusEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void focusLost(FocusEvent e) {
-            setPosition();
-          }
-        });
-    wScript.addMouseListener(
-        new MouseAdapter() {
-          @Override
-          public void mouseDoubleClick(MouseEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void mouseDown(MouseEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void mouseUp(MouseEvent e) {
-            setPosition();
-          }
-        });
-
+    Listener listener = e -> setPosition(wScript);
+    wScript.addListener(SWT.Modify, listener);
+    wScript.addListener(SWT.KeyDown, listener);
+    wScript.addListener(SWT.KeyUp, listener);
+    wScript.addListener(SWT.FocusIn, listener);
+    wScript.addListener(SWT.FocusOut, listener);
+    wScript.addListener(SWT.MouseDoubleClick, listener);
+    wScript.addListener(SWT.MouseUp, listener);
+    wScript.addListener(SWT.MouseDown, listener);
     wScript.addModifyListener(lsMod);
 
+    item.setImage(imageInactiveScript);
     item.setControl(wScript);
 
     // Adding new Item to Tree
@@ -1013,13 +991,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     return strRC;
   }
 
-  public void setPosition() {
-    StyledTextComp widget = getStyledTextComp();
+  public void setPosition(StyledTextComp widget) {
     int lineNumber = widget.getLineNumber();
     int columnNumber = widget.getColumnNumber();
     wlPosition.setText(
         BaseMessages.getString(
-            PKG, "DefinedJavaClassDialog.Position.Label2", "" + lineNumber, "" + columnNumber));
+            PKG, "UserDefinedJavaClassDialog.Position.Label", lineNumber, columnNumber));
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
@@ -1167,8 +1144,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     CTabItem[] cTabs = folder.getItems();
     if (cTabs.length > 0) {
-      List<UserDefinedJavaClassDef> definitions =
-              new ArrayList<>(cTabs.length);
+      List<UserDefinedJavaClassDef> definitions = new ArrayList<>(cTabs.length);
       for (int i = 0; i < cTabs.length; i++) {
         UserDefinedJavaClassDef def =
             new UserDefinedJavaClassDef(
@@ -1583,7 +1559,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   }
 
   private void buildingFolderMenu() {
-    // styledTextPopupmenu = new Menu(, SWT.POP_UP);
     MenuItem addNewItem = new MenuItem(cMenu, SWT.PUSH);
     addNewItem.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.AddNewTab"));
     addNewItem.addListener(SWT.Selection, e -> addCtab("", "", TabAddActions.ADD_BLANK));
@@ -1639,7 +1614,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   }
 
   private void buildingTreeMenu() {
-    // styledTextPopupmenu = new Menu(, SWT.POP_UP);
     MenuItem addDeleteItem = new MenuItem(tMenu, SWT.PUSH);
     addDeleteItem.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Delete.Label"));
     addDeleteItem.addListener(
@@ -1784,9 +1758,11 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
                   Point size = TextSizeUtilFacade.textExtent(leftText + e.text + rightText);
                   size = text.computeSize(size.x, SWT.DEFAULT);
                   editor.horizontalAlignment = SWT.LEFT;
-                  Rectangle itemRect = item.getBounds(), rect = wTree.getClientArea();
+                  Rectangle itemRect = item.getBounds();
+                  Rectangle rect = wTree.getClientArea();
                   editor.minimumWidth = Math.max(size.x, itemRect.width) + inset * 2;
-                  int left = itemRect.x, right = rect.x + rect.width;
+                  int left = itemRect.x;
+                  int right = rect.x + rect.width;
                   editor.minimumWidth = Math.min(editor.minimumWidth, right - left);
                   editor.minimumHeight = size.y + inset * 2;
                   editor.layout();

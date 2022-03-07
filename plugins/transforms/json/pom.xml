@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-transforms</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-transforms-json</artifactId>
@@ -35,16 +35,13 @@
     <properties>
         <commons-codec.version>1.9</commons-codec.version>
         <encoder.version>1.2</encoder.version>
-        <guava.version>27.0-jre</guava.version>
+        <guava.version>31.0.1-jre</guava.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
         <mockito-all.version>1.9.5</mockito-all.version>
-        <poi.version>3.17</poi.version>
         <dependency.com.tinkerpop.blueprints.version>2.6.0</dependency.com.tinkerpop.blueprints.version>
         <dependency.org.powermock.version>1.6.0</dependency.org.powermock.version>
         <json-smart.version>2.2</json-smart.version>
         <json-path.version>2.1.0</json-path.version>
-        <jackson-core.version>${jackson-databind.version}</jackson-core.version>
-        <jackson-databind.version>2.10.2</jackson-databind.version>
         <jsch.version>0.1.54</jsch.version>
     </properties>
 
@@ -52,19 +49,13 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson-databind.version}</version>
+            <version>${jackson.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${jackson-core.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>${poi.version}</version>
+            <version>${jackson.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -102,7 +93,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>27.0-jre</version>
+            <version>31.0.1-jre</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -133,13 +124,13 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-rowgenerator</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.2.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-sort</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.2.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
 

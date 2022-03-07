@@ -23,10 +23,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
+import java.util.List;
+
 public class DatabaseLookupData extends BaseTransformData implements ITransformData {
   public ICache cache;
   public Database db;
@@ -45,6 +43,7 @@ public class DatabaseLookupData extends BaseTransformData implements ITransformD
   public boolean hasDBCondition;
   public int[] returnValueTypes;
   public String[] returnTrimTypes;
+  public List<Integer> trimIndexes;
 
   public DatabaseLookupData() {
     super();

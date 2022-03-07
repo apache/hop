@@ -47,8 +47,6 @@ import java.util.stream.Collectors;
  * This singleton provides access to all the plugins in the Hop universe.<br>
  * It allows you to register types and plugins, query plugin lists per category, list plugins per
  * type, etc.<br>
- *
- * @author matt
  */
 public class PluginRegistry {
 
@@ -493,26 +491,16 @@ public class PluginRegistry {
     return Collections.unmodifiableList(pluginTypes);
   }
 
-  public static synchronized void init() throws HopPluginException {
-    init(true);
-  }
-
   /**
    * This method registers plugin types and loads their respective plugins
    *
    * @throws HopPluginException
    */
-  public static synchronized void init(boolean keepCache) throws HopPluginException {
+  public static synchronized void init() throws HopPluginException {
     final PluginRegistry registry = getInstance();
 
     for (final IPluginType pluginType : pluginTypes) {
       registry.registerType(pluginType);
-    }
-
-    // Clear the jar file cache so that we don't waste memory...
-    //
-    if (!keepCache) {
-      JarCache.getInstance().clear();
     }
   }
 
@@ -927,10 +915,9 @@ public class PluginRegistry {
                 } else {
                   ucl = classLoaders.get(plugin);
                   if (ucl == null) {
-                    if (plugin.getLibraries().size() == 0) {
-                      if (plugin instanceof IClassLoadingPlugin) {
-                        return ((IClassLoadingPlugin) plugin).getClassLoader();
-                      }
+                    if (plugin.getLibraries().size() == 0
+                        && plugin instanceof IClassLoadingPlugin) {
+                      return ((IClassLoadingPlugin) plugin).getClassLoader();
                     }
                     ucl = createClassLoader(plugin);
                     classLoaders.put(plugin, ucl); // save for later use...
@@ -1076,9 +1063,7 @@ public class PluginRegistry {
     IPlugin plugin = findPluginWithId(pluginType, pluginId);
     return waitLimit <= 0 && plugin == null
         ? null
-        : plugin != null
-            ? plugin
-            : waitForPluginToBeAvailable(pluginType, pluginId, waitLimit);
+        : plugin != null ? plugin : waitForPluginToBeAvailable(pluginType, pluginId, waitLimit);
   }
 
   /**

@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Column Exists transforms allows you to verify the existence of a specific column in a database table.
 
 = Column exists
 
 == Description
 
-This transforms allows you to verify the existence of a specific column in a database table.
+The Column Exists transforms allows you to verify the existence of a specific column in a database table.
 
 == Options
 

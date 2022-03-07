@@ -25,6 +25,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
@@ -87,18 +88,36 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       }
 
       if (first) {
+
         first = false;
-        initOnFirstProcessingIteration();
+        if (!meta.isFilenameInField()) {
+          initOnFirstProcessingIteration();
+        }
+      }
+
+      if (meta.isFilenameInField()) {
+        IRowMeta rowMeta = getInputRowMeta();
+        int pos = rowMeta.indexOfValue(meta.getFilenameField());
+        String filename = (String) row[pos];
+        if (pipelineExecutorData.prevFilename == null
+                || !pipelineExecutorData.prevFilename.equals(filename)) {
+          logDetailed("Identified a new pipeline to execute: '" + filename + "'");
+          meta.setFilename(filename);
+          pipelineExecutorData.prevFilename = filename;
+          pipelineExecutorData.groupBuffer = null;
+          initPipeline(pipelineExecutorData);
+          initOnFirstProcessingIteration();
+        }
       }
 
       IRowSet executorTransformOutputRowSet =
-          pipelineExecutorData.getExecutorTransformOutputRowSet();
+              pipelineExecutorData.getExecutorTransformOutputRowSet();
       if (pipelineExecutorData.getExecutorTransformOutputRowMeta() != null
-          && executorTransformOutputRowSet != null) {
+              && executorTransformOutputRowSet != null) {
         putRowTo(
-            pipelineExecutorData.getExecutorTransformOutputRowMeta(),
-            row,
-            executorTransformOutputRowSet);
+                pipelineExecutorData.getExecutorTransformOutputRowMeta(),
+                row,
+                executorTransformOutputRowSet);
       }
 
       // Grouping by field and execution time works ONLY if grouping by size is disabled.
@@ -196,9 +215,10 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   }
 
   private void executePipeline(List<String> incomingFieldValues) throws HopException {
+
     PipelineExecutorData pipelineExecutorData = getData();
     // If we got 0 rows on input we don't really want to execute the pipeline
-    if (pipelineExecutorData.groupBuffer.isEmpty()) {
+    if (pipelineExecutorData.groupBuffer == null || pipelineExecutorData.groupBuffer.isEmpty()) {
       return;
     }
     pipelineExecutorData.groupTimeStart = System.currentTimeMillis();
@@ -479,44 +499,63 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   public boolean init() {
 
     PipelineExecutorData pipelineExecutorData = getData();
-    if (super.init()) {
+    boolean transformSuccessfullyInitialized = super.init();
+
+    if (transformSuccessfullyInitialized) {
       // First we need to load the mapping (pipeline)
       try {
-        pipelineExecutorData.setExecutorPipelineMeta(loadExecutorPipelineMeta());
-
-        // Do we have a pipeline at all?
-        if (pipelineExecutorData.getExecutorPipelineMeta() != null) {
-          pipelineExecutorData.groupBuffer = new ArrayList<>();
-
-          // How many rows do we group together for the pipeline?
-          if (!Utils.isEmpty(meta.getGroupSize())) {
-            pipelineExecutorData.groupSize = Const.toInt(resolve(meta.getGroupSize()), -1);
-          } else {
-            pipelineExecutorData.groupSize = -1;
-          }
-          // Is there a grouping time set?
-          if (!Utils.isEmpty(meta.getGroupTime())) {
-            pipelineExecutorData.groupTime = Const.toInt(resolve(meta.getGroupTime()), -1);
-          } else {
-            pipelineExecutorData.groupTime = -1;
-          }
-          pipelineExecutorData.groupTimeStart = System.currentTimeMillis();
-
-          // Is there a grouping field set?
-          if (!Utils.isEmpty(meta.getGroupField())) {
-            pipelineExecutorData.groupField = resolve(meta.getGroupField());
-          }
-          // That's all for now...
-          return true;
+        if ((!meta.isFilenameInField() && Utils.isEmpty(meta.getFilename()))
+            || (meta.isFilenameInField() && Utils.isEmpty(meta.getFilenameField()))) {
+          logError("No pipeline filename given either in path or in a field!");
+          transformSuccessfullyInitialized = false;
         } else {
-          logError("No valid pipeline was specified nor loaded!");
-          return false;
+
+          if (!meta.isFilenameInField() && !Utils.isEmpty(meta.getFilename())) {
+            transformSuccessfullyInitialized = initPipeline(pipelineExecutorData);
+          }
         }
+
       } catch (Exception e) {
         logError("Unable to load the pipeline executor because of an error : ", e);
       }
+      return transformSuccessfullyInitialized;
     }
-    return false;
+
+    return transformSuccessfullyInitialized;
+  }
+
+  private boolean initPipeline(PipelineExecutorData pipelineExecutorData) throws HopException {
+
+    pipelineExecutorData.setExecutorPipelineMeta(loadExecutorPipelineMeta());
+
+    // Do we have a pipeline at all?
+    if (pipelineExecutorData.getExecutorPipelineMeta() != null) {
+      pipelineExecutorData.groupBuffer = new ArrayList<>();
+
+      // How many rows do we group together for the pipeline?
+      if (!Utils.isEmpty(meta.getGroupSize())) {
+        pipelineExecutorData.groupSize = Const.toInt(resolve(meta.getGroupSize()), -1);
+      } else {
+        pipelineExecutorData.groupSize = -1;
+      }
+      // Is there a grouping time set?
+      if (!Utils.isEmpty(meta.getGroupTime())) {
+        pipelineExecutorData.groupTime = Const.toInt(resolve(meta.getGroupTime()), -1);
+      } else {
+        pipelineExecutorData.groupTime = -1;
+      }
+      pipelineExecutorData.groupTimeStart = System.currentTimeMillis();
+
+      // Is there a grouping field set?
+      if (!Utils.isEmpty(meta.getGroupField())) {
+        pipelineExecutorData.groupField = resolve(meta.getGroupField());
+      }
+      // That's all for now...
+      return true;
+    } else {
+      logError("No valid pipeline was specified nor loaded!");
+      return false;
+    }
   }
 
   @VisibleForTesting

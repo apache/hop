@@ -884,7 +884,7 @@ public class SynchronizeAfterMerge
     try {
       lookupValues(nextRow); // add new values to the row in rowset[0].
       if (!data.batchMode) {
-        putRow(data.outputRowMeta, nextRow); // copy row to output rowset(s);
+        putRow(data.outputRowMeta, nextRow); // copy row to output rowset(s)
       }
 
       if (checkFeedback(getLinesRead())) {

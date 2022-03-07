@@ -521,7 +521,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdAccepting.left = new FormAttachment(middle, 0);
     fdAccepting.right = new FormAttachment(100, 0);
     fdAccepting.bottom = new FormAttachment(wbShowFiles, -margin * 2);
-    // fdAccepting.bottom = new FormAttachment(wAccTransform, margin);
     gAccepting.setLayoutData(fdAccepting);
 
     ColumnInfo[] colinfo = new ColumnInfo[5];
@@ -798,10 +797,10 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     props.setLook(wAddFileResult);
     wAddFileResult.setText(BaseMessages.getString(PKG, "ExcelInputDialog.AddFileResult.Label"));
 
-    FormLayout AddFileResultgroupLayout = new FormLayout();
-    AddFileResultgroupLayout.marginWidth = 10;
-    AddFileResultgroupLayout.marginHeight = 10;
-    wAddFileResult.setLayout(AddFileResultgroupLayout);
+    FormLayout addFileResultgroupLayout = new FormLayout();
+    addFileResultgroupLayout.marginWidth = 10;
+    addFileResultgroupLayout.marginHeight = 10;
+    wAddFileResult.setLayout(addFileResultgroupLayout);
 
     Label wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "ExcelInputDialog.AddResult.Label"));
@@ -866,8 +865,8 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     setButtonPositions(new Button[] {wbGetFields}, margin, null);
 
     final int FieldsRows = input.getField().length;
-    int FieldsWidth = 600;
-    int FieldsHeight = 150;
+    int fieldsWidth = 600;
+    int fieldsHeight = 150;
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -924,7 +923,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
             FieldsRows,
             lsMod,
             props);
-    wFields.setSize(FieldsWidth, FieldsHeight);
+    wFields.setSize(fieldsWidth, fieldsHeight);
     wFields.addModifyListener(arg0 -> checkAlerts());
 
     FormData fdFields = new FormData();
@@ -2065,9 +2064,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
    *
    * <p>Since there's only one statusMessage line, messages are prioritized. As each higher-level
    * item is corrected, the next lower level message is displayed.
-   *
-   * @author Tim Holloway <timh@mousetech.com>
-   * @since 15-FEB-2008
    */
   private void checkAlerts() {
     logDebug("checkAlerts");

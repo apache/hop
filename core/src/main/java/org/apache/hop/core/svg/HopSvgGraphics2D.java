@@ -19,9 +19,14 @@ package org.apache.hop.core.svg;
 
 import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.dom.GenericDOMImplementation;
-import org.apache.batik.svggen.*;
+import org.apache.batik.svggen.DOMGroupManager;
+import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
-import org.w3c.dom.*;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -37,24 +42,11 @@ import static org.apache.batik.svggen.DOMGroupManager.DRAW;
 import static org.apache.batik.svggen.DOMGroupManager.FILL;
 
 public class HopSvgGraphics2D extends SVGGraphics2D {
+
+  private static final String W3_URL = "http://www.w3.org/2000/xmlns/";
+
   public HopSvgGraphics2D(Document domFactory) {
     super(domFactory);
-  }
-
-  public HopSvgGraphics2D(
-      Document domFactory,
-      ImageHandler imageHandler,
-      ExtensionHandler extensionHandler,
-      boolean textAsShapes) {
-    super(domFactory, imageHandler, extensionHandler, textAsShapes);
-  }
-
-  public HopSvgGraphics2D(SVGGeneratorContext generatorCtx, boolean textAsShapes) {
-    super(generatorCtx, textAsShapes);
-  }
-
-  public HopSvgGraphics2D(SVGGraphics2D g) {
-    super(g);
   }
 
   public DOMGroupManager getDomGroupManager() {
@@ -87,9 +79,7 @@ public class HopSvgGraphics2D extends SVGGraphics2D {
     Document document =
         domImplementation.createDocument(SVGDOMImplementation.SVG_NAMESPACE_URI, "svg", null);
 
-    HopSvgGraphics2D graphics2D = new HopSvgGraphics2D(document);
-
-    return graphics2D;
+    return new HopSvgGraphics2D(document);
   }
 
   public String toXml() throws TransformerException {
@@ -155,22 +145,11 @@ public class HopSvgGraphics2D extends SVGGraphics2D {
       svgG.setAttributeNS(null, "filename", filename);
     }
 
-    svgG.setAttributeNS(
-        "http://www.w3.org/2000/xmlns/", "xmlns:dc", "http://purl.org/dc/elements/1.1/");
-    svgG.setAttributeNS(
-        "http://www.w3.org/2000/xmlns/", "xmlns:cc", "http://creativecommons.org/ns#");
-    svgG.setAttributeNS(
-        "http://www.w3.org/2000/xmlns/",
-        "xmlns:rdf",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-    svgG.setAttributeNS(
-        "http://www.w3.org/2000/xmlns/",
-        "xmlns:sodipodi",
-        "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd");
-    svgG.setAttributeNS(
-        "http://www.w3.org/2000/xmlns/",
-        "xmlns:inkscape",
-        "http://www.inkscape.org/namespaces/inkscape");
+    svgG.setAttributeNS(W3_URL, "xmlns:dc", "http://purl.org/dc/elements/1.1/");
+    svgG.setAttributeNS(W3_URL, "xmlns:cc", "http://creativecommons.org/ns#");
+    svgG.setAttributeNS(W3_URL, "xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+    svgG.setAttributeNS(W3_URL, "xmlns:sodipodi", "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd");
+    svgG.setAttributeNS(W3_URL, "xmlns:inkscape", "http://www.inkscape.org/namespaces/inkscape");
 
     // Add all the elements from the SVG Image...
     //
@@ -182,18 +161,6 @@ public class HopSvgGraphics2D extends SVGGraphics2D {
     NodeList childNodes = svgImage.getChildNodes();
     for (int c = 0; c < childNodes.getLength(); c++) {
       Node childNode = childNodes.item(c);
-
-      /*
-      if ( "metadata".equals( childNode.getNodeName() ) ) {
-        continue; // skip some junk
-      }
-      if ( "defs".equals( childNode.getNodeName() ) ) {
-        continue; // skip some junk
-      }
-      if ( "sodipodi:namedview".equals( childNode.getNodeName() ) ) {
-        continue; // skip some junk
-      }
-       */
 
       // Copy this node over to the svgSvg element
       //

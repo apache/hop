@@ -40,13 +40,13 @@ limitations under the License.
   <notepads>
     <notepad>
       <note>Reads a simple csv file and output the results. 
-This sample uses a file that is generated in 'textfileoutput-tiny-file.hpl'</note>
+First run 'textfileoutput-tiny-file.hpl', the file needed for this example is generated there</note>
       <xloc>96</xloc>
       <yloc>48</yloc>
-      <width>365</width>
-      <heigth>42</heigth>
+      <width>572</width>
+      <heigth>44</heigth>
       <fontname>Noto Sans</fontname>
-      <fontsize>10</fontsize>
+      <fontsize>14</fontsize>
       <fontbold>N</fontbold>
       <fontitalic>N</fontitalic>
       <fontcolorred>14</fontcolorred>

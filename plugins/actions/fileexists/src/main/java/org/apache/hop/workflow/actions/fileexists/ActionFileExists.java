@@ -51,6 +51,7 @@ import java.util.Map;
     description = "i18n::ActionFileExists.Description",
     image = "FileExists.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+    keywords = "i18n::ActionFileExists.keyword",
     documentationUrl = "/workflow/actions/fileexists.html")
 public class ActionFileExists extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFileExists.class; // For Translator

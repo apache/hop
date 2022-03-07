@@ -51,14 +51,14 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
 
   @Before
   public void setUpLoadSave() throws Exception {
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes = Arrays.asList("commit", "connection", "lookup");
 
     Map<String, String> getterMap =
         new HashMap<String, String>() {
           {
             put("commit", "getCommitSize");
-            put("connection", "getDatabaseMeta");
+            put("connection", "getConnection");
             put("lookup", "getLookup");
           }
         };
@@ -66,21 +66,18 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
         new HashMap<String, String>() {
           {
             put("commit", "setCommitSize");
-            put("connection", "setDatabaseMeta");
+            put("connection", "setConnection");
             put("lookup", "setLookup");
           }
         };
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put(
-        "key", new ListLoadSaveValidator<>(new DeleteKeyFieldInputFieldLoadSaveValidator(), 5));
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,
@@ -92,28 +89,28 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
 
     validatorFactory.registerValidator(
         validatorFactory.getName(DeleteLookupField.class),
-            new ObjectValidator<>(
-                    validatorFactory,
-                    DeleteLookupField.class,
-                    Arrays.asList("schema", "table", "key"),
-                    new HashMap<String, String>() {
-                      {
-                        put("table", "getTableName");
-                        put("schema", "getSchemaName");
-                        put("key", "getFields");
-                      }
-                    },
-                    new HashMap<String, String>() {
-                      {
-                        put("table", "setTableName");
-                        put("schema", "setSchemaName");
-                        put("key", "setFields");
-                      }
-                    }));
+        new ObjectValidator<>(
+            validatorFactory,
+            DeleteLookupField.class,
+            Arrays.asList("schema", "table", "key"),
+            new HashMap<String, String>() {
+              {
+                put("table", "getTableName");
+                put("schema", "getSchemaName");
+                put("key", "getFields");
+              }
+            },
+            new HashMap<String, String>() {
+              {
+                put("table", "setTableName");
+                put("schema", "setSchemaName");
+                put("key", "setFields");
+              }
+            }));
 
     validatorFactory.registerValidator(
         validatorFactory.getName(List.class, DeleteKeyField.class),
-            new ListLoadSaveValidator<>(new DeleteKeyFieldInputFieldLoadSaveValidator()));
+        new ListLoadSaveValidator<>(new DeleteKeyFieldInputFieldLoadSaveValidator()));
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -201,9 +198,7 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
 
       DeleteLookupField field =
           new DeleteLookupField(
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString(),
-                  new ArrayList<>());
+              UUID.randomUUID().toString(), UUID.randomUUID().toString(), new ArrayList<>());
 
       return field;
     }

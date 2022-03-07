@@ -52,6 +52,7 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.LoadFileInput",
     description = "i18n::BaseTransform.TypeTooltipDesc.LoadFileInput",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    keywords = "i18n::LoadFileInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/loadfileinput.html")
 public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFileInputData> {
   private static final String INCLUDE = "include";
@@ -122,7 +123,7 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
   private String encoding;
 
   /** Dynamic FilenameField */
-  private String DynamicFilenameField;
+  private String dynamicFilenameField;
 
   /** Is In fields */
   private boolean fileinfield;
@@ -288,12 +289,12 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
    *************************************/
   /** */
   public String getDynamicFilenameField() {
-    return DynamicFilenameField;
+    return dynamicFilenameField;
   }
 
   /** */
-  public void setDynamicFilenameField(String DynamicFilenameField) {
-    this.DynamicFilenameField = DynamicFilenameField;
+  public void setDynamicFilenameField(String dynamicFilenameField) {
+    this.dynamicFilenameField = dynamicFilenameField;
   }
 
   /************************************
@@ -304,8 +305,8 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
     return fileinfield;
   }
 
-  public void setFileInFields(boolean IsInFields) {
-    this.fileinfield = IsInFields;
+  public void setFileInFields(boolean isInFields) {
+    this.fileinfield = isInFields;
   }
 
   /** @return Returns the fileMask. */
@@ -480,7 +481,7 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
     retval.append("      </" + FIELDS + ">" + Const.CR);
     retval.append("    " + XmlHandler.addTagValue(LIMIT, rowLimit));
     retval.append("    " + XmlHandler.addTagValue(IS_IN_FIELDS, fileinfield));
-    retval.append("    " + XmlHandler.addTagValue(DYNAMIC_FILENAME_FIELD, DynamicFilenameField));
+    retval.append("    " + XmlHandler.addTagValue(DYNAMIC_FILENAME_FIELD, dynamicFilenameField));
     retval.append("    ").append(XmlHandler.addTagValue(SHORT_FILE_FIELD_NAME, shortFileFieldName));
     retval.append("    ").append(XmlHandler.addTagValue(PATH_FIELD_NAME, pathFieldName));
     retval.append("    ").append(XmlHandler.addTagValue(HIDDEN_FIELD_NAME, hiddenFieldName));
@@ -544,7 +545,7 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
 
       fileinfield = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, IS_IN_FIELDS));
 
-      DynamicFilenameField = XmlHandler.getTagValue(transformNode, DYNAMIC_FILENAME_FIELD);
+      dynamicFilenameField = XmlHandler.getTagValue(transformNode, DYNAMIC_FILENAME_FIELD);
       shortFileFieldName = XmlHandler.getTagValue(transformNode, SHORT_FILE_FIELD_NAME);
       pathFieldName = XmlHandler.getTagValue(transformNode, PATH_FIELD_NAME);
       hiddenFieldName = XmlHandler.getTagValue(transformNode, HIDDEN_FIELD_NAME);
@@ -608,7 +609,7 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
     rowLimit = 0;
 
     fileinfield = false;
-    DynamicFilenameField = null;
+    dynamicFilenameField = null;
   }
 
   @Override
@@ -750,14 +751,14 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
       if (input.length == 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "LoadFileInputMeta.CheckResult.NoInputExpected"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "LoadFileInputMeta.CheckResult.NoInput"),
                 transformMeta);
         remarks.add(cr);
@@ -766,14 +767,14 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
       if (Utils.isEmpty(getDynamicFilenameField())) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "LoadFileInputMeta.CheckResult.NoField"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "LoadFileInputMeta.CheckResult.FieldOk"),
                 transformMeta);
         remarks.add(cr);
@@ -784,14 +785,14 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
       if (fileInputList == null || fileInputList.getFiles().size() == 0) {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(PKG, "LoadFileInputMeta.CheckResult.NoFiles"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
-                CheckResult.TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG,
                     "LoadFileInputMeta.CheckResult.FilesOk",
@@ -869,9 +870,9 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
     if (rowLimit != that.rowLimit) {
       return false;
     }
-    if (DynamicFilenameField != null
-        ? !DynamicFilenameField.equals(that.DynamicFilenameField)
-        : that.DynamicFilenameField != null) {
+    if (dynamicFilenameField != null
+        ? !dynamicFilenameField.equals(that.dynamicFilenameField)
+        : that.dynamicFilenameField != null) {
       return false;
     }
     if (encoding != null ? !encoding.equals(that.encoding) : that.encoding != null) {
@@ -952,7 +953,7 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
     result = 31 * result + (int) (rowLimit ^ (rowLimit >>> 32));
     result = 31 * result + (inputFields != null ? Arrays.hashCode(inputFields) : 0);
     result = 31 * result + (encoding != null ? encoding.hashCode() : 0);
-    result = 31 * result + (DynamicFilenameField != null ? DynamicFilenameField.hashCode() : 0);
+    result = 31 * result + (dynamicFilenameField != null ? dynamicFilenameField.hashCode() : 0);
     result = 31 * result + (fileinfield ? 1 : 0);
     result = 31 * result + (addresultfile ? 1 : 0);
     result = 31 * result + (fileRequired != null ? Arrays.hashCode(fileRequired) : 0);

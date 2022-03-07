@@ -34,7 +34,7 @@ public class WorkflowActionSqlTest extends WorkflowActionLoadSaveTestSupport<Act
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
         "sql",
         "useVariableSubstitution",

@@ -48,6 +48,7 @@ import java.util.Map;
     name = "i18n::BaseTransform.TypeLongDesc.TypeExitExcelWriterTransform",
     description = "i18n::BaseTransform.TypeTooltipDesc.TypeExitExcelWriterTransform",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+    keywords = "i18n::ExcelWriterTransformMeta.keyword",
     documentationUrl = "/pipeline/transforms/excelwriter.html")
 public class ExcelWriterTransformMeta extends BaseTransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
   private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
@@ -373,7 +374,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta<ExcelWriterTrans
     return retval;
   }
 
-  public String buildFilename(IRowMeta rowMeta, Object row[], IVariables variables) {
+  public String buildFilename(IRowMeta rowMeta, Object[] row, IVariables variables) {
     int filenameFieldIdx = rowMeta.indexOfValue(variables.resolve(getFile().getFileNameField()));
     String retval = (String) row[filenameFieldIdx];
     String realextension = variables.resolve(file.getExtension());

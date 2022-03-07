@@ -51,6 +51,7 @@ import java.util.Objects;
     name = "i18n::BaseTransform.TypeLongDesc.Janino",
     description = "i18n::BaseTransform.TypeTooltipDesc.Janino",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+    keywords = "i18n::JaninoMeta.keyword",
     documentationUrl = "/pipeline/transforms/userdefinedjavaexpression.html")
 public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
   private static final Class<?> PKG = JaninoMeta.class; // For Translator
@@ -207,7 +208,7 @@ public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "JaninoMeta.CheckResult.FieldsReceived", "" + prev.size()),
               transformMeta);
@@ -218,14 +219,14 @@ public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "JaninoMeta.CheckResult.ExpectedInputOk"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "JaninoMeta.CheckResult.ExpectedInputError"),
               transformMeta);
       remarks.add(cr);

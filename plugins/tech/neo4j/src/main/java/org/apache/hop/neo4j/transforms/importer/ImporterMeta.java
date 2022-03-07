@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -31,63 +32,79 @@ import org.w3c.dom.Node;
 
 @Transform(
     id = "Neo4jImport",
-    name = "Neo4j Import",
-    description = "Runs an import command using the provided CSV files ",
+    name = "i18n::ImporterMeta.name",
+    description = "i18n::ImporterMeta.description",
     image = "neo4j_import.svg",
-    categoryDescription = "Neo4j",
+    categoryDescription = "i18n::ImporterMeta.categoryDescription",
+    keywords = "i18n::ImporterMeta.keyword",
     documentationUrl = "/pipeline/transforms/neo4j-import.html")
 public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
 
-  public static final String DB_NAME = "db_name";
-  public static final String FILENAME_FIELD = "filename_field_name";
-  public static final String FILE_TYPE_FIELD = "file_type_field_name";
-  public static final String BASE_FOLDER = "base_folder";
-  public static final String REPORT_FILE = "report_file";
-  public static final String ADMIN_COMMAND = "admin_command";
-
-  public static final String VERBOSE = "verbose";
-  public static final String HIGH_IO = "high_io";
-  public static final String CACHE_ON_HEAP = "cache_on_heap";
-  public static final String IGNORE_EMPTY_STRINGS = "ignore_empty_strings";
-  public static final String IGNORE_EXTRA_COLUMNS = "ignore_extra_columns";
-  public static final String LEGACY_STYLE_QUOTING = "legacy_style_quoting";
-  public static final String MULTI_LINE = "multi_line";
-  public static final String NORMALIZE_TYPES = "normalize_types";
-  public static final String SKIP_BAD_ENTRIES_LOGGING = "skip_bad_entries_logging";
-  public static final String SKIP_BAD_RELATIONSHIPS = "skip_bad_relationships";
-  public static final String SKIP_DUPLICATE_NODES = "skip_duplicate_nodes";
-  public static final String TRIM_STRINGS = "trim_strings";
-  public static final String BAD_TOLERANCE = "bad_tolerance";
-  public static final String MAX_MEMORY = "max_memory";
-  public static final String READ_BUFFER_SIZE = "read_buffer_size";
-  public static final String PROCESSORS = "processors";
-
+  @HopMetadataProperty(key = "filename_field_name")
   protected String filenameField;
+
+  @HopMetadataProperty(key = "file_type_field_name")
   protected String fileTypeField;
+
+  @HopMetadataProperty(key = "base_folder")
   protected String baseFolder;
+
+  @HopMetadataProperty(key = "admin_command")
   protected String adminCommand;
+
+  @HopMetadataProperty(key = "report_file")
   protected String reportFile;
+
+  @HopMetadataProperty(key = "db_name")
   protected String databaseName;
 
-  protected boolean verbose;
-  protected boolean highIo;
-  protected boolean cacheOnHeap;
-  protected boolean ignoringEmptyStrings;
-  protected boolean ignoringExtraColumns;
-  protected boolean quotingLegacyStyle;
-  protected boolean multiLine;
-  protected boolean normalizingTypes;
-  protected boolean skippingBadEntriesLogging;
-  protected boolean skippingBadRelationships;
-  protected boolean skippingDuplicateNodes;
-  protected boolean trimmingStrings;
-  protected String badTolerance;
-  protected String maxMemory;
-  protected String readBufferSize;
-  protected String processors;
+  @HopMetadataProperty protected boolean verbose;
 
-  @Override
-  public void setDefault() {
+  @HopMetadataProperty(key = "high_io")
+  protected boolean highIo;
+
+  @HopMetadataProperty(key = "cache_on_heap")
+  protected boolean cacheOnHeap;
+
+  @HopMetadataProperty(key = "ignore_empty_strings")
+  protected boolean ignoringEmptyStrings;
+
+  @HopMetadataProperty(key = "ignore_extra_columns")
+  protected boolean ignoringExtraColumns;
+
+  @HopMetadataProperty(key = "legacy_style_quoting")
+  protected boolean quotingLegacyStyle;
+
+  @HopMetadataProperty(key = "multi_line")
+  protected boolean multiLine;
+
+  @HopMetadataProperty(key = "normalize_types")
+  protected boolean normalizingTypes;
+
+  @HopMetadataProperty(key = "skip_bad_entries_logging")
+  protected boolean skippingBadEntriesLogging;
+
+  @HopMetadataProperty(key = "skip_bad_relationships")
+  protected boolean skippingBadRelationships;
+
+  @HopMetadataProperty(key = "skip_duplicate_nodes")
+  protected boolean skippingDuplicateNodes;
+
+  @HopMetadataProperty(key = "trim_strings")
+  protected boolean trimmingStrings;
+
+  @HopMetadataProperty(key = "bad_tolerance")
+  protected String badTolerance;
+
+  @HopMetadataProperty(key = "max_memory")
+  protected String maxMemory;
+
+  @HopMetadataProperty(key = "read_buffer_size")
+  protected String readBufferSize;
+
+  @HopMetadataProperty protected String processors;
+
+  public ImporterMeta() {
     databaseName = "neo4j";
     adminCommand = "neo4j-admin";
     baseFolder = "/var/lib/neo4j/";
@@ -118,68 +135,6 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     // No fields are added by default
-  }
-
-  @Override
-  public String getXml() throws HopException {
-    StringBuffer xml = new StringBuffer();
-    xml.append(XmlHandler.addTagValue(FILENAME_FIELD, filenameField));
-    xml.append(XmlHandler.addTagValue(FILE_TYPE_FIELD, fileTypeField));
-    xml.append(XmlHandler.addTagValue(ADMIN_COMMAND, adminCommand));
-    xml.append(XmlHandler.addTagValue(BASE_FOLDER, baseFolder));
-    xml.append(XmlHandler.addTagValue(REPORT_FILE, reportFile));
-    xml.append(XmlHandler.addTagValue(DB_NAME, databaseName));
-
-    xml.append(XmlHandler.addTagValue(VERBOSE, verbose));
-    xml.append(XmlHandler.addTagValue(HIGH_IO, highIo));
-    xml.append(XmlHandler.addTagValue(CACHE_ON_HEAP, cacheOnHeap));
-    xml.append(XmlHandler.addTagValue(IGNORE_EMPTY_STRINGS, ignoringEmptyStrings));
-    xml.append(XmlHandler.addTagValue(IGNORE_EXTRA_COLUMNS, ignoringExtraColumns));
-    xml.append(XmlHandler.addTagValue(LEGACY_STYLE_QUOTING, quotingLegacyStyle));
-    xml.append(XmlHandler.addTagValue(MULTI_LINE, multiLine));
-    xml.append(XmlHandler.addTagValue(NORMALIZE_TYPES, normalizingTypes));
-    xml.append(XmlHandler.addTagValue(SKIP_BAD_ENTRIES_LOGGING, skippingBadEntriesLogging));
-    xml.append(XmlHandler.addTagValue(SKIP_BAD_RELATIONSHIPS, skippingBadRelationships));
-    xml.append(XmlHandler.addTagValue(MAX_MEMORY, maxMemory));
-    xml.append(XmlHandler.addTagValue(TRIM_STRINGS, trimmingStrings));
-    xml.append(XmlHandler.addTagValue(BAD_TOLERANCE, badTolerance));
-    xml.append(XmlHandler.addTagValue(MAX_MEMORY, maxMemory));
-    xml.append(XmlHandler.addTagValue(READ_BUFFER_SIZE, readBufferSize));
-    xml.append(XmlHandler.addTagValue(PROCESSORS, processors));
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    filenameField = XmlHandler.getTagValue(transformNode, FILENAME_FIELD);
-    fileTypeField = XmlHandler.getTagValue(transformNode, FILE_TYPE_FIELD);
-    adminCommand = XmlHandler.getTagValue(transformNode, ADMIN_COMMAND);
-    baseFolder = XmlHandler.getTagValue(transformNode, BASE_FOLDER);
-    reportFile = XmlHandler.getTagValue(transformNode, REPORT_FILE);
-    databaseName = XmlHandler.getTagValue(transformNode, DB_NAME);
-
-    highIo = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, HIGH_IO));
-    cacheOnHeap = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, CACHE_ON_HEAP));
-    ignoringEmptyStrings =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, IGNORE_EMPTY_STRINGS));
-    ignoringExtraColumns =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, IGNORE_EXTRA_COLUMNS));
-    quotingLegacyStyle =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, LEGACY_STYLE_QUOTING));
-    multiLine = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, MULTI_LINE));
-    normalizingTypes = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, NORMALIZE_TYPES));
-    skippingBadEntriesLogging =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, SKIP_BAD_ENTRIES_LOGGING));
-    skippingBadRelationships =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, SKIP_BAD_RELATIONSHIPS));
-    skippingDuplicateNodes =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, SKIP_DUPLICATE_NODES));
-    trimmingStrings = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, TRIM_STRINGS));
-    badTolerance = XmlHandler.getTagValue(transformNode, BAD_TOLERANCE);
-    maxMemory = XmlHandler.getTagValue(transformNode, MAX_MEMORY);
-    readBufferSize = XmlHandler.getTagValue(transformNode, READ_BUFFER_SIZE);
-    processors = XmlHandler.getTagValue(transformNode, PROCESSORS);
   }
 
   /**

@@ -55,12 +55,16 @@ import java.util.Set;
 
 public class SalesforceInputDialog extends SalesforceTransformDialog {
 
-  private static Class<?> PKG = SalesforceInputMeta.class; // For Translator
+  private static final Class<?> PKG = SalesforceInputMeta.class; // For Translator
 
-  private String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'.000'XXX";
-  private String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
+  private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'.000'XXX";
+  private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 
-  private Button wInclURL, wInclModule, wInclRownum, wUseCompression, wQueryAll;
+  private Button wInclURL;
+  private Button wInclModule;
+  private Button wInclRownum;
+  private Button wUseCompression;
+  private Button wQueryAll;
 
   private Label wlInclURLField;
   private Label wlInclModule;
@@ -69,16 +73,19 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
   private Label wlModule;
   private Label wlInclSQLField;
   private Label wlInclTimestampField;
-  private Label wlQueryAll, wlInclDeletionDateField, wlInclDeletionDate;
+  private Label wlQueryAll;
+  private Label wlInclDeletionDateField;
+  private Label wlInclDeletionDate;
 
   private Button wInclSQL;
 
-  private TextVar wInclURLField,
-      wInclModuleField,
-      wInclRownumField,
-      wInclSQLField,
-      wInclDeletionDateField;
-  private Button wInclTimestamp, wInclDeletionDate;
+  private TextVar wInclURLField;
+  private TextVar wInclModuleField;
+  private TextVar wInclRownumField;
+  private TextVar wInclSQLField;
+  private TextVar wInclDeletionDateField;
+  private Button wInclTimestamp;
+  private Button wInclDeletionDate;
 
   private TextVar wInclTimestampField;
 
@@ -86,7 +93,9 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
   private final SalesforceInputMeta input;
 
-  private LabelTextVar wUserName, wURL, wPassword;
+  private LabelTextVar wUserName;
+  private LabelTextVar wURL;
+  private LabelTextVar wPassword;
 
   private Label wlCondition;
   private StyledTextComp wCondition;
@@ -97,7 +106,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
   private Button wSpecifyQuery;
 
-  private TextVar wTimeOut, wLimit;
+  private TextVar wTimeOut;
+  private TextVar wLimit;
 
   private ComboVar wModule;
 
@@ -278,7 +288,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     FormData fdTest = new FormData();
     wTest.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.TestConnection.Tooltip"));
-    // fdTest.left = new FormAttachment(middle, 0);
     fdTest.top = new FormAttachment(wPassword, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
@@ -780,10 +789,10 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wAdditionalFields.setText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.wAdditionalFields.Label"));
 
-    FormLayout AdditionalFieldsgroupLayout = new FormLayout();
-    AdditionalFieldsgroupLayout.marginWidth = 10;
-    AdditionalFieldsgroupLayout.marginHeight = 10;
-    wAdditionalFields.setLayout(AdditionalFieldsgroupLayout);
+    FormLayout additionalFieldsgroupLayout = new FormLayout();
+    additionalFieldsgroupLayout.marginWidth = 10;
+    additionalFieldsgroupLayout.marginHeight = 10;
+    wAdditionalFields.setLayout(additionalFieldsgroupLayout);
 
     // Add Salesforce URL in the output stream ?
     Label wlInclURL = new Label(wAdditionalFields, SWT.RIGHT);
@@ -1472,14 +1481,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     if (Const.NVL(firstValue, "null").equals("null")) {
       fieldType = "string";
     } else {
-      if (StringUtil.IsDate(firstValue, DEFAULT_DATE_TIME_FORMAT)) {
+      if (StringUtil.isDate(firstValue, DEFAULT_DATE_TIME_FORMAT)) {
         fieldType = "datetime";
-      } else if (StringUtil.IsDate(firstValue, DEFAULT_DATE_FORMAT)) {
+      } else if (StringUtil.isDate(firstValue, DEFAULT_DATE_FORMAT)) {
         fieldType = "date";
-      } else if (StringUtil.IsInteger(firstValue)) {
+      } else if (StringUtil.isInteger(firstValue)) {
         fieldType = "int";
         fieldLength = Integer.toString(IValueMeta.DEFAULT_INTEGER_LENGTH);
-      } else if (StringUtil.IsNumber(firstValue)) {
+      } else if (StringUtil.isNumber(firstValue)) {
         fieldType = "double";
       } else if (firstValue.equals("true") || firstValue.equals("false")) {
         fieldType = "boolean";

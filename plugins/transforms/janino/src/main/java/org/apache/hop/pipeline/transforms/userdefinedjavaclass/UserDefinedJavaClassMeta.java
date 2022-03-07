@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
     name = "i18n::UserDefinedJavaClass.Name",
     description = "i18n::UserDefinedJavaClass.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+    keywords = "i18n::UserDefinedJavaClassMeta.keyword",
     documentationUrl = "/pipeline/transforms/userdefinedjavaclass.html")
 public class UserDefinedJavaClassMeta extends BaseTransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
@@ -275,9 +276,9 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta<UserDefinedJavaC
             "Full debugging stacktrace of UserDefinedJavaClass instanciation exception:",
             e.getCause());
       }
-      HopException kettleException = new HopException(e.getMessage());
-      kettleException.setStackTrace(new StackTraceElement[] {});
-      cookErrors.add(kettleException);
+      HopException hopException = new HopException(e.getMessage());
+      hopException.setStackTrace(new StackTraceElement[] {});
+      cookErrors.add(hopException);
       return null;
     }
   }

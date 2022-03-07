@@ -17,11 +17,7 @@
 
 package org.apache.hop.ui.hopgui.file.shared;
 
-/**
- * This listener is fired off after a delay
- *
- * @author matt
- */
+/** This listener is fired off after a delay */
 public interface IDelayListener {
   public void expired();
 }

@@ -24,10 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.util.List;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class FilesFromResultData extends BaseTransformData implements ITransformData {
   public List<ResultFile> resultFilesList;
 

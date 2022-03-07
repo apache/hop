@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.fileinput;
 /**
  * Processor of Filters. Kind of inversion principle, and to make unit testing easier.
  *
- * @author Sven Boden
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated

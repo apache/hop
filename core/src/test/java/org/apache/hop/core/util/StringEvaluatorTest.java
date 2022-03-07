@@ -28,11 +28,7 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
-/**
- * Test class for StringEvaluator functionality.
- *
- * @author Alexander Buloichik
- */
+/** Test class for StringEvaluator functionality. */
 public class StringEvaluatorTest {
 
   private StringEvaluator evaluator;

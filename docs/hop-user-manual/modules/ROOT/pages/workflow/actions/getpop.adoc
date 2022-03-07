@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Get Mail From POP action retrieves mails from a POP server and stores them into one or more files.
 
 = Get Mail from POP
 
 == Description
 
-The Get Mail from POP action allows you to retrieve mails from a POP server and store them into one or more files.
+The Get Mail From POP action retrieves mails from a POP server and stores them into one or more files.
 
 == Options
 

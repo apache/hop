@@ -58,6 +58,7 @@ import java.util.regex.Pattern;
     description = "i18n::ActionCopyMoveResultFilenames.Description",
     image = "CopyMoveResultFilenames.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+    keywords = "i18n::ActionCopyMoveResultFilenames.keyword",
     documentationUrl = "/workflow/actions/copymoveresultfilenames.html")
 public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCopyMoveResultFilenames.class; // For Translator
@@ -69,7 +70,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
   private String destinationFolder;
   private String nrErrorsLessThan;
 
-  public String SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED = "success_when_at_least";
+  public String SUCCESS_IF_AT_LEAST_X_FILES = "success_when_at_least";
   public String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
   public String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
   private String successCondition;
@@ -462,7 +463,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
 
     if ((nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
         || (nrSuccess >= limitFiles
-            && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED))
+            && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES))
         || (nrErrors <= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS))) {
       retval = true;
     }
@@ -538,6 +539,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
 
           // Remove source file from result files list
           result.getResultFiles().remove(sourcefile.toString());
+          nrSuccess++;
           if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
@@ -569,6 +571,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
           if (getAction().equals("copy")) {
             // Copy file
             FileUtil.copyContent(sourcefile, destinationfile);
+            nrSuccess++;
             if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
@@ -580,6 +583,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
           } else {
             // Move file
             sourcefile.moveTo(destinationfile);
+            nrSuccess++;
             if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(

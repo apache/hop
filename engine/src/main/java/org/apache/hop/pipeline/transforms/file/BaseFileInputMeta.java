@@ -28,11 +28,7 @@ import org.apache.hop.resource.ResourceReference;
 
 import java.util.List;
 
-/**
- * Base meta for file-based input transforms.
- *
- * @author Alexander Buloichik
- */
+/** Base meta for file-based input transforms. */
 public abstract class BaseFileInputMeta<
         A extends BaseFileInputAdditionalField,
         I extends BaseFileInputFiles,

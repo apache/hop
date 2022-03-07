@@ -37,7 +37,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
-/** @author Tatsiana_Kasiankova */
 public class SimpleMappingTest {
 
   private static final String MAPPING_INPUT_TRANSFORM_NAME = "MAPPING_INPUT_TRANSFORM_NAME";

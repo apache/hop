@@ -16,9 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 
-import nl.cwi.monetdb.mcl.io.BufferedMCLReader;
-import nl.cwi.monetdb.mcl.io.BufferedMCLWriter;
-import nl.cwi.monetdb.mcl.net.MapiSocket;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
@@ -38,6 +35,9 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.monetdb.mcl.io.BufferedMCLReader;
+import org.monetdb.mcl.io.BufferedMCLWriter;
+import org.monetdb.mcl.net.MapiSocket;
 
 import java.util.Date;
 import java.util.List;

@@ -92,7 +92,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
 
     contents.append(" ( ");
 
-    List<PGBulkLoaderMappingMeta> mapping = meta.getMapping();
+    List<PGBulkLoaderMappingMeta> mapping = meta.getMappings();
 
     if (mapping == null || mapping.isEmpty()) {
       throw new HopException("No fields defined to load to database");
@@ -230,10 +230,10 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
 
         // Cache field indexes.
         //
-        data.keynrs = new int[meta.getMapping().size()];
+        data.keynrs = new int[meta.getMappings().size()];
         for (int i = 0; i < data.keynrs.length; i++) {
           data.keynrs[i] =
-              getInputRowMeta().indexOfValue(meta.getMapping().get(i).getFieldStream());
+              getInputRowMeta().indexOfValue(meta.getMappings().get(i).getFieldStream());
         }
 
         // execute the copy statement... pgCopyOut is setup there
@@ -460,16 +460,16 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
       }
       data.newline = Const.CR.getBytes();
 
-      data.dateFormatChoices = new int[meta.getMapping().size()];
+      data.dateFormatChoices = new int[meta.getMappings().size()];
       for (int i = 0; i < data.dateFormatChoices.length; i++) {
-        if (Utils.isEmpty(meta.getMapping().get(i).getDateMask())) {
+        if (Utils.isEmpty(meta.getMappings().get(i).getDateMask())) {
           data.dateFormatChoices[i] = PGBulkLoaderMeta.NR_DATE_MASK_PASS_THROUGH;
-        } else if (meta.getMapping()
+        } else if (meta.getMappings()
             .get(i)
             .getDateMask()
             .equalsIgnoreCase(PGBulkLoaderMeta.DATE_MASK_DATE)) {
           data.dateFormatChoices[i] = PGBulkLoaderMeta.NR_DATE_MASK_DATE;
-        } else if (meta.getMapping()
+        } else if (meta.getMappings()
             .get(i)
             .getDateMask()
             .equalsIgnoreCase(PGBulkLoaderMeta.DATE_MASK_DATETIME)) {

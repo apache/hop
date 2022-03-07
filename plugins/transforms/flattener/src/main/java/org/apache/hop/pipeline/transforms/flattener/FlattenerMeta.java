@@ -43,6 +43,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.RowFlattener",
     description = "i18n::BaseTransform.TypeTooltipDesc.RowFlattener",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::FlattenerMeta.keyword",
     documentationUrl = "/pipeline/transforms/rowflattener.html")
 public class FlattenerMeta extends BaseTransformMeta<Flattener, FlattenerData> {
   private static final Class<?> PKG = FlattenerMeta.class; // For Translator
@@ -186,7 +187,7 @@ public class FlattenerMeta extends BaseTransformMeta<Flattener, FlattenerData> {
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "FlattenerMeta.CheckResult.TransformReceivingInfoFromOtherTransforms"),
               transformMeta);
@@ -194,7 +195,7 @@ public class FlattenerMeta extends BaseTransformMeta<Flattener, FlattenerData> {
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "FlattenerMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

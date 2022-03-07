@@ -24,6 +24,8 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
@@ -31,7 +33,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import javax.activation.DataHandler;
@@ -45,10 +46,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,13 +55,9 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-/**
- * Send mail transform. based on Mail action
- *
- * @author Samatar
- * @since 28-07-2008
- */
+/** Send mail transform. based on Mail action */
 public class Mail extends BaseTransform<MailMeta, MailData> {
+
   private static final Class<?> PKG = MailMeta.class; // For Translator
 
   public Mail(
@@ -95,6 +89,14 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
 
       // get the RowMeta
       data.previousRowMeta = getInputRowMeta().clone();
+
+      if (meta.isAddMessageToOutput()) {
+        if (Utils.isEmpty(variables.resolve(meta.getMessageOutputField()))) {
+          throw new HopException(BaseMessages.getString(PKG, "Mail.Log.OutputFieldEmpty"));
+        }
+        data.previousRowMeta.addValueMeta(
+            new ValueMetaString(variables.resolve(meta.getMessageOutputField())));
+      }
 
       // Check is filename field is provided
       if (Utils.isEmpty(meta.getDestination())) {
@@ -153,47 +155,40 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       }
 
       // Cc
-      if (!Utils.isEmpty(meta.getDestinationCc())) {
+      if (!Utils.isEmpty(meta.getDestinationCc()) && data.indexOfDestinationCc < 0) {
         // cache the position of the Cc field
+        String realDestinationCcFieldname = meta.getDestinationCc();
+        data.indexOfDestinationCc = data.previousRowMeta.indexOfValue(realDestinationCcFieldname);
         if (data.indexOfDestinationCc < 0) {
-          String realDestinationCcFieldname = meta.getDestinationCc();
-          data.indexOfDestinationCc = data.previousRowMeta.indexOfValue(realDestinationCcFieldname);
-          if (data.indexOfDestinationCc < 0) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG,
-                    "Mail.Exception.CouldnotFindDestinationCcField",
-                    realDestinationCcFieldname));
-          }
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG,
+                  "Mail.Exception.CouldnotFindDestinationCcField",
+                  realDestinationCcFieldname));
         }
       }
       // BCc
-      if (!Utils.isEmpty(meta.getDestinationBCc())) {
+      if (!Utils.isEmpty(meta.getDestinationBCc()) && data.indexOfDestinationBCc < 0) {
         // cache the position of the BCc field
+        String realDestinationBCcFieldname = meta.getDestinationBCc();
+        data.indexOfDestinationBCc = data.previousRowMeta.indexOfValue(realDestinationBCcFieldname);
         if (data.indexOfDestinationBCc < 0) {
-          String realDestinationBCcFieldname = meta.getDestinationBCc();
-          data.indexOfDestinationBCc =
-              data.previousRowMeta.indexOfValue(realDestinationBCcFieldname);
-          if (data.indexOfDestinationBCc < 0) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG,
-                    "Mail.Exception.CouldnotFindDestinationBCcField",
-                    realDestinationBCcFieldname));
-          }
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG,
+                  "Mail.Exception.CouldnotFindDestinationBCcField",
+                  realDestinationBCcFieldname));
         }
       }
       // Sender Name
-      if (!Utils.isEmpty(meta.getReplyName())) {
+      if (!Utils.isEmpty(meta.getReplyName()) && data.indexOfSenderName < 0) {
         // cache the position of the sender field
+        String realSenderName = meta.getReplyName();
+        data.indexOfSenderName = data.previousRowMeta.indexOfValue(realSenderName);
         if (data.indexOfSenderName < 0) {
-          String realSenderName = meta.getReplyName();
-          data.indexOfSenderName = data.previousRowMeta.indexOfValue(realSenderName);
-          if (data.indexOfSenderName < 0) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "Mail.Exception.CouldnotFindReplyNameField", realSenderName));
-          }
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "Mail.Exception.CouldnotFindReplyNameField", realSenderName));
         }
       }
       // Sender address
@@ -209,43 +204,40 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       }
 
       // Reply to
-      if (!Utils.isEmpty(meta.getReplyToAddresses())) {
+      if (!Utils.isEmpty(meta.getReplyToAddresses()) && data.indexOfReplyToAddresses < 0) {
         // cache the position of the reply to field
+
+        String realReplyToAddresses = meta.getReplyToAddresses();
+        data.indexOfReplyToAddresses = data.previousRowMeta.indexOfValue(realReplyToAddresses);
         if (data.indexOfReplyToAddresses < 0) {
-          String realReplyToAddresses = meta.getReplyToAddresses();
-          data.indexOfReplyToAddresses = data.previousRowMeta.indexOfValue(realReplyToAddresses);
-          if (data.indexOfReplyToAddresses < 0) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "Mail.Exception.CouldnotFindReplyToAddressesField", realReplyToAddresses));
-          }
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "Mail.Exception.CouldnotFindReplyToAddressesField", realReplyToAddresses));
         }
       }
 
       // Contact Person
-      if (!Utils.isEmpty(meta.getContactPerson())) {
+      if (!Utils.isEmpty(meta.getContactPerson()) && data.indexOfContactPerson < 0) {
         // cache the position of the destination field
+
+        String realContactPerson = meta.getContactPerson();
+        data.indexOfContactPerson = data.previousRowMeta.indexOfValue(realContactPerson);
         if (data.indexOfContactPerson < 0) {
-          String realContactPerson = meta.getContactPerson();
-          data.indexOfContactPerson = data.previousRowMeta.indexOfValue(realContactPerson);
-          if (data.indexOfContactPerson < 0) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "Mail.Exception.CouldnotFindContactPersonField", realContactPerson));
-          }
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "Mail.Exception.CouldnotFindContactPersonField", realContactPerson));
         }
       }
       // Contact Phone
-      if (!Utils.isEmpty(meta.getContactPhone())) {
+      if (!Utils.isEmpty(meta.getContactPhone()) && data.indexOfContactPhone < 0) {
         // cache the position of the destination field
+
+        String realContactPhone = meta.getContactPhone();
+        data.indexOfContactPhone = data.previousRowMeta.indexOfValue(realContactPhone);
         if (data.indexOfContactPhone < 0) {
-          String realContactPhone = meta.getContactPhone();
-          data.indexOfContactPhone = data.previousRowMeta.indexOfValue(realContactPhone);
-          if (data.indexOfContactPhone < 0) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "Mail.Exception.CouldnotFindContactPhoneField", realContactPhone));
-          }
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "Mail.Exception.CouldnotFindContactPhoneField", realContactPhone));
         }
       }
       // cache the position of the Server field
@@ -258,15 +250,14 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
         }
       }
       // Port
-      if (!Utils.isEmpty(meta.getPort())) {
+      if (!Utils.isEmpty(meta.getPort()) && data.indexOfPort < 0) {
         // cache the position of the port field
+
+        String realPort = meta.getPort();
+        data.indexOfPort = data.previousRowMeta.indexOfValue(realPort);
         if (data.indexOfPort < 0) {
-          String realPort = meta.getPort();
-          data.indexOfPort = data.previousRowMeta.indexOfValue(realPort);
-          if (data.indexOfPort < 0) {
-            throw new HopException(
-                BaseMessages.getString(PKG, "Mail.Exception.CouldnotFindPortField", realPort));
-          }
+          throw new HopException(
+              BaseMessages.getString(PKG, "Mail.Exception.CouldnotFindPortField", realPort));
         }
       }
       // Authentication
@@ -301,29 +292,23 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
         }
       }
       // Mail Subject
-      if (!Utils.isEmpty(meta.getSubject())) {
+      if (!Utils.isEmpty(meta.getSubject()) && data.indexOfSubject < 0) {
         // cache the position of the subject field
+        String realSubject = meta.getSubject();
+        data.indexOfSubject = data.previousRowMeta.indexOfValue(realSubject);
         if (data.indexOfSubject < 0) {
-          String realSubject = meta.getSubject();
-          data.indexOfSubject = data.previousRowMeta.indexOfValue(realSubject);
-          if (data.indexOfSubject < 0) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "Mail.Exception.CouldnotFindSubjectField", realSubject));
-          }
+          throw new HopException(
+              BaseMessages.getString(PKG, "Mail.Exception.CouldnotFindSubjectField", realSubject));
         }
       }
       // Mail Comment
-      if (!Utils.isEmpty(meta.getComment())) {
+      if (!Utils.isEmpty(meta.getComment()) && data.indexOfComment < 0) {
         // cache the position of the comment field
+        String realComment = meta.getComment();
+        data.indexOfComment = data.previousRowMeta.indexOfValue(realComment);
         if (data.indexOfComment < 0) {
-          String realComment = meta.getComment();
-          data.indexOfComment = data.previousRowMeta.indexOfValue(realComment);
-          if (data.indexOfComment < 0) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "Mail.Exception.CouldnotFindCommentField", realComment));
-          }
+          throw new HopException(
+              BaseMessages.getString(PKG, "Mail.Exception.CouldnotFindCommentField", realComment));
         }
       }
 
@@ -349,9 +334,9 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
           throw new HopException(
               BaseMessages.getString(PKG, "Mail.Exception.AttachedContentFileNameFieldEmpty"));
         }
-        data.IndexOfAttachedFilename =
+        data.indexOfAttachedFilename =
             data.previousRowMeta.indexOfValue(attachedContentFileNameField);
-        if (data.IndexOfAttachedFilename < 0) {
+        if (data.indexOfAttachedFilename < 0) {
           throw new HopException(
               BaseMessages.getString(
                   PKG,
@@ -362,18 +347,14 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       } else {
 
         // Dynamic Zipfilename
-        if (meta.isZipFilenameDynamic()) {
+        if (meta.isZipFilenameDynamic() && data.indexOfDynamicZipFilename < 0) {
           // cache the position of the attached source filename field
+          String realZipFilename = meta.getDynamicZipFilenameField();
+          data.indexOfDynamicZipFilename = data.previousRowMeta.indexOfValue(realZipFilename);
           if (data.indexOfDynamicZipFilename < 0) {
-            String realZipFilename = meta.getDynamicZipFilenameField();
-            data.indexOfDynamicZipFilename = data.previousRowMeta.indexOfValue(realZipFilename);
-            if (data.indexOfDynamicZipFilename < 0) {
-              throw new HopException(
-                  BaseMessages.getString(
-                      PKG,
-                      "Mail.Exception.CouldnotSourceAttachedZipFilenameField",
-                      realZipFilename));
-            }
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG, "Mail.Exception.CouldnotSourceAttachedZipFilenameField", realZipFilename));
           }
         }
         data.zipFileLimit = Const.toLong(resolve(meta.getZipLimitSize()), 0);
@@ -402,18 +383,16 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
           }
 
           // cache the position of the attached wildcard field
-          if (!Utils.isEmpty(meta.getSourceWildcard())) {
+          if (!Utils.isEmpty(meta.getSourceWildcard()) && data.indexOfSourceWildcard < 0) {
+            String realSourceattachedWildcard = meta.getDynamicWildcard();
+            data.indexOfSourceWildcard =
+                data.previousRowMeta.indexOfValue(realSourceattachedWildcard);
             if (data.indexOfSourceWildcard < 0) {
-              String realSourceattachedWildcard = meta.getDynamicWildcard();
-              data.indexOfSourceWildcard =
-                  data.previousRowMeta.indexOfValue(realSourceattachedWildcard);
-              if (data.indexOfSourceWildcard < 0) {
-                throw new HopException(
-                    BaseMessages.getString(
-                        PKG,
-                        "Mail.Exception.CouldnotSourceAttachedWildcard",
-                        realSourceattachedWildcard));
-              }
+              throw new HopException(
+                  BaseMessages.getString(
+                      PKG,
+                      "Mail.Exception.CouldnotSourceAttachedWildcard",
+                      realSourceattachedWildcard));
             }
           }
         } else {
@@ -531,26 +510,32 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       }
 
       // send email...
-      sendMail(
-          r,
-          servername,
-          port,
-          mailsenderaddress,
-          mailsendername,
-          maildestination,
-          maildestinationCc,
-          maildestinationBCc,
-          contactperson,
-          contactphone,
-          authuser,
-          authpass,
-          subject,
-          comment,
-          mailreplyToAddresses);
+      String message =
+          sendMail(
+              r,
+              servername,
+              port,
+              mailsenderaddress,
+              mailsendername,
+              maildestination,
+              maildestinationCc,
+              maildestinationBCc,
+              contactperson,
+              contactphone,
+              authuser,
+              authpass,
+              subject,
+              comment,
+              mailreplyToAddresses);
 
-      putRow(
-          getInputRowMeta(),
-          r); // copy row to possible alternate rowset(s).); // copy row to output rowset(s);
+      if (meta.isAddMessageToOutput()) {
+        int index = data.previousRowMeta.indexOfValue(resolve(meta.getMessageOutputField()));
+        Object[] outputRowData = RowDataUtil.createResizedCopy(r, data.previousRowMeta.size());
+        outputRowData[index] = message;
+        putRow(data.previousRowMeta, outputRowData);
+      } else {
+        putRow(data.previousRowMeta, r);
+      }
 
       if (log.isRowLevel()) {
         logRowlevel(
@@ -576,7 +561,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
     return true;
   }
 
-  public void sendMail(
+  public String sendMail(
       Object[] r,
       String server,
       int port,
@@ -599,7 +584,6 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
 
     String protocol = "smtp";
     if (meta.isUsingSecureAuthentication()) {
-      // if (meta.isUsingAuthentication()) {
       if (meta.getSecureConnectionType().equals("TLS")) {
         // Allow TLS authentication
         data.props.put("mail.smtp.starttls.enable", "true");
@@ -670,11 +654,11 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
     if (!Utils.isEmpty(replyToAddresses)) {
       // get replay to
       // Split the mail-address: variables separated
-      String[] reply_Address_List = replyToAddresses.split(" ");
-      InternetAddress[] address = new InternetAddress[reply_Address_List.length];
+      String[] replyAddressList = replyToAddresses.split(" ");
+      InternetAddress[] address = new InternetAddress[replyAddressList.length];
 
-      for (int i = 0; i < reply_Address_List.length; i++) {
-        address[i] = new InternetAddress(reply_Address_List[i]);
+      for (int i = 0; i < replyAddressList.length; i++) {
+        address[i] = new InternetAddress(replyAddressList[i]);
       }
 
       // To add the real reply-to
@@ -769,7 +753,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
     if (meta.isAttachContentFromField()) {
       // attache file content
       addAttachedContent(
-          data.previousRowMeta.getString(r, data.IndexOfAttachedFilename),
+          data.previousRowMeta.getString(r, data.indexOfAttachedFilename),
           data.previousRowMeta.getString(r, data.indexOfAttachedContent));
     } else {
       // attached files
@@ -817,6 +801,10 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
         transport.close();
       }
     }
+    ByteArrayOutputStream emlMsg = new ByteArrayOutputStream();
+    msg.writeTo(emlMsg);
+    emlMsg.close();
+    return emlMsg.toString();
   }
 
   private void setAttachedFilesList(Object[] r, ILogChannel log) throws Exception {
@@ -853,7 +841,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       if (!Utils.isEmpty(realSourceFileFoldername)) {
         sourcefile = HopVfs.getFileObject(realSourceFileFoldername);
         if (sourcefile.exists()) {
-          long FileSize = 0;
+          long fileSize = 0;
           FileObject[] list = null;
           if (sourcefile.getType() == FileType.FILE) {
             list = new FileObject[1];
@@ -896,7 +884,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
                   inputStream.close();
                   zipOutputStream.closeEntry();
                 } else {
-                  FileSize += file.getContent().getSize();
+                  fileSize += file.getContent().getSize();
                 }
               } else {
                 addAttachedFilePart(file);
@@ -904,13 +892,13 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
             } // end for
             if (zipFiles) {
               if (isDebug()) {
-                logDebug(BaseMessages.getString(PKG, "Mail.Log.FileSize", "" + FileSize));
+                logDebug(BaseMessages.getString(PKG, "Mail.Log.FileSize", "" + fileSize));
               }
               if (isDebug()) {
                 logDebug(BaseMessages.getString(PKG, "Mail.Log.LimitSize", "" + data.zipFileLimit));
               }
 
-              if (data.zipFileLimit > 0 && FileSize > data.zipFileLimit) {
+              if (data.zipFileLimit > 0 && fileSize > data.zipFileLimit) {
 
                 masterZipfile =
                     new File(
@@ -938,7 +926,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
                   zipOutputStream.closeEntry();
                 }
               }
-              if (data.zipFileLimit > 0 && FileSize > data.zipFileLimit || data.zipFileLimit == 0) {
+              if (data.zipFileLimit > 0 && fileSize > data.zipFileLimit || data.zipFileLimit == 0) {
                 file = HopVfs.getFileObject(masterZipfile.getAbsolutePath());
                 addAttachedFilePart(file);
               }
@@ -985,13 +973,13 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
     MimeBodyPart files = new MimeBodyPart();
     // create a data source
     URLDataSource fds = new URLDataSource(file.getURL());
-    // get a data Handler to manipulate this file type;
+    // get a data Handler to manipulate this file type
     files.setDataHandler(new DataHandler(fds));
     // include the file in the data source
     files.setFileName(file.getName().getBaseName());
     // insist on base64 to preserve line endings
     files.addHeader("Content-Transfer-Encoding", "base64");
-    // add the part with the file in the BodyPart();
+    // add the part with the file in the BodyPart()
     data.parts.addBodyPart(files);
     if (isDetailed()) {
       logDetailed(BaseMessages.getString(PKG, "Mail.Log.AttachedFile", fds.getName()));
@@ -1002,12 +990,12 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
     // create a data source
 
     MimeBodyPart mbp = new MimeBodyPart();
-    // get a data Handler to manipulate this file type;
+    // get a data Handler to manipulate this file type
     mbp.setDataHandler(
         new DataHandler(new ByteArrayDataSource(fileContent.getBytes(), "application/x-any")));
     // include the file in the data source
     mbp.setFileName(filename);
-    // add the part with the file in the BodyPart();
+    // add the part with the file in the BodyPart()
     data.parts.addBodyPart(mbp);
   }
 
@@ -1045,12 +1033,12 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
           String shortFilename = info.getFile().getName().getBaseName();
 
           if (info.getFile().getParent().equals(info.getBaseFolder())
-              || ((!info.getFile().getParent().equals(info.getBaseFolder())
-                  && meta.isIncludeSubFolders()))) {
+              || (!info.getFile().getParent().equals(info.getBaseFolder())
+                  && meta.isIncludeSubFolders())) {
             if ((info.getFile().getType() == FileType.FILE && fileWildcard == null)
                 || (info.getFile().getType() == FileType.FILE
                     && fileWildcard != null
-                    && GetFileWildcard(shortFilename, fileWildcard))) {
+                    && getFileWildcard(shortFilename, fileWildcard))) {
               returncode = true;
             }
           }
@@ -1076,7 +1064,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
    * @param wildcard
    * @return True if the selectedfile matches the wildcard
    **********************************************************/
-  private boolean GetFileWildcard(String selectedfile, String wildcard) {
+  private boolean getFileWildcard(String selectedfile, String wildcard) {
     Pattern pattern = null;
     boolean getIt = true;
 

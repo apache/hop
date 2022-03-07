@@ -25,19 +25,15 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Do nothing. Pass all input data to the next transforms.
- *
- * @author Matt
- * @since 2-jun-2003
- */
+
+
+/** Do nothing. Pass all input data to the next transforms. */
 public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData> {
   private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
 
@@ -63,11 +59,6 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
   private synchronized Object[] getRowSorted() throws HopException {
     if (first) {
       first = false;
-
-      // Verify that socket connections to all the remote input transforms are opened
-      // before we start to read/write ...
-      //
-      // openRemoteInputTransformSocketsOnce();
 
       // Read one row from all rowsets...
       //
@@ -125,7 +116,7 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
                 return o1.getRowMeta().compare(o1.getRowData(), o2.getRowData(), data.fieldIndices);
               } catch (HopValueException e) {
                 return 0; // TODO see if we should fire off alarms over here... Perhaps throw a
-                          // RuntimeException.
+                // RuntimeException.
               }
             };
 
@@ -205,7 +196,6 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
   public boolean init() {
 
     if (super.init()) {
-      // data.rowComparator = new RowComparator();
 
       // Add init code here.
       return true;

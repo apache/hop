@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Unique Rows (HashSet) transform removes duplicate rows and filters only the unique rows as input data for the transform.
 
 = Unique Rows (HashSet)
 
@@ -23,7 +24,7 @@ under the License.
 
 The Unique Rows (HashSet) transform removes duplicate rows and filters only the unique rows as input data for the transform.
 
-This transform differs from the Unique Rows pipeline transform by keeping track of the duplicate rows in memory and does not require a sorted input to process duplicate rows.
+This transform differs from the xref:pipeline/transforms/uniquerows.adoc[Unique Rows] pipeline transform by keeping track of the duplicate rows in memory and does not require a sorted input to process duplicate rows.
 
 == Options
 

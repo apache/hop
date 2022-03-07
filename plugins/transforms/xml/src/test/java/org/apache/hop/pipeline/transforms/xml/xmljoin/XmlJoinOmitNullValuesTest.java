@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
@@ -40,7 +41,6 @@ import static org.mockito.Mockito.*;
 /**
  * Test for XmlJoin transform
  *
- * @author Pavel Sakun
  * @see XmlJoin
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -100,6 +100,10 @@ public class XmlJoinOmitNullValuesTest {
     when(inputStreamTarget.getTransformName()).thenReturn("target");
     when(inputStreamSource.getTransformName()).thenReturn("source");
 
+    List<IRowSet> inputRowSets = new ArrayList<>();
+    inputRowSets.add(sourceRowSet);
+    inputRowSets.add(targetRowSet);
+    spy.setInputRowSets(inputRowSets);
     doReturn(sourceRowSet).when(spy).findInputRowSet("source");
     doReturn(targetRowSet).when(spy).findInputRowSet("target");
 

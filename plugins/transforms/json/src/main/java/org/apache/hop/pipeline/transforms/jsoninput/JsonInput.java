@@ -41,7 +41,6 @@ import org.apache.hop.pipeline.transforms.jsoninput.exception.JsonInputException
 import org.apache.hop.pipeline.transforms.jsoninput.reader.FastJsonReader;
 import org.apache.hop.pipeline.transforms.jsoninput.reader.InputsReader;
 import org.apache.hop.pipeline.transforms.jsoninput.reader.RowOutputConverter;
-import org.apache.poi.util.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -259,13 +258,14 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
   private void parseNextInputToRowSet(InputStream input) throws HopException {
     try {
       data.readerRowSet = data.reader.parse(input);
-      input.close();
     } catch (HopException ke) {
       logInputError(ke);
       throw new JsonInputException(ke);
     } catch (Exception e) {
       logInputError(e);
       throw new JsonInputException(e);
+    } finally {
+      closeQuietly(input);
     }
   }
 
@@ -462,7 +462,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
   @Override
   public void dispose() {
     if (data.file != null) {
-      IOUtils.closeQuietly(data.file);
+      closeQuietly(data.file);
     }
     data.inputs = null;
     data.reader = null;

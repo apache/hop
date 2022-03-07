@@ -210,7 +210,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
                 + getInputRowMeta().getString(row));
       }
 
-      // copy row to output rowset(s);
+      // copy row to output rowset(s)
       //
       putRow(data.outputRowMeta, outputRow);
     } catch (HopException e) {

@@ -24,7 +24,7 @@
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-databases-postgresql</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -41,14 +41,14 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-databases</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <properties>
         <!-- Test running configuration -->
         <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
         <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
-        <postgresql.version>42.2.23</postgresql.version>
+        <postgresql.version>42.3.2</postgresql.version>
     </properties>
 
     <dependencyManagement>

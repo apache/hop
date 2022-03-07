@@ -45,6 +45,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.SwitchCase",
     description = "i18n::BaseTransform.TypeTooltipDesc.SwitchCase",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "i18n::SwitchCaseMeta.keyword",
     documentationUrl = "/pipeline/transforms/switchcase.html")
 public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData> {
   private static final Class<?> PKG = SwitchCaseMeta.class; // For Translator
@@ -420,11 +421,7 @@ public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData
     this.caseTargets = caseTargets;
   }
 
-  /**
-   * This method is added to exclude certain transforms from copy/distribute checking.
-   *
-   * @since 4.0.0
-   */
+  /** This method is added to exclude certain transforms from copy/distribute checking. */
   @Override
   public boolean excludeFromCopyDistributeVerification() {
     return true;

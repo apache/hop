@@ -49,9 +49,6 @@ import org.apache.hop.workflow.action.ActionMeta;
  * <p>Link to previous infomation
  *
  * <p>
- *
- * @author Matt
- * @since 19-12-2003
  */
 public class ChangeAction {
   private static final Class<?> PKG = ChangeAction.class; // For Translator

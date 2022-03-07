@@ -16,12 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
+:description: The Create Folder action creates a folder at the specified location.
 
 = Create Folder
 
 == Description
 
-This workflow action simply creates a folder at the specified location.
+The Create Folder action creates a folder at the specified location.
 
 == Options
 

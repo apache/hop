@@ -375,13 +375,12 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
       // if the null_value is specified, we try to match with that.
       //
       if (!Utils.isEmpty(nullValue)) {
-        if (nullValue.length() <= pol.length()) {
+        if (nullValue.length() <= pol.length()
+            && pol.equalsIgnoreCase(Const.rightPad(new StringBuilder(nullValue), pol.length()))) {
           // If the polled value is equal to the spaces right-padded null_value,
           // we have a match
           //
-          if (pol.equalsIgnoreCase(Const.rightPad(new StringBuilder(nullValue), pol.length()))) {
-            return null;
-          }
+          return null;
         }
       } else {
         // Verify if there are only spaces in the polled value...

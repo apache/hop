@@ -50,6 +50,7 @@ import java.util.List;
     name = "Cassandra input",
     description = "Reads data from a Cassandra table",
     documentationUrl = "/pipeline/transforms/cassandra-input.html",
+    keywords = "i18n::CassandraInputMeta.keyword",
     categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "CassandraInput.Injection.")
 public class CassandraInputMeta extends BaseTransformMeta<CassandraInput, CassandraInputData> {
@@ -247,7 +248,6 @@ public class CassandraInputMeta extends BaseTransformMeta<CassandraInput, Cassan
         isSelectStarQuery = true;
       } else {
         isSelectStarQuery = false;
-        // String colsS = subQ.substring(subQ.indexOf('\''), fromIndex);
         String colsS = subQ.substring(0, fromIndex);
         // Parse select expression to get selectors: columns and functions
         cols = CqlUtils.getColumnsInSelect(colsS, true);
@@ -272,9 +272,6 @@ public class CassandraInputMeta extends BaseTransformMeta<CassandraInput, Cassan
       }
 
       try {
-        /*
-         * CassandraColumnMetaData colMeta = new CassandraColumnMetaData(conn, tableName);
-         */
         ITableMetaData colMeta = kSpace.getTableMetaData(tableName);
 
         if (cols == null) {

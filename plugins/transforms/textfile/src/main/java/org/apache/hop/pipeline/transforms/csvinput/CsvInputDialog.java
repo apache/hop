@@ -127,10 +127,7 @@ public class CsvInputDialog extends BaseTransformDialog
     ModifyListener lsMod = e -> inputMeta.setChanged();
     changed = inputMeta.hasChanged();
 
-    ModifyListener lsContent =
-        arg0 -> {
-          // asyncUpdatePreview();
-        };
+    ModifyListener lsContent = arg0 -> {};
     initializing = true;
     previewBusy = new AtomicBoolean(false);
 
@@ -258,11 +255,6 @@ public class CsvInputDialog extends BaseTransformDialog
       fdFilename.left = new FormAttachment(middle, 0);
       fdFilename.right = new FormAttachment(wbbFilename, -margin);
       wFilename.setLayoutData(fdFilename);
-      /*
-       * wFilename.addFocusListener(new FocusAdapter() {
-       *
-       * @Override public void focusLost(FocusEvent arg0) { asyncUpdatePreview(); } });
-       */
       lastControl = wFilename;
     }
 
@@ -369,11 +361,6 @@ public class CsvInputDialog extends BaseTransformDialog
     fdHeaderPresent.left = new FormAttachment(middle, 0);
     fdHeaderPresent.right = new FormAttachment(100, 0);
     wHeaderPresent.setLayoutData(fdHeaderPresent);
-    /*
-     * wHeaderPresent.addSelectionListener(new SelectionAdapter() {
-     *
-     * @Override public void widgetSelected(SelectionEvent arg0) { asyncUpdatePreview(); } });
-     */
     lastControl = wlHeaderPresent;
 
     Label wlAddResult = new Label(shell, SWT.RIGHT);
@@ -966,7 +953,6 @@ public class CsvInputDialog extends BaseTransformDialog
 
       String transformName = wTransformName.getText();
 
-      // TransformMeta transformMeta = new TransformMeta(transformName, meta);
       StringBuffer buffer = new StringBuffer();
       final List<Object[]> rowsData = new ArrayList<>();
       final IRowMeta rowMeta = new RowMeta();

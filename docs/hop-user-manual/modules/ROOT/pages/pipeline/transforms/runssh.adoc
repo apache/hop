@@ -16,14 +16,15 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: The Run SSH Commands transform allows you to execute commands over the secure shell (ssh) TCP/IP protocol.
 
 = Run SSH commands
 
 == Description
 
-The Run SSH commands transform allows you to execute commands over the secure shell (ssh) TCP/IP protocol.
-You can pass text to stdout or stderr in the commands.
-This information can then be picked up by the transform and passed in a field to subsequent transforms.
+The Run SSH Commands transform allows you to execute commands over the secure shell (ssh) TCP/IP protocol.
+
+You can pass text to stdout or stderr in the commands. This information can then be picked up by the transform and passed in a field to subsequent transforms.
 
 == Options
 
@@ -58,8 +59,8 @@ The private part of a private/public RSA key-pair (see: ssh-keygen)
 [width="90%",options="header"]
 |===
 |Option|Description
-|response field name|The name of the String output field that will contain the text passed to the standard output channel (stdout) by the specified commands.
-|error response field name|The name of the String output field that will contain the text passed to the standard error channel (stderr) by the specified commands.
+|Response field name|The name of the String output field that will contain the output of the executed command. This is the concatenation of both the stdout and stderr command output.
+|Error response field name|The name of a Boolean output field that will contain true if there was an error and false if the ssh command was executed successfully.
 |===
 
 **Commands**

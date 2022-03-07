@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.*;
 
 public class AzureListenerDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG =
+  private static final Class<?> PKG =
       AzureListenerMeta.class; // for i18n purposes, needed by Translator2!!
 
   private Text wTransformName;

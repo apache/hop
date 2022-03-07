@@ -20,10 +20,7 @@ package org.apache.hop.pipeline.transforms.append;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -45,32 +42,26 @@ import java.util.List;
     name = "i18n::Append.Name",
     description = "i18n::Append.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "i18n::AppendMeta.keyword",
     documentationUrl = "/pipeline/transforms/append.html")
-@InjectionSupported(localizationPrefix = "AppendMeta.Injection.")
 public class AppendMeta extends BaseTransformMeta<Append, AppendData> {
 
   private static final Class<?> PKG = Append.class; // For Translator
 
-  @Injection(name = "HEAD_TRANSFORM")
-  @HopMetadataProperty(key = "head_name")
+  @HopMetadataProperty(
+      key = "head_name",
+      injectionKey = "HEAD_TRANSFORM",
+      injectionKeyDescription = "AppendMeta.Injection.HEAD_TRANSFORM")
   public String headTransformName;
 
-  @Injection(name = "TAIL_TRANSFORM")
-  @HopMetadataProperty(key = "tail_name")
+  @HopMetadataProperty(
+      key = "tail_name",
+      injectionKey = "TAIL_TRANSFORM",
+      injectionKeyDescription = "AppendMeta.Injection.TAIL_TRANSFORM")
   public String tailTransformName;
 
   public AppendMeta() {
     super(); // allocate BaseTransformMeta
-  }
-
-  @Override
-  public String getXml() throws HopException {
-
-    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-    headTransformName = infoStreams.get(0).getTransformName();
-    tailTransformName = infoStreams.get(1).getTransformName();
-
-    return super.getXml();
   }
 
   @Override

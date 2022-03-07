@@ -25,15 +25,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import java.util.List;
 
-/**
- * Set value field with another value field.
- *
- * @author Samatar
- * @since 10-11-2008
- */
+/** Set value field with another value field. */
 public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFieldData> {
   private static final Class<?> PKG = SetValueFieldMeta.class; // For Translator
 
@@ -65,35 +60,32 @@ public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFiel
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      data.indexOfField = new int[meta.getFieldName().length];
-      data.indexOfReplaceByValue = new int[meta.getFieldName().length];
-      for (int i = 0; i < meta.getFieldName().length; i++) {
+      List<SetField> fields = meta.getFields();
+
+      data.indexOfField = new int[fields.size()];
+      data.indexOfReplaceByValue = new int[fields.size()];
+      for (int i = 0; i < fields.size(); i++) {
+        SetField field = fields.get(i);
         // Check if this field was specified only one time
-        for (int j = 0; j < meta.getFieldName().length; j++) {
-          if (meta.getFieldName()[j].equals(meta.getFieldName()[i])) {
-            if (j != i) {
-              throw new HopException(
-                  BaseMessages.getString(
-                      PKG,
-                      "SetValueField.Log.FieldSpecifiedMoreThatOne",
-                      meta.getFieldName()[i],
-                      "" + i,
-                      "" + j));
-            }
+        for (int j = 0; j < fields.size(); j++) {
+          if (j != i && field.equals(fields.get(j))) {
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG,
+                    "SetValueField.Log.FieldSpecifiedMoreThatOne",
+                    field.getFieldName(),
+                    "" + i,
+                    "" + j));
           }
         }
 
-        data.indexOfField[i] = data.outputRowMeta.indexOfValue(resolve(meta.getFieldName()[i]));
+        data.indexOfField[i] = data.outputRowMeta.indexOfValue(resolve(field.getFieldName()));
         if (data.indexOfField[i] < 0) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "SetValueField.Log.CouldNotFindFieldInRow", meta.getFieldName()[i]));
+                  PKG, "SetValueField.Log.CouldNotFindFieldInRow", field.getFieldName()));
         }
-        String sourceField =
-            resolve(
-                meta.getReplaceByFieldValue() != null && meta.getReplaceByFieldValue().length > 0
-                    ? meta.getReplaceByFieldValue()[i]
-                    : null);
+        String sourceField = resolve(field.getReplaceByField());
         if (Utils.isEmpty(sourceField)) {
           throw new HopTransformException(
               BaseMessages.getString(PKG, "SetValueField.Log.ReplaceByValueFieldMissing", "" + i));
@@ -104,16 +96,17 @@ public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFiel
               BaseMessages.getString(PKG, "SetValueField.Log.CouldNotFindFieldInRow", sourceField));
         }
         // Compare fields type
-        IValueMeta SourceValue = getInputRowMeta().getValueMeta(data.indexOfField[i]);
-        IValueMeta ReplaceByValue = getInputRowMeta().getValueMeta(data.indexOfReplaceByValue[i]);
+        IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.indexOfField[i]);
+        IValueMeta replaceByValueMeta =
+            getInputRowMeta().getValueMeta(data.indexOfReplaceByValue[i]);
 
-        if (SourceValue.getType() != ReplaceByValue.getType()) {
+        if (valueMeta.getType() != replaceByValueMeta.getType()) {
           String err =
               BaseMessages.getString(
                   PKG,
                   "SetValueField.Log.FieldsTypeDifferent",
-                  SourceValue.getName() + " (" + SourceValue.getTypeDesc() + ")",
-                  ReplaceByValue.getName() + " (" + ReplaceByValue.getTypeDesc() + ")");
+                  valueMeta.getName() + " (" + valueMeta.getTypeDesc() + ")",
+                  replaceByValueMeta.getName() + " (" + replaceByValueMeta.getTypeDesc() + ")");
           throw new HopTransformException(err);
         }
       }
@@ -122,7 +115,7 @@ public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFiel
       for (int i = 0; i < data.indexOfField.length; i++) {
         r[data.indexOfField[i]] = r[data.indexOfReplaceByValue[i]];
       }
-      putRow(data.outputRowMeta, r); // copy row to output rowset(s);
+      putRow(data.outputRowMeta, r); // copy row to output rowset(s)
     } catch (HopException e) {
       boolean sendToErrorRow = false;
       String errorMessage = null;

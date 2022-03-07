@@ -42,7 +42,7 @@ public class HttpMetaLoadSaveTest {
   @Before
   public void testLoadSaveRoundTrip() throws Exception {
     HopEnvironment.init();
-    PluginRegistry.init(false);
+    PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
             "url",

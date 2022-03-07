@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 class MongoPropToOption {
-  private static Class<?> PKG = MongoPropToOption.class; // For Translator
+  private static final Class<?> PKG = MongoPropToOption.class; // For Translator
 
   private MongoUtilLogger log;
 

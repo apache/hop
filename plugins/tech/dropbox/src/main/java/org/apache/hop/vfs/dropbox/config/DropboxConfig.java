@@ -20,8 +20,6 @@ package org.apache.hop.vfs.dropbox.config;
 
 public class DropboxConfig {
 
-  public static final String HOP_CONFIG_DROPBOX_CONFIG_KEY = "dropbox";
-
   private String accessToken;
 
   public DropboxConfig() {}

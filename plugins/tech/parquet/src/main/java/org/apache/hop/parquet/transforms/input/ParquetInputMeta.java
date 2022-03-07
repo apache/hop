@@ -37,7 +37,7 @@ import java.util.List;
     description = "i18n::ParquetInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/parquet-file-input.html",
-    keywords = {"parquet", "read", "file", "column"})
+    keywords = "i18n::ParquetInputMeta.keyword")
 public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInputData> {
 
   @HopMetadataProperty(key = "filename_field")

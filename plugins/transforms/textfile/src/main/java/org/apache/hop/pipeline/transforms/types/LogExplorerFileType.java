@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.hop.pipeline.transforms.types;
@@ -28,6 +27,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileType;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileType;
 
 import java.util.Properties;
 
@@ -36,7 +36,7 @@ import java.util.Properties;
     name = "Log File Type",
     description = "Log file handling in the explorer perspective",
     image = "ui/images/log.svg")
-public class LogExplorerFileType extends BaseExplorerFileType<TextExplorerFileTypeHandler>
+public class LogExplorerFileType extends BaseTextExplorerFileType<TextExplorerFileTypeHandler>
     implements IExplorerFileType<TextExplorerFileTypeHandler> {
 
   public LogExplorerFileType() {

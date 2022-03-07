@@ -35,7 +35,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
@@ -44,6 +43,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.TableCompare",
     name = "i18n::BaseTransform.TypeLongDesc.TableCompare",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    keywords = "i18n::TableCompareMeta.keyword",
     documentationUrl = "/pipeline/transforms/tablecompare.html")
 public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompareData> {
   private static final Class<?> PKG = TableCompare.class; // For Translator
@@ -143,24 +143,6 @@ public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompa
   /** @param compareConnection the compareConnection to set */
   public void setCompareConnection(DatabaseMeta compareConnection) {
     this.compareConnection = compareConnection;
-  }
-
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    List<DatabaseMeta> connList = new ArrayList<>(2);
-    if (compareConnection != null) {
-      connList.add(compareConnection);
-    }
-    if (referenceConnection != null) {
-      connList.add(referenceConnection);
-    }
-    if (connList.size() > 0) {
-      DatabaseMeta[] rtn = new DatabaseMeta[connList.size()];
-      connList.toArray(rtn);
-      return rtn;
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
   }
 
   /** @return the keyFieldsField */
@@ -479,7 +461,7 @@ public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompa
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "IfNullMeta.CheckResult.TransformRecevingData", prev.size() + ""),
               transformMeta);
@@ -490,14 +472,14 @@ public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompa
     if (input.length > 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "IfNullMeta.CheckResult.TransformRecevingData2"),
               transformMeta);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "IfNullMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);

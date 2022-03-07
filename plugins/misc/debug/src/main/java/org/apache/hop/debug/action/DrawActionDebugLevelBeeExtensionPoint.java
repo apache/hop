@@ -49,8 +49,6 @@ public class DrawActionDebugLevelBeeExtensionPoint extends BeePainter
       // The next statement sometimes causes an exception in WebSpoon
       // Keep it in the try/catch block
       //
-      int iconSize = PropsUi.getInstance().getIconSize();
-
       Map<String, String> actionLevelMap =
           ext.workflowMeta.getAttributesMap().get(Defaults.DEBUG_GROUP);
       if (actionLevelMap != null) {
@@ -74,7 +72,6 @@ public class DrawActionDebugLevelBeeExtensionPoint extends BeePainter
       }
     } catch (Exception e) {
       // Ignore error, not that important
-      // logChannelInterface.logError( "Unable to handle specific debug level", e );
     }
   }
 }

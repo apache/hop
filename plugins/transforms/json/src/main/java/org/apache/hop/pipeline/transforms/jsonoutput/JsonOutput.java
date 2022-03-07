@@ -354,7 +354,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
       String filename = buildFilename();
       createParentFolder(filename);
-      if (meta.AddToResult()) {
+      if (meta.addToResult()) {
         // Add this to the result file names...
         ResultFile resultFile =
             new ResultFile(

@@ -85,7 +85,7 @@ public class KafkaDialogHelper {
       wTopic.getCComboWidget().removeAll();
     }
     topicMap.keySet().stream()
-        .filter(key -> !"__consumer_offsets".equals(key))
+        .filter(key -> !key.startsWith("_"))
         .sorted()
         .forEach(
             key -> {

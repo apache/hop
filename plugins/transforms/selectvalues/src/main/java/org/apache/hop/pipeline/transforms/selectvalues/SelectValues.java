@@ -31,7 +31,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -39,13 +38,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Select, re-order, remove or change the meta-data of the fields in the inputstreams.
- *
- * @author Matt
- * @since 5-apr-2003
- */
+/** Select, re-order, remove or change the meta-data of the fields in the inputstreams. */
 public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesData> {
+
   private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
 
   public SelectValues(

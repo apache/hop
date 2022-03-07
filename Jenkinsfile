@@ -36,8 +36,8 @@ pipeline {
 
     environment {
         MAVEN_SKIP_RC = true
-        DOCKER_REPO='docker.io/apache/incubator-hop'
-        DOCKER_REPO_WEB='docker.io/apache/incubator-hop-web'
+        DOCKER_REPO='docker.io/apache/hop'
+        DOCKER_REPO_WEB='docker.io/apache/hop-web'
     }
 
     options {
@@ -131,9 +131,10 @@ pipeline {
 
                 withDockerRegistry([ credentialsId: "dockerhub-hop", url: "" ]) {
                     //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
-                    sh "docker build . -f docker/Dockerfile -t ${DOCKER_REPO}:${env.POM_VERSION}"
-                    sh "docker push ${DOCKER_REPO}:${env.POM_VERSION}"
-                    sh "docker rmi ${DOCKER_REPO}:${env.POM_VERSION}"
+                    sh "docker run --privileged --rm tonistiigi/binfmt --install all"
+                    sh "docker buildx create --name hop --use"
+                    sh "docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile -t ${DOCKER_REPO}:${env.POM_VERSION} -t ${DOCKER_REPO}:Development --push"
+                    sh "docker buildx rm hop"
                   }
             }
         }
@@ -148,7 +149,7 @@ pipeline {
                 withDockerRegistry([ credentialsId: "dockerhub-hop", url: "" ]) {
                     //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
                     sh "docker buildx create --name hop --use"
-                    sh "docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t ${DOCKER_REPO_WEB}:${env.POM_VERSION} --push"
+                    sh "docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t ${DOCKER_REPO_WEB}:${env.POM_VERSION} -t ${DOCKER_REPO_WEB}:Development --push"
                     sh "docker buildx rm hop"
                   }
             }

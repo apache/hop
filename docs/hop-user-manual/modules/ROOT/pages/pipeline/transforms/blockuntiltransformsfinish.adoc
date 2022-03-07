@@ -16,6 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:description: This transform simply waits until all the transform copies that are specified in the dialog have finished.
 
 = Blocking until transforms finish
 

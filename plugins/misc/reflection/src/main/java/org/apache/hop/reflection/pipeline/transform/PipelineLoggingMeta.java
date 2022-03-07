@@ -39,8 +39,8 @@ import org.w3c.dom.Node;
     description = "i18n::PipelineLogging.Transform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     image = "pipeline-log.svg",
-    documentationUrl = "/logging/logging-reflection.html",
-    keywords = "audit,log,metrics")
+    keywords = "i18n::PipelineLoggingMeta.keyword",
+    documentationUrl = "/logging/logging-reflection.html")
 public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, PipelineLoggingData> {
 
   private boolean loggingTransforms;

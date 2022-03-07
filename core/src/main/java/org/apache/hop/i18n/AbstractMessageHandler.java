@@ -23,8 +23,6 @@ import java.util.Locale;
  * Standard Message handler that takes a root package, plus key and resolves that into one/more
  * resultant messages. This IHandler is used by all message types to enable flexible look and feel
  * as well as i18n to be implemented in variable ways.
- *
- * @author dhushon
  */
 public abstract class AbstractMessageHandler implements IMessageHandler {
 

@@ -55,6 +55,7 @@ import java.util.List;
     description = "i18n::BaseTransform.TypeTooltipDesc.SimpleMapping",
     image = "MAP.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
+    keywords = "i18n::SimpleMappingMeta.keyword",
     documentationUrl = "/pipeline/transforms/simple-mapping.html")
 public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, SimpleMappingData>
     implements ISubPipelineAwareMeta {

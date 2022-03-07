@@ -20,6 +20,7 @@ package org.apache.hop.www;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.*;
@@ -29,14 +30,12 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.server.HopServer;
 import org.w3c.dom.Node;
 
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 public class HopServerConfig implements IXml {
@@ -76,12 +75,21 @@ public class HopServerConfig implements IXml {
 
   private IVariables variables;
 
+  /**
+   * This is provided by the server at runtime. It then usually points to nothing or a project or
+   * environment metadata folder.
+   */
+  private MultiMetadataProvider metadataProvider;
+
   public HopServerConfig() {
     databases = new ArrayList<>();
     hopServerSequences = new ArrayList<>();
     automaticCreationAllowed = false;
     passwordFile = null; // force lookup by server in ~/.hop or local folder
     variables = Variables.getADefaultVariableSpace();
+    // An empty list of metadata providers by default
+    metadataProvider =
+        new MultiMetadataProvider(Encr.getEncoder(), Collections.emptyList(), variables);
   }
 
   public HopServerConfig(HopServer hopServer) {
@@ -134,7 +142,7 @@ public class HopServerConfig implements IXml {
       checkNetworkInterfaceSetting(log, hopServerNode, hopServer);
     }
 
-    joining = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "joining"));
+    joining = XmlHandler.getTagBoolean(node, "joining", true);
     maxLogLines = Const.toInt(XmlHandler.getTagValue(node, "max_log_lines"), 0);
     maxLogTimeoutMinutes = Const.toInt(XmlHandler.getTagValue(node, "max_log_timeout_minutes"), 0);
     objectTimeoutMinutes = Const.toInt(XmlHandler.getTagValue(node, "object_timeout_minutes"), 0);
@@ -455,5 +463,19 @@ public class HopServerConfig implements IXml {
   /** @param metadataFolder The metadataFolder to set */
   public void setMetadataFolder(String metadataFolder) {
     this.metadataFolder = metadataFolder;
+  }
+
+  /**
+   * Gets metadataProvider
+   *
+   * @return value of metadataProvider
+   */
+  public MultiMetadataProvider getMetadataProvider() {
+    return metadataProvider;
+  }
+
+  /** @param metadataProvider The metadataProvider to set */
+  public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
+    this.metadataProvider = metadataProvider;
   }
 }

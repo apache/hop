@@ -23,7 +23,7 @@
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins-transforms</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <modules>
     </modules>
     <packaging>pom</packaging>
@@ -33,7 +33,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -135,6 +135,7 @@
                 <module>memgroupby</module>
                 <module>mergejoin</module>
                 <module>mergerows</module>
+                <module>metadata</module>
                 <module>metainject</module>
                 <module>metastructure</module>
                 <module>monetdbbulkloader</module>
@@ -161,6 +162,7 @@
                 <module>salesforce</module>
                 <module>sasinput</module>
                 <module>selectvalues</module>
+                <module>serverstatus</module>
                 <module>setvalueconstant</module>
                 <module>setvaluefield</module>
                 <module>setvariable</module>
@@ -171,6 +173,7 @@
                 <module>sql</module>
                 <module>sqlfileoutput</module>
                 <module>ssh</module>
+                <module>standardizephonenumber</module>
                 <module>streamlookup</module>
                 <module>streamschemamerge</module>
                 <module>stringcut</module>
@@ -184,6 +187,7 @@
                 <module>tableoutput</module>
                 <module>terafast</module>
                 <module>textfile</module>
+                <module>tika</module>
                 <module>tokenreplacement</module>
                 <module>uniquerows</module>
                 <module>uniquerowsbyhashset</module>
@@ -216,7 +220,7 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-ui</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.2.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

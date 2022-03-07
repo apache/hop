@@ -41,6 +41,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.WebServiceAvailable",
     description = "i18n::BaseTransform.TypeTooltipDesc.WebServiceAvailable",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+    keywords = "i18n::WebServiceAvailableMeta.keyword",
     documentationUrl = "/pipeline/transforms/checkwebserviceavailable.html")
 public class WebServiceAvailableMeta extends BaseTransformMeta<WebServiceAvailable, WebServiceAvailableData> {
   private static final Class<?> PKG = WebServiceAvailableMeta.class; // For Translator

@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
-// import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -25,17 +24,12 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 
-/**
- * @author Matt
- * @since 24-jan-2005
- */
 public class ScriptValuesData extends BaseTransformData implements ITransformData {
   public Context cx;
   public Scriptable scope;
   public Script script;
 
   public int[] fieldsUsed;
-  //  public Value[] values_used;
 
   public IRowMeta outputRowMeta;
   public int[] replaceIndex;
