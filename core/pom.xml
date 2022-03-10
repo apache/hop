@@ -485,6 +485,12 @@
             <artifactId>woodstox-core-asl</artifactId>
             <version>${woodstox-core-asl.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
