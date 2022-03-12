@@ -20,7 +20,6 @@ package org.apache.hop.ui.core.widget.text;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by bmorrise on 9/15/17. */
 public class TextFormatter {
 
   private List<FormatRule> rules = new ArrayList<>();

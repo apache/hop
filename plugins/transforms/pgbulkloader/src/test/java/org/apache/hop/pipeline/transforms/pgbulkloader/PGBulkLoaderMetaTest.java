@@ -37,7 +37,6 @@ import org.junit.Test;
 
 import java.util.*;
 
-/** Created by gmoran on 2/25/14. */
 public class PGBulkLoaderMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

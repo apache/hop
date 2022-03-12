@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Created by bmorrise on 6/27/18. */
 public class TreeNode {
   private String label;
   private Image image;

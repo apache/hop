@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/** Created by ccaspanello on 6/5/17. */
 public class FileInputListTest {
 
   @Test

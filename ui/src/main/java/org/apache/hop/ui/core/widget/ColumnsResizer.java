@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
-/** Created by bmorrise on 2/6/17. */
 public class ColumnsResizer implements Listener {
   private int[] weights;
   private boolean resizing;

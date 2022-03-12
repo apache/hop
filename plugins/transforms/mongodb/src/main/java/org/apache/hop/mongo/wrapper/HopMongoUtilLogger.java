@@ -20,7 +20,6 @@ package org.apache.hop.mongo.wrapper;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.mongo.MongoUtilLogger;
 
-/** Created by bryan on 8/7/14. */
 public class HopMongoUtilLogger implements MongoUtilLogger {
   private final ILogChannel iLogChannel;
 

@@ -20,7 +20,6 @@ import org.apache.hop.core.row.value.ValueMetaConversionException;
 
 import java.text.SimpleDateFormat;
 
-/** Created by tkafalas on 12/4/2017. */
 public interface IValueMetaConverter {
   /**
    * @param sourceValueMetaType The source ValueMeta Type defined in the IValueMeta
