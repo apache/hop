@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.core;
 
-/** Created by bmorrise on 8/17/17. */
 public class FileDialogOperation {
 
   public static String SELECT_FOLDER = "selectFolder";

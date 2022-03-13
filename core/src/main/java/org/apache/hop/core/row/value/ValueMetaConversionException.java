@@ -16,7 +16,6 @@
  */
 package org.apache.hop.core.row.value;
 
-/** Created by tkafalas on 12/5/2017. */
 public class ValueMetaConversionException extends Exception {
   private static final long serialVersionUID = 1L;
 
