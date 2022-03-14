@@ -59,7 +59,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
 
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
     if (r == null) { // no more input to be expected...
-
+      closeFile();
       return false;
     }
     if (first) {
