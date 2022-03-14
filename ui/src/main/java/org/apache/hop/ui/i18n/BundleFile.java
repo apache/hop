@@ -26,10 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 public class BundleFile extends ChangedFlag {
 
@@ -99,7 +96,16 @@ public class BundleFile extends ChangedFlag {
       }
 
       // Use SortedProperties to automatically sort on key
-      Properties properties = new SortedProperties();
+      Properties properties =
+          new SortedProperties() {
+            @Override
+            public Set<Map.Entry<Object, Object>> entrySet() {
+              SortedSet<Map.Entry<Object, Object>> sortedSet =
+                  new TreeSet<>(Comparator.comparing(o -> ((String) o.getKey())));
+              sortedSet.addAll(super.entrySet());
+              return sortedSet;
+            }
+          };
       for (String key : contents.keySet()) {
         properties.put(key, contents.get(key));
       }
