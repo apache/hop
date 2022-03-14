@@ -22,7 +22,6 @@ import org.eclipse.swt.custom.StyleRange;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by bmorrise on 9/15/17. */
 public class Format {
   private String text;
   private List<StyleRange> styleRanges = new ArrayList<>();

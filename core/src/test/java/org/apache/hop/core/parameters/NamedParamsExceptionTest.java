@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/** Created by mburgess on 10/13/15. */
 public class NamedParamsExceptionTest {
 
   NamedParamsException exception;

@@ -32,7 +32,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-/** Created by bmorrise on 10/13/16. */
 public class DetailsDialog {
   private Shell shell;
   private PropsUi props;

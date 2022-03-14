@@ -24,7 +24,6 @@ import org.apache.hop.mongo.wrapper.field.MongoField;
 
 import java.util.List;
 
-/** Created by brendan on 11/4/14. */
 public interface MongoDbInputDiscoverFields {
 
   List<MongoField> discoverFields(

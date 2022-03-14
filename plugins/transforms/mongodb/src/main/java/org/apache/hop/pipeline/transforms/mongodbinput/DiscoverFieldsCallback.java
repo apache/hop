@@ -20,7 +20,6 @@ import org.apache.hop.mongo.wrapper.field.MongoField;
 
 import java.util.List;
 
-/** Created by brendan on 12/30/14. */
 public interface DiscoverFieldsCallback {
   void notifyFields(List<MongoField> fields);
 

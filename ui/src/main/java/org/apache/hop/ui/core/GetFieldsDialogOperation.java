@@ -21,7 +21,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.util.List;
 
-/** Created by ddiroma on 8/15/18. */
 public class GetFieldsDialogOperation {
   private Shell shell;
   private int width;
