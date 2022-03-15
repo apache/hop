@@ -20,7 +20,6 @@ package org.apache.hop.core.row.value;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -50,8 +49,7 @@ public class ValueMetaBaseLenientStringConversionTest {
   }
 
   @Test
-  @Ignore
-  public void testStrToIntStrict() throws Exception {
+  public void testStrToIntStrict() {
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N");
 
     String[] values = new String[] {"1a", "1,1", "100,000,3", "100.000,3"};
@@ -96,7 +94,7 @@ public class ValueMetaBaseLenientStringConversionTest {
   }
 
   @Test
-  public void testStrToBigNumberStrict() throws Exception {
+  public void testStrToBigNumberStrict() {
 
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N");
 
