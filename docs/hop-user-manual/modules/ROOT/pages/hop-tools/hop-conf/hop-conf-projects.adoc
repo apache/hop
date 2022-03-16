@@ -58,7 +58,7 @@ This command adds a variable to the environment configuration file:
 
 [source,bash]
 ----
-$ h hop-conf.sh --config-file /home/user/projects/hop2-conf.json --config-file-set-variables DB_HOSTNAME=localhost,DB_PASSWORD=abcd
+$ sh hop-conf.sh --config-file /home/user/projects/hop2-conf.json --config-file-set-variables DB_HOSTNAME=localhost,DB_PASSWORD=abcd
 Configuration file '/home/user/projects/hop2-conf.json' was modified.
 ----
 
@@ -88,7 +88,7 @@ The following deletes an environment from the Hop configuration file:
 
 [source,bash]
 ----
-$ $ sh hop-conf.sh --environment-delete --environment hop2
+$ sh hop-conf.sh --environment-delete --environment hop2
 Lifecycle environment 'hop2' was deleted from Hop configuration file <path-to-hop>/config/hop-config.json
 ----
 
