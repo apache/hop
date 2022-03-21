@@ -31,12 +31,12 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.xml.Dom4JUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -79,7 +79,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
     this.prevRow = buildEmptyRow(); // pre-allocate previous row
 
     try {
-      SAXReader reader = XmlParserFactoryProducer.getSAXReader(null);
+      SAXReader reader = Dom4JUtil.getSAXReader(null);
       data.stopPruning = false;
       // Validate XML against specified schema?
       if (meta.isValidating()) {

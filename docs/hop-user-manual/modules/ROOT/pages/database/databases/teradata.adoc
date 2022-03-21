@@ -28,4 +28,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://teradata-docs.s3.amazonaws.com/doc/connectivity/jdbc/reference/current/frameset.html[Documentation Link]
 |JDBC Url | jdbc:teradata://Hostname
+|Driver folder | Hop Installation/plugins/databases/teradata/lib
 |===

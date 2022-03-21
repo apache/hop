@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://jdbc.postgresql.org/documentation/head/index.html[Documentation Link]
 |JDBC Url  | jdbc:postgresql://host:port/database
+|Driver folder | Hop Installation/plugins/databases/as400/lib
 |===

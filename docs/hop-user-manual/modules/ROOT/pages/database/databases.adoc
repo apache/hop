@@ -23,19 +23,24 @@ Creating a database connection in HOP is done using one of the many database typ
 To create a database connection go to file -> New and select Database connection.
 
 The connection is saved in a central location and can then be used by all pipelines and workflows.
+If you have set your project to work with Hop, the database information will be in the `${PROJECT_HOME}/metadata/rdbms` folder.
+Each connection created will generate a .json file in this folder with the name of the connection, containing the connection information.
 
-If the license allowed it a jdbc driver is included in the distribution.
-The documentation of the database type shows you whether the driver is included and if it isn't included will guide you to the location on where to download it.
+If the license allowed it, a jdbc driver is included in the distribution, in a folder specific for each driver, in the general path: `Installation directory/plugins/databases/Database type/lib`.
+The documentation of the database type in following subsections shows you whether the driver is included and if it isn't included will guide you to the location on where to download it.
 
 The `HOP_SHARED_JDBC_FOLDER` variable can be set before starting Hop to point at a centralized location of your required jdbc drivers.
-This can be set as an environment variable or be added to the Hop start script as an exported variable.
+This can be set as an OS environment variable or be added to the Hop start script as an exported variable.
+Setting this variable pointed to a folder separated from the Hop installation folder, allows you to keep your drivers versions, no matter which Hop version or installation you use.
+
+To avoid conflicts, be sure that for each class of driver, there is only one in any of this folders, `HOP_SHARED_JDBC_FOLDER`, `hop/plugins/databases/Database type/lib` or `hop/lib` folder.
 
 == Generic connection
 
 HOP can connect to any database that has a jdbc driver available, the list of supplied databases contain some database specific configuration and a list of reserved keywords.
 
 When a specific database type is not yet available for the database you want to use, you can use the generic connection.
-To use a generic connection you have to copy your jdbc driver to the `Installation directory/lib` folder.
+To use a generic connection you have to copy your jdbc driver to the `Installation directory/lib` folder, or in the `HOP_SHARED_JDBC_FOLDER` if you have set this variable.
 
 image::generic_connection.png[Generic Connection Dialog]
 
