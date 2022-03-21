@@ -27,23 +27,23 @@ import java.io.InputStreamReader;
 
 public class SessionResult {
 
-  private String stdout;
-  private String stderr;
-  private boolean stderrortype;
+  private String stdOut;
+  private String stdErr;
+  private boolean stdErrorType;
 
   public SessionResult(Session session) throws HopException {
     readStd(session);
   }
 
   private void setStdErr(String value) {
-    this.stderr = value;
+    this.stdErr = value;
     if (!Utils.isEmpty(getStdErr())) {
       setStdTypeErr(true);
     }
   }
 
   public String getStdErr() {
-    return this.stderr;
+    return this.stdErr;
   }
 
   public String getStd() {
@@ -51,19 +51,19 @@ public class SessionResult {
   }
 
   private void setStdOut(String value) {
-    this.stdout = value;
+    this.stdOut = value;
   }
 
   public String getStdOut() {
-    return this.stdout;
+    return this.stdOut;
   }
 
   private void setStdTypeErr(boolean value) {
-    this.stderrortype = value;
+    this.stdErrorType = value;
   }
 
   public boolean isStdTypeErr() {
-    return this.stderrortype;
+    return this.stdErrorType;
   }
 
   private void readStd(Session session) throws HopException {

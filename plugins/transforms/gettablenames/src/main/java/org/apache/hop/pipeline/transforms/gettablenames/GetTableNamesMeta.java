@@ -34,7 +34,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -443,15 +442,6 @@ public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTable
               transformMeta);
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    if (database != null) {
-      return new DatabaseMeta[] {database};
-    } else {
-      return super.getUsedDatabaseConnections();
-    }
   }
 
   @Override

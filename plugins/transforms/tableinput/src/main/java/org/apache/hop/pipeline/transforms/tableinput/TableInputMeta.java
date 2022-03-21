@@ -27,7 +27,6 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -56,7 +55,6 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/tableinput.html",
     keywords = "i18n::TableInputMeta.keyword")
-@InjectionSupported(localizationPrefix = "TableInputMeta.Injection.")
 public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData> {
 
 

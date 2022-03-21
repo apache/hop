@@ -34,6 +34,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.ILdapMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
 import org.w3c.dom.Node;
+
 import java.util.List;
 
 @Transform(
@@ -44,14 +45,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::LdapOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/ldapoutput.html")
-<<<<<<< HEAD
 public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData> implements ILdapMeta {
-  private static Class<?> PKG = LdapOutputMeta.class; // For Translator
-=======
-public class LdapOutputMeta extends BaseTransformMeta
-    implements ILdapMeta, ITransformMeta<LdapOutput, LdapOutputData> {
   private static final Class<?> PKG = LdapOutputMeta.class; // For Translator
->>>>>>> refs/remotes/origin/master
 
   /** Flag indicating that we use authentication for connection */
   private boolean useAuthentication;

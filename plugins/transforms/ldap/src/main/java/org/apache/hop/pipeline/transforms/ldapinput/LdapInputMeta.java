@@ -16,9 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import static org.apache.hop.core.ICheckResult.TYPE_RESULT_ERROR;
-import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
-import static org.apache.hop.core.ICheckResult.TYPE_RESULT_WARNING;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -737,13 +734,13 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData> i
     if (inputFields.length == 0) {
       cr =
           new CheckResult(
-              TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.NoOutputFields"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.OutputFieldsOk"),
               transformMeta);
     }
@@ -753,13 +750,13 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData> i
     if (input.length > 0) {
       cr =
           new CheckResult(
-              TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.NoInputExpected"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.NoInput"),
               transformMeta);
     }
@@ -769,13 +766,13 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData> i
     if (Utils.isEmpty(host)) {
       cr =
           new CheckResult(
-              TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.HostnameMissing"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.HostnameOk"),
               transformMeta);
     }
@@ -785,14 +782,14 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData> i
       if (Utils.isEmpty(dynamicSeachFieldName)) {
         cr =
             new CheckResult(
-                TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
                     PKG, "LdapInputMeta.CheckResult.DynamicSearchBaseFieldNameMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG, "LdapInputMeta.CheckResult.DynamicSearchBaseFieldNameOk"),
                 transformMeta);
@@ -803,13 +800,13 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData> i
       if (Utils.isEmpty(searchBase)) {
         cr =
             new CheckResult(
-                TYPE_RESULT_WARNING,
+                ICheckResult.TYPE_RESULT_WARNING,
                 BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.SearchBaseMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.SearchBaseOk"),
                 transformMeta);
       }
@@ -819,14 +816,14 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData> i
       if (Utils.isEmpty(dynamicFilterFieldName)) {
         cr =
             new CheckResult(
-                TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
                     PKG, "LdapInputMeta.CheckResult.DynamicFilterFieldNameMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.DynamicFilterFieldNameOk"),
                 transformMeta);
       }
@@ -836,13 +833,13 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData> i
       if (Utils.isEmpty(filterString)) {
         cr =
             new CheckResult(
-                TYPE_RESULT_WARNING,
+                ICheckResult.TYPE_RESULT_WARNING,
                 BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.FilterStringMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.FilterStringOk"),
                 transformMeta);
       }

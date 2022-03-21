@@ -23,7 +23,6 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -49,9 +48,6 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     keywords = "i18n::ExecSqlMeta.keyword",
     documentationUrl = "/pipeline/transforms/execsql.html")
-@InjectionSupported(
-    localizationPrefix = "ExecSqlMeta.Injection.",
-    groups = {"PARAMETERS"})
 public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
   private static final Class<?> PKG = ExecSqlMeta.class; // For Translator
 

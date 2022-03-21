@@ -24,26 +24,17 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
 
 import java.util.ArrayList;
 import java.util.List;
 
-<<<<<<< HEAD
+
 /**
  * Write to LDAP.
- *
- * @author Samatar
- * @since 21-09-2007
  */
 public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData> {
-=======
-/** Write to LDAP. */
-public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
-    implements ITransform<LdapOutputMeta, LdapOutputData> {
->>>>>>> refs/remotes/origin/master
   private static Class<?> classFromResourcesPackage = LdapOutputMeta.class; // For Translator
 
   public LdapOutput(

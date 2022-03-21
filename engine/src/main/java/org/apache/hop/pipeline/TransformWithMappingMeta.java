@@ -42,10 +42,6 @@ import static org.apache.hop.core.Const.*;
 
 /**
  * This class is supposed to use in transforms where the mapping to sub pipelines takes place
-<<<<<<< HEAD
-=======
- *
->>>>>>> refs/remotes/origin/master
  */
 public abstract class TransformWithMappingMeta<Main extends ITransform, Data extends ITransformData>
     extends BaseTransformMeta<Main, Data> {

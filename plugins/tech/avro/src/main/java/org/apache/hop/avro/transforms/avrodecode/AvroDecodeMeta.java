@@ -21,7 +21,6 @@ import org.apache.hop.avro.transforms.avroinput.AvroFileInput;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -29,6 +28,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +40,6 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/avro-decode.html",
     keywords = "i18n::AvroDecodeMeta.keyword")
-@InjectionSupported(localizationPrefix = "AvroInputMeta.Injection.")
 public class AvroDecodeMeta extends BaseTransformMeta<AvroFileInput, AvroDecodeData> {
   private static final Class<?> PKG = AvroDecodeMeta.class; // For Translator
 
