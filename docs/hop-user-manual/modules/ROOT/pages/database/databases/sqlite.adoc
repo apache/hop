@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/[Documentation Link]
 |JDBC Url | jdbc:sqlite:sample.db
+|Driver folder | Hop Installation/plugins/databases/sqlite/lib
 |===

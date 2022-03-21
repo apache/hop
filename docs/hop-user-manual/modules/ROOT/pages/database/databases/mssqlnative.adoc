@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://docs.microsoft.com/en-us/sql/connect/jdbc/setting-the-connection-properties?view=sql-server-ver15[Documentation Link]
 |JDBC Url | jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
+|Driver folder | Hop Installation/plugins/databases/mssqlnative/lib
 |===

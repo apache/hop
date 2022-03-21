@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | Postgresql Plugin
 |Documentation | https://gpdb.docs.pivotal.io/590/datadirect/datadirect_jdbc.html[Documentation Link]
 |JDB Url | jdbc:pivotal:greenplum://host:port;DatabaseName=<name>
+|Driver folder | Hop Installation/plugins/databases/greenplum/lib
 |===

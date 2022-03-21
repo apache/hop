@@ -32,4 +32,5 @@ When creating new database connections it is recommended to use the native conne
 |Hop Dependencies | None
 |Documentation | http://jtds.sourceforge.net/faq.html[Documentation Link]
 |JDBC Url | jdbc:jtds:sqlserver://<server>[:<port>][/<database>][;<property>=<value>[;...]]
+|Driver folder | Hop Installation/plugins/databases/mssql/lib
 |===

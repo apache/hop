@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | Postgresql Database plugin
 |Documentation | https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html[Documentation Link]
 |JDBC Url | jdbc:redshift://endpoint:port/database
+|Driver folder | Hop Installation/plugins/databases/redshift/lib
 |===
