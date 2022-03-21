@@ -28,7 +28,6 @@ import java.io.RandomAccessFile;
 
 import static org.junit.Assert.*;
 
-/** Created by Yury_Bakhmutski on 11/4/2015. */
 public class HopVariablesListTest {
 
   @Test

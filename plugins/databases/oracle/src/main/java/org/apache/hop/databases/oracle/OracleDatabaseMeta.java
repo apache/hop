@@ -51,7 +51,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return Whether or not the database can use auto increment type of fields (pk) */
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     return false;
   }
 
@@ -155,13 +155,13 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * connection time...
    */
   @Override
-  public boolean supportsOptionsInURL() {
+  public boolean isSupportsOptionsInURL() {
     return false;
   }
 
   /** @return true if the database supports sequences */
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return true;
   }
 
@@ -215,7 +215,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean supportsSequenceNoMaxValueOption() {
+  public boolean isSupportsSequenceNoMaxValueOption() {
     return true;
   }
 
@@ -230,7 +230,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports synonyms */
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return true;
   }
 
@@ -347,7 +347,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     int type = v.getType();
     switch (type) {
       case IValueMeta.TYPE_TIMESTAMP:
-        if (supportsTimestampDataType()) {
+        if (isSupportsTimestampDataType()) {
           retval.append("TIMESTAMP");
         } else {
           retval.append("DATE");
@@ -571,7 +571,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @throws HopDatabaseException
    */
   @Override
-  public boolean checkIndexExists(
+  public boolean hasIndex(
       Database database, String schemaName, String tableName, String[] idxFields)
       throws HopDatabaseException {
 
@@ -628,7 +628,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean requiresCreateTablePrimaryKeyAppend() {
+  public boolean isRequiresCreateTablePrimaryKeyAppend() {
     return true;
   }
 
@@ -639,7 +639,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    *     False if the query needs to be executed first.
    */
   @Override
-  public boolean supportsPreparedStatementMetadataRetrieval() {
+  public boolean isSupportsPreparedStatementMetadataRetrieval() {
     return false;
   }
 
@@ -670,7 +670,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** Returns a false as Oracle does not allow for the releasing of savepoints. */
   @Override
-  public boolean releaseSavepoint() {
+  public boolean isReleaseSavepoint() {
     return false;
   }
 
@@ -696,7 +696,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean supportsErrorHandlingOnBatchUpdates() {
+  public boolean IsSupportsErrorHandlingOnBatchUpdates() {
     return false;
   }
 

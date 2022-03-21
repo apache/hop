@@ -95,7 +95,7 @@ public class VerticaDatabaseMetaTest {
             "FOO", "",
             "WIBBLE")); // Believe this is a bug - must have the port. Inconsistent with others
     assertFalse(nativeMeta.isFetchSizeSupported());
-    assertFalse(nativeMeta.supportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
     assertEquals(4000, nativeMeta.getMaxVARCHARLength());
     assertArrayEquals(
         new String[] {
@@ -460,14 +460,14 @@ public class VerticaDatabaseMetaTest {
         nativeMeta.getReservedWords());
 
     assertArrayEquals(new String[] {}, nativeMeta.getViewTypes());
-    assertFalse(nativeMeta.supportsAutoInc());
-    assertTrue(nativeMeta.supportsBooleanDataType());
-    assertTrue(nativeMeta.requiresCastToVariousForIsNull());
+    assertFalse(nativeMeta.isSupportsAutoInc());
+    assertTrue(nativeMeta.isSupportsBooleanDataType());
+    assertTrue(nativeMeta.isRequiresCastToVariousForIsNull());
     assertEquals("?", nativeMeta.getExtraOptionIndicator());
     assertEquals("&", nativeMeta.getExtraOptionSeparator());
-    assertTrue(nativeMeta.supportsSequences());
-    assertFalse(nativeMeta.supportsTimeStampToDateConversion());
-    assertFalse(nativeMeta.supportsGetBlob());
+    assertTrue(nativeMeta.isSupportsSequences());
+    assertFalse(nativeMeta.isSupportsTimeStampToDateConversion());
+    assertFalse(nativeMeta.isSupportsGetBlob());
     assertTrue(nativeMeta.isDisplaySizeTwiceThePrecision());
   }
 

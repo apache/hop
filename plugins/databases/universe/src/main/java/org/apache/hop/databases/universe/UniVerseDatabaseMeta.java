@@ -41,7 +41,7 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   /** @see IDatabase#getNotFoundTK(boolean) */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
-    if (supportsAutoInc() && useAutoinc) {
+    if (isSupportsAutoInc() && useAutoinc) {
       return 1;
     }
     return super.getNotFoundTK(useAutoinc);
@@ -69,7 +69,7 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
@@ -84,7 +84,7 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
 
   /** UniVerse doesn't even support timestamps. */
   @Override
-  public boolean supportsTimeStampToDateConversion() {
+  public boolean isSupportsTimeStampToDateConversion() {
     return false;
   }
 
@@ -412,7 +412,7 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
 
   /** @return true if the database supports newlines in a SQL statements. */
   @Override
-  public boolean supportsNewLinesInSql() {
+  public boolean isSupportsNewLinesInSql() {
     return true;
   }
 

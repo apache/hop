@@ -37,17 +37,17 @@ public class GuptaDatabaseMetaTest {
   public void testSettings() throws Exception {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(2155, nativeMeta.getDefaultDatabasePort());
-    assertFalse(nativeMeta.supportsAutoInc());
+    assertFalse(nativeMeta.isSupportsAutoInc());
     assertEquals("jdbc.gupta.sqlbase.SqlbaseDriver", nativeMeta.getDriverClass());
     assertEquals("jdbc:sqlbase://FOO:BAR/WIBBLE", nativeMeta.getURL("FOO", "BAR", "WIBBLE"));
     assertEquals(
         "jdbc:sqlbase://FOO:/WIBBLE",
         nativeMeta.getURL("FOO", "", "WIBBLE")); // Pretty sure this is a bug (colon after foo)
     assertFalse(nativeMeta.isFetchSizeSupported());
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsSynonyms());
-    assertFalse(nativeMeta.supportsCatalogs());
-    assertFalse(nativeMeta.supportsTimeStampToDateConversion());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsSynonyms());
+    assertFalse(nativeMeta.isSupportsCatalogs());
+    assertFalse(nativeMeta.isSupportsTimeStampToDateConversion());
 
     assertEquals(0, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
@@ -55,7 +55,7 @@ public class GuptaDatabaseMetaTest {
     assertTrue(nativeMeta.isSystemTable("SYSFOO"));
     assertFalse(nativeMeta.isSystemTable("SySBAR"));
     assertFalse(nativeMeta.isSystemTable("BARSYS"));
-    assertFalse(nativeMeta.supportsPreparedStatementMetadataRetrieval());
+    assertFalse(nativeMeta.isSupportsPreparedStatementMetadataRetrieval());
   }
 
   @Test

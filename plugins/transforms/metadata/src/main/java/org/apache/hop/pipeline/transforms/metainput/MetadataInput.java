@@ -30,15 +30,13 @@ import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MetadataInput extends BaseTransform<MetadataInputMeta, MetadataInputData>
-    implements ITransform<MetadataInputMeta, MetadataInputData> {
+public class MetadataInput extends BaseTransform<MetadataInputMeta, MetadataInputData> {
   public MetadataInput(
       TransformMeta transformMeta,
       MetadataInputMeta meta,

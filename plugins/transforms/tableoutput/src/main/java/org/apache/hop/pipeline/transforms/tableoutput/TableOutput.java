@@ -487,13 +487,13 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         // For these situations we can use savepoints to help out.
         //
         data.useSafePoints =
-            data.databaseMeta.getIDatabase().useSafePoints()
+            data.databaseMeta.getIDatabase().isUseSafePoints()
                 && getTransformMeta().isDoingErrorHandling();
 
         // Get the boolean that indicates whether or not we can/should release
         // savepoints during data load.
         //
-        data.releaseSavepoint = dbInterface.releaseSavepoint();
+        data.releaseSavepoint = dbInterface.isReleaseSavepoint();
 
         // Disable batch mode in case
         // - we use an unlimited commit size
@@ -512,7 +512,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         // incorrectly processed rows.
         //
         if (getTransformMeta().isDoingErrorHandling()
-            && !dbInterface.supportsErrorHandlingOnBatchUpdates()) {
+            && !dbInterface.IsSupportsErrorHandlingOnBatchUpdates()) {
           log.logBasic(
               BaseMessages.getString(
                   PKG, "TableOutput.Warning.ErrorHandlingIsNotFullySupportedWithBatchProcessing"));

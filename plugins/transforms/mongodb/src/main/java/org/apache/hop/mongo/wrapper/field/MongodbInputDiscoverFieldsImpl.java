@@ -36,7 +36,6 @@ import org.bson.types.*;
 
 import java.util.*;
 
-/** Created by bryan on 8/7/14. */
 public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverFields {
   private static final Class<?> PKG = MongodbInputDiscoverFieldsImpl.class; // For Translator
 

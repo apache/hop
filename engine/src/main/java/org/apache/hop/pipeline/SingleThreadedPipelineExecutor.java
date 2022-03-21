@@ -24,7 +24,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream;
 
 import java.util.ArrayList;
 import java.util.List;

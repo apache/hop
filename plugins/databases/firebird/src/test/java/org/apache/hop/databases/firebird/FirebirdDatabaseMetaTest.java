@@ -46,9 +46,9 @@ public class FirebirdDatabaseMetaTest {
     assertEquals(
         "jdbc:firebirdsql://FOO:/WIBBLE",
         nativeMeta.getURL("FOO", "", "WIBBLE")); // This is a bug I believe
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsSynonyms());
-    assertFalse(nativeMeta.supportsAutoInc());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsSynonyms());
+    assertFalse(nativeMeta.isSupportsAutoInc());
 
     assertArrayEquals(
         new String[] {

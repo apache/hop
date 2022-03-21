@@ -70,8 +70,11 @@ Here are the available aggregation methods :
 - Last value (including null)
 - Cumulative sum (all rows option only!)
 - Cumulative average (all rows option only!)
-- Standard deviation
-- Concatenate strings separated by <Value>: specify the separator in the Value column
+- Standard deviation (population)
+- Concatenate strings separated by <Value>: specify the separator in the Value column (This supports xref::variables.adoc#_hexadecimal_values[hexadecimals])
 - Number of distinct values
 - Number of rows (without field argument)
+- Standard deviation (sample)
+- Percentile (nearest-rank method)
+- Concatenate string separated by by new line (CRLF)
 |===

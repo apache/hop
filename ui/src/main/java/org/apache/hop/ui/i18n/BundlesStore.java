@@ -18,16 +18,16 @@
 package org.apache.hop.ui.i18n;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BundlesStore {
 
@@ -37,10 +37,12 @@ public class BundlesStore {
    This map contains the content of message bundles per package, per language and per file
   */
   private Map<String, Map<String, BundleFile>> packageLanguageBundleMap;
+  private final Map<String, List<String>> collisionPackages;
 
   public BundlesStore() {
     this.bundleRootFolders = new ArrayList<>();
     this.packageLanguageBundleMap = new HashMap<>();
+    this.collisionPackages = new HashMap<>();
   }
 
   public BundlesStore(List<String> bundleRootFolders) {
@@ -80,6 +82,21 @@ public class BundlesStore {
                         && path.getFileName().toString().endsWith(".properties"))
             .forEach(path -> addMessagesFile(bundleRootFolder, path));
       }
+      if (!collisionPackages.isEmpty()) {
+        String collisionFiles =
+            collisionPackages.values().stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.joining("\n\t"));
+        collisionPackages.clear();
+        throw new HopFileException(
+            "Bundle file collision! "
+                + "We're trying to add all files to the bundle store but some files already exists "
+                + "in the same package. You should rename part of collision files, "
+                + "otherwise the package bundle will be ignored.\nList of collision file:\n\t"
+                + collisionFiles);
+      }
+    } catch (HopFileException e) {
+      throw e;
     } catch (Exception e) {
       throw new HopException("Error searching for messages bundles", e);
     }
@@ -143,19 +160,18 @@ public class BundlesStore {
     // If it already exists we're storing messages bundles twice or something like that.
     //
     BundleFile existingFile = languageBundleMap.get(language);
-    if (existingFile != null) {
-      throw new RuntimeException(
-          "Bundle file collision!  "
-              + "We're trying to add file '"
-              + bundleFile.getFilename()
-              + "' to the bundle store but this file already exists "
-              + "in the same package '"
-              + packageName
-              + "' for the same language '"
-              + language
-              + "' : '"
-              + existingFile.getFilename()
-              + "'");
+    if (existingFile != null || collisionPackages.containsKey(packageName)) {
+      List<String> collisionFiles = collisionPackages.get(packageName);
+      if (collisionFiles == null) {
+        Assert.assertNotNull(existingFile);
+        collisionFiles = new ArrayList<>();
+        collisionFiles.add(existingFile.getFilename());
+        collisionPackages.put(packageName, collisionFiles);
+        languageBundleMap.remove(language, existingFile);
+      }
+      packageLanguageBundleMap.remove(packageName);
+      collisionFiles.add(bundleFile.getFilename());
+      return;
     }
 
     languageBundleMap.put(language, bundleFile);

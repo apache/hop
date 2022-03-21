@@ -15,6 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 * xref:getting-started.adoc[Getting started]
+* xref:upgrading-to-20.adoc[Plugins Upgrades to 2.x]
 * xref:porting-kettle-plugins.adoc[Porting Kettle plugins]
 * xref:metadata-plugins.adoc[Metadata plugins]
 * xref:setup-dev-environment.adoc[Setting up your development environment]

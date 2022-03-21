@@ -26,8 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
 
@@ -36,9 +34,7 @@ import static org.junit.Assert.*;
 /**
  * Csv data is taken from the attachment to the issue.
  *
- * <p>Created by Yury_Bakhmutski on 10/7/2016.
- */
-@RunWith(PowerMockRunner.class)
+**/
 public class PDI_15270_Test extends CsvInputUnitTestBase {
   private CsvInput csvInput;
   private String[] expected;

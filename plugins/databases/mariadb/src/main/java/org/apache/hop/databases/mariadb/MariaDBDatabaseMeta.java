@@ -51,7 +51,7 @@ public class MariaDBDatabaseMeta extends MySqlDatabaseMeta {
   }
 
   @Override
-  public boolean fullExceptionLog(Exception e) {
+  public boolean isFullExceptionLog(Exception e) {
     Throwable cause = (e == null ? null : e.getCause());
     return !(cause != null && SHORT_MESSAGE_EXCEPTIONS.contains(cause.getClass().getName()));
   }

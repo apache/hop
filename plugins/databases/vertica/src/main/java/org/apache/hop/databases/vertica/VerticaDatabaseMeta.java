@@ -66,7 +66,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
@@ -570,12 +570,12 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     return false;
   }
 
   @Override
-  public boolean supportsBooleanDataType() {
+  public boolean isSupportsBooleanDataType() {
     return true;
   }
 
@@ -584,7 +584,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    *     null. Only required for DB2 and Vertica
    */
   @Override
-  public boolean requiresCastToVariousForIsNull() {
+  public boolean isRequiresCastToVariousForIsNull() {
     return true;
   }
 
@@ -601,7 +601,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports sequences */
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return true;
   }
 
@@ -639,7 +639,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return false as the database does not support timestamp to date conversion. */
   @Override
-  public boolean supportsTimeStampToDateConversion() {
+  public boolean isSupportsTimeStampToDateConversion() {
     return false;
   }
 
@@ -647,7 +647,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return false as the database does not support BLOB data type
    */
   @Override
-  public boolean supportsGetBlob() {
+  public boolean isSupportsGetBlob() {
     return false;
   }
 

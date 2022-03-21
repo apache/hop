@@ -41,8 +41,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     image = "metadata.svg",
     documentationUrl = "/pipeline/transforms/metadata-input.html")
-public class MetadataInputMeta extends BaseTransformMeta
-    implements ITransformMeta<MetadataInput, MetadataInputData> {
+public class MetadataInputMeta extends BaseTransformMeta<MetadataInput, MetadataInputData> {
 
   @HopMetadataProperty private String providerFieldName;
   @HopMetadataProperty private String typeKeyFieldName;
@@ -108,21 +107,6 @@ public class MetadataInputMeta extends BaseTransformMeta
     }
 
     inputRowMeta.addRowMeta(builder.build());
-  }
-
-  @Override
-  public MetadataInput createTransform(
-      TransformMeta transformMeta,
-      MetadataInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MetadataInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public MetadataInputData getTransformData() {
-    return new MetadataInputData();
   }
 
   /**

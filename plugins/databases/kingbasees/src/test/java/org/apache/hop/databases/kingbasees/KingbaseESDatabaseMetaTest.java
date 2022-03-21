@@ -682,14 +682,14 @@ public class KingbaseESDatabaseMetaTest {
 
     assertEquals("&", nativeMeta.getExtraOptionSeparator());
     assertEquals("?", nativeMeta.getExtraOptionIndicator());
-    assertFalse(nativeMeta.supportsAutoInc());
+    assertFalse(nativeMeta.isSupportsAutoInc());
     assertTrue(nativeMeta.isFetchSizeSupported());
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsSynonyms());
-    assertTrue(nativeMeta.supportsSequences());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsSynonyms());
+    assertTrue(nativeMeta.isSupportsSequences());
     assertEquals(" limit 5", nativeMeta.getLimitClause(5));
     assertFalse(nativeMeta.isDefaultingToUppercase());
-    assertFalse(nativeMeta.supportsTimeStampToDateConversion());
+    assertFalse(nativeMeta.isSupportsTimeStampToDateConversion());
   }
 
   @Test
@@ -743,7 +743,7 @@ public class KingbaseESDatabaseMetaTest {
     // Simple hack to prevent duplication of code. Checking the case of supported boolean type
     // both supported and unsupported. Should return BOOLEAN if supported, or CHAR(1) if not.
     String[] typeCk = new String[] {"CHAR(1)", "BOOLEAN", "CHAR(1)"};
-    int i = (nativeMeta.supportsBooleanDataType() ? 1 : 0);
+    int i = (nativeMeta.isSupportsBooleanDataType() ? 1 : 0);
     assertEquals(
         typeCk[i],
         nativeMeta.getFieldDefinition(new ValueMetaBoolean("FOO"), "", "", false, false, false));

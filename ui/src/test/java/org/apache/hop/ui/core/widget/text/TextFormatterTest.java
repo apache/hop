@@ -20,7 +20,6 @@ package org.apache.hop.ui.core.widget.text;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by bmorrise on 9/15/17. */
 public class TextFormatterTest {
 
   @Test

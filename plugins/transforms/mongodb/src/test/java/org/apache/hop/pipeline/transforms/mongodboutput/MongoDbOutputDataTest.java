@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.mongodboutput;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -46,9 +45,10 @@ import java.util.List;
 
 import static junit.framework.TestCase.fail;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class MongoDbOutputDataTest {
@@ -61,7 +61,7 @@ public class MongoDbOutputDataTest {
 
   @Before
   public void before() {
-    MockitoAnnotations.initMocks(this);
+    MockitoAnnotations.openMocks(this);
     when(variables.resolve(any(String.class)))
         .thenAnswer(
             (Answer<String>) invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
@@ -229,7 +229,7 @@ public class MongoDbOutputDataTest {
     field1.updateMatchField = true;
     when(rowMeta.getValueMeta(anyInt())).thenReturn(valueMeta);
     String query = "{ foo : 'bar' }";
-    when(valueMeta.getString(any(Object[].class))).thenReturn(query);
+    when(valueMeta.getString(any(Object.class))).thenReturn(query);
     Object[] row = new Object[] {"foo"};
 
     when(valueMeta.isString()).thenReturn(false);
@@ -253,7 +253,7 @@ public class MongoDbOutputDataTest {
             row,
             variables,
             MongoDbOutputData.MongoTopLevel.RECORD),
-        equalTo((DBObject) BasicDBObject.parse(query)));
+        equalTo(BasicDBObject.parse(query)));
   }
 
   @Test

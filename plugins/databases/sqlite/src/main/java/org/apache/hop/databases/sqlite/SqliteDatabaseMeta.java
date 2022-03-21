@@ -39,7 +39,7 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /** @see IDatabase#getNotFoundTK(boolean) */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
-    if (supportsAutoInc() && useAutoinc) {
+    if (isSupportsAutoInc() && useAutoinc) {
       return 1;
     }
     return super.getNotFoundTK(useAutoinc);
@@ -67,7 +67,7 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
@@ -187,7 +187,7 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    *     when an error occurs.
    */
   @Override
-  public boolean supportsErrorHandling() {
+  public boolean isSupportsErrorHandling() {
     return false;
   }
 

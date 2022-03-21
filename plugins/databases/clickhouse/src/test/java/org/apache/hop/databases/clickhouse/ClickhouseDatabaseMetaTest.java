@@ -64,14 +64,14 @@ public class ClickhouseDatabaseMetaTest {
 
   @Test
   public void testSupport() throws Exception {
-    assertFalse(nativeMeta.supportsSchemas());
-    assertTrue(nativeMeta.supportsViews());
-    assertFalse(nativeMeta.supportsSequences());
-    assertTrue(nativeMeta.supportsErrorHandlingOnBatchUpdates());
-    assertFalse(nativeMeta.supportsBooleanDataType());
-    assertTrue(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsTransactions());
-    assertFalse(nativeMeta.supportsTimeStampToDateConversion());
-    assertTrue(nativeMeta.supportsSynonyms());
+    assertFalse(nativeMeta.isSupportsSchemas());
+    assertTrue(nativeMeta.isSupportsViews());
+    assertFalse(nativeMeta.isSupportsSequences());
+    assertTrue(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
+    assertFalse(nativeMeta.isSupportsBooleanDataType());
+    assertTrue(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsTransactions());
+    assertFalse(nativeMeta.isSupportsTimeStampToDateConversion());
+    assertTrue(nativeMeta.isSupportsSynonyms());
   }
 }

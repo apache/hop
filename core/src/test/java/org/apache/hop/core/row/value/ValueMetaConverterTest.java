@@ -33,7 +33,6 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-/** Created by tkafalas on 12/6/2017. */
 public class ValueMetaConverterTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 

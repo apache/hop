@@ -35,23 +35,19 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.ifnull.IfNullMeta.Fields;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-/**
- * Tests for IfNull transform
- *
- * @see IfNull
- */
-@RunWith(PowerMockRunner.class)
+/** Tests for IfNull transform */
 public class IfNullTest {
   TransformMockHelper<IfNullMeta, IfNullData> smh;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  private RestoreHopEngineEnvironment env;
 
   @BeforeClass
   public static void beforeClass() throws HopException {
@@ -60,6 +56,7 @@ public class IfNullTest {
 
   @Before
   public void setUp() {
+    env = new RestoreHopEngineEnvironment();
     smh = new TransformMockHelper<>("Field IfNull processor", IfNullMeta.class, IfNullData.class);
     when(smh.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(smh.iLogChannel);
