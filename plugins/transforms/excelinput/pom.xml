@@ -36,7 +36,6 @@
     <properties>
         <odfdom-java.version>0.8.7</odfdom-java.version>
         <poi.version>5.2.1</poi.version>
-        <xerces.version>2.12.2</xerces.version>
     </properties>
 
     <dependencies>
@@ -70,13 +69,6 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>${xerces.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 

@@ -35,7 +35,8 @@
 
     <properties>
         <saxon.version>8.7</saxon.version>
-        <jaxen.version>1.2.0</jaxen.version>
+        <dom4j.version>2.1.3</dom4j.version>
+        <jaxen.version>1.2.0</jaxen.version>        
     </properties>
 
     <dependencies>
@@ -44,6 +45,12 @@
             <artifactId>saxon-dom</artifactId>
             <version>${saxon.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>${dom4j.version}</version>
+        </dependency>        
+        <!-- required by org.dom4j -->
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
@@ -54,6 +61,10 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
         </dependency>
     </dependencies>
 </project>
