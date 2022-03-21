@@ -53,7 +53,6 @@
         <picocli-version>4.6.3</picocli-version>
         <json-simple.version>1.1.1</json-simple.version>
         <commons-vfs2.version>2.9.0</commons-vfs2.version>
-        <jaxen.version>1.2.0</jaxen.version>
     </properties>
 
     <dependencies>
@@ -480,13 +479,6 @@
             <version>${project.version}</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <!-- required by org.dom4j -->
-        <dependency>
-            <groupId>jaxen</groupId>
-            <artifactId>jaxen</artifactId>
-            <version>${jaxen.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
