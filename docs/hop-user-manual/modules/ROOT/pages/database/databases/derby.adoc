@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://db.apache.org/derby/derby_downloads.html[Documentation Link]
 |JDBC Url | jdbc:derby:myDB
+|Driver folder | Hop Installation/plugins/databases/derby/lib
 |===

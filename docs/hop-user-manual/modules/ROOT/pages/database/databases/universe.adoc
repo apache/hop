@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://www-05.ibm.com/e-business/linkweb/publications/servlet/pbi.wss?CTY=US&FNC=SRX&PBL=G251-1210-00#[Documentation Link]
 |JDBC Url | jdbc:ibmu2://localhost
+|Driver folder | Hop Installation/plugins/databases/universe/lib
 |===

@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://www.monetdb.org/Documentation/Manuals/SQLreference/Programming/JDBC[Documentation Link]
 |JDBC Url |  jdbc:monetdb://hostname/databaseName
+|Driver folder | Hop Installation/plugins/databases/monetdb/lib
 |===
