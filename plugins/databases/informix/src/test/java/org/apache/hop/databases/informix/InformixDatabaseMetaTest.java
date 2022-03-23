@@ -37,7 +37,7 @@ public class InformixDatabaseMetaTest {
   public void testSettings() throws Exception {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(1526, nativeMeta.getDefaultDatabasePort());
-    assertTrue(nativeMeta.supportsAutoInc());
+    assertTrue(nativeMeta.isSupportsAutoInc());
     assertEquals(1, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
     nativeMeta.setServername("FOODBNAME");
@@ -48,10 +48,10 @@ public class InformixDatabaseMetaTest {
     assertEquals(
         "jdbc:informix-sqli://FOO:/WIBBLE:INFORMIXSERVER=FOODBNAME;DELIMIDENT=Y",
         nativeMeta.getURL("FOO", "", "WIBBLE")); // Pretty sure this is a bug (colon after foo)
-    assertTrue(nativeMeta.needsPlaceHolder());
+    assertTrue(nativeMeta.isNeedsPlaceHolder());
     assertTrue(nativeMeta.isFetchSizeSupported());
-    assertTrue(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsSynonyms());
+    assertTrue(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsSynonyms());
   }
 
   @Test
@@ -96,7 +96,7 @@ public class InformixDatabaseMetaTest {
     // Simple hack to prevent duplication of code. Checking the case of supported boolean type
     // both supported and unsupported. Should return BOOLEAN if supported, or CHAR(1) if not.
     String[] typeCk = new String[] {"CHAR(1)", "BOOLEAN", "CHAR(1)"};
-    int i = (nativeMeta.supportsBooleanDataType() ? 1 : 0);
+    int i = (nativeMeta.isSupportsBooleanDataType() ? 1 : 0);
     assertEquals(
         typeCk[i],
         nativeMeta.getFieldDefinition(new ValueMetaBoolean("FOO"), "", "", false, false, false));

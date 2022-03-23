@@ -80,24 +80,24 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
   /** @return true if the database supports synonyms */
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return false;
   }
 
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return true;
   }
 
   /** @return true if auto incremment is supported */
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     return false;
   }
 
@@ -811,7 +811,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return true if the database resultsets support getTimeStamp() to retrieve date-time. (Date)
    */
   @Override
-  public boolean supportsTimeStampToDateConversion() {
+  public boolean isSupportsTimeStampToDateConversion() {
     return false;
   }
 

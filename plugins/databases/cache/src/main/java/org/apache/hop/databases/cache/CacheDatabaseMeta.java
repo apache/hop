@@ -45,7 +45,7 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean supportsSetCharacterStream() {
+  public boolean isSupportsSetCharacterStream() {
     return false;
   }
 
@@ -56,7 +56,7 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return Whether or not the database can use auto increment type of fields (pk) */
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     return false;
   }
 
@@ -194,13 +194,13 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    *     fields, required for Cache.
    */
   @Override
-  public boolean requiresCreateTablePrimaryKeyAppend() {
+  public boolean isRequiresCreateTablePrimaryKeyAppend() {
     return true;
   }
 
   /** @return true if the database supports newlines in a SQL statements. */
   @Override
-  public boolean supportsNewLinesInSql() {
+  public boolean isSupportsNewLinesInSql() {
     return false;
   }
 }

@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-/** Created by bmorrise on 5/18/18. */
 public class SetValueConstantMetaInjectionTest
     extends BaseMetadataInjectionTest<SetValueConstantMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

@@ -362,7 +362,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastLogControl = wlLogFileRepetitionAdded;
 
     wlLogFileAppended = new Label(wLogFileGroup, SWT.RIGHT);
-    wlLogFileAppended.setText("Append to any existing log file? ");
+    wlLogFileAppended.setText(BaseMessages.getString(PKG, "Repeat.AppendToExistingFile.Label"));
     props.setLook(wlLogFileAppended);
     FormData fdlLogFileAppended = new FormData();
     fdlLogFileAppended.left = new FormAttachment(0, 0);
@@ -379,7 +379,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastLogControl = wlLogFileAppended;
 
     wlLogFileUpdateInterval = new Label(wLogFileGroup, SWT.RIGHT);
-    wlLogFileUpdateInterval.setText(BaseMessages.getString(PKG, "Repeat.AppendToExistingFile.Label"));
+    wlLogFileUpdateInterval.setText(BaseMessages.getString(PKG, "Repeat.LogFileUpdateInterval.Label"));
     props.setLook(wlLogFileUpdateInterval);
     FormData fdlLogFileUpdateInterval = new FormData();
     fdlLogFileUpdateInterval.left = new FormAttachment(0, 0);

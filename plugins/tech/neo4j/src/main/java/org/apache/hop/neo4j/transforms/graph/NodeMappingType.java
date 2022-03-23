@@ -22,6 +22,7 @@ import org.apache.hop.metadata.api.IEnumHasCode;
 public enum NodeMappingType implements IEnumHasCode {
   All("all", "Select all defined labels (default)"),
   UsingValue("using-value", "Use a field value to select a specific label"),
+  AddLabel("add-label", "Add the specified label if a field contains a specific value"),
   First("first", "Select the first label"),
   ;
 

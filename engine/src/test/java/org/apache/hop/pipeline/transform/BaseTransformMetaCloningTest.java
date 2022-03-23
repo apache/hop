@@ -18,8 +18,8 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.database.Database;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transform.errorhandling.Stream;
+import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transform.stream.Stream;
 import org.junit.Test;
 
 import java.util.List;

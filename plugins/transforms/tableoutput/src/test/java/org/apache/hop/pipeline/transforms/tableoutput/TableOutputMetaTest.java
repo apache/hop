@@ -132,7 +132,7 @@ public class TableOutputMetaTest {
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     IDatabase iDatabase = mock(IDatabase.class);
     when(dbMeta.getIDatabase()).thenReturn(iDatabase);
-    when(iDatabase.supportsErrorHandling()).thenReturn(true, false);
+    when(iDatabase.isSupportsErrorHandling()).thenReturn(true, false);
     assertTrue(tableOutputMeta.supportsErrorHandling());
   }
 

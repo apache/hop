@@ -29,6 +29,7 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://docs.oracle.com/cd/E11882_01/java.112/e16548/toc.htm[Documentation Link]
 |JDBC Url | jdbc:oracle:thin:@hostname:port Number:databaseName
+|Driver folder | Hop Installation/plugins/databases/oracle/lib
 |===
 
 TIP: Starting with Oracle Database 11g Release 1 (11.1), data type "Date" will be mapped to "Timestamp" by default. 

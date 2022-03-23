@@ -42,7 +42,7 @@ public class OracleRDBDatabaseMetaTest {
     // according to the features of the DB as we know them
 
     assertEquals(-1, nativeMeta.getDefaultDatabasePort());
-    assertFalse(nativeMeta.supportsAutoInc());
+    assertFalse(nativeMeta.isSupportsAutoInc());
     assertEquals("oracle.rdb.jdbc.rdbThin.Driver", nativeMeta.getDriverClass());
     assertEquals("jdbc:rdbThin://FOO:1024/BAR", nativeMeta.getURL("FOO", "1024", "BAR"));
     assertEquals("jdbc:rdbThin://FOO:11/:BAR", nativeMeta.getURL("FOO", "11", ":BAR"));
@@ -58,10 +58,10 @@ public class OracleRDBDatabaseMetaTest {
     assertEquals("jdbc:rdbThin://FOO:1234/BAR", nativeMeta.getURL("FOO", "1234", "BAR"));
     assertEquals(
         "jdbc:rdbThin://:/", nativeMeta.getURL("", "", "")); // Pretty sure this is a bug...
-    assertFalse(nativeMeta.supportsOptionsInURL());
-    assertTrue(nativeMeta.supportsSequences());
+    assertFalse(nativeMeta.isSupportsOptionsInURL());
+    assertTrue(nativeMeta.isSupportsSequences());
     assertTrue(nativeMeta.useSchemaNameForTableList());
-    assertTrue(nativeMeta.supportsSynonyms());
+    assertTrue(nativeMeta.isSupportsSynonyms());
     String[] reservedWords =
         new String[] {
           "ACCESS",

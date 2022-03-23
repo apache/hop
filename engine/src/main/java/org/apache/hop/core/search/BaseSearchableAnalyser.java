@@ -36,13 +36,13 @@ public abstract class BaseSearchableAnalyser<T> {
     if (searchQuery.matches(propertyName)) {
       searchResults.add(
           new SearchResult(
-              parent, propertyName, "matching property name: " + propertyName, component));
+              parent, propertyName, "matching property name: " + propertyName, component, propertyValue));
     }
     if (StringUtils.isNotEmpty(propertyValue)) {
       if (searchQuery.matches(propertyValue)) {
         searchResults.add(
             new SearchResult(
-                parent, propertyValue, "matching property value: " + propertyValue, component));
+                parent, propertyValue, "matching property value: " + propertyValue, component, propertyValue));
       }
     }
   }
@@ -64,7 +64,8 @@ public abstract class BaseSearchableAnalyser<T> {
                 searchable,
                 stringSearchResult.getFieldName(),
                 descriptionPrefix + " : " + stringSearchResult.getFieldName(),
-                component));
+                component,
+                    stringSearchResult.getString()));
       }
       if (searchQuery.matches(stringSearchResult.getString())) {
         searchResults.add(
@@ -72,7 +73,8 @@ public abstract class BaseSearchableAnalyser<T> {
                 searchable,
                 stringSearchResult.getString(),
                 descriptionPrefix + " : " + stringSearchResult.getFieldName(),
-                component));
+                component,
+                    stringSearchResult.getString()));
       }
     }
   }

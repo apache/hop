@@ -41,6 +41,18 @@ git push upstream releaseX.XX:releaseX.XX
 mvn versions:set -DnewVersion=X.XX -DgenerateBackupPoms=false
 ----
 
+== check for missing replaced poms
+check the source code and search for X.XX-SNAPSHOT and replace it by X.XX
+
+== correctly set the documentation version
+Update following files and set the correct documentation version and name
+
+* docs/hop-user-manual/antora.yml
+* docs/hop-tech-manual/antora.yml
+* docs/hop-dev-manual/antora.yml
+
+Remove the `prerelease` and `display_version` attributes
+
 == commit the changed version and add tag
 
 Next up checking in the changes and adding a release tag.
@@ -54,6 +66,7 @@ git push upstream releaseX.XX:releaseX.XX
 git tag -a X.XX-rcX
 git push upstream tag X.XX-rcX
 ----
+start numbering the rc with 1 (rc1)
 
 == Creating the release artifacts
 
@@ -141,6 +154,7 @@ Add and commit the files to svn
 
 [source,bash]
 ----
+cd apache-hop-x.xx-rcx
 svn add *
 svn status
 svn commit -m 'Add release files for Apache hop X.XX-rcX'

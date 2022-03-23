@@ -37,14 +37,14 @@ public class SAPDBDatabaseMetaTest {
   public void testSettings() throws Exception {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(-1, nativeMeta.getDefaultDatabasePort());
-    assertFalse(nativeMeta.supportsAutoInc());
+    assertFalse(nativeMeta.isSupportsAutoInc());
     assertEquals(0, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
     assertEquals("com.sap.dbtech.jdbc.DriverSapDB", nativeMeta.getDriverClass());
     assertEquals("jdbc:sapdb://FOO/WIBBLE", nativeMeta.getURL("FOO", "IGNORED", "WIBBLE"));
     assertTrue(nativeMeta.isFetchSizeSupported());
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsSynonyms());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsSynonyms());
     assertEquals(
         new String[] {
           "ABS",

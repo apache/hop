@@ -47,10 +47,10 @@ public class NetezzaDatabaseMetaTest {
         "jdbc:netezza://FOO:null/WIBBLE",
         nativeMeta.getURL("FOO", null, "WIBBLE")); // I think this is a bug...
     assertTrue(nativeMeta.isFetchSizeSupported());
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsSynonyms());
-    assertTrue(nativeMeta.supportsSequences());
-    assertFalse(nativeMeta.supportsAutoInc());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsSynonyms());
+    assertTrue(nativeMeta.isSupportsSequences());
+    assertFalse(nativeMeta.isSupportsAutoInc());
 
     assertArrayEquals(
         new String[] {
@@ -528,7 +528,7 @@ public class NetezzaDatabaseMetaTest {
         nativeMeta.getReservedWords());
 
     assertFalse(nativeMeta.isDefaultingToUppercase());
-    assertFalse(nativeMeta.supportsTimeStampToDateConversion());
+    assertFalse(nativeMeta.isSupportsTimeStampToDateConversion());
   }
 
   @Test

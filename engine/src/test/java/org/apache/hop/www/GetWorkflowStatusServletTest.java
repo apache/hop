@@ -26,6 +26,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.internal.verification.VerificationModeFactory;
 import org.owasp.encoder.Encode;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -40,8 +41,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import static junit.framework.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
@@ -75,7 +76,7 @@ public class GetWorkflowStatusServletTest {
     getWorkflowStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
 
     assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
-    PowerMockito.verifyStatic(atLeastOnce());
+    PowerMockito.verifyStatic(Encode.class);
     Encode.forHtml(anyString());
   }
 
@@ -107,7 +108,7 @@ public class GetWorkflowStatusServletTest {
     getWorkflowStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(out.toString().contains(ServletTestUtils.BAD_STRING_TO_TEST));
 
-    PowerMockito.verifyStatic(atLeastOnce());
+    PowerMockito.verifyStatic(Encode.class, VerificationModeFactory.atLeastOnce());
     Encode.forHtml(anyString());
   }
 

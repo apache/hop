@@ -51,7 +51,7 @@ public class HypersonicDatabaseMetaTest {
 
     assertEquals("jdbc:hsqldb:WIBBLE", nativeMeta.getURL("", "", "WIBBLE"));
     assertEquals("jdbc:hsqldb:hsql://FOO:BAR/WIBBLE", nativeMeta.getURL("FOO", "BAR", "WIBBLE"));
-    assertFalse(nativeMeta.supportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
     assertEquals(
         "http://hsqldb.sourceforge.net/doc/guide/ch04.html#N109DA",
         nativeMeta.getExtraOptionsHelpText());
@@ -391,7 +391,7 @@ public class HypersonicDatabaseMetaTest {
         },
         nativeMeta.getReservedWords());
 
-    assertTrue(nativeMeta.supportsSequences());
+    assertTrue(nativeMeta.isSupportsSequences());
   }
 
   @Test

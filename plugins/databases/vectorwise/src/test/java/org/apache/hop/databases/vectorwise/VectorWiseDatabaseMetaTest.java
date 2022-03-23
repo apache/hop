@@ -59,7 +59,7 @@ public class VectorWiseDatabaseMetaTest {
     assertEquals(
         "CALL VECTORWISE( COMBINE 'FOO - FOO' )", nativeMeta.getTruncateTableStatement("FOO"));
 
-    assertFalse(nativeMeta.supportsGetBlob());
+    assertFalse(nativeMeta.isSupportsGetBlob());
   }
 
   @Test

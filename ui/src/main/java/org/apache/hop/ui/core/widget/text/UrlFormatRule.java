@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
-/** Created by bmorrise on 9/15/17. */
 public class UrlFormatRule extends FormatRule {
   private static final int LINK_TEXT = 0;
   private static final int LINK_URL = 1;

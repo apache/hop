@@ -32,7 +32,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.when;
 
-/** Created by bmorrise on 2/11/16. */
 @RunWith(MockitoJUnitRunner.class)
 public class MemoryGroupByDataTest {
 

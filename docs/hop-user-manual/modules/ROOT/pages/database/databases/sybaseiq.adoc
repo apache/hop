@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | http://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc01776.1600/doc/html/san1357754910584.html[Documentation Link]
 |JDBC Url | jdbc:sybase:Tds:localhost:2638
+|Driver folder | Hop Installation/plugins/databases/sybaseiq/lib
 |===

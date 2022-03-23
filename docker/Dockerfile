@@ -87,7 +87,7 @@ ENV HOP_SERVER_MAX_OBJECT_TIMEOUT=
 RUN chmod 777 -R /tmp && chmod o+t -R /tmp
 
 # Install some fonts
-RUN apk --no-cache add openjdk8-jre \
+RUN apk --no-cache add openjdk11-jre \
         msttcorefonts-installer \
         fontconfig && \
         update-ms-fonts && \

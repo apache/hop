@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-transforms</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-transform-pgbulkloader</artifactId>
@@ -35,7 +35,7 @@
     <name>Hop Plugins Transforms PostgreSQL bulk loader</name>
 
     <properties>
-        <postgresql.version>42.3.2</postgresql.version>
+        <postgresql.version>42.3.3</postgresql.version>
     </properties>
 
     <dependencies>

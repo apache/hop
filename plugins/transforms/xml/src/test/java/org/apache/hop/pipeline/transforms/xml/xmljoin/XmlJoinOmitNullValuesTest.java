@@ -24,18 +24,16 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -43,7 +41,6 @@ import static org.mockito.Mockito.*;
  *
  * @see XmlJoin
  */
-@RunWith(MockitoJUnitRunner.class)
 public class XmlJoinOmitNullValuesTest {
   TransformMockHelper<XmlJoinMeta, XmlJoinData> tmh;
 

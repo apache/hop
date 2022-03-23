@@ -72,7 +72,7 @@ public class MsSqlServerDatabaseMetaTest {
 
   @Test
   public void testSettings() throws Exception {
-    assertFalse(nativeMeta.supportsCatalogs());
+    assertFalse(nativeMeta.isSupportsCatalogs());
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(1433, nativeMeta.getDefaultDatabasePort());
     assertEquals("net.sourceforge.jtds.jdbc.Driver", nativeMeta.getDriverClass());
@@ -82,7 +82,7 @@ public class MsSqlServerDatabaseMetaTest {
         "jdbc:jtds:sqlserver://FOO:1234/WIBBLE", nativeMeta.getURL("FOO", "1234", "WIBBLE"));
 
     assertEquals("FOO.BAR", nativeMeta.getSchemaTableCombination("FOO", "BAR"));
-    assertFalse(nativeMeta.supportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
 
     assertArrayEquals(
         new String[] {
@@ -465,11 +465,11 @@ public class MsSqlServerDatabaseMetaTest {
 
     assertEquals(
         "http://jtds.sourceforge.net/faq.html#urlFormat", nativeMeta.getExtraOptionsHelpText());
-    assertTrue(nativeMeta.supportsSchemas());
-    assertTrue(nativeMeta.supportsSequences());
-    assertTrue(nativeMeta.supportsSequenceNoMaxValueOption());
-    assertFalse(nativeMeta.useSafePoints());
-    assertTrue(nativeMeta.supportsErrorHandlingOnBatchUpdates());
+    assertTrue(nativeMeta.isSupportsSchemas());
+    assertTrue(nativeMeta.isSupportsSequences());
+    assertTrue(nativeMeta.isSupportsSequenceNoMaxValueOption());
+    assertFalse(nativeMeta.isUseSafePoints());
+    assertTrue(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
     assertEquals(8000, nativeMeta.getMaxVARCHARLength());
   }
 
@@ -667,9 +667,9 @@ public class MsSqlServerDatabaseMetaTest {
                   }
                 });
     Mockito.when(db.getDatabaseMeta()).thenReturn(dm);
-    assertTrue(nativeMeta.checkIndexExists(db, "", "FOO", new String[] {"ROW1COL2", "ROW2COL2"}));
-    assertFalse(nativeMeta.checkIndexExists(db, "", "FOO", new String[] {"ROW2COL2", "NOTTHERE"}));
-    assertFalse(nativeMeta.checkIndexExists(db, "", "FOO", new String[] {"NOTTHERE", "ROW1COL2"}));
+    assertTrue(nativeMeta.hasIndex(db, "", "FOO", new String[] {"ROW1COL2", "ROW2COL2"}));
+    assertFalse(nativeMeta.hasIndex(db, "", "FOO", new String[] {"ROW2COL2", "NOTTHERE"}));
+    assertFalse(nativeMeta.hasIndex(db, "", "FOO", new String[] {"NOTTHERE", "ROW1COL2"}));
   }
 
   /*  @Test

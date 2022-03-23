@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://docs.actian.com/ingres/11.0/index.html#page/Connectivity%2FJDBC_Driver_and_Data_Source_Classes.htm%23[Documentation Link]
 |JDBC Url | jdbc:ingres://host:port{,port}{;host:port{,port}}/db{;attr=value}
+|Driver folder | Hop Installation/plugins/databases/vectorwise/lib
 |===

@@ -39,7 +39,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 
   /** @return Whether or not the database can use auto increment type of fields (pk) */
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     return false;
   }
 
@@ -91,13 +91,13 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
    * connection time...
    */
   @Override
-  public boolean supportsOptionsInURL() {
+  public boolean isSupportsOptionsInURL() {
     return false;
   }
 
   /** @return true if the database supports sequences */
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return true;
   }
 
@@ -152,7 +152,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 
   /** @return true if the database supports synonyms */
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return true;
   }
 

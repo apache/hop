@@ -76,6 +76,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
 
   /** Field value to dateMask after lookup */
   @HopMetadataProperty(
+      key = "mapping",
       injectionGroupKey = "mapping",
       injectionGroupDescription = "PGBulkLoader.Injection.Mapping.Label")
   private List<PGBulkLoaderMappingMeta> mappings;
@@ -344,7 +345,9 @@ public class PGBulkLoaderMeta extends BaseTransformMeta
             tableFields.addValueMeta(tableField);
           } else {
             throw new HopTransformException(
-                "Unable to find field [" + mappings.get(i).getFieldStream() + "] in the input rows");
+                "Unable to find field ["
+                    + mappings.get(i).getFieldStream()
+                    + "] in the input rows");
           }
         }
 

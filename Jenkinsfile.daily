@@ -18,7 +18,7 @@
  */
 
 def AGENT_LABEL = env.AGENT_LABEL ?: 'ubuntu'
-def JDK_NAME = env.JDK_NAME ?: 'jdk_1.8_latest'
+def JDK_NAME = env.JDK_NAME ?: 'jdk_11_latest'
 def MAVEN_NAME = env.MAVEN_NAME ?: 'maven_3_latest'
 
 def MAVEN_PARAMS = "-T 2 -U -B -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2"
@@ -58,7 +58,7 @@ pipeline {
     stages {
         stage('Initialization') {
               steps {
-                  echo 'Building Branch: ' + env.BRANCH_NAME
+                  echo 'Building Branch: 2.0.0'
                   echo 'Using PATH = ' + env.PATH
                   echo 'Using Jenkins user = ' + jenkins_user
                   echo 'Using Jenkins userid = ' + jenkins_uid
@@ -74,7 +74,7 @@ pipeline {
          }
         stage('Checkout') {
             steps {
-                echo 'Checking out branch ' + env.BRANCH_NAME
+                echo 'Checking out branch 2.0.0'
                 checkout scm
             }
         }

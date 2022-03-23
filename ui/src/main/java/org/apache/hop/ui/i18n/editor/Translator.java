@@ -64,6 +64,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Supplier;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -143,11 +145,16 @@ public class Translator {
 
   public void readFiles() throws HopFileException {
     log.logBasic(BaseMessages.getString(PKG, "i18n.Log.ScanningSourceDirectories"));
+    HopFileException collisionException = null;
     try {
       // Find and read read all the messages files in the root folder
       //
       BundlesStore bundlesStore = new BundlesStore(rootFolder);
-      bundlesStore.findAllMessagesBundles();
+      try {
+        bundlesStore.findAllMessagesBundles();
+      } catch (HopFileException e) {
+        collisionException = e;
+      }
 
       // Find all the source directories in the root folder and crawl through them
       //
@@ -255,6 +262,9 @@ public class Translator {
           BaseMessages.getString(PKG, "i18n.Log.UnableToGetFiles", sourceDirectories.toString()),
           e);
     }
+    if (collisionException != null) {
+      throw collisionException;
+    }
   }
 
   public void loadConfiguration(String configFile, String sourceFolder) throws Exception {
@@ -307,11 +317,15 @@ public class Translator {
     try {
       readFiles();
     } catch (Exception e) {
-      new ErrorDialog(
-          shell,
-          "Error reading translations",
-          "There was an unexpected error reading the translations",
-          e);
+      shell
+          .getDisplay()
+          .asyncExec(
+              () ->
+                  new ErrorDialog(
+                      shell,
+                      "Error reading translations",
+                      "There was an unexpected error reading the translations",
+                      e));
     }
 
     // Put something on the screen
@@ -337,6 +351,13 @@ public class Translator {
   }
 
   private void addListeners() {
+    // Kill process, press Ctrl + C in terminal window
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new TranslateShutdownHook(
+                shell, () -> !store.getChangedBundleFiles().isEmpty(), () -> saveFiles(true)));
+    // System-level shortcut, like command + Q on macOS
+    display.addListener(SWT.Close, event -> event.doit = quitFile());
     // In case someone dares to press the [X] in the corner ;-)
     shell.addShellListener(
         new ShellAdapter() {
@@ -875,6 +896,10 @@ public class Translator {
   }
 
   protected boolean saveFiles() {
+    return saveFiles(false);
+  }
+
+  private boolean saveFiles(boolean force) {
 
     // Check if we hve a last value changed but pending to be considered as such.
     if (!Utils.isEmpty(lastValue)) {
@@ -904,7 +929,7 @@ public class Translator {
               BaseMessages.getString(PKG, "i18nDialog.ChangedFiles"),
               BaseMessages.getString(PKG, "i18nDialog.ChangedMessagesFiles"),
               msg.toString());
-      if (dialog.open() != null) {
+      if (dialog.open() != null || force) {
         try {
           for (BundleFile bundleFile : changedBundleFiles) {
             bundleFile.write();
@@ -1249,7 +1274,7 @@ public class Translator {
     // Sort the source folders...
     //
     java.util.List<String> sourceFolders = new ArrayList<>(sourceMessagesPackages.keySet());
-    Collections.sort(sourceFolders);
+    sourceFolders.sort(this::pathDepthFirstComparator);
     for (String sourceFolder : sourceFolders) {
       Map<String, java.util.List<KeyOccurrence>> messagesPackages =
           sourceMessagesPackages.get(sourceFolder);
@@ -1353,6 +1378,14 @@ public class Translator {
     return APP_NAME;
   }
 
+  private int pathDepthFirstComparator(String path1, String path2) {
+    int rs = Integer.compare(path1.split("/").length, path2.split("/").length);
+    if (rs == 0) {
+      return path1.compareTo(path2);
+    }
+    return rs;
+  }
+
   public static void main(String[] args) throws Exception {
 
     if (args.length != 2) {
@@ -1385,6 +1418,43 @@ public class Translator {
     } catch (Throwable e) {
       log.logError(BaseMessages.getString(PKG, "i18n.UnexpectedError", e.getMessage()));
       log.logError(Const.getStackTracker(e));
+    }
+  }
+
+  private static class TranslateShutdownHook extends Thread {
+    final Shell shell;
+    final Supplier<Boolean> ifNeedSupplier;
+    final Runnable doSaveRunnable;
+    CountDownLatch exitLatch;
+
+    public TranslateShutdownHook(
+        Shell shell, Supplier<Boolean> ifNeedSupplier, Runnable doSaveRunnable) {
+      this.shell = shell;
+      this.ifNeedSupplier = ifNeedSupplier;
+      this.doSaveRunnable = doSaveRunnable;
+    }
+
+    @Override
+    public void run() {
+      if (!ifNeedSupplier.get()) {
+        return;
+      }
+
+      exitLatch = new CountDownLatch(1);
+      shell.getDisplay().asyncExec(this::asyncSaveFile);
+      try {
+        exitLatch.await();
+      } catch (InterruptedException ignore) {
+      }
+    }
+
+    private void asyncSaveFile() {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      mb.setText(BaseMessages.getString("i18nDialog.Information.Title"));
+      mb.setMessage(BaseMessages.getString("i18nDialog.ForceSaveChanges.Message"));
+      mb.open();
+      doSaveRunnable.run();
+      exitLatch.countDown();
     }
   }
 }

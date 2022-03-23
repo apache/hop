@@ -507,7 +507,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return true if the database supports roundinf of floating point data on update/insert
    */
   @Override
-  public boolean supportsFloatRoundingOnUpdate() {
+  public boolean isSupportsFloatRoundingOnUpdate() {
     return false;
   }
 
@@ -525,7 +525,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports sequences */
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return true;
   }
 
@@ -572,7 +572,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    *     AS/400 and DB2 support this.
    */
   @Override
-  public boolean supportsSequenceNoMaxValueOption() {
+  public boolean isSupportsSequenceNoMaxValueOption() {
     return true;
   }
 }

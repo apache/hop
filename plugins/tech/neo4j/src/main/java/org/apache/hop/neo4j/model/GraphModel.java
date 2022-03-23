@@ -267,7 +267,7 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
     if (object == this) {
       return true;
     }
-    return ((GraphModel) object).getName().equalsIgnoreCase(name);
+    return name.equalsIgnoreCase(((GraphModel) object).getName());
   }
 
   public GraphModel(GraphModel source) {

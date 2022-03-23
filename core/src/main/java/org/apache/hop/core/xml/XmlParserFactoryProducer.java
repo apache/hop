@@ -19,12 +19,8 @@ package org.apache.hop.core.xml;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.io.SAXReader;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
-
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -69,29 +65,11 @@ public class XmlParserFactoryProducer {
   public static SAXParserFactory createSecureSAXParserFactory()
       throws SAXNotSupportedException, SAXNotRecognizedException, ParserConfigurationException {
     SAXParserFactory factory = SAXParserFactory.newInstance();
-    factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);    
     factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
     factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
     factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 
     return factory;
-  }
-
-  public static SAXReader getSAXReader(final EntityResolver resolver) {
-    SAXReader reader = new SAXReader();
-    if (resolver != null) {
-      reader.setEntityResolver(resolver);
-    }
-    try {
-      reader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
-      reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-      reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-    } catch (SAXException e) {
-      logger.error("Some parser properties are not supported.");
-    }
-    reader.setIncludeExternalDTDDeclarations(false);
-    reader.setIncludeInternalDTDDeclarations(false);
-    return reader;
   }
 }

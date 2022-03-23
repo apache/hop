@@ -60,14 +60,18 @@ public class GraphOutputData extends BaseNeoTransformData implements ITransformD
   public Map<String, Map<String, GraphRelationship>> fieldValueRelationshipMap;
   public Map<String, Map<String, List<GraphRelationship>>> relationshipsCache;
 
-  public static class RelelationshipMappingIndexes {
+  public static class RelationshipMappingIndexes {
     public int fieldIndex;
   }
 
-  public List<RelelationshipMappingIndexes> relMappingIndexes;
+  public List<RelationshipMappingIndexes> relMappingIndexes;
 
   public List<Integer> nodeMappingIndexes;
 
-  // For a specific node name, map a field value to the specified node label
-  public Map<String, Map<String, String>> nodeValueLabelMap;
+  // For a merge on a specific node name, map a field value to the specified node label
+  public Map<String, Map<String, String>> nodeValueLabelMergeMap;
+
+  // To set a label on a node after merge, for a specific node name, map a field value to the specified node label
+  public Map<String, Map<String, String>> nodeValueLabelSetMap;
+
 }

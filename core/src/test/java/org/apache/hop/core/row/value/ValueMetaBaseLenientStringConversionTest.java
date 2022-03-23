@@ -49,7 +49,7 @@ public class ValueMetaBaseLenientStringConversionTest {
   }
 
   @Test
-  public void testStrToIntStrict() throws Exception {
+  public void testStrToIntStrict() {
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N");
 
     String[] values = new String[] {"1a", "1,1", "100,000,3", "100.000,3"};
@@ -94,7 +94,7 @@ public class ValueMetaBaseLenientStringConversionTest {
   }
 
   @Test
-  public void testStrToBigNumberStrict() throws Exception {
+  public void testStrToBigNumberStrict() {
 
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N");
 

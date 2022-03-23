@@ -28,7 +28,7 @@ import org.apache.hop.core.gui.IGc.EImage;
 import org.apache.hop.core.gui.IGc.ELineStyle;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.transform.stream.StreamIcon;
 
 import java.util.List;
 

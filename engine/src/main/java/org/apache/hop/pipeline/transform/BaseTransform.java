@@ -1024,11 +1024,17 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     // started.
     //
     if (this.checkPipelineRunning == false) {
+      int counter = 0;
       while (!pipeline.isRunning() && !stopped.get()) {
         try {
-          Thread.sleep(1);
+          Thread.sleep(1000);
+          counter++;
         } catch (InterruptedException e) {
           // Ignore
+        }
+        //wait 3s max
+        if(counter >= 3) {
+          break;
         }
       }
       this.checkPipelineRunning = true;
@@ -1979,7 +1985,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     // If the source transform is partitioned but this one isn't, throw an error
     //
-    if (transformMeta.isPartitioned() && !sourceTransformMeta.isPartitioned()) {
+    if (!transformMeta.isPartitioned() && sourceTransformMeta.isPartitioned()) {
       throw new HopTransformException(
           "The info transform to read data from called ["
               + sourceTransformMeta.getName()

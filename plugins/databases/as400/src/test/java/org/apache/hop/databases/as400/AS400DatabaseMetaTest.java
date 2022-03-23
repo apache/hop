@@ -373,10 +373,10 @@ public class AS400DatabaseMetaTest {
         };
 
     assertArrayEquals(expectedReservedWords, nativeMeta.getReservedWords());
-    assertFalse(nativeMeta.supportsFloatRoundingOnUpdate());
+    assertFalse(nativeMeta.isSupportsFloatRoundingOnUpdate());
     assertEquals(32672, nativeMeta.getMaxVARCHARLength());
-    assertTrue(nativeMeta.supportsSequences());
-    assertTrue(nativeMeta.supportsSequenceNoMaxValueOption());
+    assertTrue(nativeMeta.isSupportsSequences());
+    assertTrue(nativeMeta.isSupportsSequenceNoMaxValueOption());
   }
 
   @Test

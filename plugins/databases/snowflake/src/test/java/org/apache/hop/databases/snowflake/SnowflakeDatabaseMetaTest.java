@@ -89,13 +89,13 @@ public class SnowflakeDatabaseMetaTest {
 
   @Test
   public void testSupport() throws Exception {
-    assertTrue(nativeMeta.supportsSchemas());
-    assertTrue(nativeMeta.supportsViews());
-    assertTrue(nativeMeta.supportsSequences());
-    assertTrue(nativeMeta.supportsErrorHandlingOnBatchUpdates());
-    assertTrue(nativeMeta.supportsBooleanDataType());
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsTransactions());
-    assertFalse(nativeMeta.supportsSynonyms());
+    assertTrue(nativeMeta.isSupportsSchemas());
+    assertTrue(nativeMeta.isSupportsViews());
+    assertTrue(nativeMeta.isSupportsSequences());
+    assertTrue(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
+    assertTrue(nativeMeta.isSupportsBooleanDataType());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsTransactions());
+    assertFalse(nativeMeta.isSupportsSynonyms());
   }
 }
