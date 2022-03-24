@@ -22,6 +22,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.VariableRegistry;
+import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -254,8 +255,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
 
     // The Hop system settings variables
     //
-    Set<String> hopSystemSettings =
-        new HashSet<>(Arrays.asList(Const.HOP_SYSTEM_SETTING_VARIABLES));
+    Set<String> hopSystemSettings = VariableRegistry.getInstance().getVariableNames(VariableScope.SYSTEM);        
 
     Map<String, String> pluginsPrefixesMap = new HashMap<>();
 

@@ -791,17 +791,6 @@ public class Const {
   @Variable(description="This is the name of the variable which when set should contains the path to a file which will be included in the serialization of pipelines and workflows")
   public static final String HOP_LICENSE_HEADER_FILE = "HOP_LICENSE_HEADER_FILE";
 
-  public static final String[] HOP_SYSTEM_SETTING_VARIABLES =
-      new String[] {
-        HOP_METADATA_FOLDER,
-        HOP_PLATFORM_OS,
-        HOP_PLATFORM_RUNTIME,
-        HOP_SHARED_JDBC_FOLDER,
-        HOP_CONFIG_FOLDER,
-        HOP_AUDIT_FOLDER,
-        HOP_SIMPLE_STACK_TRACES,
-      };
-
   /** The i18n prefix to signal that this is a String in the format: i18n:package:key */
   public static final String I18N_PREFIX = "i18n:";
 
