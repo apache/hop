@@ -18,6 +18,7 @@
 package org.apache.hop.ui.core.vfs;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOCase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
@@ -943,7 +944,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           String selectedExtensions = filterExtensions[wFilters.getSelectionIndex()];
           String[] exts = selectedExtensions.split(";");
           for (String ext : exts) {
-            if (FilenameUtils.wildcardMatch(baseFilename, ext)) {
+            if (FilenameUtils.wildcardMatch(baseFilename, ext, IOCase.INSENSITIVE)) {
               selectFile = true;
             }
           }
