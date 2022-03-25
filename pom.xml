@@ -167,7 +167,8 @@
         <wagon-plugin.version>2.0.0</wagon-plugin.version>
 
         <codehaus-jackson.version>1.9.13</codehaus-jackson.version>
-        <jackson.version>2.13.0</jackson.version>
+        <jackson.version>2.13.2</jackson.version>
+        <jackson.databind.version>2.13.2.1</jackson.databind.version>
         <commons-compress.version>1.21</commons-compress.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
         <aws-java-sdk.version>1.11.974</aws-java-sdk.version>
@@ -380,7 +381,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson.databind.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
