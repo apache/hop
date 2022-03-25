@@ -3316,7 +3316,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   @Override
   public boolean getVariableBoolean(String variableName, boolean defaultValue) {
     if (!Utils.isEmpty(variableName)) {
-      String value = resolve(variableName);
+      String value = getVariable(variableName);
       if (!Utils.isEmpty(value)) {
         return ValueMetaString.convertStringToBoolean(value);
       }

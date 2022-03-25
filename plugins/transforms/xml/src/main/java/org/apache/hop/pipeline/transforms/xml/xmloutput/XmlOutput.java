@@ -256,7 +256,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData>
 
     return comptability  && valueMetaType == IValueMeta.TYPE_STRING;
   }
-
+  
   private void writeField(IValueMeta valueMeta, Object valueData, String element)
       throws HopTransformException {
     try {

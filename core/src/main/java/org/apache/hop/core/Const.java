@@ -627,24 +627,24 @@ public class Const {
    *
    * <p>Switches off the fix for calculation of timezone decomposition.
    */
-  @Variable(description="")
+  @Variable(value="N", description="")
   public static final String HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION =
       "HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION";
 
   /** Compatibility settings for setNrErrors */
-  @Variable(description="")
+  @Variable(value="N", description="")
   public static final String HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS =
       "HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS";
 
-  @Variable(description="")
+  @Variable(value="N", description="")
   public static final String HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS =
       "HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS";
 
-  @Variable(description="")
+  @Variable(value="N", description="")
   public static final String HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS =
       "HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS";
 
-  @Variable(description="")
+  @Variable(value="N", description="")
   public static final String HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES =
       "HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES";
 
