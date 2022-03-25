@@ -135,7 +135,7 @@ public class LoopNodesImportProgressDialog {
             PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.ScanningFile", filename),
         1);
 
-    SAXReader reader = Dom4JUtil.getSAXReader(null);
+    SAXReader reader = Dom4JUtil.getSAXReader();
     monitor.worked(1);
     if (monitor.isCanceled()) {
       return null;
