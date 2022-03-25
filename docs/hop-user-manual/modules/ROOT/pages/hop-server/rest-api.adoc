@@ -150,7 +150,7 @@ parameters::
 none
 
 example request::
-GET `+http://localhost:8081/hop/status+`
+GET `+http://localhost:8081/hop/status/+`
 
 result::
 an HTML page with an overview of the pipelines and workflows on the server, their execution details and the server's configuration details.
