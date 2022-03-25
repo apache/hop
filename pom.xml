@@ -166,7 +166,6 @@
         <jandex-maven-plugin.version>1.0.8</jandex-maven-plugin.version>
         <wagon-plugin.version>2.0.0</wagon-plugin.version>
 
-        <codehaus-jackson.version>1.9.13</codehaus-jackson.version>
         <jackson.version>2.13.2</jackson.version>
         <jackson.databind.version>2.13.2.1</jackson.databind.version>
         <commons-compress.version>1.21</commons-compress.version>
