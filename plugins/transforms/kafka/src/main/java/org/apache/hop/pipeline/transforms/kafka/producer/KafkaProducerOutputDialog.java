@@ -425,12 +425,16 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     boolean fieldFound = false;
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      String[] fieldNames = r.getFieldNames();
-      for (int count = 0; count < fieldNames.length; count++) {
-        if (fieldName.equals(fieldNames[count])) {
-          fieldFound = true;
-          break;
+      if( r != null) {
+        String[] fieldNames = r.getFieldNames();
+        for (int count = 0; count < fieldNames.length; count++) {
+          if (fieldName.equals(fieldNames[count])) {
+            fieldFound = true;
+            break;
+          }
         }
+      }else{
+        return false;
       }
     } catch (HopTransformException ke) {
       new ErrorDialog(
