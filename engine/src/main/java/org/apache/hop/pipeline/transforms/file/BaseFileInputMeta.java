@@ -30,11 +30,11 @@ import java.util.List;
 
 /** Base meta for file-based input transforms. */
 public abstract class BaseFileInputMeta<
+        Main extends ITransform,
+        Data extends ITransformData,
         A extends BaseFileInputAdditionalField,
         I extends BaseFileInputFiles,
-        F extends BaseFileField,
-        Main extends ITransform,
-        Data extends ITransformData>
+        F extends BaseFileField>
     extends BaseTransformMeta<Main, Data> {
   private static final Class<?> PKG = BaseFileInputMeta.class; // For Translator
 
@@ -66,18 +66,18 @@ public abstract class BaseFileInputMeta<
   @Override
   public Object clone() {
     BaseFileInputMeta<
+            BaseFileInputTransform,
+            BaseFileInputTransformData,
             BaseFileInputAdditionalField,
             BaseFileInputFiles,
-            BaseFileField,
-            BaseFileInputTransform,
-            BaseFileInputTransformData>
+            BaseFileField>
         retval =
             (BaseFileInputMeta<
+                    BaseFileInputTransform,
+                    BaseFileInputTransformData,
                     BaseFileInputAdditionalField,
                     BaseFileInputFiles,
-                    BaseFileField,
-                    BaseFileInputTransform,
-                    BaseFileInputTransformData>)
+                    BaseFileField>)
                 super.clone();
 
     retval.inputFiles = (BaseFileInputFiles) inputFiles.clone();

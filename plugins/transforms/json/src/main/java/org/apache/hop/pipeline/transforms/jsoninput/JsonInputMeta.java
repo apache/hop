@@ -90,11 +90,11 @@ import java.util.Map;
     })
 public class JsonInputMeta
     extends BaseFileInputMeta<
+        JsonInput,
+        JsonInputData,
         JsonInputMeta.AdditionalFileOutputFields,
         JsonInputMeta.InputFiles,
-        JsonInputField,
-        JsonInput,
-        JsonInputData> {
+        JsonInputField> {
   private static final Class<?> PKG = JsonInputMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =

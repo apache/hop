@@ -75,11 +75,11 @@ import java.util.Map;
     groups = {"FILENAME_LINES", "FIELDS", "FILTERS"})
 public class TextFileInputMeta
     extends BaseFileInputMeta<
+        TextFileInput,
+        TextFileInputData,
         BaseFileInputAdditionalField,
         BaseFileInputFiles,
-        BaseFileField,
-        TextFileInput,
-        TextFileInputData>
+        BaseFileField>
     implements ICsvInputAwareMeta {
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 

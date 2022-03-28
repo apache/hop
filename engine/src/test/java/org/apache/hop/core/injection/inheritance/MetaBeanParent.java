@@ -21,7 +21,6 @@ import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import java.util.List;
 
 public class MetaBeanParent<T extends MetaBeanParentItem, A> extends BaseTransformMeta<ITransform, ITransformData> {

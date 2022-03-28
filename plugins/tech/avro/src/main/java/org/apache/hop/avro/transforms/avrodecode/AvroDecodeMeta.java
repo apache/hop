@@ -17,7 +17,6 @@
 
 package org.apache.hop.avro.transforms.avrodecode;
 
-import org.apache.hop.avro.transforms.avroinput.AvroFileInput;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -40,7 +39,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/avro-decode.html",
     keywords = "i18n::AvroDecodeMeta.keyword")
-public class AvroDecodeMeta extends BaseTransformMeta<AvroFileInput, AvroDecodeData> {
+public class AvroDecodeMeta extends BaseTransformMeta<AvroDecode, AvroDecodeData> {
   private static final Class<?> PKG = AvroDecodeMeta.class; // For Translator
 
   @HopMetadataProperty(key = "source_field")
