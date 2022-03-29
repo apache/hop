@@ -25,7 +25,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.ByteArrayOutputStream;
@@ -34,8 +33,7 @@ import java.util.zip.Adler32;
 import java.util.zip.CRC32;
 
 /** Caculate a checksum for each row. */
-public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData>
-    implements ITransform<CheckSumMeta, CheckSumData> {
+public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
 
   private static final Class<?> PKG = CheckSumMeta.class; // For Translator
 

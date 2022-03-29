@@ -52,8 +52,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::InsertUpdateMeta.keyword",
     documentationUrl = "/pipeline/transforms/insertupdate.html")
-public class InsertUpdateMeta extends BaseTransformMeta
-    implements ITransformMeta<InsertUpdate, InsertUpdateData>, IProvidesModelerMeta {
+public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpdateData>
+  implements IProvidesModelerMeta {
   private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
 
   private IHopMetadataProvider metadataProvider;
@@ -158,16 +158,6 @@ public class InsertUpdateMeta extends BaseTransformMeta
   @Override
   public String getSchemaName() {
     return insertUpdateLookupField.getSchemaName();
-  }
-
-  @Override
-  public InsertUpdate createTransform(
-      TransformMeta transformMeta,
-      InsertUpdateData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new InsertUpdate(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -627,11 +617,6 @@ public class InsertUpdateMeta extends BaseTransformMeta
       throw new HopTransformException(
           "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection));
     }
-  }
-
-  @Override
-  public InsertUpdateData getTransformData() {
-    return new InsertUpdateData();
   }
 
   /** @return Returns the updateBypassed. */

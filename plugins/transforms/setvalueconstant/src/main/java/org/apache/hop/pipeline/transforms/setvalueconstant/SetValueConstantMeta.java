@@ -31,11 +31,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -53,8 +50,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SetValueConstantMeta.keyword",
     documentationUrl = "/pipeline/transforms/setvalueconstant.html")
-public class SetValueConstantMeta extends BaseTransformMeta
-    implements ITransformMeta<SetValueConstant, SetValueConstantData> {
+public class SetValueConstantMeta extends BaseTransformMeta<SetValueConstant, SetValueConstantData> {
   private static final Class<?> PKG = SetValueConstantMeta.class; // For Translator
 
   @InjectionDeep private List<Field> fields = new ArrayList<>();
@@ -222,21 +218,6 @@ public class SetValueConstantMeta extends BaseTransformMeta
               transformMeta);
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SetValueConstantData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SetValueConstant(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SetValueConstantData getTransformData() {
-    return new SetValueConstantData();
   }
 
   @Override

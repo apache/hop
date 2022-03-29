@@ -27,15 +27,13 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.OutputStream;
 import java.util.Properties;
 
 /** Output rows to Properties file and create a file. */
-public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOutputData>
-    implements ITransform<PropertyOutputMeta, PropertyOutputData> {
+public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOutputData> {
 
   private static final Class<?> PKG = PropertyOutputMeta.class; // For Translator
 

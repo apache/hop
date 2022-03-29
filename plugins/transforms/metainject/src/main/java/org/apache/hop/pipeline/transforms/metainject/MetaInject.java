@@ -47,8 +47,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /** Read a simple CSV file Just output Strings found in the file... */
-public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData>
-    implements ITransform<MetaInjectMeta, MetaInjectData> {
+public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
   private static final Class<?> PKG = MetaInject.class; // For Translator
 
   private static final Lock repoSaveLock = new ReentrantLock();

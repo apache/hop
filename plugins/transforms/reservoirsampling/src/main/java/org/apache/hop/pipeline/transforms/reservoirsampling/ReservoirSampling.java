@@ -29,8 +29,7 @@ import org.apache.hop.pipeline.transforms.reservoirsampling.ReservoirSamplingDat
 import java.util.Arrays;
 import java.util.List;
 
-public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, ReservoirSamplingData>
-    implements ITransform<ReservoirSamplingMeta, ReservoirSamplingData> {
+public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, ReservoirSamplingData> {
 
   /**
    * Creates a new <code>ReservoirSampling</code> instance.

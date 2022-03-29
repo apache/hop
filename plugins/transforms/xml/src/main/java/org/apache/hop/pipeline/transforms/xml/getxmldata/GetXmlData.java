@@ -35,7 +35,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.xml.Dom4JUtil;
 import org.apache.http.Header;
@@ -58,8 +57,7 @@ import java.util.zip.GZIPInputStream;
  * Read XML files, parse them and convert them to rows and writes these to one or more output
  * streams.
  */
-public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData>
-    implements ITransform<GetXmlDataMeta, GetXmlDataData> {
+public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
   private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
 
   private Object[] prevRow = null; // A pre-allocated spot for the previous row

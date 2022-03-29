@@ -37,8 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Output transform for writing Cassandra SSTables (sorted-string tables). */
-public class SSTableOutput extends BaseTransform<SSTableOutputMeta, SSTableOutputData>
-    implements ITransform<SSTableOutputMeta, SSTableOutputData> {
+public class SSTableOutput extends BaseTransform<SSTableOutputMeta, SSTableOutputData> {
   private static final SecurityManager sm = System.getSecurityManager();
   /** The number of rows seen so far for this batch */
   protected int rowsSeen;

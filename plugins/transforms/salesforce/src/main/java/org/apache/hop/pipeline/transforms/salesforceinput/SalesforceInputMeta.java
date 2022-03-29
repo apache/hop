@@ -37,9 +37,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnectionUtils;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
@@ -689,20 +687,5 @@ public class SalesforceInputMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SalesforceInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SalesforceInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SalesforceInputData getTransformData() {
-    return new SalesforceInputData();
   }
 }

@@ -32,8 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitFieldToRowsData>
-    implements ITransform<SplitFieldToRowsMeta, SplitFieldToRowsData> {
+public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitFieldToRowsData> {
   private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator
 
   public SplitFieldToRows(

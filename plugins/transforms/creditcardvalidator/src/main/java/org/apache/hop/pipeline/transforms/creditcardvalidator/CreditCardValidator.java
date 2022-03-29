@@ -30,8 +30,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Check if a Credit Card is valid * */
 public class CreditCardValidator
-    extends BaseTransform<CreditCardValidatorMeta, CreditCardValidatorData>
-    implements ITransform<CreditCardValidatorMeta, CreditCardValidatorData> {
+    extends BaseTransform<CreditCardValidatorMeta, CreditCardValidatorData> {
 
   private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator
 

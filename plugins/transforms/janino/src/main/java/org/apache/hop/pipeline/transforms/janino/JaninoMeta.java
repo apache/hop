@@ -32,14 +32,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -57,7 +53,7 @@ import java.util.Objects;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     keywords = "i18n::JaninoMeta.keyword",
     documentationUrl = "/pipeline/transforms/userdefinedjavaexpression.html")
-public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Janino, JaninoData> {
+public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
   private static final Class<?> PKG = JaninoMeta.class; // For Translator
 
   /** The formula calculations to be performed */
@@ -129,16 +125,6 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
       retval.allocate(0);
     }
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      JaninoData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Janino(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -245,11 +231,6 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public JaninoData getTransformData() {
-    return new JaninoData();
   }
 
   @Override

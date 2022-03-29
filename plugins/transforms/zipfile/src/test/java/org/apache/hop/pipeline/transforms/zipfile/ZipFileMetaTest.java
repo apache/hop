@@ -78,7 +78,7 @@ public class ZipFileMetaTest {
     assertTrue(zipFileMeta.isCreateParentFolder());
     assertEquals(MOVE_TO_FOLDER_FIELD, zipFileMeta.getMoveToFolderField());
 
-    assertNotNull(zipFileMeta.getTransformData());
+    assertNotNull(zipFileMeta.createTransformData());
     assertTrue(zipFileMeta.supportsErrorHandling());
   }
 

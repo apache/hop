@@ -32,11 +32,8 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -48,8 +45,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n::AzureListenerMeta.categoryDescription",
     keywords = "i18n::AzureListenerMeta.keyword",
     documentationUrl = "/pipeline/transforms/azure-event-hubs-listener.html")
-public class AzureListenerMeta extends BaseTransformMeta
-    implements ITransformMeta<AzureListener, AzureListenerData> {
+public class AzureListenerMeta extends BaseTransformMeta<AzureListener, AzureListenerData> {
 
   public static final String NAMESPACE = "namespace";
   public static final String EVENT_HUB_NAME = "event_hub_name";
@@ -109,21 +105,6 @@ public class AzureListenerMeta extends BaseTransformMeta
     sequenceNumberField = "sequenceNumber";
     hostField = "host";
     enqueuedTimeField = "enqueuedTime";
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      AzureListenerData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new AzureListener(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public AzureListenerData getTransformData() {
-    return new AzureListenerData();
   }
 
   @Override

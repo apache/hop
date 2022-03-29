@@ -33,10 +33,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -50,7 +48,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::RestMeta.keyword",
     documentationUrl = "/pipeline/transforms/rest.html")
-public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, RestData> {
+public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   private static final Class<?> PKG = RestMeta.class; // For Translator
 
   public static final String[] APPLICATION_TYPES =
@@ -324,16 +322,6 @@ public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, 
     System.arraycopy(matrixParameterName, 0, retval.matrixParameterName, 0, nrmatrixparameters);
 
     return retval;
-  }
-
-  @Override
-  public Rest createTransform(
-      TransformMeta transformMeta,
-      RestData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Rest(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -615,11 +603,6 @@ public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, 
       }
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public RestData getTransformData() {
-    return new RestData();
   }
 
   @Override

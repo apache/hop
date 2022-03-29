@@ -46,8 +46,7 @@ import java.sql.Statement;
 import java.util.*;
 
 /** Manages a slowly changing dimension (lookup or update) */
-public class DimensionLookup extends BaseTransform<DimensionLookupMeta, DimensionLookupData>
-    implements ITransform<DimensionLookupMeta, DimensionLookupData> {
+public class DimensionLookup extends BaseTransform<DimensionLookupMeta, DimensionLookupData> {
 
   private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
 

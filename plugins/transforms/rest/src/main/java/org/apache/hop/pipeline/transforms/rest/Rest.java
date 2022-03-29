@@ -61,8 +61,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.List;
 
-public class Rest extends BaseTransform<RestMeta, RestData>
-    implements ITransform<RestMeta, RestData> {
+public class Rest extends BaseTransform<RestMeta, RestData> {
   private static final Class<?> PKG = RestMeta.class; // For Translator
 
   public Rest(

@@ -28,10 +28,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.ILdapMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
@@ -47,8 +45,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::LdapOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/ldapoutput.html")
-public class LdapOutputMeta extends BaseTransformMeta
-    implements ILdapMeta, ITransformMeta<LdapOutput, LdapOutputData> {
+public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData> implements ILdapMeta {
   private static final Class<?> PKG = LdapOutputMeta.class; // For Translator
 
   /** Flag indicating that we use authentication for connection */
@@ -768,21 +765,6 @@ public class LdapOutputMeta extends BaseTransformMeta
               BaseMessages.getString(PKG, "LdapOutputUpdateMeta.CheckResult.FieldsOk"),
               transformMeta);
     }
-  }
-
-  @Override
-  public LdapOutput createTransform(
-      TransformMeta transformMeta,
-      LdapOutputData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new LdapOutput(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public LdapOutputData getTransformData() {
-    return new LdapOutputData();
   }
 
   @Override

@@ -38,8 +38,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Search and replace in string. */
-public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStringData>
-    implements ITransform<ReplaceStringMeta, ReplaceStringData> {
+public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStringData> {
+
   private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
 
   public ReplaceString(

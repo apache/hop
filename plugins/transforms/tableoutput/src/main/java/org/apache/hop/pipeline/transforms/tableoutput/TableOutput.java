@@ -34,9 +34,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -44,8 +42,7 @@ import java.util.Date;
 import java.util.List;
 
 /** Writes rows to a database table. */
-public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
-    implements ITransform<TableOutputMeta, TableOutputData> {
+public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData> {
 
   private static final Class<?> PKG = TableOutputMeta.class; // For Translator
 

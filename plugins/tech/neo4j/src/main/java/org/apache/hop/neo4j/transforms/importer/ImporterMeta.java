@@ -26,10 +26,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -41,8 +38,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n::ImporterMeta.categoryDescription",
     keywords = "i18n::ImporterMeta.keyword",
     documentationUrl = "/pipeline/transforms/neo4j-import.html")
-public class ImporterMeta extends BaseTransformMeta
-    implements ITransformMeta<Importer, ImporterData> {
+public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
 
   @HopMetadataProperty(key = "filename_field_name")
   protected String filenameField;
@@ -139,21 +135,6 @@ public class ImporterMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     // No fields are added by default
-  }
-
-  @Override
-  public Importer createTransform(
-      TransformMeta transformMeta,
-      ImporterData iTransformData,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Importer(transformMeta, this, iTransformData, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ImporterData getTransformData() {
-    return new ImporterData();
   }
 
   /**

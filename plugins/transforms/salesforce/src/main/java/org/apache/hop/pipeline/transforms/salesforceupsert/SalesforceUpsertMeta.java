@@ -332,21 +332,6 @@ public class SalesforceUpsertMeta
   }
 
   @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SalesforceUpsertData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SalesforceUpsert(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SalesforceUpsertData getTransformData() {
-    return new SalesforceUpsertData();
-  }
-
-  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

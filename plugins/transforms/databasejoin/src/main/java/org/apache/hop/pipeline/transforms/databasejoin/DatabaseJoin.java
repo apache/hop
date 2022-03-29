@@ -30,7 +30,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
@@ -40,8 +39,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Use values from input streams to joins with values in a database. Freehand SQL can be used to do
  * this.
  */
-public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinData>
-    implements ITransform<DatabaseJoinMeta, DatabaseJoinData> {
+public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinData> {
 
   private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
 

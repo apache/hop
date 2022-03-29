@@ -43,9 +43,6 @@ public class TransformInitThread implements Runnable {
     this.ok = false;
     this.finished = false;
     this.doIt = true;
-
-    combi.transform.setMeta(combi.meta);
-    combi.transform.setData(combi.data);
   }
 
   public String toString() {

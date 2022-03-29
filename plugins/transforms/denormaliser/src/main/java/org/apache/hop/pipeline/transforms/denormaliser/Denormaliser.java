@@ -41,8 +41,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 /** Denormalises data based on key-value pairs */
-public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserData>
-    implements ITransform<DenormaliserMeta, DenormaliserData> {
+public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserData> {
 
   private static final Class<?> PKG = DenormaliserMeta.class; // For Translator
 

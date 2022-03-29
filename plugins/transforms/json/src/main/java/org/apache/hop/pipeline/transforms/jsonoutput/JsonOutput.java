@@ -30,18 +30,15 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 /** Converts input rows to one or more Xml files. */
-public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData>
-    implements ITransform<JsonOutputMeta, JsonOutputData> {
+public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   private static final Class<?> PKG = JsonOutput.class; // For Translator
 
   public JsonOutput(

@@ -63,8 +63,7 @@ import java.util.Map;
 @InjectionSupported(
     localizationPrefix = "TextFileOutput.Injection.",
     groups = {"OUTPUT_FIELDS"})
-public class TextFileOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<TextFileOutput, TextFileOutputData> {
+public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFileOutputData> {
 
   private static final Class<?> PKG = TextFileOutputMeta.class; // For Translator
 
@@ -915,21 +914,6 @@ public class TextFileOutputMeta extends BaseTransformMeta
             BaseMessages.getString(PKG, "TextFileOutputMeta.CheckResult.FilesNotChecked"),
             transformMeta);
     remarks.add(cr);
-  }
-
-  @Override
-  public TextFileOutput createTransform(
-      TransformMeta transformMeta,
-      TextFileOutputData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new TextFileOutput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public TextFileOutputData getTransformData() {
-    return new TextFileOutputData();
   }
 
   /**

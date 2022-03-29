@@ -29,11 +29,8 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -48,8 +45,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::NumberRangeMeta.keyword",
     documentationUrl = "/pipeline/transforms/numberrange.html")
-public class NumberRangeMeta extends BaseTransformMeta
-    implements ITransformMeta<NumberRange, NumberRangeData> {
+public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeData> {
 
   private String inputField;
 
@@ -112,16 +108,6 @@ public class NumberRangeMeta extends BaseTransformMeta
   public Object clone() {
     Object retval = super.clone();
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      NumberRangeData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new NumberRange(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -210,11 +196,6 @@ public class NumberRangeMeta extends BaseTransformMeta
               transforminfo);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public NumberRangeData getTransformData() {
-    return new NumberRangeData();
   }
 
   public String getInputField() {

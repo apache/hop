@@ -19,13 +19,12 @@ package org.apache.hop.beam.xp;
 
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.Dummy;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 
-public class BeamDummy extends Dummy implements ITransform<DummyMeta, DummyData> {
+public class BeamDummy extends Dummy {
 
   protected boolean init;
 

@@ -26,10 +26,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -42,8 +40,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::ChangeFileEncodingMeta.keyword",
     documentationUrl = "/pipeline/transforms/changefileencoding.html")
-public class ChangeFileEncodingMeta extends BaseTransformMeta
-    implements ITransformMeta<ChangeFileEncoding, ChangeFileEncodingData> {
+public class ChangeFileEncodingMeta extends BaseTransformMeta<ChangeFileEncoding, ChangeFileEncodingData> {
 
   private static final Class<?> PKG = ChangeFileEncoding.class; // For Translator
 
@@ -245,21 +242,6 @@ public class ChangeFileEncodingMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ChangeFileEncoding createTransform(
-      TransformMeta transformMeta,
-      ChangeFileEncodingData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ChangeFileEncoding(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ChangeFileEncodingData getTransformData() {
-    return new ChangeFileEncodingData();
   }
 
   @Override

@@ -24,7 +24,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import javax.crypto.KeyGenerator;
@@ -35,8 +34,7 @@ import java.util.List;
 import java.util.UUID;
 
 /** Get random value. */
-public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
-    implements ITransform<RandomValueMeta, RandomValueData> {
+public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData> {
 
   private static final Class<?> PKG = RandomValueMeta.class; // For Translator
 

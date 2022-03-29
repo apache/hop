@@ -37,7 +37,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.stream.IStream;
@@ -54,10 +53,10 @@ import java.util.List;
     name = "i18n::TableInput.Name",
     description = "i18n::TableInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    keywords = "i18n::TableInputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/tableinput.html")
-public class TableInputMeta extends BaseTransformMeta
-    implements ITransformMeta<TableInput, TableInputData> {
+    documentationUrl = "/pipeline/transforms/tableinput.html",
+    keywords = "i18n::TableInputMeta.keyword")
+public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData> {
+
 
   private static final Class<?> PKG = TableInputMeta.class; // For Translator
 
@@ -418,21 +417,6 @@ public class TableInputMeta extends BaseTransformMeta
       stream.setTransformMeta(
           TransformMeta.findTransform(transforms, stream.getSubject()));
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      TableInputData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new TableInput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public TableInputData getTransformData() {
-    return new TableInputData();
   }
 
   @Override

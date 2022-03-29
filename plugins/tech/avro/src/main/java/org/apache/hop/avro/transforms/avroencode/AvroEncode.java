@@ -20,22 +20,17 @@ package org.apache.hop.avro.transforms.avroencode;
 
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.generic.IndexedRecord;
-import org.apache.avro.specific.SpecificData;
-import org.apache.avro.specific.SpecificRecord;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
 
-public class AvroEncode extends BaseTransform<AvroEncodeMeta, AvroEncodeData>
-    implements ITransform<AvroEncodeMeta, AvroEncodeData> {
+public class AvroEncode extends BaseTransform<AvroEncodeMeta, AvroEncodeData> {
   public AvroEncode(
       TransformMeta transformMeta,
       AvroEncodeMeta meta,

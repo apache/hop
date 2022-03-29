@@ -28,13 +28,11 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.InputStream;
 
-public class AvroFileInput extends BaseTransform<AvroFileInputMeta, AvroFileInputData>
-    implements ITransform<AvroFileInputMeta, AvroFileInputData> {
+public class AvroFileInput extends BaseTransform<AvroFileInputMeta, AvroFileInputData> {
   /**
    * This is the base transform that forms that basis for all transforms. You can derive from this
    * class to implement your own transforms.

@@ -33,16 +33,11 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
-
-import static org.apache.hop.core.ICheckResult.*;
 
 @Transform(
     id = "LDAPInput",
@@ -52,8 +47,7 @@ import static org.apache.hop.core.ICheckResult.*;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::LdapInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/ldapinput.html")
-public class LdapInputMeta extends BaseTransformMeta
-    implements ILdapMeta, ITransformMeta<LdapInput, LdapInputData> {
+public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData> implements ILdapMeta {
   private static final Class<?> PKG = LdapInputMeta.class; // For Translator
 
   /** Flag indicating that we use authentication for connection */
@@ -740,13 +734,13 @@ public class LdapInputMeta extends BaseTransformMeta
     if (inputFields.length == 0) {
       cr =
           new CheckResult(
-              TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.NoOutputFields"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.OutputFieldsOk"),
               transformMeta);
     }
@@ -756,13 +750,13 @@ public class LdapInputMeta extends BaseTransformMeta
     if (input.length > 0) {
       cr =
           new CheckResult(
-              TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.NoInputExpected"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.NoInput"),
               transformMeta);
     }
@@ -772,13 +766,13 @@ public class LdapInputMeta extends BaseTransformMeta
     if (Utils.isEmpty(host)) {
       cr =
           new CheckResult(
-              TYPE_RESULT_ERROR,
+              ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.HostnameMissing"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              TYPE_RESULT_OK,
+              ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.HostnameOk"),
               transformMeta);
     }
@@ -788,14 +782,14 @@ public class LdapInputMeta extends BaseTransformMeta
       if (Utils.isEmpty(dynamicSeachFieldName)) {
         cr =
             new CheckResult(
-                TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
                     PKG, "LdapInputMeta.CheckResult.DynamicSearchBaseFieldNameMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
                     PKG, "LdapInputMeta.CheckResult.DynamicSearchBaseFieldNameOk"),
                 transformMeta);
@@ -806,13 +800,13 @@ public class LdapInputMeta extends BaseTransformMeta
       if (Utils.isEmpty(searchBase)) {
         cr =
             new CheckResult(
-                TYPE_RESULT_WARNING,
+                ICheckResult.TYPE_RESULT_WARNING,
                 BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.SearchBaseMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.SearchBaseOk"),
                 transformMeta);
       }
@@ -822,14 +816,14 @@ public class LdapInputMeta extends BaseTransformMeta
       if (Utils.isEmpty(dynamicFilterFieldName)) {
         cr =
             new CheckResult(
-                TYPE_RESULT_ERROR,
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
                     PKG, "LdapInputMeta.CheckResult.DynamicFilterFieldNameMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.DynamicFilterFieldNameOk"),
                 transformMeta);
       }
@@ -839,33 +833,18 @@ public class LdapInputMeta extends BaseTransformMeta
       if (Utils.isEmpty(filterString)) {
         cr =
             new CheckResult(
-                TYPE_RESULT_WARNING,
+                ICheckResult.TYPE_RESULT_WARNING,
                 BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.FilterStringMissing"),
                 transformMeta);
       } else {
         cr =
             new CheckResult(
-                TYPE_RESULT_OK,
+                ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "LdapInputMeta.CheckResult.FilterStringOk"),
                 transformMeta);
       }
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public LdapInput createTransform(
-      TransformMeta transformMeta,
-      LdapInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new LdapInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public LdapInputData getTransformData() {
-    return new LdapInputData();
   }
 
   @Override

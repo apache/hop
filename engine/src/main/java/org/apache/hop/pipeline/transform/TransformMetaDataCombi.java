@@ -17,16 +17,15 @@
 
 package org.apache.hop.pipeline.transform;
 
-public class TransformMetaDataCombi<
-    Main extends ITransform, Meta extends ITransformMeta, Data extends ITransformData> {
+public class TransformMetaDataCombi {
 
   public TransformMeta transformMeta;
   public String transformName;
   public int copy;
 
-  public Main transform;
-  public Meta meta;
-  public Data data;
+  public ITransform transform;
+  public ITransformMeta meta;
+  public ITransformData data;
 
   public String toString() {
     return transform.toString();

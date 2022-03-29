@@ -336,7 +336,7 @@ public class PipelineMetaTest {
   }
 
   public abstract static class TransformMetaChangeListenerInterfaceMock
-      implements ITransformMeta<ITransform, ITransformData>, ITransformMetaChangeListener {
+      implements ITransformMeta, ITransformMetaChangeListener {
     @Override
     public abstract Object clone();
   }

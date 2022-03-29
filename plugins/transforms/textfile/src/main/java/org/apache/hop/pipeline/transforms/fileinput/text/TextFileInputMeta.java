@@ -75,12 +75,12 @@ import java.util.Map;
     groups = {"FILENAME_LINES", "FIELDS", "FILTERS"})
 public class TextFileInputMeta
     extends BaseFileInputMeta<
+        TextFileInput,
+        TextFileInputData,
         BaseFileInputAdditionalField,
         BaseFileInputFiles,
-        BaseFileField,
-        TextFileInput,
-        TextFileInputData>
-    implements ITransformMeta<TextFileInput, TextFileInputData>, ICsvInputAwareMeta {
+        BaseFileField>
+    implements ICsvInputAwareMeta {
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
   private static final String STRING_BASE64_PREFIX = "Base64: ";
@@ -1001,22 +1001,6 @@ public class TextFileInputMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public TextFileInput createTransform(
-      TransformMeta transformMeta,
-      TextFileInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new TextFileInput(
-        transformMeta, this, (TextFileInputData) data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public TextFileInputData getTransformData() {
-    return new TextFileInputData();
   }
 
   public String getErrorCountField() {

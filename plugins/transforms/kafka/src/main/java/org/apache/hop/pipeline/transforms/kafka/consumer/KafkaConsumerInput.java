@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
-import org.apache.avro.generic.GenericRecord;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
@@ -44,8 +43,7 @@ import java.util.stream.Collectors;
 
 /** Consume messages from a Kafka topic */
 public class KafkaConsumerInput
-        extends BaseTransform<KafkaConsumerInputMeta, KafkaConsumerInputData>
-        implements ITransform<KafkaConsumerInputMeta, KafkaConsumerInputData> {
+    extends BaseTransform<KafkaConsumerInputMeta, KafkaConsumerInputData> {
 
   private static final Class<?> PKG = KafkaConsumerInputMeta.class; // For Translator
 

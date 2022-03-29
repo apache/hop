@@ -36,10 +36,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -59,8 +57,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::GetFileNamesMeta.keyword",
     documentationUrl = "/pipeline/transforms/getfilenames.html")
-public class GetFileNamesMeta extends BaseTransformMeta
-    implements ITransformMeta<GetFileNames, GetFileNamesData> {
+public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNamesData> {
   private static final Class<?> PKG = GetFileNamesMeta.class; // For Translator
 
   private static final String YES = "Y";
@@ -581,21 +578,6 @@ public class GetFileNamesMeta extends BaseTransformMeta
       }
     }
     return references;
-  }
-
-  @Override
-  public GetFileNames createTransform(
-      TransformMeta transformMeta,
-      GetFileNamesData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GetFileNames(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GetFileNamesData getTransformData() {
-    return new GetFileNamesData();
   }
 
   @Override

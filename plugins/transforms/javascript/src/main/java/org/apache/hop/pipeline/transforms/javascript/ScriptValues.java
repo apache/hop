@@ -30,7 +30,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.mozilla.javascript.*;
 
@@ -38,8 +37,7 @@ import org.mozilla.javascript.*;
  * Executes a JavaScript on the values in the input stream. Selected calculated values can then be
  * put on the output stream.
  */
-public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesData>
-    implements ITransform<ScriptValuesMeta, ScriptValuesData> {
+public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesData> {
   private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
 
   public static final int SKIP_PIPELINE = 1;

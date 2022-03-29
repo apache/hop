@@ -21,11 +21,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-public class BeamPublish extends BaseTransform<BeamPublishMeta, BeamPublishData>
-    implements ITransform<BeamPublishMeta, BeamPublishData> {
+public class BeamPublish extends BaseTransform<BeamPublishMeta, BeamPublishData> {
 
   public BeamPublish(
       TransformMeta transformMeta,

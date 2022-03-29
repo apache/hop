@@ -44,8 +44,7 @@ import java.util.Map;
  * Class providing an output transform for writing data to a cassandra table. Can create the
  * specified table (if it doesn't already exist) and can update table meta data.
  */
-public class CassandraOutput extends BaseTransform<CassandraOutputMeta, CassandraOutputData>
-    implements ITransform<CassandraOutputMeta, CassandraOutputData> {
+public class CassandraOutput extends BaseTransform<CassandraOutputMeta, CassandraOutputData> {
 
   public CassandraOutput(
       TransformMeta transformMeta,

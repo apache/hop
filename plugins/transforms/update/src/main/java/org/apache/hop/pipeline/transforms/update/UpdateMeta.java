@@ -53,7 +53,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::UpdateMeta.keyword",
     documentationUrl = "/pipeline/transforms/update.html")
-public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Update, UpdateData> {
+public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private static final Class<?> PKG = UpdateMeta.class; // For Translator
 
   private IHopMetadataProvider metadataProvider;
@@ -201,16 +201,6 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
   public Object clone() {
     UpdateMeta retval = (UpdateMeta) super.clone();
     return retval;
-  }
-
-  @Override
-  public Update createTransform(
-      TransformMeta transformMeta,
-      UpdateData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Update(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -674,11 +664,6 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
           "Unable to get databaseMeta for connection: " + Const.CR + variables.resolve(connection),
           e);
     }
-  }
-
-  @Override
-  public UpdateData getTransformData() {
-    return new UpdateData();
   }
 
   @Override

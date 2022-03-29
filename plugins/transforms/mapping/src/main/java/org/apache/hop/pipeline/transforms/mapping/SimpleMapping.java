@@ -36,8 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Execute a mapping: a re-usuable pipeline */
-public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappingData>
-    implements ITransform<SimpleMappingMeta, SimpleMappingData> {
+public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappingData> {
 
   private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
 

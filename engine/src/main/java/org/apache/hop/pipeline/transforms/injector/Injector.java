@@ -22,7 +22,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -30,7 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * be used as a starting point in such a "headless" pipeline.
  */
 public class Injector extends BaseTransform<InjectorMeta, InjectorData>
-    implements ITransform<InjectorMeta, InjectorData> {
+{
 
   private static final Class<?> PKG = InjectorMeta.class; // For Translator
 

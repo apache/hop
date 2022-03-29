@@ -33,15 +33,13 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /** Reads information from a database table by using freehand SQL */
-public class TableInput extends BaseTransform<TableInputMeta, TableInputData>
-    implements ITransform<TableInputMeta, TableInputData> {
+public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
 
   private static final Class<?> PKG = TableInputMeta.class; // For Translator
 

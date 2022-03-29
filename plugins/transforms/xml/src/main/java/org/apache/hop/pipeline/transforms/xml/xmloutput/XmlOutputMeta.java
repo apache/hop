@@ -37,17 +37,13 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.xml.xmloutput.XmlField.ContentType;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
-
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -63,8 +59,7 @@ import java.util.Map;
     keywords = "i18n::XmlOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/xmloutput.html")
 @InjectionSupported(localizationPrefix = "XMLOutput.Injection.", groups = "OUTPUT_FIELDS")
-public class XmlOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<XmlOutput, XmlOutputData> {
+public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
   private static final Class<?> PKG = XmlOutputMeta.class; // For Translator
 
   /** The base name of the output file */
@@ -272,21 +267,6 @@ public class XmlOutputMeta extends BaseTransformMeta
     }
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      XmlOutputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new XmlOutput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public XmlOutputData getTransformData() {
-    return new XmlOutputData();
   }
 
   @Override

@@ -36,10 +36,8 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -53,8 +51,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamSubscribeMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamgcpsubscriber.html")
-public class BeamSubscribeMeta extends BaseTransformMeta
-    implements ITransformMeta<BeamSubscribe, BeamSubscribeData>, IBeamPipelineTransformHandler {
+public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubscribeData> implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty private String topic;
   @HopMetadataProperty private String subscription;
@@ -70,21 +67,6 @@ public class BeamSubscribeMeta extends BaseTransformMeta
     topic = "Topic";
     messageType = "String";
     messageField = "message";
-  }
-
-  @Override
-  public BeamSubscribe createTransform(
-      TransformMeta transformMeta,
-      BeamSubscribeData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new BeamSubscribe(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public BeamSubscribeData getTransformData() {
-    return new BeamSubscribeData();
   }
 
   @Override

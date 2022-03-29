@@ -39,8 +39,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 /** Update data in a database table, does NOT ever perform an insert. */
-public class Update extends BaseTransform<UpdateMeta, UpdateData>
-    implements ITransform<UpdateMeta, UpdateData> {
+public class Update extends BaseTransform<UpdateMeta, UpdateData> {
   private static final Class<?> PKG = UpdateMeta.class; // For Translator
 
   public Update(

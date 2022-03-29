@@ -31,9 +31,13 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -41,17 +45,10 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.XMLEvent;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 
 /** Use a StAX parser to read XML in a flexible and fast way. */
 // TODO black box testing
-public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputStreamData>
-    implements ITransform<XmlInputStreamMeta, XmlInputStreamData> {
+public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputStreamData> {
   private static final Class<?> PKG = XmlInputStream.class; // For Translator
 
   private static final int PARENT_ID_ALLOCATE_SIZE =

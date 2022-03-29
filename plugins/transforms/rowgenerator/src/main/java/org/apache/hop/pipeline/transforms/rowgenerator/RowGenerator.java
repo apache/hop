@@ -37,16 +37,13 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 /** Generates a number of (empty or the same) rows */
-public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorData>
-    implements ITransform<RowGeneratorMeta, RowGeneratorData> {
+public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorData> {
 
   private static final Class<?> PKG = RowGeneratorMeta.class; // For Translator
 

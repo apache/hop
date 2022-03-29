@@ -34,8 +34,7 @@ import java.net.URLConnection;
 
 /** Check if a webservice is available * */
 public class WebServiceAvailable
-    extends BaseTransform<WebServiceAvailableMeta, WebServiceAvailableData>
-    implements ITransform<WebServiceAvailableMeta, WebServiceAvailableData> {
+    extends BaseTransform<WebServiceAvailableMeta, WebServiceAvailableData> {
   private static final Class<?> PKG = WebServiceAvailableMeta.class; // For Translator
 
   public WebServiceAvailable(

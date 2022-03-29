@@ -32,8 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData>
-    implements ITransform<RegexEvalMeta, RegexEvalData> {
+public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
   private static final Class<?> PKG = RegexEvalMeta.class; // For Translator
 
   public RegexEval(

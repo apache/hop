@@ -33,7 +33,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.stream.IStream;
@@ -52,8 +51,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::FuzzyMatchMeta.keyword",
     documentationUrl = "/pipeline/transforms/fuzzymatch.html")
-public class FuzzyMatchMeta extends BaseTransformMeta
-    implements ITransformMeta<FuzzyMatch, FuzzyMatchData> {
+public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData> {
   private static final Class<?> PKG = FuzzyMatchMeta.class; // For Translator
 
   public static final String DEFAULT_SEPARATOR = ",";
@@ -694,21 +692,6 @@ public class FuzzyMatchMeta extends BaseTransformMeta
       stream.setTransformMeta(
           TransformMeta.findTransform(transforms, (String) stream.getSubject()));
     }
-  }
-
-  @Override
-  public FuzzyMatch createTransform(
-      TransformMeta transformMeta,
-      FuzzyMatchData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new FuzzyMatch(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public FuzzyMatchData getTransformData() {
-    return new FuzzyMatchData();
   }
 
   @Override

@@ -19,23 +19,14 @@ package org.apache.hop.neo4j.transforms.graph;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +39,7 @@ import java.util.List;
     categoryDescription = "Neo4j",
     keywords = "i18n::GraphOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/neo4j-graphoutput.html")
-public class GraphOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<GraphOutput, GraphOutputData> {
+public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputData> {
 
   @HopMetadataProperty(
       key = "connection",
@@ -131,21 +121,6 @@ public class GraphOutputMeta extends BaseTransformMeta
     nodeMappings = new ArrayList<>();
     creatingIndexes = false;
     outOfOrderAllowed = true;
-  }
-
-  @Override
-  public GraphOutput createTransform(
-      TransformMeta transformMeta,
-      GraphOutputData iTransformData,
-      int i,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GraphOutput(transformMeta, this, iTransformData, i, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GraphOutputData getTransformData() {
-    return new GraphOutputData();
   }
 
   @Override

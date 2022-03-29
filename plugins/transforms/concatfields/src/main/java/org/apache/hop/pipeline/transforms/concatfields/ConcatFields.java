@@ -27,11 +27,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsData>
-    implements ITransform<ConcatFieldsMeta, ConcatFieldsData> {
+public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsData> {
 
   private static final Class<?> PKG = ConcatFields.class; // For Translator
 

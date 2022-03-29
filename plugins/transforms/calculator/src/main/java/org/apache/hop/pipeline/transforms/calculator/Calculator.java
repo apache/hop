@@ -30,7 +30,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.CalculationType;
 
@@ -38,8 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Calculate new field values using pre-defined functions. */
-public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData>
-    implements ITransform<CalculatorMeta, CalculatorData> {
+public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
 
   private static final Class<?> PKG = CalculatorMeta.class; // For Translator
 

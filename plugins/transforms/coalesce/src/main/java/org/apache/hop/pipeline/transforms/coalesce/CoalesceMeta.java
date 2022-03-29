@@ -29,13 +29,14 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /** Lets you combine multiple fields into one, selecting the first value that is non-null. */
 @Transform(
@@ -46,8 +47,7 @@ import java.util.*;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::CoalesceMeta.keyword",
     documentationUrl = "/pipeline/transforms/coalesce.html")
-public class CoalesceMeta extends BaseTransformMeta
-    implements ITransformMeta<CoalesceTransform, CoalesceData> {
+public class CoalesceMeta extends BaseTransformMeta<CoalesceTransform, CoalesceData> {
 
   private static final Class<?> PKG = CoalesceMeta.class; // for i18n purposes
 
@@ -76,21 +76,6 @@ public class CoalesceMeta extends BaseTransformMeta
     for (CoalesceField field : c.getFields()) {
       fields.add(new CoalesceField(field));
     }
-  }
-
-  @Override
-  public CoalesceTransform createTransform(
-      TransformMeta transformMeta,
-      CoalesceData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new CoalesceTransform(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public CoalesceData getTransformData() {
-    return new CoalesceData();
   }
 
   @Override

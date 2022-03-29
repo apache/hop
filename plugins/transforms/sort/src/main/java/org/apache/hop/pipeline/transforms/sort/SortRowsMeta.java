@@ -33,11 +33,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -59,8 +56,7 @@ import java.util.Locale;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SortRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/sort.html")
-public class SortRowsMeta extends BaseTransformMeta
-    implements ITransformMeta<SortRows, SortRowsData>, Serializable {
+public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData> implements Serializable {
   private static final long serialVersionUID = -9075883720765645655L;
   private static final Class<?> PKG = SortRowsMeta.class; // For Translator
 
@@ -195,16 +191,6 @@ public class SortRowsMeta extends BaseTransformMeta
     System.arraycopy(preSortedField, 0, retval.preSortedField, 0, nrFields);
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SortRowsData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SortRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) throws HopXmlException {
@@ -476,11 +462,6 @@ public class SortRowsMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public SortRowsData getTransformData() {
-    return new SortRowsData();
   }
 
   /** @return Returns the sortSize. */

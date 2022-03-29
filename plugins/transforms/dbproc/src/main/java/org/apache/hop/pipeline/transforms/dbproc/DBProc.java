@@ -31,16 +31,13 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.SQLException;
 import java.util.List;
 
 /** Retrieves values from a database by calling database stored procedures or functions */
-public class DBProc extends BaseTransform<DBProcMeta, DBProcData>
-    implements ITransform<DBProcMeta, DBProcData> {
-
+public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
   private static final Class<?> PKG = DBProcMeta.class; // For Translator
 
   public DBProc(

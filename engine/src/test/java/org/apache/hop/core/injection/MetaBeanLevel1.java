@@ -17,16 +17,13 @@
 
 package org.apache.hop.core.injection;
 
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 
 @InjectionSupported(
     localizationPrefix = "",
     groups = {"FILENAME_LINES", "FILENAME_LINES2"},
     hide = {"FLONG_HIDDEN"})
-public class MetaBeanLevel1 extends BaseTransformMeta
-    implements ITransformMeta<ITransform, ITransformData> {
+public class MetaBeanLevel1 extends BaseTransformMeta<ITransform, ITransformData> {
 
   @InjectionDeep private MetaBeanLevel2 sub;
 
@@ -48,19 +45,4 @@ public class MetaBeanLevel1 extends BaseTransformMeta
 
   @Override
   public void setDefault() {}
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ITransformData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return null;
-  }
-
-  @Override
-  public ITransformData getTransformData() {
-    return null;
-  }
 }

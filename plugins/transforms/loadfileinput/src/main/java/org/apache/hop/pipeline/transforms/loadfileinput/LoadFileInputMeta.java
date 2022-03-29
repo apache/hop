@@ -35,10 +35,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -56,8 +54,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::LoadFileInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/loadfileinput.html")
-public class LoadFileInputMeta extends BaseTransformMeta
-    implements ITransformMeta<LoadFileInput, LoadFileInputData> {
+public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFileInputData> {
   private static final String INCLUDE = "include";
   private static final String INCLUDE_FIELD = "include_field";
   private static final String ROWNUM = "rownum";
@@ -835,21 +832,6 @@ public class LoadFileInputMeta extends BaseTransformMeta
     } catch (Exception e) {
       throw new HopException(e);
     }
-  }
-
-  @Override
-  public LoadFileInput createTransform(
-      TransformMeta transformMeta,
-      LoadFileInputData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new LoadFileInput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public LoadFileInputData getTransformData() {
-    return new LoadFileInputData();
   }
 
   @Override

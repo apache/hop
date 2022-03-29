@@ -17,71 +17,65 @@
 
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
-
 public class RowGeneratorUnitTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  private RowGenerator rowGenerator;
+  private TransformMockHelper<RowGeneratorMeta, RowGeneratorData> transformMockHelper;
 
+  @Before
+  public void setup() {
+    transformMockHelper = new TransformMockHelper("RowGenerator TEST", RowGeneratorMeta.class,RowGeneratorData.class);
+    when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(transformMockHelper.iLogChannel);
+    when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
+  }
+
+  @After
+  public void tearDown() {
+    transformMockHelper.cleanUp();
+  }
+  
   @BeforeClass
   public static void initEnvironment() throws Exception {
     HopEnvironment.init();
   }
 
-  @Before
-  public void setUp() throws HopException {
-    // add variable to row generator transform
-    ITransformMeta transformMetaInterface = spy(new RowGeneratorMeta());
-    RowGeneratorMeta meta = (RowGeneratorMeta) transformMetaInterface;
-    meta.setRowLimit("${ROW_LIMIT}");
-    List<GeneratorField> fields = new ArrayList<>();
-    when(meta.getFields()).thenReturn(fields);
-
-    TransformMeta transformMeta = new TransformMeta();
-    transformMeta.setTransform(transformMetaInterface);
-    transformMeta.setName("ROW_TRANSFORM_META");
-    RowGeneratorData data = (RowGeneratorData) transformMeta.getTransform().getTransformData();
-
-    PipelineMeta pipelineMeta = spy(new PipelineMeta());
-    when(pipelineMeta.findTransform(anyString())).thenReturn(transformMeta);
-
-    Pipeline pipeline = spy(new LocalPipelineEngine(pipelineMeta));
-
-    // add variable to pipeline variable variables
-    Map<String, String> map = new HashMap<>();
-    map.put("ROW_LIMIT", "1440");
-    pipeline.setVariables(map);
-
-    when(pipeline.getLogChannelId()).thenReturn("ROW_LIMIT");
-
-    // prepare row generator, substitutes variable by value from pipeline variable variables
-    rowGenerator = spy(new RowGenerator(transformMeta, meta, data, 0, pipelineMeta, pipeline));
-    rowGenerator.initializeFrom(pipeline);
-    rowGenerator.init();
-  }
-
   @Test
   public void testReadRowLimitAsPipelineVar() throws HopException {
+    RowGenerator rowGenerator =
+        new RowGenerator(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            transformMockHelper.iTransformData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+    
+    // add variable to pipeline variable variables
+    Variables variables = new Variables();
+    variables.setVariable("ROW_LIMIT", "1440");
+    transformMockHelper.pipeline.setVariables(variables);        
+    
+    when(transformMockHelper.iTransformMeta.getRowLimit()).thenReturn("${ROW_LIMIT}");
+    
+    rowGenerator.initializeFrom(transformMockHelper.pipeline);
+    rowGenerator.init();
+
     long rowLimit = rowGenerator.getData().rowLimit;
     assertEquals(rowLimit, 1440);
   }

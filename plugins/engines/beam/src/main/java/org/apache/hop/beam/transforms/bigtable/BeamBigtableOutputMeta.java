@@ -57,8 +57,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamBigtableOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/beambigtableoutput.html")
-public class BeamBigtableOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<Dummy, DummyData>, IBeamPipelineTransformHandler {
+public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData> implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "project_id")
   private String projectId;
@@ -93,21 +92,6 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta
   @Override
   public BeamBigtableOutputMeta clone() {
     return new BeamBigtableOutputMeta(this);
-  }
-
-  @Override
-  public Dummy createTransform(
-      TransformMeta transformMeta,
-      DummyData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Dummy(transformMeta, new DummyMeta(), data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public DummyData getTransformData() {
-    return new DummyData();
   }
 
   @Override

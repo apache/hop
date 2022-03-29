@@ -56,7 +56,7 @@ public class DetectLastRowMetaTest {
   @Test
   public void testGetData() {
     DetectLastRowMeta meta = new DetectLastRowMeta();
-    assertTrue(meta.getTransformData() instanceof DetectLastRowData);
+    assertTrue(meta.createTransformData() instanceof DetectLastRowData);
   }
 
   @Test

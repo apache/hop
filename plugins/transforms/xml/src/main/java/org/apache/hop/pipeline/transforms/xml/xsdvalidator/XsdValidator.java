@@ -27,7 +27,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.xml.sax.SAXException;
@@ -46,8 +45,7 @@ import java.io.StringReader;
  * Executes a xsd validator on the values in the input stream. New fields were calculated values can
  * then be put on the output stream.
  */
-public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorData>
-    implements ITransform<XsdValidatorMeta, XsdValidatorData> {
+public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorData> {
   private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator
 
   static final String JAXP_SCHEMA_LANGUAGE =

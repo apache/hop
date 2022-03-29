@@ -36,7 +36,6 @@ public class CassandraOutputTest {
   public void setUp() throws Exception {
     co = mock(CassandraOutput.class);
     meta = mock(CassandraOutputMeta.class);
-    co.setMeta(meta);
     co.options = mock(Map.class);
     when(co.getMeta()).thenReturn(meta);
   }

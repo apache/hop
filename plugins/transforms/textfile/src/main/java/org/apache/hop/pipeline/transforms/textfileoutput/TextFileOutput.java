@@ -38,7 +38,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.BufferedOutputStream;
@@ -51,7 +50,7 @@ import java.util.List;
 
 /** Converts input rows to text and then writes this text to one or more files. */
 public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFileOutputData>
-    extends BaseTransform<Meta, Data> implements ITransform<Meta, Data> {
+    extends BaseTransform<Meta, Data> {
 
   private static final Class<?> PKG = TextFileOutputMeta.class; // For Translator
 

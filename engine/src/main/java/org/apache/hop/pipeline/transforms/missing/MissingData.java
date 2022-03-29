@@ -14,32 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.core.injection.inheritance;
 
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
+package org.apache.hop.pipeline.transforms.missing;
+
+import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-import java.util.List;
 
-public class MetaBeanParent<T extends MetaBeanParentItem, A> extends BaseTransformMeta<ITransform, ITransformData> {
+public class MissingData extends BaseTransformData implements ITransformData {
 
-  @InjectionDeep public List<T> items;
-
-  @Injection(name = "A")
-  A obj;
-
-  @InjectionDeep(prefix = "ITEM")
-  public T test1() {
-    return null;
+  public MissingData() {
+    super();
   }
-
-  @InjectionDeep(prefix = "SUB")
-  public List<T> test2() {
-    return null;
-  }
-
-  @Override
-  public void setDefault() {}
 }

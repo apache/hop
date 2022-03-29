@@ -36,8 +36,7 @@ import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutputData>
-    implements ITransform<SQLFileOutputMeta, SQLFileOutputData> {
+public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutputData> {
   private static final Class<?> PKG = SQLFileOutputMeta.class; // For Translator
 
   String schemaTable;

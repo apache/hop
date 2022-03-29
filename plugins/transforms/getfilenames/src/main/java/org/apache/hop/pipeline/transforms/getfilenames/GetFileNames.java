@@ -32,7 +32,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.IOException;
@@ -43,8 +42,7 @@ import java.util.List;
  * Read all sorts of text files, convert them to rows and writes these to one or more output
  * streams.
  */
-public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesData>
-    implements ITransform<GetFileNamesMeta, GetFileNamesData> {
+public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesData> {
 
   private static final Class<?> PKG = GetFileNamesMeta.class; // For Translator
 

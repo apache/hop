@@ -29,10 +29,8 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -46,8 +44,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::ClosureGeneratorMeta.keyword",
     documentationUrl = "/pipeline/transforms/closure.html")
-public class ClosureGeneratorMeta extends BaseTransformMeta
-    implements ITransformMeta<ClosureGenerator, ClosureGeneratorData> {
+public class ClosureGeneratorMeta extends BaseTransformMeta<ClosureGenerator, ClosureGeneratorData> {
 
   private boolean rootIdZero;
 
@@ -180,21 +177,6 @@ public class ClosureGeneratorMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ClosureGenerator createTransform(
-      TransformMeta transformMeta,
-      ClosureGeneratorData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ClosureGenerator(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ClosureGeneratorData getTransformData() {
-    return new ClosureGeneratorData();
   }
 
   /** @return the rootIdZero */

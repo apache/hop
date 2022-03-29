@@ -30,10 +30,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -45,8 +42,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/logging/logging-reflection.html",
     image = "workflow-log.svg",
     keywords = "i18n::WorkflowLoggingMeta.keyword")
-public class WorkflowLoggingMeta extends BaseTransformMeta
-    implements ITransformMeta<WorkflowLogging, WorkflowLoggingData> {
+public class WorkflowLoggingMeta extends BaseTransformMeta<WorkflowLogging, WorkflowLoggingData> {
 
   private boolean loggingActionResults;
 
@@ -159,21 +155,6 @@ public class WorkflowLoggingMeta extends BaseTransformMeta
 
     loggingActionResults =
         "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "log_transforms"));
-  }
-
-  @Override
-  public WorkflowLogging createTransform(
-      TransformMeta transformMeta,
-      WorkflowLoggingData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new WorkflowLogging(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public WorkflowLoggingData getTransformData() {
-    return new WorkflowLoggingData();
   }
 
   /**

@@ -28,15 +28,13 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-public abstract class AbstractTransformMeta extends BaseTransformMeta
-    implements ITransformMeta<ITransform, ITransformData> {
+public abstract class AbstractTransformMeta<Main extends ITransform, Data extends ITransformData> extends BaseTransformMeta<Main, Data> {
 
   private static final String CONNECTION_NAME = "connection";
 

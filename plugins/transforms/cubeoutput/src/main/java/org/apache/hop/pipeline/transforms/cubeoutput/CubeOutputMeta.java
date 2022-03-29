@@ -30,10 +30,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -50,8 +48,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::CubeOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/serialize-to-file.html")
-public class CubeOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<CubeOutput, CubeOutputData> {
+public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData> {
 
   private static final Class<?> PKG = CubeOutputMeta.class; // For Translator
 
@@ -182,21 +179,6 @@ public class CubeOutputMeta extends BaseTransformMeta
             BaseMessages.getString(PKG, "CubeOutputMeta.CheckResult.FileSpecificationsNotChecked"),
             transformMeta);
     remarks.add(cr);
-  }
-
-  @Override
-  public CubeOutput createTransform(
-      TransformMeta transformMeta,
-      CubeOutputData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new CubeOutput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public CubeOutputData getTransformData() {
-    return new CubeOutputData();
   }
 
   /**

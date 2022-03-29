@@ -42,8 +42,7 @@ import java.util.List;
  * deemed "not safe" and will fail if you try to run the pipeline with the "Enable Safe Mode
  * checked". Therefore it disables safe mode
  */
-public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaData>
-    implements ITransform<StreamSchemaMeta, StreamSchemaData> {
+public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaData> {
 
   /**
    * The constructor should simply pass on its arguments to the parent class.

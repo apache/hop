@@ -29,7 +29,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 
@@ -44,8 +43,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::RowGeneratorMeta.keyword",
     documentationUrl = "/pipeline/transforms/rowgenerator.html")
-public class RowGeneratorMeta extends BaseTransformMeta
-    implements ITransformMeta<RowGenerator, RowGeneratorData> {
+public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGeneratorData> {
   private static final Class<?> PKG = RowGeneratorMeta.class; // For Translator
 
   @HopMetadataProperty(
@@ -199,21 +197,6 @@ public class RowGeneratorMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public RowGenerator createTransform(
-      TransformMeta transformMeta,
-      RowGeneratorData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new RowGenerator(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public RowGeneratorData getTransformData() {
-    return new RowGeneratorData();
   }
 
   /**

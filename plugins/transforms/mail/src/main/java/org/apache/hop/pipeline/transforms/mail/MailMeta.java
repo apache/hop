@@ -30,11 +30,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -49,7 +46,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::MailMeta.keyword",
     documentationUrl = "/pipeline/transforms/mail.html")
-public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, MailData> {
+public class MailMeta extends BaseTransformMeta<Mail, MailData> {
   private static final Class<?> PKG = MailMeta.class; // For Translator
 
   private String server;
@@ -161,16 +158,6 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
   public Object clone() {
     Object retval = super.clone();
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      MailData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Mail(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   public void allocate(int value) {
@@ -962,11 +949,6 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
 
   public void setMessageOutputField(String messageOutputField) {
     this.messageOutputField = messageOutputField;
-  }
-
-  @Override
-  public MailData getTransformData() {
-    return new MailData();
   }
 
   @Override

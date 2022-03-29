@@ -26,13 +26,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
 import java.util.List;
 
 @Transform(
@@ -43,8 +39,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::ProcessFilesMeta.keyword",
     documentationUrl = "/pipeline/transforms/processfiles.html")
-public class ProcessFilesMeta extends BaseTransformMeta
-    implements ITransformMeta<ProcessFiles, ProcessFilesData> {
+public class ProcessFilesMeta extends BaseTransformMeta<ProcessFiles, ProcessFilesData> {
   private static final Class<?> PKG = ProcessFilesMeta.class; // For Translator
 
   @HopMetadataProperty(
@@ -278,21 +273,6 @@ public class ProcessFilesMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ProcessFilesData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ProcessFiles(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ProcessFilesData getTransformData() {
-    return new ProcessFilesData();
   }
 
   @Override

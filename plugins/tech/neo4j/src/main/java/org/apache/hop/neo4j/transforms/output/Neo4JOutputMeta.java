@@ -34,7 +34,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
@@ -56,8 +55,7 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "Neo4JOutput.Injection.",
     groups = {"FROM_NODE_PROPS", "FROM_LABELS", "TO_NODE_PROPS", "TO_LABELS", "REL_PROPS"})
-public class Neo4JOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<Neo4JOutput, Neo4JOutputData> {
+public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputData> {
 
   private static final String STRING_CONNECTION = "connection";
   private static final String STRING_BATCH_SIZE = "batch_size";
@@ -167,21 +165,6 @@ public class Neo4JOutputMeta extends BaseTransformMeta
   // Unused fields from previous version
   //
   private String key;
-
-  @Override
-  public Neo4JOutput createTransform(
-      TransformMeta transformMeta,
-      Neo4JOutputData iTransformData,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline disp) {
-    return new Neo4JOutput(transformMeta, this, iTransformData, cnr, pipelineMeta, disp);
-  }
-
-  @Override
-  public Neo4JOutputData getTransformData() {
-    return new Neo4JOutputData();
-  }
 
   public ITransformDialog getDialog(
       Shell shell,

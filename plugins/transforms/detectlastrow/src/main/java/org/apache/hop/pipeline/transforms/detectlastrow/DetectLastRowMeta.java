@@ -29,11 +29,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -46,8 +44,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::DetectLastRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/identifylastrow.html")
-public class DetectLastRowMeta extends BaseTransformMeta
-    implements ITransformMeta<DetectLastRow, DetectLastRowData> {
+public class DetectLastRowMeta extends BaseTransformMeta<DetectLastRow, DetectLastRowData> {
   private static final Class<?> PKG = DetectLastRowMeta.class; // For Translator
 
   /** function result: new value name */
@@ -135,21 +132,6 @@ public class DetectLastRowMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public DetectLastRow createTransform(
-      TransformMeta transformMeta,
-      DetectLastRowData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new DetectLastRow(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public DetectLastRowData getTransformData() {
-    return new DetectLastRowData();
   }
 
   @Override

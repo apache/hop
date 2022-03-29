@@ -31,10 +31,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -48,8 +46,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::CreditCardValidatorMeta.keyword",
     documentationUrl = "/pipeline/transforms/creditcardvalidator.html")
-public class CreditCardValidatorMeta extends BaseTransformMeta
-    implements ITransformMeta<CreditCardValidator, CreditCardValidatorData> {
+public class CreditCardValidatorMeta extends BaseTransformMeta<CreditCardValidator, CreditCardValidatorData> {
 
   private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator
 
@@ -249,21 +246,6 @@ public class CreditCardValidatorMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public CreditCardValidator createTransform(
-      TransformMeta transformMeta,
-      CreditCardValidatorData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new CreditCardValidator(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public CreditCardValidatorData getTransformData() {
-    return new CreditCardValidatorData();
   }
 
   @Override

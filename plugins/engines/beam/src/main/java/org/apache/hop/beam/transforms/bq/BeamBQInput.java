@@ -27,15 +27,13 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.Date;
 import java.util.StringJoiner;
 import java.util.UUID;
 
-public class BeamBQInput extends BaseTransform<BeamBQInputMeta, BeamBQInputData>
-    implements ITransform<BeamBQInputMeta, BeamBQInputData> {
+public class BeamBQInput extends BaseTransform<BeamBQInputMeta, BeamBQInputData> {
 
   /**
    * This is the base transform that forms that basis for all transforms. You can derive from this

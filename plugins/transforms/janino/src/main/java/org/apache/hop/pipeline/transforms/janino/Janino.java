@@ -29,7 +29,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.codehaus.janino.ExpressionEvaluator;
 
@@ -37,8 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Calculate new field values using pre-defined functions. */
-public class Janino extends BaseTransform<JaninoMeta, JaninoData>
-    implements ITransform<JaninoMeta, JaninoData> {
+public class Janino extends BaseTransform<JaninoMeta, JaninoData> {
+
   private static final Class<?> PKG = JaninoMeta.class; // For Translator
 
   public Janino(

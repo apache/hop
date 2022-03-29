@@ -31,12 +31,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Adds a sequential number to a stream of rows. */
 public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
-    implements ITransform<AddSequenceMeta, AddSequenceData> {
+{
 
   private static final Class<?> PKG = AddSequence.class; // For Translator
 

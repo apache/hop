@@ -36,7 +36,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.stream.IStream;
@@ -59,8 +58,7 @@ import java.util.Optional;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::FilterRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/filterrows.html")
-public class FilterRowsMeta extends BaseTransformMeta
-    implements ITransformMeta<FilterRows, FilterRowsData> {
+public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData> {
   private static final Class<?> PKG = FilterRowsMeta.class; // For Translator
 
   /** This is the main condition for the complete filter. */
@@ -327,21 +325,6 @@ public class FilterRowsMeta extends BaseTransformMeta
       }
     }
     return Optional.empty();
-  }
-
-  @Override
-  public FilterRows createTransform(
-      TransformMeta transformMeta,
-      FilterRowsData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new FilterRows(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public FilterRowsData getTransformData() {
-    return new FilterRowsData();
   }
 
   /** Returns the Input/Output metadata for this transform. */

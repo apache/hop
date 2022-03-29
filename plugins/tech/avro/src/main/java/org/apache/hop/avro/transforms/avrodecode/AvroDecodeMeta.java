@@ -17,20 +17,15 @@
 
 package org.apache.hop.avro.transforms.avrodecode;
 
-import org.apache.hop.avro.transforms.avroinput.AvroFileInput;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -44,8 +39,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/avro-decode.html",
     keywords = "i18n::AvroDecodeMeta.keyword")
-public class AvroDecodeMeta extends BaseTransformMeta
-    implements ITransformMeta<AvroFileInput, AvroDecodeData> {
+public class AvroDecodeMeta extends BaseTransformMeta<AvroDecode, AvroDecodeData> {
   private static final Class<?> PKG = AvroDecodeMeta.class; // For Translator
 
   @HopMetadataProperty(key = "source_field")
@@ -85,21 +79,6 @@ public class AvroDecodeMeta extends BaseTransformMeta
             "Error creating target field with name " + targetField.getTargetFieldName(), e);
       }
     }
-  }
-
-  @Override
-  public AvroDecode createTransform(
-      TransformMeta transformMeta,
-      AvroDecodeData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new AvroDecode(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public AvroDecodeData getTransformData() {
-    return new AvroDecodeData();
   }
 
   /**

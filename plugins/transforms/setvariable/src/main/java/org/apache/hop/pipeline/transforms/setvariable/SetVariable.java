@@ -27,14 +27,13 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /** Convert Values in a certain fields to other values */
-public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
-    implements ITransform<SetVariableMeta, SetVariableData> {
+public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData> {
+
   private static final Class<?> PKG = SetVariableMeta.class; // For Translator
 
   public SetVariable(

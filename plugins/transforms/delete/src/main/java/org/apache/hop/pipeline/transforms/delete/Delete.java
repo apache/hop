@@ -37,8 +37,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 /** Delete data in a database table. */
-public class Delete extends BaseTransform<DeleteMeta, DeleteData>
-    implements ITransform<DeleteMeta, DeleteData> {
+public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
 
   private static final Class<?> PKG = DeleteMeta.class; // For Translator
 

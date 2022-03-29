@@ -51,8 +51,7 @@ import java.util.PriorityQueue;
  * to be sorted either on ascending or descending order. The currently implementation only supports
  * ascending
  */
-public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMergeJoinData>
-    implements ITransform<MultiMergeJoinMeta, MultiMergeJoinData> {
+public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMergeJoinData> {
   private static final Class<?> PKG = MultiMergeJoinMeta.class; // For Translator
 
   public MultiMergeJoin(

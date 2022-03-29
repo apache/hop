@@ -26,7 +26,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.*;
@@ -45,7 +44,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::AppendMeta.keyword",
     documentationUrl = "/pipeline/transforms/append.html")
-public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Append, AppendData> {
+public class AppendMeta extends BaseTransformMeta<Append, AppendData> {
 
   private static final Class<?> PKG = Append.class; // For Translator
 
@@ -137,17 +136,6 @@ public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Appe
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public Append createTransform(
-      TransformMeta transformMeta, AppendData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
-    return new Append(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public AppendData getTransformData() {
-    return new AppendData();
   }
 
   /** Returns the Input/Output metadata for this transform. */

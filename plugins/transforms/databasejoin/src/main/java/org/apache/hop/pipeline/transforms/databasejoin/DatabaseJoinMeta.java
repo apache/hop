@@ -37,10 +37,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -54,8 +52,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::DatabaseJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/databasejoin.html")
-public class DatabaseJoinMeta extends BaseTransformMeta
-    implements ITransformMeta<DatabaseJoin, DatabaseJoinData> {
+public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJoinData> {
 
   private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
 
@@ -457,21 +454,6 @@ public class DatabaseJoinMeta extends BaseTransformMeta
       }
     }
     return fields;
-  }
-
-  @Override
-  public DatabaseJoin createTransform(
-      TransformMeta transformMeta,
-      DatabaseJoinData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new DatabaseJoin(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public DatabaseJoinData getTransformData() {
-    return new DatabaseJoinData();
   }
 
   @Override

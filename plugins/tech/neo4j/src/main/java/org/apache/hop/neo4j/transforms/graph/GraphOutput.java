@@ -43,7 +43,6 @@ import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.neo4j.transforms.BaseNeoTransform;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.summary.Notification;
@@ -60,8 +59,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
-public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputData>
-    implements ITransform<GraphOutputMeta, GraphOutputData> {
+public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputData> {
 
   public GraphOutput(
       TransformMeta transformMeta,

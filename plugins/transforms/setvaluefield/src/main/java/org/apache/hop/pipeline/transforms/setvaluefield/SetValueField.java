@@ -25,14 +25,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
 import java.util.List;
 
 /** Set value field with another value field. */
-public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFieldData>
-    implements ITransform<SetValueFieldMeta, SetValueFieldData> {
+public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFieldData> {
   private static final Class<?> PKG = SetValueFieldMeta.class; // For Translator
 
   public SetValueField(

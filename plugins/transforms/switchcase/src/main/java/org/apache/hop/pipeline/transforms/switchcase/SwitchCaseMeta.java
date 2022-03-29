@@ -29,7 +29,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.stream.IStream;
@@ -48,8 +47,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::SwitchCaseMeta.keyword",
     documentationUrl = "/pipeline/transforms/switchcase.html")
-public class SwitchCaseMeta extends BaseTransformMeta
-    implements ITransformMeta<SwitchCase, SwitchCaseData> {
+public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData> {
   private static final Class<?> PKG = SwitchCaseMeta.class; // For Translator
 
   /** The field to switch over */
@@ -202,11 +200,6 @@ public class SwitchCaseMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public SwitchCaseData getTransformData() {
-    return new SwitchCaseData();
   }
 
   /** @return the fieldname */
@@ -432,15 +425,5 @@ public class SwitchCaseMeta extends BaseTransformMeta
   @Override
   public boolean excludeFromCopyDistributeVerification() {
     return true;
-  }
-
-  @Override
-  public SwitchCase createTransform(
-      TransformMeta transformMeta,
-      SwitchCaseData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SwitchCase(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 }

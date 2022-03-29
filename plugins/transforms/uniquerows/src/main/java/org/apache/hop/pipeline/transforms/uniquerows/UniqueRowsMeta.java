@@ -28,10 +28,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -48,8 +46,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::UniqueRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/uniquerows.html")
-public class UniqueRowsMeta extends BaseTransformMeta
-    implements ITransformMeta<UniqueRows, UniqueRowsData> {
+public class UniqueRowsMeta extends BaseTransformMeta<UniqueRows, UniqueRowsData> {
   private static final Class<?> PKG = UniqueRowsMeta.class; // For Translator
 
   /** Indicate that we want to count the number of doubles */
@@ -155,16 +152,6 @@ public class UniqueRowsMeta extends BaseTransformMeta
   }
 
   @Override
-  public UniqueRows createTransform(
-      TransformMeta transformMeta,
-      UniqueRowsData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new UniqueRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
   public void setDefault() {
     countRows = false;
     countField = "";
@@ -227,11 +214,6 @@ public class UniqueRowsMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public UniqueRowsData getTransformData() {
-    return new UniqueRowsData();
   }
 
   @Override

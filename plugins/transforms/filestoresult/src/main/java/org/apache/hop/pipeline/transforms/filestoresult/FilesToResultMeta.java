@@ -28,10 +28,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -45,8 +43,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     keywords = "i18n::FilesToResultMeta.keyword",
     documentationUrl = "/pipeline/transforms/filestoresult.html")
-public class FilesToResultMeta extends BaseTransformMeta
-    implements ITransformMeta<FilesToResult, FilesToResultData> {
+public class FilesToResultMeta extends BaseTransformMeta<FilesToResult, FilesToResultData> {
   private static final Class<?> PKG = FilesToResultMeta.class; // For Translator
 
   private String filenameField;
@@ -156,20 +153,5 @@ public class FilesToResultMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public FilesToResult createTransform(
-      TransformMeta transformMeta,
-      FilesToResultData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new FilesToResult(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public FilesToResultData getTransformData() {
-    return new FilesToResultData();
   }
 }

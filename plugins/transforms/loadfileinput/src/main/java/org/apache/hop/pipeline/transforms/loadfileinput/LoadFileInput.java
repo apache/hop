@@ -44,8 +44,7 @@ import java.util.List;
 /**
  * Read files, parse them and convert them to rows and writes these to one or more output streams.
  */
-public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInputData>
-    implements ITransform<LoadFileInputMeta, LoadFileInputData> {
+public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInputData> {
 
   private static final Class<?> PKG = LoadFileInputMeta.class; // For Translator
 

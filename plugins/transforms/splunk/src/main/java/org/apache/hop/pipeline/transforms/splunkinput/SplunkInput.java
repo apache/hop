@@ -37,8 +37,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-public class SplunkInput extends BaseTransform<SplunkInputMeta, SplunkInputData>
-    implements ITransform<SplunkInputMeta, SplunkInputData> {
+public class SplunkInput extends BaseTransform<SplunkInputMeta, SplunkInputData> {
 
   public SplunkInput(
       TransformMeta stepMeta,

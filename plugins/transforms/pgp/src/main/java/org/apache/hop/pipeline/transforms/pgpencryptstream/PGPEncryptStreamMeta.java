@@ -30,11 +30,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.pgpdecryptstream.PGPDecryptStream;
 import org.w3c.dom.Node;
@@ -50,8 +47,7 @@ import java.util.List;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Cryptography",
     keywords = "i18n::PGPEncryptStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/pgpdecryptstream.html")
-public class PGPEncryptStreamMeta extends BaseTransformMeta
-    implements ITransformMeta<PGPDecryptStream, PGPEncryptStreamData> {
+public class PGPEncryptStreamMeta extends BaseTransformMeta<PGPDecryptStream, PGPEncryptStreamData> {
   private static final Class<?> PKG = PGPEncryptStreamMeta.class; // For Translator
 
   /** GPG location */
@@ -275,21 +271,6 @@ public class PGPEncryptStreamMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      PGPEncryptStreamData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new PGPEncryptStream(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public PGPEncryptStreamData getTransformData() {
-    return new PGPEncryptStreamData();
   }
 
   @Override

@@ -24,6 +24,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;

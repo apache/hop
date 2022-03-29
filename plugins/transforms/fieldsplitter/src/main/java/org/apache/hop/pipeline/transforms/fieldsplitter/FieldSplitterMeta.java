@@ -37,10 +37,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -102,8 +100,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::FieldSplitterMeta.keyword",
     documentationUrl = "/pipeline/transforms/splitfields.html")
-public class FieldSplitterMeta extends BaseTransformMeta
-    implements ITransformMeta<FieldSplitter, FieldSplitterData> {
+public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSplitterData> {
   private static final Class<?> PKG = FieldSplitterMeta.class; // For Translator
 
   /** Field to split */
@@ -623,21 +620,6 @@ public class FieldSplitterMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public FieldSplitter createTransform(
-      TransformMeta transformMeta,
-      FieldSplitterData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new FieldSplitter(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public FieldSplitterData getTransformData() {
-    return new FieldSplitterData();
   }
 
   /**

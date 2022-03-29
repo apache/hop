@@ -17,8 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
-import com.google.common.annotations.VisibleForTesting;
-import org.apache.hop.core.*;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingRegistry;
@@ -33,14 +36,17 @@ import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import com.google.common.annotations.VisibleForTesting;
 
 /** Execute a pipeline for every input row, set parameters. */
-public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, PipelineExecutorData>
-    implements ITransform<PipelineExecutorMeta, PipelineExecutorData> {
+public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, PipelineExecutorData> {
 
   private static final Class<?> PKG = PipelineExecutorMeta.class; // For Translator
 

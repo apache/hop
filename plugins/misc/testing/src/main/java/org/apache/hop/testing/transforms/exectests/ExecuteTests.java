@@ -35,8 +35,7 @@ import org.apache.hop.testing.util.UnitTestUtil;
 
 import java.util.ArrayList;
 
-public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsData>
-    implements ITransform<ExecuteTestsMeta, ExecuteTestsData> {
+public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsData> {
 
   public ExecuteTests(
       TransformMeta transformMeta,

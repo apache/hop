@@ -35,11 +35,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -59,8 +56,7 @@ import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::ReplaceStringMeta.keyword",
     documentationUrl = "/pipeline/transforms/replacestring.html")
-public class ReplaceStringMeta extends BaseTransformMeta
-    implements ITransformMeta<ReplaceString, ReplaceStringData> {
+public class ReplaceStringMeta extends BaseTransformMeta<ReplaceString, ReplaceStringData> {
   private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
 
   @Injection(name = "FIELD_IN_STREAM", group = "FIELDS")
@@ -269,16 +265,6 @@ public class ReplaceStringMeta extends BaseTransformMeta
     System.arraycopy(caseSensitive, 0, retval.caseSensitive, 0, nrkeys);
     System.arraycopy(isUnicode, 0, retval.isUnicode, 0, nrkeys);
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ReplaceStringData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ReplaceString(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
@@ -538,11 +524,6 @@ public class ReplaceStringMeta extends BaseTransformMeta
         }
       }
     }
-  }
-
-  @Override
-  public ReplaceStringData getTransformData() {
-    return new ReplaceStringData();
   }
 
   @Override

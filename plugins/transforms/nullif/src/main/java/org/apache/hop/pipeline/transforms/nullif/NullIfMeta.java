@@ -32,10 +32,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -52,19 +50,9 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "Injection.NullIf.",
     groups = {"FIELDS"})
-public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<NullIf, NullIfData> {
+public class NullIfMeta extends BaseTransformMeta<NullIf, NullIfData> {
 
   private static final Class<?> PKG = NullIfMeta.class; // For Translator
-
-  @Override
-  public NullIf createTransform(
-      TransformMeta transformMeta,
-      NullIfData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new NullIf(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
 
   public static class Field implements Cloneable {
 
@@ -260,10 +248,5 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public NullIfData getTransformData() {
-    return new NullIfData();
   }
 }

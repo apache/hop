@@ -51,8 +51,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 
 public class ExcelWriterTransform
-    extends BaseTransform<ExcelWriterTransformMeta, ExcelWriterTransformData>
-    implements ITransform<ExcelWriterTransformMeta, ExcelWriterTransformData> {
+    extends BaseTransform<ExcelWriterTransformMeta, ExcelWriterTransformData> {
 
   private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
 
