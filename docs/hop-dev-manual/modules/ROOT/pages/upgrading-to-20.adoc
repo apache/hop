@@ -42,3 +42,15 @@ If you use the errorhandling package in your plugin you will have to rename it t
 
 https://github.com/apache/hop/pull/1289
 
+== HOP-3262: Simplify the APIs of transforms
+
+The interface `ITransform` and `ITransformMeta` are no longer generic. Only the `BaseTransform` and `BaseTransformMeta` implementation classes are generic.
+
+The `getTransform` and `getTransformData` methods of the `BaseTransformMeta` class are replaced by final methods that use the generic parameters.
+Attention to the order of the parameterized classes is important, add additional parameters at the end:: 
+`Transform<Meta, Data, ...>`
+`TransformMeta<Main, Data, ...>`
+
+== pull requests affecting this
+
+https://github.com/apache/hop/pull/1078
