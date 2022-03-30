@@ -23,9 +23,19 @@ services:
       service: integration_test
     links:
       - http
+      - tomcat
 
   http:
     image: kennethreitz/httpbin
     hostname: http
     ports:
       - "80"
+  
+  tomcat:
+    user: root
+    image: tomcat:8.5-jre8
+    hostname: tomcat
+    volumes:
+      - ./resource/http/index.html:/usr/local/tomcat/webapps/ssl-test/index.html
+      - ./resource/http/server.xml:/usr/local/tomcat/conf/server.xml
+      - ./resource/http/.keystore:/usr/local/tomcat/conf/.keystore

@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
+import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -42,7 +42,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.reflect.Whitebox.setInternalState;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(ApacheHttpClient4.class)
+@PrepareForTest(Client.class)
 public class RestTest {
 
   @Test
@@ -81,11 +81,11 @@ public class RestTest {
     WebResource resource = mock(WebResource.class);
     doReturn(builder).when(resource).getRequestBuilder();
 
-    ApacheHttpClient4 client = mock(ApacheHttpClient4.class);
+    Client client = mock(Client.class);
     doReturn(resource).when(client).resource(nullable(String.class));
 
-    mockStatic(ApacheHttpClient4.class);
-    when(ApacheHttpClient4.create(any())).thenReturn(client);
+    mockStatic(Client.class);
+    when(Client.create(any())).thenReturn(client);
 
     RestMeta meta = mock(RestMeta.class);
     doReturn(false).when(meta).isDetailed();

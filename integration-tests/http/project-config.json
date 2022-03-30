@@ -8,6 +8,10 @@
       "name" : "HOP_LICENSE_HEADER_FILE",
       "value" : "${PROJECT_HOME}/../asf-header.txt",
       "description" : "This will automatically serialize the ASF license header into pipelines and workflows in the integration test projects"
+    }, {
+      "name" : "HTTPS_TEST_URL",
+      "value" : "https://tomcat:8080/ssl-test",
+      "description" : "It's a endpoint to test rest-client's custom trustore"
     } ]
   }
 }
