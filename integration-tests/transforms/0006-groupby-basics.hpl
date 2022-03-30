@@ -44,7 +44,7 @@ to strings to avoid rounding issues
 when comparing data.</note>
       <xloc>624</xloc>
       <yloc>128</yloc>
-      <width>190</width>
+      <width>195</width>
       <heigth>58</heigth>
       <fontname>Noto Sans</fontname>
       <fontsize>11</fontsize>
@@ -392,7 +392,7 @@ when comparing data.</note>
         <date_format_timezone/>
         <lenient_string_to_number>false</lenient_string_to_number>
         <encoding/>
-        <decimal_symbol/>
+        <decimal_symbol>.</decimal_symbol>
         <grouping_symbol/>
         <currency_symbol/>
         <storage_type/>
@@ -409,7 +409,7 @@ when comparing data.</note>
         <date_format_timezone/>
         <lenient_string_to_number>false</lenient_string_to_number>
         <encoding/>
-        <decimal_symbol/>
+        <decimal_symbol>.</decimal_symbol>
         <grouping_symbol/>
         <currency_symbol/>
         <storage_type/>
@@ -426,7 +426,7 @@ when comparing data.</note>
         <date_format_timezone/>
         <lenient_string_to_number>false</lenient_string_to_number>
         <encoding/>
-        <decimal_symbol/>
+        <decimal_symbol>.</decimal_symbol>
         <grouping_symbol/>
         <currency_symbol/>
         <storage_type/>
@@ -443,7 +443,7 @@ when comparing data.</note>
         <date_format_timezone/>
         <lenient_string_to_number>false</lenient_string_to_number>
         <encoding/>
-        <decimal_symbol/>
+        <decimal_symbol>.</decimal_symbol>
         <grouping_symbol/>
         <currency_symbol/>
         <storage_type/>
@@ -460,7 +460,7 @@ when comparing data.</note>
         <date_format_timezone/>
         <lenient_string_to_number>false</lenient_string_to_number>
         <encoding/>
-        <decimal_symbol/>
+        <decimal_symbol>.</decimal_symbol>
         <grouping_symbol/>
         <currency_symbol/>
         <storage_type/>
