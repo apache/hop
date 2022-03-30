@@ -70,8 +70,6 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
   @Test
   public void testDateRegular() throws Exception {
 
-    System.setProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N");
-
     ValueMetaBase valueMeta = new ValueMetaDate("");
     valueMeta.setPrecision(1);
     valueMeta.setPreparedStatementValue(dbMeta, ps, 1, date);
@@ -80,60 +78,21 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
   }
 
   @Test
-  public void testDateIgnoreTZ() throws Exception {
-
-    System.setProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "Y");
-
-    ValueMetaBase valueMeta = new ValueMetaDate("");
-    valueMeta.setPrecision(1);
-    valueMeta.setPreparedStatementValue(dbMeta, ps, 1, date);
-
-    verify(ps).setDate(eq(1), any(java.sql.Date.class));
-  }
-
-  @Test
   public void testTimestampRegular() throws Exception {
-
-    System.setProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N");
 
     ValueMetaBase valueMeta = new ValueMetaDate("");
     valueMeta.setPreparedStatementValue(dbMeta, ps, 1, ts);
 
     verify(ps).setTimestamp(eq(1), any(Timestamp.class), any(Calendar.class));
-  }
-
-  @Test
-  public void testTimestampIgnoreTZ() throws Exception {
-
-    System.setProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "Y");
-
-    ValueMetaBase valueMeta = new ValueMetaDate("");
-    valueMeta.setPreparedStatementValue(dbMeta, ps, 1, ts);
-
-    verify(ps).setTimestamp(eq(1), any(Timestamp.class));
   }
 
   @Test
   public void testConvertedTimestampRegular() throws Exception {
 
-    System.setProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N");
-
     ValueMetaBase valueMeta = new ValueMetaDate("");
     valueMeta.setPreparedStatementValue(dbMeta, ps, 1, date);
     valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
 
     verify(ps).setTimestamp(eq(1), any(Timestamp.class), any(Calendar.class));
-  }
-
-  @Test
-  public void testConvertedTimestampIgnoreTZ() throws Exception {
-
-    System.setProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "Y");
-
-    ValueMetaBase valueMeta = new ValueMetaDate("");
-    valueMeta.setPreparedStatementValue(dbMeta, ps, 1, date);
-    valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
-
-    verify(ps).setTimestamp(eq(1), any(Timestamp.class));
   }
 }

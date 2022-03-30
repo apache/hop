@@ -330,8 +330,6 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    // Check compatibility mode
-    boolean compatibilityMode = variables.getVariableBoolean(Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, false);
     
     // re-assemble a new row of metadata
     //
@@ -376,7 +374,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
             break;
           case TYPE_GROUP_SUM:
           case TYPE_GROUP_AVERAGE:
-            if (!compatibilityMode && subj.isNumeric()) {
+            if (subj.isNumeric()) {
               valueType = subj.getType();
             } else {
               valueType = IValueMeta.TYPE_NUMBER;

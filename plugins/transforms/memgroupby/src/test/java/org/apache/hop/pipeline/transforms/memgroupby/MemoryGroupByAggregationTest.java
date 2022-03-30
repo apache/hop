@@ -151,61 +151,6 @@ public class MemoryGroupByAggregationTest {
 
   @Test
   @Ignore
-  public void testCompatibility() throws HopException {
-    variables.setVariable(
-        Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, "Y");
-
-    addColumn(new ValueMetaInteger("intg"), 0L, 1L, 1L, 10L);
-    addColumn(new ValueMetaInteger("nul"));
-    addColumn(new ValueMetaInteger("mix1"), -1L, 2L);
-    addColumn(new ValueMetaInteger("mix2"), null, 7L);
-    addColumn(new ValueMetaNumber("mix3"), -1.0, 2.5);
-
-    RowMetaAndData output = runTransform();
-
-    assertThat(output.getInteger("intg_min"), is(0L));
-    assertThat(output.getInteger("intg_max"), is(10L));
-    assertThat(output.getInteger("intg_sum"), is(12L));
-    assertThat(output.getInteger("intg_ave"), is(3L));
-    assertThat(output.getInteger("intg_count"), is(4L));
-    assertThat(output.getInteger("intg_count_any"), is(4L));
-    assertThat(output.getInteger("intg_count_distinct"), is(3L));
-
-    assertThat(output.getInteger("nul_min"), nullValue());
-    assertThat(output.getInteger("nul_max"), nullValue());
-    assertThat(output.getInteger("nul_sum"), nullValue());
-    assertThat(output.getInteger("nul_ave"), nullValue());
-    assertThat(output.getInteger("nul_count"), is(0L));
-    assertThat(output.getInteger("nul_count_any"), is(4L));
-    assertThat(output.getInteger("nul_count_distinct"), is(0L));
-
-    assertThat(output.getInteger("mix1_max"), is(2L));
-    assertThat(output.getInteger("mix1_min"), is(-1L));
-    assertThat(output.getInteger("mix1_sum"), is(1L));
-    assertThat(output.getNumber("mix1_ave", Double.NaN), is(0.5));
-    assertThat(output.getInteger("mix1_count"), is(2L));
-    assertThat(output.getInteger("mix1_count_any"), is(4L));
-    assertThat(output.getInteger("mix1_count_distinct"), is(2L));
-
-    assertThat(output.getInteger("mix2_max"), is(7L));
-    assertThat(output.getInteger("mix2_min"), is(7L));
-    assertThat(output.getInteger("mix2_sum"), is(7L));
-    assertThat(output.getNumber("mix2_ave", Double.NaN), is(7.0));
-    assertThat(output.getInteger("mix2_count"), is(1L));
-    assertThat(output.getInteger("mix2_count_any"), is(4L));
-    assertThat(output.getInteger("mix2_count_distinct"), is(1L));
-
-    assertThat(output.getNumber("mix3_max", Double.NaN), is(2.5));
-    assertThat(output.getNumber("mix3_min", Double.NaN), is(-1.0));
-    assertThat(output.getNumber("mix3_sum", Double.NaN), is(1.5));
-    assertThat(output.getNumber("mix3_ave", Double.NaN), is(0.75));
-    assertThat(output.getInteger("mix3_count"), is(2L));
-    assertThat(output.getInteger("mix3_count_any"), is(4L));
-    assertThat(output.getInteger("mix3_count_distinct"), is(2L));
-  }
-
-  @Test
-  @Ignore
   public void testNullMin() throws Exception {
     variables.setVariable(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "Y");
 
@@ -227,8 +172,6 @@ public class MemoryGroupByAggregationTest {
   @Ignore
   public void testNullsAreZeroCompatible() throws Exception {
     variables.setVariable(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "Y");
-    variables.setVariable(
-        Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, "Y");
 
     addColumn(new ValueMetaInteger("nul"));
     addColumn(new ValueMetaInteger("both"), -2L, 0L, null, 10L);

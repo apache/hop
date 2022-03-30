@@ -31,7 +31,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry;
 
@@ -43,7 +42,6 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
 
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;
-  private boolean compatibilityMode = false;
 
   public MemoryGroupBy(
       TransformMeta transformMeta,
@@ -70,10 +68,6 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
       allNullsAreZero = ValueMetaBase.convertStringToBoolean(val);
       val = getVariable(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "N");
       minNullIsValued = ValueMetaBase.convertStringToBoolean(val);
-      compatibilityMode =
-          ValueMetaBase.convertStringToBoolean(
-              getVariable(
-                  Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, "N"));
 
       // What is the output looking like?
       //
@@ -421,8 +415,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           break;
         case MemoryGroupByMeta.TYPE_GROUP_SUM:
         case MemoryGroupByMeta.TYPE_GROUP_AVERAGE:
-          vMeta =
-              !compatibilityMode && subjMeta.isNumeric() ? subjMeta.clone() : new ValueMetaNumber();
+          vMeta = subjMeta.isNumeric() ? subjMeta.clone() : new ValueMetaNumber();
           vMeta.setName(meta.getAggregateField()[i]);
           break;
         case MemoryGroupByMeta.TYPE_GROUP_FIRST:

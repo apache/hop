@@ -137,7 +137,6 @@ public class ValueMetaBase implements IValueMeta {
   protected TimeZone dateFormatTimeZone;
   protected boolean dateFormatLenient;
   protected boolean lenientStringToNumber;
-  protected boolean ignoreTimezone;
   protected boolean emptyStringAndNullAreDifferent;
 
   protected SimpleDateFormat dateFormat;
@@ -229,9 +228,6 @@ public class ValueMetaBase implements IValueMeta {
     this.lenientStringToNumber =
         convertStringToBoolean(
             Const.NVL(System.getProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N"), "N"));
-    this.ignoreTimezone =
-        convertStringToBoolean(
-            Const.NVL(System.getProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N"), "N"));
     this.emptyStringAndNullAreDifferent =
         convertStringToBoolean(
             Const.NVL(System.getProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N"), "N"));
@@ -5375,7 +5371,7 @@ public class ValueMetaBase implements IValueMeta {
               // Convert to DATE!
               long dat = getInteger(data).longValue(); // converts using Date.getTime()
               java.sql.Date ddate = new java.sql.Date(dat);
-              if (ignoreTimezone || this.getDateFormatTimeZone() == null) {
+              if (this.getDateFormatTimeZone() == null) {
                 preparedStatement.setDate(index, ddate);
               } else {
                 preparedStatement.setDate(
@@ -5385,7 +5381,7 @@ public class ValueMetaBase implements IValueMeta {
               if (data instanceof Timestamp) {
                 // Preserve ns precision!
                 //
-                if (ignoreTimezone || this.getDateFormatTimeZone() == null) {
+                if (this.getDateFormatTimeZone() == null) {
                   preparedStatement.setTimestamp(index, (Timestamp) data);
                 } else {
                   preparedStatement.setTimestamp(
@@ -5394,7 +5390,7 @@ public class ValueMetaBase implements IValueMeta {
               } else {
                 long dat = getInteger(data).longValue(); // converts using Date.getTime()
                 Timestamp sdate = new Timestamp(dat);
-                if (ignoreTimezone || this.getDateFormatTimeZone() == null) {
+                if (this.getDateFormatTimeZone() == null) {
                   preparedStatement.setTimestamp(index, sdate);
                 } else {
                   preparedStatement.setTimestamp(

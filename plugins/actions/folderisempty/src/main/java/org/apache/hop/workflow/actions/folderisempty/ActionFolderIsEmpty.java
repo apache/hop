@@ -21,7 +21,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -155,14 +154,9 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
 
   @Override
   public Result execute(Result previousResult, int nr) {
-    boolean oldBehavior =
-        "Y"
-            .equalsIgnoreCase(
-                getVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N"));
-
     Result result = previousResult;
     result.setResult(false);
-    result.setNrErrors(oldBehavior ? 1 : 0);
+    result.setNrErrors(0);
 
     filescount = 0;
     folderscount = 0;

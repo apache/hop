@@ -56,13 +56,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
   private static final String FILE_COMPRESSION_TYPE_NONE =
       TextFileOutputMeta.fileCompressionTypeCodes[TextFileOutputMeta.FILE_COMPRESSION_TYPE_NONE];
-  private static final boolean COMPATIBILITY_APPEND_NO_HEADER =
-      "Y"
-          .equals(
-              Const.NVL(
-                  System.getProperty(Const.HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER),
-                  "N"));
-
+  
   public TextFileOutput(
       TransformMeta transformMeta,
       Meta meta,
@@ -322,7 +316,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
     isWriteHeader &=
         writingToFileForFirstTime
             && (!meta.isFileAppended()
-                || (!COMPATIBILITY_APPEND_NO_HEADER && !isFileExists(filename)));
+                || (!isFileExists(filename)));
     return isWriteHeader;
   }
 

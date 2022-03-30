@@ -86,24 +86,12 @@ public class WorkflowActionFolderIsEmptyTest {
   }
 
   @Test
-  public void testSetNrErrorsNewBehaviorFail() throws Exception {
+  public void testSetNrErrorsFail() throws Exception {
     action.setFoldername(nonEmptyDir);
 
     Result result = action.execute(new Result(), 0);
 
     assertFalse("For non-empty folder result should be false", result.getResult());
     assertEquals("There should be still no errors", 0, result.getNrErrors());
-  }
-
-  @Test
-  public void testSetNrErrorsOldBehaviorFail() throws Exception {
-    action.setFoldername(nonEmptyDir);
-
-    action.setVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y");
-
-    Result result = action.execute(new Result(), 0);
-
-    assertFalse("For non-empty folder result should be false", result.getResult());
-    assertEquals("According to old behaviour there should be an error", 1, result.getNrErrors());
   }
 }

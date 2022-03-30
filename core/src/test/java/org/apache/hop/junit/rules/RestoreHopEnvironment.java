@@ -114,7 +114,6 @@ public class RestoreHopEnvironment extends ExternalResource {
     System.setProperty(Const.HOP_DISABLE_CONSOLE_LOGGING, "Y");
     System.clearProperty(Const.VFS_USER_DIR_IS_ROOT);
     System.clearProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION);
-    System.clearProperty(Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE);
     System.clearProperty(Const.HOP_DEFAULT_INTEGER_FORMAT);
     System.clearProperty(Const.HOP_DEFAULT_NUMBER_FORMAT);
     System.clearProperty(Const.HOP_DEFAULT_BIGNUMBER_FORMAT);

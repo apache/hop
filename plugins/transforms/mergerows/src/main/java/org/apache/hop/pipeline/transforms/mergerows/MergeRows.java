@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.mergerows;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -47,8 +46,6 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
   private static final String VALUE_NEW = "new";
   private static final String VALUE_DELETED = "deleted";
 
-  private boolean useRefWhenIdentical = false;
-
   public MergeRows(
       TransformMeta transformMeta,
       MergeRowsMeta meta,
@@ -72,21 +69,7 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
       data.oneRowSet = findInputRowSet(infoStreams.get(0).getTransformName());
       // twoRowSet is the "Comparison" stream
       data.twoRowSet = findInputRowSet(infoStreams.get(1).getTransformName());
-
-      // rowSetWhenIdentical is use in case the comparison is IDENTICAL.
-      // this should be the "Comparison" stream but can be the "Reference" stream for backward
-      // compatibility
-      String useRefWhenIdenticalVar =
-          Const.NVL(
-              getVariable(Const.HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL),
-              "N");
-      if ("N".equalsIgnoreCase(useRefWhenIdenticalVar)) {
-        // use the reference stream (as per documentation)
-        useRefWhenIdentical = false;
-      } else {
-        // use the comparison stream (for backward compatibility)
-        useRefWhenIdentical = true;
-      }
+      
       data.one = getRowFrom(data.oneRowSet);
       data.two = getRowFrom(data.twoRowSet);
 
@@ -189,13 +172,8 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
 
         int compareValues = data.oneRowSet.getRowMeta().compare(data.one, data.two, data.valueNrs);
         if (compareValues == 0) {
-          if (useRefWhenIdentical) { // backwards compatible behavior: use the reference stream
-            outputRow = data.one;
-            outputIndex = data.oneRowSet.getRowMeta().size();
-          } else {
-            outputRow = data.two; // documented behavior: use the comparison stream
-            outputIndex = data.twoRowSet.getRowMeta().size();
-          }
+          outputRow = data.two; // documented behavior: use the comparison stream
+          outputIndex = data.twoRowSet.getRowMeta().size();          
           flagField = VALUE_IDENTICAL;
         } else {
           // Return the compare (most recent) row
