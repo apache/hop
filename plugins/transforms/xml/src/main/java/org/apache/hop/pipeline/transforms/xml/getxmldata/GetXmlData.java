@@ -79,7 +79,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
     this.prevRow = buildEmptyRow(); // pre-allocate previous row
 
     try {
-      SAXReader reader = Dom4JUtil.getSAXReader(null);
+      SAXReader reader = Dom4JUtil.getSAXReader();
       data.stopPruning = false;
       // Validate XML against specified schema?
       if (meta.isValidating()) {

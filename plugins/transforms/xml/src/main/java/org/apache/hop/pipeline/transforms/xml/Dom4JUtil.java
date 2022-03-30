@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.xml;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.dom4j.io.SAXReader;
-import org.xml.sax.EntityResolver;
 import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
 
@@ -30,12 +29,10 @@ public class Dom4JUtil {
   private Dom4JUtil() {    
   }
   
-  public static SAXReader getSAXReader(final EntityResolver resolver) {
+  public static SAXReader getSAXReader() {
     SAXReader reader = new SAXReader();
-    if (resolver != null) {
-      reader.setEntityResolver(resolver);
-    }
     try {
+      reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
       reader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
       reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
