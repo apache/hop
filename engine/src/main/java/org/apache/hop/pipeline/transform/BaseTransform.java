@@ -30,6 +30,7 @@ import org.apache.hop.core.logging.*;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -460,10 +461,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, Integer.toString(copyNr));
 
     // BACKLOG-18004
-    allowEmptyFieldNamesAndTypes =
-        Boolean.parseBoolean(
+    allowEmptyFieldNamesAndTypes = ValueMetaBase.convertStringToBoolean(
             System.getProperties()
-                .getProperty(Const.HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES, "false"));
+                .getProperty(Const.HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES, "N"));
 
     // Getting ans setting the error handling values
     // first, get the transform meta
@@ -3295,7 +3295,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   @Override
   public boolean getVariableBoolean(String variableName, boolean defaultValue) {
     if (!Utils.isEmpty(variableName)) {
-      String value = resolve(variableName);
+      String value = getVariable(variableName);
       if (!Utils.isEmpty(value)) {
         return ValueMetaString.convertStringToBoolean(value);
       }

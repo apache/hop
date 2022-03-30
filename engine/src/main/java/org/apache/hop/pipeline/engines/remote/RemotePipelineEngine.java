@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.engines.remote;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.HopVariablesList;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -29,6 +28,8 @@ import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.parameters.*;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableRegistry;
+import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -377,25 +378,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     // These are used at startup and shouldn't have an effect at runtime.
     // e.g. to be configured on the server
     //
-    if (HopVariablesList.getInstance().getVariablesSet().contains(var)) {
-      return false;
-    }
-    if (var.equals(Const.HOP_CONFIG_FOLDER)) {
-      return false;
-    }
-    if (var.equals(Const.HOP_AUDIT_FOLDER)) {
-      return false;
-    }
-    if (var.equals(Const.HOP_PLATFORM_OS)) {
-      return false;
-    }
-    if (var.equals(Const.HOP_PLATFORM_RUNTIME)) {
-      return false;
-    }
-    if (var.equals(Const.HOP_SHARED_JDBC_FOLDER)) {
-      return false;
-    }
-    if (var.equals(Const.HOP_SIMPLE_STACK_TRACES)) {
+    if (VariableRegistry.getInstance().getVariableNames(VariableScope.SYSTEM, VariableScope.APPLICATION).contains(var)) {
       return false;
     }
     if (var.equals("LOG_PATH")) {

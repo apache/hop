@@ -19,7 +19,7 @@ package org.apache.hop.beam.engines.flink;
 
 import org.apache.hop.beam.engines.BeamBasePipelineEngineTest;
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
-import org.apache.hop.core.variables.VariableValueDescription;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -42,7 +42,7 @@ public class BeamFlinkPipelineEngineTest extends BeamBasePipelineEngineTest {
         new PipelineRunConfiguration(
             "flink",
             "description",
-            Arrays.asList(new VariableValueDescription("VAR1", "flink1", "description1")),
+            Arrays.asList(new DescribedVariable("VAR1", "flink1", "description1")),
             configuration);
     // Save the metadata
     metadataProvider.getSerializer(PipelineRunConfiguration.class).save(pipelineRunConfiguration);

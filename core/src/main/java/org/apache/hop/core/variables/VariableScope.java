@@ -14,25 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.hop.core.variables;
 
-package org.apache.hop.core.config;
-
-import org.apache.hop.core.variables.DescribedVariable;
-import java.util.List;
-
-public interface IConfigFile {
-
-  String getConfigFilename();
-
-  void setConfigFilename(String filename);
-
-  List<DescribedVariable> getDescribedVariables();
-
-  DescribedVariable findDescribedVariable(String name);
-
-  void setDescribedVariable(DescribedVariable variable);
-
-  String findDescribedVariableValue(String name);
-
-  void setDescribedVariables(List<DescribedVariable> describedVariables);
+public enum VariableScope {
+  /** System setting variable declaration, used to start application */
+  SYSTEM,
+  /** Application variable declaration, used only by the local application */
+  APPLICATION,
+  /** Engine variable declaration, used by workflow or pipeline engines */
+  ENGINE
 }

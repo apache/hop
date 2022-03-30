@@ -2931,7 +2931,7 @@ public abstract class Pipeline
     if (response == null) {
       throw new IllegalArgumentException("HttpServletResponse cannot be null ");
     }
-    String encoding = System.getProperty("HOP_DEFAULT_SERVLET_ENCODING", null);
+    String encoding = System.getProperty(Const.HOP_DEFAULT_SERVLET_ENCODING, null);
     // true if encoding is null or an empty (also for the next kin of strings: " ")
     if (!StringUtils.isBlank(encoding)) {
       try {

@@ -17,12 +17,12 @@
 
 package org.apache.hop.projects.xp;
 
-import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 

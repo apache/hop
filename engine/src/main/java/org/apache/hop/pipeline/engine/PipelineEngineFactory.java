@@ -21,8 +21,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.VariableValueDescription;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -116,9 +116,9 @@ public class PipelineEngineFactory {
    * @param <T>
    */
   private static <T extends PipelineMeta> void applyVariableDefinitions(
-      IPipelineEngine<T> pipelineEngine, List<VariableValueDescription> configurationVariables) {
+      IPipelineEngine<T> pipelineEngine, List<DescribedVariable> configurationVariables) {
 
-    for (VariableValueDescription cv : configurationVariables) {
+    for (DescribedVariable cv : configurationVariables) {
       if (StringUtils.isNotEmpty(cv.getValue()) && StringUtils.isNotEmpty(cv.getName())) {
         String realValue = pipelineEngine.resolve(cv.getValue());
         pipelineEngine.setVariable(cv.getName(), realValue);
