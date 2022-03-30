@@ -56,7 +56,6 @@ public class StringCutMetaTest implements IInitializer<ITransformMeta> {
         new LoadSaveTester(
             testMetaClass,
             attributesList,
-            new ArrayList<>(),
             getterMap,
             setterMap,
             attrValidatorMap,

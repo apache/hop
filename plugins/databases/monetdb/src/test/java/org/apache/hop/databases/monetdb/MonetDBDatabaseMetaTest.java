@@ -37,17 +37,17 @@ public class MonetDBDatabaseMetaTest {
   public void testSettings() throws Exception {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(50000, nativeMeta.getDefaultDatabasePort());
-    assertTrue(nativeMeta.supportsAutoInc());
+    assertTrue(nativeMeta.isSupportsAutoInc());
     assertEquals(1, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
     assertEquals("nl.cwi.monetdb.jdbc.MonetDriver", nativeMeta.getDriverClass());
     assertEquals("jdbc:monetdb://FOO:BAR/WIBBLE", nativeMeta.getURL("FOO", "BAR", "WIBBLE"));
     assertEquals("jdbc:monetdb://FOO/WIBBLE", nativeMeta.getURL("FOO", "", "WIBBLE"));
     assertFalse(nativeMeta.isFetchSizeSupported());
-    assertTrue(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsSynonyms());
-    assertTrue(nativeMeta.supportsBatchUpdates());
-    assertTrue(nativeMeta.supportsSetMaxRows());
+    assertTrue(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsSynonyms());
+    assertTrue(nativeMeta.isSupportsBatchUpdates());
+    assertTrue(nativeMeta.isSupportsSetMaxRows());
     assertArrayEquals(
         new String[] {
           "IS",
@@ -130,9 +130,9 @@ public class MonetDBDatabaseMetaTest {
           "USER"
         },
         nativeMeta.getReservedWords());
-    assertTrue(nativeMeta.supportsResultSetMetadataRetrievalOnly());
+    assertTrue(nativeMeta.isSupportsResultSetMetadataRetrievalOnly());
     assertEquals(Integer.MAX_VALUE, nativeMeta.getMaxVARCHARLength());
-    assertTrue(nativeMeta.supportsSequences());
+    assertTrue(nativeMeta.isSupportsSequences());
   }
 
   @Test
@@ -176,7 +176,7 @@ public class MonetDBDatabaseMetaTest {
     // Simple hack to prevent duplication of code. Checking the case of supported boolean type
     // both supported and unsupported. Should return BOOLEAN if supported, or CHAR(1) if not.
     String[] typeCk = new String[] {"CHAR(1)", "BOOLEAN", "CHAR(1)"};
-    int i = (nativeMeta.supportsBooleanDataType() ? 1 : 0);
+    int i = (nativeMeta.isSupportsBooleanDataType() ? 1 : 0);
     assertEquals(
         typeCk[i],
         nativeMeta.getFieldDefinition(new ValueMetaBoolean("FOO"), "", "", false, false, false));

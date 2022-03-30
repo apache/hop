@@ -75,6 +75,6 @@ public class RedshiftDatabaseMetaTest {
 
   @Test
   public void testSupportsSetMaxRows() throws Exception {
-    assertFalse(dbMeta.supportsSetMaxRows());
+    assertFalse(dbMeta.isSupportsSetMaxRows());
   }
 }

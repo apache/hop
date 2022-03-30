@@ -26,11 +26,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -43,7 +40,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::ZipFileMeta.keyword",
     documentationUrl = "/pipeline/transforms/zipfile.html")
-public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<ZipFile, ZipFileData> {
+public class ZipFileMeta extends BaseTransformMeta<ZipFile, ZipFileData> {
   private static final Class<?> PKG = ZipFileMeta.class; // For Translator
 
   /** dynamic filename */
@@ -95,16 +92,6 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<Zip
 
   public ZipFileMeta() {
     super(); // allocate BaseTransformMeta
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ZipFileData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ZipFile(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   /** @return Returns the sourcefilenamefield. */
@@ -275,11 +262,6 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<Zip
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ZipFileData getTransformData() {
-    return new ZipFileData();
   }
 
   @Override

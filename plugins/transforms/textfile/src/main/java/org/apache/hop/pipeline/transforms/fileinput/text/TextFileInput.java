@@ -31,8 +31,7 @@ import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
  * Read all sorts of text files, convert them to rows and writes these to one or more output
  * streams.
  */
-public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData>
-    implements ITransform<TextFileInputMeta, TextFileInputData> {
+public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData> {
 
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 

@@ -34,10 +34,8 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -52,8 +50,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamBQInputDialog.keyword",
     documentationUrl = "/pipeline/transforms/beambigqueryinput.html")
-public class BeamBQInputMeta extends BaseTransformMeta
-    implements ITransformMeta<BeamBQInput, BeamBQInputData>, IBeamPipelineTransformHandler {
+public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputData> implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "project_id")
   private String projectId;
@@ -73,21 +70,6 @@ public class BeamBQInputMeta extends BaseTransformMeta
   public BeamBQInputMeta() {
     super();
     fields = new ArrayList<>();
-  }
-
-  @Override
-  public BeamBQInput createTransform(
-      TransformMeta transformMeta,
-      BeamBQInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new BeamBQInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public BeamBQInputData getTransformData() {
-    return new BeamBQInputData();
   }
 
   @Override

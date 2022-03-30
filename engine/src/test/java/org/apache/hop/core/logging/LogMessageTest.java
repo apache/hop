@@ -18,8 +18,8 @@
 package org.apache.hop.core.logging;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.After;
 import org.junit.Before;

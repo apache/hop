@@ -66,8 +66,7 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "SelectValues.Injection.",
     groups = {"FIELDS", "REMOVES", "METAS"})
-public class SelectValuesMeta extends BaseTransformMeta
-    implements ITransformMeta<SelectValues, SelectValuesData> {
+public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValuesData> {
   private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
 
   public static final int UNDEFINED = -2;
@@ -725,21 +724,6 @@ public class SelectValuesMeta extends BaseTransformMeta
       cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SelectValuesData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SelectValues(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SelectValuesData getTransformData() {
-    return new SelectValuesData();
   }
 
   /** @return the selectingAndSortingUnspecifiedFields */

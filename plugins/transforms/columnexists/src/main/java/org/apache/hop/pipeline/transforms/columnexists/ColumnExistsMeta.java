@@ -29,10 +29,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -45,8 +43,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::ColumnExistsMeta.keyword",
     documentationUrl = "/pipeline/transforms/columnexists.html")
-public class ColumnExistsMeta extends BaseTransformMeta
-    implements ITransformMeta<ColumnExists, ColumnExistsData> {
+public class ColumnExistsMeta extends BaseTransformMeta<ColumnExists, ColumnExistsData> {
 
   private static final Class<?> PKG = ColumnExistsMeta.class; // For Translator
 
@@ -267,21 +264,6 @@ public class ColumnExistsMeta extends BaseTransformMeta
               transformMeta);
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public ColumnExists createTransform(
-      TransformMeta transformMeta,
-      ColumnExistsData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ColumnExists(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ColumnExistsData getTransformData() {
-    return new ColumnExistsData();
   }
 
   @Override

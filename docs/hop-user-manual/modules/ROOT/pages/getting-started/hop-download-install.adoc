@@ -32,7 +32,7 @@ Download Hop from the http://hop.apache.org/download/[downloads page].
 == Prerequisites
 
 Hop is self contained, all you need is a Java runtime.
-Hop has been developed and tested with Java 8, but you shouldn't have any issues running Hop with Java 11. Check the https://java.com/en/download/help/download_options.html[Java docs] to download and install a Java runtime for your operating system.
+Hop official java version is 11. Check the https://java.com/en/download/help/download_options.html[Java docs] to download and install a Java runtime for your operating system.
 
 == Install
 

@@ -36,37 +36,35 @@ public class WorkflowActionPGPDecryptFilesLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
-        new String[] {
-          "gpgLocation",
-          "argFromPrevious",
-          "includeSubFolders",
-          "addResultFilenames",
-          "destinationIsAFile",
-          "createDestinationFolder",
-          "addDate",
-          "addTime",
-          "specifyFormat",
-          "dateTimeFormat",
-          "nrErrorsLessThan",
-          "successCondition",
-          "addDateBeforeExtension",
-          "doNotKeepFolderStructure",
-          "ifFileExists",
-          "destinationFolder",
-          "ifMovedFileExists",
-          "movedDateTimeFormat",
-          "createMoveToFolder",
-          "addMovedDate",
-          "addMovedTime",
-          "specifyMoveFormat",
-          "addMovedDateBeforeExtension",
-          "sourceFileFolder",
-          "passphrase",
-          "destinationFileFolder",
-          "wildcard"
-        });
+            "gpgLocation",
+            "argFromPrevious",
+            "includeSubFolders",
+            "addResultFilenames",
+            "destinationIsAFile",
+            "createDestinationFolder",
+            "addDate",
+            "addTime",
+            "specifyFormat",
+            "dateTimeFormat",
+            "nrErrorsLessThan",
+            "successCondition",
+            "addDateBeforeExtension",
+            "doNotKeepFolderStructure",
+            "ifFileExists",
+            "destinationFolder",
+            "ifMovedFileExists",
+            "movedDateTimeFormat",
+            "createMoveToFolder",
+            "addMovedDate",
+            "addMovedTime",
+            "specifyMoveFormat",
+            "addMovedDateBeforeExtension",
+            "sourceFileFolder",
+            "passphrase",
+            "destinationFileFolder",
+            "wildcard");
   }
 
   @Override

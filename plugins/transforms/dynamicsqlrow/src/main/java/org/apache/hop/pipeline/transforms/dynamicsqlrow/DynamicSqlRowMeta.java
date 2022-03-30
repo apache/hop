@@ -34,10 +34,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -50,8 +48,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::DynamicSqlRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/dynamicsqlrow.html")
-public class DynamicSqlRowMeta extends BaseTransformMeta
-    implements ITransformMeta<DynamicSqlRow, DynamicSqlRowData> {
+public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicSqlRowData> {
   private static final Class<?> PKG = DynamicSqlRowMeta.class; // For Translator
 
   /** database connection */
@@ -366,21 +363,6 @@ public class DynamicSqlRowMeta extends BaseTransformMeta
       cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public DynamicSqlRow createTransform(
-      TransformMeta transformMeta,
-      DynamicSqlRowData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new DynamicSqlRow(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public DynamicSqlRowData getTransformData() {
-    return new DynamicSqlRowData();
   }
 
   @Override

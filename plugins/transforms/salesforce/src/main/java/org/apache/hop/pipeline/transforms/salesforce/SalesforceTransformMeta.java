@@ -30,15 +30,12 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
 
-public abstract class SalesforceTransformMeta<
-        Main extends SalesforceTransform, Data extends SalesforceTransformData>
-    extends BaseTransformMeta implements ITransformMeta<Main, Data> {
+public abstract class SalesforceTransformMeta<Main extends SalesforceTransform, Data extends SalesforceTransformData>
+    extends BaseTransformMeta<Main, Data > {
 
   private static final Class<?> PKG = SalesforceTransformMeta.class; // For Translator
 

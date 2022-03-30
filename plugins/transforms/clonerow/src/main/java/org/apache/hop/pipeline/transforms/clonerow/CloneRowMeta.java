@@ -30,10 +30,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -46,8 +44,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::CloneRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/clonerow.html")
-public class CloneRowMeta extends BaseTransformMeta
-    implements ITransformMeta<CloneRow, CloneRowData> {
+public class CloneRowMeta extends BaseTransformMeta<CloneRow, CloneRowData> {
 
   private static final Class<?> PKG = CloneRowMeta.class; // For Translator
 
@@ -276,16 +273,5 @@ public class CloneRowMeta extends BaseTransformMeta
               transformMeta);
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public CloneRow createTransform(
-      TransformMeta transformMeta, CloneRowData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
-    return new CloneRow(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public CloneRowData getTransformData() {
-    return new CloneRowData();
   }
 }

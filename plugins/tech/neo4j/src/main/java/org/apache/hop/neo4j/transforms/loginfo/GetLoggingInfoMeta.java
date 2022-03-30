@@ -33,10 +33,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -52,10 +50,8 @@ import java.util.List;
     keywords = "i18n::GetLoggingInfoMeta.keyword",
     documentationUrl = "/pipeline/transforms/neo4j-getloginfo.html")
 @InjectionSupported(localizationPrefix = "GetLoggingInfoMeta.Injection.")
-public class GetLoggingInfoMeta extends BaseTransformMeta
-    implements ITransformMeta<GetLoggingInfo, GetLoggingInfoData> {
-  private static final Class<?> PKG =
-      GetLoggingInfoMeta.class; // for i18n purposes, needed by Translator2!!
+public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLoggingInfoData> {
+  private static final Class<?> PKG = GetLoggingInfoMeta.class; // for i18n purposes, needed by Translator2!!
 
   @Injection(name = "FIELD_NAME")
   private String[] fieldName;
@@ -246,21 +242,6 @@ public class GetLoggingInfoMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public GetLoggingInfo createTransform(
-      TransformMeta transformMeta,
-      GetLoggingInfoData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GetLoggingInfo(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GetLoggingInfoData getTransformData() {
-    return new GetLoggingInfoData();
   }
 
   @Override

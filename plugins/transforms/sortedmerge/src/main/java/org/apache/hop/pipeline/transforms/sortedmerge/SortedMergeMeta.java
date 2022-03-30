@@ -33,12 +33,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -55,8 +52,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SortedMergeMeta.keyword",
     documentationUrl = "/pipeline/transforms/sortedmerge.html")
-public class SortedMergeMeta extends BaseTransformMeta
-    implements ITransformMeta<SortedMerge, SortedMergeData> {
+public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeData> {
   private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
 
   /** order by which fields? */
@@ -99,16 +95,6 @@ public class SortedMergeMeta extends BaseTransformMeta
     System.arraycopy(ascending, 0, retval.ascending, 0, nrFields);
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SortedMergeData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SortedMerge(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) throws HopXmlException {
@@ -253,11 +239,6 @@ public class SortedMergeMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public SortedMergeData getTransformData() {
-    return new SortedMergeData();
   }
 
   /** @return the ascending */

@@ -30,6 +30,7 @@ import org.apache.hop.core.logging.*;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -114,7 +115,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * </ul>
  */
 public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformData>
-    implements ITransform<Meta, Data>,
+    implements 
+        ITransform,
         IVariables,
         ILoggingObject,
         IExtensionData,
@@ -124,9 +126,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   protected IVariables variables = new Variables();
 
-  private PipelineMeta pipelineMeta;
+  private final PipelineMeta pipelineMeta;
 
-  private TransformMeta transformMeta;
+  private final TransformMeta transformMeta;
 
   private String transformName;
 
@@ -134,7 +136,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private String containerObjectId;
 
-  private IPipelineEngine<PipelineMeta> pipeline;
+  private final IPipelineEngine<PipelineMeta> pipeline;
 
   private final Object statusCountersLock = new Object();
 
@@ -218,8 +220,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   public List<Object[]> terminatorRows;
 
-  protected Meta meta;
-  protected Data data;
+  protected final Meta meta;
+  protected final Data data;
 
   /** The list of IRowListener interfaces */
   protected List<IRowListener> rowListeners;
@@ -459,10 +461,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, Integer.toString(copyNr));
 
     // BACKLOG-18004
-    allowEmptyFieldNamesAndTypes =
-        Boolean.parseBoolean(
+    allowEmptyFieldNamesAndTypes = ValueMetaBase.convertStringToBoolean(
             System.getProperties()
-                .getProperty(Const.HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES, "false"));
+                .getProperty(Const.HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES, "N"));
 
     // Getting ans setting the error handling values
     // first, get the transform meta
@@ -912,12 +913,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return meta;
   }
 
-  /** @param meta The transformMeta to set. */
-  @Override
-  public void setMeta(Meta meta) {
-    this.meta = meta;
-  }
-
   /**
    * Gets data
    *
@@ -928,31 +923,15 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return data;
   }
 
-  /** @param data The data to set */
-  @Override
-  public void setData(Data data) {
-    this.data = data;
-  }
-
   /** @return Returns the transformMeta. */
   @Override
   public TransformMeta getTransformMeta() {
     return transformMeta;
   }
 
-  /** @param transformMeta The transformMeta to set. */
-  public void setTransformMeta(TransformMeta transformMeta) {
-    this.transformMeta = transformMeta;
-  }
-
   /** @return Returns the pipelineMeta. */
   public PipelineMeta getPipelineMeta() {
     return pipelineMeta;
-  }
-
-  /** @param pipelineMeta The pipelineMeta to set. */
-  public void setPipelineMeta(PipelineMeta pipelineMeta) {
-    this.pipelineMeta = pipelineMeta;
   }
 
   /** @return Returns the pipeline. */
@@ -1024,11 +1003,17 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     // started.
     //
     if (this.checkPipelineRunning == false) {
+      int counter = 0;
       while (!pipeline.isRunning() && !stopped.get()) {
         try {
-          Thread.sleep(1);
+          Thread.sleep(1000);
+          counter++;
         } catch (InterruptedException e) {
           // Ignore
+        }
+        //wait 3s max
+        if(counter >= 3) {
+          break;
         }
       }
       this.checkPipelineRunning = true;
@@ -1979,7 +1964,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     // If the source transform is partitioned but this one isn't, throw an error
     //
-    if (transformMeta.isPartitioned() && !sourceTransformMeta.isPartitioned()) {
+    if (!transformMeta.isPartitioned() && sourceTransformMeta.isPartitioned()) {
       throw new HopTransformException(
           "The info transform to read data from called ["
               + sourceTransformMeta.getName()
@@ -3310,7 +3295,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   @Override
   public boolean getVariableBoolean(String variableName, boolean defaultValue) {
     if (!Utils.isEmpty(variableName)) {
-      String value = resolve(variableName);
+      String value = getVariable(variableName);
       if (!Utils.isEmpty(value)) {
         return ValueMetaString.convertStringToBoolean(value);
       }

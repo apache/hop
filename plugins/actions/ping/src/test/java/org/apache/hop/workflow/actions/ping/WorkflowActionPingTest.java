@@ -33,7 +33,7 @@ public class WorkflowActionPingTest extends WorkflowActionLoadSaveTestSupport<Ac
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList("hostname", "nbrPackets", "timeout", "pingtype");
   }
 

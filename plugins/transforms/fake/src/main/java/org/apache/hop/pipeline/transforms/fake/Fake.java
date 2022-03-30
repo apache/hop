@@ -24,15 +24,13 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class Fake extends BaseTransform<FakeMeta, FakeData>
-    implements ITransform<FakeMeta, FakeData> {
+public class Fake extends BaseTransform<FakeMeta, FakeData> {
 
   private static final Class<?> PKG = FakeMeta.class; // For Translator
 

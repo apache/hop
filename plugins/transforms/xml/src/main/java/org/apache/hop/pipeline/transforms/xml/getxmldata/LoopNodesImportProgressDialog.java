@@ -21,8 +21,8 @@ import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.transforms.xml.Dom4JUtil;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.dom4j.Document;
@@ -30,7 +30,6 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.eclipse.swt.widgets.Shell;
-
 import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
@@ -136,7 +135,7 @@ public class LoopNodesImportProgressDialog {
             PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.ScanningFile", filename),
         1);
 
-    SAXReader reader = XmlParserFactoryProducer.getSAXReader(null);
+    SAXReader reader = Dom4JUtil.getSAXReader();
     monitor.worked(1);
     if (monitor.isCanceled()) {
       return null;

@@ -30,10 +30,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -49,8 +47,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::WebServiceMeta.keyword",
     documentationUrl = "/pipeline/transforms/webservices.html")
-public class WebServiceMeta extends BaseTransformMeta
-    implements ITransformMeta<WebService, WebServiceData> {
+public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData> {
   public static final String XSD_NS_URI = "http://www.w3.org/2001/XMLSchema";
 
   public static final int DEFAULT_TRANSFORM = 1000;
@@ -353,21 +350,6 @@ public class WebServiceMeta extends BaseTransformMeta
 
   public void setOperationName(String operationName) {
     this.operationName = operationName;
-  }
-
-  @Override
-  public WebService createTransform(
-      TransformMeta transformMeta,
-      WebServiceData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline disp) {
-    return new WebService(transformMeta, this, data, cnr, pipelineMeta, disp);
-  }
-
-  @Override
-  public WebServiceData getTransformData() {
-    return new WebServiceData();
   }
 
   public WebServiceField getFieldInFromName(String name) {

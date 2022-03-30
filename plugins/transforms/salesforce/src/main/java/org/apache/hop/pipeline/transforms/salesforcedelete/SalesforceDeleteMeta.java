@@ -28,9 +28,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
 import org.w3c.dom.Node;
@@ -191,21 +189,6 @@ public class SalesforceDeleteMeta
               transformMeta);
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SalesforceDeleteData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SalesforceDelete(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SalesforceDeleteData getTransformData() {
-    return new SalesforceDeleteData();
   }
 
   @Override

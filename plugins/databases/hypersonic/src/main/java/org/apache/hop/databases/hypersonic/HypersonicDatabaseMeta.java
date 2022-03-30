@@ -63,7 +63,7 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
@@ -127,7 +127,7 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
         retval.append("TIMESTAMP");
         break;
       case IValueMeta.TYPE_BOOLEAN:
-        if (supportsBooleanDataType()) {
+        if (isSupportsBooleanDataType()) {
           retval.append("BOOLEAN");
         } else {
           retval.append("CHAR(1)");
@@ -532,7 +532,7 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
 
   /** @return true if the database supports sequences */
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return true;
   }
 

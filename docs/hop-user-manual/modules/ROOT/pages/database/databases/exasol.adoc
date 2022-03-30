@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://docs.exasol.com/connect_exasol/drivers/jdbc.htm[Documentation Link]
 |JDBC Url | jdbc:exa:<server>:<port8563>
+|Driver folder | Hop Installation/plugins/databases/exasol4/lib
 |===

@@ -33,10 +33,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -52,7 +50,7 @@ import java.util.Map;
     description = "i18n::Tika.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::Tika.Keywords")
-public class TikaMeta extends BaseTransformMeta implements ITransformMeta<Tika, TikaData> {
+public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
   private static final Class<?> PKG = TikaMeta.class; // for Translator
 
   /** The list of files to read */
@@ -431,20 +429,6 @@ public class TikaMeta extends BaseTransformMeta implements ITransformMeta<Tika, 
     } catch (Exception e) {
       throw new HopException(e);
     }
-  }
-
-  @Override
-  public Tika createTransform(
-      TransformMeta transformMeta,
-      TikaData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new Tika(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  public TikaData getTransformData() {
-    return new TikaData();
   }
 
   public boolean supportsErrorHandling() {

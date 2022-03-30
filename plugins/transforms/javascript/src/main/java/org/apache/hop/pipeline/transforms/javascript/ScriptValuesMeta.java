@@ -63,8 +63,7 @@ import java.util.Properties;
 @InjectionSupported(
     localizationPrefix = "ScriptValuesMod.Injection.",
     groups = {"FIELDS", "SCRIPTS"})
-public class ScriptValuesMeta extends BaseTransformMeta
-    implements ITransformMeta<ScriptValues, ScriptValuesData> {
+public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValuesData> {
   private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
 
   private static final String JSSCRIPT_TAG_TYPE = "jsScript_type";
@@ -284,16 +283,6 @@ public class ScriptValuesMeta extends BaseTransformMeta
     System.arraycopy(replace, 0, retval.replace, 0, nrFields);
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ScriptValuesData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ScriptValues(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) throws HopXmlException {
@@ -783,11 +772,6 @@ public class ScriptValuesMeta extends BaseTransformMeta
       }
     }
     return sRC;
-  }
-
-  @Override
-  public ScriptValuesData getTransformData() {
-    return new ScriptValuesData();
   }
 
   // This is for Additional Classloading

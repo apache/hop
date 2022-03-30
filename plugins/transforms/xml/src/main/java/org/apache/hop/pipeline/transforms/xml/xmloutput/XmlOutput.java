@@ -31,7 +31,6 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.xml.xmloutput.XmlField.ContentType;
 
@@ -45,8 +44,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * Converts input rows to one or more XML files.
  */
-public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData>
-    implements ITransform<XmlOutputMeta, XmlOutputData> {
+public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
   private static final String EOL =
       "\n"; // force EOL char because woodstox library encodes CRLF incorrectly
 
@@ -252,13 +250,11 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData>
 
     // Check if retro compatibility is set or not, to guaranty compatibility with older versions.
     // In 6.1 null values were written with string "null". Since then the attribute is not written.
+    boolean comptability = getVariableBoolean(Const.HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES, false);
 
-    String val = getVariable(Const.HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES, "N");
-
-    return ValueMetaBase.convertStringToBoolean(Const.NVL(val, "N"))
-        && valueMetaType == IValueMeta.TYPE_STRING;
+    return comptability  && valueMetaType == IValueMeta.TYPE_STRING;
   }
-
+  
   private void writeField(IValueMeta valueMeta, Object valueData, String element)
       throws HopTransformException {
     try {

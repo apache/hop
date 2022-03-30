@@ -34,11 +34,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -57,9 +54,9 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "TokenReplacement.Injection.",
     groups = {"OUTPUT_FIELDS"})
-public class TokenReplacementMeta extends BaseTransformMeta
-    implements ITransformMeta<TokenReplacement, TokenReplacementData> {
+public class TokenReplacementMeta extends BaseTransformMeta<TokenReplacement, TokenReplacementData> {
   private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator
+
 
   public static final String INPUT_TYPE = "input_type";
   public static final String INPUT_FIELD_NAME = "input_field_name";
@@ -534,21 +531,6 @@ public class TokenReplacementMeta extends BaseTransformMeta
     }
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      TokenReplacementData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new TokenReplacement(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public TokenReplacementData getTransformData() {
-    return new TokenReplacementData();
   }
 
   @Override

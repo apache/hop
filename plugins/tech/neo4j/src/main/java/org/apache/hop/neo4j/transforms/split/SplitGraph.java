@@ -32,8 +32,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-public class SplitGraph extends BaseTransform<SplitGraphMeta, SplitGraphData>
-    implements ITransform<SplitGraphMeta, SplitGraphData> {
+public class SplitGraph extends BaseTransform<SplitGraphMeta, SplitGraphData> {
 
   public SplitGraph(
       TransformMeta transformMeta,

@@ -21,11 +21,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-public class BeamSubscribe extends BaseTransform<BeamSubscribeMeta, BeamSubscribeData>
-    implements ITransform<BeamSubscribeMeta, BeamSubscribeData> {
+public class BeamSubscribe extends BaseTransform<BeamSubscribeMeta, BeamSubscribeData> {
 
   public BeamSubscribe(
       TransformMeta transformMeta,

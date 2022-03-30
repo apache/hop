@@ -51,8 +51,7 @@ import java.util.BitSet;
  * Read Json files, parse them and convert them to rows and writes these to one or more output
  * streams.
  */
-public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputData>
-    implements ITransform<JsonInputMeta, JsonInputData> {
+public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputData> {
   private static final Class<?> PKG = JsonInputMeta.class; // For Translator
 
   private RowOutputConverter rowOutputConverter;

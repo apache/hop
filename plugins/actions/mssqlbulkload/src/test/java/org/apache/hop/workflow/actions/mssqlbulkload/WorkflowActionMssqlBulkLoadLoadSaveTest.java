@@ -34,35 +34,33 @@ public class WorkflowActionMssqlBulkLoadLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
-        new String[] {
-          "schemaname",
-          "tablename",
-          "filename",
-          "dataFileType",
-          "fieldTerminator",
-          "lineterminated",
-          "codePage",
-          "specificCodePage",
-          "formatFilename",
-          "fireTriggers",
-          "checkConstraints",
-          "keepNulls",
-          "keepIdentity",
-          "tablock",
-          "startFile",
-          "endFile",
-          "orderBy",
-          "orderDirection",
-          "maxErrors",
-          "batchSize",
-          "rowsPerBatch",
-          "errorFilename",
-          "addDatetime",
-          "addFileToResult",
-          "truncate",
-          "database"
-        });
+            "schemaname",
+            "tablename",
+            "filename",
+            "dataFileType",
+            "fieldTerminator",
+            "lineterminated",
+            "codePage",
+            "specificCodePage",
+            "formatFilename",
+            "fireTriggers",
+            "checkConstraints",
+            "keepNulls",
+            "keepIdentity",
+            "tablock",
+            "startFile",
+            "endFile",
+            "orderBy",
+            "orderDirection",
+            "maxErrors",
+            "batchSize",
+            "rowsPerBatch",
+            "errorFilename",
+            "addDatetime",
+            "addFileToResult",
+            "truncate",
+            "database");
   }
 }

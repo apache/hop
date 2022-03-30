@@ -26,11 +26,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Write commands to SSH * */
-public class Ssh extends BaseTransform<SshMeta, SshData> implements ITransform<SshMeta, SshData> {
+public class Ssh extends BaseTransform<SshMeta, SshData> {
   private static final Class<?> PKG = SshMeta.class; // For Translator
 
   public Ssh(

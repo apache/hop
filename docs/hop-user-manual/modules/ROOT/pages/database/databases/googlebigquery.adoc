@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://www.simba.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/d-intro.htm[Documentation Link]
 |JDBC Url | jdbc:bigquery://[Host]:[Port];ProjectId=[Project];OAuthType=[AuthValue]
+|Driver folder | Hop Installation/plugins/databases/googlebigquery/lib
 |===

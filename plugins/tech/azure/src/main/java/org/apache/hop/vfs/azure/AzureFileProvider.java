@@ -26,6 +26,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
 import org.apache.commons.vfs2.util.UserAuthenticatorUtils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.azure.config.AzureConfig;
 import org.apache.hop.vfs.azure.config.AzureConfigSingleton;
 
@@ -92,10 +94,11 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
         throw new FileSystemException(
             "Please configure the Azure key to use in the configuration (Options dialog or with hop-conf)");
       }
+      IVariables variables = Variables.getADefaultVariableSpace();
 
-      String account = config.getAccount();
+      String account = variables.resolve(config.getAccount());
 
-      String key = config.getKey();
+      String key = variables.resolve(config.getKey());
 
       String storageConnectionString =
           String.format(

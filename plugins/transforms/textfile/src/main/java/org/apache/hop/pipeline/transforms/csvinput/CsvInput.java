@@ -37,21 +37,22 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInput;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputMeta;
 import org.apache.hop.pipeline.transforms.fileinput.text.BOMDetector;
 import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 /** Read a simple CSV file Just output Strings found in the file... */
-public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData>
-    implements ITransform<CsvInputMeta, CsvInputData> {
+public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
 
   private static final Class<?> PKG = CsvInput.class; // For Translator
 

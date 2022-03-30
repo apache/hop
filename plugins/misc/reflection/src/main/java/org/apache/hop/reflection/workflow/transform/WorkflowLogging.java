@@ -28,16 +28,13 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
 import java.util.List;
 
-public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, WorkflowLoggingData>
-    implements ITransform<WorkflowLoggingMeta, WorkflowLoggingData> {
+public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, WorkflowLoggingData> {
 
   private IWorkflowEngine<WorkflowMeta> loggingWorkflow;
   private String loggingPhase;

@@ -26,7 +26,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +42,7 @@ import java.util.List;
  * deemed "not safe" and will fail if you try to run the pipeline with the "Enable Safe Mode
  * checked". Therefore it disables safe mode
  */
-public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaData>
-    implements ITransform<StreamSchemaMeta, StreamSchemaData> {
+public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaData> {
 
   /**
    * The constructor should simply pass on its arguments to the parent class.

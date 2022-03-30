@@ -23,15 +23,13 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.www.HopServerPipelineStatus;
 import org.apache.hop.www.HopServerStatus;
 import org.apache.hop.www.HopServerWorkflowStatus;
 
-public class GetServerStatus extends BaseTransform<GetServerStatusMeta, GetServerStatusData>
-    implements ITransform<GetServerStatusMeta, GetServerStatusData> {
+public class GetServerStatus extends BaseTransform<GetServerStatusMeta, GetServerStatusData> {
   public GetServerStatus(
       TransformMeta transformMeta,
       GetServerStatusMeta meta,

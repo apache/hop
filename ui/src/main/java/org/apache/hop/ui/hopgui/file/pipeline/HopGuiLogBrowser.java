@@ -18,11 +18,11 @@
 package org.apache.hop.ui.hopgui.file.pipeline;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.logging.*;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.gui.GuiResource;

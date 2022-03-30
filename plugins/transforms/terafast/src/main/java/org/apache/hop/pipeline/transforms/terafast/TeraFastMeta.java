@@ -29,7 +29,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.*;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
 
@@ -43,8 +42,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     keywords = "i18n::TeraFastMeta.keyword",
     documentationUrl = "/pipeline/transforms/terafast.html")
-public class TeraFastMeta extends AbstractTransformMeta
-    implements ITransformMeta<ITransform, ITransformData> {
+public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformData> {
 
   public static final PluginMessages MESSAGES = PluginMessages.getMessages(TeraFastMeta.class);
 
@@ -235,31 +233,6 @@ public class TeraFastMeta extends AbstractTransformMeta
       return db;
     }
     throw new HopException(MESSAGES.getString("TeraFastMeta.Exception.ConnectionNotDefined"));
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @see ITransformMeta#createTransform(TransformMeta, ITransformData, int, PipelineMeta, Pipeline)
-   */
-  @Override
-  public ITransform createTransform(
-      final TransformMeta transformMeta,
-      final ITransformData data,
-      final int cnr,
-      final PipelineMeta pipelineMeta,
-      final Pipeline disp) {
-    return new TeraFast(transformMeta, this, (GenericTransformData) data, cnr, pipelineMeta, disp);
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @see ITransformMeta#getTransformData()
-   */
-  @Override
-  public GenericTransformData getTransformData() {
-    return new GenericTransformData();
   }
 
   /**

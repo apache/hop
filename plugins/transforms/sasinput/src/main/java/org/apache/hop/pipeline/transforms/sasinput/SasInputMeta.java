@@ -30,14 +30,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,8 +45,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::SasInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/sasinput.html")
-public class SasInputMeta extends BaseTransformMeta
-    implements ITransformMeta<SasInput, SasInputData> {
+public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
   private static final Class<?> PKG = SasInputMeta.class; // for i18n purposes,
 
   public static final String Xml_TAG_FIELD = "field";
@@ -161,21 +156,6 @@ public class SasInputMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SasInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SasInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SasInputData getTransformData() {
-    return new SasInputData();
   }
 
   /** @return Returns the acceptingField. */

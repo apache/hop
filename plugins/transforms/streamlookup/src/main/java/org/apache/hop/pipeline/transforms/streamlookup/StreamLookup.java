@@ -33,7 +33,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.math.BigDecimal;
@@ -46,8 +45,7 @@ import java.util.Collections;
  * <p>TODO: add warning with conflicting types OR modify the lookup values to the input row type.
  * (this is harder to do as currently we don't know the types)
  */
-public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupData>
-    implements ITransform<StreamLookupMeta, StreamLookupData> {
+public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupData> {
   private static final Class<?> PKG = StreamLookupMeta.class; // For Translator
 
   public StreamLookup(

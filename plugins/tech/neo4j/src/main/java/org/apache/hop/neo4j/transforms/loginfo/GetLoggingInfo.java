@@ -30,7 +30,6 @@ import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
@@ -40,8 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /** Get information from the System or the supervising pipeline. */
-public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLoggingInfoData>
-    implements ITransform<GetLoggingInfoMeta, GetLoggingInfoData> {
+public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLoggingInfoData> {
 
   public GetLoggingInfo(
       TransformMeta transformMeta,

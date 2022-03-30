@@ -59,8 +59,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-public class Rest extends BaseTransform<RestMeta, RestData>
-    implements ITransform<RestMeta, RestData> {
+public class Rest extends BaseTransform<RestMeta, RestData> {
   private static final Class<?> PKG = RestMeta.class; // For Translator
 
   public Rest(

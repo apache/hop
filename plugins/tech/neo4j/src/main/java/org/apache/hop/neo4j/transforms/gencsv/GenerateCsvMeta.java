@@ -26,10 +26,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -41,8 +38,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n::GenerateCsvMeta.categoryDescription",
     keywords = "i18n::GenerateCsvMeta.keyword",
     documentationUrl = "/pipeline/transforms/generate-csvs.html")
-public class GenerateCsvMeta extends BaseTransformMeta
-    implements ITransformMeta<GenerateCsv, GenerateCsvData> {
+public class GenerateCsvMeta extends BaseTransformMeta<GenerateCsv, GenerateCsvData> {
 
   public static final String GRAPH_FIELD_NAME = "graph_field_name";
   public static final String BASE_FOLDER = "base_folder";
@@ -113,21 +109,6 @@ public class GenerateCsvMeta extends BaseTransformMeta
     filesPrefix = XmlHandler.getTagValue(transformNode, FILES_PREFIX);
     filenameField = XmlHandler.getTagValue(transformNode, FILENAME_FIELD);
     fileTypeField = XmlHandler.getTagValue(transformNode, FILE_TYPE_FIELD);
-  }
-
-  @Override
-  public GenerateCsv createTransform(
-      TransformMeta transformMeta,
-      GenerateCsvData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GenerateCsv(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GenerateCsvData getTransformData() {
-    return new GenerateCsvData();
   }
 
   /**

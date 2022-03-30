@@ -34,8 +34,10 @@ public class WorkflowActionSimpleEvalLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Arrays.asList(
+        "name",
+        "description",
         "fieldname",
         "variablename",
         "mask",
@@ -43,11 +45,6 @@ public class WorkflowActionSimpleEvalLoadSaveTest
         "minvalue",
         "maxvalue",
         "successwhenvarset");
-  }
-
-  @Override
-  protected List<String> listXmlAttributes() {
-    return Arrays.asList("name", "description");
   }
 
   @Override

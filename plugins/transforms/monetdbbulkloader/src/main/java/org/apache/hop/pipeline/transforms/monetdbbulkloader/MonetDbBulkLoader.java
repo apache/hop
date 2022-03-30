@@ -42,8 +42,7 @@ import org.monetdb.mcl.net.MapiSocket;
 import java.util.Date;
 import java.util.List;
 
-public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, MonetDbBulkLoaderData>
-    implements ITransform<MonetDbBulkLoaderMeta, MonetDbBulkLoaderData> {
+public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, MonetDbBulkLoaderData> {
   private static final Class<?> PKG =
       MonetDbBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 

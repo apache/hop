@@ -36,8 +36,7 @@ import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutputData>
-    implements ITransform<SQLFileOutputMeta, SQLFileOutputData> {
+public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutputData> {
   private static final Class<?> PKG = SQLFileOutputMeta.class; // For Translator
 
   String schemaTable;
@@ -59,7 +58,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
 
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
     if (r == null) { // no more input to be expected...
-
+      closeFile();
       return false;
     }
     if (first) {

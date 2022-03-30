@@ -190,7 +190,7 @@ public class VectorWiseDatabaseMeta extends IngresDatabaseMeta implements IDatab
   }
 
   @Override
-  public boolean supportsGetBlob() {
+  public boolean isSupportsGetBlob() {
     return false;
   }
 }

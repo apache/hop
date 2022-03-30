@@ -73,7 +73,7 @@ public class PausePipelineServletTest {
     pausePipelineServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
 
-    PowerMockito.verifyStatic(atLeastOnce());
+    PowerMockito.verifyStatic(Encode.class);
     Encode.forHtml(anyString());
   }
 
@@ -103,7 +103,7 @@ public class PausePipelineServletTest {
     pausePipelineServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
 
-    PowerMockito.verifyStatic(atLeastOnce());
+    PowerMockito.verifyStatic(Encode.class);
     Encode.forHtml(anyString());
   }
 }

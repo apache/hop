@@ -31,7 +31,6 @@ import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.net.UnknownHostException;
@@ -45,8 +44,7 @@ import java.util.Set;
  * truncate, upsert, multi-update (update all matching docs) and modifier update (update only
  * certain fields) operations. Can also create and drop indexes based on one or more fields.
  */
-public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutputData>
-    implements ITransform<MongoDbOutputMeta, MongoDbOutputData> {
+public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutputData> {
   private static final Class<?> PKG = MongoDbOutputMeta.class; // For Translator
 
   protected MongoDbOutputData.MongoTopLevel mongoTopLevelStructure =

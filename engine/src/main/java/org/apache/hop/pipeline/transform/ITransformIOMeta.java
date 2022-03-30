@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream;
 
 import java.util.List;
 

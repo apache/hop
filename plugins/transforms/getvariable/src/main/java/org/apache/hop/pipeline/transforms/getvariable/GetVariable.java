@@ -24,14 +24,12 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 
 /** Get information from the System or the supervising pipeline. */
-public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
-    implements ITransform<GetVariableMeta, GetVariableData> {
+public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData> {
 
   public GetVariable(
       TransformMeta transformMeta,

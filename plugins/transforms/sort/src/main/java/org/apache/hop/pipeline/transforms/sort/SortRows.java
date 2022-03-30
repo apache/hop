@@ -31,7 +31,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.*;
@@ -44,8 +43,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /** Sort the rows in the input-streams based on certain criteria */
-public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData>
-    implements ITransform<SortRowsMeta, SortRowsData> {
+public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
+
   private static final Class<?> PKG = SortRows.class; // For Translator
 
   public SortRows(

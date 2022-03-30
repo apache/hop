@@ -28,14 +28,12 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
 
 /** Run dynamic SQL. SQL is defined in a field. */
-public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRowData>
-    implements ITransform<DynamicSqlRowMeta, DynamicSqlRowData> {
+public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRowData> {
 
   private static final Class<?> PKG = DynamicSqlRowMeta.class; // For Translator
 

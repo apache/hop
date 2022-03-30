@@ -28,22 +28,22 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.*;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +57,7 @@ import java.util.Map;
     categoryDescription = "i18n::GetXMLData.category",
     keywords = "i18n::GetXmlDataMeta.keyword",
     documentationUrl = "/pipeline/transforms/getdatafromxml.html")
-public class GetXmlDataMeta extends BaseTransformMeta
-    implements ITransformMeta<GetXmlData, GetXmlDataData> {
+public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData> {
   private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
 
   private static final String YES = "Y";
@@ -519,21 +518,6 @@ public class GetXmlDataMeta extends BaseTransformMeta
       }
     }
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      GetXmlDataData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GetXmlData(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GetXmlDataData getTransformData() {
-    return new GetXmlDataData();
   }
 
   @Override

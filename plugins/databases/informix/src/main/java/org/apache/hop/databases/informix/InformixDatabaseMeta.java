@@ -60,7 +60,7 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   /** @see IDatabase#getNotFoundTK(boolean) */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
-    if (supportsAutoInc() && useAutoinc) {
+    if (isSupportsAutoInc() && useAutoinc) {
       return 1;
     }
     return super.getNotFoundTK(useAutoinc);
@@ -90,7 +90,7 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
    * @return true if we need a placeholder for auto increment fields in insert statements.
    */
   @Override
-  public boolean needsPlaceHolder() {
+  public boolean isNeedsPlaceHolder() {
     return true;
   }
 
@@ -175,7 +175,7 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
         retval += "DATETIME YEAR to FRACTION";
         break;
       case IValueMeta.TYPE_BOOLEAN:
-        if (supportsBooleanDataType()) {
+        if (isSupportsBooleanDataType()) {
           retval += "BOOLEAN";
         } else {
           retval += "CHAR(1)";

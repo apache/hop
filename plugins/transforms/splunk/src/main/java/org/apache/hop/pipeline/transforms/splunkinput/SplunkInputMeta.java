@@ -54,8 +54,7 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "Splunk.Injection.",
     groups = {"PARAMETERS", "RETURNS"})
-public class SplunkInputMeta extends BaseTransformMeta
-    implements ITransformMeta<SplunkInput, SplunkInputData> {
+public class SplunkInputMeta extends BaseTransformMeta<SplunkInput, SplunkInputData> {
 
   public static final String CONNECTION = "connection";
   public static final String QUERY = "query";
@@ -83,21 +82,6 @@ public class SplunkInputMeta extends BaseTransformMeta
   @Override
   public void setDefault() {
     query = "search * | head 100";
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SplunkInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SplunkInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SplunkInputData getTransformData() {
-    return new SplunkInputData();
   }
 
   @Override

@@ -68,6 +68,19 @@ public class ExcelWriterOutputField implements Cloneable {
     this.format = format;
   }
 
+  public ExcelWriterOutputField(String name, String type, String format, String title, boolean formula, String hyperlinkField, String commentField, String commentAuthorField, String titleStyleCell, String styleCell) {
+    this.name = name;
+    this.type = type;
+    this.format = format;
+    this.title = title;
+    this.formula = formula;
+    this.hyperlinkField = hyperlinkField;
+    this.commentField = commentField;
+    this.commentAuthorField = commentAuthorField;
+    this.titleStyleCell = titleStyleCell;
+    this.styleCell = styleCell;
+  }
+
   public ExcelWriterOutputField() {}
 
   public int compare(Object obj) {
@@ -81,6 +94,13 @@ public class ExcelWriterOutputField implements Cloneable {
     ExcelWriterOutputField field = (ExcelWriterOutputField) obj;
 
     return field != null && name.equals(field.getName());
+  }
+
+  public boolean equalsAll(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ExcelWriterOutputField that = (ExcelWriterOutputField) o;
+    return formula == that.formula && name.equals(that.name) && type.equals(that.type) && format.equals(that.format) && title.equals(that.title) && hyperlinkField.equals(that.hyperlinkField) && commentField.equals(that.commentField) && commentAuthorField.equals(that.commentAuthorField) && titleStyleCell.equals(that.titleStyleCell) && styleCell.equals(that.styleCell);
   }
 
   @Override

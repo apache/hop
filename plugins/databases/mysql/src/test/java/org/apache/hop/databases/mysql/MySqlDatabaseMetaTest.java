@@ -62,7 +62,7 @@ public class MySqlDatabaseMetaTest {
   public void testSettings() throws Exception {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(3306, nativeMeta.getDefaultDatabasePort());
-    assertTrue(nativeMeta.supportsAutoInc());
+    assertTrue(nativeMeta.isSupportsAutoInc());
     assertEquals(1, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
     assertEquals("org.gjt.mm.mysql.Driver", nativeMeta.getDriverClass());
@@ -70,10 +70,10 @@ public class MySqlDatabaseMetaTest {
     assertEquals("jdbc:mysql://FOO/WIBBLE", nativeMeta.getURL("FOO", "", "WIBBLE"));
     assertEquals("&", nativeMeta.getExtraOptionSeparator());
     assertEquals("?", nativeMeta.getExtraOptionIndicator());
-    assertFalse(nativeMeta.supportsTransactions());
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertTrue(nativeMeta.supportsViews());
-    assertFalse(nativeMeta.supportsSynonyms());
+    assertFalse(nativeMeta.isSupportsTransactions());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertTrue(nativeMeta.isSupportsViews());
+    assertFalse(nativeMeta.isSupportsSynonyms());
     assertArrayEquals(
         new String[] {
           "ADD",
@@ -305,8 +305,8 @@ public class MySqlDatabaseMetaTest {
     assertFalse(nativeMeta.isSystemTable("dTproperties"));
     assertFalse(nativeMeta.isSystemTable("Testsys"));
     assertTrue(nativeMeta.isMySqlVariant());
-    assertFalse(nativeMeta.releaseSavepoint());
-    assertTrue(nativeMeta.supportsErrorHandlingOnBatchUpdates());
+    assertFalse(nativeMeta.isReleaseSavepoint());
+    assertTrue(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
     assertFalse(nativeMeta.isRequiringTransactionsOnQueries());
   }
 
@@ -688,13 +688,13 @@ public class MySqlDatabaseMetaTest {
 
   @Test
   public void testReleaseSavepoint() {
-    assertFalse(nativeMeta.releaseSavepoint());
+    assertFalse(nativeMeta.isReleaseSavepoint());
   }
 
   @Test
   public void testSupportsSequence() {
     String dbType = nativeMeta.getClass().getSimpleName();
-    assertFalse(dbType, nativeMeta.supportsSequences());
+    assertFalse(dbType, nativeMeta.isSupportsSequences());
     assertTrue(Utils.isEmpty(nativeMeta.getSqlListOfSequences()));
     assertEquals("", nativeMeta.getSqlSequenceExists("testSeq"));
     assertEquals("", nativeMeta.getSqlNextSequenceValue("testSeq"));

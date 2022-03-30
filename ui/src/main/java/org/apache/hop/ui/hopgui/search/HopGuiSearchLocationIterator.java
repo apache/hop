@@ -17,10 +17,10 @@
 
 package org.apache.hop.ui.hopgui.search;
 
-import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.ui.hopgui.HopGui;

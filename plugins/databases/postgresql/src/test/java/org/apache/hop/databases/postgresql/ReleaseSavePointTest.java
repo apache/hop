@@ -33,7 +33,7 @@ public class ReleaseSavePointTest {
   public void testReleaseSavePointBooleans() {
     try {
       for (IDatabase db : support) {
-        assertTrue(db.releaseSavepoint());
+        assertTrue(db.isReleaseSavepoint());
       }
     } catch (Exception e) {
       e.printStackTrace();

@@ -161,7 +161,7 @@ public class BaseTransformDialog extends Dialog {
   public BaseTransformDialog(
       Shell parent,
       IVariables variables,
-      BaseTransformMeta baseTransformMeta,
+      BaseTransformMeta<?,?> baseTransformMeta,
       PipelineMeta pipelineMeta,
       String transformName) {
     super(parent, SWT.NONE);
@@ -212,7 +212,7 @@ public class BaseTransformDialog extends Dialog {
    * @param tr the pipeline metadata
    */
   public BaseTransformDialog(
-      Shell parent, int nr, IVariables variables, BaseTransformMeta in, PipelineMeta tr) {
+      Shell parent, int nr, IVariables variables, BaseTransformMeta<?,?> in, PipelineMeta tr) {
     this(parent, variables, in, tr, null);
   }
 

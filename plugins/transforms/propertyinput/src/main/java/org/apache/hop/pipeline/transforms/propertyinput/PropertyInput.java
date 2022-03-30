@@ -46,8 +46,7 @@ import java.util.Properties;
  * Read all Properties files (& INI files) , convert them to rows and writes these to one or more
  * output streams.
  */
-public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInputData>
-    implements ITransform<PropertyInputMeta, PropertyInputData> {
+public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInputData> {
   private static final Class<?> PKG = PropertyInputMeta.class; // For Translator
 
   public PropertyInput(

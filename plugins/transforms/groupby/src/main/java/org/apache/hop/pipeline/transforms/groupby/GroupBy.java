@@ -32,7 +32,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.*;
@@ -40,8 +39,7 @@ import java.net.SocketTimeoutException;
 import java.util.*;
 
 /** Groups data based on aggregation rules. (sum, count, ...) */
-public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
-    implements ITransform<GroupByMeta, GroupByData> {
+public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
 
   private static final Class<?> PKG = GroupByMeta.class; // For Translator
 
@@ -72,11 +70,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData>
         return false;
       }
 
-      String val = getVariable(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, "N");
-      allNullsAreZero = ValueMetaBase.convertStringToBoolean(val);
-      val = getVariable(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "N");
-      minNullIsValued = ValueMetaBase.convertStringToBoolean(val);
-
+      allNullsAreZero = getVariableBoolean(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, false);      
+      minNullIsValued = getVariableBoolean(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, false);
+      
       // What is the output looking like?
       //
       data.inputRowMeta = getInputRowMeta();

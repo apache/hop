@@ -22,7 +22,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
@@ -215,7 +214,6 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
 
   public void getData() {
     wClearLog.setSelection(configuration.isClearingLog());
-    wLogLevel.select(DefaultLogLevel.getLogLevel().getLevel());
 
     try {
       wRunConfiguration.fillItems();
@@ -227,12 +225,12 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
       hopGui.getLog().logError("Unable to obtain a list of workflow run configurations", e);
     }
 
+    Map<String, String> workflowUsageMap = null;
     String lastGlobalRunConfig =
         AuditManagerGuiUtil.getLastUsedValue(AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS);
     String lastWorkflowRunConfig = null;
     if (StringUtils.isNotEmpty(abstractMeta.getName())) {
-      Map<String, String> workflowUsageMap =
-          AuditManagerGuiUtil.getUsageMap(MAP_TYPE_WORKFLOW_RUN_CONFIG_USAGE);
+      workflowUsageMap = AuditManagerGuiUtil.getUsageMap(MAP_TYPE_WORKFLOW_RUN_CONFIG_USAGE);
       lastWorkflowRunConfig = workflowUsageMap.get(abstractMeta.getName());
     }
 
@@ -289,6 +287,12 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     }
     wStartAction.setText(startAction);
 
+    if (workflowUsageMap != null && workflowUsageMap.containsKey(LOG_LEVEL)) {
+      wLogLevel.select(Integer.parseInt(workflowUsageMap.get(LOG_LEVEL)));
+    } else {
+      wLogLevel.select(configuration.getLogLevel().getLevel());
+    }
+
     getParamsData();
     getVariablesData();
   }
@@ -342,6 +346,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
         Map<String, String> usageMap =
             AuditManagerGuiUtil.getUsageMap(MAP_TYPE_WORKFLOW_RUN_CONFIG_USAGE);
         usageMap.put(abstractMeta.getName(), runConfigurationName);
+        usageMap.put("LOG_LEVEL", String.valueOf(wLogLevel.getSelectionIndex()));
         AuditManagerGuiUtil.saveUsageMap(MAP_TYPE_WORKFLOW_RUN_CONFIG_USAGE, usageMap);
       }
 

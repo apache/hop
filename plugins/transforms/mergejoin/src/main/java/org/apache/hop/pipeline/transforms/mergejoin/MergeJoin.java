@@ -27,9 +27,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -48,8 +47,7 @@ import java.util.List;
  * to be sorted either on ascending or descending order. The currently implementation only supports
  * ascending
  */
-public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData>
-    implements ITransform<MergeJoinMeta, MergeJoinData> {
+public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> {
   private static final Class<?> PKG = MergeJoinMeta.class; // For Translator
 
   public MergeJoin(

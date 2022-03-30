@@ -27,10 +27,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -43,7 +41,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::DelayMeta.keyword",
     documentationUrl = "/pipeline/transforms/delay.html")
-public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay, DelayData> {
+public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
   private static final Class<?> PKG = DelayMeta.class; // For Translator
 
   @HopMetadataProperty(key = "timeout", injectionKeyDescription = "Delay.Injection.Timeout")
@@ -192,16 +190,5 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
               transformMeta);
     }
     remarks.add(cr);
-  }
-
-  @Override
-  public Delay createTransform(
-      TransformMeta transformMeta, DelayData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
-    return new Delay(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public DelayData getTransformData() {
-    return new DelayData();
   }
 }

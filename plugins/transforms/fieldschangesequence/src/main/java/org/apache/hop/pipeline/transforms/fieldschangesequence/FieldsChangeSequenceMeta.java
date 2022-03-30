@@ -29,10 +29,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -47,8 +45,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::FieldsChangeSequenceMeta.keyword",
     documentationUrl = "/pipeline/transforms/addfieldschangesequence.html")
-public class FieldsChangeSequenceMeta extends BaseTransformMeta
-    implements ITransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {
+public class FieldsChangeSequenceMeta extends BaseTransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {
   private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // For Translator
 
   /** by which fields to display? */
@@ -257,21 +254,6 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public FieldsChangeSequence createTransform(
-      TransformMeta transformMeta,
-      FieldsChangeSequenceData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new FieldsChangeSequence(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public FieldsChangeSequenceData getTransformData() {
-    return new FieldsChangeSequenceData();
   }
 
   @Override

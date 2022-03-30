@@ -85,23 +85,23 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
   /** @return true if the database supports synonyms */
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return false;
   }
 
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return true;
   }
 
   @Override
-  public boolean supportsSequenceNoMaxValueOption() {
+  public boolean isSupportsSequenceNoMaxValueOption() {
     return true;
   }
 
@@ -111,7 +111,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * support directly, not the auto increment features.
    */
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     return true;
   }
 
@@ -295,7 +295,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
         retval += "TIMESTAMP";
         break;
       case IValueMeta.TYPE_BOOLEAN:
-        if (supportsBooleanDataType()) {
+        if (isSupportsBooleanDataType()) {
           retval += "BOOLEAN";
         } else {
           retval += "CHAR(1)";
@@ -1053,7 +1053,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    *     updates.
    */
   @Override
-  public boolean supportsErrorHandlingOnBatchUpdates() {
+  public boolean IsSupportsErrorHandlingOnBatchUpdates() {
     return false;
   }
 
@@ -1073,12 +1073,12 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   @Override
-  public boolean requiresCastToVariousForIsNull() {
+  public boolean isRequiresCastToVariousForIsNull() {
     return true;
   }
 
   @Override
-  public boolean supportsGetBlob() {
+  public boolean isSupportsGetBlob() {
     return false;
   }
 
@@ -1087,7 +1087,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    *     use it (default to false)
    */
   @Override
-  public boolean useSafePoints() {
+  public boolean isUseSafePoints() {
     return true;
   }
 

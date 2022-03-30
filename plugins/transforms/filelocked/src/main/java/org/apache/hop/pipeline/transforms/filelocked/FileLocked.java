@@ -31,8 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.actions.checkfilelocked.LockFile;
 
 /** Check if a file is locked * */
-public class FileLocked extends BaseTransform<FileLockedMeta, FileLockedData>
-    implements ITransform<FileLockedMeta, FileLockedData> {
+public class FileLocked extends BaseTransform<FileLockedMeta, FileLockedData> {
 
   private static final Class<?> PKG = FileLockedMeta.class; // For Translator
 

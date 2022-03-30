@@ -33,10 +33,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.mongo.wrapper.field.MongoField;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mongodb.MongoDbMeta;
 import org.w3c.dom.Node;
@@ -53,8 +50,7 @@ import java.util.List;
     keywords = "i18n::MongoDbInputMeta.keyword",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input")
 @InjectionSupported(localizationPrefix = "MongoDbInput.Injection.", groups = ("FIELDS"))
-public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData>
-    implements ITransformMeta<MongoDbInput, MongoDbInputData> {
+public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData> {
   protected static final Class<?> PKG = MongoDbInputMeta.class; // For Translator
 
   @Injection(name = "JSON_OUTPUT_FIELD")
@@ -221,21 +217,6 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
       xml.append("\n    ").append(XmlHandler.closeTag("mongo_fields"));
     }
     return xml.toString();
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      MongoDbInputData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new MongoDbInput(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public MongoDbInputData getTransformData() {
-    return new MongoDbInputData();
   }
 
   @Override

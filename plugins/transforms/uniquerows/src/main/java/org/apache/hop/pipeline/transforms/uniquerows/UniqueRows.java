@@ -31,8 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.List;
 
 /** Removes the same consequetive rows from the input stream(s). */
-public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData>
-    implements ITransform<UniqueRowsMeta, UniqueRowsData> {
+public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> {
   private static final Class<?> PKG = UniqueRowsMeta.class; // For Translator
 
   public UniqueRows(

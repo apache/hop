@@ -34,11 +34,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
 import org.w3c.dom.Node;
@@ -53,8 +50,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::MailInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/emailinput.html")
-public class MailInputMeta extends BaseTransformMeta
-    implements ITransformMeta<MailInput, MailInputData> {
+public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   private static final Class<?> PKG = MailInputMeta.class; // For Translator
 
   public static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
@@ -129,16 +125,6 @@ public class MailInputMeta extends BaseTransformMeta
     }
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      MailInputData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MailInput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) {
@@ -616,11 +602,6 @@ public class MailInputMeta extends BaseTransformMeta
   /** @param password The password to set. */
   public void setPassword(String password) {
     this.password = password;
-  }
-
-  @Override
-  public MailInputData getTransformData() {
-    return new MailInputData();
   }
 
   @Override

@@ -25,14 +25,13 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 
 /** Replace Field value by a constant value. */
-public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetValueConstantData>
-    implements ITransform<SetValueConstantMeta, SetValueConstantData> {
+public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetValueConstantData> {
+
   private static final Class<?> PKG = SetValueConstantMeta.class; // For Translator
 
   public SetValueConstant(

@@ -88,6 +88,7 @@ If you do not set this variable, no project or environment will be created.
 |
 | The name of the Hop environment to create in the container.
 If you do not set this variable, no environment will be created.
+When using an environment a project has to be created too
 
 |```HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS```
 |
@@ -224,6 +225,9 @@ docker run -it --rm \
 ----
 
 If you need a **long-lived container**, this option is also available.
+
+For more information on the long-lived container please also see the xref:manual::hop-server/index.adoc[Hop Server] documentation as it describes what can be done using the Hop Server
+
 Run this command to start a Hop Server in a docker container:
 
 [source,bash]
@@ -242,7 +246,9 @@ docker run -it --rm \
 Hop Server is designed to receive all variables and metadata from executing clients.
 This means it needs little to no configuration to run.
 
-You can then access the hop-server UI from your host at `http://localhost:8181`
+If you want to use the web-services functionality additional information on how to configure your webserver can be found on the user manual  xref:manual::hop-server/web-service.adoc[Web Service] page. For this to work properly the `HOP_SERVER_METADATA_FOLDER` variable has to be set too.
+
+When started can then access the hop-server UI from your host at `http://localhost:8181`
 
 == Custom Entrypoint Extension Shell Script
 

@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -35,11 +36,10 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.reflect.Whitebox.setInternalState;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Client.class)
@@ -82,7 +82,7 @@ public class RestTest {
     doReturn(builder).when(resource).getRequestBuilder();
 
     Client client = mock(Client.class);
-    doReturn(resource).when(client).resource(anyString());
+    doReturn(resource).when(client).resource(nullable(String.class));
 
     mockStatic(Client.class);
     when(Client.create(any())).thenReturn(client);
@@ -102,7 +102,7 @@ public class RestTest {
     data.resultCodeFieldName = "status";
     data.resultHeaderFieldName = "headers";
 
-    Rest rest = mock(Rest.class);
+    Rest rest = mock(Rest.class, Answers.RETURNS_DEFAULTS);
     doCallRealMethod().when(rest).callRest(any());
     doCallRealMethod().when(rest).searchForHeaders(any());
 

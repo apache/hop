@@ -35,8 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.concurrent.Executors;
 
-public class AzureWrite extends BaseTransform<AzureWriterMeta, AzureWriterData>
-    implements ITransform<AzureWriterMeta, AzureWriterData> {
+public class AzureWrite extends BaseTransform<AzureWriterMeta, AzureWriterData> {
 
   public AzureWrite(
       TransformMeta transformMeta,

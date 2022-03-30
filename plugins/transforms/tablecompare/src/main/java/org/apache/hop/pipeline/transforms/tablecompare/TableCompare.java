@@ -34,8 +34,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
 
-public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareData>
-    implements ITransform<TableCompareMeta, TableCompareData> {
+public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareData> {
   private static final Class<?> PKG = TableCompare.class; // For Translator
 
   public TableCompare(

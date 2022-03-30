@@ -34,14 +34,13 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
-import org.apache.hop.pipeline.transform.errorhandling.Stream;
-import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
+import org.apache.hop.pipeline.transform.stream.Stream;
+import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -55,8 +54,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     keywords = "i18n::MergeRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/mergerows.html")
-public class MergeRowsMeta extends BaseTransformMeta
-    implements ITransformMeta<MergeRows, MergeRowsData> {
+public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
   private static final Class<?> PKG = MergeRowsMeta.class; // For Translator
 
   @Injection(name = "FLAG_FIELD")
@@ -122,16 +120,6 @@ public class MergeRowsMeta extends BaseTransformMeta
     System.arraycopy(keyFields, 0, retval.keyFields, 0, nrKeys);
     System.arraycopy(valueFields, 0, retval.valueFields, 0, nrValues);
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      MergeRowsData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MergeRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -329,11 +317,6 @@ public class MergeRowsMeta extends BaseTransformMeta
         remarks.add(cr);
       }
     }
-  }
-
-  @Override
-  public MergeRowsData getTransformData() {
-    return new MergeRowsData();
   }
 
   /** Returns the Input/Output metadata for this transform. */

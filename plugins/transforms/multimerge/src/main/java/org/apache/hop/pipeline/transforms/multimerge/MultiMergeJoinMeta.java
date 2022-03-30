@@ -34,9 +34,9 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
-import org.apache.hop.pipeline.transform.errorhandling.Stream;
-import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
+import org.apache.hop.pipeline.transform.stream.Stream;
+import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -50,22 +50,11 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     keywords = "i18n::MultiMergeJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/multimerge.html")
-public class MultiMergeJoinMeta extends BaseTransformMeta
-    implements ITransformMeta<MultiMergeJoin, MultiMergeJoinData> {
+public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiMergeJoinData> {
   private static final Class<?> PKG = MultiMergeJoinMeta.class; // For Translator
 
   public static final String[] joinTypes = {"INNER", "FULL OUTER"};
   public static final boolean[] optionals = {false, true};
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      MultiMergeJoinData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MultiMergeJoin(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
 
   @Injection(name = "JOIN_TYPE")
   private String joinType;
@@ -263,11 +252,6 @@ public class MultiMergeJoinMeta extends BaseTransformMeta
       r.getValueMeta(i).setOrigin(name);
     }
     return;
-  }
-
-  @Override
-  public MultiMergeJoinData getTransformData() {
-    return new MultiMergeJoinData();
   }
 
   @Override

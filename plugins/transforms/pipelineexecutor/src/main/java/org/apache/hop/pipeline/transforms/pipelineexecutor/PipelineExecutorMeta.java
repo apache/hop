@@ -36,15 +36,14 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.ISubPipelineAwareMeta;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
-import org.apache.hop.pipeline.transform.errorhandling.Stream;
-import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
+import org.apache.hop.pipeline.transform.stream.Stream;
+import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -64,7 +63,7 @@ import java.util.List;
     keywords = "i18n::PipelineExecutorMeta.keyword")
 public class PipelineExecutorMeta
     extends TransformWithMappingMeta<PipelineExecutor, PipelineExecutorData>
-    implements ITransformMeta<PipelineExecutor, PipelineExecutorData>, ISubPipelineAwareMeta {
+    implements ISubPipelineAwareMeta {
 
   private static final Class<?> PKG = PipelineExecutorMeta.class; // For Translator
 
@@ -591,16 +590,6 @@ public class PipelineExecutorMeta
   }
 
   @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      PipelineExecutorData data,
-      int cnr,
-      PipelineMeta tr,
-      Pipeline pipeline) {
-    return new PipelineExecutor(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, TransformMeta transformMeta) {
     List<ResourceReference> references = new ArrayList<>(5);
@@ -615,11 +604,6 @@ public class PipelineExecutorMeta
     }
     references.add(reference);
     return references;
-  }
-
-  @Override
-  public PipelineExecutorData getTransformData() {
-    return new PipelineExecutorData();
   }
 
   @Override

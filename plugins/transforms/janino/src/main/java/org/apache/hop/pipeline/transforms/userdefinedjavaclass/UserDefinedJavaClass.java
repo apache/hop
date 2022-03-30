@@ -33,8 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UserDefinedJavaClass
-    extends BaseTransform<UserDefinedJavaClassMeta, UserDefinedJavaClassData>
-    implements ITransform<UserDefinedJavaClassMeta, UserDefinedJavaClassData> {
+    extends BaseTransform<UserDefinedJavaClassMeta, UserDefinedJavaClassData> {
   private TransformClassBase child;
   public static final String HOP_DEFAULT_CLASS_CACHE_SIZE = "HOP_DEFAULT_CLASS_CACHE_SIZE";
 

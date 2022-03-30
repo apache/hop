@@ -26,11 +26,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -42,8 +38,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n::AzureWriterMeta.categoryDescription",
     keywords = "i18n::AzureWriterMeta.keyword",
     documentationUrl = "/pipeline/transforms/azure-event-hubs-writer.html")
-public class AzureWriterMeta extends BaseTransformMeta
-    implements ITransformMeta<AzureWrite, AzureWriterData> {
+public class AzureWriterMeta extends BaseTransformMeta<AzureWrite, AzureWriterData> {
 
   public static final String NAMESPACE = "namespace";
   public static final String EVENT_HUB_NAME = "event_hub_name";
@@ -67,21 +62,6 @@ public class AzureWriterMeta extends BaseTransformMeta
 
   @Override
   public void setDefault() {}
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      AzureWriterData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new AzureWrite(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public AzureWriterData getTransformData() {
-    return new AzureWriterData();
-  }
 
   @Override
   public void getFields(

@@ -25,14 +25,12 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /** Performs analytic queries (LEAD/LAG, etc) based on a group */
-public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQueryData>
-    implements ITransform<AnalyticQueryMeta, AnalyticQueryData> {
+public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQueryData> {
 
   private static final Class<?> PKG = AnalyticQuery.class; // For Translator
 

@@ -38,7 +38,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -47,9 +46,7 @@ import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import java.util.ArrayList;
 
 /** Execute a workflow for every input row. */
-public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, WorkflowExecutorData>
-    implements ITransform<WorkflowExecutorMeta, WorkflowExecutorData> {
-
+public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, WorkflowExecutorData> {
   private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
   public WorkflowExecutor(

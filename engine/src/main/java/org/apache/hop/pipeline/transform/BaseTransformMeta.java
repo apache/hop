@@ -34,15 +34,18 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.DatabaseImpact;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transform.errorhandling.Stream;
+import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
-
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,12 +59,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * <p>For example, the "Text File Output" transform's TextFileOutputMeta class extends
  * BaseTransformMeta by adding fields for the output file name, compression, file format, etc...
- *
  * <p>
- *
- * @created 19-June-2003
  */
-public class BaseTransformMeta implements Cloneable {
+public class BaseTransformMeta<Main extends ITransform, Data extends ITransformData> implements ITransformMeta, Cloneable {
+   
   public static final ILoggingObject loggingObject =
       new SimpleLoggingObject("Transform metadata", LoggingObjectType.TRANSFORM_META, null);
 
@@ -77,8 +78,42 @@ public class BaseTransformMeta implements Cloneable {
 
   public BaseTransformMeta() {
     changed = false;
-  }
+  } 
+  
+  @Override
+  @SuppressWarnings({"unchecked"})
+  public final ITransform createTransform(TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+    try {
+      ParameterizedType parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
+      Class<Main> mainClass = (Class<Main>) parameterizedType.getActualTypeArguments()[0];
+      Class<Data> dataClass = (Class<Data>) parameterizedType.getActualTypeArguments()[1];
+      
+      // Some tests class use BaseTransformMeta<ITransform,ITransformData>
+      if ( mainClass.isInterface() ) return null;
 
+      Constructor<Main> constructor = mainClass.getConstructor(new Class[] {TransformMeta.class, this.getClass(), dataClass, int.class, PipelineMeta.class, Pipeline.class});
+      return constructor.newInstance(new Object[] {transformMeta, this, data, copyNr, pipelineMeta, pipeline});
+    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+      throw new RuntimeException("Error create instance of transform: " + this.getName(), e);
+    }
+  }
+  
+  @Override
+  public final ITransformData createTransformData() {
+    try {
+      ParameterizedType parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
+      @SuppressWarnings({"unchecked"})
+      Class<Data> dataClass = (Class<Data>) parameterizedType.getActualTypeArguments()[1];
+    
+      // Some tests class use BaseTransformMeta<ITransform,ITransformData>
+      if ( dataClass.isInterface() ) return null;
+      
+      return dataClass.newInstance();
+    } catch (InstantiationException | IllegalAccessException e) {
+      throw new RuntimeException("Error create instance of transform data: " + this.getName(), e);
+    }
+  }
+  
   /*
    * (non-Javadoc)
    *

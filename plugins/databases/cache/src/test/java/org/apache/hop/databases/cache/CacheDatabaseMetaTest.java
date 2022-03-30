@@ -38,13 +38,13 @@ public class CacheDatabaseMetaTest {
 
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, cdm.getAccessTypeList());
     assertEquals(1972, cdm.getDefaultDatabasePort());
-    assertFalse(cdm.supportsSetCharacterStream());
+    assertFalse(cdm.isSupportsSetCharacterStream());
     assertFalse(cdm.isFetchSizeSupported());
-    assertFalse(cdm.supportsAutoInc());
+    assertFalse(cdm.isSupportsAutoInc());
     assertEquals("com.intersys.jdbc.CacheDriver", cdm.getDriverClass());
     assertEquals("jdbc:Cache://FOO:BAR/WIBBLE", cdm.getURL("FOO", "BAR", "WIBBLE"));
-    assertTrue(cdm.requiresCreateTablePrimaryKeyAppend());
-    assertFalse(cdm.supportsNewLinesInSql());
+    assertTrue(cdm.isRequiresCreateTablePrimaryKeyAppend());
+    assertFalse(cdm.isSupportsNewLinesInSql());
   }
 
   @Test

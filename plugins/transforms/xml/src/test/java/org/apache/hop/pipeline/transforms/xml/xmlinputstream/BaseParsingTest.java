@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
 /** Base class for all tests for BaseFileInput transforms. */
 @Ignore("No tests in abstract base class")
 public abstract class BaseParsingTest<
-    Meta extends ITransformMeta, Data extends ITransformData, Transform extends BaseTransform> {
+    Meta extends ITransformMeta, Data extends ITransformData, Transform extends BaseTransform<?,?>> {
 
   protected ILogChannel log = new LogChannel("junit");
   protected FileSystemManager fs;

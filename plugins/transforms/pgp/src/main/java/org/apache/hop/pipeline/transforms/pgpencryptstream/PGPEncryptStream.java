@@ -24,13 +24,12 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
 
 /** Encrypt a stream with GPG * */
-public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEncryptStreamData>
-    implements ITransform<PGPEncryptStreamMeta, PGPEncryptStreamData> {
+public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEncryptStreamData> {
+
   private static final Class<?> PKG = PGPEncryptStreamMeta.class; // For Translator
 
   public PGPEncryptStream(

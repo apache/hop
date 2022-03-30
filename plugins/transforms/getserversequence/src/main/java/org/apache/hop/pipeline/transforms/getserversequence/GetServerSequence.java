@@ -30,8 +30,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Adds a sequential number to a stream of rows. */
-public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetServerSequenceData>
-    implements ITransform<GetServerSequenceMeta, GetServerSequenceData> {
+public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetServerSequenceData> {
 
   private static final Class<?> PKG = GetServerSequence.class; // For Translator
 

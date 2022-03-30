@@ -25,7 +25,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Before;
@@ -38,7 +37,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
@@ -257,29 +256,12 @@ public class MetaInjectTest {
   }
 
   @InjectionSupported(localizationPrefix = "", groups = "groups")
-  private static class InjectableTestTransformMeta extends BaseTransformMeta
-      implements ITransformMeta<MetaInject, MetaInjectData> {
+  private static class InjectableTestTransformMeta extends BaseTransformMeta<MetaInject, MetaInjectData> {
 
     @Injection(name = "THERE")
     private String there;
 
     @Override
     public void setDefault() {}
-
-    @Override
-    public ITransform createTransform(
-        TransformMeta transformMeta,
-        MetaInjectData data,
-        int copyNr,
-        PipelineMeta pipelineMeta,
-        Pipeline pipeline) {
-      return new MetaInject(
-          transformMeta, new MetaInjectMeta(), data, copyNr, pipelineMeta, pipeline);
-    }
-
-    @Override
-    public MetaInjectData getTransformData() {
-      return null;
-    }
   }
 }

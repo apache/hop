@@ -18,7 +18,6 @@
 package org.apache.hop.core.variables;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -84,7 +83,7 @@ public class Variables implements IVariables {
   @Override
   public boolean getVariableBoolean(String variableName, boolean defaultValue) {
     if (!Utils.isEmpty(variableName)) {
-      String value = resolve(variableName);
+      String value = properties.get(variableName);
       if (!Utils.isEmpty(value)) {
         return ValueMetaBase.convertStringToBoolean(value);
       }

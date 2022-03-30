@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.config;
 
+import org.apache.hop.core.variables.DescribedVariable;
 import java.util.List;
 
 public interface IConfigFile {

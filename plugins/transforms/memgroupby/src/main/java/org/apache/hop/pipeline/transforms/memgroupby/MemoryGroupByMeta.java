@@ -37,10 +37,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -58,8 +56,7 @@ import java.util.List;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     keywords = "i18n::MemoryGroupByMeta.keyword",
     documentationUrl = "/pipeline/transforms/memgroupby.html")
-public class MemoryGroupByMeta extends BaseTransformMeta
-    implements ITransformMeta<MemoryGroupBy, MemoryGroupByData> {
+public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGroupByData> {
   private static final Class<?> PKG = MemoryGroupByMeta.class; // For Translator
 
   public static final int TYPE_GROUP_NONE = 0;
@@ -244,16 +241,6 @@ public class MemoryGroupByMeta extends BaseTransformMeta
     return retval;
   }
 
-  @Override
-  public MemoryGroupBy createTransform(
-      TransformMeta transformMeta,
-      MemoryGroupByData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MemoryGroupBy(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
   private void readData(Node transformNode) throws HopXmlException {
     try {
       Node groupn = XmlHandler.getSubNode(transformNode, "group");
@@ -344,11 +331,8 @@ public class MemoryGroupByMeta extends BaseTransformMeta
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     // Check compatibility mode
-    boolean compatibilityMode =
-        ValueMetaBase.convertStringToBoolean(
-            variables.getVariable(
-                Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, "N"));
-
+    boolean compatibilityMode = variables.getVariableBoolean(Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, false);
+    
     // re-assemble a new row of metadata
     //
     IRowMeta fields = new RowMeta();
@@ -509,11 +493,6 @@ public class MemoryGroupByMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public MemoryGroupByData getTransformData() {
-    return new MemoryGroupByData();
   }
 
   /** @return the alwaysGivingBackOneRow */

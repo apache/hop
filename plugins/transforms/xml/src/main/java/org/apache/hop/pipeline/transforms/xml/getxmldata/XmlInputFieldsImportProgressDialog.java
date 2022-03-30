@@ -23,8 +23,8 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.transforms.xml.Dom4JUtil;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.dom4j.Attribute;
@@ -50,12 +50,12 @@ import java.util.List;
 public class XmlInputFieldsImportProgressDialog {
   private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
 
-  private static String VALUE_NAME = "Name";
-  private static String VALUE_PATH = "Path";
-  private static String VALUE_ELEMENT = "Element";
-  private static String VALUE_RESULT = "result";
-  private static String VALUE_TYPE = "Type";
-  private static String VALUE_FORMAT = "Format";
+  private static final String VALUE_NAME = "Name";
+  private static final String VALUE_PATH = "Path";
+  private static final String VALUE_ELEMENT = "Element";
+  private static final String VALUE_RESULT = "result";
+  private static final String VALUE_TYPE = "Type";
+  private static final String VALUE_FORMAT = "Format";
 
   private Shell shell;
 
@@ -127,15 +127,7 @@ public class XmlInputFieldsImportProgressDialog {
     try {
       ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
       pmd.run(true, op);
-    } catch (InvocationTargetException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(
-              PKG, "GetXMLDateLoopNodesImportProgressDialog.ErrorScanningFile.Title"),
-          BaseMessages.getString(
-              PKG, "GetXMLDateLoopNodesImportProgressDialog.ErrorScanningFile.Message"),
-          e);
-    } catch (InterruptedException e) {
+    } catch (InvocationTargetException | InterruptedException e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(
@@ -155,7 +147,7 @@ public class XmlInputFieldsImportProgressDialog {
             PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.ScanningFile", filename),
         1);
 
-    SAXReader reader = XmlParserFactoryProducer.getSAXReader(null);
+    SAXReader reader = Dom4JUtil.getSAXReader();
     monitor.worked(1);
     if (monitor.isCanceled()) {
       return null;
@@ -254,8 +246,8 @@ public class XmlInputFieldsImportProgressDialog {
     Element e = (Element) node;
     // get all attributes
     List<Attribute> lista = e.attributes();
-    for (int i = 0; i < lista.size(); i++) {
-      setAttributeField(lista.get(i), monitor);
+    for (Attribute attribute : lista) {
+      setAttributeField(attribute, monitor);
     }
 
     // Get Node Name
@@ -284,13 +276,13 @@ public class XmlInputFieldsImportProgressDialog {
 
       // Try to get the Type
 
-      if (IsDate(valueNode)) {
+      if (isDate(valueNode)) {
         row.addValue(VALUE_TYPE, IValueMeta.TYPE_STRING, "Date");
         row.addValue(VALUE_FORMAT, IValueMeta.TYPE_STRING, "yyyy/MM/dd");
-      } else if (IsInteger(valueNode)) {
+      } else if (isInteger(valueNode)) {
         row.addValue(VALUE_TYPE, IValueMeta.TYPE_STRING, "Integer");
         row.addValue(VALUE_FORMAT, IValueMeta.TYPE_STRING, null);
-      } else if (IsNumber(valueNode)) {
+      } else if (isNumber(valueNode)) {
         row.addValue(VALUE_TYPE, IValueMeta.TYPE_STRING, "Number");
         row.addValue(VALUE_FORMAT, IValueMeta.TYPE_STRING, null);
       } else {
@@ -328,13 +320,13 @@ public class XmlInputFieldsImportProgressDialog {
 
       // Try to get the Type
 
-      if (IsDate(valueAttr)) {
+      if (isDate(valueAttr)) {
         row.addValue(VALUE_TYPE, IValueMeta.TYPE_STRING, "Date");
         row.addValue(VALUE_FORMAT, IValueMeta.TYPE_STRING, "yyyy/MM/dd");
-      } else if (IsInteger(valueAttr)) {
+      } else if (isInteger(valueAttr)) {
         row.addValue(VALUE_TYPE, IValueMeta.TYPE_STRING, "Integer");
         row.addValue(VALUE_FORMAT, IValueMeta.TYPE_STRING, null);
-      } else if (IsNumber(valueAttr)) {
+      } else if (isNumber(valueAttr)) {
         row.addValue(VALUE_TYPE, IValueMeta.TYPE_STRING, "Number");
         row.addValue(VALUE_FORMAT, IValueMeta.TYPE_STRING, null);
       } else {
@@ -355,7 +347,7 @@ public class XmlInputFieldsImportProgressDialog {
     return retval;
   }
 
-  private boolean IsDate(String str) {
+  private boolean isDate(String str) {
     // TODO: What about other dates? Maybe something for a CRQ
     try {
       SimpleDateFormat fdate = new SimpleDateFormat("yyyy/MM/dd");
@@ -367,7 +359,7 @@ public class XmlInputFieldsImportProgressDialog {
     return true;
   }
 
-  private boolean IsInteger(String str) {
+  private boolean isInteger(String str) {
     try {
       Integer.parseInt(str);
     } catch (NumberFormatException e) {
@@ -376,7 +368,7 @@ public class XmlInputFieldsImportProgressDialog {
     return true;
   }
 
-  private boolean IsNumber(String str) {
+  private boolean isNumber(String str) {
     try {
       Float.parseFloat(str);
     } catch (Exception e) {
@@ -394,7 +386,7 @@ public class XmlInputFieldsImportProgressDialog {
       if (!Utils.isEmpty(cnode.getName())) {
         Element cce = (Element) cnode;
         if (cce.nodeCount() > 1) {
-          if (childNode(cnode, monitor) == false) {
+          if (!childNode(cnode, monitor)) {
             // We do not have child nodes ...
             setNodeField(cnode, monitor);
             rc = true;

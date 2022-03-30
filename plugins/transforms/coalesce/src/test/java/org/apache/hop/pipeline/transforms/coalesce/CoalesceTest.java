@@ -21,12 +21,13 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class CoalesceTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -37,12 +38,41 @@ public class CoalesceTest {
   }
 
   @Test
-  public void testLoadSave() throws HopException {
-    List<String> attributes = Arrays.asList("treatEmptyStringsAsNulls");
+  public void testLoadSave() throws Exception {
 
     LoadSaveTester<CoalesceMeta> loadSaveTester =
-        new LoadSaveTester<>(CoalesceMeta.class, attributes);
+        new LoadSaveTester<>(CoalesceMeta.class);
+
+    loadSaveTester.getFieldLoadSaveValidatorFactory().registerValidator(
+            CoalesceMeta.class.getDeclaredField("fields").getGenericType().toString(),
+            new ListLoadSaveValidator<>(new CoalesceFieldLoadSaveValidator()));
 
     loadSaveTester.testSerialization();
+  }
+
+  private final class CoalesceFieldLoadSaveValidator implements IFieldLoadSaveValidator<CoalesceField> {
+
+    @Override
+    public CoalesceField getTestObject() {
+      return new CoalesceField(
+              UUID.randomUUID().toString(),
+              UUID.randomUUID().toString(),
+              new Random().nextBoolean(),
+              UUID.randomUUID().toString(),
+              Collections.emptyList()
+      );
+    }
+
+    @Override
+    public boolean validateTestObject(CoalesceField testObject, Object actual) {
+      if (!(actual instanceof CoalesceField)) {
+        return false;
+      }
+      CoalesceField actualObject = (CoalesceField) actual;
+      return testObject.getName().equals(actualObject.getName()) &&
+              testObject.getType().equals(actualObject.getType()) &&
+              testObject.isRemoveFields()==actualObject.isRemoveFields() &&
+              testObject.getInputFields().equals(actualObject.getInputFields());
+    }
   }
 }

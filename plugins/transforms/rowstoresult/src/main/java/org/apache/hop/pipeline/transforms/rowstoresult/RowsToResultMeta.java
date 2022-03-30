@@ -26,14 +26,10 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
 import java.util.List;
 
 @Transform(
@@ -44,8 +40,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     keywords = "i18n::RowsToResultMeta.keyword",
     documentationUrl = "/pipeline/transforms/copyrowstoresult.html")
-public class RowsToResultMeta extends BaseTransformMeta
-    implements ITransformMeta<RowsToResult, RowsToResultData> {
+public class RowsToResultMeta extends BaseTransformMeta<RowsToResult, RowsToResultData> {
   private static final Class<?> PKG = RowsToResult.class; // For Translator
 
   public RowsToResultMeta() {
@@ -62,16 +57,6 @@ public class RowsToResultMeta extends BaseTransformMeta
   public Object clone() {
     Object retval = super.clone();
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      RowsToResultData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new RowsToResult(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData(Node transformNode) {}
@@ -119,10 +104,5 @@ public class RowsToResultMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public RowsToResultData getTransformData() {
-    return new RowsToResultData();
   }
 }

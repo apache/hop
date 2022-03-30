@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, PipelineDataProbeData>
-    implements ITransform<PipelineDataProbeMeta, PipelineDataProbeData> {
+{
 
   private String sourcePipelineName;
   private String sourceTransformLogChannelId;

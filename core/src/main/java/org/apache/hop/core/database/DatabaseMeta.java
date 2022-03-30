@@ -549,7 +549,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
             variables.resolve(hostname), variables.resolve(port), variables.resolve(databaseName));
     String url = variables.resolve(baseUrl);
 
-    if (iDatabase.supportsOptionsInURL()) {
+    if (iDatabase.isSupportsOptionsInURL()) {
       url = appendExtraOptions(variables, url, getExtraOptions());
     }
 
@@ -734,11 +734,11 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   public boolean supportsAutoinc() {
-    return iDatabase.supportsAutoInc();
+    return iDatabase.isSupportsAutoInc();
   }
 
   public boolean supportsSequences() {
-    return iDatabase.supportsSequences();
+    return iDatabase.isSupportsSequences();
   }
 
   public String getSqlSequenceExists(String sequenceName) {
@@ -746,21 +746,21 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   public boolean supportsBitmapIndex() {
-    return iDatabase.supportsBitmapIndex();
+    return iDatabase.isSupportsBitmapIndex();
   }
 
   public boolean supportsSetLong() {
-    return iDatabase.supportsSetLong();
+    return iDatabase.isSupportsSetLong();
   }
 
   /** @return true if the database supports schemas */
   public boolean supportsSchemas() {
-    return iDatabase.supportsSchemas();
+    return iDatabase.isSupportsSchemas();
   }
 
   /** @return true if the database supports catalogs */
   public boolean supportsCatalogs() {
-    return iDatabase.supportsCatalogs();
+    return iDatabase.isSupportsCatalogs();
   }
 
   /**
@@ -768,7 +768,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    *     not on a non-ANSI database type!)
    */
   public boolean supportsEmptyTransactions() {
-    return iDatabase.supportsEmptyTransactions();
+    return iDatabase.isSupportsEmptyTransactions();
   }
 
   /**
@@ -777,7 +777,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    * @return true if we can set a Stream on a field in a PreparedStatement. False if not.
    */
   public boolean supportsSetCharacterStream() {
-    return iDatabase.supportsSetCharacterStream();
+    return iDatabase.isSupportsSetCharacterStream();
   }
 
   /**
@@ -990,7 +990,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    * @return true if we need a placeholder for auto increment fields in insert statements.
    */
   public boolean needsPlaceHolder() {
-    return iDatabase.needsPlaceHolder();
+    return iDatabase.isNeedsPlaceHolder();
   }
 
   public String getFunctionSum() {
@@ -1029,7 +1029,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadConnectionName"));
     }
 
-    if (getIDatabase().requiresName()
+    if (getIDatabase().isRequiresName()
         && (getDatabaseName() == null || getDatabaseName().length() == 0)) {
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadDatabaseName"));
     }
@@ -1162,7 +1162,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
 
   /** @return true if reserved words need to be double quoted ("password", "select", ...) */
   public boolean quoteReservedWords() {
-    return iDatabase.quoteReservedWords();
+    return iDatabase.isQuoteReservedWords();
   }
 
   /** @return The start quote sequence, mostly just double quote, but sometimes [, ... */
@@ -1391,12 +1391,12 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
 
   /** @return true if the database supports views */
   public boolean supportsViews() {
-    return iDatabase.supportsViews();
+    return iDatabase.isSupportsViews();
   }
 
   /** @return true if the database supports synonyms */
   public boolean supportsSynonyms() {
-    return iDatabase.supportsSynonyms();
+    return iDatabase.isSupportsSynonyms();
   }
 
   /** @return The SQL on this database to get a list of stored procedures. */
@@ -1419,7 +1419,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    *     if the target field is number(7,2) the value 12.399999999 is converted into 12.40
    */
   public boolean supportsFloatRoundingOnUpdate() {
-    return iDatabase.supportsFloatRoundingOnUpdate();
+    return iDatabase.isSupportsFloatRoundingOnUpdate();
   }
 
   /**
@@ -1717,7 +1717,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    * @return true if the database result sets support getTimeStamp() to retrieve date-time. (Date)
    */
   public boolean supportsTimeStampToDateConversion() {
-    return iDatabase.supportsTimeStampToDateConversion();
+    return iDatabase.isSupportsTimeStampToDateConversion();
   }
 
   /**
@@ -1725,12 +1725,12 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    *     support this!
    */
   public boolean supportsBatchUpdates() {
-    return iDatabase.supportsBatchUpdates();
+    return iDatabase.isSupportsBatchUpdates();
   }
 
   /** @return true if the database supports a boolean, bit, logical, ... datatype */
   public boolean supportsBooleanDataType() {
-    return iDatabase.supportsBooleanDataType();
+    return iDatabase.isSupportsBooleanDataType();
   }
 
   /** @param b Set to true if the database supports a boolean, bit, logical, ... datatype */
@@ -1742,7 +1742,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    * @return true if the database supports the Timestamp data type (nanosecond precision and all)
    */
   public boolean supportsTimestampDataType() {
-    return iDatabase.supportsTimestampDataType();
+    return iDatabase.isSupportsTimestampDataType();
   }
 
   /**
@@ -1755,7 +1755,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
 
   /** @return true if reserved words' case should be preserved */
   public boolean preserveReservedCase() {
-    return iDatabase.preserveReservedCase();
+    return iDatabase.isPreserveReservedCase();
   }
 
   /** @return true if reserved words' case should be preserved */
@@ -1785,7 +1785,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    *     Properties object.
    */
   public boolean supportsOptionsInURL() {
-    return iDatabase.supportsOptionsInURL();
+    return iDatabase.isSupportsOptionsInURL();
   }
 
   /** @return extra help text on the supported options on the selected database platform. */
@@ -1798,7 +1798,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    *     getBytes() to get the data.
    */
   public boolean supportsGetBlob() {
-    return iDatabase.supportsGetBlob();
+    return iDatabase.isSupportsGetBlob();
   }
 
   /** @return The SQL to execute right after connecting */
@@ -1815,7 +1815,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    * @return true if the database supports setting the maximum number of return rows in a resultset.
    */
   public boolean supportsSetMaxRows() {
-    return iDatabase.supportsSetMaxRows();
+    return iDatabase.isSupportsSetMaxRows();
   }
 
   /**
@@ -2058,15 +2058,15 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   public boolean supportsSequenceNoMaxValueOption() {
-    return iDatabase.supportsSequenceNoMaxValueOption();
+    return iDatabase.isSupportsSequenceNoMaxValueOption();
   }
 
   public boolean requiresCreateTablePrimaryKeyAppend() {
-    return iDatabase.requiresCreateTablePrimaryKeyAppend();
+    return iDatabase.isRequiresCreateTablePrimaryKeyAppend();
   }
 
   public boolean requiresCastToVariousForIsNull() {
-    return iDatabase.requiresCastToVariousForIsNull();
+    return iDatabase.isRequiresCastToVariousForIsNull();
   }
 
   public boolean isDisplaySizeTwiceThePrecision() {
@@ -2074,7 +2074,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   public boolean supportsPreparedStatementMetadataRetrieval() {
-    return iDatabase.supportsPreparedStatementMetadataRetrieval();
+    return iDatabase.isSupportsPreparedStatementMetadataRetrieval();
   }
 
   public boolean isSystemTable(String tableName) {
@@ -2082,7 +2082,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   private boolean supportsNewLinesInSql() {
-    return iDatabase.supportsNewLinesInSql();
+    return iDatabase.isSupportsNewLinesInSql();
   }
 
   public String getSqlListOfSchemas() {
@@ -2094,7 +2094,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   public boolean supportsErrorHandlingOnBatchUpdates() {
-    return iDatabase.supportsErrorHandlingOnBatchUpdates();
+    return iDatabase.IsSupportsErrorHandlingOnBatchUpdates();
   }
 
   /**
@@ -2166,7 +2166,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
 
   /** @return true if the database supports autoGeneratedKeys */
   public boolean supportsAutoGeneratedKeys() {
-    return iDatabase.supportsAutoGeneratedKeys();
+    return iDatabase.isSupportsAutoGeneratedKeys();
   }
 
   /**

@@ -28,15 +28,13 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.Arrays;
 import java.util.Set;
 
 public class StandardizePhoneNumber
-    extends BaseTransform<StandardizePhoneNumberMeta, StandardizePhoneNumberData>
-    implements ITransform<StandardizePhoneNumberMeta, StandardizePhoneNumberData> {
+    extends BaseTransform<StandardizePhoneNumberMeta, StandardizePhoneNumberData> {
   private static final Class<?> PKG = StandardizePhoneNumber.class; // For Translator
 
   private PhoneNumberUtil phoneNumberService;

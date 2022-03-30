@@ -18,12 +18,12 @@
 package org.apache.hop.projects.search;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadata;

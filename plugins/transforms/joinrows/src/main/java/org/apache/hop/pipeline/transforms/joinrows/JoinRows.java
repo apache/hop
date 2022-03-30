@@ -26,7 +26,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.*;
@@ -35,8 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Performs a cartesian product between 2 or more input streams. */
-public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData>
-    implements ITransform<JoinRowsMeta, JoinRowsData> {
+public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
   private static final Class<?> PKG = JoinRowsMeta.class; // For Translator
 
   public JoinRows(

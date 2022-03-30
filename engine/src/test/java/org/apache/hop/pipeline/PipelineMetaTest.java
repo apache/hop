@@ -35,10 +35,8 @@ import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -50,16 +48,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.same;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.*;
 
-// import org.apache.hop.pipeline.transforms.datagrid.DataGridMeta;
-// import org.apache.hop.pipeline.transforms.textfileoutput.TextFileOutputMeta;
-// import org.apache.hop.pipeline.transforms.userdefinedjavaclass.InfoTransformDefinition;
-// import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassDef;
-// import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta;
-
-@RunWith(PowerMockRunner.class)
 public class PipelineMetaTest {
   public static final String TRANSFORM_NAME = "Any transform name";
 
@@ -119,12 +110,12 @@ public class PipelineMetaTest {
                 })
         .when(smi)
         .getFields(
-            any(IRowMeta.class),
-            anyString(),
-            any(IRowMeta[].class),
+            nullable(IRowMeta.class),
+            nullable(String.class),
+            nullable(IRowMeta[].class),
             eq(nextTransform),
-            any(IVariables.class),
-            any(IHopMetadataProvider.class));
+            nullable(IVariables.class),
+            nullable(IHopMetadataProvider.class));
 
     TransformMeta thisTransform = mockTransformMeta("thisTransform");
     when(thisTransform.getTransform()).thenReturn(smi);
@@ -345,7 +336,7 @@ public class PipelineMetaTest {
   }
 
   public abstract static class TransformMetaChangeListenerInterfaceMock
-      implements ITransformMeta<ITransform, ITransformData>, ITransformMetaChangeListener {
+      implements ITransformMeta, ITransformMetaChangeListener {
     @Override
     public abstract Object clone();
   }

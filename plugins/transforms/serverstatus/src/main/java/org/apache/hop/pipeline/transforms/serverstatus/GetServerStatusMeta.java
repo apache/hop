@@ -42,8 +42,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     documentationUrl = "/pipeline/transforms/serverstatus.html",
     keywords = "i18n::GetServerStatus.Transform.Keywords")
-public class GetServerStatusMeta extends BaseTransformMeta
-    implements ITransformMeta<GetServerStatus, GetServerStatusData> {
+public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetServerStatusData> {
 
   @HopMetadataProperty(key = "server_field")
   private String serverField;
@@ -181,21 +180,6 @@ public class GetServerStatusMeta extends BaseTransformMeta
     if (StringUtils.isNotEmpty(responseNsField)) {
       inputRowMeta.addValueMeta(new ValueMetaInteger(responseNsField));
     }
-  }
-
-  @Override
-  public GetServerStatus createTransform(
-      TransformMeta transformMeta,
-      GetServerStatusData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new GetServerStatus(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public GetServerStatusData getTransformData() {
-    return new GetServerStatusData();
   }
 
   /**

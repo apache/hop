@@ -38,8 +38,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 
 /** Converts input rows to one or more XML files. */
-public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData>
-    implements ITransform<AddXmlMeta, AddXmlData> {
+public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
   private static final Class<?> PKG = AddXml.class; // For Translator
 
   private DOMImplementation domImplentation;
@@ -277,13 +276,6 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData>
     }
 
     return true;
-  }
-
-  public void dispose(ITransformMeta smi, ITransformData sdi) {
-    meta = (AddXmlMeta) smi;
-    data = (AddXmlData) sdi;
-
-    super.dispose();
   }
 
   private void setDomImplentation(DOMImplementation domImplentation) {

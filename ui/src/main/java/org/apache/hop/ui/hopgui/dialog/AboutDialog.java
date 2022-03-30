@@ -18,6 +18,9 @@
 package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.VariableRegistry;
+import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -31,13 +34,13 @@ import org.eclipse.swt.layout.*;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.*;
 
-import java.util.Arrays;
+import java.util.Set;
 
 /** A dialog to display version information. */
 public class AboutDialog extends Dialog {
   private static final Class<?> PKG = AboutDialog.class; // For Translator
 
-  private static final String[] PROPERTIES =
+  private static final String[] JAVA_PROPERTIES =
       new String[] {
         "os.name",
         "os.version",
@@ -46,11 +49,7 @@ public class AboutDialog extends Dialog {
         "java.vm.vendor",
         "java.specification.version",
         "java.class.path",
-        "file.encoding",
-        "HOP_CONFIG_FOLDER",
-        Const.HOP_PLATFORM_RUNTIME,
-        Const.HOP_PLUGIN_BASE_FOLDERS,
-        Const.HOP_SHARED_JDBC_FOLDER
+        "file.encoding"
       };
 
   private Shell shell;
@@ -152,13 +151,17 @@ public class AboutDialog extends Dialog {
   }
 
   private String getProperties() {
-
+    Set<String> names = VariableRegistry.getInstance().getVariableNames(VariableScope.SYSTEM);
+    for (String name : JAVA_PROPERTIES) {
+      names.add(name);      
+    }
+         
+    IVariables variables = HopGui.getInstance().getVariables();
     StringBuilder builder = new StringBuilder();
-    Arrays.sort(PROPERTIES);
-    for (String name : PROPERTIES) {
+    for (String name : names) {
       builder.append(name);
       builder.append('=');
-      builder.append(System.getProperty(name, ""));
+      builder.append(variables.getVariable(name, ""));
       builder.append('\n');
     }
 

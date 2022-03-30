@@ -19,6 +19,6 @@
     <extension>
         <groupId>co.leantechniques</groupId>
         <artifactId>maven-buildtime-extension</artifactId>
-        <version>3.8.1</version>
+        <version>3.0.3</version>
     </extension>
 </extensions>

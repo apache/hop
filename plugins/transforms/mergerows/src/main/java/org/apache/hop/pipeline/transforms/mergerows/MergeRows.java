@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,8 +39,7 @@ import java.util.List;
  * Merge rows from 2 sorted streams to detect changes. Use this as feed for a dimension in case you
  * have no time stamps in your source system.
  */
-public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData>
-    implements ITransform<MergeRowsMeta, MergeRowsData> {
+public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
   private static final Class<?> PKG = MergeRowsMeta.class; // For Translator
 
   private static final String VALUE_IDENTICAL = "identical";

@@ -25,9 +25,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream;
 import org.codehaus.janino.ExpressionEvaluator;
 
 import java.math.BigDecimal;
@@ -36,8 +35,8 @@ import java.util.Date;
 import java.util.List;
 
 /** Calculate new field values using pre-defined functions. */
-public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData>
-    implements ITransform<JavaFilterMeta, JavaFilterData> {
+public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
+
   private static final Class<?> PKG = JavaFilterMeta.class; // For Translator
 
   public JavaFilter(

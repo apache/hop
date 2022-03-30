@@ -34,7 +34,7 @@ public class WorkflowActionAbortLoadSaveTest
   }
 
   @Override
-  protected List<String> listCommonAttributes() {
+  protected List<String> listAttributes() {
     return Collections.singletonList("messageAbort");
   }
 

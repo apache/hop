@@ -57,6 +57,13 @@
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
+                <include>org.dom4j:dom4j:jar</include>
+            </includes>
+        </dependencySet>        
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
                 <include>jaxen:jaxen:jar</include>
             </includes>
         </dependencySet>

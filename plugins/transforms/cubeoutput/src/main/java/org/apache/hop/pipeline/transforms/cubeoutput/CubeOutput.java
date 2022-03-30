@@ -35,8 +35,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * Outputs a stream/series of rows to a file, effectively building a sort of (compressed) microcube.
  */
-public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData>
-    implements ITransform<CubeOutputMeta, CubeOutputData> {
+public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
 
   private static final Class<?> PKG = CubeOutputMeta.class; // For Translator
 

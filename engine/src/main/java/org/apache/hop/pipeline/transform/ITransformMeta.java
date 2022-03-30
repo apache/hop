@@ -30,7 +30,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceReference;
@@ -130,7 +130,7 @@ import java.util.Map;
  *       Working with Fields goes into deeper detail on IValueMeta.
  * </ul>
  */
-public interface ITransformMeta<Main extends ITransform, Data extends ITransformData> {
+public interface ITransformMeta {
   /** Set default values */
   void setDefault();
 
@@ -218,19 +218,19 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
 
   ITransform createTransform(
       TransformMeta transformMeta,
-      Data data,
+      ITransformData data,
       int copyNr,
       PipelineMeta pipelineMeta,
       Pipeline pipeline);
 
   /**
-   * Get a new instance of the appropriate data class. This data class implements the
+   * Create a new instance of the appropriate data class. This data class implements the
    * ITransformData. It basically contains the persisting data that needs to live on, even if a
    * worker thread is terminated.
    *
    * @return The appropriate ITransformData class.
    */
-  Data getTransformData();
+  ITransformData createTransformData();
 
   /**
    * Each transform must be able to report on the impact it has on a database, table field, etc.

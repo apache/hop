@@ -504,7 +504,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     }
   }
 
-  private void validateTransformBeamUsage(ITransformMeta<?,?> meta) throws HopException {
+  private void validateTransformBeamUsage(ITransformMeta meta) throws HopException {
     if (meta instanceof GroupByMeta) {
       throw new HopException(
           "Group By is not supported.  Use the Memory Group By transform instead.  It comes closest to Beam functionality.");

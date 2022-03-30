@@ -42,17 +42,15 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
 
   public LoadSaveTester(
       Class<T> clazz,
-      List<String> commonAttributes,
-      List<String> xmlAttributes,
+      List<String> attributes,
       Map<String, String> getterMap,
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
-      IInitializer<T> metaInitializerIFace) {
+      IInitializer<T> metaInitializerIFace) throws HopException {
     super(
         clazz,
-        commonAttributes,
-        xmlAttributes,
+        attributes,
         getterMap,
         setterMap,
         fieldLoadSaveValidatorAttributeMap,
@@ -62,16 +60,14 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
 
   public LoadSaveTester(
       Class<T> clazz,
-      List<String> commonAttributes,
-      List<String> xmlAttributes,
+      List<String> attributes,
       Map<String, String> getterMap,
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap) {
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap) throws HopException {
     this(
         clazz,
-        commonAttributes,
-        xmlAttributes,
+        attributes,
         getterMap,
         setterMap,
         fieldLoadSaveValidatorAttributeMap,
@@ -79,75 +75,27 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
         null);
   }
 
-  public LoadSaveTester(
-      Class<T> clazz,
-      List<String> commonAttributes,
-      Map<String, String> getterMap,
-      Map<String, String> setterMap,
-      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap) {
-    this(
-        clazz,
-        commonAttributes,
-        new ArrayList<>(),
-        getterMap,
-        setterMap,
-        fieldLoadSaveValidatorAttributeMap,
-        fieldLoadSaveValidatorTypeMap);
-  }
 
   public LoadSaveTester(
       Class<T> clazz,
-      List<String> commonAttributes,
+      List<String> attributes,
       Map<String, String> getterMap,
-      Map<String, String> setterMap,
-      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
-      IInitializer<T> metaInitializerIFace) {
+      Map<String, String> setterMap) throws HopException {
     this(
         clazz,
-        commonAttributes,
-        new ArrayList<>(),
-        getterMap,
-        setterMap,
-        fieldLoadSaveValidatorAttributeMap,
-        fieldLoadSaveValidatorTypeMap,
-        metaInitializerIFace);
-  }
-
-  public LoadSaveTester(
-      Class<T> clazz,
-      List<String> commonAttributes,
-      List<String> xmlAttributes,
-      Map<String, String> getterMap,
-      Map<String, String> setterMap) {
-    this(
-        clazz,
-        commonAttributes,
-        xmlAttributes,
+        attributes,
         getterMap,
         setterMap,
         new HashMap<>(),
         new HashMap<>());
   }
 
-  public LoadSaveTester(
-      Class<T> clazz,
-      List<String> commonAttributes,
-      Map<String, String> getterMap,
-      Map<String, String> setterMap) {
-    this(
-        clazz,
-        commonAttributes,
-        new ArrayList<>(),
-        getterMap,
-        setterMap,
-        new HashMap<>(),
-        new HashMap<>());
+  public LoadSaveTester(Class<T> clazz, List<String> attributes) throws HopException {
+    this(clazz, attributes, new HashMap<>(), new HashMap<>());
   }
 
-  public LoadSaveTester(Class<T> clazz, List<String> commonAttributes) {
-    this(clazz, commonAttributes, new HashMap<>(), new HashMap<>());
+  public LoadSaveTester(Class<T> clazz) throws HopException {
+    this(clazz, new ArrayList<>());
   }
 
   public IFieldLoadSaveValidatorFactory getFieldLoadSaveValidatorFactory() {
@@ -190,11 +138,11 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
       initializer.modify(metaToSave);
     }
     Map<String, IFieldLoadSaveValidator<?>> validatorMap =
-        createValidatorMapAndInvokeSetters(xmlAttributes, metaToSave);
+        createValidatorMapAndInvokeSetters(attributes, metaToSave);
 
     T metaLoaded = (T) metaToSave.clone();
     assertNotSame(metaToSave, metaLoaded);
-    validateLoadedMeta(xmlAttributes, validatorMap, metaToSave, metaLoaded);
+    validateLoadedMeta(attributes, validatorMap, metaToSave, metaLoaded);
   }
 
   /**
@@ -210,7 +158,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
       initializer.modify(metaToSave);
     }
     Map<String, IFieldLoadSaveValidator<?>> validatorMap =
-        createValidatorMapAndInvokeSetters(xmlAttributes, metaToSave);
+        createValidatorMapAndInvokeSetters(attributes, metaToSave);
 
     T metaLoaded = createMeta();
     String xml = "<transform>" + metaToSave.getXml() + "</transform>";
@@ -218,7 +166,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
     metaLoaded.loadXml(
         XmlHandler.getSubNode(XmlHandler.loadXmlFile(is, null, false, false), "transform"),
         metadataProvider);
-    validateLoadedMeta(xmlAttributes, validatorMap, metaToSave, metaLoaded);
+    validateLoadedMeta(attributes, validatorMap, metaToSave, metaLoaded);
 
     // TODO Remove after method visibility changed, it should be called in testSerialization
     testClone();

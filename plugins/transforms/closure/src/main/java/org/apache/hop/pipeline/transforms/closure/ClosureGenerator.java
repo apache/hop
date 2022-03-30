@@ -29,8 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.HashMap;
 
 /** Reads information from a database table by using freehand SQL */
-public class ClosureGenerator extends BaseTransform<ClosureGeneratorMeta, ClosureGeneratorData>
-    implements ITransform<ClosureGeneratorMeta, ClosureGeneratorData> {
+public class ClosureGenerator extends BaseTransform<ClosureGeneratorMeta, ClosureGeneratorData> {
 
   private static final Class<?> PKG = ClosureGeneratorMeta.class; // For Translator
 

@@ -50,8 +50,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::TableOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/tableoutput.html")
-public class TableOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<TableOutput, TableOutputData>, IProvidesModelerMeta {
+public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputData> implements IProvidesModelerMeta {
   private static final Class<?> PKG = TableOutputMeta.class; // For Translator
 
   private static final String PARTION_PER_DAY = "DAY";
@@ -670,21 +669,6 @@ public class TableOutputMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      TableOutputData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new TableOutput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public TableOutputData getTransformData() {
-    return new TableOutputData();
   }
 
   @Override

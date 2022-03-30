@@ -139,8 +139,7 @@ public class SalesforceDeleteMetaTest {
     TransformLoadSaveTester<SalesforceDeleteMeta> transformLoadSaveTester =
         new TransformLoadSaveTester(
             SalesforceDeleteMeta.class,
-            attributes,
-            attributes,
+                attributes,
             getterMap,
             setterMap,
             fieldLoadSaveValidators,

@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://www.ibm.com/support/knowledgecenter/SSULQD_7.2.1/com.ibm.nz.datacon.doc/c_datacon_installing_configuring_jdbc.html[Documentation Link]
 |JDBC Url | jdbc:netezza://hostname:5490/databaseName
+|Driver folder | Hop Installation/plugins/databases/netezza/lib
 |===

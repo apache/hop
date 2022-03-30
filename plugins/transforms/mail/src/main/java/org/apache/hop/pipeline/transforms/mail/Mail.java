@@ -33,7 +33,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import javax.activation.DataHandler;
@@ -57,8 +56,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /** Send mail transform. based on Mail action */
-public class Mail extends BaseTransform<MailMeta, MailData>
-    implements ITransform<MailMeta, MailData> {
+public class Mail extends BaseTransform<MailMeta, MailData> {
+
   private static final Class<?> PKG = MailMeta.class; // For Translator
 
   public Mail(

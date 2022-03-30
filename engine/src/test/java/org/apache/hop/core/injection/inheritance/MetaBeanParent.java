@@ -18,14 +18,12 @@ package org.apache.hop.core.injection.inheritance;
 
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
-
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import java.util.List;
 
-public class MetaBeanParent<T extends MetaBeanParentItem, A> extends BaseTransformMeta
-    implements ITransformMeta<ITransform, ITransformData> {
+public class MetaBeanParent<T extends MetaBeanParentItem, A> extends BaseTransformMeta<ITransform, ITransformData> {
 
   @InjectionDeep public List<T> items;
 
@@ -44,19 +42,4 @@ public class MetaBeanParent<T extends MetaBeanParentItem, A> extends BaseTransfo
 
   @Override
   public void setDefault() {}
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ITransformData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return null;
-  }
-
-  @Override
-  public ITransformData getTransformData() {
-    return null;
-  }
 }

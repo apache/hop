@@ -53,8 +53,7 @@ import java.util.Set;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataQuality",
     documentationUrl = "/pipeline/transforms/standardizephonenumber.html")
-public class StandardizePhoneNumberMeta extends BaseTransformMeta
-    implements ITransformMeta<StandardizePhoneNumber, StandardizePhoneNumberData>, Serializable {
+public class StandardizePhoneNumberMeta extends BaseTransformMeta<StandardizePhoneNumber, StandardizePhoneNumberData> implements Serializable {
 
   private static final Class<?> PKG = StandardizePhoneNumberMeta.class; // For Translator
 
@@ -88,16 +87,6 @@ public class StandardizePhoneNumberMeta extends BaseTransformMeta
   @Override
   public Object clone() {
     return new StandardizePhoneNumberMeta(this);
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      StandardizePhoneNumberData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new StandardizePhoneNumber(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
@@ -234,11 +223,6 @@ public class StandardizePhoneNumberMeta extends BaseTransformMeta
                   "StandardizePhoneNumberMeta.CheckResult.NotReceivingInfoFromOtherTransforms"),
               transformMeta));
     }
-  }
-
-  @Override
-  public StandardizePhoneNumberData getTransformData() {
-    return new StandardizePhoneNumberData();
   }
 
   public String[] getSupportedFormats() {

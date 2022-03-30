@@ -34,8 +34,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 /** Filters input rows base on conditions. */
-public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData>
-    implements ITransform<SwitchCaseMeta, SwitchCaseData> {
+public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData> {
   private static final Class<?> PKG = SwitchCaseMeta.class; // For Translator
 
   public SwitchCase(

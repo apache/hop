@@ -38,17 +38,17 @@ public class UniVerseDatabaseMetaTest {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(65535, nativeMeta.getMaxVARCHARLength());
     assertEquals(-1, nativeMeta.getDefaultDatabasePort());
-    assertTrue(nativeMeta.supportsAutoInc());
+    assertTrue(nativeMeta.isSupportsAutoInc());
     assertEquals(1, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
     assertEquals("com.ibm.u2.jdbc.UniJDBCDriver", nativeMeta.getDriverClass());
     assertEquals("jdbc:ibm-u2://FOO/WIBBLE", nativeMeta.getURL("FOO", "IGNORED", "WIBBLE"));
     assertEquals("FOO.BAR", nativeMeta.getSchemaTableCombination("FOO", "BAR"));
     assertFalse(nativeMeta.isFetchSizeSupported());
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsSynonyms());
-    assertTrue(nativeMeta.supportsNewLinesInSql());
-    assertFalse(nativeMeta.supportsTimeStampToDateConversion());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsSynonyms());
+    assertTrue(nativeMeta.isSupportsNewLinesInSql());
+    assertFalse(nativeMeta.isSupportsTimeStampToDateConversion());
     assertArrayEquals(
         new String[] {
           "@NEW",

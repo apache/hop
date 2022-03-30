@@ -27,13 +27,12 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
-import org.apache.hop.pipeline.transform.errorhandling.Stream;
-import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
+import org.apache.hop.pipeline.transform.stream.Stream;
+import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -48,8 +47,7 @@ import java.util.Objects;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::JavaFilterMeta.keyword",
     documentationUrl = "/pipeline/transforms/javafilter.html")
-public class JavaFilterMeta extends BaseTransformMeta
-    implements ITransformMeta<JavaFilter, JavaFilterData> {
+public class JavaFilterMeta extends BaseTransformMeta<JavaFilter, JavaFilterData> {
   private static final Class<?> PKG = JavaFilterMeta.class; // For Translator
 
   /** The formula calculations to be performed */
@@ -260,11 +258,6 @@ public class JavaFilterMeta extends BaseTransformMeta
     }
   }
 
-  @Override
-  public JavaFilterData getTransformData() {
-    return new JavaFilterData();
-  }
-
   /** Returns the Input/Output metadata for this transform. */
   @Override
   public ITransformIOMeta getTransformIOMeta() {
@@ -299,15 +292,5 @@ public class JavaFilterMeta extends BaseTransformMeta
   @Override
   public boolean excludeFromCopyDistributeVerification() {
     return true;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      JavaFilterData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new JavaFilter(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 }

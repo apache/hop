@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +51,7 @@ import java.util.PriorityQueue;
  * to be sorted either on ascending or descending order. The currently implementation only supports
  * ascending
  */
-public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMergeJoinData>
-    implements ITransform<MultiMergeJoinMeta, MultiMergeJoinData> {
+public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMergeJoinData> {
   private static final Class<?> PKG = MultiMergeJoinMeta.class; // For Translator
 
   public MultiMergeJoin(

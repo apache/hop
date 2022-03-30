@@ -32,10 +32,10 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
-import org.apache.hop.pipeline.transform.errorhandling.Stream;
-import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
+import org.apache.hop.pipeline.transform.stream.Stream;
+import org.apache.hop.pipeline.transform.stream.StreamIcon;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +48,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     keywords = "i18n::MergeJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/mergejoin.html")
-public class MergeJoinMeta extends BaseTransformMeta
-    implements ITransformMeta<MergeJoin, MergeJoinData> {
+public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
   private static final Class<?> PKG = MergeJoinMeta.class; // For Translator
 
   public static final String[] joinTypes = {"INNER", "LEFT OUTER", "RIGHT OUTER", "FULL OUTER"};
@@ -95,16 +94,6 @@ public class MergeJoinMeta extends BaseTransformMeta
   @Override
   public boolean excludeFromRowLayoutVerification() {
     return true;
-  }
-
-  @Override
-  public MergeJoin createTransform(
-      TransformMeta transformMeta,
-      MergeJoinData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MergeJoin(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   public MergeJoinMeta() {
@@ -192,11 +181,6 @@ public class MergeJoinMeta extends BaseTransformMeta
       PipelineMeta tr,
       Pipeline pipeline) {
     return new MergeJoin(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public MergeJoinData getTransformData() {
-    return new MergeJoinData();
   }
 
   /**

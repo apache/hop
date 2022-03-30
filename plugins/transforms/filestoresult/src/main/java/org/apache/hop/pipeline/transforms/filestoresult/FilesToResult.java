@@ -24,12 +24,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Writes filenames to a next action in a Workflow */
-public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResultData>
-    implements ITransform<FilesToResultMeta, FilesToResultData> {
+public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResultData> {
 
   private static final Class<?> PKG = FilesToResultMeta.class; // For Translator
 

@@ -23,7 +23,7 @@
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-core</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Hop Core</name>
@@ -31,13 +31,13 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
         <!-- Test running configuration -->
         <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
-        <maven-surefire-plugin.argLine>-Duser.timezone=UTC -Dfile.encoding=UTF-8 -Duser.language=en -Duser.country=US
+        <maven-surefire-plugin.argLine>-Duser.timezone=UTC -Dfile.encoding=UTF-8 -Duser.language=en -Duser.country=US --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED
         </maven-surefire-plugin.argLine>
         <!-- Third-party dependencies -->
         <avro.version>1.11.0</avro.version>
@@ -57,11 +57,10 @@
         <ognl.version>2.6.9</ognl.version>
         <woodstox-core-asl.version>4.4.1</woodstox-core-asl.version>
         <xmlunit.version>1.5</xmlunit.version>
-        <javassist.version>3.20.0-GA</javassist.version>
+        <javassist.version>3.28.0-GA</javassist.version>
         <json-simple.version>1.1.1</json-simple.version>
         <gson.version>2.8.5</gson.version>
         <jandex.version>2.2.2.Final</jandex.version>
-        <xerces.version>2.12.2</xerces.version>
     </properties>
 
     <dependencies>
@@ -105,10 +104,6 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -418,10 +413,6 @@
             <artifactId>commons-compress</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jboss</groupId>
             <artifactId>jandex</artifactId>
             <version>${jandex.version}</version>
@@ -489,7 +480,13 @@
             <artifactId>woodstox-core-asl</artifactId>
             <version>${woodstox-core-asl.version}</version>
             <scope>test</scope>
-        </dependency>
+            <exclusions>
+               <exclusion>
+                 <groupId>javax.xml.stream</groupId>
+                 <artifactId>stax-api</artifactId>
+               </exclusion>
+             </exclusions>
+        </dependency>        
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>java-hamcrest</artifactId>
@@ -502,7 +499,7 @@
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
+            <artifactId>powermock-api-mockito2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -520,29 +517,16 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
             <version>${xerces.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-            <version>1.4.01</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

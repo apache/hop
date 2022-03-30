@@ -22,12 +22,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Do nothing. Pass all input data to the next transforms. */
-public class MappingOutput extends BaseTransform<MappingOutputMeta, MappingOutputData>
-    implements ITransform<MappingOutputMeta, MappingOutputData> {
+public class MappingOutput extends BaseTransform<MappingOutputMeta, MappingOutputData> {
+
   private static final Class<?> PKG = MappingOutputMeta.class; // For Translator
 
   public MappingOutput(

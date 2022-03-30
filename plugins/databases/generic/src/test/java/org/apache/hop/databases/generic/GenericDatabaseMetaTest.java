@@ -58,8 +58,8 @@ public class GenericDatabaseMetaTest {
     assertEquals("foo.bar.wibble", nativeMeta.getDriverClass());
     assertEquals("jdbc:foo:bar://foodb", nativeMeta.getURL("NOT", "GOINGTO", "BEUSED"));
     assertFalse(nativeMeta.isFetchSizeSupported());
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertFalse(nativeMeta.supportsPreparedStatementMetadataRetrieval());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsPreparedStatementMetadataRetrieval());
   }
 
   @Test
@@ -250,6 +250,6 @@ public class GenericDatabaseMetaTest {
 
   @Test
   public void testReleaseSavepoint() {
-    assertTrue(nativeMeta.releaseSavepoint());
+    assertTrue(nativeMeta.isReleaseSavepoint());
   }
 }

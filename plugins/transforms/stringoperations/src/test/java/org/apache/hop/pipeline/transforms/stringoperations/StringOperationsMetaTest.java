@@ -104,7 +104,6 @@ public class StringOperationsMetaTest implements IInitializer<ITransformMeta> {
         new LoadSaveTester(
             testMetaClass,
             attributes,
-            new ArrayList<>(),
             new HashMap<>(),
             new HashMap<>(),
             attrValidatorMap,

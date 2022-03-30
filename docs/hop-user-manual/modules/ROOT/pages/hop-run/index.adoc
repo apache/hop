@@ -80,5 +80,5 @@ Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.
 == Examples
 
 ----
-./hop-run.sh -j transforms -r local -f /path/to/worklow/file.hwf
+./hop-run.sh -j=transforms -r=local -f=/path/to/worklow/file.hwf
 ----

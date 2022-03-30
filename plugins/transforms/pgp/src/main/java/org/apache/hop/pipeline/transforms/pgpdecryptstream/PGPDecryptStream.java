@@ -29,8 +29,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
 
-public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDecryptStreamData>
-    implements ITransform<PGPDecryptStreamMeta, PGPDecryptStreamData> {
+public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDecryptStreamData> {
   private static final Class<?> PKG = PGPDecryptStreamMeta.class; // For Translator
 
   public PGPDecryptStream(

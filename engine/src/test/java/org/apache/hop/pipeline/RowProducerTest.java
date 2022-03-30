@@ -29,7 +29,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.*;
 
-/** Created by mburgess on 10/7/15. */
 public class RowProducerTest {
 
   RowProducer rowProducer;

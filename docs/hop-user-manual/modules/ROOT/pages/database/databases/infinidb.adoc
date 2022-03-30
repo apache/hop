@@ -29,4 +29,5 @@ under the License.
 |Hop Dependencies | Mysql Database Plugin
 |Documentation | https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference.html[Documentation Link]
 |JDBC Url | jdbc:mysql://hostname:3306/databaseName
+|Driver folder | Hop Installation/plugins/databases/infinidb/lib
 |===

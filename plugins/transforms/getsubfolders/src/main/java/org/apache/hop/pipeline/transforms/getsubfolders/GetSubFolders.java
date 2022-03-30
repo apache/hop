@@ -41,8 +41,7 @@ import java.util.List;
  * Read all subfolder inside a specified folder and convert them to rows and writes these to one or
  * more output streams.
  */
-public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFoldersData>
-    implements ITransform<GetSubFoldersMeta, GetSubFoldersData> {
+public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFoldersData> {
 
   private static final Class<?> PKG = GetSubFoldersMeta.class; // For Translator
 

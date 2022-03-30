@@ -24,11 +24,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.TestType;
 import org.apache.hop.testing.UnitTestResult;
@@ -42,8 +38,7 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::ExecuteTestsMeta.keyword",
     documentationUrl = "/pipeline/transforms/exectests.html")
-public class ExecuteTestsMeta extends BaseTransformMeta
-    implements ITransformMeta<ExecuteTests, ExecuteTestsData> {
+public class ExecuteTestsMeta extends BaseTransformMeta<ExecuteTests, ExecuteTestsData> {
 
   public static final String TAG_TEST_NAME_INPUT_FIELD = "test_name_input_field";
   public static final String TAG_TYPE_TO_EXECUTE = "type_to_execute";
@@ -128,21 +123,6 @@ public class ExecuteTestsMeta extends BaseTransformMeta
     } catch (Exception e) {
       throw new HopXmlException("Unable to load execute test transform details", e);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      ExecuteTestsData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new ExecuteTests(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public ExecuteTestsData getTransformData() {
-    return new ExecuteTestsData();
   }
 
   @Override

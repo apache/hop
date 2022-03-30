@@ -27,7 +27,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -47,8 +46,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 /** Converts input rows to one or more XML files. */
-public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData>
-    implements ITransform<XmlJoinMeta, XmlJoinData> {
+public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
+
   private static final Class<?> PKG = XmlJoinMeta.class; // For Translator
 
   private Transformer transformer;

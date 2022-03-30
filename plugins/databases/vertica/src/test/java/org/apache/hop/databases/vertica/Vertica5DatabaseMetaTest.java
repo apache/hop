@@ -90,7 +90,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
 
     assertEquals("com.vertica.jdbc.Driver", nativeMeta.getDriverClass());
-    assertFalse(nativeMeta.supportsTimeStampToDateConversion());
+    assertFalse(nativeMeta.isSupportsTimeStampToDateConversion());
 
     ResultSet resultSet = mock(ResultSet.class);
     ResultSetMetaData metaData = mock(ResultSetMetaData.class);

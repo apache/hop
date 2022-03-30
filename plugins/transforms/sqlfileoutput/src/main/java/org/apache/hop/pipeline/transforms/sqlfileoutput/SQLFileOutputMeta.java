@@ -37,11 +37,8 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -60,8 +57,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::SQLFileOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/sqlfileoutput.html")
-public class SQLFileOutputMeta extends BaseTransformMeta
-    implements ITransformMeta<SQLFileOutput, SQLFileOutputData> {
+public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileOutputData> {
   private static final Class<?> PKG = SQLFileOutputMeta.class; // For Translator
 
   private DatabaseMeta databaseMeta;
@@ -652,21 +648,6 @@ public class SQLFileOutputMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      SQLFileOutputData data,
-      int cnr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new SQLFileOutput(transformMeta, this, data, cnr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public SQLFileOutputData getTransformData() {
-    return new SQLFileOutputData();
   }
 
   @Override

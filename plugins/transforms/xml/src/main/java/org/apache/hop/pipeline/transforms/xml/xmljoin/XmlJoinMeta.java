@@ -33,14 +33,15 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transform.errorhandling.Stream;
-import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transform.stream.Stream;
+import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,7 +55,7 @@ import java.util.List;
     keywords = "i18n::XmlJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/xmljoin.html")
 @InjectionSupported(localizationPrefix = "XmlJoin.Injection.")
-public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<XmlJoin, XmlJoinData> {
+public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
   private static final Class<?> PKG = XmlJoinMeta.class; // For Translator
 
   /** The base name of the output file */
@@ -483,21 +484,6 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
   @Override
   public boolean excludeFromRowLayoutVerification() {
     return true;
-  }
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      XmlJoinData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new XmlJoin(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  @Override
-  public XmlJoinData getTransformData() {
-    return new XmlJoinData();
   }
 
   /**

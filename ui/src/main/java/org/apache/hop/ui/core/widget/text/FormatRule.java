@@ -20,7 +20,6 @@ package org.apache.hop.ui.core.widget.text;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Created by bmorrise on 9/15/17. */
 public abstract class FormatRule {
 
   protected String pattern;

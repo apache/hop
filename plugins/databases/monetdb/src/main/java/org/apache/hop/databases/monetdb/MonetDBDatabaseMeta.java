@@ -59,7 +59,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /** @see IDatabase#getNotFoundTK(boolean) */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
-    if (supportsAutoInc() && useAutoinc) {
+    if (isSupportsAutoInc() && useAutoinc) {
       return 1;
     }
     return super.getNotFoundTK(useAutoinc);
@@ -91,22 +91,22 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return true;
   }
 
   @Override
-  public boolean supportsAutoInc() {
+  public boolean isSupportsAutoInc() {
     return true;
   }
 
   @Override
-  public boolean supportsBatchUpdates() {
+  public boolean isSupportsBatchUpdates() {
     return true;
   }
 
   @Override
-  public boolean supportsSetMaxRows() {
+  public boolean isSupportsSetMaxRows() {
     return true;
   }
 
@@ -272,7 +272,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         retval.append("TIMESTAMP");
         break;
       case IValueMeta.TYPE_BOOLEAN:
-        if (supportsBooleanDataType()) {
+        if (isSupportsBooleanDataType()) {
           retval.append("BOOLEAN");
         } else {
           retval.append("CHAR(1)");
@@ -363,7 +363,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean supportsResultSetMetadataRetrievalOnly() {
+  public boolean isSupportsResultSetMetadataRetrievalOnly() {
     return true;
   }
 
@@ -373,7 +373,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return true;
   }
 

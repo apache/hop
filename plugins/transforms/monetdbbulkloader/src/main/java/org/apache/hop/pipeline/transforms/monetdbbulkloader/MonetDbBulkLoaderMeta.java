@@ -38,11 +38,8 @@ import org.apache.hop.databases.monetdb.MonetDBDatabaseMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -57,8 +54,7 @@ import java.util.List;
     keywords = "i18n::MonetDbBulkLoaderMeta.keyword",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
 @InjectionSupported(localizationPrefix = "MonetDBBulkLoaderDialog.Injection.")
-public class MonetDbBulkLoaderMeta extends BaseTransformMeta
-    implements ITransformMeta<MonetDbBulkLoader, MonetDbBulkLoaderData> {
+public class MonetDbBulkLoaderMeta extends BaseTransformMeta<MonetDbBulkLoader, MonetDbBulkLoaderData> {
   private static final Class<?> PKG =
       MonetDbBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -170,16 +166,6 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
    * one.
    */
   private boolean compatibilityDbVersionMode = false;
-
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      MonetDbBulkLoaderData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new MonetDbBulkLoader(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
 
   /** @return Returns the database. */
   public DatabaseMeta getDatabaseMeta() {
@@ -698,11 +684,6 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta
         impact.add(ii);
       }
     }
-  }
-
-  @Override
-  public MonetDbBulkLoaderData getTransformData() {
-    return new MonetDbBulkLoaderData();
   }
 
   @Override

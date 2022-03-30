@@ -37,7 +37,7 @@ public class InfiniDbDatabaseMetaTest {
   public void testSettings() throws Exception {
     assertArrayEquals(new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE}, nativeMeta.getAccessTypeList());
     assertEquals(3306, nativeMeta.getDefaultDatabasePort());
-    assertTrue(nativeMeta.supportsAutoInc());
+    assertTrue(nativeMeta.isSupportsAutoInc());
     assertEquals(1, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
     assertEquals("org.gjt.mm.mysql.Driver", nativeMeta.getDriverClass());
@@ -45,10 +45,10 @@ public class InfiniDbDatabaseMetaTest {
     assertEquals("jdbc:mysql://FOO/WIBBLE", nativeMeta.getURL("FOO", "", "WIBBLE"));
     assertEquals("&", nativeMeta.getExtraOptionSeparator());
     assertEquals("?", nativeMeta.getExtraOptionIndicator());
-    assertFalse(nativeMeta.supportsTransactions());
-    assertFalse(nativeMeta.supportsBitmapIndex());
-    assertTrue(nativeMeta.supportsViews());
-    assertFalse(nativeMeta.supportsSynonyms());
+    assertFalse(nativeMeta.isSupportsTransactions());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
+    assertTrue(nativeMeta.isSupportsViews());
+    assertFalse(nativeMeta.isSupportsSynonyms());
     assertArrayEquals(
         new String[] {
           "ADD",
@@ -280,8 +280,8 @@ public class InfiniDbDatabaseMetaTest {
     assertFalse(nativeMeta.isSystemTable("dTproperties"));
     assertFalse(nativeMeta.isSystemTable("Testsys"));
     assertTrue(nativeMeta.isMySqlVariant());
-    assertFalse(nativeMeta.releaseSavepoint());
-    assertTrue(nativeMeta.supportsErrorHandlingOnBatchUpdates());
+    assertFalse(nativeMeta.isReleaseSavepoint());
+    assertTrue(nativeMeta.IsSupportsErrorHandlingOnBatchUpdates());
     assertFalse(nativeMeta.isRequiringTransactionsOnQueries());
   }
 

@@ -48,7 +48,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean supportsSetCharacterStream() {
+  public boolean isSupportsSetCharacterStream() {
     return false;
   }
 
@@ -64,7 +64,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports schemas, DB2 supports it (v7 and v8 for sure). */
   @Override
-  public boolean supportsSchemas() {
+  public boolean isSupportsSchemas() {
     return true;
   }
 
@@ -715,7 +715,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean supportsBatchUpdates() {
+  public boolean isSupportsBatchUpdates() {
     return true;
   }
 
@@ -724,13 +724,13 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    *     getBytes() to get the data.
    */
   @Override
-  public boolean supportsGetBlob() {
+  public boolean isSupportsGetBlob() {
     return false;
   }
 
   /** @return true if the database supports sequences */
   @Override
-  public boolean supportsSequences() {
+  public boolean isSupportsSequences() {
     return true;
   }
 
@@ -796,7 +796,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    *     AS/400 and DB2 support this.
    */
   @Override
-  public boolean supportsSequenceNoMaxValueOption() {
+  public boolean isSupportsSequenceNoMaxValueOption() {
     return false;
   }
 
@@ -805,7 +805,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    *     null. Only required for DB2 and Vertica
    */
   @Override
-  public boolean requiresCastToVariousForIsNull() {
+  public boolean isRequiresCastToVariousForIsNull() {
     return true;
   }
 
@@ -820,7 +820,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports newlines in a SQL statements. */
   @Override
-  public boolean supportsNewLinesInSql() {
+  public boolean isSupportsNewLinesInSql() {
     return false;
   }
 
@@ -839,7 +839,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean supportsOptionsInURL() {
+  public boolean isSupportsOptionsInURL() {
     return false;
   }
 }

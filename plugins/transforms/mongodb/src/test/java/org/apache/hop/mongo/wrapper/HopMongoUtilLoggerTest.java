@@ -26,7 +26,6 @@ import org.mockito.MockitoAnnotations;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-/** Created by matt on 10/30/15. */
 public class HopMongoUtilLoggerTest {
 
   @Mock ILogChannel logChannelInterface;

@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -35,7 +36,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class TableOutputTest {
@@ -114,7 +115,7 @@ public class TableOutputTest {
     when(tableOutputSpy.getCopy()).thenReturn(0);
 
     tableOutputSpy.truncateTable();
-    verify(db).truncateTable(anyString(), anyString());
+    verify(db).truncateTable(nullable(String.class), nullable(String.class));
   }
 
   @Test
@@ -124,7 +125,7 @@ public class TableOutputTest {
     when(tableOutputSpy.getPartitionId()).thenReturn("partition id");
 
     tableOutputSpy.truncateTable();
-    verify(db).truncateTable(anyString(), anyString());
+    verify(db).truncateTable(nullable(String.class), nullable(String.class));
   }
 
   @Test

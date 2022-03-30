@@ -42,10 +42,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputMeta;
@@ -55,7 +53,6 @@ import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,9 +68,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::CsvInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/csvinput.html")
-public class CsvInputMeta extends BaseTransformMeta
-    implements ITransformMeta<CsvInput, CsvInputData>,
-        IInputFileMeta<CsvInput, CsvInputData>,
+public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> implements
+        IInputFileMeta,
         ICsvInputAwareMeta {
 
   private static final Class<?> PKG = CsvInput.class; // For Translator
@@ -373,17 +369,6 @@ public class CsvInputMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public CsvInput createTransform(
-      TransformMeta transformMeta, CsvInputData data, int cnr, PipelineMeta tr, Pipeline pipeline) {
-    return new CsvInput(transformMeta, this, data, cnr, tr, pipeline);
-  }
-
-  @Override
-  public CsvInputData getTransformData() {
-    return new CsvInputData();
   }
 
   /** @return the delimiter */

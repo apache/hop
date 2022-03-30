@@ -134,7 +134,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /** @see IDatabase#getNotFoundTK(boolean) */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
-    if (supportsAutoInc() && useAutoinc) {
+    if (isSupportsAutoInc() && useAutoinc) {
       return 1;
     }
     return super.getNotFoundTK(useAutoinc);
@@ -188,25 +188,25 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** @return true if the database supports transactions. */
   @Override
-  public boolean supportsTransactions() {
+  public boolean isSupportsTransactions() {
     return false;
   }
 
   /** @return true if the database supports bitmap indexes */
   @Override
-  public boolean supportsBitmapIndex() {
+  public boolean isSupportsBitmapIndex() {
     return false;
   }
 
   /** @return true if the database supports views */
   @Override
-  public boolean supportsViews() {
+  public boolean isSupportsViews() {
     return true;
   }
 
   /** @return true if the database supports synonyms */
   @Override
-  public boolean supportsSynonyms() {
+  public boolean isSupportsSynonyms() {
     return false;
   }
 
@@ -273,7 +273,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         retval += "DATETIME";
         break;
       case IValueMeta.TYPE_BOOLEAN:
-        if (supportsBooleanDataType()) {
+        if (isSupportsBooleanDataType()) {
           retval += "BOOLEAN";
         } else {
           retval += "CHAR(1)";
@@ -681,12 +681,12 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   /** Returns a false as Oracle does not allow for the releasing of savepoints. */
   @Override
-  public boolean releaseSavepoint() {
+  public boolean isReleaseSavepoint() {
     return false;
   }
 
   @Override
-  public boolean supportsErrorHandlingOnBatchUpdates() {
+  public boolean IsSupportsErrorHandlingOnBatchUpdates() {
     return true;
   }
 
@@ -696,7 +696,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean fullExceptionLog(Exception e) {
+  public boolean isFullExceptionLog(Exception e) {
     Throwable cause = (e == null ? null : e.getCause());
     return !(cause != null && SHORT_MESSAGE_EXCEPTIONS.contains(cause.getClass().getName()));
   }

@@ -86,9 +86,7 @@ if [ ! "x$JAAS_LOGIN_MODULE_CONFIG" = "x" -a ! "x$JAAS_LOGIN_MODULE_NAME" = "x" 
   HOP_OPTIONS=$HOP_OPTIONS" -Dloginmodulename=$JAAS_LOGIN_MODULE_NAME"
 fi
 
-# OPTIONS="$OPTIONS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
-
-"$_HOP_JAVA" ${HOP_OPTIONS} -Djava.library.path=$LIBPATH -classpath ${CLASSPATH} org.apache.hop.www.HopServer $@
+"$_HOP_JAVA" ${HOP_OPTIONS} -Djava.library.path=$LIBPATH -classpath "${CLASSPATH}" org.apache.hop.www.HopServer "$@"
 EXITCODE=$?
 
 cd ${ORIGINDIR}

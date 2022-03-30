@@ -17,7 +17,7 @@
 
 package org.apache.hop.core.search;
 
-import org.apache.hop.core.variables.VariableValueDescription;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class PipelineRunConfigurationSearchableAnalyser
 
     // Analyze the variables
     //
-    for (VariableValueDescription configurationVariable : runConfig.getConfigurationVariables()) {
+    for (DescribedVariable configurationVariable : runConfig.getConfigurationVariables()) {
       matchProperty(
           searchable,
           results,

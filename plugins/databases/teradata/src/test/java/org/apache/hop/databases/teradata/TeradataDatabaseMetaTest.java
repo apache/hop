@@ -47,7 +47,7 @@ public class TeradataDatabaseMetaTest {
         "jdbc:teradata://FOO/DATABASE=WIBBLE", nativeMeta.getURL("FOO", "IGNOREDHERE", "WIBBLE"));
     assertFalse(nativeMeta.isFetchSizeSupported());
     assertEquals("FOO.BAR", nativeMeta.getSchemaTableCombination("FOO", "BAR"));
-    assertFalse(nativeMeta.supportsBitmapIndex());
+    assertFalse(nativeMeta.isSupportsBitmapIndex());
     assertEquals(",", nativeMeta.getExtraOptionSeparator());
     assertEquals("/", nativeMeta.getExtraOptionIndicator());
     assertEquals(

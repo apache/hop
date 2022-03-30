@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.httppost;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+import java.util.Objects;
+
 public class HttpPostArgumentField {
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.ArgumentFieldName")
@@ -67,4 +69,17 @@ public class HttpPostArgumentField {
   }
 
   public HttpPostArgumentField() {}
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    HttpPostArgumentField that = (HttpPostArgumentField) o;
+    return header == that.header && Objects.equals(name, that.name) && Objects.equals(parameter, that.parameter);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, parameter, header);
+  }
 }

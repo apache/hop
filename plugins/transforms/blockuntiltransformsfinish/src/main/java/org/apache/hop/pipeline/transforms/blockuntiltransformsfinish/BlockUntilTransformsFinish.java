@@ -24,7 +24,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.Iterator;
@@ -32,8 +31,7 @@ import java.util.Map.Entry;
 
 /** Block all incoming rows until defined transforms finish processing rows. */
 public class BlockUntilTransformsFinish
-    extends BaseTransform<BlockUntilTransformsFinishMeta, BlockUntilTransformsFinishData>
-    implements ITransform<BlockUntilTransformsFinishMeta, BlockUntilTransformsFinishData> {
+    extends BaseTransform<BlockUntilTransformsFinishMeta, BlockUntilTransformsFinishData> {
 
   private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // For Translator
 

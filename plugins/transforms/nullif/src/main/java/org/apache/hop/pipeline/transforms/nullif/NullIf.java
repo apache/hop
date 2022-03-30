@@ -24,12 +24,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** NullIf transform, put null as value when the original field matches a specific value. */
-public class NullIf extends BaseTransform<NullIfMeta, NullIfData>
-    implements ITransform<NullIfMeta, NullIfData> {
+public class NullIf extends BaseTransform<NullIfMeta, NullIfData> {
   private static final Class<?> PKG = NullIfMeta.class; // For Translator
 
   public NullIf(

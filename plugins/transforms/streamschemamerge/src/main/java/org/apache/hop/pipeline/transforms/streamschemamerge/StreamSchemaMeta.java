@@ -30,15 +30,12 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transform.errorhandling.Stream;
-import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transform.stream.Stream;
+import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -53,8 +50,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::StreamSchemaMeta.keyword",
     documentationUrl = "/pipeline/transforms/streamschemamerge.html")
-public class StreamSchemaMeta extends BaseTransformMeta
-    implements ITransformMeta<StreamSchema, StreamSchemaData> {
+public class StreamSchemaMeta extends BaseTransformMeta<StreamSchema, StreamSchemaData> {
 
   private static final Class<?> PKG = StreamSchemaMeta.class; // For Translator
 
@@ -312,30 +308,11 @@ public class StreamSchemaMeta extends BaseTransformMeta
     // Do nothing, don't reset as there is no need to do this.
   }
 
-  /**
-   * Called by Apache Hop to get a new instance of the transform implementation. A standard
-   * implementation passing the arguments to the constructor of the transform class is recommended.
-   *
-   * @param transformMeta description of the transform
-   * @param data instance of a transform data class
-   * @param copyNr copy number
-   * @param pipelineMeta description of the pipeline
-   * @param pipeline runtime implementation of the pipeline
-   * @return the new instance of a transform implementation
-   */
-  @Override
-  public ITransform createTransform(
-      TransformMeta transformMeta,
-      StreamSchemaData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
-    return new StreamSchema(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
 
-  /** Called by Hop to get a new instance of the transform data class. */
-  @Override
-  public StreamSchemaData getTransformData() {
-    return new StreamSchemaData();
-  }
+  /** Has original function of resetTransformIoMeta, but we only want to call it when appropriate */
+  /*
+  	public void wipeTransformIoMeta() {
+  		ioMeta = null;
+  	}
+  */
 }
