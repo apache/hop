@@ -174,12 +174,6 @@ Otherwise by default a NULL is returned when all values are NULL.
 Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL.
 See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
 |HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES|N|Set this variable to Y to allow your pipeline to pass 'null' fields and/or empty types.
-|HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE|N|System wide flag to ignore timezone while writing date/timestamp value to the database.
-|HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL|N|Set this variable to Y for backward compatibility for the Merge Rows (diff) transform.
-Setting this to Y will use the data from the reference stream (instead of the comparison stream) in case the compared rows are identical.
-|HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER|N|Set this variable to Y for backward compatibility for the Text File Output transform.
-Setting this to Ywill add no header row at all when the append option is enabled, regardless if the file is existing or not.
-You can use this to customize the list of available internal transforms outside of the codebase.
 |HOP_DEFAULT_BIGNUMBER_FORMAT||The name of the variable containing an alternative default bignumber format
 |HOP_DEFAULT_DATE_FORMAT||The name of the variable containing an alternative default date format
 |HOP_DEFAULT_INTEGER_FORMAT||The name of the variable containing an alternative default integer format

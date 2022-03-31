@@ -746,7 +746,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     if (!LoggingCore.isEnabled(variables)) {
       return null;
     }
-    String connectionName = variables.getVariable(Defaults.VARIABLE_NEO4J_LOGGING_CONNECTION);
+    String connectionName = variables.getVariable(Defaults.NEO4J_LOGGING_CONNECTION);
 
     final NeoConnection connection =
         LoggingCore.getConnection(hopGui.getMetadataProvider(), variables);
