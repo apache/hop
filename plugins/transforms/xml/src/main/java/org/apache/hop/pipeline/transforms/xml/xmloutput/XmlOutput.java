@@ -236,23 +236,10 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
         }
 
         if (valueData != null) {
-
           data.writer.writeAttribute(elementName, valueMeta.getString(valueData));
-        } else if (isNullValueAllowed(valueMeta.getType())) {
-
-          data.writer.writeAttribute(elementName, "null");
         }
       }
     }
-  }
-
-  private boolean isNullValueAllowed(int valueMetaType) {
-
-    // Check if retro compatibility is set or not, to guaranty compatibility with older versions.
-    // In 6.1 null values were written with string "null". Since then the attribute is not written.
-    boolean comptability = getVariableBoolean(Const.HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES, false);
-
-    return comptability  && valueMetaType == IValueMeta.TYPE_STRING;
   }
   
   private void writeField(IValueMeta valueMeta, Object valueData, String element)

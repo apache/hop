@@ -256,11 +256,6 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     Result result = previousResult;
     result.setResult(false);
 
-    boolean oldBehavior =
-        "Y"
-            .equalsIgnoreCase(
-                getVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N"));
-
     String countSqlStatement = null;
     long rowsCount = 0;
     long errCount = 0;
@@ -385,10 +380,6 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
               break;
             default:
               break;
-          }
-
-          if (!successOK && oldBehavior) {
-            errCount++;
           }
         } // end if countSqlStatement!=null
       } catch (HopException dbe) {

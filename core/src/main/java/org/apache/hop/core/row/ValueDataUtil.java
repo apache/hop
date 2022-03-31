@@ -1506,14 +1506,7 @@ public class ValueDataUtil {
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(metaA.getDate(dataA));
-
-    boolean oldDateCalculation =
-        Boolean.parseBoolean(
-            Const.getEnvironmentVariable(
-                Const.HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION, "false"));
-    if (!oldDateCalculation) {
-      calendar.setTimeZone(metaA.getDateFormatTimeZone());
-    }
+    calendar.setTimeZone(metaA.getDateFormatTimeZone());
 
     return Long.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
   }

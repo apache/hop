@@ -377,13 +377,6 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
         SelectMetadataChange metaChange = meta[i];
 
         int idx = inputRowMeta.indexOfValue(metaChange.getName());
-        boolean metaTypeChangeUsesNewTypeDefaults = false; // Normal behavior as of 5.x or so
-        if (variables != null) {
-          metaTypeChangeUsesNewTypeDefaults =
-              ValueMetaBase.convertStringToBoolean(
-                  variables.getVariable(
-                      Const.HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS, "N"));
-        }
         if (idx >= 0) { // We found the value
 
           // This is the value we need to change:
@@ -397,12 +390,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
           }
           // Change the type?
           if (metaChange.getType() != IValueMeta.TYPE_NONE && v.getType() != metaChange.getType()) {
-            // clone copies over the conversion mask instead of using the default for the new type
-            if (!metaTypeChangeUsesNewTypeDefaults) {
-              v = ValueMetaFactory.cloneValueMeta(v, metaChange.getType());
-            } else {
-              v = ValueMetaFactory.createValueMeta(v.getName(), metaChange.getType());
-            }
+            v = ValueMetaFactory.cloneValueMeta(v, metaChange.getType());
 
             // This is now a copy, replace it in the row!
             //

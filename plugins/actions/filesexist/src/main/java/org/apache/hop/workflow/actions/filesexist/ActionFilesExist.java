@@ -150,11 +150,6 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
     int missingfiles = 0;
     int nrErrors = 0;
 
-    boolean oldBehavior =
-        "Y"
-            .equalsIgnoreCase(
-                getVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N"));
-
     if (arguments != null) {
       for (int i = 0; i < arguments.length && !parentWorkflow.isStopped(); i++) {
         FileObject file = null;
@@ -198,10 +193,6 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
     }
 
     result.setNrErrors(nrErrors);
-
-    if (oldBehavior) {
-      result.setNrErrors(missingfiles);
-    }
 
     if (missingfiles == 0) {
       result.setResult(true);

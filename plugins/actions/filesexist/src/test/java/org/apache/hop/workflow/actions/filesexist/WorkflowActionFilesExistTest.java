@@ -17,7 +17,6 @@
 
 package org.apache.hop.workflow.actions.filesexist;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.utils.TestUtils;
@@ -64,7 +63,7 @@ public class WorkflowActionFilesExistTest {
   public void tearDown() throws Exception {}
 
   @Test
-  public void testSetNrErrorsNewBehaviorFalseResult() throws Exception {
+  public void testSetNrErrorsFalseResult() throws Exception {
     action.setArguments(new String[] {"nonExistingFile.ext"});
 
     Result res = action.execute(new Result(), 0);
@@ -73,22 +72,6 @@ public class WorkflowActionFilesExistTest {
     assertEquals(
         "Files not found. Result is false. But... No of errors should be zero",
         0,
-        res.getNrErrors());
-  }
-
-  @Test
-  public void testSetNrErrorsOldBehaviorFalseResult() throws Exception {
-    // this tests backward compatibility settings
-    action.setArguments(new String[] {"nonExistingFile1.ext", "nonExistingFile2.ext"});
-
-    action.setVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y");
-
-    Result res = action.execute(new Result(), 0);
-
-    assertFalse("Entry should fail", res.getResult());
-    assertEquals(
-        "Files not found. Result is false. And... Number of errors should be the same as number of not found files",
-        action.getArguments().length,
         res.getNrErrors());
   }
 

@@ -111,14 +111,6 @@ public class XmlOutputTest {
     testNullValuesInAttribute(0);
   }
 
-  @Test
-  public void testNullInAttributeValuesAreNotEscaped() throws HopException, XMLStreamException {
-
-    xmlOutput.setVariable(Const.HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES, "Y");
-
-    testNullValuesInAttribute(rowWithNullData.length);
-  }
-
   /** Testing to verify that getIfPresent defaults the XMLField ContentType value */
   @Test
   public void testDefaultXmlFieldContentType() {

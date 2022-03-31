@@ -47,7 +47,6 @@ public class ValueDateUtilTest {
 
   @After
   public void tearDown() {
-    System.clearProperty(Const.HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION);
     System.setProperty("user.timezone", defUserTimezone.getID());
     TimeZone.setDefault(defTimeZone);
   }
@@ -63,20 +62,6 @@ public class ValueDateUtilTest {
     Object hourOfDayCET = ValueDataUtil.hourOfDay(valueMetaDate, date.getTime());
 
     assertEquals(8L + offsetCET, hourOfDayCET);
-  }
-
-  @Test
-  public void shouldCalculateHourOfDayUsingLocalTimeZoneIfPropertyIsSet() throws HopValueException {
-    Calendar date = Calendar.getInstance();
-    date.setTimeInMillis(1454313600000L); // 2016-07-01 08:00:00 UTC
-    IValueMeta valueMetaDate = new ValueMetaDate();
-    valueMetaDate.setDateFormatTimeZone(TimeZone.getTimeZone("CET")); // UTC +1
-    long offsetLocal = (long) TimeZone.getDefault().getRawOffset() / 3600000;
-    System.setProperty(Const.HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION, "true");
-
-    Object hourOfDayLocal = ValueDataUtil.hourOfDay(valueMetaDate, date.getTime());
-
-    assertEquals(8L + offsetLocal, hourOfDayLocal);
   }
 
   @Test

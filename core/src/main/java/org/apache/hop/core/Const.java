@@ -356,7 +356,7 @@ public class Const {
   public static final String HOP_LOG_SIZE_LIMIT = "HOP_LOG_SIZE_LIMIT";
 
   /** The name of the variable that defines the timer used for detecting server nodes. */
-  @Variable(description="")
+  @Variable(description="The name of the variable that defines the timer used for detecting server nodes")
   public static final String HOP_SERVER_DETECTION_TIMER = "HOP_SERVER_DETECTION_TIMER";
 
   /**
@@ -376,39 +376,6 @@ public class Const {
   @Variable(value="N", description="System wide flag to allow lenient string to number conversion for backward compatibility. If this setting is set to 'Y', an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol). The default (N) will be to throw an error if non-numeric symbols are found in the string.")
   public static final String HOP_LENIENT_STRING_TO_NUMBER_CONVERSION =
       "HOP_LENIENT_STRING_TO_NUMBER_CONVERSION";
-
-  /** System wide flag to ignore timezone while writing date/timestamp value to the database. */
-  @Variable(value="N", description="System wide flag to ignore timezone while writing date/timestamp value to the database.")
-  public static final String HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE =
-      "HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE";
-
-  /**
-   * System wide flag to set or not append and header options dependency on Text file output
-   * transform.
-   */
-  @Variable(value="N", description="Set this variable to 'Y' for backward compatibility for the Text File Output transform. Setting this to Ywill add no header row at all when the append option is enabled, regardless if the file is existing or not.")
-  public static final String HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER =
-      "HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER";
-
-  /**
-   * System wide flag to control behavior of the merge rows (diff) transform in case of "identical"
-   * comparison. 'Y' preserves the old behavior and takes the fields from the reference stream 'N'
-   * enables the documented behavior and takes the fields from the comparison stream (correct
-   * behavior)
-   */
-  @Variable(value="N", description="Set this variable to 'Y' for backward compatibility for the Merge Rows (diff) transform. Setting this to Y will use the data from the reference stream (instead of the comparison stream) in case the compared rows are identical.")
-  public static final String HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL =
-      "HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL";
-
-  /**
-   * System wide flag to control behavior of the Memory Group By transform in case of SUM and
-   * AVERAGE aggregation. 'Y' preserves the old behavior and always returns a Number type for SUM
-   * and Average aggregations 'N' enables the documented behavior of returning the same type as the
-   * input fields use (correct behavior).
-   */
-  @Variable(description="")
-  public static final String HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE =
-      "HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE";
 
   /**
    * You can use this variable to speed up hostname lookup. Hostname lookup is performed by Hop so
@@ -479,7 +446,6 @@ public class Const {
    * purposes.
    */
   @Variable(value="5000", description="The maximum number of action results kept in memory for logging purposes.")
-  @Deprecated
   public static final String HOP_MAX_ACTIONS_LOGGED = "HOP_MAX_ACTIONS_LOGGED";
 
   /**
@@ -516,7 +482,7 @@ public class Const {
    * Name of the environment variable that contains the size of the pipeline rowset size. This
    * overwrites values that you set pipeline settings.
    */
-  @Variable(description="")
+  @Variable(description="Name of the environment variable that contains the size of the pipeline rowset size. This overwrites values that you set pipeline settings")
   public static final String HOP_PIPELINE_ROWSET_SIZE = "HOP_PIPELINE_ROWSET_SIZE";
 
   /** A general initial version comment */
@@ -552,7 +518,7 @@ public class Const {
   public static final String HOP_ROWSET_PUT_TIMEOUT = "HOP_ROWSET_PUT_TIMEOUT";
 
   /** Set this variable to Y if you want to test a more efficient batching row set. (default = N) */
-  @Variable(description="")
+  @Variable(value="N", description=" Set this variable to Y if you want to test a more efficient batching row set.")
   public static final String HOP_BATCHING_ROWSET = "HOP_BATCHING_ROWSET";
 
   /**
@@ -621,33 +587,6 @@ public class Const {
   public static final String HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT =
       "HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT";
 
-  /**
-   * Compatibility settings for {@link org.apache.hop.core.row.ValueDataUtil#hourOfDay(IValueMeta,
-   * Object)}.
-   *
-   * <p>Switches off the fix for calculation of timezone decomposition.
-   */
-  @Variable(value="N", description="")
-  public static final String HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION =
-      "HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION";
-
-  /** Compatibility settings for setNrErrors */
-  @Variable(value="N", description="")
-  public static final String HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS =
-      "HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS";
-
-  @Variable(value="N", description="")
-  public static final String HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS =
-      "HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS";
-
-  @Variable(value="N", description="")
-  public static final String HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS =
-      "HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS";
-
-  @Variable(value="N", description="")
-  public static final String HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES =
-      "HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES";
-
   private static String[] emptyPaddedSpacesStrings;
 
   /** The release type of this compilation */
@@ -683,7 +622,7 @@ public class Const {
       "s3.vfs.useTempFileOnUploadData";
 
   /** A variable to configure Tab size" */
-  @Variable(description="")
+  @Variable(description="A variable to configure Tab size")
   public static final String HOP_MAX_TAB_LENGTH = "HOP_MAX_TAB_LENGTH";
 
   /**
@@ -702,7 +641,7 @@ public class Const {
    * @see #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT
    * @see #HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT_STRING
    */
-  @Variable(description="")
+  @Variable(description="A variable to configure the minimum allowed ratio between de- and inflated bytes to detect a zipbomb")
   public static final String HOP_ZIP_MIN_INFLATE_RATIO = "HOP_ZIP_MIN_INFLATE_RATIO";
 
   /**
@@ -732,7 +671,7 @@ public class Const {
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT
    * @see #HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING
    */
-  @Variable(description="")
+  @Variable(description="A variable to configure the maximum file size of a single zip entry")
   public static final String HOP_ZIP_MAX_ENTRY_SIZE = "HOP_ZIP_MAX_ENTRY_SIZE";
 
   /**
@@ -763,7 +702,7 @@ public class Const {
    * @see #HOP_ZIP_MAX_TEXT_SIZE_DEFAULT
    * @see #HOP_ZIP_MAX_TEXT_SIZE_DEFAULT_STRING
    */
-  @Variable(description="")
+  @Variable(description="A variable to configure the maximum number of characters of text that are extracted before an exception is thrown during extracting text from documents")
   public static final String HOP_ZIP_MAX_TEXT_SIZE = "HOP_ZIP_MAX_TEXT_SIZE";
 
   /**

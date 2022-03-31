@@ -337,16 +337,6 @@ public class MemoryGroupByMetaTest implements IInitializer<MemoryGroupByMeta> {
     assertTrue(rm.indexOfValue("Average(Date)") >= 0);
     assertEquals(
         IValueMeta.TYPE_NUMBER, rm.getValueMeta(rm.indexOfValue("Average(Date)")).getType());
-
-    // Test Compatibility
-    rm = getInputRowMeta();
-    vars.setVariable(Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, "Y");
-    meta.getFields(rm, transformName, null, null, vars, null);
-    assertNotNull(rm);
-    assertEquals(26, rm.size());
-    assertTrue(rm.indexOfValue("Average(Integer)") >= 0);
-    assertEquals(
-        IValueMeta.TYPE_NUMBER, rm.getValueMeta(rm.indexOfValue("Average(Integer)")).getType());
   }
 
   @Test

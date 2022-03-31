@@ -17,7 +17,6 @@
 
 package org.apache.hop.workflow.actions.evaluatetablecontent;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.BaseDatabaseMeta;
@@ -161,7 +160,6 @@ public class WorkflowActionEvalTableContentTest {
     dbMeta.setDatabaseType("mock-db");
 
     action.setDatabase(dbMeta);
-    action.setVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N");
   }
 
   @After
@@ -170,7 +168,7 @@ public class WorkflowActionEvalTableContentTest {
   }
 
   @Test
-  public void testNrErrorsFailureNewBehavior() throws Exception {
+  public void testNrErrorsFailure() throws Exception {
     action.setLimit("1");
     action.setSuccessCondition(ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL);
     action.setTablename("table");
@@ -183,24 +181,7 @@ public class WorkflowActionEvalTableContentTest {
         res.getNrErrors(),
         0);
   }
-
-  @Test
-  public void testNrErrorsFailureOldBehavior() throws Exception {
-    action.setLimit("1");
-    action.setSuccessCondition(ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL);
-    action.setTablename("table");
-
-    action.setVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y");
-
-    Result res = action.execute(new Result(), 0);
-
-    assertFalse("Eval number of rows should fail", res.getResult());
-    assertEquals(
-        "An error should be reported in result object accoding to the old behavior",
-        res.getNrErrors(),
-        1);
-  }
-
+  
   @Test
   public void testNrErrorsSuccess() throws Exception {
     action.setLimit("5");
@@ -208,14 +189,6 @@ public class WorkflowActionEvalTableContentTest {
     action.setTablename("table");
 
     Result res = action.execute(new Result(), 0);
-
-    assertTrue("Eval number of rows should be suceeded", res.getResult());
-    assertEquals("Apparently there should no error", res.getNrErrors(), 0);
-
-    // that should work regardless of old/new behavior flag
-    action.setVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y");
-
-    res = action.execute(new Result(), 0);
 
     assertTrue("Eval number of rows should be suceeded", res.getResult());
     assertEquals("Apparently there should no error", res.getNrErrors(), 0);
@@ -229,14 +202,6 @@ public class WorkflowActionEvalTableContentTest {
     action.setCustomSql(null);
 
     Result res = action.execute(new Result(), 0);
-
-    assertFalse("Eval number of rows should fail", res.getResult());
-    assertEquals("Apparently there should be an error", res.getNrErrors(), 1);
-
-    // that should work regardless of old/new behavior flag
-    action.setVariable(Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y");
-
-    res = action.execute(new Result(), 0);
 
     assertFalse("Eval number of rows should fail", res.getResult());
     assertEquals("Apparently there should be an error", res.getNrErrors(), 1);
