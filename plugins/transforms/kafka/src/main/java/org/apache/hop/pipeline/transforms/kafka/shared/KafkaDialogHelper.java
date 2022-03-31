@@ -125,12 +125,10 @@ public class KafkaDialogHelper {
     comboVar.setText(current);
     try {
       IRowMeta rmi = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if( rmi != null ) {
         for (int i = 0; i < rmi.size(); i++) {
           IValueMeta vmb = rmi.getValueMeta(i);
           comboVar.add(vmb.getName());
         }
-      }
     } catch (HopTransformException ex) {
       // do nothing
       LogChannel.UI.logError("Error getting fields", ex);

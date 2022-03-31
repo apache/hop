@@ -425,7 +425,6 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     boolean fieldFound = false;
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if( r != null) {
         String[] fieldNames = r.getFieldNames();
         for (int count = 0; count < fieldNames.length; count++) {
           if (fieldName.equals(fieldNames[count])) {
@@ -433,9 +432,6 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
             break;
           }
         }
-      }else{
-        return false;
-      }
     } catch (HopTransformException ke) {
       new ErrorDialog(
           shell,
@@ -452,7 +448,6 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
   }
 
   private void ok() {
-    transformName = wTransformName.getText();
 
     if (Utils.isEmpty(wBootstrapServers.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
@@ -501,6 +496,9 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
 
     meta.setMessageField(wMessageField.getText());
     meta.setConfig(KafkaDialogHelper.getConfig(optionsTable));
+
+    transformName = wTransformName.getText();
+
     dispose();
   }
 }
