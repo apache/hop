@@ -38,14 +38,14 @@ import java.util.concurrent.TimeUnit;
 public class LoggingCore {
 
   public static final boolean isEnabled(IVariables space) {
-    String connectionName = space.getVariable(Defaults.VARIABLE_NEO4J_LOGGING_CONNECTION);
+    String connectionName = space.getVariable(Defaults.NEO4J_LOGGING_CONNECTION);
     return StringUtils.isNotEmpty(connectionName)
         && !Defaults.VARIABLE_NEO4J_LOGGING_CONNECTION_DISABLED.equals(connectionName);
   }
 
   public static final NeoConnection getConnection(
       IHopMetadataProvider metadataProvider, IVariables space) throws HopException {
-    String connectionName = space.getVariable(Defaults.VARIABLE_NEO4J_LOGGING_CONNECTION);
+    String connectionName = space.getVariable(Defaults.NEO4J_LOGGING_CONNECTION);
     if (StringUtils.isEmpty(connectionName)) {
       return null;
     }

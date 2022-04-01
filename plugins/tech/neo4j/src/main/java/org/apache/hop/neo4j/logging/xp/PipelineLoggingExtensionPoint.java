@@ -70,7 +70,7 @@ public class PipelineLoggingExtensionPoint
     //
     pipeline.getExtensionDataMap().put(PIPELINE_START_DATE, new Date());
 
-    String connectionName = pipeline.getVariable(Defaults.VARIABLE_NEO4J_LOGGING_CONNECTION);
+    String connectionName = pipeline.getVariable(Defaults.NEO4J_LOGGING_CONNECTION);
 
     try {
 

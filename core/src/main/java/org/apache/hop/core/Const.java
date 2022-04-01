@@ -518,7 +518,7 @@ public class Const {
   public static final String HOP_ROWSET_PUT_TIMEOUT = "HOP_ROWSET_PUT_TIMEOUT";
 
   /** Set this variable to Y if you want to test a more efficient batching row set. (default = N) */
-  @Variable(value="N", description=" Set this variable to Y if you want to test a more efficient batching row set.")
+  @Variable(value="N", description="Set this variable to 'Y' if you want to test a more efficient batching row set.")
   public static final String HOP_BATCHING_ROWSET = "HOP_BATCHING_ROWSET";
 
   /**

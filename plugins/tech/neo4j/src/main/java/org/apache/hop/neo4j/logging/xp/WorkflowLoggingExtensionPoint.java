@@ -73,7 +73,7 @@ public class WorkflowLoggingExtensionPoint
     //
     workflow.getExtensionDataMap().put(WORKFLOW_START_DATE, new Date());
 
-    String connectionName = workflow.getVariable(Defaults.VARIABLE_NEO4J_LOGGING_CONNECTION);
+    String connectionName = workflow.getVariable(Defaults.NEO4J_LOGGING_CONNECTION);
 
     try {
       final NeoConnection connection =

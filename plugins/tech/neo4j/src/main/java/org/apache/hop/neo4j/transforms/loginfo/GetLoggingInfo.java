@@ -195,7 +195,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     if (connection == null) {
       throw new HopException(
           "Unable to find logging Neo4j connection (variable "
-              + Defaults.VARIABLE_NEO4J_LOGGING_CONNECTION
+              + Defaults.NEO4J_LOGGING_CONNECTION
               + ")");
     }
 
@@ -221,7 +221,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     if (connection == null) {
       throw new HopException(
           "Unable to find logging Neo4j connection (variable "
-              + Defaults.VARIABLE_NEO4J_LOGGING_CONNECTION
+              + Defaults.NEO4J_LOGGING_CONNECTION
               + ")");
     }
 
@@ -248,7 +248,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     if (connection == null) {
       throw new HopException(
           "Unable to find logging Neo4j connection (variable "
-              + Defaults.VARIABLE_NEO4J_LOGGING_CONNECTION
+              + Defaults.NEO4J_LOGGING_CONNECTION
               + ")");
     }
 
@@ -274,7 +274,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
     if (connection == null) {
       throw new HopException(
           "Unable to find logging Neo4j connection (variable "
-              + Defaults.VARIABLE_NEO4J_LOGGING_CONNECTION
+              + Defaults.NEO4J_LOGGING_CONNECTION
               + ")");
     }
 
