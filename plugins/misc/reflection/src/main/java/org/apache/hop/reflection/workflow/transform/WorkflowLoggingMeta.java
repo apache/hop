@@ -19,20 +19,17 @@
 package org.apache.hop.reflection.workflow.transform;
 
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "WorkflowLogging",
@@ -44,6 +41,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::WorkflowLoggingMeta.keyword")
 public class WorkflowLoggingMeta extends BaseTransformMeta<WorkflowLogging, WorkflowLoggingData> {
 
+  @HopMetadataProperty(key = "log_transforms")
   private boolean loggingActionResults;
 
   public WorkflowLoggingMeta() {
@@ -140,21 +138,6 @@ public class WorkflowLoggingMeta extends BaseTransformMeta<WorkflowLogging, Work
       // Action reason
       inputRowMeta.addValueMeta(new ValueMetaString("actionReason", 255, -1));
     }
-  }
-
-  @Override
-  public String getXml() throws HopException {
-    StringBuffer xml = new StringBuffer();
-    xml.append(XmlHandler.addTagValue("log_transforms", loggingActionResults));
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-
-    loggingActionResults =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "log_transforms"));
   }
 
   /**
