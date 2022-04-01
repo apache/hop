@@ -17,6 +17,7 @@
 
 package org.apache.hop.laf;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.i18n.IMessageHandler;
 import org.apache.hop.i18n.LafMessageHandler;
 
@@ -42,6 +43,9 @@ public class LafFactory {
   static {
     handlerRef.put(IMessageHandler.class.getName(), _defMessageHandler);
     handlerRef.put(IPropertyHandler.class.getName(), _defPropertyHandler);
+    if (Const.isOSX()){
+      handlerRef.put(IMessageHandler.class.getName(), RemoveAltKeyMessageHandler.class);
+    }
   }
 
   @SuppressWarnings("unchecked")
