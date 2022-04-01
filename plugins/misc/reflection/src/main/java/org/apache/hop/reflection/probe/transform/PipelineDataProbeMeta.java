@@ -67,7 +67,7 @@ public class PipelineDataProbeMeta extends BaseTransformMeta<PipelineDataProbe, 
     inputRowMeta.addValueMeta(new ValueMetaString("sourcePipelineName", 255, -1));
 
     // Source log channel ID
-    inputRowMeta.addValueMeta(new ValueMetaString("sourceTransformLogChannelId", 255, -1));
+    inputRowMeta.addValueMeta(new ValueMetaString("sourceTransformLogChannelId", 36, -1));
 
     // Source transform
     inputRowMeta.addValueMeta(new ValueMetaString("sourceTransformName", 255, -1));

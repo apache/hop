@@ -83,10 +83,10 @@ public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, Pipe
     inputRowMeta.addValueMeta(new ValueMetaDate("pipelineEnd"));
 
     // Pipeline log channel ID
-    inputRowMeta.addValueMeta(new ValueMetaString("pipelineLogChannelId", 32, -1));
+    inputRowMeta.addValueMeta(new ValueMetaString("pipelineLogChannelId", 36, -1));
 
     // Parent log channel ID
-    inputRowMeta.addValueMeta(new ValueMetaString("parentLogChannelId", 32, -1));
+    inputRowMeta.addValueMeta(new ValueMetaString("parentLogChannelId", 36, -1));
 
     // Logging text of the pipeline
     inputRowMeta.addValueMeta(new ValueMetaString("pipelineLogging", 1000000, -1));
@@ -108,7 +108,7 @@ public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, Pipe
       inputRowMeta.addValueMeta(new ValueMetaString("transformStatusDescription", 100, -1));
 
       // Transform log channel ID
-      inputRowMeta.addValueMeta(new ValueMetaString("transformLogChannelId", 32, -1));
+      inputRowMeta.addValueMeta(new ValueMetaString("transformLogChannelId", 36, -1));
 
       // Transform logging text
       inputRowMeta.addValueMeta(new ValueMetaString("transformLoggingText", 1000000, -1));

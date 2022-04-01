@@ -84,10 +84,10 @@ public class WorkflowLoggingMeta extends BaseTransformMeta<WorkflowLogging, Work
     inputRowMeta.addValueMeta(new ValueMetaDate("workflowEnd"));
 
     // Workflow log channel ID
-    inputRowMeta.addValueMeta(new ValueMetaString("workflowLogChannelId", 32, -1));
+    inputRowMeta.addValueMeta(new ValueMetaString("workflowLogChannelId", 36, -1));
 
     // Parent log channel ID
-    inputRowMeta.addValueMeta(new ValueMetaString("workflowParentLogChannelId", 32, -1));
+    inputRowMeta.addValueMeta(new ValueMetaString("workflowParentLogChannelId", 36, -1));
 
     // Logging text of the workflow
     inputRowMeta.addValueMeta(new ValueMetaString("workflowLogging", 1000000, -1));
@@ -109,7 +109,7 @@ public class WorkflowLoggingMeta extends BaseTransformMeta<WorkflowLogging, Work
       inputRowMeta.addValueMeta(new ValueMetaBoolean("actionResult"));
 
       // action log channel ID
-      inputRowMeta.addValueMeta(new ValueMetaString("actionLogChannelId", 32, -1));
+      inputRowMeta.addValueMeta(new ValueMetaString("actionLogChannelId", 36, -1));
 
       // action logging text
       inputRowMeta.addValueMeta(new ValueMetaString("actionLoggingText", 1000000, -1));
