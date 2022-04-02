@@ -19,19 +19,16 @@
 package org.apache.hop.reflection.pipeline.transform;
 
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "PipelineLogging",
@@ -43,6 +40,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/logging/logging-reflection.html")
 public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, PipelineLoggingData> {
 
+  @HopMetadataProperty(key = "log_transforms")
   private boolean loggingTransforms;
 
   public PipelineLoggingMeta() {
@@ -85,10 +83,10 @@ public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, Pipe
     inputRowMeta.addValueMeta(new ValueMetaDate("pipelineEnd"));
 
     // Pipeline log channel ID
-    inputRowMeta.addValueMeta(new ValueMetaString("pipelineLogChannelId", 32, -1));
+    inputRowMeta.addValueMeta(new ValueMetaString("pipelineLogChannelId", 36, -1));
 
     // Parent log channel ID
-    inputRowMeta.addValueMeta(new ValueMetaString("parentLogChannelId", 32, -1));
+    inputRowMeta.addValueMeta(new ValueMetaString("parentLogChannelId", 36, -1));
 
     // Logging text of the pipeline
     inputRowMeta.addValueMeta(new ValueMetaString("pipelineLogging", 1000000, -1));
@@ -110,7 +108,7 @@ public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, Pipe
       inputRowMeta.addValueMeta(new ValueMetaString("transformStatusDescription", 100, -1));
 
       // Transform log channel ID
-      inputRowMeta.addValueMeta(new ValueMetaString("transformLogChannelId", 32, -1));
+      inputRowMeta.addValueMeta(new ValueMetaString("transformLogChannelId", 36, -1));
 
       // Transform logging text
       inputRowMeta.addValueMeta(new ValueMetaString("transformLoggingText", 1000000, -1));
@@ -145,21 +143,6 @@ public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, Pipe
       // Execution duration in ms
       inputRowMeta.addValueMeta(new ValueMetaInteger("transformDuration", 12, 0));
     }
-  }
-
-  @Override
-  public String getXml() throws HopException {
-    StringBuffer xml = new StringBuffer();
-    xml.append(XmlHandler.addTagValue("log_transforms", loggingTransforms));
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-
-    loggingTransforms =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "log_transforms"));
   }
 
   /**

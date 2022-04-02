@@ -19,18 +19,15 @@
 package org.apache.hop.reflection.probe.transform;
 
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "PipelineDataProbe",
@@ -42,6 +39,7 @@ import org.w3c.dom.Node;
     keywords = "i18n::PipelineDataProbeMeta.keyword")
 public class PipelineDataProbeMeta extends BaseTransformMeta<PipelineDataProbe, PipelineDataProbeData> {
 
+  @HopMetadataProperty(key = "log_transforms")
   private boolean loggingTransforms;
 
   public PipelineDataProbeMeta() {
@@ -69,7 +67,7 @@ public class PipelineDataProbeMeta extends BaseTransformMeta<PipelineDataProbe, 
     inputRowMeta.addValueMeta(new ValueMetaString("sourcePipelineName", 255, -1));
 
     // Source log channel ID
-    inputRowMeta.addValueMeta(new ValueMetaString("sourceTransformLogChannelId", 255, -1));
+    inputRowMeta.addValueMeta(new ValueMetaString("sourceTransformLogChannelId", 36, -1));
 
     // Source transform
     inputRowMeta.addValueMeta(new ValueMetaString("sourceTransformName", 255, -1));
@@ -97,21 +95,6 @@ public class PipelineDataProbeMeta extends BaseTransformMeta<PipelineDataProbe, 
 
     // value
     inputRowMeta.addValueMeta(new ValueMetaString("value", 1000000, -1));
-  }
-
-  @Override
-  public String getXml() throws HopException {
-    StringBuffer xml = new StringBuffer();
-    xml.append(XmlHandler.addTagValue("log_transforms", loggingTransforms));
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-
-    loggingTransforms =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "log_transforms"));
   }
 
   /**
