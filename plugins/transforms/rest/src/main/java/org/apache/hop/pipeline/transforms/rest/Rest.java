@@ -36,7 +36,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -265,7 +264,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
       // add response time to output
       if (!Utils.isEmpty(data.resultResponseFieldName)) {
-        newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, Long.valueOf(responseTime));
+        newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, responseTime);
         returnFieldsOffset++;
       }
       // add response header to output
@@ -407,7 +406,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
     };
 
-    SSLContext sslContext = SSLContext.getInstance("SSL");
+    SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
     sslContext.init(null, new TrustManager[] { customTm }, null);
 
     return sslContext;
