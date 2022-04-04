@@ -129,6 +129,8 @@ endPoint::
 GET `hop/pipelineStatus`
 
 parameters::
+* xml: use XML (default: Y)
+* json: use JSON (default: Y)
 * name: name of the pipeline to get the status for
 * id: id of the pipeline to get the status for
 
@@ -189,6 +191,8 @@ endPoint::
 GET `hop/workflowStatus`
 
 parameters::
+* xml: use XML (default: Y)
+* json: use JSON (default: Y)
 * name: name of the workflow to get the status for
 * id: id of the workflow to get the status for
 
