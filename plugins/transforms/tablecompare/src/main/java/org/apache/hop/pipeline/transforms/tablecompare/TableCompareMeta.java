@@ -30,6 +30,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -48,207 +49,331 @@ import java.util.List;
 public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompareData> {
   private static final Class<?> PKG = TableCompare.class; // For Translator
 
-  private DatabaseMeta referenceConnection;
+  @HopMetadataProperty(
+      key = "reference_connection",
+      injectionKeyDescription = "TableCompareMeta.Injection.ReferenceConnection")
+  private String referenceConnection;
+
+  @HopMetadataProperty(
+      key = "reference_schema_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.ReferenceSchemaField")
   private String referenceSchemaField;
+
+  @HopMetadataProperty(
+      key = "reference_table_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.ReferenceTableField")
   private String referenceTableField;
 
-  private DatabaseMeta compareConnection;
+  @HopMetadataProperty(
+      key = "compare_connection",
+      injectionKeyDescription = "TableCompareMeta.Injection.CompareConnection")
+  private String compareConnection;
+
+  @HopMetadataProperty(
+      key = "compare_schema_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.CompareSchemaField")
   private String compareSchemaField;
+
+  @HopMetadataProperty(
+      key = "compare_table_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.CompareTableField")
   private String compareTableField;
 
+  @HopMetadataProperty(
+      key = "key_fields_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.KeyFieldsField")
   private String keyFieldsField;
+
+  @HopMetadataProperty(
+      key = "exclude_fields_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.ExcludeFieldsField")
   private String excludeFieldsField;
 
+  @HopMetadataProperty(
+      key = "nr_errors_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.NrErrorsField")
   private String nrErrorsField;
+
+  @HopMetadataProperty(
+      key = "nr_records_reference_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.NrRecordsReferenceField")
   private String nrRecordsReferenceField;
+
+  @HopMetadataProperty(
+      key = "nr_records_compare_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.NrRecordsCompareField")
   private String nrRecordsCompareField;
+
+  @HopMetadataProperty(
+      key = "nr_errors_left_join_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.NrErrorsLeftJoinField")
   private String nrErrorsLeftJoinField;
+
+  @HopMetadataProperty(
+      key = "nr_errors_inner_join_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.NrErrorsInnerJoinField")
   private String nrErrorsInnerJoinField;
+
+  @HopMetadataProperty(
+      key = "nr_errors_right_join_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.NrErrorsRightJoinField")
   private String nrErrorsRightJoinField;
 
+  @HopMetadataProperty(
+      key = "key_description_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.KeyDescriptionField")
   private String keyDescriptionField;
+
+  @HopMetadataProperty(
+      key = "value_reference_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.ValueReferenceField")
   private String valueReferenceField;
+
+  @HopMetadataProperty(
+      key = "value_compare_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.ValueCompareField")
   private String valueCompareField;
-  private IHopMetadataProvider metadataProvider;
 
   public TableCompareMeta() {
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return the referenceSchemaField */
+  /**
+   * @return the referenceSchemaField
+   */
   public String getReferenceSchemaField() {
     return referenceSchemaField;
   }
 
-  /** @param referenceSchemaField the referenceSchemaField to set */
+  /**
+   * @param referenceSchemaField the referenceSchemaField to set
+   */
   public void setReferenceSchemaField(String referenceSchemaField) {
     this.referenceSchemaField = referenceSchemaField;
   }
 
-  /** @return the referenceTableField */
+  /**
+   * @return the referenceTableField
+   */
   public String getReferenceTableField() {
     return referenceTableField;
   }
 
-  /** @param referenceTableField the referenceTableField to set */
+  /**
+   * @param referenceTableField the referenceTableField to set
+   */
   public void setReferenceTableField(String referenceTableField) {
     this.referenceTableField = referenceTableField;
   }
 
-  /** @return the compareSchemaField */
+  /**
+   * @return the compareSchemaField
+   */
   public String getCompareSchemaField() {
     return compareSchemaField;
   }
 
-  /** @param compareSchemaField the compareSchemaField to set */
+  /**
+   * @param compareSchemaField the compareSchemaField to set
+   */
   public void setCompareSchemaField(String compareSchemaField) {
     this.compareSchemaField = compareSchemaField;
   }
 
-  /** @return the compareTableField */
+  /**
+   * @return the compareTableField
+   */
   public String getCompareTableField() {
     return compareTableField;
   }
 
-  /** @param compareTableField the compareTableField to set */
+  /**
+   * @param compareTableField the compareTableField to set
+   */
   public void setCompareTableField(String compareTableField) {
     this.compareTableField = compareTableField;
   }
 
-  /** @return the nrErrorsField */
+  /**
+   * @return the nrErrorsField
+   */
   public String getNrErrorsField() {
     return nrErrorsField;
   }
 
-  /** @param nrErrorsField the nrErrorsField to set */
+  /**
+   * @param nrErrorsField the nrErrorsField to set
+   */
   public void setNrErrorsField(String nrErrorsField) {
     this.nrErrorsField = nrErrorsField;
   }
 
-  /** @return the referenceConnection */
-  public DatabaseMeta getReferenceConnection() {
+  /**
+   * @return the referenceConnection
+   */
+  public String getReferenceConnection() {
     return referenceConnection;
   }
 
-  /** @param referenceConnection the referenceConnection to set */
-  public void setReferenceConnection(DatabaseMeta referenceConnection) {
+  /**
+   * @param referenceConnection the referenceConnection to set
+   */
+  public void setReferenceConnection(String referenceConnection) {
     this.referenceConnection = referenceConnection;
   }
 
-  /** @return the compareConnection */
-  public DatabaseMeta getCompareConnection() {
+  /**
+   * @return the compareConnection
+   */
+  public String getCompareConnection() {
     return compareConnection;
   }
 
-  /** @param compareConnection the compareConnection to set */
-  public void setCompareConnection(DatabaseMeta compareConnection) {
+  /**
+   * @param compareConnection the compareConnection to set
+   */
+  public void setCompareConnection(String compareConnection) {
     this.compareConnection = compareConnection;
   }
 
-  /** @return the keyFieldsField */
+  /**
+   * @return the keyFieldsField
+   */
   public String getKeyFieldsField() {
     return keyFieldsField;
   }
 
-  /** @param keyFieldsField the keyFieldsField to set */
+  /**
+   * @param keyFieldsField the keyFieldsField to set
+   */
   public void setKeyFieldsField(String keyFieldsField) {
     this.keyFieldsField = keyFieldsField;
   }
 
-  /** @return the excludeFieldsField */
+  /**
+   * @return the excludeFieldsField
+   */
   public String getExcludeFieldsField() {
     return excludeFieldsField;
   }
 
-  /** @param excludeFieldsField the excludeFieldsField to set */
+  /**
+   * @param excludeFieldsField the excludeFieldsField to set
+   */
   public void setExcludeFieldsField(String excludeFieldsField) {
     this.excludeFieldsField = excludeFieldsField;
   }
 
-  /** @return the nrRecordsReferenceField */
+  /**
+   * @return the nrRecordsReferenceField
+   */
   public String getNrRecordsReferenceField() {
     return nrRecordsReferenceField;
   }
 
-  /** @param nrRecordsReferenceField the nrRecordsReferenceField to set */
+  /**
+   * @param nrRecordsReferenceField the nrRecordsReferenceField to set
+   */
   public void setNrRecordsReferenceField(String nrRecordsReferenceField) {
     this.nrRecordsReferenceField = nrRecordsReferenceField;
   }
 
-  /** @return the nrRecordsCompareField */
+  /**
+   * @return the nrRecordsCompareField
+   */
   public String getNrRecordsCompareField() {
     return nrRecordsCompareField;
   }
 
-  /** @param nrRecordsCompareField the nrRecordsCompareField to set */
+  /**
+   * @param nrRecordsCompareField the nrRecordsCompareField to set
+   */
   public void setNrRecordsCompareField(String nrRecordsCompareField) {
     this.nrRecordsCompareField = nrRecordsCompareField;
   }
 
-  /** @return the nrErrorsLeftJoinField */
+  /**
+   * @return the nrErrorsLeftJoinField
+   */
   public String getNrErrorsLeftJoinField() {
     return nrErrorsLeftJoinField;
   }
 
-  /** @param nrErrorsLeftJoinField the nrErrorsLeftJoinField to set */
+  /**
+   * @param nrErrorsLeftJoinField the nrErrorsLeftJoinField to set
+   */
   public void setNrErrorsLeftJoinField(String nrErrorsLeftJoinField) {
     this.nrErrorsLeftJoinField = nrErrorsLeftJoinField;
   }
 
-  /** @return the nrErrorsInnerJoinField */
+  /**
+   * @return the nrErrorsInnerJoinField
+   */
   public String getNrErrorsInnerJoinField() {
     return nrErrorsInnerJoinField;
   }
 
-  /** @param nrErrorsInnerJoinField the nrErrorsInnerJoinField to set */
+  /**
+   * @param nrErrorsInnerJoinField the nrErrorsInnerJoinField to set
+   */
   public void setNrErrorsInnerJoinField(String nrErrorsInnerJoinField) {
     this.nrErrorsInnerJoinField = nrErrorsInnerJoinField;
   }
 
-  /** @return the nrErrorsRightJoinField */
+  /**
+   * @return the nrErrorsRightJoinField
+   */
   public String getNrErrorsRightJoinField() {
     return nrErrorsRightJoinField;
   }
 
-  /** @param nrErrorsRightJoinField the nrErrorsRightJoinField to set */
+  /**
+   * @param nrErrorsRightJoinField the nrErrorsRightJoinField to set
+   */
   public void setNrErrorsRightJoinField(String nrErrorsRightJoinField) {
     this.nrErrorsRightJoinField = nrErrorsRightJoinField;
   }
 
-  /** @return the keyDescriptionField */
+  /**
+   * @return the keyDescriptionField
+   */
   public String getKeyDescriptionField() {
     return keyDescriptionField;
   }
 
-  /** @param keyDescriptionField the keyDescriptionField to set */
+  /**
+   * @param keyDescriptionField the keyDescriptionField to set
+   */
   public void setKeyDescriptionField(String keyDescriptionField) {
     this.keyDescriptionField = keyDescriptionField;
   }
 
-  /** @return the valueReferenceField */
+  /**
+   * @return the valueReferenceField
+   */
   public String getValueReferenceField() {
     return valueReferenceField;
   }
 
-  /** @param valueReferenceField the valueReferenceField to set */
+  /**
+   * @param valueReferenceField the valueReferenceField to set
+   */
   public void setValueReferenceField(String valueReferenceField) {
     this.valueReferenceField = valueReferenceField;
   }
 
-  /** @return the valueCompareField */
+  /**
+   * @return the valueCompareField
+   */
   public String getValueCompareField() {
     return valueCompareField;
   }
 
-  /** @param valueCompareField the valueCompareField to set */
+  /**
+   * @param valueCompareField the valueCompareField to set
+   */
   public void setValueCompareField(String valueCompareField) {
     this.valueCompareField = valueCompareField;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
   }
 
   @Override
@@ -327,106 +452,6 @@ public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompa
     nrErrorsRight.setLength(9);
     nrErrorsRight.setOrigin(origin);
     inputRowMeta.addValueMeta(nrErrorsRight);
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    this.metadataProvider = metadataProvider;
-    try {
-      referenceConnection =
-          DatabaseMeta.loadDatabase(
-              metadataProvider, XmlHandler.getTagValue(transformNode, "reference_connection"));
-      referenceSchemaField = XmlHandler.getTagValue(transformNode, "reference_schema_field");
-      referenceTableField = XmlHandler.getTagValue(transformNode, "reference_table_field");
-
-      compareConnection =
-          DatabaseMeta.loadDatabase(
-              metadataProvider, XmlHandler.getTagValue(transformNode, "compare_connection"));
-      compareSchemaField = XmlHandler.getTagValue(transformNode, "compare_schema_field");
-      compareTableField = XmlHandler.getTagValue(transformNode, "compare_table_field");
-
-      keyFieldsField = XmlHandler.getTagValue(transformNode, "key_fields_field");
-      excludeFieldsField = XmlHandler.getTagValue(transformNode, "exclude_fields_field");
-      nrErrorsField = XmlHandler.getTagValue(transformNode, "nr_errors_field");
-
-      nrRecordsReferenceField = XmlHandler.getTagValue(transformNode, "nr_records_reference_field");
-      nrRecordsCompareField = XmlHandler.getTagValue(transformNode, "nr_records_compare_field");
-      nrErrorsLeftJoinField = XmlHandler.getTagValue(transformNode, "nr_errors_left_join_field");
-      nrErrorsInnerJoinField = XmlHandler.getTagValue(transformNode, "nr_errors_inner_join_field");
-      nrErrorsRightJoinField = XmlHandler.getTagValue(transformNode, "nr_errors_right_join_field");
-
-      keyDescriptionField = XmlHandler.getTagValue(transformNode, "key_description_field");
-      valueReferenceField = XmlHandler.getTagValue(transformNode, "value_reference_field");
-      valueCompareField = XmlHandler.getTagValue(transformNode, "value_compare_field");
-
-    } catch (Exception e) {
-      throw new HopXmlException("It was not possibke to load the Trim metadata from XML", e);
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue(
-                "reference_connection",
-                referenceConnection == null ? null : referenceConnection.getName()));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("reference_schema_field", referenceSchemaField));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("reference_table_field", referenceTableField));
-
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue(
-                "compare_connection",
-                compareConnection == null ? null : compareConnection.getName()));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("compare_schema_field", compareSchemaField));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("compare_table_field", compareTableField));
-
-    retval.append("      ").append(XmlHandler.addTagValue("key_fields_field", keyFieldsField));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("exclude_fields_field", excludeFieldsField));
-    retval.append("      ").append(XmlHandler.addTagValue("nr_errors_field", nrErrorsField));
-
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("nr_records_reference_field", nrRecordsReferenceField));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("nr_records_compare_field", nrRecordsCompareField));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("nr_errors_left_join_field", nrErrorsLeftJoinField));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("nr_errors_inner_join_field", nrErrorsInnerJoinField));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("nr_errors_right_join_field", nrErrorsRightJoinField));
-
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("key_description_field", keyDescriptionField));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("value_reference_field", valueReferenceField));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("value_compare_field", valueCompareField));
-
-    return retval.toString();
   }
 
   @Override
