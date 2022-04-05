@@ -131,6 +131,8 @@ GET `hop/pipelineStatus`
 parameters::
 * name: name of the pipeline to get the status for
 * id: id of the pipeline to get the status for
+* xml (optional): return the information as xml (default HTML) use &xml=Y
+* json (optional): return the information as json (default HTML) use &json=Y
 
 example request::
 GET `+http://localhost:8081/hop/pipelineStatus/?name=<NAME>>&id=<ID>+`
@@ -191,6 +193,8 @@ GET `hop/workflowStatus`
 parameters::
 * name: name of the workflow to get the status for
 * id: id of the workflow to get the status for
+* xml (optional): return the information as xml (default HTML) use &xml=Y
+* json (optional): return the information as json (default HTML) use &json=Y
 
 example request::
 GET `+http://localhost:8081/hop/workflowStatus/?name=<NAME>&id=<ID>+`
