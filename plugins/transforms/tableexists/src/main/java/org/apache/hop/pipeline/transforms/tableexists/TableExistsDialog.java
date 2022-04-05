@@ -104,10 +104,8 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabase(), lsMod);
-    if (input.getDatabase() == null && pipelineMeta.nrDatabases() == 1) {
-      wConnection.select(0);
-    }
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
     wConnection.addModifyListener(lsMod);
 
     // Schema name line
@@ -225,8 +223,8 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
       logDebug(BaseMessages.getString(PKG, "TableExistsDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getDatabase() != null) {
-      wConnection.setText(input.getDatabase().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
     if (input.getTableNameField() != null) {
       wTableName.setText(input.getTableNameField());
@@ -253,14 +251,15 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
       return;
     }
 
-    input.setDatabase(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setConnection(wConnection.getText());
     input.setSchemaName(wSchemaname.getText());
     input.setTableNameField(wTableName.getText());
     input.setResultFieldName(wResult.getText());
 
     transformName = wTransformName.getText(); // return value
 
-    if (input.getDatabase() == null) {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    if (databaseMeta == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "TableExistsDialog.InvalidConnection.DialogMessage"));

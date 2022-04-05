@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.tableexists;
 
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -134,7 +135,14 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
         return false;
       }
 
-      data.db = new Database(this, this, meta.getDatabase());
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+
+      if (databaseMeta == null) {
+        logError(
+            BaseMessages.getString(PKG, "TableExists.Init.ConnectionMissing", getTransformName()));
+        return false;
+      }
+      data.db = new Database(this, this, databaseMeta);
       if (!Utils.isEmpty(meta.getSchemaName())) {
         data.realSchemaname = resolve(meta.getSchemaName());
       }
