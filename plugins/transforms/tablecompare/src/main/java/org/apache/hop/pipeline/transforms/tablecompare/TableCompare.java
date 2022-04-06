@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.tablecompare;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -231,6 +232,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
     Object[] result = new Object[6];
 
+
     if (Utils.isEmpty(referenceTable)) {
       Object[] errorRowData = constructErrorRow(rowMeta, r, null, null, null);
       putError(
@@ -255,12 +257,12 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       nrErrors++;
     }
 
+    DatabaseMeta refConnectionDatabaseMeta = getPipelineMeta().findDatabase(meta.getReferenceConnection(), variables);
     String refSchemaTable =
-        meta.getReferenceConnection()
-            .getQuotedSchemaTableCombination(this, referenceSchema, referenceTable);
+            refConnectionDatabaseMeta.getQuotedSchemaTableCombination(this, referenceSchema, referenceTable);
+    DatabaseMeta compConnectionDatabaseMeta = getPipelineMeta().findDatabase(meta.getReferenceConnection(), variables);
     String cmpSchemaTable =
-        meta.getCompareConnection()
-            .getQuotedSchemaTableCombination(this, compareSchema, compareTable);
+            compConnectionDatabaseMeta.getQuotedSchemaTableCombination(this, compareSchema, compareTable);
 
     if (Utils.isEmpty(keyFields)) {
       Object[] errorRowData = constructErrorRow(rowMeta, r, null, null, null);
@@ -284,11 +286,11 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
     String[] keys = keyFields.split(",");
     for (int i = 0; i < keys.length; i++) {
-      keys[i] = Kjube.trim(keys[i]);
+      keys[i] = keys[i].trim();
     }
     String[] excluded = Utils.isEmpty(excludeFields) ? new String[0] : excludeFields.split(",");
     for (int i = 0; i < excluded.length; i++) {
-      excluded[i] = Kjube.trim(excluded[i]);
+      excluded[i] = excluded[i].trim();
     }
 
     try {
@@ -389,8 +391,8 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
             cmpSql += ", ";
           }
           keyNrs[i] = i;
-          refSql += meta.getReferenceConnection().quoteField(keys[i]);
-          cmpSql += meta.getReferenceConnection().quoteField(keys[i]);
+          refSql += refConnectionDatabaseMeta.quoteField(keys[i]);
+          cmpSql += refConnectionDatabaseMeta.quoteField(keys[i]);
         }
         int[] valueNrs = new int[refFields.size() - keys.length];
         int valueNr = keys.length;
@@ -398,7 +400,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
         for (int i = 0; i < refFields.getFieldNames().length; i++) {
           String field = refFields.getFieldNames()[i];
           if (Const.indexOfString(field, keys) < 0) {
-            refSql += ", " + meta.getReferenceConnection().quoteField(field);
+            refSql += ", " + refConnectionDatabaseMeta.quoteField(field);
             valueRowMeta.addValueMeta(refFields.searchValueMeta(field));
             valueNrs[valueIndex++] = valueNr++;
           }
@@ -406,7 +408,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
         for (String field : cmpFields.getFieldNames()) {
           if (Const.indexOfString(field, keys) < 0) {
-            cmpSql += ", " + meta.getCompareConnection().quoteField(field);
+            cmpSql += ", " + compConnectionDatabaseMeta.quoteField(field);
           }
         }
         refSql += " FROM " + refSchemaTable + " ORDER BY ";
@@ -416,8 +418,8 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
             refSql += ", ";
             cmpSql += ", ";
           }
-          refSql += meta.getReferenceConnection().quoteField(keys[i]);
-          cmpSql += meta.getReferenceConnection().quoteField(keys[i]);
+          refSql += refConnectionDatabaseMeta.quoteField(keys[i]);
+          cmpSql += refConnectionDatabaseMeta.quoteField(keys[i]);
         }
 
         // Now we execute the SQL...
@@ -685,7 +687,16 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
     if (super.init()) {
 
       try {
-        data.referenceDb = new Database(this, this, meta.getReferenceConnection());
+        DatabaseMeta refConnectionDatabaseMeta = getPipelineMeta().findDatabase(meta.getReferenceConnection(), variables);
+        if (refConnectionDatabaseMeta == null) {
+          logError(
+                  BaseMessages.getString(
+                          PKG, "TableCompare.RefConnection.ConnectionMissing", getTransformName()));
+          return false;
+        }
+
+
+        data.referenceDb = new Database(this, this, refConnectionDatabaseMeta);
         data.referenceDb.connect();
 
       } catch (Exception e) {
@@ -693,13 +704,22 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
             BaseMessages.getString(
                 PKG,
                 "TableCompare.Exception.UnexpectedErrorConnectingToReferenceDatabase",
-                meta.getReferenceConnection().getName()),
+                    meta.getReferenceConnection()),
             e);
         return false;
       }
 
       try {
-        data.compareDb = new Database(this, this, meta.getCompareConnection());
+        DatabaseMeta compConnectionDatabaseMeta = getPipelineMeta().findDatabase(meta.getCompareConnection(), variables);
+        if (compConnectionDatabaseMeta == null) {
+          logError(
+                  BaseMessages.getString(
+                          PKG, "TableCompare.CompConnection.ConnectionMissing", getTransformName()));
+          return false;
+        }
+
+
+        data.compareDb = new Database(this, this, compConnectionDatabaseMeta);
         data.compareDb.connect();
 
       } catch (Exception e) {
@@ -707,7 +727,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
             BaseMessages.getString(
                 PKG,
                 "TableCompare.Exception.UnexpectedErrorConnectingToCompareDatabase",
-                meta.getCompareConnection().getName()),
+                    meta.getCompareConnection()),
             e);
         return false;
       }

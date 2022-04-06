@@ -363,7 +363,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     if (previous != null) {
       fdConnection.top = new FormAttachment(previous, props.getMargin());
     } else {
-      fdConnection.top = new FormAttachment(0, 0);
+      fdConnection.top = new FormAttachment(0, props.getMargin());
     }
     setLayoutData(fdConnection);
   }

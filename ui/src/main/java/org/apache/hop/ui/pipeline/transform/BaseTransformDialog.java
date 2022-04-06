@@ -161,7 +161,7 @@ public class BaseTransformDialog extends Dialog {
   public BaseTransformDialog(
       Shell parent,
       IVariables variables,
-      BaseTransformMeta<?,?> baseTransformMeta,
+      BaseTransformMeta<?, ?> baseTransformMeta,
       PipelineMeta pipelineMeta,
       String transformName) {
     super(parent, SWT.NONE);
@@ -212,7 +212,7 @@ public class BaseTransformDialog extends Dialog {
    * @param tr the pipeline metadata
    */
   public BaseTransformDialog(
-      Shell parent, int nr, IVariables variables, BaseTransformMeta<?,?> in, PipelineMeta tr) {
+      Shell parent, int nr, IVariables variables, BaseTransformMeta<?, ?> in, PipelineMeta tr) {
     this(parent, variables, in, tr, null);
   }
 
@@ -557,6 +557,37 @@ public class BaseTransformDialog extends Dialog {
   public MetaSelectionLine<DatabaseMeta> addConnectionLine(
       Composite parent, Control previous, DatabaseMeta selected, ModifyListener lsMod) {
 
+    return addConnectionLine(
+        parent,
+        previous,
+        selected,
+        lsMod,
+        BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Label"),
+        BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Tooltip"));
+  }
+
+  public MetaSelectionLine<DatabaseMeta> addConnectionLine(
+      Composite parent,
+      Control previous,
+      DatabaseMeta selected,
+      ModifyListener lsMod,
+      String connectionLabel) {
+    return addConnectionLine(
+        parent,
+        previous,
+        selected,
+        lsMod,
+        connectionLabel,
+        BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Tooltip"));
+  }
+
+  public MetaSelectionLine<DatabaseMeta> addConnectionLine(
+      Composite parent,
+      Control previous,
+      DatabaseMeta selected,
+      ModifyListener lsMod,
+      String connectionLabel,
+      String connectionTooltip) {
     final MetaSelectionLine<DatabaseMeta> wConnection =
         new MetaSelectionLine<>(
             variables,
@@ -564,8 +595,8 @@ public class BaseTransformDialog extends Dialog {
             DatabaseMeta.class,
             parent,
             SWT.NONE,
-            BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Label"),
-            BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Tooltip"));
+            connectionLabel,
+            connectionTooltip);
     wConnection.addToConnectionLine(parent, previous, selected, lsMod);
     return wConnection;
   }
