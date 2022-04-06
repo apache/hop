@@ -39,7 +39,7 @@ public class TableExistsMetaTest {
   @Test
   public void testLoadSave() throws HopException {
     List<String> attributes =
-        Arrays.asList("Database", "TableNameField", "ResultFieldName", "SchemaName");
+        Arrays.asList("Connection", "TableNameField", "ResultFieldName", "SchemaName");
 
     LoadSaveTester loadSaveTester = new LoadSaveTester(TableExistsMeta.class, attributes);
 
