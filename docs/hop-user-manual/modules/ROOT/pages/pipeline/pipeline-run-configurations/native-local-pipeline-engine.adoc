@@ -57,6 +57,10 @@ If a row does not have the same layout as the first row, an error is generated a
 |The number of rows to return as feedback.
 |50.000
 
+|Wait time buffer check (ms)
+|This indicates the polling frequency when there are no rows in the input buffer of a transform, a lower value will cause higher CPU load when the pipeline has many idle transforms.
+|20
+
 |Sample type while running in the GUI
 |Here you can specify which rows you want to see when you click on the little grid icons on the transform icons during a pipeline execution.
 You can choose: `None`: do not show, `First` : show the first rows, `Last` : show the last rows or `Random`: a random selection of rows (reservoir sampling)
