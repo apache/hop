@@ -37,7 +37,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,7 +54,7 @@ public class VariableRegistry {
   private final List<String> deprecatedNames;
   
   private VariableRegistry() {
-    variableScopes = new HashMap<>();
+    variableScopes = new EnumMap<>(VariableScope.class);
     variableScopes.put(VariableScope.SYSTEM, new ArrayList<>());
     variableScopes.put(VariableScope.APPLICATION, new ArrayList<>());
     variableScopes.put(VariableScope.ENGINE, new ArrayList<>());
