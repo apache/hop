@@ -43,14 +43,13 @@ import org.eclipse.swt.SWT;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 public class HopGuiEnvironment extends HopClientEnvironment {
 
   public static void init() throws HopException {
     init(
-        Arrays.asList(
+        List.of(
             GuiPluginType.getInstance(),
             HopPerspectivePluginType.getInstance(),
             HopFileTypePluginType.getInstance(),

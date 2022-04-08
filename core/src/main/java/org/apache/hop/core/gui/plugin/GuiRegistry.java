@@ -402,7 +402,7 @@ public class GuiRegistry {
             ca.id(), ca.type(), name, tooltip, ca.image(), guiPluginClassName, method.getName());
     action.setCategory(StringUtils.isEmpty(category) ? null : category);
     action.setCategoryOrder(StringUtils.isEmpty(ca.categoryOrder()) ? null : ca.categoryOrder());
-    action.setKeywords(Arrays.asList(ca.keywords()));
+    action.setKeywords(List.of(ca.keywords()));
     action.setClassLoader(classLoader);
 
     List<GuiAction> actions =

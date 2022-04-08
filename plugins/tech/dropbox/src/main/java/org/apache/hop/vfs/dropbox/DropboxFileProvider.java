@@ -25,9 +25,8 @@ import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
 import org.apache.hop.vfs.dropbox.config.DropboxConfig;
 import org.apache.hop.vfs.dropbox.config.DropboxConfigSingleton;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
 
 /** A provider for dropbox file systems. */
 public class DropboxFileProvider extends AbstractOriginatingFileProvider {
@@ -35,8 +34,7 @@ public class DropboxFileProvider extends AbstractOriginatingFileProvider {
   private static final String APPLICATION_NAME = "Apache-Hop-Dropbox-VFS";
 
   protected static final Collection<Capability> capabilities =
-      Collections.unmodifiableCollection(
-          Arrays.asList(
+      Set.of(
               Capability.CREATE,
               Capability.DELETE,
               Capability.RENAME,
@@ -45,7 +43,7 @@ public class DropboxFileProvider extends AbstractOriginatingFileProvider {
               Capability.READ_CONTENT,
               Capability.GET_LAST_MODIFIED,
               Capability.URI,
-              Capability.WRITE_CONTENT));
+              Capability.WRITE_CONTENT);
 
   private static FileSystemOptions defaultOptions = new FileSystemOptions();
 

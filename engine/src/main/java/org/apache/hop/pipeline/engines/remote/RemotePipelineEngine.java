@@ -351,37 +351,37 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     }
   }
 
-  public static boolean isVariablePassedToRemoteServer(String var) {
-    if (StringUtils.isEmpty(var)) {
+  public static boolean isVariablePassedToRemoteServer(String variableName) {
+    if (StringUtils.isEmpty(variableName)) {
       return false;
     }
     // JRE/JVM stuff
-    if (var.startsWith("java.")
-        || var.startsWith("file.")
-        || var.startsWith("awt.")
-        || var.startsWith("line.")
-        || var.startsWith("org.eclipse.")
-        || var.startsWith("sun.")
-        || var.startsWith("user.")
-        || var.startsWith("os.")
-        || var.startsWith("path.separator")
-        || var.startsWith("javax.")) {
+    if (variableName.startsWith("java.")
+        || variableName.startsWith("file.")
+        || variableName.startsWith("awt.")
+        || variableName.startsWith("line.")
+        || variableName.startsWith("org.eclipse.")
+        || variableName.startsWith("sun.")
+        || variableName.startsWith("user.")
+        || variableName.startsWith("os.")
+        || variableName.startsWith("path.separator")
+        || variableName.startsWith("javax.")) {
       return false;
     }
     // Internal variables get resolved automatically
-    if (Const.indexOfString(var, Const.INTERNAL_WORKFLOW_VARIABLES) >= 0) {
+    if (Const.INTERNAL_WORKFLOW_VARIABLES.contains(variableName)) {
       return false;
     }
-    if (Const.indexOfString(var, Const.INTERNAL_PIPELINE_VARIABLES) >= 0) {
+    if (Const.INTERNAL_PIPELINE_VARIABLES.contains(variableName)) {
       return false;
     }
     // These are used at startup and shouldn't have an effect at runtime.
     // e.g. to be configured on the server
     //
-    if (VariableRegistry.getInstance().getVariableNames(VariableScope.SYSTEM, VariableScope.APPLICATION).contains(var)) {
+    if (VariableRegistry.getInstance().getVariableNames(VariableScope.SYSTEM, VariableScope.APPLICATION).contains(variableName)) {
       return false;
     }
-    if (var.equals("LOG_PATH")) {
+    if (variableName.equals("LOG_PATH")) {
       return false;
     }
 
