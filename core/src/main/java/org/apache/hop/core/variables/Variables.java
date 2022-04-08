@@ -68,11 +68,11 @@ public class Variables implements IVariables {
 
   @Override
   public String getVariable(String variableName, String defaultValue) {
-    String var = properties.get(variableName);
-    if (var == null) {
+    String value = properties.get(variableName);
+    if (value == null) {
       return defaultValue;
     }
-    return var;
+    return value;
   }
 
   @Override
@@ -183,10 +183,9 @@ public class Variables implements IVariables {
     if (initialized) {
       // variables are already initialized
       if (map != null) {
-        for (String key : map.keySet()) {
-          String value = map.get(key);
-          if (!Utils.isEmpty(key)) {
-            properties.put(key, Const.NVL(value, ""));
+        for (Map.Entry<String,String> entry : map.entrySet()) {          
+          if (!Utils.isEmpty(entry.getKey())) {
+            properties.put(entry.getKey(), Const.NVL(entry.getValue(), ""));
           }
         }
         injection = null;
@@ -195,10 +194,9 @@ public class Variables implements IVariables {
       // We have our own personal copy, so changes afterwards
       // to the input properties don't affect us.
       injection = new Hashtable<>();
-      for (String key : map.keySet()) {
-        String value = map.get(key);
-        if (!Utils.isEmpty(key)) {
-          injection.put(key, Const.NVL(value, ""));
+      for (Map.Entry<String,String> entry : map.entrySet()) { 
+        if (!Utils.isEmpty(entry.getKey())) {
+          injection.put(entry.getKey(), Const.NVL(entry.getValue(), ""));
         }
       }
     }
