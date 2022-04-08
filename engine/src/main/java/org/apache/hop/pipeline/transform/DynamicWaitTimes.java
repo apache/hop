@@ -26,18 +26,22 @@ import java.util.function.Supplier;
 
 final class DynamicWaitTimes {
 
-  static final long MAX_TIMEOUT = 1000;
 
-  static SingleStreamStatus build(List<IRowSet> rowSets, Supplier<Integer> supplier) {
+  static SingleStreamStatus build(List<IRowSet> rowSets, Supplier<Integer> supplier, Integer waitTime) {
     if (rowSets.size() == 1) {
-      return new SingleStreamStatus();
+      return new SingleStreamStatus(waitTime);
     }
-    return new MultiStreamStatus(new ArrayList<>(rowSets), supplier);
+    return new MultiStreamStatus(new ArrayList<>(rowSets), supplier, waitTime);
   }
 
   static class SingleStreamStatus {
     protected boolean active = true;
     private long interval = 1;
+    private long waitTime;
+
+    SingleStreamStatus(Integer waitTime) {
+      this.waitTime = waitTime;
+    }
 
     public long get() {
       return interval;
@@ -50,12 +54,12 @@ final class DynamicWaitTimes {
 
     public void adjust(boolean timeout, IRowSet nextIfExist) {
       if (allowAdjust() && timeout) {
-        if (interval == MAX_TIMEOUT) {
+        if (interval == waitTime) {
           active = false;
         }
         interval = interval * 2;
-        if (interval > MAX_TIMEOUT) {
-          interval = MAX_TIMEOUT;
+        if (interval > waitTime) {
+          interval = waitTime;
         }
       }
     }
@@ -75,12 +79,13 @@ final class DynamicWaitTimes {
     private final List<SingleStreamStatus> statusList;
     private final Supplier<Integer> supplier;
 
-    MultiStreamStatus(List<IRowSet> rowSets, Supplier<Integer> supplier) {
+    MultiStreamStatus(List<IRowSet> rowSets, Supplier<Integer> supplier, Integer waitTime) {
+      super(waitTime);
       this.streamList = rowSets;
       this.supplier = supplier;
       this.statusList = new ArrayList<>(rowSets.size());
       for (int i = 0; i < rowSets.size(); i++) {
-        statusList.add(new SingleStreamStatus());
+        statusList.add(new SingleStreamStatus(waitTime));
       }
     }
 

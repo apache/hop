@@ -22,6 +22,7 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
@@ -99,8 +100,19 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
 
   /** The feedback size. */
   @GuiWidgetElement(
-      id = "sampleTypeInGui",
+      id = "waitTime",
       order = "070",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label =
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.WaitTime.Label")
+  @HopMetadataProperty(key = "wait_time")
+  protected String waitTime;
+
+  /** The feedback size. */
+  @GuiWidgetElement(
+      id = "sampleTypeInGui",
+      order = "080",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.COMBO,
       label =
@@ -112,7 +124,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   /** The feedback size. */
   @GuiWidgetElement(
       id = "sampleSize",
-      order = "080",
+      order = "090",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
       label =
@@ -122,7 +134,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
 
   @GuiWidgetElement(
       id = "transactional",
-      order = "090",
+      order = "100",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label =
@@ -144,6 +156,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.rowSetSize = Integer.toString(Const.ROWS_IN_ROWSET);
     this.feedbackShown = false;
     this.feedbackSize = Integer.toString(Const.ROWS_UPDATE);
+    this.waitTime = EnvUtil.getSystemProperty(Const.HOP_DEFAULT_BUFFER_POLLING_WAITTIME, "20");
     this.sampleTypeInGui = SampleType.Last.name();
     this.sampleSize = "100";
     this.transactional = false;
@@ -154,6 +167,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.rowSetSize = config.rowSetSize;
     this.feedbackShown = config.feedbackShown;
     this.feedbackSize = config.feedbackSize;
+    this.waitTime = config.waitTime;
     this.safeModeEnabled = config.safeModeEnabled;
     this.gatheringMetrics = config.gatheringMetrics;
     this.sortingTransformsTopologically = config.sortingTransformsTopologically;
@@ -183,7 +197,9 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     return rowSetSize;
   }
 
-  /** @param rowSetSize The rowSetSize to set */
+  /**
+   * @param rowSetSize The rowSetSize to set
+   */
   public void setRowSetSize(String rowSetSize) {
     this.rowSetSize = rowSetSize;
   }
@@ -197,7 +213,9 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     return safeModeEnabled;
   }
 
-  /** @param safeModeEnabled The safeModeEnabled to set */
+  /**
+   * @param safeModeEnabled The safeModeEnabled to set
+   */
   public void setSafeModeEnabled(boolean safeModeEnabled) {
     this.safeModeEnabled = safeModeEnabled;
   }
@@ -211,7 +229,9 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     return gatheringMetrics;
   }
 
-  /** @param gatheringMetrics The gatheringMetrics to set */
+  /**
+   * @param gatheringMetrics The gatheringMetrics to set
+   */
   public void setGatheringMetrics(boolean gatheringMetrics) {
     this.gatheringMetrics = gatheringMetrics;
   }
@@ -225,7 +245,9 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     return sortingTransformsTopologically;
   }
 
-  /** @param sortingTransformsTopologically The sortingTransformsTopologically to set */
+  /**
+   * @param sortingTransformsTopologically The sortingTransformsTopologically to set
+   */
   public void setSortingTransformsTopologically(boolean sortingTransformsTopologically) {
     this.sortingTransformsTopologically = sortingTransformsTopologically;
   }
@@ -239,7 +261,9 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     return feedbackShown;
   }
 
-  /** @param feedbackShown The feedbackShown to set */
+  /**
+   * @param feedbackShown The feedbackShown to set
+   */
   public void setFeedbackShown(boolean feedbackShown) {
     this.feedbackShown = feedbackShown;
   }
@@ -253,9 +277,27 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     return feedbackSize;
   }
 
-  /** @param feedbackSize The feedbackSize to set */
+  /**
+   * @param feedbackSize The feedbackSize to set
+   */
   public void setFeedbackSize(String feedbackSize) {
     this.feedbackSize = feedbackSize;
+  }
+
+  /**
+   * Gets waitTime
+   *
+   * @return value of the waitTime
+   */
+  public String getWaitTime() {
+    return waitTime;
+  }
+
+  /**
+   * @param waitTime The waitTime for buffer check
+   */
+  public void setWaitTime(String waitTime) {
+    this.waitTime = waitTime;
   }
 
   /**
@@ -267,7 +309,9 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     return sampleTypeInGui;
   }
 
-  /** @param sampleTypeInGui The sampleTypeInGui to set */
+  /**
+   * @param sampleTypeInGui The sampleTypeInGui to set
+   */
   public void setSampleTypeInGui(String sampleTypeInGui) {
     this.sampleTypeInGui = sampleTypeInGui;
   }
@@ -281,7 +325,9 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     return sampleSize;
   }
 
-  /** @param sampleSize The sampleSize to set */
+  /**
+   * @param sampleSize The sampleSize to set
+   */
   public void setSampleSize(String sampleSize) {
     this.sampleSize = sampleSize;
   }
@@ -295,7 +341,9 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     return transactional;
   }
 
-  /** @param transactional The transactional to set */
+  /**
+   * @param transactional The transactional to set
+   */
   public void setTransactional(boolean transactional) {
     this.transactional = transactional;
   }

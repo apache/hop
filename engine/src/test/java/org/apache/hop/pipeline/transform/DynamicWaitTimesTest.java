@@ -34,21 +34,21 @@ public class DynamicWaitTimesTest extends TestCase {
 
   public void testSingleStreamStatus() {
     IRowSet rowSet = new BlockingRowSet(3);
-    status = DynamicWaitTimes.build(Collections.singletonList(rowSet), () -> 0);
+    status = DynamicWaitTimes.build(Collections.singletonList(rowSet), () -> 0, 20);
     assertEquals(1, status.get());
     status.adjust(true, rowSet);
     assertEquals(2, status.get());
     for (int i = 0; i < 10; i++) {
       status.adjust(true, rowSet);
     }
-    assertEquals(DynamicWaitTimes.MAX_TIMEOUT, status.get());
+    assertEquals(20, status.get());
   }
 
   public void testMultiStreamStatus() {
     List<IRowSet> rowSetList =
         new ArrayList<>(
             Arrays.asList(new BlockingRowSet(1), new BlockingRowSet(2), new BlockingRowSet(7)));
-    status = DynamicWaitTimes.build(rowSetList, () -> activeStreamIndex.get());
+    status = DynamicWaitTimes.build(rowSetList, () -> activeStreamIndex.get(),20);
     for (IRowSet iRowSet : rowSetList) {
       status.adjust(false, iRowSet);
       assertEquals(1, status.get());

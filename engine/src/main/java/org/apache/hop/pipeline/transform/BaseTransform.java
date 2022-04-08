@@ -32,6 +32,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -43,6 +44,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -115,12 +117,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * </ul>
  */
 public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformData>
-    implements 
-        ITransform,
-        IVariables,
-        ILoggingObject,
-        IExtensionData,
-        IEngineComponent {
+    implements ITransform, IVariables, ILoggingObject, IExtensionData, IEngineComponent {
 
   private static final Class<?> PKG = BaseTransform.class; // For Translator
 
@@ -461,9 +458,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, Integer.toString(copyNr));
 
     // BACKLOG-18004
-    allowEmptyFieldNamesAndTypes = ValueMetaBase.convertStringToBoolean(
-            System.getProperties()
-                .getProperty(Const.HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES, "N"));
+    allowEmptyFieldNamesAndTypes =
+        ValueMetaBase.convertStringToBoolean(
+            System.getProperties().getProperty(Const.HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES, "N"));
 
     // Getting ans setting the error handling values
     // first, get the transform meta
@@ -579,7 +576,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     copyNr = cop;
   }
 
-  /** @return The transforms copy number (default 0) */
+  /**
+   * @return The transforms copy number (default 0)
+   */
   @Override
   public int getCopy() {
     return copyNr;
@@ -907,7 +906,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return getStatus().getDescription();
   }
 
-  /** @return Returns the transformMeta. */
+  /**
+   * @return Returns the transformMeta.
+   */
   @Override
   public Meta getMeta() {
     return meta;
@@ -923,18 +924,24 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return data;
   }
 
-  /** @return Returns the transformMeta. */
+  /**
+   * @return Returns the transformMeta.
+   */
   @Override
   public TransformMeta getTransformMeta() {
     return transformMeta;
   }
 
-  /** @return Returns the pipelineMeta. */
+  /**
+   * @return Returns the pipelineMeta.
+   */
   public PipelineMeta getPipelineMeta() {
     return pipelineMeta;
   }
 
-  /** @return Returns the pipeline. */
+  /**
+   * @return Returns the pipeline.
+   */
   @Override
   public IPipelineEngine<PipelineMeta> getPipeline() {
     return pipeline;
@@ -1011,8 +1018,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         } catch (InterruptedException e) {
           // Ignore
         }
-        //wait 3s max
-        if(counter >= 3) {
+        // wait 3s max
+        if (counter >= 3) {
           break;
         }
       }
@@ -1491,7 +1498,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return row;
   }
 
-
   private Object[] handleGetRow() throws HopException {
 
     // Are we pausing the transform? If so, stall forever...
@@ -1573,7 +1579,17 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       // We can use timeouts to switch from one to another...
       //
       if (waitingTime == null) {
-        waitingTime = DynamicWaitTimes.build(inputRowSets, this::getCurrentInputRowSetNr);
+        Integer waitTime =
+            Const.toInt(EnvUtil.getSystemProperty(Const.HOP_DEFAULT_BUFFER_POLLING_WAITTIME), 20);
+        ;
+        if (pipeline.getPipelineRunConfiguration().getEngineRunConfiguration()
+            instanceof LocalPipelineRunConfiguration) {
+          LocalPipelineRunConfiguration runconfig =
+              (LocalPipelineRunConfiguration)
+                  pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
+          waitTime = Const.toInt(runconfig.getWaitTime(), waitTime);
+        }
+        waitingTime = DynamicWaitTimes.build(inputRowSets, this::getCurrentInputRowSetNr, waitTime);
       }
       while (row == null && !isStopped()) {
         // Get a row from the input in row set ...
@@ -1891,8 +1907,19 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       //
       rowData = rowSet.getRow();
       if (rowData == null) {
+        Integer waitTime = 20;
+        if (pipeline.getPipelineRunConfiguration().getEngineRunConfiguration()
+            instanceof LocalPipelineRunConfiguration) {
+          LocalPipelineRunConfiguration runconfig =
+              (LocalPipelineRunConfiguration)
+                  pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
+          waitTime = Integer.parseInt(runconfig.getWaitTime());
+        }
+        if (waitTime == null) waitTime = 20;
+
         if (waitingTime == null) {
-          waitingTime = DynamicWaitTimes.build(inputRowSets, this::getCurrentInputRowSetNr);
+          waitingTime =
+              DynamicWaitTimes.build(inputRowSets, this::getCurrentInputRowSetNr, waitTime);
         }
         // Must release the read lock before acquisition of the write lock to prevent deadlocks.
         //
@@ -2882,7 +2909,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return null;
   }
 
-  /** @return Returns the inputRowSets. */
+  /**
+   * @return Returns the inputRowSets.
+   */
   @Override
   public List<IRowSet> getInputRowSets() {
     inputRowSetsLock.readLock().lock();
@@ -2947,7 +2976,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
   }
 
-  /** @param inputRowSets The inputRowSets to set. */
+  /**
+   * @param inputRowSets The inputRowSets to set.
+   */
   public void setInputRowSets(List<IRowSet> inputRowSets) {
     inputRowSetsLock.writeLock().lock();
     try {
@@ -2957,7 +2988,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
   }
 
-  /** @return Returns the outputRowSets. */
+  /**
+   * @return Returns the outputRowSets.
+   */
   @Override
   public List<IRowSet> getOutputRowSets() {
     outputRowSetsLock.readLock().lock();
@@ -2987,7 +3020,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
   }
 
-  /** @param outputRowSets The outputRowSets to set. */
+  /**
+   * @param outputRowSets The outputRowSets to set.
+   */
   public void setOutputRowSets(List<IRowSet> outputRowSets) {
     outputRowSetsLock.writeLock().lock();
     try {
@@ -2997,12 +3032,16 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
   }
 
-  /** @return Returns the distributed. */
+  /**
+   * @return Returns the distributed.
+   */
   public boolean isDistributed() {
     return distributed;
   }
 
-  /** @param distributed The distributed to set. */
+  /**
+   * @param distributed The distributed to set.
+   */
   public void setDistributed(boolean distributed) {
     this.distributed = distributed;
   }
@@ -3119,46 +3158,62 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
   }
 
-  /** @return the partitionId */
+  /**
+   * @return the partitionId
+   */
   @Override
   public String getPartitionId() {
     return partitionId;
   }
 
-  /** @param partitionId the partitionId to set */
+  /**
+   * @param partitionId the partitionId to set
+   */
   @Override
   public void setPartitionId(String partitionId) {
     this.partitionId = partitionId;
   }
 
-  /** @return the partitionTargets */
+  /**
+   * @return the partitionTargets
+   */
   public Map<String, BlockingRowSet> getPartitionTargets() {
     return partitionTargets;
   }
 
-  /** @param partitionTargets the partitionTargets to set */
+  /**
+   * @param partitionTargets the partitionTargets to set
+   */
   public void setPartitionTargets(Map<String, BlockingRowSet> partitionTargets) {
     this.partitionTargets = partitionTargets;
   }
 
-  /** @return the repartitioning type */
+  /**
+   * @return the repartitioning type
+   */
   public int getRepartitioning() {
     return repartitioning;
   }
 
-  /** @param repartitioning the repartitioning type to set */
+  /**
+   * @param repartitioning the repartitioning type to set
+   */
   @Override
   public void setRepartitioning(int repartitioning) {
     this.repartitioning = repartitioning;
   }
 
-  /** @return the partitioned */
+  /**
+   * @return the partitioned
+   */
   @Override
   public boolean isPartitioned() {
     return partitioned;
   }
 
-  /** @param partitioned the partitioned to set */
+  /**
+   * @param partitioned the partitioned to set
+   */
   @Override
   public void setPartitioned(boolean partitioned) {
     this.partitioned = partitioned;
@@ -3177,32 +3232,44 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         && (lines % getPipeline().getFeedbackSize()) == 0;
   }
 
-  /** @return the rowMeta */
+  /**
+   * @return the rowMeta
+   */
   public IRowMeta getInputRowMeta() {
     return inputRowMeta;
   }
 
-  /** @param rowMeta the rowMeta to set */
+  /**
+   * @param rowMeta the rowMeta to set
+   */
   public void setInputRowMeta(IRowMeta rowMeta) {
     this.inputRowMeta = rowMeta;
   }
 
-  /** @return the errorRowMeta */
+  /**
+   * @return the errorRowMeta
+   */
   public IRowMeta getErrorRowMeta() {
     return errorRowMeta;
   }
 
-  /** @param errorRowMeta the errorRowMeta to set */
+  /**
+   * @param errorRowMeta the errorRowMeta to set
+   */
   public void setErrorRowMeta(IRowMeta errorRowMeta) {
     this.errorRowMeta = errorRowMeta;
   }
 
-  /** @return the previewRowMeta */
+  /**
+   * @return the previewRowMeta
+   */
   public IRowMeta getPreviewRowMeta() {
     return previewRowMeta;
   }
 
-  /** @param previewRowMeta the previewRowMeta to set */
+  /**
+   * @param previewRowMeta the previewRowMeta to set
+   */
   public void setPreviewRowMeta(IRowMeta previewRowMeta) {
     this.previewRowMeta = previewRowMeta;
   }
@@ -3424,7 +3491,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return transformFinishedListeners;
   }
 
-  /** @param transformFinishedListeners The transformFinishedListeners to set */
+  /**
+   * @param transformFinishedListeners The transformFinishedListeners to set
+   */
   public void setTransformFinishedListeners(
       List<ITransformFinishedListener> transformFinishedListeners) {
     this.transformFinishedListeners = transformFinishedListeners;
@@ -3439,7 +3508,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return transformStartedListeners;
   }
 
-  /** @param transformStartedListeners The transformStartedListeners to set */
+  /**
+   * @param transformStartedListeners The transformStartedListeners to set
+   */
   public void setTransformStartedListeners(
       List<ITransformStartedListener> transformStartedListeners) {
     this.transformStartedListeners = transformStartedListeners;
@@ -3485,7 +3556,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return copyNr;
   }
 
-  /** @param copyNr The copyNr to set */
+  /**
+   * @param copyNr The copyNr to set
+   */
   public void setCopyNr(int copyNr) {
     this.copyNr = copyNr;
   }
@@ -3725,7 +3798,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return initStartDate;
   }
 
-  /** @param initStartDate The initStartDate to set */
+  /**
+   * @param initStartDate The initStartDate to set
+   */
   @Override
   public void setInitStartDate(Date initStartDate) {
     this.initStartDate = initStartDate;
@@ -3741,7 +3816,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return executionStartDate;
   }
 
-  /** @param executionStartDate The executionStartDate to set */
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
   @Override
   public void setExecutionStartDate(Date executionStartDate) {
     this.executionStartDate = executionStartDate;
@@ -3757,7 +3834,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return firstRowReadDate;
   }
 
-  /** @param firstRowReadDate The firstRowReadDate to set */
+  /**
+   * @param firstRowReadDate The firstRowReadDate to set
+   */
   @Override
   public void setFirstRowReadDate(Date firstRowReadDate) {
     this.firstRowReadDate = firstRowReadDate;
@@ -3773,7 +3852,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return lastRowWrittenDate;
   }
 
-  /** @param lastRowWrittenDate The lastRowWrittenDate to set */
+  /**
+   * @param lastRowWrittenDate The lastRowWrittenDate to set
+   */
   @Override
   public void setLastRowWrittenDate(Date lastRowWrittenDate) {
     this.lastRowWrittenDate = lastRowWrittenDate;
@@ -3789,7 +3870,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     return executionEndDate;
   }
 
-  /** @param executionEndDate The executionEndDate to set */
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
   @Override
   public void setExecutionEndDate(Date executionEndDate) {
     this.executionEndDate = executionEndDate;

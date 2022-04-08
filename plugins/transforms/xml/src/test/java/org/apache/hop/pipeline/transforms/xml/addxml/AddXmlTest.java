@@ -16,6 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -38,6 +39,7 @@ public class AddXmlTest {
 
   @Before
   public void setup() throws Exception {
+    HopEnvironment.init();
     XmlField field = mock(XmlField.class);
     when(field.getElementName()).thenReturn("ADDXML_TEST");
     when(field.isAttribute()).thenReturn(true);
