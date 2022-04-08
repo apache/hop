@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.hop.pipeline.transforms.formula;
 
 import org.apache.hop.core.Const;
@@ -93,25 +110,6 @@ public class FormulaMetaFunction {
         valuePrecision = Const.toInt( XmlHandler.getTagValue( calcnode, "value_precision" ), -1 );
         replaceField = XmlHandler.getTagValue( calcnode, "replace_field" );
     }
-
-//    public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step, int nr ) throws KettleException {
-//        rep.saveStepAttribute( id_transformation, id_step, nr, "field_name", fieldName );
-//        rep.saveStepAttribute( id_transformation, id_step, nr, "formula_string", formula );
-//        rep.saveStepAttribute( id_transformation, id_step, nr, "value_type",
-//                ValueMetaFactory.getValueMetaName( valueType ) );
-//        rep.saveStepAttribute( id_transformation, id_step, nr, "value_length", valueLength );
-//        rep.saveStepAttribute( id_transformation, id_step, nr, "value_precision", valuePrecision );
-//        rep.saveStepAttribute( id_transformation, id_step, nr, "replace_field", replaceField );
-//    }
-//
-//    public FormulaMetaFunction( Repository rep, ObjectId id_step, int nr ) throws KettleException {
-//        fieldName = rep.getStepAttributeString( id_step, nr, "field_name" );
-//        formula = rep.getStepAttributeString( id_step, nr, "formula_string" );
-//        valueType = ValueMetaFactory.getIdForValueMeta( rep.getStepAttributeString( id_step, nr, "value_type" ) );
-//        valueLength = (int) rep.getStepAttributeInteger( id_step, nr, "value_length" );
-//        valuePrecision = (int) rep.getStepAttributeInteger( id_step, nr, "value_precision" );
-//        replaceField = rep.getStepAttributeString( id_step, nr, "replace_field" );
-//    }
 
     /**
      * @return Returns the fieldName.

@@ -1,20 +1,44 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.hop.pipeline.transforms.formula.editor;
 
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.transforms.formula.editor.util.CompletionProposal;
 import org.apache.hop.pipeline.transforms.formula.function.FunctionDescription;
 import org.apache.hop.pipeline.transforms.formula.function.FunctionLib;
 import org.apache.hop.pipeline.transforms.formula.util.FormulaValidator;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FormulaEditor extends Dialog implements KeyListener {
     public static final String FUNCTIONS_FILE = "functions.xml";
@@ -42,6 +66,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
     private FunctionLib functionLib;
     private String[] functions;
     private String[] categories;
+    private org.eclipse.swt.widgets.List functionList;
 
     private SashForm rightSash;
 
@@ -227,6 +252,8 @@ public class FormulaEditor extends Dialog implements KeyListener {
     }
 
     public void readFunctions() throws Exception {
+//        functions = WorkbookEvaluator.getSupportedFunctionNames();
+
         // URL url =
         // this.getClass().getResource("/"+FunctionLib.class.getPackage().getName().replace(".","/")+"/"+FUNCTIONS_FILE);
         functionLib = new FunctionLib( FUNCTIONS_FILE );
@@ -236,72 +263,6 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
     //TODO
     public void setStyles() {
-
-//        String expression = expressionEditor.getText();
-//        int expressionLength = expression.length();
-//        Map<String, FormulaMessage> messages = evaluator.evaluateFormula( expression );
-//
-//        // We need to provide an array of styles for this event.
-//        //
-//        Vector<StyleRange> styles = new Vector<StyleRange>();
-//        StringBuilder report = new StringBuilder();
-//
-//        for ( FormulaMessage message : messages.values() ) {
-//            ParsePosition position = message.getPosition();
-//
-//            PositionAndLength positionAndLength = PositionAndLength.calculatePositionAndLength( expression, position );
-//
-//            int pos = positionAndLength.getPosition();
-//            int length = positionAndLength.getLength();
-//
-//            if ( pos < expressionLength ) {
-//                switch ( message.getType() ) {
-//                    case FormulaMessage.TYPE_ERROR:
-//                        report.append( message.toString() ).append( Const.CR );
-//
-//                        StyleRange styleRangeRed = new StyleRange( pos, length, red, null, SWT.BOLD );
-//                        styleRangeRed.underline = true;
-//                        styles.add( styleRangeRed );
-//
-//                        break;
-//
-//                    case FormulaMessage.TYPE_FUNCTION:
-//                        styles.add( new StyleRange( pos, length, black, null, SWT.BOLD ) );
-//                        break;
-//
-//                    case FormulaMessage.TYPE_FIELD:
-//                        // styles.add(new StyleRange(pos, length, green, null, SWT.BOLD )); // TODO : Not working for some reason.
-//                        break;
-//
-//                    case FormulaMessage.TYPE_STATIC_NUMBER:
-//                    case FormulaMessage.TYPE_STATIC_STRING:
-//                    case FormulaMessage.TYPE_STATIC_DATE:
-//                    case FormulaMessage.TYPE_STATIC_LOGICAL:
-//                        styles.add( new StyleRange( pos, length, blue, gray, SWT.BOLD | SWT.ITALIC ) );
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-//        }
-//
-//        message.setText( report.toString() );
-//
-//        // Now set the styled ranges...
-//        //
-//        // Sort the styles first...
-//        //
-//        Collections.sort( styles, new Comparator<StyleRange>() {
-//            public int compare( StyleRange o1, StyleRange o2 ) {
-//                return o1.start - o2.start;
-//            }
-//        } );
-//
-//        StyleRange[] styleRanges = new StyleRange[styles.size()];
-//        styles.copyInto( styleRanges );
-//
-//        // expressionEditor.getStyledText().replaceStyleRanges(0, expression.length(), new StyleRange[] { styles.get(0), });
-//        expressionEditor.setStyleRanges( styleRanges );
     }
 
     public static void main( String[] args ) throws Exception {
@@ -315,120 +276,120 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
     public void keyPressed( KeyEvent e ) {
         //TODO
-//        boolean ctrl = ( ( e.stateMask & SWT.CONTROL ) != 0 );
-//        // boolean alt = ((e.stateMask & SWT.ALT) != 0);
-//
-//        List<CompletionProposal> proposals = new ArrayList<CompletionProposal>();
-//
-//        // CTRL-SPACE?
-//        //
-//        if ( ctrl && e.character == ' ' ) {
-//            // Gab the content before the cursor position...
-//            //
-//            StringBuilder beforeBuffer = new StringBuilder();
-//            String editor = expressionEditor.getText();
-//            int pos = expressionEditor.getCaretOffset() - 1;
-//            while ( pos >= 0 && pos < editor.length() ) {
-//                char c = editor.charAt( pos );
-//                if ( Character.isWhitespace( c ) ) {
-//                    break;
-//                }
-//                if ( Character.isLetterOrDigit( c ) || c == '[' ) {
-//                    beforeBuffer.insert( 0, c );
-//                    pos--;
-//                } else {
-//                    break;
-//                }
-//            }
-//
-//            String before = beforeBuffer.toString();
-//            System.out.println( "BEFORE = " + before );
-//
-//            // if we just have [ we display only the field names...
-//            //
-//            if ( before.equals( "[" ) ) {
-//                for ( String fieldName : inputFields ) {
-//                    proposals.add( new CompletionProposal( "[" + fieldName + "] (input field)", fieldName + "]", fieldName
-//                            .length() + 1 ) );
-//                }
-//            } else if ( Utils.isEmpty( before ) ) {
-//                for ( String fieldName : inputFields ) {
-//                    proposals.add( new CompletionProposal(
-//                            "[" + fieldName + "] (input field)", "[" + fieldName + "]", fieldName.length() + 2 ) );
-//                }
-//            } else {
-//                // Only add those where "before" matches the start of the keyword or function
-//                //
-//                for ( String fieldName : inputFields ) {
-//                    String key = "[" + fieldName;
-//                    if ( key.startsWith( before ) && !key.equalsIgnoreCase( before ) ) {
-//                        proposals.add( new CompletionProposal( "[" + fieldName + "] (keyword)", fieldName.substring( before
-//                                .length() )
-//                                + "]", fieldName.length() - before.length() + 1 ) );
-//                    }
-//                }
-//                for ( String function : functions ) {
-//                    if ( function.startsWith( before ) && !function.equalsIgnoreCase( before ) ) {
-//                        proposals.add( new CompletionProposal( function + "() (Function)", function
-//                                .substring( before.length() )
-//                                + "()", function.length() - before.length() + 1 ) );
-//                    }
-//                }
-//            }
-//
-//            if ( helperMenu == null ) {
-//                helperMenu = new Menu( shell, SWT.POP_UP );
-//            } else {
-//                for ( MenuItem item : helperMenu.getItems() ) {
-//                    item.dispose();
-//                }
-//            }
-//            // final int offset = expressionEditor.getCaretOffset();
-//            final int offset = expressionEditor.getCaretOffset();
-//            Point p = expressionEditor.getLocationAtOffset( offset );
-//            int h = expressionEditor.getLineHeight( offset );
-//            Point l = GuiResource.calculateControlPosition( expressionEditor );
-//
-//            MenuItem first = null;
-//            if ( proposals.size() == 1 ) {
-//                MenuItem item = new MenuItem( helperMenu, SWT.NONE );
-//                if ( first == null ) {
-//                    first = item;
-//                }
-//                final CompletionProposal proposal = proposals.get( 0 );
-//                item.setText( proposal.getMenuText() );
-//                item.addSelectionListener( new SelectionAdapter() {
-//                    public void widgetSelected( SelectionEvent se ) {
-//                        expressionEditor.insert( proposal.getCompletionString() );
-//                        expressionEditor.setSelection( offset + proposal.getOffset() );
-//                    }
-//                } );
-//                helperMenu.setLocation( l.x + p.x, l.y + p.y + h );
-//                helperMenu.setDefaultItem( first );
-//                helperMenu.setVisible( true );
-//            } else if ( proposals.size() > 0 ) {
-//                int nr = 0;
-//                for ( final CompletionProposal proposal : proposals ) {
-//                    MenuItem item = new MenuItem( helperMenu, SWT.NONE );
-//                    if ( first == null ) {
-//                        first = item;
-//                    }
-//                    item.setText( proposal.getMenuText() );
-//                    item.addSelectionListener( new SelectionAdapter() {
-//                        public void widgetSelected( SelectionEvent se ) {
-//                            expressionEditor.insert( proposal.getCompletionString() );
-//                            expressionEditor.setSelection( offset + proposal.getOffset() );
-//                        }
-//                    } );
-//                    if ( nr++ > 5 ) {
-//                        break;
-//                    }
-//                }
-//                helperMenu.setLocation( l.x + p.x, l.y + p.y + h );
-//                helperMenu.setDefaultItem( first );
-//                helperMenu.setVisible( true );
-//            }
-//        }
+        boolean ctrl = ( ( e.stateMask & SWT.CONTROL ) != 0 );
+        // boolean alt = ((e.stateMask & SWT.ALT) != 0);
+
+        List<CompletionProposal> proposals = new ArrayList<CompletionProposal>();
+
+        // CTRL-SPACE?
+        //
+        if ( ctrl && e.character == ' ' ) {
+            // Gab the content before the cursor position...
+            //
+            StringBuilder beforeBuffer = new StringBuilder();
+            String editor = expressionEditor.getText();
+            int pos = expressionEditor.getCaretOffset() - 1;
+            while ( pos >= 0 && pos < editor.length() ) {
+                char c = editor.charAt( pos );
+                if ( Character.isWhitespace( c ) ) {
+                    break;
+                }
+                if ( Character.isLetterOrDigit( c ) || c == '[' ) {
+                    beforeBuffer.insert( 0, c );
+                    pos--;
+                } else {
+                    break;
+                }
+            }
+
+            String before = beforeBuffer.toString();
+            System.out.println( "BEFORE = " + before );
+
+            // if we just have [ we display only the field names...
+            //
+            if ( before.equals( "[" ) ) {
+                for ( String fieldName : inputFields ) {
+                    proposals.add( new CompletionProposal( "[" + fieldName + "] (input field)", fieldName + "]", fieldName
+                            .length() + 1 ) );
+                }
+            } else if ( Utils.isEmpty( before ) ) {
+                for ( String fieldName : inputFields ) {
+                    proposals.add( new CompletionProposal(
+                            "[" + fieldName + "] (input field)", "[" + fieldName + "]", fieldName.length() + 2 ) );
+                }
+            } else {
+                // Only add those where "before" matches the start of the keyword or function
+                //
+                for ( String fieldName : inputFields ) {
+                    String key = "[" + fieldName;
+                    if ( key.startsWith( before ) && !key.equalsIgnoreCase( before ) ) {
+                        proposals.add( new CompletionProposal( "[" + fieldName + "] (keyword)", fieldName.substring( before
+                                .length() )
+                                + "]", fieldName.length() - before.length() + 1 ) );
+                    }
+                }
+                for ( String function : functions ) {
+                    if ( function.startsWith( before ) && !function.equalsIgnoreCase( before ) ) {
+                        proposals.add( new CompletionProposal( function + "() (Function)", function
+                                .substring( before.length() )
+                                + "()", function.length() - before.length() + 1 ) );
+                    }
+                }
+            }
+
+            if ( helperMenu == null ) {
+                helperMenu = new Menu( shell, SWT.POP_UP );
+            } else {
+                for ( MenuItem item : helperMenu.getItems() ) {
+                    item.dispose();
+                }
+            }
+            // final int offset = expressionEditor.getCaretOffset();
+            final int offset = expressionEditor.getCaretOffset();
+            Point p = expressionEditor.getLocationAtOffset( offset );
+            int h = expressionEditor.getLineHeight( offset );
+            Point l = GuiResource.calculateControlPosition( expressionEditor );
+
+            MenuItem first = null;
+            if ( proposals.size() == 1 ) {
+                MenuItem item = new MenuItem( helperMenu, SWT.NONE );
+                if ( first == null ) {
+                    first = item;
+                }
+                final CompletionProposal proposal = proposals.get( 0 );
+                item.setText( proposal.getMenuText() );
+                item.addSelectionListener( new SelectionAdapter() {
+                    public void widgetSelected( SelectionEvent se ) {
+                        expressionEditor.insert( proposal.getCompletionString() );
+                        expressionEditor.setSelection( offset + proposal.getOffset() );
+                    }
+                } );
+                helperMenu.setLocation( l.x + p.x, l.y + p.y + h );
+                helperMenu.setDefaultItem( first );
+                helperMenu.setVisible( true );
+            } else if ( proposals.size() > 0 ) {
+                int nr = 0;
+                for ( final CompletionProposal proposal : proposals ) {
+                    MenuItem item = new MenuItem( helperMenu, SWT.NONE );
+                    if ( first == null ) {
+                        first = item;
+                    }
+                    item.setText( proposal.getMenuText() );
+                    item.addSelectionListener( new SelectionAdapter() {
+                        public void widgetSelected( SelectionEvent se ) {
+                            expressionEditor.insert( proposal.getCompletionString() );
+                            expressionEditor.setSelection( offset + proposal.getOffset() );
+                        }
+                    } );
+                    if ( nr++ > 5 ) {
+                        break;
+                    }
+                }
+                helperMenu.setLocation( l.x + p.x, l.y + p.y + h );
+                helperMenu.setDefaultItem( first );
+                helperMenu.setVisible( true );
+            }
+        }
     }
 
     @Override

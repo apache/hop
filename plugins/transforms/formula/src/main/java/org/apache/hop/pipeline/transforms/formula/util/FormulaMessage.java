@@ -1,4 +1,23 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.hop.pipeline.transforms.formula.util;
+
+import java.text.ParsePosition;
 
 public class FormulaMessage {
     public static final int TYPE_ERROR = 1;
@@ -21,68 +40,74 @@ public class FormulaMessage {
         this.message = message;
     }
 
-//
-//    @Override
-//    public String toString() {
-//        String m = "";
-//
-//        switch ( type ) {
-//            case TYPE_ERROR:
-//                m += "ERROR";
-//                break;
-//            case TYPE_WARNING:
-//                m += "WARNING";
-//                break;
-//            case TYPE_MESSAGE:
-//                m += "MESSAGE";
-//                break;
-//            case TYPE_FUNCTION:
-//                m += "FUNCTION";
-//                break;
-//            case TYPE_FIELD:
-//                m += "FIELD";
-//                break;
-//            case TYPE_STATIC_STRING:
-//                m += "STATIC STRING";
-//                break;
-//            case TYPE_STATIC_NUMBER:
-//                m += "STATIC NUMBER";
-//                break;
-//            case TYPE_STATIC_DATE:
-//                m += "STATIC DATE/TIME";
-//                break;
-//            case TYPE_STATIC_LOGICAL:
-//                m += "STATIC LOGICAL";
-//                break;
-//            default:
-//                break;
-//        }
-//
-//        if ( position != null ) {
-//            m += "@" + position.getStartLine() + "/" + position.getStartColumn() + " : ";
-//        } else {
-//            m += " : ";
-//        }
-//
-//        m += subject + " : " + message;
-//
-//        return m;
-//    }
-//
-//    /**
-//     * @return the position
-//     */
-//    public ParsePosition getPosition() {
-//        return position;
-//    }
-//
-//    /**
-//     * @param position
-//     *          the position to set
-//     */
-//    public void setPosition( ParsePosition position ) {
-//        this.position = position;
-//    }
+
+/*
+    @Override
+    public String toString() {
+        String m = "";
+
+        switch ( type ) {
+            case TYPE_ERROR:
+                m += "ERROR";
+                break;
+            case TYPE_WARNING:
+                m += "WARNING";
+                break;
+            case TYPE_MESSAGE:
+                m += "MESSAGE";
+                break;
+            case TYPE_FUNCTION:
+                m += "FUNCTION";
+                break;
+            case TYPE_FIELD:
+                m += "FIELD";
+                break;
+            case TYPE_STATIC_STRING:
+                m += "STATIC STRING";
+                break;
+            case TYPE_STATIC_NUMBER:
+                m += "STATIC NUMBER";
+                break;
+            case TYPE_STATIC_DATE:
+                m += "STATIC DATE/TIME";
+                break;
+            case TYPE_STATIC_LOGICAL:
+                m += "STATIC LOGICAL";
+                break;
+            default:
+                break;
+        }
+
+        if ( position != null ) {
+            m += "@" + position.getStartLine() + "/" + position.getStartColumn() + " : ";
+        } else {
+            m += " : ";
+        }
+
+        m += subject + " : " + message;
+
+        return m;
+    }
+
+    */
+/**
+     * @return the position
+     *//*
+
+    public ParsePosition getPosition() {
+        return position;
+    }
+
+    */
+/**
+     * @param position
+     *          the position to set
+     *//*
+
+    public void setPosition( ParsePosition position ) {
+        this.position = position;
+    }
+*/
 
     /**
      * @return the subject
