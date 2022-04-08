@@ -214,7 +214,7 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
       throw new HopXmlException(
           BaseMessages.getString(
               PKG,
-              "ActionCheckDbConnections.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node",
+              "ActionCheckDbConnections.ERROR_0001_Cannot_Load_Workflow_Action_From_Xml_Node",
               xe.getMessage()));
     }
   }

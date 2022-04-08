@@ -101,7 +101,7 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "WriteToLog.Jobname.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "WriteToLog.ActionName.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
