@@ -38,8 +38,8 @@ import java.util.Objects;
 @Transform(
     id = "ReservoirSampling",
     image = "reservoirsampling.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.ReservoirSampling",
-    description = "i18n::BaseTransform.TypeTooltipDesc.ReservoirSampling",
+    name = "i18n::ReservoirSampling.Name",
+    description = "i18n::ReservoirSampling.Description",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     keywords = "i18n::ReservoirSamplingMeta.keyword",

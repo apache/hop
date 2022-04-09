@@ -47,8 +47,8 @@ import java.util.List;
 @Transform(
     id = "GetTableNames",
     image = "gettablenames.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.GetTableNames",
-    description = "i18n::BaseTransform.TypeTooltipDesc.GetTableNames",
+    name = "i18n::GetTableNames.Name",
+    description = "i18n::GetTableNames.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::GetTableNamesMeta.keyword",
     documentationUrl = "/pipeline/transforms/gettablenames.html")

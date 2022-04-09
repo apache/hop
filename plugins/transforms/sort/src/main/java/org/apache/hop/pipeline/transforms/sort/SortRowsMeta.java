@@ -51,8 +51,8 @@ import java.util.Locale;
 @Transform(
     id = "SortRows",
     image = "sortrows.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.SortRows",
-    description = "i18n::BaseTransform.TypeTooltipDesc.SortRows",
+    name = "i18n::SortRows.Name",
+    description = "i18n::SortRows.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SortRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/sort.html")

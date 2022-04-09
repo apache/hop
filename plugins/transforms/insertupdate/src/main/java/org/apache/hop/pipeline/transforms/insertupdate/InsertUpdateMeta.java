@@ -47,8 +47,8 @@ import java.util.List;
 @Transform(
     id = "InsertUpdate",
     image = "insertupdate.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.InsertUpdate",
-    description = "i18n::BaseTransform.TypeTooltipDesc.InsertUpdate",
+    name = "i18n::InsertUpdate.Name",
+    description = "i18n::InsertUpdate.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::InsertUpdateMeta.keyword",
     documentationUrl = "/pipeline/transforms/insertupdate.html")

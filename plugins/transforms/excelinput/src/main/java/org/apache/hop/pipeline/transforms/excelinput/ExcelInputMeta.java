@@ -59,8 +59,8 @@ import java.util.Map;
 @Transform(
     id = "ExcelInput",
     image = "excelinput.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.ExcelInput",
-    description = "i18n::BaseTransform.TypeTooltipDesc.ExcelInput",
+    name = "i18n::ExcelInput.Name",
+    description = "i18n::ExcelInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::ExcelInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/excelinput.html")

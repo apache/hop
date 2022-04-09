@@ -34,8 +34,8 @@ import java.util.List;
 @Transform(
     id = "DataGrid",
     image = "datagrid.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.DataGrid",
-    description = "i18n::BaseTransform.TypeTooltipDesc.DataGrid",
+    name = "i18n::DataGrid.Name",
+    description = "i18n::DataGrid.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::DataGridMeta.keyword",
     documentationUrl = "/pipeline/transforms/datagrid.html")

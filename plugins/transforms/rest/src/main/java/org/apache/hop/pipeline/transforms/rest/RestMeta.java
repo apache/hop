@@ -43,8 +43,8 @@ import java.util.List;
 @Transform(
     id = "Rest",
     image = "rest.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.Rest",
-    description = "i18n::BaseTransform.TypeTooltipDesc.Rest",
+    name = "i18n::Rest.Name",
+    description = "i18n::Rest.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::RestMeta.keyword",
     documentationUrl = "/pipeline/transforms/rest.html")

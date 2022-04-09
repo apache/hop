@@ -55,8 +55,8 @@ import java.util.Map.Entry;
 @Transform(
     id = "MetaInject",
     image = "GenericTransform.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.MetaInject",
-    description = "i18n::BaseTransform.TypeTooltipDesc.MetaInject",
+    name = "i18n::MetaInject.Name",
+    description = "i18n::MetaInject.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::MetaInjectMeta.keyword",
     documentationUrl = "/pipeline/transforms/metainject.html")

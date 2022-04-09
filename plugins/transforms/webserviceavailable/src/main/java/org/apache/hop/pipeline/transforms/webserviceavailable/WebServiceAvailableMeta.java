@@ -38,8 +38,8 @@ import java.util.List;
 @Transform(
     id = "WebServiceAvailable",
     image = "webserviceavailable.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.WebServiceAvailable",
-    description = "i18n::BaseTransform.TypeTooltipDesc.WebServiceAvailable",
+    name = "i18n::WebServiceAvailable.Name",
+    description = "i18n::WebServiceAvailable.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::WebServiceAvailableMeta.keyword",
     documentationUrl = "/pipeline/transforms/checkwebserviceavailable.html")

@@ -40,8 +40,8 @@ import java.util.List;
 @Transform(
     id = "SampleRows",
     image = "samplerows.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.SampleRows",
-    description = "i18n::BaseTransform.TypeTooltipDesc.SampleRows",
+    name = "i18n::SampleRows.Name",
+    description = "i18n::SampleRows.Description",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     keywords = "i18n::SampleRowsMeta.keyword",

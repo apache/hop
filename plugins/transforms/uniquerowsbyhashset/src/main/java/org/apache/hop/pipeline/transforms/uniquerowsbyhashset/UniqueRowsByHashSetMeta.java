@@ -37,8 +37,8 @@ import java.util.List;
 @Transform(
     id = "UniqueRowsByHashSet",
     image = "uniquerowsbyhashset.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.UniqueRowsByHashSet",
-    description = "i18n::BaseTransform.TypeTooltipDesc.UniqueRowsByHashSet",
+    name = "i18n::UniqueRowsByHashSet.Name",
+    description = "i18n::UniqueRowsByHashSet.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::UniqueRowsByHashSetMeta.keyword",
     documentationUrl = "/pipeline/transforms/uniquerowsbyhashset.html")

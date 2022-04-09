@@ -38,8 +38,8 @@ import java.util.List;
 @Transform(
     id = "FilesToResult",
     image = "filestoresult.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.FilesToResult",
-    description = "i18n::BaseTransform.TypeTooltipDesc.FilesToResult",
+    name = "i18n::FilesToResult.Name",
+    description = "i18n::FilesToResult.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     keywords = "i18n::FilesToResultMeta.keyword",
     documentationUrl = "/pipeline/transforms/filestoresult.html")

@@ -43,8 +43,8 @@ import java.util.List;
 @Transform(
     id = "Http",
     image = "http.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.HTTP",
-    description = "i18n::BaseTransform.TypeTooltipDesc.HTTP",
+    name = "i18n::HTTP.Name",
+    description = "i18n::HTTP.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::HttpMeta.keyword",
     documentationUrl = "/pipeline/transforms/http.html")

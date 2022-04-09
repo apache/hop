@@ -45,8 +45,8 @@ import java.util.Map;
 @Transform(
     id = "TypeExitExcelWriterTransform",
     image = "excelwriter.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.TypeExitExcelWriterTransform",
-    description = "i18n::BaseTransform.TypeTooltipDesc.TypeExitExcelWriterTransform",
+    name = "i18n::TypeExitExcelWriterTransform.Name",
+    description = "i18n::TypeExitExcelWriterTransform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::ExcelWriterTransformMeta.keyword",
     documentationUrl = "/pipeline/transforms/excelwriter.html")

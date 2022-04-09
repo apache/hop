@@ -46,8 +46,8 @@ import java.util.List;
 @Transform(
     id = "TokenReplacementPlugin",
     image = "token.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.TokenReplacement",
-    description = "i18n::BaseTransform.TypeTooltipDesc.TokenReplacement",
+    name = "i18n::TokenReplacement.Name",
+    description = "i18n::TokenReplacement.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::TokenReplacementMeta.keyword",
     documentationUrl = "/pipeline/transforms/tokenreplacement.html")

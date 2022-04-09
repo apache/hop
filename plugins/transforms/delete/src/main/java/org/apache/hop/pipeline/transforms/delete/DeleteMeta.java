@@ -48,8 +48,8 @@ import java.util.List;
 @Transform(
     id = "Delete",
     image = "delete.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.Delete",
-    description = "i18n::BaseTransform.TypeTooltipDesc.Delete",
+    name = "i18n::Delete.Name",
+    description = "i18n::Delete.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::DeleteMeta.keyword",
     documentationUrl = "/pipeline/transforms/delete.html")

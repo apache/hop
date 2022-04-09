@@ -52,8 +52,8 @@ import java.util.Map;
 @Transform(
     id = "GetFileNames",
     image = "getfilenames.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.GetFileNames",
-    description = "i18n::BaseTransform.TypeTooltipDesc.GetFileNames",
+    name = "i18n::GetFileNames.Name",
+    description = "i18n::GetFileNames.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::GetFileNamesMeta.keyword",
     documentationUrl = "/pipeline/transforms/getfilenames.html")

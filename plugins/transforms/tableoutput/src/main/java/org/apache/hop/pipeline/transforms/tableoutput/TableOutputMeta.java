@@ -45,8 +45,8 @@ import java.util.List;
 @Transform(
     id = "TableOutput",
     image = "tableoutput.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.TableOutput",
-    description = "i18n::BaseTransform.TypeTooltipDesc.TableOutput",
+    name = "i18n::TableOutput.Name",
+    description = "i18n::TableOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::TableOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/tableoutput.html")

@@ -48,8 +48,8 @@ import java.util.List;
 @Transform(
     id = "StreamLookup",
     image = "streamlookup.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.StreamLookup",
-    description = "i18n::BaseTransform.TypeTooltipDesc.StreamLookup",
+    name = "i18n::StreamLookup.Name",
+    description = "i18n::StreamLookup.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::StreamLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/streamlookup.html")

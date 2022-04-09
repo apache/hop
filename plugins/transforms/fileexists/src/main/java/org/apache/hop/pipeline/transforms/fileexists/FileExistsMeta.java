@@ -39,8 +39,8 @@ import java.util.List;
 @Transform(
     id = "FileExists",
     image = "fileexists.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.FileExists",
-    description = "i18n::BaseTransform.TypeTooltipDesc.FileExists",
+    name = "i18n::FileExists.Name",
+    description = "i18n::FileExists.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::FileExistsMeta.keyword",
     documentationUrl = "/pipeline/transforms/fileexists.html")

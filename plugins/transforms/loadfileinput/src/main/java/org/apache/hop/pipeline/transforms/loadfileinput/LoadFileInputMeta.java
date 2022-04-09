@@ -49,8 +49,8 @@ import java.util.Map;
 @Transform(
     id = "LoadFileInput",
     image = "loadfileinput.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.LoadFileInput",
-    description = "i18n::BaseTransform.TypeTooltipDesc.LoadFileInput",
+    name = "i18n::LoadFileInput.Name",
+    description = "i18n::LoadFileInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::LoadFileInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/loadfileinput.html")

@@ -42,8 +42,8 @@ import java.util.Objects;
 @Transform(
     id = "JavaFilter",
     image = "javafilter.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.JavaFilter",
-    description = "i18n::BaseTransform.TypeTooltipDesc.JavaFilter",
+    name = "i18n::JavaFilter.Name",
+    description = "i18n::JavaFilter.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::JavaFilterMeta.keyword",
     documentationUrl = "/pipeline/transforms/javafilter.html")
