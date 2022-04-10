@@ -92,7 +92,7 @@ public class ActionFileExists extends ActionBase implements Cloneable, IAction {
     } catch (HopXmlException xe) {
       throw new HopXmlException(
           BaseMessages.getString(
-              PKG, "ActionFileExists.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node"),
+              PKG, "ActionFileExists.ERROR_0001_Cannot_Load_Workflow_Action_From_Xml_Node"),
           xe);
     }
   }

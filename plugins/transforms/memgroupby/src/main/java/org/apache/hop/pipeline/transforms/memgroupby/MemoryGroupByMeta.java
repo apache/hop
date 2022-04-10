@@ -50,8 +50,8 @@ import java.util.List;
 @Transform(
     id = "MemoryGroupBy",
     image = "memorygroupby.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.MemoryGroupBy",
-    description = "i18n::BaseTransform.TypeTooltipDesc.MemoryGroupBy",
+    name = "i18n::MemoryGroupBy.Name",
+    description = "i18n::MemoryGroupBy.Description",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     keywords = "i18n::MemoryGroupByMeta.keyword",

@@ -36,8 +36,8 @@ import java.util.List;
 @Transform(
     id = "BlockUntilTransformsFinish",
     image = "blockinguntiltransformsfinish.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",
-    description = "i18n::BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",
+    name = "i18n::BlockUntilTransformsFinish.Name",
+    description = "i18n::BlockUntilTransformsFinish.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::BlockUntilTransformsFinishMeta.keyword",
     documentationUrl = "/pipeline/transforms/blockuntiltransformsfinish.html")

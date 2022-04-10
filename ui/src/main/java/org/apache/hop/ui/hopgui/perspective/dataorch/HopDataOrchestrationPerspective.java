@@ -67,7 +67,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
     id = "100-HopDataOrchestrationPerspective",
     name = "i18n::DataOrchestrationPerspective.Name",
     image = "ui/images/data_orch.svg",
-    description = "The Hop Data Orchestration Perspective for pipelines and workflows")
+    description = "i18n::DataOrchestrationPerspective.Description")
 @GuiPlugin(description = "i18n::DataOrchestrationPerspective.GuiPlugin.Description")
 public class HopDataOrchestrationPerspective implements IHopPerspective {
 

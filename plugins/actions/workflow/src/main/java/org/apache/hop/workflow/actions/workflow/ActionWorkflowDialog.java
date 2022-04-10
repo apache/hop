@@ -186,8 +186,8 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "ActionWorkflowDialog.Exception.UnableToLoadJob.Title"),
-          BaseMessages.getString(PKG, "ActionWorkflowDialog.Exception.UnableToLoadJob.Message"),
+          BaseMessages.getString(PKG, "ActionWorkflowDialog.Exception.UnableToLoadWorkflow.Title"),
+          BaseMessages.getString(PKG, "ActionWorkflowDialog.Exception.UnableToLoadWorkflow.Message"),
           e);
     }
   }

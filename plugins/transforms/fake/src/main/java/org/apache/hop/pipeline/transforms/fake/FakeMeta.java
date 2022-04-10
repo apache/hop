@@ -34,8 +34,8 @@ import java.util.List;
 @Transform(
     id = "Fake",
     image = "fake.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.Fake",
-    description = "i18n::BaseTransform.TypeTooltipDesc.Fake",
+    name = "i18n::Fake.Name",
+    description = "i18n::Fake.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::FakeMeta.keyword",
     documentationUrl = "/pipeline/transforms/fake.html")

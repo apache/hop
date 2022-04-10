@@ -53,8 +53,8 @@ import java.util.Optional;
 @Transform(
     id = "FilterRows",
     image = "filterrows.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.FilterRows",
-    description = "i18n::BaseTransform.TypeTooltipDesc.FilterRows",
+    name = "i18n::FilterRows.Name",
+    description = "i18n::FilterRows.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::FilterRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/filterrows.html")

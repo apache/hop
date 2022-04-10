@@ -36,8 +36,8 @@ import java.util.List;
 @Transform(
     id = "DetectEmptyStream",
     image = "detectemptystream.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.DetectEmptyStream",
-    description = "i18n::BaseTransform.TypeTooltipDesc.DetectEmptyStream",
+    name = "i18n::DetectEmptyStream.Name",
+    description = "i18n::DetectEmptyStream.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::DetectEmptyStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/detectemptystream.html")

@@ -39,8 +39,8 @@ import java.util.List;
 @Transform(
     id = "FileLocked",
     image = "filelocked.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.FileLocked",
-    description = "i18n::BaseTransform.TypeTooltipDesc.FileLocked",
+    name = "i18n::FileLocked.Name",
+    description = "i18n::FileLocked.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::FileLockedMeta.keyword",
     documentationUrl = "/pipeline/transforms/checkfilelocked.html")

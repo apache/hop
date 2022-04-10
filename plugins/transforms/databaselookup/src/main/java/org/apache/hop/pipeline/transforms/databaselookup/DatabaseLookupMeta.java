@@ -53,8 +53,8 @@ import java.util.Set;
 @Transform(
     id = "DBLookup",
     image = "dblookup.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.DatabaseLookup",
-    description = "i18n::BaseTransform.TypeTooltipDesc.DatabaseLookup",
+    name = "i18n::DatabaseLookup.Name",
+    description = "i18n::DatabaseLookup.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::DatabaseLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/databaselookup.html")

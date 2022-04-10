@@ -42,8 +42,8 @@ import java.util.List;
 @Transform(
     id = "ExecProcess",
     image = "execprocess.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.ExecProcess",
-    description = "i18n::BaseTransform.TypeTooltipDesc.ExecProcess",
+    name = "i18n::ExecProcess.Name",
+    description = "i18n::ExecProcess.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::ExecProcessMeta.keyword",
     documentationUrl = "/pipeline/transforms/execprocess.html")

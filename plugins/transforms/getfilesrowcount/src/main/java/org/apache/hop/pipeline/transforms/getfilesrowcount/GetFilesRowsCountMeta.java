@@ -48,8 +48,8 @@ import java.util.Map;
 @Transform(
     id = "GetFilesRowsCount",
     image = "getfilesrowcount.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.GetFilesRowsCount",
-    description = "i18n::BaseTransform.TypeTooltipDesc.GetFilesRowsCount",
+    name = "i18n::GetFilesRowsCount.Name",
+    description = "i18n::GetFilesRowsCount.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::GetFilesRowsCountMeta.keyword",
     documentationUrl = "/pipeline/transforms/getfilesrowcount.html")

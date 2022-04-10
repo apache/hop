@@ -40,8 +40,8 @@ import java.util.List;
 @Transform(
     id = "Flattener,Flatterner",
     image = "flattener.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.RowFlattener",
-    description = "i18n::BaseTransform.TypeTooltipDesc.RowFlattener",
+    name = "i18n::RowFlattener.Name",
+    description = "i18n::RowFlattener.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::FlattenerMeta.keyword",
     documentationUrl = "/pipeline/transforms/rowflattener.html")

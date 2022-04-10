@@ -38,8 +38,8 @@ import java.util.List;
 @Transform(
     id = "Constant",
     image = "constant.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.AddConstants",
-    description = "i18n::BaseTransform.TypeTooltipDesc.AddConstants",
+    name = "i18n::AddConstants.Name",
+    description = "i18n::AddConstants.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::ConstantMeta.keyword",
     documentationUrl = "/pipeline/transforms/addconstant.html")

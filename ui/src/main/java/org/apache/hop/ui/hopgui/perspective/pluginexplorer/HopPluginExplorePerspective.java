@@ -57,7 +57,7 @@ import java.util.*;
 @HopPerspectivePlugin(
     id = "500-HopPluginExplorerPerspective",
     name = "i18n::PluginExplorerPerspective.Name",
-    description = "The Hop Plugin Explorer Perspective",
+    description = "i18n::PluginExplorerPerspective.Description",
     image = "ui/images/plugin.svg")
 @GuiPlugin(description = "i18n::PluginExplorerPerspective.GuiPlugin.Description")
 public class HopPluginExplorePerspective implements IHopPerspective {

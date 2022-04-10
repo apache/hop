@@ -40,8 +40,8 @@ import java.util.List;
 @Transform(
     id = "HttpPost",
     image = "httppost.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.HTTPPOST",
-    description = "i18n::BaseTransform.TypeTooltipDesc.HTTPPOST",
+    name = "i18n::HTTPPOST.Name",
+    description = "i18n::HTTPPOST.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::HttpPostMeta.keyword",
     documentationUrl = "/pipeline/transforms/httppost.html")

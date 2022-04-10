@@ -49,7 +49,7 @@ import java.util.*;
 @HopPerspectivePlugin(
     id = "400-HopSearchPerspective",
     name = "i18n::HopSearchPerspective.Name",
-    description = "The Hop Search Perspective",
+    description = "i18n::HopSearchPerspective.Description",
     image = "ui/images/search.svg")
 @GuiPlugin(description = "i18n::HopSearchPerspective.GuiPlugin.Description")
 public class HopSearchPerspective implements IHopPerspective {

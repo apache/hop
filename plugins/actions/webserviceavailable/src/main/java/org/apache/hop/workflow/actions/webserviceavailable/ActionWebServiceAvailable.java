@@ -89,7 +89,7 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     } catch (HopXmlException xe) {
       throw new HopXmlException(
           BaseMessages.getString(
-              PKG, "ActionWebServiceAvailable.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node"),
+              PKG, "ActionWebServiceAvailable.ERROR_0001_Cannot_Load_Workflow_Action_From_Xml_Node"),
           xe);
     }
   }

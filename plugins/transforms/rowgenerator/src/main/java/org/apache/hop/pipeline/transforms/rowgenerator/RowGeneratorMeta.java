@@ -38,8 +38,8 @@ import java.util.List;
 @Transform(
     id = "RowGenerator",
     image = "rowgenerator.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.GenerateRows",
-    description = "i18n::BaseTransform.TypeTooltipDesc.GenerateRows",
+    name = "i18n::GenerateRows.Name",
+    description = "i18n::GenerateRows.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::RowGeneratorMeta.keyword",
     documentationUrl = "/pipeline/transforms/rowgenerator.html")

@@ -38,8 +38,8 @@ import java.util.List;
 @Transform(
     id = "SetVariable",
     image = "setvariable.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.SetVariable",
-    description = "i18n::BaseTransform.TypeTooltipDesc.SetVariable",
+    name = "i18n::SetVariable.Name",
+    description = "i18n::SetVariable.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     keywords = "i18n::SetVariableMeta.keyword",
     documentationUrl = "/pipeline/transforms/setvariable.html")

@@ -55,8 +55,8 @@ import java.util.Map;
 @Transform(
     id = "TextFileOutput",
     image = "textfileoutput.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.TextFileOutput",
-    description = "i18n::BaseTransform.TypeTooltipDesc.TextFileOutput",
+    name = "i18n::TextFileOutput.Name",
+    description = "i18n::TextFileOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::TextFileOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/textfileoutput.html")

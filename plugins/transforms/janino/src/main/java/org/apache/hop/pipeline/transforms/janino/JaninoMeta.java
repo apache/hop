@@ -48,8 +48,8 @@ import java.util.Objects;
 @Transform(
     id = "Janino",
     image = "janino.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.Janino",
-    description = "i18n::BaseTransform.TypeTooltipDesc.Janino",
+    name = "i18n::Janino.Name",
+    description = "i18n::Janino.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     keywords = "i18n::JaninoMeta.keyword",
     documentationUrl = "/pipeline/transforms/userdefinedjavaexpression.html")
