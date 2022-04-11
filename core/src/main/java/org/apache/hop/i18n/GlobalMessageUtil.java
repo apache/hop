@@ -267,7 +267,7 @@ public class GlobalMessageUtil {
       msg.append("Message not found in the preferred and failover locale: key=[")
           .append(key)
           .append("], package=")
-          .append(Arrays.asList(pkgNames));
+          .append(List.of(pkgNames));
       System.err.println(Const.getStackTracker(new HopException(msg.toString())));
     }
     return decorateMissingKey(key);
@@ -366,7 +366,7 @@ public class GlobalMessageUtil {
         .append("' and class '")
         .append(resourceClass.getName())
         .append("' in the available locales: ")
-        .append(Arrays.asList(activeLocales));
+        .append(List.of(activeLocales));
     throw new MissingResourceException(msg.toString(), resourceClass.getName(), packagePath);
   }
 

@@ -304,15 +304,15 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     return type.equals("Pipeline")
         ? isPipelineInternalVariable(variableName)
         : type.equals("Workflow")
-            ? isJobInternalVariable(variableName)
-            : isJobInternalVariable(variableName) || isPipelineInternalVariable(variableName);
+            ? isWorkflowInternalVariable(variableName)
+            : isWorkflowInternalVariable(variableName) || isPipelineInternalVariable(variableName);
   }
 
   private static boolean isPipelineInternalVariable(String variableName) {
-    return (Arrays.asList(Const.INTERNAL_PIPELINE_VARIABLES).contains(variableName));
+    return Const.INTERNAL_PIPELINE_VARIABLES.contains(variableName);
   }
 
-  private static boolean isJobInternalVariable(String variableName) {
-    return (Arrays.asList(Const.INTERNAL_WORKFLOW_VARIABLES).contains(variableName));
+  private static boolean isWorkflowInternalVariable(String variableName) {
+    return Const.INTERNAL_WORKFLOW_VARIABLES.contains(variableName);
   }
 }

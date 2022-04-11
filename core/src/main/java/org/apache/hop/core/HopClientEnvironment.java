@@ -68,7 +68,7 @@ public class HopClientEnvironment {
 
   public static synchronized void init() throws HopException {
     init(
-        Arrays.asList(
+        List.of(
             LoggingPluginType.getInstance(),
             ValueMetaPluginType.getInstance(),
             DatabasePluginType.getInstance(),
