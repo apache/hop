@@ -171,6 +171,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     formLayout.marginWidth = 15;
     formLayout.marginHeight = 15;
 
+    int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
     shell.setLayout(formLayout);
@@ -199,7 +200,8 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, 0);
+    fdlTransformName.top = new FormAttachment(wicon, 0, SWT.CENTER);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
     wlTransformName.setLayoutData(fdlTransformName);
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -207,25 +209,25 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     props.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
-    fdTransformName.right = new FormAttachment(100, 0);
-    fdTransformName.left = new FormAttachment(0, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 5);
+    fdTransformName.right = new FormAttachment(wicon, -margin);
+    fdTransformName.left = new FormAttachment(wlTransformName, margin);
+    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
     wTransformName.setLayoutData(fdTransformName);
 
     Label spacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdSpacer = new FormData();
     fdSpacer.left = new FormAttachment(0, 0);
-    fdSpacer.top = new FormAttachment(wTransformName, 15);
+    fdSpacer.top = new FormAttachment(wicon, 0);
     fdSpacer.right = new FormAttachment(100, 0);
     spacer.setLayoutData(fdSpacer);
 
-    Label wlPath = new Label(shell, SWT.LEFT);
+    Label wlPath = new Label(shell, SWT.RIGHT);
     props.setLook(wlPath);
     wlPath.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.Pipeline.Label"));
     FormData fdlTransformation = new FormData();
     fdlTransformation.left = new FormAttachment(0, 0);
     fdlTransformation.top = new FormAttachment(spacer, 20);
-    fdlTransformation.right = new FormAttachment(50, 0);
+    fdlTransformation.right = new FormAttachment(middle, -margin);
     wlPath.setLayoutData(fdlTransformation);
 
     Button wbBrowse = new Button(shell, SWT.PUSH);
@@ -233,16 +235,16 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     wbBrowse.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.Browse.Label"));
     FormData fdBrowse = new FormData();
     fdBrowse.right = new FormAttachment(100, 0);
-    fdBrowse.top = new FormAttachment(wlPath, Const.isOSX() ? 0 : 5);
+    fdBrowse.top = new FormAttachment(wlPath, 0, SWT.CENTER);
     wbBrowse.setLayoutData(fdBrowse);
     wbBrowse.addListener(SWT.Selection, e -> selectFilePipeline());
 
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wPath);
     FormData fdTransformation = new FormData();
-    fdTransformation.left = new FormAttachment(0, 0);
-    fdTransformation.top = new FormAttachment(wlPath, 5);
-    fdTransformation.right = new FormAttachment(wbBrowse, -5);
+    fdTransformation.left = new FormAttachment(wlPath, margin);
+    fdTransformation.top = new FormAttachment(wlPath, 0, SWT.CENTER);
+    fdTransformation.right = new FormAttachment(wbBrowse, -margin);
     wPath.setLayoutData(fdTransformation);
 
     //

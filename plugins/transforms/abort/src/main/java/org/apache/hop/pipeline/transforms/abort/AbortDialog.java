@@ -57,6 +57,9 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
   private Group wOptionsGroup;
   private Label hSpacer;
 
+  private final int middle = props.getMiddlePct();
+  private final int margin = props.getMargin();
+
   public AbortDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
@@ -98,13 +101,22 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     wOk.addListener(SWT.Selection, e -> ok());
     positionBottomButtons(shell, new Button[] {wOk, wCancel}, Const.MARGIN, null);
 
+    Label wicon = new Label(shell, SWT.RIGHT);
+    wicon.setImage(getImage());
+    FormData fdlicon = new FormData();
+    fdlicon.top = new FormAttachment(0, 0);
+    fdlicon.right = new FormAttachment(100, 0);
+    wicon.setLayoutData(fdlicon);
+    props.setLook(wicon);
+
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "AbortDialog.TransformName.Label"));
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, 0);
+    fdlTransformName.top = new FormAttachment(wicon, 0, SWT.CENTER);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
     wlTransformName.setLayoutData(fdlTransformName);
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -112,28 +124,17 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     props.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
-    fdTransformName.width = 150;
-    fdTransformName.left = new FormAttachment(0, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 5);
-    fdTransformName.width = 250;
+    fdTransformName.left = new FormAttachment(wlTransformName, margin);
+    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
+    fdTransformName.right = new FormAttachment(wicon, -margin);
     wTransformName.setLayoutData(fdTransformName);
 
     Label spacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdSpacer = new FormData();
-    fdSpacer.height = 2;
     fdSpacer.left = new FormAttachment(0, 0);
-    fdSpacer.top = new FormAttachment(wTransformName, 15);
+    fdSpacer.top = new FormAttachment(wicon, 0);
     fdSpacer.right = new FormAttachment(100, 0);
     spacer.setLayoutData(fdSpacer);
-
-    Label wicon = new Label(shell, SWT.RIGHT);
-    wicon.setImage(getImage());
-    FormData fdlicon = new FormData();
-    fdlicon.top = new FormAttachment(0, 0);
-    fdlicon.right = new FormAttachment(100, 0);
-    fdlicon.bottom = new FormAttachment(spacer, 0);
-    wicon.setLayoutData(fdlicon);
-    props.setLook(wicon);
 
     hSpacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdhSpacer = new FormData();
@@ -172,7 +173,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     wAbortButton.addSelectionListener(lsSelMod);
     wAbortButton.setText(BaseMessages.getString(PKG, "AbortDialog.Options.Abort.Label"));
     FormData fdAbort = new FormData();
-    fdAbort.left = new FormAttachment(0, 0);
+    fdAbort.left = new FormAttachment(middle, margin);
     fdAbort.top = new FormAttachment(0, 0);
     wAbortButton.setLayoutData(fdAbort);
     props.setLook(wAbortButton);
@@ -182,7 +183,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     wAbortWithErrorButton.setText(
         BaseMessages.getString(PKG, "AbortDialog.Options.AbortWithError.Label"));
     FormData fdAbortWithError = new FormData();
-    fdAbortWithError.left = new FormAttachment(0, 0);
+    fdAbortWithError.left = new FormAttachment(middle, margin);
     fdAbortWithError.top = new FormAttachment(wAbortButton, 10);
     wAbortWithErrorButton.setLayoutData(fdAbortWithError);
     props.setLook(wAbortWithErrorButton);
@@ -191,7 +192,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     wSafeStopButton.addSelectionListener(lsSelMod);
     wSafeStopButton.setText(BaseMessages.getString(PKG, "AbortDialog.Options.SafeStop.Label"));
     FormData fdSafeStop = new FormData();
-    fdSafeStop.left = new FormAttachment(0, 0);
+    fdSafeStop.left = new FormAttachment(middle, margin);
     fdSafeStop.top = new FormAttachment(wAbortWithErrorButton, 10);
     wSafeStopButton.setLayoutData(fdSafeStop);
     props.setLook(wSafeStopButton);
@@ -202,6 +203,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     FormData fdlRowThreshold = new FormData();
     fdlRowThreshold.left = new FormAttachment(0, 0);
     fdlRowThreshold.top = new FormAttachment(wSafeStopButton, 10);
+    fdlRowThreshold.right = new FormAttachment(middle, -margin);
     wlRowThreshold.setLayoutData(fdlRowThreshold);
 
     wRowThreshold = new TextVar(variables, wOptionsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -211,9 +213,9 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     wRowThreshold.setToolTipText(
         BaseMessages.getString(PKG, "AbortDialog.Options.RowThreshold.Tooltip"));
     FormData fdRowThreshold = new FormData();
-    fdRowThreshold.left = new FormAttachment(0, 0);
-    fdRowThreshold.top = new FormAttachment(wlRowThreshold, 5);
-    fdRowThreshold.width = 174;
+    fdRowThreshold.left = new FormAttachment(wlRowThreshold, margin);
+    fdRowThreshold.top = new FormAttachment(wlRowThreshold, 0, SWT.CENTER);
+    fdRowThreshold.right = new FormAttachment(100, 0);
     wRowThreshold.setLayoutData(fdRowThreshold);
   }
 
@@ -239,6 +241,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     FormData fdlMessage = new FormData();
     fdlMessage.left = new FormAttachment(0, 0);
     fdlMessage.top = new FormAttachment(0, 0);
+    fdlMessage.right = new FormAttachment(middle, -margin);
     wlMessage.setLayoutData(fdlMessage);
 
     wMessage = new TextVar(variables, wLoggingGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -248,8 +251,8 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     wMessage.setToolTipText(
         BaseMessages.getString(PKG, "AbortDialog.Logging.AbortMessage.Tooltip"));
     FormData fdMessage = new FormData();
-    fdMessage.left = new FormAttachment(0, 0);
-    fdMessage.top = new FormAttachment(wlMessage, 5);
+    fdMessage.left = new FormAttachment(wlMessage, margin);
+    fdMessage.top = new FormAttachment(wlMessage, 0, SWT.CENTER);
     fdMessage.right = new FormAttachment(100, 0);
     wMessage.setLayoutData(fdMessage);
 
@@ -259,7 +262,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     wAlwaysLogRows.setToolTipText(
         BaseMessages.getString(PKG, "AbortDialog.Logging.AlwaysLogRows.Tooltip"));
     FormData fdAlwaysLogRows = new FormData();
-    fdAlwaysLogRows.left = new FormAttachment(0, 0);
+    fdAlwaysLogRows.left = new FormAttachment(middle, margin);
     fdAlwaysLogRows.top = new FormAttachment(wMessage, 10);
     wAlwaysLogRows.setLayoutData(fdAlwaysLogRows);
     wAlwaysLogRows.addSelectionListener(lsSelMod);

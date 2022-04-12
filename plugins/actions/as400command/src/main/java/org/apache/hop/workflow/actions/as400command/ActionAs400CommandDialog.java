@@ -85,6 +85,9 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     ModifyListener lsMod = (ModifyEvent e) -> action.setChanged();
     changed = action.hasChanged();
 
+    int middle = props.getMiddlePct();
+    int margin = props.getMargin();
+
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 15;
     formLayout.marginHeight = 15;
@@ -100,26 +103,27 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     wicon.setLayoutData(fdlicon);
     props.setLook(wicon);
 
-    Label wlName = new Label(shell, SWT.LEFT);
+    Label wlName = new Label(shell, SWT.RIGHT);
     props.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "ActionAs400CommandDialog.Name.Label"));
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
-    fdlName.top = new FormAttachment(0, 0);
+    fdlName.top = new FormAttachment(wicon, 0, SWT.CENTER);
+    fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
 
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wName);
     FormData fdName = new FormData();
-    fdName.right = new FormAttachment(wicon, -5);
-    fdName.top = new FormAttachment(wlName, 5);
-    fdName.left = new FormAttachment(0, 0);
+    fdName.right = new FormAttachment(wicon, -margin);
+    fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
+    fdName.left = new FormAttachment(wlName, margin);
     wName.setLayoutData(fdName);
 
     Label spacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdSpacer = new FormData();
     fdSpacer.left = new FormAttachment(0, 0);
-    fdSpacer.top = new FormAttachment(wName, 15);
+    fdSpacer.top = new FormAttachment(wicon, 0);
     fdSpacer.right = new FormAttachment(100, 0);
     spacer.setLayoutData(fdSpacer);
 
