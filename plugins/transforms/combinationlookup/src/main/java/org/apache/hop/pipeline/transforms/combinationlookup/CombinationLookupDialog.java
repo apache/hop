@@ -267,20 +267,13 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
         BaseMessages.getString(PKG, "CombinationLookupDialog.Cachesize.ToolTip"));
 
     // Preload Cache
-    Label wlPreloadCache = new Label(shell, SWT.RIGHT);
-    wlPreloadCache.setText(
-        BaseMessages.getString(PKG, "CombinationLookupDialog.PreloadCache.Label"));
-    props.setLook(wlPreloadCache);
-    FormData fdlPreloadCache = new FormData();
-    fdlPreloadCache.top = new FormAttachment(wCachesize, margin);
-    fdlPreloadCache.left = new FormAttachment(wCommit, margin);
-    fdlPreloadCache.right = new FormAttachment(middle + 2 * (100 - middle) / 3, -margin);
-    wlPreloadCache.setLayoutData(fdlPreloadCache);
     wPreloadCache = new Button(shell, SWT.CHECK);
+    wPreloadCache.setText(
+            BaseMessages.getString(PKG, "CombinationLookupDialog.PreloadCache.Label"));
     props.setLook(wPreloadCache);
     FormData fdPreloadCache = new FormData();
-    fdPreloadCache.top = new FormAttachment(wlPreloadCache, 0, SWT.CENTER);
-    fdPreloadCache.left = new FormAttachment(wlPreloadCache, margin);
+    fdPreloadCache.top = new FormAttachment(wCachesize, margin);
+    fdPreloadCache.left = new FormAttachment(wlCachesize, margin);
     fdPreloadCache.right = new FormAttachment(100, 0);
     wPreloadCache.setLayoutData(fdPreloadCache);
 
@@ -292,7 +285,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     props.setLook(wlKey);
     FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment(0, 0);
-    fdlKey.top = new FormAttachment(wlPreloadCache, margin);
+    fdlKey.top = new FormAttachment(wPreloadCache, margin);
     fdlKey.right = new FormAttachment(100, 0);
     wlKey.setLayoutData(fdlKey);
 
@@ -419,8 +412,14 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
           }
         });
 
-    Group gTechGroup = new Group(shell, SWT.SHADOW_ETCHED_IN);
-    gTechGroup.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.TechGroup.Label"));
+    Label wlTechGroup = new Label(shell, SWT.RIGHT);
+    wlTechGroup.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.TechGroup.Label"));
+    props.setLook(wlTechGroup);
+    FormData fdlTechGroup = new FormData();
+    fdlTechGroup.left = new FormAttachment(0, 0);
+    fdlTechGroup.right = new FormAttachment(middle, -margin);
+    wlTechGroup.setLayoutData(fdlTechGroup);
+    Composite gTechGroup = new Composite(shell, SWT.NONE);
     GridLayout gridLayout = new GridLayout(3, false);
     gTechGroup.setLayout(gridLayout);
     props.setLook(gTechGroup);
@@ -429,6 +428,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     fdTechGroup.bottom = new FormAttachment(wReplace, -margin);
     fdTechGroup.right = new FormAttachment(100, 0);
     gTechGroup.setLayoutData(fdTechGroup);
+    fdlTechGroup.top = new FormAttachment(gTechGroup, margin, SWT.TOP);
 
     // Use maximum of table + 1
     wTableMax = new Button(gTechGroup, SWT.RADIO);
@@ -593,7 +593,6 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
 
   public void enableFields() {
     wHashfield.setEnabled(wHashcode.getSelection());
-    wHashfield.setVisible(wHashcode.getSelection());
     wlHashfield.setEnabled(wHashcode.getSelection());
   }
 
@@ -699,7 +698,6 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     wReplace.setSelection(input.replaceFields());
     wHashcode.setSelection(input.useHash());
     wHashfield.setEnabled(input.useHash());
-    wHashfield.setVisible(input.useHash());
     wlHashfield.setEnabled(input.useHash());
 
     String techKeyCreation = input.getTechKeyCreation();

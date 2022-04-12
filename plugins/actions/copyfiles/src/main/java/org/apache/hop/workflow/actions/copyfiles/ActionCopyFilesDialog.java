@@ -121,7 +121,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Filename line
-    Label wlName = new Label(shell, SWT.LEFT);
+    Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Name.Label"));
     props.setLook(wlName);
     FormData fdlName = new FormData();
@@ -133,9 +133,9 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     props.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
-    fdName.left = new FormAttachment(0, 0);
-    fdName.top = new FormAttachment(wlName, margin);
-    fdName.right = new FormAttachment(40, 0);
+    fdName.left = new FormAttachment(wlName, margin);
+    fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
+    fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
@@ -306,8 +306,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, margin);
-    fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wFilesComp, 15);
+    fdlFields.top = new FormAttachment(tb, 0, SWT.CENTER);
     wlFields.setLayoutData(fdlFields);
 
     int rows =
@@ -405,7 +404,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     button.setToolTipText(title);
     props.setLook(button);
     FormData fd = new FormData();
-    fd.left = new FormAttachment(0, Const.MARGIN * 2);
+    fd.left = new FormAttachment(props.getMiddlePct(), Const.MARGIN * 2);
     if (top == null) {
       fd.top = new FormAttachment(0, 10);
     } else {

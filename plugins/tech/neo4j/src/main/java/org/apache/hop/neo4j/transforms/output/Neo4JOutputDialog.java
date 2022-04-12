@@ -645,6 +645,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     FormData fdlRel = new FormData();
     fdlRel.left = new FormAttachment(0, 0);
     fdlRel.top = new FormAttachment(0, 0);
+    fdlRel.right = new FormAttachment(middle, -margin);
     wlRel.setLayoutData(fdlRel);
     wRel = new Combo(wRelationshipsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wRel.setItems(fieldNames);
@@ -664,6 +665,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     FormData fdlRelValue = new FormData();
     fdlRelValue.left = new FormAttachment(0, 0);
     fdlRelValue.top = new FormAttachment(lastControl, margin * 2);
+    fdlRelValue.right = new FormAttachment(middle, -margin);
     wlRelValue.setLayoutData(fdlRelValue);
     wRelValue = new TextVar(variables, wRelationshipsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wRelValue);
@@ -683,6 +685,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
     FormData fdlRelProps = new FormData();
     fdlRelProps.left = new FormAttachment(0, 0);
     fdlRelProps.top = new FormAttachment(lastControl, margin * 3);
+    fdlRelProps.right = new FormAttachment(middle, -margin);
     wlRelProps.setLayoutData(fdlRelProps);
 
     final int relPropsRows = (input.getRelProps() != null ? input.getRelProps().length : 10);

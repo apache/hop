@@ -109,6 +109,8 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
   private TableView optionsTable;
 
   private TextVar wBootstrapServers;
+  private final int middle = props.getMiddlePct();
+  private final int margin = props.getMargin();
 
   public KafkaConsumerInputDialog(
       Shell parent, IVariables variables, Object meta, PipelineMeta pipelineMeta, String name) {
@@ -128,7 +130,6 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
 
     lsMod = e -> meta.setChanged();
     changed = meta.hasChanged();
-    int margin = props.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = props.getMargin();
@@ -153,7 +154,8 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, 0);
+    fdlTransformName.top = new FormAttachment(0, margin);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
     wlTransformName.setLayoutData(fdlTransformName);
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -161,19 +163,20 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     props.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(wlTransformName, 2 * margin);
+    fdTransformName.left = new FormAttachment(wlTransformName, margin);
     fdTransformName.right = new FormAttachment(100, 0);
-    fdTransformName.top = new FormAttachment(0, 0);
+    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
     wTransformName.setLayoutData(fdTransformName);
 
     // The filename
     //
-    wlFilename = new Label(shell, SWT.LEFT);
+    wlFilename = new Label(shell, SWT.RIGHT);
     props.setLook(wlFilename);
     wlFilename.setText(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.Pipeline"));
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wTransformName, margin);
+    fdlFilename.top = new FormAttachment(wTransformName, margin * 2);
+    fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
 
     wbCreatePipeline = new Button(shell, SWT.PUSH);
@@ -305,15 +308,15 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     wbAutoCommit.setText(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.AutoOffset"));
     FormData fdbAutoCommit = new FormData();
     fdbAutoCommit.top = new FormAttachment(0, 0);
-    fdbAutoCommit.left = new FormAttachment(0, 0);
+    fdbAutoCommit.left = new FormAttachment(middle, 0);
     wbAutoCommit.setLayoutData(fdbAutoCommit);
     props.setLook(wbAutoCommit);
 
     wbManualCommit = new Button(wOffsetGroup, SWT.RADIO);
     wbManualCommit.setText(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.ManualOffset"));
     FormData fdbManualCommit = new FormData();
-    fdbManualCommit.left = new FormAttachment(0, 0);
-    fdbManualCommit.top = new FormAttachment(wbAutoCommit, 10, SWT.BOTTOM);
+    fdbManualCommit.left = new FormAttachment(middle, 0);
+    fdbManualCommit.top = new FormAttachment(wbAutoCommit, margin);
     wbManualCommit.setLayoutData(fdbManualCommit);
     props.setLook(wbManualCommit);
   }
@@ -325,21 +328,22 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     setupLayout.marginWidth = 15;
     wSetupComp.setLayout(setupLayout);
 
-    Label wlBootstrapServers = new Label(wSetupComp, SWT.LEFT);
+    Label wlBootstrapServers = new Label(wSetupComp, SWT.RIGHT);
     props.setLook(wlBootstrapServers);
     wlBootstrapServers.setText(
         BaseMessages.getString(PKG, "KafkaConsumerInputDialog.BootstrapServers"));
     FormData fdlBootstrapServers = new FormData();
     fdlBootstrapServers.left = new FormAttachment(0, 0);
     fdlBootstrapServers.top = new FormAttachment(0, 0);
+    fdlBootstrapServers.right = new FormAttachment(middle, -margin);
     wlBootstrapServers.setLayoutData(fdlBootstrapServers);
 
     wBootstrapServers = new TextVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wBootstrapServers);
     wBootstrapServers.addModifyListener(lsMod);
     FormData fdBootstrapServers = new FormData();
-    fdBootstrapServers.left = new FormAttachment(0, 0);
-    fdBootstrapServers.top = new FormAttachment(wlBootstrapServers, Const.MARGIN);
+    fdBootstrapServers.left = new FormAttachment(wlBootstrapServers, margin);
+    fdBootstrapServers.top = new FormAttachment(wlBootstrapServers, 0, SWT.CENTER);
     fdBootstrapServers.right = new FormAttachment(100, 0);
     wBootstrapServers.setLayoutData(fdBootstrapServers);
 
@@ -356,19 +360,19 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     props.setLook(wConsumerGroup);
     wConsumerGroup.addModifyListener(lsMod);
     FormData fdConsumerGroup = new FormData();
-    fdConsumerGroup.left = new FormAttachment(0, 0);
     fdConsumerGroup.right = new FormAttachment(100, 0);
     fdConsumerGroup.bottom = new FormAttachment(100, 0);
     wConsumerGroup.setLayoutData(fdConsumerGroup);
 
-    Label wlConsumerGroup = new Label(wSetupComp, SWT.LEFT);
+    Label wlConsumerGroup = new Label(wSetupComp, SWT.RIGHT);
     props.setLook(wlConsumerGroup);
     wlConsumerGroup.setText(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.ConsumerGroup"));
     FormData fdlConsumerGroup = new FormData();
     fdlConsumerGroup.left = new FormAttachment(0, 0);
-    fdlConsumerGroup.bottom = new FormAttachment(wConsumerGroup, -5, SWT.TOP);
-    fdlConsumerGroup.right = new FormAttachment(50, 0);
+    fdlConsumerGroup.top = new FormAttachment(wConsumerGroup, 0,  SWT.CENTER);
+    fdlConsumerGroup.right = new FormAttachment(middle, -margin);
     wlConsumerGroup.setLayoutData(fdlConsumerGroup);
+    fdConsumerGroup.left = new FormAttachment(wlConsumerGroup, margin);
 
     buildTopicsTable(wSetupComp, wlTopic, wlConsumerGroup);
 
@@ -541,40 +545,40 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     fdBatchComp.bottom = new FormAttachment(100, 0);
     wBatchComp.setLayoutData(fdBatchComp);
 
-    wlBatchDuration = new Label(wBatchComp, SWT.LEFT);
+    wlBatchDuration = new Label(wBatchComp, SWT.RIGHT);
     props.setLook(wlBatchDuration);
     wlBatchDuration.setText(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.BatchDuration"));
     FormData fdlBatchDuration = new FormData();
     fdlBatchDuration.left = new FormAttachment(0, 0);
     fdlBatchDuration.top = new FormAttachment(0, 0);
-    fdlBatchDuration.right = new FormAttachment(50, 0);
+    fdlBatchDuration.right = new FormAttachment(middle, -margin);
     wlBatchDuration.setLayoutData(fdlBatchDuration);
 
     wBatchDuration = new TextVar(variables, wBatchComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wBatchDuration);
     wBatchDuration.addModifyListener(lsMod);
     FormData fdBatchDuration = new FormData();
-    fdBatchDuration.left = new FormAttachment(0, 0);
+    fdBatchDuration.left = new FormAttachment(wlBatchDuration, margin);
     fdBatchDuration.right = new FormAttachment(100, 0);
-    fdBatchDuration.top = new FormAttachment(wlBatchDuration, 5);
+    fdBatchDuration.top = new FormAttachment(wlBatchDuration, 0, SWT.CENTER);
     wBatchDuration.setLayoutData(fdBatchDuration);
 
-    wlBatchSize = new Label(wBatchComp, SWT.LEFT);
+    wlBatchSize = new Label(wBatchComp, SWT.RIGHT);
     props.setLook(wlBatchSize);
     wlBatchSize.setText(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.BatchSize"));
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
-    fdlBatchSize.top = new FormAttachment(wBatchDuration, 10);
-    fdlBatchSize.right = new FormAttachment(50, 0);
+    fdlBatchSize.top = new FormAttachment(wBatchDuration, margin);
+    fdlBatchSize.right = new FormAttachment(middle, -margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
 
     wBatchSize = new TextVar(variables, wBatchComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wBatchSize);
     wBatchSize.addModifyListener(lsMod);
     FormData fdBatchSize = new FormData();
-    fdBatchSize.left = new FormAttachment(0, 0);
+    fdBatchSize.left = new FormAttachment(wlBatchSize, margin);
     fdBatchSize.right = new FormAttachment(100, 0);
-    fdBatchSize.top = new FormAttachment(wlBatchSize, 5);
+    fdBatchSize.top = new FormAttachment(wlBatchSize, 0, SWT.CENTER);
     wBatchSize.setLayoutData(fdBatchSize);
 
     wBatchComp.layout();
@@ -599,11 +603,12 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     fdResultsComp.bottom = new FormAttachment(100, 0);
     wResultsComp.setLayoutData(fdResultsComp);
 
-    wlSubTransform = new Label(wResultsComp, SWT.LEFT);
+    wlSubTransform = new Label(wResultsComp, SWT.RIGHT);
     props.setLook(wlSubTransform);
     FormData fdlSubTrans = new FormData();
     fdlSubTrans.left = new FormAttachment(0, 0);
     fdlSubTrans.top = new FormAttachment(0, 0);
+    fdlSubTrans.right = new FormAttachment(middle, -margin);
     wlSubTransform.setLayoutData(fdlSubTrans);
     wlSubTransform.setText(
         BaseMessages.getString(PKG, "KafkaConsumerInputDialog.Pipeline.SubPipelineTransform"));
@@ -611,9 +616,9 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     wSubTransform = new ComboVar(variables, wResultsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wSubTransform);
     FormData fdSubTransform = new FormData();
-    fdSubTransform.left = new FormAttachment(0, 0);
-    fdSubTransform.right = new FormAttachment(60, 0); // 60% of dialog width
-    fdSubTransform.top = new FormAttachment(wlSubTransform, 5);
+    fdSubTransform.left = new FormAttachment(wlSubTransform, margin);
+    fdSubTransform.right = new FormAttachment(100, 0);
+    fdSubTransform.top = new FormAttachment(wlSubTransform, 0, SWT.CENTER);
     wSubTransform.setLayoutData(fdSubTransform);
     wSubTransform.getCComboWidget().addListener(SWT.FocusIn, this::populateSubTransforms);
 
@@ -763,7 +768,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     FormData fdData = new FormData();
     fdData.left = new FormAttachment(0, 0);
     fdData.top = new FormAttachment(controlAbove, 5);
-    fdData.right = new FormAttachment(60, 0); // 60% of dialog width
+    fdData.right = new FormAttachment(100, 0);
     fdData.bottom = new FormAttachment(controlBelow, -10, SWT.TOP);
     topicsTable.setLayoutData(fdData);
 

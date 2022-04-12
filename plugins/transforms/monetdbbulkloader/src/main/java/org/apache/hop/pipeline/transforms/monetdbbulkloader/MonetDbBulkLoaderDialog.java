@@ -167,7 +167,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     // Dialog Box Contents (Organized from dialog top to bottom, dialog left to right.)
     // Label - Transform name
 
-    wlTransformName = new Label(shell, SWT.LEFT);
+    wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Transformname.Label"));
     props.setLook(
@@ -262,7 +262,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     //
     // Schema line (General Settings tab)
     //
-    Label wlSchema = new Label(wGeneralSettingsComp, SWT.LEFT);
+    Label wlSchema = new Label(wGeneralSettingsComp, SWT.RIGHT);
     wlSchema.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.TargetSchema.Label"));
     props.setLook(wlSchema);
     wSchema = new TextVar(variables, wGeneralSettingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -273,7 +273,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     //
     // Table line (General Settings tab)
     //
-    Label wlTable = new Label(wGeneralSettingsComp, SWT.LEFT);
+    Label wlTable = new Label(wGeneralSettingsComp, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.TargetTable.Label"));
     props.setLook(wlTable);
 
@@ -300,7 +300,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     //
     // Log file line (General Settings tab)
     //
-    Label wlLogFile = new Label(wGeneralSettingsComp, SWT.LEFT);
+    Label wlLogFile = new Label(wGeneralSettingsComp, SWT.RIGHT);
     wlLogFile.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.LogFile.Label"));
     props.setLook(wlLogFile);
 
@@ -315,7 +315,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     //
     // Truncate before loading check box (General Settings tab)
     //
-    Label wlTruncate = new Label(wGeneralSettingsComp, SWT.LEFT);
+    Label wlTruncate = new Label(wGeneralSettingsComp, SWT.RIGHT);
     wlTruncate.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Truncate.Label"));
     props.setLook(wlTruncate);
     wTruncate = new Button(wGeneralSettingsComp, SWT.CHECK);
@@ -334,7 +334,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     // Fully Quote SQL during the run. (This setting will persist into the database connection
     // definition.)
     //
-    Label wlFullyQuoteSQL = new Label(wGeneralSettingsComp, SWT.LEFT);
+    Label wlFullyQuoteSQL = new Label(wGeneralSettingsComp, SWT.RIGHT);
     wlFullyQuoteSQL.setText(
         BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.FullyQuoteSQL.Label"));
     props.setLook(wlFullyQuoteSQL);
@@ -360,7 +360,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     // executes
     //
     // MonetDB API Settings tab - Widgets and FormData
-    Label wlFieldSeparator = new Label(wMonetDBmclientParamGroup, SWT.LEFT);
+    Label wlFieldSeparator = new Label(wMonetDBmclientParamGroup, SWT.RIGHT);
     wlFieldSeparator.setText(
         BaseMessages.getString(
             PKG,
@@ -372,7 +372,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     props.setLook(wFieldSeparator);
     wFieldSeparator.addModifyListener(lsMod);
 
-    Label wlFieldEnclosure = new Label(wMonetDBmclientParamGroup, SWT.LEFT);
+    Label wlFieldEnclosure = new Label(wMonetDBmclientParamGroup, SWT.RIGHT);
     wlFieldEnclosure.setText(
         BaseMessages.getString(
             PKG,
@@ -383,7 +383,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     wFieldEnclosure.setItems(fieldEnclosures);
     wFieldEnclosure.addModifyListener(lsMod);
 
-    Label wlNULLrepresentation = new Label(wMonetDBmclientParamGroup, SWT.LEFT);
+    Label wlNULLrepresentation = new Label(wMonetDBmclientParamGroup, SWT.RIGHT);
     wlNULLrepresentation.setText(
         BaseMessages.getString(
             PKG,
@@ -488,11 +488,11 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     fdlTransformName = new FormData();
     fdlTransformName.top = new FormAttachment(0, 15);
     fdlTransformName.left = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(20, 0);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
     wlTransformName.setLayoutData(fdlTransformName);
 
     fdTransformName = new FormData();
-    fdTransformName.top = new FormAttachment(0, 15);
+    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
     fdTransformName.left = new FormAttachment(wlTransformName, margin);
     fdTransformName.right =
         new FormAttachment(100, -margin); // 100% of the form component (length of edit box)
@@ -515,11 +515,12 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     FormData fdlSchema = new FormData();
     fdlSchema.top = new FormAttachment(wTabFolder, margin);
     fdlSchema.left = new FormAttachment(wGeneralSettingsComp, margin);
+    fdlSchema.right = new FormAttachment(middle, -margin);
     wlSchema.setLayoutData(fdlSchema);
 
     // Database schema (Edit box layout)
     FormData fdSchema = new FormData();
-    fdSchema.top = new FormAttachment(wTabFolder, margin);
+    fdSchema.top = new FormAttachment(wlSchema, 0, SWT.CENTER);
     fdSchema.left = new FormAttachment(middle, margin);
     fdSchema.right = new FormAttachment(100, -margin);
     wSchema.setLayoutData(fdSchema);
@@ -531,12 +532,13 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     FormData fdlTable = new FormData();
     fdlTable.top = new FormAttachment(wSchema, margin);
     fdlTable.left = new FormAttachment(0, margin);
+    fdlTable.right = new FormAttachment(middle, -margin);
     wlTable.setLayoutData(fdlTable);
 
     // Target table browse (Button layout)
     // - tied to the right wall of the general settings tab (composite)
     FormData fdbTable = new FormData();
-    fdbTable.top = new FormAttachment(wSchema, 0);
+    fdbTable.top = new FormAttachment(wlTable, 0, SWT.CENTER);
     fdbTable.right = new FormAttachment(100, -margin);
     wbTable.setLayoutData(fdbTable);
 
@@ -553,6 +555,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     FormData fdlBufferSize = new FormData();
     fdlBufferSize.top = new FormAttachment(wTable, margin);
     fdlBufferSize.left = new FormAttachment(0, margin);
+    fdlBufferSize.right = new FormAttachment(middle, -margin);
     wlBufferSize.setLayoutData(fdlBufferSize);
 
     FormData fdBufferSize = new FormData();
@@ -564,6 +567,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     FormData fdlLogFile = new FormData();
     fdlLogFile.top = new FormAttachment(wBufferSize, margin);
     fdlLogFile.left = new FormAttachment(0, margin);
+    fdlLogFile.right = new FormAttachment(middle, -margin);
     wlLogFile.setLayoutData(fdlLogFile);
 
     // Log file Browse (button)
@@ -576,11 +580,13 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     fdLogFile.left = new FormAttachment(middle, margin);
     fdLogFile.top = new FormAttachment(wBufferSize, margin);
     fdLogFile.right = new FormAttachment(wbLogFile, -margin);
+    fdLogFile.right = new FormAttachment(middle, -margin);
     wLogFile.setLayoutData(fdLogFile);
 
     FormData fdlTruncate = new FormData();
     fdlTruncate.top = new FormAttachment(wLogFile, margin * 2);
     fdlTruncate.left = new FormAttachment(0, margin);
+    fdlTruncate.right = new FormAttachment(middle, -margin);
     wlTruncate.setLayoutData(fdlTruncate);
 
     FormData fdTruncate = new FormData();
@@ -592,6 +598,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     FormData fdlFullyQuoteSQL = new FormData();
     fdlFullyQuoteSQL.top = new FormAttachment(wlTruncate, margin * 2);
     fdlFullyQuoteSQL.left = new FormAttachment(0, margin);
+    fdlFullyQuoteSQL.right = new FormAttachment(middle, -margin);
     wlFullyQuoteSQL.setLayoutData(fdlFullyQuoteSQL);
 
     FormData fdFullyQuoteSQL = new FormData();
@@ -625,6 +632,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     FormData fdlFieldSeparator = new FormData();
     fdlFieldSeparator.top = new FormAttachment(wMonetDBmclientSettingsComp, 3 * margin);
     fdlFieldSeparator.left = new FormAttachment(0, 3 * margin);
+    fdlFieldSeparator.right = new FormAttachment(middle, -margin);
     wlFieldSeparator.setLayoutData(fdlFieldSeparator);
 
     FormData fdFieldSeparator = new FormData();
@@ -636,6 +644,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     FormData fdlFieldEnclosure = new FormData();
     fdlFieldEnclosure.top = new FormAttachment(wFieldSeparator, 2 * margin);
     fdlFieldEnclosure.left = new FormAttachment(0, 3 * margin);
+    fdlFieldEnclosure.right = new FormAttachment(middle, -margin);
     wlFieldEnclosure.setLayoutData(fdlFieldEnclosure);
 
     FormData fdFieldEnclosure = new FormData();
@@ -647,6 +656,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     FormData fdlNULLrepresentation = new FormData();
     fdlNULLrepresentation.top = new FormAttachment(wFieldEnclosure, 2 * margin);
     fdlNULLrepresentation.left = new FormAttachment(0, 3 * margin);
+    fdlNULLrepresentation.right = new FormAttachment(middle, -margin);
     wlNULLrepresentation.setLayoutData(fdlNULLrepresentation);
 
     FormData fdNULLrepresentation = new FormData();
@@ -659,6 +669,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     FormData fdlEncoding = new FormData();
     fdlEncoding.top = new FormAttachment(wNULLrepresentation, 2 * margin);
     fdlEncoding.left = new FormAttachment(0, 3 * margin);
+    fdlEncoding.right = new FormAttachment(middle, -margin);
     wlEncoding.setLayoutData(fdlEncoding);
 
     FormData fdEncoding = new FormData();
@@ -672,7 +683,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     //
     // Label at the top left of the tab
     FormData fdlReturn = new FormData();
-    fdlReturn.top = new FormAttachment(wOutputFieldsComp, 2 * margin);
+    fdlReturn.top = new FormAttachment(wOutputFieldsComp, 5 * margin);
     fdlReturn.left = new FormAttachment(0, margin);
     wlReturn.setLayoutData(fdlReturn);
 

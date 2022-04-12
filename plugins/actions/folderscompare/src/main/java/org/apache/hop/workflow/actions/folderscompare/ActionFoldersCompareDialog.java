@@ -165,7 +165,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     props.setLook(wlCompareOnly);
     FormData fdlCompareOnly = new FormData();
     fdlCompareOnly.left = new FormAttachment(0, 0);
-    fdlCompareOnly.right = new FormAttachment(middle, 0);
+    fdlCompareOnly.right = new FormAttachment(middle, -margin);
     fdlCompareOnly.top = new FormAttachment(wlIncludeSubfolders, 2 * margin);
     wlCompareOnly.setLayoutData(fdlCompareOnly);
     wCompareOnly = new CCombo(wSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
