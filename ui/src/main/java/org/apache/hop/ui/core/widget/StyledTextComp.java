@@ -245,8 +245,11 @@ public class StyledTextComp extends Composite {
       Color background =
           Display.getDefault()
               .getSystemColor(enabled ? SWT.COLOR_WHITE : SWT.COLOR_WIDGET_BACKGROUND);
-      textWidget.setForeground(foreground);
-      textWidget.setBackground(background);
+      GuiResource guiResource = GuiResource.getInstance();
+      textWidget.setForeground(
+          guiResource.getColor(foreground.getRed(), foreground.getGreen(), foreground.getBlue()));
+      textWidget.setBackground(
+          guiResource.getColor(background.getRed(), background.getGreen(), background.getBlue()));
     }
   }
 
