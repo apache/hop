@@ -106,7 +106,6 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
   private Label wlInclINIsectionField;
   private TextVar wInclINIsectionField;
 
-  private Label wlResetRownum;
   private Button wResetRownum;
 
   private Button wResolveValueVariable;
@@ -738,20 +737,14 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdInclRownumField.right = new FormAttachment(100, 0);
     wInclRownumField.setLayoutData(fdInclRownumField);
 
-    wlResetRownum = new Label(wAdditionalGroup, SWT.RIGHT);
-    wlResetRownum.setText(BaseMessages.getString(PKG, "PropertyInputDialog.ResetRownum.Label"));
-    props.setLook(wlResetRownum);
-    FormData fdlResetRownum = new FormData();
-    fdlResetRownum.left = new FormAttachment(wInclRownum, margin);
-    fdlResetRownum.top = new FormAttachment(wInclRownumField, margin);
-    wlResetRownum.setLayoutData(fdlResetRownum);
     wResetRownum = new Button(wAdditionalGroup, SWT.CHECK);
     props.setLook(wResetRownum);
+    wResetRownum.setText(BaseMessages.getString(PKG, "PropertyInputDialog.ResetRownum.Label"));
     wResetRownum.setToolTipText(
         BaseMessages.getString(PKG, "PropertyInputDialog.ResetRownum.Tooltip"));
     fdRownum = new FormData();
-    fdRownum.left = new FormAttachment(wlResetRownum, margin);
-    fdRownum.top = new FormAttachment(wlResetRownum, 0, SWT.CENTER);
+    fdRownum.left = new FormAttachment(wlInclRownum, margin);
+    fdRownum.top = new FormAttachment(wInclRownumField, margin);
     wResetRownum.setLayoutData(fdRownum);
     wResetRownum.addSelectionListener(new ComponentSelectionListener(input));
 
@@ -1307,7 +1300,6 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
   public void setIncludeRownum() {
     wlInclRownumField.setEnabled(wInclRownum.getSelection());
     wInclRownumField.setEnabled(wInclRownum.getSelection());
-    wlResetRownum.setEnabled(wInclRownum.getSelection());
     wResetRownum.setEnabled(wInclRownum.getSelection());
   }
 
