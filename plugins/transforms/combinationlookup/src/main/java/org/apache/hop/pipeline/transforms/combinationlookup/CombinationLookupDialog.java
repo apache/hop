@@ -423,11 +423,11 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     gTechGroup.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.TechGroup.Label"));
     GridLayout gridLayout = new GridLayout(3, false);
     gTechGroup.setLayout(gridLayout);
+    props.setLook(gTechGroup);
     FormData fdTechGroup = new FormData();
     fdTechGroup.left = new FormAttachment(middle, 0);
     fdTechGroup.bottom = new FormAttachment(wReplace, -margin);
     fdTechGroup.right = new FormAttachment(100, 0);
-    gTechGroup.setBackground(shell.getBackground()); // the default looks ugly
     gTechGroup.setLayoutData(fdTechGroup);
 
     // Use maximum of table + 1

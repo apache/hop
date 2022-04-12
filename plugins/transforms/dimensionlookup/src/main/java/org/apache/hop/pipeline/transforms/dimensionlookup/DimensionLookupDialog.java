@@ -654,6 +654,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     groupLayout.marginHeight = 10;
     groupLayout.marginWidth = 10;
     gTechGroup.setLayout(groupLayout);
+    props.setLook(gTechGroup);
     FormData fdTechGroup = new FormData();
     fdTechGroup.top = new FormAttachment(wTkRename, margin);
     fdTechGroup.left = new FormAttachment(middle, 0);
