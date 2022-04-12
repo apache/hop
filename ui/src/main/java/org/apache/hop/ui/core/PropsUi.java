@@ -50,6 +50,8 @@ public class PropsUi extends Props {
 
   private static double nativeZoomFactor;
 
+  private static double globalZoomFactor;
+
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =
       "ShowCopyOrDistributeWarning";
 
@@ -69,6 +71,8 @@ public class PropsUi extends Props {
 
   private static final String DARK_MODE = "DarkMode";
 
+  private static final String GLOBAL_ZOOMFACTOR = "GlobalZoomFactor";
+
   private Map<RGB, RGB> contrastingColors;
 
   private static PropsUi instance;
@@ -83,6 +87,8 @@ public class PropsUi extends Props {
   private PropsUi() {
     super();
 
+    globalZoomFactor = Const.toDouble(getProperty(GLOBAL_ZOOMFACTOR, "1"), 1);
+
     if (EnvironmentUtils.getInstance().isWeb()) {
       nativeZoomFactor = 1.0;
     } else {
@@ -92,7 +98,8 @@ public class PropsUi extends Props {
       //
       org.eclipse.swt.graphics.Point extent =
           TextSizeUtilFacade.textExtent("The quick brown fox jumped over the lazy dog!");
-      nativeZoomFactor = (double) extent.y / (double) ConstUi.SMALL_ICON_SIZE;
+      nativeZoomFactor =
+          ((double) extent.y / (double) ConstUi.SMALL_ICON_SIZE) * getGlobalZoomFactor();
     }
 
     setDefault();
@@ -138,8 +145,8 @@ public class PropsUi extends Props {
             "org.eclipse.swt.internal.win32.ToolBar.backgroundColor",
             new Color(display, 0xD0, 0xD0, 0xD0));
         display.setData(
-                "org.eclipse.swt.internal.win32.Combo.backgroundColor",
-                new Color(display, 0xD0, 0xD0, 0xD0));
+            "org.eclipse.swt.internal.win32.Combo.backgroundColor",
+            new Color(display, 0xD0, 0xD0, 0xD0));
         display.setData("org.eclipse.swt.internal.win32.ProgressBar.useColors", Boolean.TRUE);
       }
     } else {
@@ -470,7 +477,7 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_DEFAULT:
         background = gui.getColorWhite();
         foreground = gui.getColorBlack();
-        font = null;        
+        font = null;
 
         if (control instanceof Group && OS.contains("mac")) {
           control.addPaintListener(
@@ -480,14 +487,13 @@ public class PropsUi extends Props {
                 paintEvent.gc.fillRectangle(
                     2, 0, control.getBounds().width - 8, control.getBounds().height - 20);
               });
-        }
-        else if (control instanceof Combo) {
+        } else if (control instanceof Combo) {
           if (Const.isWindows() && isDarkMode()) {
             background = gui.getColorBackground();
           } else {
             return; // Just keep the default
           }
-        }        
+        }
         break;
       case WIDGET_STYLE_FIXED:
         foreground = gui.getColorBlack();
@@ -575,7 +581,9 @@ public class PropsUi extends Props {
     }
   }
 
-  /** @return Returns the display. */
+  /**
+   * @return Returns the display.
+   */
   public static Display getDisplay() {
     return Display.getCurrent();
   }
@@ -724,7 +732,9 @@ public class PropsUi extends Props {
     return nativeZoomFactor;
   }
 
-  /** @param nativeZoomFactor The nativeZoomFactor to set */
+  /**
+   * @param nativeZoomFactor The nativeZoomFactor to set
+   */
   public static void setNativeZoomFactor(double nativeZoomFactor) {
     PropsUi.nativeZoomFactor = nativeZoomFactor;
   }
@@ -821,8 +831,23 @@ public class PropsUi extends Props {
     return contrastingColors;
   }
 
-  /** @param contrastingColors The contrastingColors to set */
+  /**
+   * @param contrastingColors The contrastingColors to set
+   */
   public void setContrastingColors(Map<RGB, RGB> contrastingColors) {
     this.contrastingColors = contrastingColors;
   }
+
+  public static double getGlobalZoomFactor() {
+    return globalZoomFactor;
+  }
+
+  public void setGlobalZoomFactor(double globalZoomFactor) {
+    setProperty(GLOBAL_ZOOMFACTOR, Double.toString(globalZoomFactor));
+  }
+
+  public static final String[] globalZoomFactorLevels =
+      new String[] {
+        "200%", "175%", "150%", "140%", "130%", "120%", "110%", "100%", "90%", "80%", "70%"
+      };
 }

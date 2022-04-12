@@ -29,7 +29,6 @@ import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessages;
 import org.apache.hop.i18n.LanguageChoice;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -37,7 +36,6 @@ import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -107,6 +105,8 @@ public class EnterOptionsDialog extends Dialog {
   private Button wExitWarning;
 
   private Combo wDefaultLocale;
+
+  private Combo wGlobalZoom;
 
   private Shell shell;
 
@@ -494,6 +494,30 @@ public class EnterOptionsDialog extends Dialog {
     fdMiddlePct.top = new FormAttachment(wlMiddlePct, 0, SWT.CENTER);
     wMiddlePct.setLayoutData(fdMiddlePct);
 
+    // Global Zoom
+    Label wlGlobalZoom = new Label(wLookComp, SWT.RIGHT);
+    wlGlobalZoom.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.GlobalZoom.Label"));
+    props.setLook(wlGlobalZoom);
+    FormData fdlGlobalZoom = new FormData();
+    fdlGlobalZoom.left = new FormAttachment(0, 0);
+    fdlGlobalZoom.right = new FormAttachment(middle, -margin);
+    fdlGlobalZoom.top = new FormAttachment(wMiddlePct, margin);
+    wlGlobalZoom.setLayoutData(fdlGlobalZoom);
+    wGlobalZoom = new Combo(wLookComp, SWT.SINGLE | SWT.READ_ONLY | SWT.LEFT | SWT.BORDER);
+    wGlobalZoom.setItems(PropsUi.globalZoomFactorLevels);
+    props.setLook(wGlobalZoom);
+    FormData fdGlobalZoom = new FormData();
+    fdGlobalZoom.left = new FormAttachment(middle, 0);
+    fdGlobalZoom.right = new FormAttachment(100, -margin);
+    fdGlobalZoom.top = new FormAttachment(wlGlobalZoom, 0, SWT.CENTER);
+    wGlobalZoom.setLayoutData(fdGlobalZoom);
+    // set the current value
+    String globalZoomFactor = Integer.toString((int) (PropsUi.getGlobalZoomFactor() * 100)) + '%';
+    int idxGlobalZoom = wGlobalZoom.indexOf(globalZoomFactor);
+    if (idxGlobalZoom >= 0) {
+      wGlobalZoom.select(idxGlobalZoom);
+    }
+
     // GridSize line
     Label wlGridSize = new Label(wLookComp, SWT.RIGHT);
     wlGridSize.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.GridSize.Label"));
@@ -502,7 +526,7 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdlGridSize = new FormData();
     fdlGridSize.left = new FormAttachment(0, 0);
     fdlGridSize.right = new FormAttachment(middle, -margin);
-    fdlGridSize.top = new FormAttachment(wMiddlePct, margin);
+    fdlGridSize.top = new FormAttachment(wGlobalZoom, margin);
     wlGridSize.setLayoutData(fdlGridSize);
     wGridSize = new Text(wLookComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wGridSize.setText(Integer.toString(props.getCanvasGridSize()));
@@ -511,7 +535,7 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdGridSize = new FormData();
     fdGridSize.left = new FormAttachment(middle, 0);
     fdGridSize.right = new FormAttachment(100, -margin);
-    fdGridSize.top = new FormAttachment(wMiddlePct, margin);
+    fdGridSize.top = new FormAttachment(wlGridSize, 0, SWT.CENTER);
     wGridSize.setLayoutData(fdGridSize);
 
     // Show Canvas Grid
@@ -535,8 +559,7 @@ public class EnterOptionsDialog extends Dialog {
     fdShowCanvasGrid.top = new FormAttachment(wlShowCanvasGrid, 0, SWT.CENTER);
     wShowCanvasGrid.setLayoutData(fdShowCanvasGrid);
 
-
-    // Show original look
+    // Is Dark Mode enabled
     Label wlDarkMode = new Label(wLookComp, SWT.RIGHT);
     wlDarkMode.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.DarkMode.Label"));
     props.setLook(wlDarkMode);
@@ -1173,6 +1196,7 @@ public class EnterOptionsDialog extends Dialog {
 
     props.setDefaultPreviewSize(
         Const.toInt(wDefaultPreview.getText(), props.getDefaultPreviewSize()));
+    props.setGlobalZoomFactor(Double.parseDouble(wGlobalZoom.getText().replace("%", "")) / 100);
 
     props.setUseDBCache(wUseCache.getSelection());
     props.setOpenLastFile(wOpenLast.getSelection());
