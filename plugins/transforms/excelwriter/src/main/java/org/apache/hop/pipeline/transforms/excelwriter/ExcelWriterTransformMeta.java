@@ -115,6 +115,8 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta<ExcelWriterTrans
   @HopMetadataProperty(
       groupKey = "fields",
       key = "field",
+      injectionKey = "FIELD",
+      injectionGroupKey = "FIELDS",
       injectionGroupDescription = "ExcelWriterMeta.Injection.Fields",
       injectionKeyDescription = "ExcelWriterMeta.Injection.Field")
   private List<ExcelWriterOutputField> outputFields;
@@ -267,21 +269,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta<ExcelWriterTrans
 
   @Override
   public Object clone() {
-    return (ExcelWriterTransformMeta) super.clone();
-  }
-
-  public String getNewLine(String fformat) {
-    String nl = System.getProperty("line.separator");
-
-    if (fformat != null) {
-      if (fformat.equalsIgnoreCase("DOS")) {
-        nl = "\r\n";
-      } else if (fformat.equalsIgnoreCase("UNIX")) {
-        nl = "\n";
-      }
-    }
-
-    return nl;
+    return super.clone();
   }
 
   @Override
