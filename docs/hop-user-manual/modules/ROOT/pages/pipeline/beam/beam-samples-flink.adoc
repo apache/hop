@@ -26,7 +26,7 @@ under the License.
 
 Check the xref:pipeline/beam/getting-started-with-beam.adoc#supportedversions[Supported Versions] on the Getting Started With Beam page to find the latest supported Flink version for your Hop version.
 
-For example, for Hop 1.2, the latest currently supported version is 1.13. Make sure to download Flink for a recent and JDK 8 compatible Scale version. For Flink 1.3.5, this is Scala 2.12.
+For example, for Hop 1.2, the latest currently supported version is 1.13. Make sure to download Flink for a recent and JDK 8 compatible Scale version. For Flink 1.3.6, this is Scala 2.11.
 
 Download your selected Flink version and unzip to a convenient location.
 
@@ -79,6 +79,10 @@ Set your Flink master to `[auto]` and export your Hop metadata again (see xref:p
 
 image:beam/beam-flink-run-config-host.png[Apache Beam - Flink run configuration - master, width="40%"]
 
+Unlike Spark you can not pass java options at runtime to the TaskManager. So we also want to set the `PROJECT_HOME` variable in the run configuration. This variable is used during execution to know where the source files are. (Metadata perspective -> Pipeline Run Configuration -> Flink -> Variables)
+
+image:beam/beam-flink-run-config-variables.png[Apache Beam - Flink run configuration - master, width="40%"]
+
 Use a command like the one below to pass all the information required by `flink run`.
 
 [source, shell]
@@ -86,7 +90,6 @@ Use a command like the one below to pass all the information required by `flink 
 bin/flink run \
   --class org.apache.hop.beam.run.MainBeam \
   --parallelism 2 \
-  -D PROJECT_HOME=<PATH>/hop/config/projects/samples/ \
   /opt/flink/hop-fat-jar.jar \
   <PATH>/hop/config/projects/samples/beam/pipelines/generate-synthetic-data.hpl \
   /opt/flink/hop-metadata.json \
