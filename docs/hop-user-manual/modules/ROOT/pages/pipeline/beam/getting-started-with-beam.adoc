@@ -61,6 +61,15 @@ Here is the documentation for the relevant plugins:
 |3.1.2
 |1.13
 
+|1.2.0
+|2.35.0
+|3.1.2 (scala 2.12)
+|1.13 (scala 2.11)
+
+|2.0.0
+|2.35.0
+|3.1.2 (scala 2.12)
+|1.13 (scala 2.11)
 |===
 
 == How are my pipelines executed?
