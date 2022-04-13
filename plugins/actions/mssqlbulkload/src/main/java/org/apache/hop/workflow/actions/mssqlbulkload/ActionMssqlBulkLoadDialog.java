@@ -167,6 +167,24 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
+    // Filename line
+    Label wlName = new Label(shell, SWT.RIGHT);
+    wlName.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Name.Label"));
+    props.setLook(wlName);
+    FormData fdlName = new FormData();
+    fdlName.left = new FormAttachment(0, 0);
+    fdlName.right = new FormAttachment(middle, -margin);
+    fdlName.top = new FormAttachment(0, margin);
+    wlName.setLayoutData(fdlName);
+    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wName);
+    wName.addModifyListener(lsMod);
+    FormData fdName = new FormData();
+    fdName.left = new FormAttachment(middle, margin);
+    fdName.top = new FormAttachment(0, margin);
+    fdName.right = new FormAttachment(100, 0);
+    wName.setLayoutData(fdName);
+
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -183,24 +201,6 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     generalLayout.marginWidth = 3;
     generalLayout.marginHeight = 3;
     wGeneralComp.setLayout(generalLayout);
-
-    // Filename line
-    Label wlName = new Label(wGeneralComp, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Name.Label"));
-    props.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, 0);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
 
     // ///////////////////////////////
     // START OF ConnectionGroup GROUP///

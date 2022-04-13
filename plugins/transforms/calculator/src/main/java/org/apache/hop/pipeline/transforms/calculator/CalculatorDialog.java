@@ -107,24 +107,6 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     wCancel.addListener(SWT.Selection, e -> cancel());
     positionBottomButtons(shell, new Button[] {wOk, wCancel}, fdMargin, null);
 
-    // TransformName line
-    Label wlTransformName = new Label(shell, SWT.LEFT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
-    FormData fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, 0);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    props.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    FormData fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(0, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, margin);
-    fdTransformName.right = new FormAttachment(middle, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
     // Image
     Label wIcon = new Label(shell, SWT.RIGHT);
     wIcon.setImage(getImage());
@@ -134,11 +116,29 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     wIcon.setLayoutData(fdlIcon);
     props.setLook(wIcon);
 
+    // TransformName line
+    Label wlTransformName = new Label(shell, SWT.RIGHT);
+    wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
+    props.setLook(wlTransformName);
+    FormData fdlTransformName = new FormData();
+    fdlTransformName.right = new FormAttachment(middle, -margin);
+    fdlTransformName.bottom = new FormAttachment(wIcon, 0, SWT.CENTER);
+    wlTransformName.setLayoutData(fdlTransformName);
+    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransformName.setText(transformName);
+    props.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
+    FormData fdTransformName = new FormData();
+    fdTransformName.left = new FormAttachment(wlTransformName, margin);
+    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
+    fdTransformName.right = new FormAttachment(wIcon, 0);
+    wTransformName.setLayoutData(fdTransformName);
+
     // Draw line separator
     Label separator = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdSeparator = new FormData();
     fdSeparator.left = new FormAttachment(0, 0);
-    fdSeparator.top = new FormAttachment(wTransformName, fdMargin);
+    fdSeparator.top = new FormAttachment(wIcon, 0);
     fdSeparator.right = new FormAttachment(100, 0);
     separator.setLayoutData(fdSeparator);
 
@@ -149,8 +149,9 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
         BaseMessages.getString(PKG, "CalculatorDialog.FailIfNoFileTooltip"));
     wFailIfNoFile.setText(BaseMessages.getString(PKG, "CalculatorDialog.FailIfNoFile"));
     FormData fdFailIfNoFile = new FormData();
-    fdFailIfNoFile.left = new FormAttachment(0, 0);
+    fdFailIfNoFile.left = new FormAttachment(wlTransformName, margin);
     fdFailIfNoFile.top = new FormAttachment(separator, fdMargin);
+    fdFailIfNoFile.right = new FormAttachment(100);
     wFailIfNoFile.setLayoutData(fdFailIfNoFile);
 
     Label wlFields = new Label(shell, SWT.NONE);

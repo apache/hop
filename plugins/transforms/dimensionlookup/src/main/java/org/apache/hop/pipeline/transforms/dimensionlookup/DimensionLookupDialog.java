@@ -48,11 +48,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -96,7 +93,6 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   private Label wlTableMax;
   private Button wTableMax;
 
-  private Label wlSeqButton;
   private Button wSeqButton;
   private Text wSeq;
 
@@ -193,17 +189,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
-    Composite sCompParent = new Composite(shell, SWT.NONE);
-    sCompParent.setLayout(new FillLayout(SWT.VERTICAL));
-    FormData fdCompGridData = new FormData();
-    sCompParent.setLayoutData(fdCompGridData);
-
-    ScrolledComposite sComp = new ScrolledComposite(sCompParent, SWT.V_SCROLL | SWT.H_SCROLL);
-    sComp.setLayout(new FormLayout());
-    sComp.setExpandHorizontal(true);
-    sComp.setExpandVertical(true);
-
-    Composite mainComposite = new Composite(sComp, SWT.NONE);
+    Composite mainComposite = shell;
     props.setLook(mainComposite);
 
     FormLayout fileLayout = new FormLayout();
@@ -654,6 +640,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     groupLayout.marginHeight = 10;
     groupLayout.marginWidth = 10;
     gTechGroup.setLayout(groupLayout);
+    props.setLook(gTechGroup);
     FormData fdTechGroup = new FormData();
     fdTechGroup.top = new FormAttachment(wTkRename, margin);
     fdTechGroup.left = new FormAttachment(middle, 0);
@@ -690,21 +677,14 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wSeqButton.setLayoutData(fdSeqButton);
     wSeqButton.setToolTipText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.Sequence.Tooltip", Const.CR));
-    wlSeqButton = new Label(gTechGroup, SWT.LEFT);
-    wlSeqButton.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Sequence.Label"));
-    props.setLook(wlSeqButton);
-    FormData fdlSeqButton = new FormData();
-    fdlSeqButton.left = new FormAttachment(wSeqButton, 0);
-    fdlSeqButton.top = new FormAttachment(wTableMax, margin);
-    fdlSeqButton.right = new FormAttachment(100, 0);
-    wlSeqButton.setLayoutData(fdlSeqButton);
+    wSeqButton.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Sequence.Label"));
 
     wSeq = new Text(gTechGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wSeq);
     wSeq.addModifyListener(lsMod);
     FormData fdSeq = new FormData();
-    fdSeq.left = new FormAttachment(0, 0);
-    fdSeq.top = new FormAttachment(wSeqButton, margin);
+    fdSeq.left = new FormAttachment(wSeqButton, margin);
+    fdSeq.top = new FormAttachment(wSeqButton, 0, SWT.CENTER);
     fdSeq.right = new FormAttachment(100, 0);
     wSeq.setLayoutData(fdSeq);
     wSeq.addFocusListener(
@@ -1028,13 +1008,6 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     mainComposite.setLayoutData(fdComp);
 
     mainComposite.pack();
-    Rectangle bounds = mainComposite.getBounds();
-
-    sComp.setContent(mainComposite);
-    sComp.setExpandHorizontal(true);
-    sComp.setExpandVertical(true);
-    sComp.setMinWidth(bounds.width);
-    sComp.setMinHeight(bounds.height);
 
     setTableMax();
     setSequence();
@@ -1195,7 +1168,6 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   public void setSequence() {
     boolean seq = (ci == null) || ci.supportsSequences();
     wSeq.setEnabled(seq);
-    wlSeqButton.setEnabled(seq);
     wSeqButton.setEnabled(seq);
     if (!seq && wSeqButton.getSelection()) {
       wAutoinc.setSelection(false);

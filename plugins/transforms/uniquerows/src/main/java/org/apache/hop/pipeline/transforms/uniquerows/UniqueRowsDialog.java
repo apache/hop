@@ -181,7 +181,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     wRejectDuplicateRow.setToolTipText(
         BaseMessages.getString(PKG, "UniqueRowsDialog.RejectDuplicateRow.ToolTip", Const.CR));
     FormData fdRejectDuplicateRow = new FormData();
-    fdRejectDuplicateRow.left = new FormAttachment(middle, margin);
+    fdRejectDuplicateRow.left = new FormAttachment(middle, 0);
     fdRejectDuplicateRow.top = new FormAttachment(wlRejectDuplicateRow, 0, SWT.CENTER);
     wRejectDuplicateRow.setLayoutData(fdRejectDuplicateRow);
     wRejectDuplicateRow.addListener(

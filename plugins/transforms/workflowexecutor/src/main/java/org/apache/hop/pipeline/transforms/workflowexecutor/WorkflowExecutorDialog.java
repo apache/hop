@@ -118,6 +118,9 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
   private TableView wResultRowsFields;
 
+  private final int middle = props.getMiddlePct();
+  private final int margin = props.getMargin();
+
   private HopWorkflowFileType<WorkflowMeta> fileType =
       HopGui.getDataOrchestrationPerspective().getWorkflowFileType();
 
@@ -167,31 +170,32 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, 0);
+    fdlTransformName.top = new FormAttachment(wicon, 0, SWT.CENTER);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     props.setLook(wTransformName);
     fdTransformName = new FormData();
-    fdTransformName.right = new FormAttachment(wicon, -5);
-    fdTransformName.left = new FormAttachment(0, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 5);
+    fdTransformName.right = new FormAttachment(wicon, -margin);
+    fdTransformName.left = new FormAttachment(wlTransformName, margin);
+    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
     wTransformName.setLayoutData(fdTransformName);
 
     Label spacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdSpacer = new FormData();
     fdSpacer.left = new FormAttachment(0, 0);
-    fdSpacer.top = new FormAttachment(wTransformName, 15);
+    fdSpacer.top = new FormAttachment(wicon, 0);
     fdSpacer.right = new FormAttachment(100, 0);
     spacer.setLayoutData(fdSpacer);
 
-    Label wlPath = new Label(shell, SWT.LEFT);
+    Label wlPath = new Label(shell, SWT.RIGHT);
     props.setLook(wlPath);
     wlPath.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Workflow.Label"));
     FormData fdlJobformation = new FormData();
     fdlJobformation.left = new FormAttachment(0, 0);
     fdlJobformation.top = new FormAttachment(spacer, 20);
-    fdlJobformation.right = new FormAttachment(50, 0);
+    fdlJobformation.right = new FormAttachment(middle, -margin);
     wlPath.setLayoutData(fdlJobformation);
 
     Button wbBrowse = new Button(shell, SWT.PUSH);
@@ -206,28 +210,27 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wPath);
     FormData fdPath = new FormData();
-    fdPath.left = new FormAttachment(0, 0);
-    fdPath.top = new FormAttachment(wlPath, 5);
-    fdPath.right = new FormAttachment(wbBrowse, -props.getMargin());
+    fdPath.left = new FormAttachment(wlPath, margin);
+    fdPath.top = new FormAttachment(wlPath, 0, SWT.CENTER);
+    fdPath.right = new FormAttachment(wbBrowse, -margin);
     wPath.setLayoutData(fdPath);
 
-    wlRunConfiguration = new Label(shell, SWT.LEFT);
+    wlRunConfiguration = new Label(shell, SWT.RIGHT);
     wlRunConfiguration.setText(
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.RunConfiguration.Label"));
     props.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
-    fdlRunConfiguration.top = new FormAttachment(wPath, PropsUi.getInstance().getMargin());
-    fdlRunConfiguration.right = new FormAttachment(50, 0);
+    fdlRunConfiguration.top = new FormAttachment(wPath, margin);
+    fdlRunConfiguration.right = new FormAttachment(middle, -margin);
     wlRunConfiguration.setLayoutData(fdlRunConfiguration);
 
     wRunConfiguration = new ComboVar(variables, shell, SWT.LEFT | SWT.BORDER);
     props.setLook(wlRunConfiguration);
     FormData fdRunConfiguration = new FormData();
-    fdRunConfiguration.left = new FormAttachment(0, 0);
-    fdRunConfiguration.top =
-        new FormAttachment(wlRunConfiguration, PropsUi.getInstance().getMargin());
-    fdRunConfiguration.right = new FormAttachment(100, 0);
+    fdRunConfiguration.left = new FormAttachment(middle, margin);
+    fdRunConfiguration.top = new FormAttachment(wlRunConfiguration, 0, SWT.CENTER);
+    fdRunConfiguration.right = new FormAttachment(wbBrowse, -margin);
     wRunConfiguration.setLayoutData(fdRunConfiguration);
     props.setLook(wRunConfiguration);
 
@@ -297,9 +300,9 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
           BaseDialog.presentFileDialog(
               shell,
               wPath,
-              variables,
-              fileType.getFilterExtensions(),
-              fileType.getFilterNames(),
+              variables,new String[0], new String[0],
+//              fileType.getFilterExtensions(),
+//              fileType.getFilterNames(),
               true);
       if (filename != null) {
 
@@ -673,14 +676,16 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     FormData fdlGroupSize = new FormData();
     fdlGroupSize.top = new FormAttachment(0, 0);
     fdlGroupSize.left = new FormAttachment(0, 0);
+    fdlGroupSize.right = new FormAttachment(middle, -margin);
     wlGroupSize.setLayoutData(fdlGroupSize);
 
     wGroupSize = new TextVar(variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wGroupSize);
     FormData fdGroupSize = new FormData();
     fdGroupSize.width = 250;
-    fdGroupSize.top = new FormAttachment(wlGroupSize, 5);
-    fdGroupSize.left = new FormAttachment(0, 0);
+    fdGroupSize.top = new FormAttachment(wlGroupSize, 0, SWT.CENTER);
+    fdGroupSize.left = new FormAttachment(middle, margin);
+    fdGroupSize.right = new FormAttachment(100, 0);
     wGroupSize.setLayoutData(fdGroupSize);
     // Enable/Disable fields base on the size of the group
     wGroupSize.addListener(SWT.Modify, e -> setFlags());
@@ -693,14 +698,16 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     FormData fdlGroupField = new FormData();
     fdlGroupField.top = new FormAttachment(wGroupSize, 10);
     fdlGroupField.left = new FormAttachment(0, 0);
+    fdlGroupField.right = new FormAttachment(middle, -margin);
     wlGroupField.setLayoutData(fdlGroupField);
 
     wGroupField = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wGroupField);
     FormData fdGroupField = new FormData();
     fdGroupField.width = 250;
-    fdGroupField.top = new FormAttachment(wlGroupField, 5);
-    fdGroupField.left = new FormAttachment(0, 0);
+    fdGroupField.top = new FormAttachment(wlGroupField, 0, SWT.CENTER);
+    fdGroupField.left = new FormAttachment(middle, margin);
+    fdGroupField.right = new FormAttachment(100, 0);
     wGroupField.setLayoutData(fdGroupField);
     // Enable/Disable widgets when this field changes
     wGroupField.addListener(SWT.Modify, e -> setFlags());
@@ -712,15 +719,17 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wlGroupTime.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.GroupTime.Label"));
     FormData fdlGroupTime = new FormData();
     fdlGroupTime.top = new FormAttachment(wGroupField, 10);
-    fdlGroupTime.left = new FormAttachment(0, 0); // First one in the left
+    fdlGroupTime.left = new FormAttachment(0, 0);
+    fdlGroupTime.right = new FormAttachment(middle, -margin);
     wlGroupTime.setLayoutData(fdlGroupTime);
 
     wGroupTime = new TextVar(variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wGroupTime);
     FormData fdGroupTime = new FormData();
     fdGroupTime.width = 250;
-    fdGroupTime.top = new FormAttachment(wlGroupTime, 5);
-    fdGroupTime.left = new FormAttachment(0, 0);
+    fdGroupTime.top = new FormAttachment(wlGroupTime, 0, SWT.CENTER);
+    fdGroupTime.left = new FormAttachment(middle, margin);
+    fdGroupTime.right = new FormAttachment(100, 0);
     wGroupTime.setLayoutData(fdGroupTime);
 
     wTab.setControl(wInputComposite);
@@ -752,15 +761,16 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ExecutionResultTarget.Label"));
     FormData fdlExecutionResultTarget = new FormData();
     fdlExecutionResultTarget.top = new FormAttachment(0, 0);
-    fdlExecutionResultTarget.left = new FormAttachment(0, 0); // First one in the left
+    fdlExecutionResultTarget.left = new FormAttachment(0, 0);
+    fdlExecutionResultTarget.right = new FormAttachment(middle, -margin);
     wlExecutionResultTarget.setLayoutData(fdlExecutionResultTarget);
 
     wExecutionResultTarget = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wExecutionResultTarget);
     FormData fdExecutionResultTarget = new FormData();
-    fdExecutionResultTarget.width = 250;
-    fdExecutionResultTarget.top = new FormAttachment(wlExecutionResultTarget, 5);
-    fdExecutionResultTarget.left = new FormAttachment(0, 0); // To the right
+    fdExecutionResultTarget.right = new FormAttachment(100, 0);
+    fdExecutionResultTarget.top = new FormAttachment(wlExecutionResultTarget, 0, SWT.CENTER);
+    fdExecutionResultTarget.left = new FormAttachment(wlExecutionResultTarget, margin);
     wExecutionResultTarget.setLayoutData(fdExecutionResultTarget);
 
     ColumnInfo[] executionResultColumns =
@@ -897,15 +907,17 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultFilesTarget.Label"));
     FormData fdlResultFilesTarget = new FormData();
     fdlResultFilesTarget.top = new FormAttachment(0, 0);
-    fdlResultFilesTarget.left = new FormAttachment(0, 0); // First one in the left
+    fdlResultFilesTarget.left = new FormAttachment(0, 0);
+    fdlResultFilesTarget.right = new FormAttachment(middle, -margin);
     wlResultFilesTarget.setLayoutData(fdlResultFilesTarget);
 
     wResultFilesTarget = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wResultFilesTarget);
     FormData fdResultFilesTarget = new FormData();
     fdResultFilesTarget.width = 250;
-    fdResultFilesTarget.top = new FormAttachment(wlResultFilesTarget, 5);
-    fdResultFilesTarget.left = new FormAttachment(0, 0); // To the right
+    fdResultFilesTarget.top = new FormAttachment(wlResultFilesTarget, 0, SWT.CENTER);
+    fdResultFilesTarget.left = new FormAttachment(middle, margin);
+    fdResultFilesTarget.right = new FormAttachment(100, 0);
     wResultFilesTarget.setLayoutData(fdResultFilesTarget);
 
     // ResultFileNameField
@@ -917,6 +929,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     FormData fdlResultFileNameField = new FormData();
     fdlResultFileNameField.top = new FormAttachment(wResultFilesTarget, 10);
     fdlResultFileNameField.left = new FormAttachment(0, 0); // First one in the left
+    fdlResultFileNameField.right = new FormAttachment(middle, -margin);
     wlResultFileNameField.setLayoutData(fdlResultFileNameField);
 
     wResultFileNameField =
@@ -924,8 +937,9 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     props.setLook(wResultFileNameField);
     FormData fdResultFileNameField = new FormData();
     fdResultFileNameField.width = 250;
-    fdResultFileNameField.top = new FormAttachment(wlResultFileNameField, 5);
-    fdResultFileNameField.left = new FormAttachment(0, 0); // To the right
+    fdResultFileNameField.top = new FormAttachment(wlResultFileNameField, 0, SWT.CENTER);
+    fdResultFileNameField.left = new FormAttachment(middle, margin);
+    fdResultFileNameField.right = new FormAttachment(100, 0);
     wResultFileNameField.setLayoutData(fdResultFileNameField);
 
     wInputComposite.pack();
@@ -965,15 +979,17 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
         BaseMessages.getString(PKG, "WorkflowExecutorDialog.ResultRowsTarget.Label"));
     FormData fdlResultRowsTarget = new FormData();
     fdlResultRowsTarget.top = new FormAttachment(0, 0);
-    fdlResultRowsTarget.left = new FormAttachment(0, 0); // First one in the left
+    fdlResultRowsTarget.left = new FormAttachment(0, 0);
+    fdlResultRowsTarget.right = new FormAttachment(middle, -margin);
     wlResultRowsTarget.setLayoutData(fdlResultRowsTarget);
 
     wResultRowsTarget = new CCombo(wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wResultRowsTarget);
     FormData fdResultRowsTarget = new FormData();
     fdResultRowsTarget.width = 250;
-    fdResultRowsTarget.top = new FormAttachment(wlResultRowsTarget, 5);
-    fdResultRowsTarget.left = new FormAttachment(0, 0); // To the right
+    fdResultRowsTarget.top = new FormAttachment(wlResultRowsTarget, 0, SWT.CENTER);
+    fdResultRowsTarget.left = new FormAttachment(middle, margin);
+    fdResultRowsTarget.right = new FormAttachment(100, 0);
     wResultRowsTarget.setLayoutData(fdResultRowsTarget);
 
     Label wlResultFields = new Label(wInputComposite, SWT.NONE);

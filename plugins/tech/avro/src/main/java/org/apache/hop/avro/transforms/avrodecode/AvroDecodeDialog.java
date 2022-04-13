@@ -133,7 +133,7 @@ public class AvroDecodeDialog extends BaseTransformDialog implements ITransformD
     FormData fdlSourceField = new FormData();
     fdlSourceField.left = new FormAttachment(0, 0);
     fdlSourceField.right = new FormAttachment(middle, -margin);
-    fdlSourceField.top = new FormAttachment(lastControl, margin);
+    fdlSourceField.top = new FormAttachment(lastControl, margin * 2);
     wlSourceField.setLayoutData(fdlSourceField);
     wSourceField = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSourceField.setText(transformName);
@@ -145,12 +145,11 @@ public class AvroDecodeDialog extends BaseTransformDialog implements ITransformD
     wSourceField.setLayoutData(fdSourceField);
     lastControl = wSourceField;
 
-    Label wlFields = new Label(shell, SWT.RIGHT);
+    Label wlFields = new Label(shell, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.right = new FormAttachment(middle, -margin);
     fdlFields.top = new FormAttachment(lastControl, margin);
     wlFields.setLayoutData(fdlFields);
 

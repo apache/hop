@@ -129,6 +129,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     Group wFileGroup = new Group(shell, SWT.SHADOW_ETCHED_IN);
     wFileGroup.setText(BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameGroup.Label"));
     wFileGroup.setLayout(new FormLayout());
+    props.setLook(wFileGroup);
     FormData fdFileGroup = new FormData();
     fdFileGroup.left = new FormAttachment(0, 0);
     fdFileGroup.right = new FormAttachment(100, 0);
