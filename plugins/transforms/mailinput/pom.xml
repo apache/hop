@@ -40,6 +40,14 @@
             <version>1.4.7</version>
             <scope>compile</scope>
         </dependency>
+        <!-- Needed to work on JDK 11 - Start -->
+        <dependency>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
+            <version>1.2.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Needed to work on JDK 11 - End -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-getpop</artifactId>
