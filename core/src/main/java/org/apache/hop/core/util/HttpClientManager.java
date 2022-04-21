@@ -23,11 +23,25 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.ssl.TrustStrategy;
+
+import javax.net.ssl.SSLContext;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Single entry point for all {@link org.apache.http.client.HttpClient HttpClient instances} usages
@@ -69,6 +83,7 @@ public class HttpClientManager {
     private int connectionTimeout;
     private int socketTimeout;
     private HttpHost proxy;
+    private boolean ignoreSsl;
 
     public HttpClientBuilderFacade setConnectionTimeout(int connectionTimeout) {
       this.connectionTimeout = connectionTimeout;
@@ -108,6 +123,34 @@ public class HttpClientManager {
       return this;
     }
 
+    public void ignoreSsl(boolean ignoreSsl) {
+      this.ignoreSsl = ignoreSsl;
+    }
+
+    public void ignoreSsl(HttpClientBuilder httpClientBuilder){
+      TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
+      SSLContext sslContext;
+      try {
+        sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+      } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
+        throw new RuntimeException(e);
+      }
+
+      SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
+          NoopHostnameVerifier.INSTANCE);
+
+      Registry<ConnectionSocketFactory> socketFactoryRegistry =
+          RegistryBuilder.<ConnectionSocketFactory>create()
+              .register("https", sslsf)
+              .register("http", new PlainConnectionSocketFactory())
+              .build();
+
+      BasicHttpClientConnectionManager connectionManager =
+          new BasicHttpClientConnectionManager(socketFactoryRegistry);
+
+      httpClientBuilder.setSSLSocketFactory(sslsf).setConnectionManager(connectionManager);
+    }
+
     public CloseableHttpClient build() {
       HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
       httpClientBuilder.setConnectionManager(manager);
@@ -129,6 +172,9 @@ public class HttpClientManager {
       }
       if (redirectStrategy != null) {
         httpClientBuilder.setRedirectStrategy(redirectStrategy);
+      }
+      if (ignoreSsl) {
+        ignoreSsl(httpClientBuilder);
       }
 
       return httpClientBuilder.build();

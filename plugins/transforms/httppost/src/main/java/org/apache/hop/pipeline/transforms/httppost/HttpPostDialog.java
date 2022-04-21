@@ -76,6 +76,8 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
   private Button wUrlInField;
 
+  private Button wIgnoreSsl;
+
   private Label wlUrlField;
   private ComboVar wUrlField;
 
@@ -167,6 +169,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
     setupUrlLine(lsMod, gSettings);
     setupUrlInFieldLine(gSettings);
+    setupIgnoreSslLine(gSettings);
     setupUrlFieldNameLine(lsMod, gSettings);
     setupEncodingLine(lsMod, gSettings);
     setupRequestEntityLine(lsMod, gSettings);
@@ -837,7 +840,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     FormData fdlUrlField = new FormData();
     fdlUrlField.left = new FormAttachment(0, 0);
     fdlUrlField.right = new FormAttachment(middle, -margin);
-    fdlUrlField.top = new FormAttachment(wUrlInField, margin);
+    fdlUrlField.top = new FormAttachment(wIgnoreSsl, margin);
     wlUrlField.setLayoutData(fdlUrlField);
 
     wUrlField = new ComboVar(variables, gSettings, SWT.BORDER | SWT.READ_ONLY);
@@ -846,7 +849,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wUrlField.addModifyListener(lsMod);
     FormData fdUrlField = new FormData();
     fdUrlField.left = new FormAttachment(middle, 0);
-    fdUrlField.top = new FormAttachment(wUrlInField, margin);
+    fdUrlField.top = new FormAttachment(wIgnoreSsl, margin);
     fdUrlField.right = new FormAttachment(100, -margin);
     wUrlField.setLayoutData(fdUrlField);
     wUrlField.addFocusListener(
@@ -892,6 +895,35 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
             activeUrlInfield();
+          }
+        });
+  }
+
+  private void setupIgnoreSslLine(Group gSettings) {
+    // ignoreSsl line
+    //
+    int margin = props.getMargin();
+    int middle = props.getMiddlePct();
+    Label wlIgnoreSsl = new Label(gSettings, SWT.RIGHT);
+    wlIgnoreSsl.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.IgnoreSsl.Label"));
+    props.setLook(wlIgnoreSsl);
+    FormData fdlIgnoreSsl = new FormData();
+    fdlIgnoreSsl.left = new FormAttachment(0, 0);
+    fdlIgnoreSsl.top = new FormAttachment(wUrlInField, margin);
+    fdlIgnoreSsl.right = new FormAttachment(middle, -margin);
+    wlIgnoreSsl.setLayoutData(fdlIgnoreSsl);
+    wIgnoreSsl = new Button(gSettings, SWT.CHECK);
+    props.setLook(wIgnoreSsl);
+    FormData fdIgnoreSsl = new FormData();
+    fdIgnoreSsl.left = new FormAttachment(middle, 0);
+    fdIgnoreSsl.top = new FormAttachment(wlIgnoreSsl, 0, SWT.CENTER);
+    fdIgnoreSsl.right = new FormAttachment(100, 0);
+    wIgnoreSsl.setLayoutData(fdIgnoreSsl);
+    wIgnoreSsl.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
           }
         });
   }
@@ -1062,6 +1094,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
       wUrl.setText(input.getUrl());
     }
     wUrlInField.setSelection(input.isUrlInField());
+    wIgnoreSsl.setSelection(input.isIgnoreSsl());
     if (input.getUrlField() != null) {
       wUrlField.setText(input.getUrlField());
     }
@@ -1158,6 +1191,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     input.setUrlField(wUrlField.getText());
     input.setRequestEntity(wRequestEntity.getText());
     input.setUrlInField(wUrlInField.getSelection());
+    input.setIgnoreSsl(wIgnoreSsl.getSelection());
 
     HttpPostResultField httpPostResultField =
         new HttpPostResultField(

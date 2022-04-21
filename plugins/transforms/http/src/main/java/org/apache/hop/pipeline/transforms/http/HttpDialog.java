@@ -61,6 +61,8 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
 
   private Button wUrlInField;
 
+  private Button wIgnoreSsl;
+
   private Label wlUrlField;
   private ComboVar wUrlField;
 
@@ -150,6 +152,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     Group gSettings = setupSettingGroup(wGeneralComp);
     lastControl = setupUrlLine(lsMod,  lastControl, gSettings);
     lastControl = setupUrlInFieldLine( lastControl, gSettings);
+    lastControl = setupIgnoreSslLine (lastControl, gSettings);
     lastControl = setupUrlFieldNameLine(lsMod, lastControl, gSettings);
     lastControl = setupEncodingLine(lsMod, lastControl, gSettings);
     setupConnectionTimeoutLine(lsMod, gSettings);
@@ -809,6 +812,37 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     return lastControl;
   }
 
+  private Control setupIgnoreSslLine(Control lastControl, Group gSettings) {
+    // ignoreSsl line
+    //
+    int margin = props.getMargin();
+    int middle = props.getMiddlePct();
+    Label wlIgnoreSsl = new Label(gSettings, SWT.RIGHT);
+    wlIgnoreSsl.setText(BaseMessages.getString(PKG, "HTTPDialog.IgnoreSsl.Label"));
+    props.setLook(wlIgnoreSsl);
+    FormData fdlIgnoreSsl = new FormData();
+    fdlIgnoreSsl.left = new FormAttachment(0, 0);
+    fdlIgnoreSsl.top = new FormAttachment(lastControl, margin);
+    fdlIgnoreSsl.right = new FormAttachment(middle, -margin);
+    wlIgnoreSsl.setLayoutData(fdlIgnoreSsl);
+    wIgnoreSsl = new Button(gSettings, SWT.CHECK);
+    props.setLook(wIgnoreSsl);
+    FormData fdIgnoreSsl = new FormData();
+    fdIgnoreSsl.left = new FormAttachment(middle, 0);
+    fdIgnoreSsl.top = new FormAttachment(wlIgnoreSsl, 0, SWT.CENTER);
+    fdIgnoreSsl.right = new FormAttachment(100, 0);
+    wIgnoreSsl.setLayoutData(fdIgnoreSsl);
+    wIgnoreSsl.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
+    lastControl = wIgnoreSsl;
+    return lastControl;
+  }
+
   private Control setupUrlLine(ModifyListener lsMod, Control transformNameControl, Group gSettings) {
     // The URL to use
     //
@@ -959,6 +993,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
 
     wUrl.setText(Const.NVL(input.getUrl(), ""));
     wUrlInField.setSelection(input.isUrlInField());
+    wIgnoreSsl.setSelection(input.isIgnoreSsl());
     wUrlField.setText(Const.NVL(input.getUrlField(), ""));
     wEncoding.setText(Const.NVL(input.getEncoding(), ""));
 
@@ -1035,6 +1070,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     input.setUrl(wUrl.getText());
     input.setUrlField(wUrlField.getText());
     input.setUrlInField(wUrlInField.getSelection());
+    input.setIgnoreSsl(wIgnoreSsl.getSelection());
     input.setFieldName(wResult.getText());
     input.setEncoding(wEncoding.getText());
     input.setHttpLogin(wHttpLogin.getText());
