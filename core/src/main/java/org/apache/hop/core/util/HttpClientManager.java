@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -38,10 +39,15 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
 
-import javax.net.ssl.SSLContext;
+import javax.net.ssl.*;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 /**
  * Single entry point for all {@link org.apache.http.client.HttpClient HttpClient instances} usages
@@ -179,5 +185,94 @@ public class HttpClientManager {
 
       return httpClientBuilder.build();
     }
+  }
+
+  public static SSLContext getSslContextWithTrustStoreFile(FileInputStream trustFileStream, String trustStorePassword) throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException, KeyManagementException {
+    TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+    // Using null here initialises the TMF with the default trust store.
+    tmf.init((KeyStore) null);
+
+    // Get hold of the default trust manager
+    X509TrustManager defaultTm = null;
+    for (TrustManager tm : tmf.getTrustManagers()) {
+      if (tm instanceof X509TrustManager) {
+        defaultTm = (X509TrustManager) tm;
+        break;
+      }
+    }
+
+    // Load the trustStore which needs to be imported
+    KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+    trustStore.load(trustFileStream, trustStorePassword.toCharArray());
+
+    trustFileStream.close();
+
+    tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+    tmf.init(trustStore);
+
+    // Get hold of the default trust manager
+    X509TrustManager trustManager = null;
+    for (TrustManager tm : tmf.getTrustManagers()) {
+      if (tm instanceof X509TrustManager) {
+        trustManager = (X509TrustManager) tm;
+        break;
+      }
+    }
+
+    final X509TrustManager finalDefaultTm = defaultTm;
+    final X509TrustManager finalTrustManager = trustManager;
+    X509TrustManager customTm = new X509TrustManager() {
+      @Override
+      public X509Certificate[] getAcceptedIssuers() {
+        return finalDefaultTm.getAcceptedIssuers();
+      }
+
+      @Override
+      public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        try {
+          finalTrustManager.checkServerTrusted(chain, authType);
+        } catch (CertificateException e) {
+          finalDefaultTm.checkServerTrusted(chain, authType);
+        }
+      }
+
+      @Override
+      public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        finalDefaultTm.checkClientTrusted(chain, authType);
+      }
+    };
+
+    SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+    sslContext.init(null, new TrustManager[] { customTm }, null);
+
+    return sslContext;
+  }
+
+  public static SSLContext getTrustAllSslContext() throws NoSuchAlgorithmException, KeyManagementException {
+    TrustManager[] trustAllCerts = new TrustManager[] {
+        new X509TrustManager() {
+          public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+            return null;
+          }
+
+          public void checkClientTrusted(X509Certificate[] certs, String authType) {  }
+
+          public void checkServerTrusted(X509Certificate[] certs, String authType) {  }
+
+        }
+    };
+
+    SSLContext sc = SSLContext.getInstance("SSL");
+    sc.init(null, trustAllCerts, new java.security.SecureRandom());
+    return sc;
+  }
+
+  public static HostnameVerifier getHostnameVerifier(boolean isDebug, ILogChannel log){
+    return (hostname, session) -> {
+      if (isDebug) {
+        log.logDebug("Warning: URL Host: " + hostname + " vs. " + session.getPeerHost());
+      }
+      return true;
+    };
   }
 }

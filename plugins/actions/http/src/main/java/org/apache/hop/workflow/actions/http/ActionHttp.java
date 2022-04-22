@@ -17,11 +17,13 @@
 
 package org.apache.hop.workflow.actions.http;
 
+import org.apache.commons.httpclient.HttpClient;
 import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -38,6 +40,8 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.w3c.dom.Node;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
@@ -82,6 +86,8 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
   private String destinationFieldname;
 
   private boolean runForEveryRow;
+
+  private boolean ignoreSsl;
 
   // Proxy settings
   private String proxyHostname;
@@ -143,6 +149,7 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
     retval.append("      ").append(XmlHandler.addTagValue("uploadfilename", uploadFilename));
 
     retval.append("      ").append(XmlHandler.addTagValue("run_every_row", runForEveryRow));
+    retval.append("      ").append(XmlHandler.addTagValue("ignore_ssl", ignoreSsl));
     retval.append("      ").append(XmlHandler.addTagValue("url_fieldname", urlFieldname));
     retval.append("      ").append(XmlHandler.addTagValue("upload_fieldname", uploadFieldname));
     retval.append("      ").append(XmlHandler.addTagValue("dest_fieldname", destinationFieldname));
@@ -191,6 +198,7 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
       uploadFieldname = XmlHandler.getTagValue(entrynode, "upload_fieldname");
       destinationFieldname = XmlHandler.getTagValue(entrynode, "dest_fieldname");
       runForEveryRow = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "run_every_row"));
+      ignoreSsl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "ignore_ssl"));
 
       username = XmlHandler.getTagValue(entrynode, "username");
       password =
@@ -415,7 +423,12 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
 
         // Get a stream for the specified URL
         server = new URL(urlToUse);
-        URLConnection connection = server.openConnection();
+        HttpsURLConnection connection = (HttpsURLConnection) server.openConnection();
+
+        if (isIgnoreSsl()) {
+          connection.setSSLSocketFactory(HttpClientManager.getTrustAllSslContext().getSocketFactory());
+          connection.setHostnameVerifier(HttpClientManager.getHostnameVerifier(isDebug(), log));
+        }
 
         // if we have HTTP headers, add them
         if (!Utils.isEmpty(headerName)) {
@@ -640,6 +653,14 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
   /** @param uploadFilenameExtension The uploadFilenameExtension to set. */
   public void setTargetFilenameExtension(String uploadFilenameExtension) {
     this.targetFilenameExtension = uploadFilenameExtension;
+  }
+
+  public boolean isIgnoreSsl() {
+    return ignoreSsl;
+  }
+
+  public void setIgnoreSsl(boolean ignoreSsl) {
+    this.ignoreSsl = ignoreSsl;
   }
 
   @Override
