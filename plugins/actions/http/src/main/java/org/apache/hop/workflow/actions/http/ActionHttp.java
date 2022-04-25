@@ -40,7 +40,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.w3c.dom.Node;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.*;
@@ -423,11 +422,12 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
 
         // Get a stream for the specified URL
         server = new URL(urlToUse);
-        HttpsURLConnection connection = (HttpsURLConnection) server.openConnection();
+        URLConnection connection = server.openConnection();
 
         if (isIgnoreSsl()) {
-          connection.setSSLSocketFactory(HttpClientManager.getTrustAllSslContext().getSocketFactory());
-          connection.setHostnameVerifier(HttpClientManager.getHostnameVerifier(isDebug(), log));
+          HttpsURLConnection httpsConn = (HttpsURLConnection) connection;
+          httpsConn.setSSLSocketFactory(HttpClientManager.getTrustAllSslContext().getSocketFactory());
+          httpsConn.setHostnameVerifier(HttpClientManager.getHostnameVerifier(isDebug(), log));
         }
 
         // if we have HTTP headers, add them
