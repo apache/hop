@@ -136,6 +136,8 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
 
   private String trustStorePassword;
 
+  private boolean ignoreSsl;
+
   public RestMeta() {
     super(); // allocate BaseTransformMeta
   }
@@ -290,6 +292,14 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     this.fieldName = resultName;
   }
 
+  public boolean isIgnoreSsl() {
+    return ignoreSsl;
+  }
+
+  public void setIgnoreSsl(boolean ignoreSsl) {
+    this.ignoreSsl = ignoreSsl;
+  }
+
   @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
@@ -403,6 +413,7 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
         .append(
             XmlHandler.addTagValue(
                 "trustStorePassword", Encr.encryptPasswordIfNotUsingVariables(trustStorePassword)));
+    retval.append("    ").append(XmlHandler.addTagValue("ignoreSsl", ignoreSsl));
 
     retval.append("    <headers>").append(Const.CR);
     for (int i = 0, len = (headerName != null ? headerName.length : 0); i < len; i++) {
@@ -470,6 +481,7 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       trustStorePassword =
           Encr.decryptPasswordOptionallyEncrypted(
               XmlHandler.getTagValue(transformNode, "trustStorePassword"));
+      ignoreSsl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "ignoreSsl"));
 
       Node headernode = XmlHandler.getSubNode(transformNode, "headers");
       int nrheaders = XmlHandler.countNodes(headernode, "header");

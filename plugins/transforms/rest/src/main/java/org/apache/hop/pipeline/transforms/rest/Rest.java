@@ -52,11 +52,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.KeyManagementException;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.List;
 
 public class Rest extends BaseTransform<RestMeta, RestData> {
@@ -320,31 +318,54 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
             .put(ApacheHttpClient4Config.PROPERTY_PREEMPTIVE_BASIC_AUTHENTICATION, true);
       }
       // SSL TRUST STORE CONFIGURATION
-      if (!Utils.isEmpty(data.trustStoreFile)) {
-        try (FileInputStream trustFileStream = new FileInputStream(data.trustStoreFile)) {
-
-          SSLContext ctx = HttpClientManager.getSslContextWithTrustStoreFile(trustFileStream, data.trustStorePassword);
-          HostnameVerifier hv = HttpClientManager.getHostnameVerifier(isDebug(), log);
-
-          data.config
-              .getProperties()
-              .put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, new HTTPSProperties(hv, ctx));
-        } catch (NoSuchAlgorithmException e) {
-          throw new HopException(BaseMessages.getString(PKG, "Rest.Error.NoSuchAlgorithm"), e);
-        } catch (KeyStoreException e) {
-          throw new HopException(BaseMessages.getString(PKG, "Rest.Error.KeyStoreException"), e);
-        } catch (CertificateException e) {
-          throw new HopException(BaseMessages.getString(PKG, "Rest.Error.CertificateException"), e);
-        } catch (FileNotFoundException e) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "Rest.Error.FileNotFound", data.trustStoreFile), e);
-        } catch (IOException e) {
-          throw new HopException(BaseMessages.getString(PKG, "Rest.Error.IOException"), e);
-        } catch (KeyManagementException e) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "Rest.Error.KeyManagementException"), e);
-        }
+      if (!Utils.isEmpty(data.trustStoreFile) && !meta.isIgnoreSsl()) {
+        setTrustStoreFile();
       }
+      if(meta.isIgnoreSsl()){
+        setTrustAll();
+      }
+    }
+  }
+
+  private void setTrustAll() throws HopException {
+    try {
+      SSLContext ctx = HttpClientManager.getTrustAllSslContext();
+      HostnameVerifier hv = HttpClientManager.getHostnameVerifier(isDebug(), log);
+
+      data.config
+          .getProperties()
+          .put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, new HTTPSProperties(hv, ctx));
+    } catch (NoSuchAlgorithmException e) {
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.NoSuchAlgorithm"), e);
+    } catch (KeyManagementException e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "Rest.Error.KeyManagementException"), e);
+    }
+  }
+
+  private void setTrustStoreFile() throws HopException {
+    try (FileInputStream trustFileStream = new FileInputStream(data.trustStoreFile)) {
+
+      SSLContext ctx = HttpClientManager.getSslContextWithTrustStoreFile(trustFileStream, data.trustStorePassword);
+      HostnameVerifier hv = HttpClientManager.getHostnameVerifier(isDebug(), log);
+
+      data.config
+          .getProperties()
+          .put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, new HTTPSProperties(hv, ctx));
+    } catch (NoSuchAlgorithmException e) {
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.NoSuchAlgorithm"), e);
+    } catch (KeyStoreException e) {
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.KeyStoreException"), e);
+    } catch (CertificateException e) {
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.CertificateException"), e);
+    } catch (FileNotFoundException e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "Rest.Error.FileNotFound", data.trustStoreFile), e);
+    } catch (IOException e) {
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.IOException"), e);
+    } catch (KeyManagementException e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "Rest.Error.KeyManagementException"), e);
     }
   }
 
