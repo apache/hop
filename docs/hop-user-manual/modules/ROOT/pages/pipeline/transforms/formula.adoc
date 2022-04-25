@@ -1,0 +1,59 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Formula transform allows you to apply Excel-like formulas and functions on fields in a pipeline.
+
+:openvar: {
+:closevar: }
+= Formula
+
+== Description
+
+The Formula transform allows you to apply Excel-like formulas and functions on fields in a pipeline.
+
+== Options
+
+[width="90%",options="header"]
+|===
+|Option|Description
+|transform name|Change the name of this transform to explain the purpose of the formula fields you're adding.
+|New Field|the name of the new field that will be created from the formula
+|Formula|the formula that will be used to create the new field. Click on the field to open the Formula Editor (see the Formula Editor section for more details).
+|Value type|the data type for the new formula field
+|Length|field length
+|Precision|field precision
+|Replace|select a pipeline field from the dropdown to replace that field's value with the formula result.
+|===
+
+== Formula Editor
+
+The Formula Editor is opened when you click on the Formula field in the options table (or go there through tab navigation).
+
+The Formula Editor consists of three main areas:
+
+* the formula list (left hand side) shows a categorized list of functions that are available for use. Click on a formula to open it's description, syntax and example formulas in the documentation panel.
+* documentation panel (lower right) shows the documentation for the selected formula. The information shown in this panel consists of a formula's
+** name
+** description
+** syntax
+** return type
+** constraints (optional)
+** semantics (optional)
+** examples (optional)
+
+TIP: Check the Apache POI docs page for a https://poi.apache.org/components/spreadsheet/eval-devguide.html#What+functions+are+supported[list of support formulas^].

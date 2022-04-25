@@ -18,17 +18,19 @@
 package org.apache.hop.pipeline.transforms.formula.util;
 
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.formula.FormulaMetaFunction;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellValue;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,7 +72,26 @@ public class FormulaParser {
             char s = (char)fieldIndex;
             Cell cell = sheetRow.createCell(colIndex);
             int fieldPosition = rowMeta.indexOfValue(formulaField);
-            cell.setCellValue((Long)dataRow[fieldPosition]);
+
+            IValueMeta fieldMeta = rowMeta.getValueMeta(fieldPosition);
+            if(fieldMeta.isBoolean()){
+                cell.setCellValue((Boolean) dataRow[fieldPosition]);
+            }else if(fieldMeta.isBigNumber()){
+                cell.setCellValue((RichTextString) dataRow[fieldPosition]);
+            }else if(fieldMeta.isDate()){
+                cell.setCellValue((Date)dataRow[fieldPosition]);
+            }else if(fieldMeta.isInteger()){
+                cell.setCellValue((Long)dataRow[fieldPosition]);
+            }else if(fieldMeta.isNumber()){
+                cell.setCellValue((Double)dataRow[fieldPosition]);
+            }else if(fieldMeta.isString()){
+                cell.setCellValue((String)dataRow[fieldPosition]);
+            }else if(fieldMeta.getType() == IValueMeta.TYPE_TIMESTAMP){
+                cell.setCellValue((Timestamp)dataRow[fieldPosition]);
+            }else{
+                cell.setCellValue((String)dataRow[fieldPosition]);
+            }
+
             parsedFormula = parsedFormula.replaceAll("\\[" + formulaField + "\\]", s + "1");
             fieldIndex++;
             colIndex++;

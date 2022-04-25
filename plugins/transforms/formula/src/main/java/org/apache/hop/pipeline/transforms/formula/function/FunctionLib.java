@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.formula.function;
 
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.pipeline.transforms.formula.Formula;
+import org.apache.hop.pipeline.transforms.formula.FormulaMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -28,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class FunctionLib {
+
     private List<FunctionDescription> functions;
 
     public FunctionLib( String filename ) throws HopXmlException {

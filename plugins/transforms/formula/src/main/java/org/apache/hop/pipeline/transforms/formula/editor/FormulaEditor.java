@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.formula.editor;
 
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.transforms.formula.FormulaMeta;
 import org.apache.hop.pipeline.transforms.formula.editor.util.CompletionProposal;
 import org.apache.hop.pipeline.transforms.formula.function.FunctionDescription;
 import org.apache.hop.pipeline.transforms.formula.function.FunctionLib;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FormulaEditor extends Dialog implements KeyListener {
+    public static final Class<?> PKG = FormulaMeta.class; // For Translator
     public static final String FUNCTIONS_FILE = "functions.xml";
 
     private Shell shell;
@@ -142,7 +144,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
             String i18nCategory = category;
             // Look up the category in i18n if needed.
             if ( category.startsWith( "%" ) ) {
-                i18nCategory = BaseMessages.getString( FunctionLib.class, category.substring( 1 ) ); // skip the %
+                i18nCategory = BaseMessages.getString( PKG, category.substring( 1 ) ); // skip the %
             }
 
             TreeItem item = new TreeItem( tree, SWT.NONE );
