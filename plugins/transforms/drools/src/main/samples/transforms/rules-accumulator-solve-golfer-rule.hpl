@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>rules-accumulator-solve-golfer-rule</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2011/08/29 13:57:42.720</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2011/08/29 13:57:42.720</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+    <notepad>
+      <note>Puzzle rules:
+
+- A foursome of golfers is standing at a tee, in a line from left to right.
+- Each golfer wears different colored pants; one is wearing red pants.
+- The golfer to Fred’s immediate right is wearing blue pants.
+- Joe is second in line.
+- Bob is wearing plaid pants.
+- Tom isn’t in position one or four, and he isn’t wearing the hideous orange pants.
+- In what order will the four golfers tee off, and what color are each golfer’s pants?”</note>
+      <xloc>64</xloc>
+      <yloc>240</yloc>
+      <width>630</width>
+      <heigth>186</heigth>
+      <fontname>Arial</fontname>
+      <fontsize>10</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>0</fontcolorred>
+      <fontcolorgreen>0</fontcolorgreen>
+      <fontcolorblue>0</fontcolorblue>
+      <backgroundcolorred>255</backgroundcolorred>
+      <backgroundcolorgreen>165</backgroundcolorgreen>
+      <backgroundcolorblue>0</backgroundcolorblue>
+      <bordercolorred>100</bordercolorred>
+      <bordercolorgreen>100</bordercolorgreen>
+      <bordercolorblue>100</bordercolorblue>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Generate Golfers</from>
+      <to>Insert Position</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Generate Position</from>
+      <to>Insert Position</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Insert Position</from>
+      <to>Insert Color</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Generate Color</from>
+      <to>Insert Color</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Insert Color</from>
+      <to>Rule Accumulator</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Rule Accumulator</from>
+      <to>Sort rows</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Generate Color</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>color</name>
+        <precision>-1</precision>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>red</item>
+      </line>
+      <line>
+        <item>blue</item>
+      </line>
+      <line>
+        <item>plaid</item>
+      </line>
+      <line>
+        <item>orange</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>48</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Generate Golfers</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>name</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>Fred</item>
+      </line>
+      <line>
+        <item>Joe</item>
+      </line>
+      <line>
+        <item>Bob</item>
+      </line>
+      <line>
+        <item>Tom</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Generate Position</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>position</name>
+        <precision>-1</precision>
+        <type>Integer</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>1</item>
+      </line>
+      <line>
+        <item>2</item>
+      </line>
+      <line>
+        <item>3</item>
+      </line>
+      <line>
+        <item>4</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>304</xloc>
+      <yloc>48</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Insert Color</name>
+    <type>JoinRows</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>%%java.io.tmpdir%%</directory>
+    <prefix>out</prefix>
+    <cache_size>500</cache_size>
+    <main/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>name</leftvalue>
+        <function>IS NOT NULL</function>
+        <rightvalue/>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Insert Position</name>
+    <type>JoinRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>%%java.io.tmpdir%%</directory>
+    <prefix>out</prefix>
+    <cache_size>500</cache_size>
+    <main/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>name</leftvalue>
+        <function>IS NOT NULL</function>
+        <rightvalue/>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>304</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Rule Accumulator</name>
+    <type>RuleAccumulator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <rule-definition>package org.apache.hop.pipeline.transforms.drools
+ 
+import org.apache.hop.pipeline.transforms.drools.Rules.Row;
+
+// Courtesy of http://docs.huihoo.com/drools/4.0.7/ch10.html
+
+rule "Golfers problem"
+    dialect "mvel"
+    when
+
+	// Define Fred
+	$fred : Row ( externalSource == true,
+				column["name"] == "Fred"
+	)
+
+	// Define Joe
+	$joe : Row ( 	externalSource == true, 
+			      	column["name"] == "Joe",
+			      	column["position"] == 2,
+				column["position"] != $fred.column["position"],
+				column["color"] != $fred.column["color"]
+	)
+       
+	// Define Bob
+	$bob : Row ( externalSource == true,
+				column["name"] == "Bob",
+				column["position"] != $fred.column["position"],
+				column["position"] != $joe.column["position"],
+				column["color"] == "plaid",
+				column["color"] != $fred.column["color"],
+				column["color"] != $joe.column["color"]
+	)
+
+	// Define Tom
+	$tom : Row ( externalSource == true,
+				column["name"] == "Tom",
+				column["position"] != 1,
+				column["position"] != 4,
+				column["position"] != $fred.column["position"],
+				column["position"] != $joe.column["position"],
+				column["position"] != $bob.column["position"],
+				column["color"] != "orange",
+				column["color"] != $fred.column["color"],
+				column["color"] != $joe.column["color"],
+				column["color"] != $bob.column["color"]
+	)
+
+	// Define Unknown
+	$unknown : Row ( externalSource == true,
+					column["position"] == ($fred.column["position"] + 1),
+					column["color"] == "blue",
+					this in ( $joe, $bob, $tom)
+	)
+
+    then
+
+      Row fredRow = new Row();
+      Row joeRow = new Row();
+      Row bobRow = new Row();
+      Row tomRow = new Row();
+
+	fredRow.addColumn("name", "Fred");
+	fredRow.addColumn("position", $fred.column["position"]);
+	fredRow.addColumn("color", $fred.column["color"]);
+
+	joeRow.addColumn("name", "Joe");
+	joeRow.addColumn("position", $joe.column["position"]);
+	joeRow.addColumn("color", $joe.column["color"]);
+
+	bobRow.addColumn("name", "Bob");
+	bobRow.addColumn("position", $bob.column["position"]);
+	bobRow.addColumn("color", $bob.column["color"]);
+
+	tomRow.addColumn("name", "Tom");
+	tomRow.addColumn("position", $tom.column["position"]);
+	tomRow.addColumn("color", $tom.column["color"]);
+
+      	insert(fredRow);
+      	insert(joeRow);
+      	insert(bobRow);
+      	insert(tomRow); 
+
+end</rule-definition>
+    <rule-file/>
+    <fields>
+      <field>
+        <column-name>position</column-name>
+        <column-type>Integer</column-type>
+      </field>
+      <field>
+        <column-name>name</column-name>
+        <column-type>String</column-type>
+      </field>
+      <field>
+        <column-name>color</column-name>
+        <column-type>String</column-type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>688</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Sort rows</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>%%java.io.tmpdir%%</directory>
+    <prefix>out</prefix>
+    <sort_size>1000000</sort_size>
+    <free_memory/>
+    <compress>N</compress>
+    <compress_variable/>
+    <unique_rows>N</unique_rows>
+    <fields>
+      <field>
+        <name>position</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>864</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

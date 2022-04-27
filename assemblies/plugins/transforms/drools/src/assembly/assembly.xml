@@ -1,0 +1,69 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+  <id>hop-assemblies-plugins-transforms-drools</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <baseDirectory>transforms/drools</baseDirectory>
+  <files>
+    <file>
+      <source>${project.basedir}/src/main/resources/version.xml</source>
+      <outputDirectory>.</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+  </files>
+  <fileSets>
+    <fileSet>
+      <outputDirectory>lib</outputDirectory>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+  <dependencySets>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <includes>
+        <include>org.apache.hop:hop-transform-drools:jar</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <outputDirectory>lib</outputDirectory>
+      <includes>
+        <include>org.drools:drools-core:jar</include>
+        <include>org.drools:drools-core-reflective:jar</include>
+        <include>org.drools:drools-core-dynamic:jar</include>
+        <include>org.drools:drools-compiler:jar</include>
+        <include>org.drools:drools-templates:jar</include>
+        <include>org.drools:drools-decisiontables:jar</include>
+        <include>org.drools:drools-mvel:jar</include>
+        <include>org.kie:kie-internal:jar</include>
+        <include>org.kie.soup:kie-soup-maven-support:jar</include>
+        <include>org.kie:kie-api:jar</include>
+        <include>org.kie:kie-memory-compiler:jar</include>
+        <include>org.kie.soup:kie-soup-project-datamodel-commons:jar</include>
+        <include>org.antlr:antlr-runtime:jar</include>
+        <include>org.mvel:mvel2:jar</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+</assembly>
