@@ -17,8 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.formula;
 
-import org.apache.hop.core.Const;
-import org.w3c.dom.Node;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.Objects;
 import org.apache.hop.core.xml.XmlHandler;
@@ -27,13 +26,39 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 public class FormulaMetaFunction {
     public static final String XML_TAG = "formula";
 
+    @HopMetadataProperty(
+            key = "field_name",
+            injectionKeyDescription = "FormulaMeta.Injection.FieldName"
+    )
     private String fieldName;
+
+    @HopMetadataProperty(
+            key = "formula",
+            injectionKeyDescription = "FormulaMeta.Injection.FormulaString"
+    )
     private String formula;
 
+    @HopMetadataProperty(
+            key = "value_type",
+            injectionKeyDescription = "FormulaMeta.Injection.ValueType"
+    )
     private int valueType;
+    @HopMetadataProperty(
+            key = "value_length",
+            injectionKeyDescription = "FormulaMeta.Injection.ValueLength"
+    )
     private int valueLength;
+
+    @HopMetadataProperty(
+            key = "value_precision",
+            injectionKeyDescription = "FormulaMeta.Injection.ValuePrecision"
+    )
     private int valuePrecision;
 
+    @HopMetadataProperty(
+            key = "replace_field",
+            injectionKeyDescription = "FormulaMeta.Injection.ReplaceField"
+    )
     private String replaceField;
 
     /**
@@ -58,16 +83,13 @@ public class FormulaMetaFunction {
         this.valueLength = valueLength;
         this.valuePrecision = valuePrecision;
         this.replaceField = replaceField;
+
+        ValueMetaFactory.getIdForValueMeta("Boolean");
     }
 
-    @Override
-    public boolean equals( Object obj ) {
-        if ( obj != null && ( obj.getClass().equals( this.getClass() ) ) ) {
-            FormulaMetaFunction mf = (FormulaMetaFunction) obj;
-            return ( getXML().equals( mf.getXML() ) );
-        }
-
-        return false;
+    public FormulaMetaFunction(){
+        valueLength = -1;
+        valuePrecision = -1;
     }
 
     @Override
@@ -83,32 +105,6 @@ public class FormulaMetaFunction {
         } catch ( CloneNotSupportedException e ) {
             return null;
         }
-    }
-
-    public String getXML() {
-        String xml = "";
-
-        xml += "<" + XML_TAG + ">";
-
-        xml += XmlHandler.addTagValue( "field_name", fieldName );
-        xml += XmlHandler.addTagValue( "formula_string", formula );
-        xml += XmlHandler.addTagValue( "value_type", ValueMetaFactory.getValueMetaName( valueType ) );
-        xml += XmlHandler.addTagValue( "value_length", valueLength );
-        xml += XmlHandler.addTagValue( "value_precision", valuePrecision );
-        xml += XmlHandler.addTagValue( "replace_field", replaceField );
-
-        xml += "</" + XML_TAG + ">";
-
-        return xml;
-    }
-
-    public FormulaMetaFunction( Node calcnode ) {
-        fieldName = XmlHandler.getTagValue( calcnode, "field_name" );
-        formula = XmlHandler.getTagValue( calcnode, "formula_string" );
-        valueType = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( calcnode, "value_type" ) );
-        valueLength = Const.toInt( XmlHandler.getTagValue( calcnode, "value_length" ), -1 );
-        valuePrecision = Const.toInt( XmlHandler.getTagValue( calcnode, "value_precision" ), -1 );
-        replaceField = XmlHandler.getTagValue( calcnode, "replace_field" );
     }
 
     /**

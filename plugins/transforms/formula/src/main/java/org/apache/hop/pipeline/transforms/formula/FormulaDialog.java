@@ -118,7 +118,7 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
         fdlFields.top = new FormAttachment( wTransformName, margin );
         wlFields.setLayoutData( fdlFields );
 
-        final int FieldsRows = currentMeta.getFormulas() != null ? currentMeta.getFormulas().length : 1;
+        final int FieldsRows = currentMeta.getFormulas() != null ? currentMeta.getFormulas().size() : 1;
 
         colinf =
                 new ColumnInfo[]{
@@ -285,8 +285,8 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
     public void getData() {
 
         if ( currentMeta.getFormulas() != null ) {
-            for (int i = 0; i < currentMeta.getFormulas().length; i++ ) {
-                FormulaMetaFunction fn = currentMeta.getFormulas()[i];
+            for (int i = 0; i < currentMeta.getFormulas().size(); i++ ) {
+                FormulaMetaFunction fn = currentMeta.getFormulas().get(i);
                 TableItem item = wFields.table.getItem( i );
                 item.setText( 1, Const.NVL( fn.getFieldName(), "" ) );
                 item.setText( 2, Const.NVL( fn.getFormula(), "" ) );
@@ -321,22 +321,22 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
 
         transformName = wTransformName.getText(); // return value
 
-        currentMeta.allocate( wFields.nrNonEmpty() );
+        currentMeta.getFormulas().clear();
 
         int nrNonEmptyFields = wFields.nrNonEmpty();
         for ( int i = 0; i < nrNonEmptyFields; i++ ) {
             TableItem item = wFields.getNonEmpty( i );
 
             String fieldName = item.getText( 1 );
-            String formula = item.getText( 2 );
+            String formulaString = item.getText( 2 );
             int valueType = ValueMetaFactory.getIdForValueMeta( item.getText( 3 ) );
             int valueLength = Const.toInt( item.getText( 4 ), -1 );
             int valuePrecision = Const.toInt( item.getText( 5 ), -1 );
             String replaceField = item.getText( 6 );
 
             //CHECKSTYLE:Indentation:OFF
-            currentMeta.getFormulas()[i] = new FormulaMetaFunction( fieldName, formula, valueType,
-                    valueLength, valuePrecision, replaceField );
+            currentMeta.getFormulas().add(new FormulaMetaFunction( fieldName, formulaString, valueType,
+                    valueLength, valuePrecision, replaceField ));
         }
 
         if ( !originalMeta.equals(currentMeta) ) {

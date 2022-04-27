@@ -55,8 +55,8 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
         workSheet = workBook.createSheet();
         sheetRow = workSheet.createRow(0);
 
-        data.returnType = new int[meta.getFormulas().length];
-        for ( int i = 0; i < meta.getFormulas().length; i++ ) {
+        data.returnType = new int[meta.getFormulas().size()];
+        for ( int i = 0; i < meta.getFormulas().size(); i++ ) {
             data.returnType[i] = -1;
         }
 
@@ -92,9 +92,9 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
 
             // Calculate replace indexes...
             //
-            data.replaceIndex = new int[meta.getFormulas().length];
-            for ( int i = 0; i < meta.getFormulas().length; i++ ) {
-                FormulaMetaFunction fn = meta.getFormulas()[i];
+            data.replaceIndex = new int[meta.getFormulas().size()];
+            for ( int i = 0; i < meta.getFormulas().size(); i++ ) {
+                FormulaMetaFunction fn = meta.getFormulas().get(i);
                 if ( !Utils.isEmpty( fn.getReplaceField() ) ) {
                     data.replaceIndex[i] = getInputRowMeta().indexOfValue( fn.getReplaceField() );
                     if ( data.replaceIndex[i] < 0 ) {
@@ -117,13 +117,12 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
         }
         sheetRow = workSheet.createRow(0);
 
-//        data.replaceIndex = new int[meta.getFormulas().length];
         Object outputValue = null;
         Object[] outputRowData = RowDataUtil.resizeArray(r, data.outputRowMeta.size());
 
-        for(int i = 0; i < meta.getFormulas().length; i++){
+        for(int i = 0; i < meta.getFormulas().size(); i++){
 
-            FormulaMetaFunction formula = meta.getFormulas()[i];
+            FormulaMetaFunction formula = meta.getFormulas().get(i);
             FormulaParser parser = new FormulaParser(formula, getInputRowMeta(), r, sheetRow );
             CellValue cellValue = parser.getFormulaValue();
 

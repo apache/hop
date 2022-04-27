@@ -62,62 +62,64 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
+    <formulas>
     <formula>
       <field_name>today</field_name>
-      <formula_string>TODAY()</formula_string>
-      <value_type>Date</value_type>
+      <formula>TODAY()</formula>
+      <value_type>1</value_type>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
       <replace_field/>
     </formula>
     <formula>
       <field_name>tomorrow</field_name>
-      <formula_string>TODAY()+1</formula_string>
-      <value_type>Date</value_type>
+      <formula>TODAY()+1</formula>
+      <value_type>1</value_type>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
       <replace_field/>
     </formula>
     <formula>
       <field_name>days_since_graduation</field_name>
-      <formula_string>TODAY()-DATE(2021,12,17)</formula_string>
-      <value_type>Integer</value_type>
+      <formula>TODAY()-DATE(2021,12,17)</formula>
+      <value_type>5</value_type>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
       <replace_field/>
     </formula>
     <formula>
       <field_name>workdays_since_graduation</field_name>
-      <formula_string>NETWORKDAYS(DATE(2021,12,17), TODAY())</formula_string>
-      <value_type>Integer</value_type>
+      <formula>NETWORKDAYS(DATE(2021,12,17), TODAY())</formula>
+      <value_type>5</value_type>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
       <replace_field/>
     </formula>
     <formula>
       <field_name>todays_year</field_name>
-      <formula_string>YEAR(TODAY())</formula_string>
-      <value_type>Integer</value_type>
+      <formula>YEAR(TODAY())</formula>
+      <value_type>5</value_type>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
       <replace_field/>
     </formula>
     <formula>
       <field_name>todays_month</field_name>
-      <formula_string>MONTH(TODAY())</formula_string>
-      <value_type>Integer</value_type>
+      <formula>MONTH(TODAY())</formula>
+      <value_type>5</value_type>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
       <replace_field/>
     </formula>
     <formula>
       <field_name>current_month</field_name>
-      <formula_string>MONTH([now])</formula_string>
-      <value_type>Integer</value_type>
+      <formula>MONTH([now])</formula>
+      <value_type>5</value_type>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
       <replace_field>one</replace_field>
     </formula>
+    </formulas>
     <attributes/>
     <GUI>
       <xloc>384</xloc>

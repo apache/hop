@@ -128,30 +128,32 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
+    <formulas>
     <formula>
       <field_name>percentage</field_name>
-      <formula_string>[three]%</formula_string>
-      <value_type>Number</value_type>
+      <formula>[three]%</formula>
+      <value_type>1</value_type>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
       <replace_field/>
     </formula>
     <formula>
       <field_name>eight</field_name>
-      <formula_string>[one]+([ten]-[three])</formula_string>
-      <value_type>Integer</value_type>
+      <formula>[one]+([ten]-[three])</formula>
+      <value_type>5</value_type>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
       <replace_field/>
     </formula>
     <formula>
       <field_name>mixed_computation</field_name>
-      <formula_string>((([two_and_a_half]*[three])/[ten])^[three])^[two_and_a_half]</formula_string>
-      <value_type>Number</value_type>
+      <formula>((([two_and_a_half]*[three])/[ten])^[three])^[two_and_a_half]</formula>
+      <value_type>1</value_type>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
       <replace_field/>
     </formula>
+    </formulas>
     <attributes/>
     <GUI>
       <xloc>272</xloc>

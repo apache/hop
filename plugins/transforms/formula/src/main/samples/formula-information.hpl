@@ -57,38 +57,32 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <formula>
-      <field_name>is_even</field_name>
-      <formula_string>ISEVEN([three])</formula_string>
-      <value_type>Boolean</value_type>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <replace_field/>
-    </formula>
-    <formula>
-      <field_name>is_odd</field_name>
-      <formula_string>ISODD([twenty_four])</formula_string>
-      <value_type>Boolean</value_type>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <replace_field/>
-    </formula>
-    <formula>
-      <field_name>dollar</field_name>
-      <formula_string>DOLLAR([two_and_a_half],2)</formula_string>
-      <value_type>Number</value_type>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <replace_field/>
-    </formula>
-    <formula>
-      <field_name>beginswith</field_name>
-      <formula_string>BEGINSWITH([foo], "fo")</formula_string>
-      <value_type>Boolean</value_type>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <replace_field/>
-    </formula>
+    <formulas>
+      <formula>
+        <field_name>is_even</field_name>
+        <formula>ISEVEN([three])</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>4</value_type>
+      </formula>
+      <formula>
+        <field_name>is_odd</field_name>
+        <formula>ISODD([twenty_four])</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>4</value_type>
+      </formula>
+      <formula>
+        <field_name>dollar</field_name>
+        <formula>DOLLAR([two_and_a_half],2)</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>1</value_type>
+      </formula>
+    </formulas>
     <attributes/>
     <GUI>
       <xloc>272</xloc>
