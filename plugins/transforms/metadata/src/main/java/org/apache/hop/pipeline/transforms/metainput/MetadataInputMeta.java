@@ -24,10 +24,7 @@ import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -118,7 +115,9 @@ public class MetadataInputMeta extends BaseTransformMeta<MetadataInput, Metadata
     return providerFieldName;
   }
 
-  /** @param providerFieldName The providerFieldName to set */
+  /**
+   * @param providerFieldName The providerFieldName to set
+   */
   public void setProviderFieldName(String providerFieldName) {
     this.providerFieldName = providerFieldName;
   }
@@ -132,7 +131,9 @@ public class MetadataInputMeta extends BaseTransformMeta<MetadataInput, Metadata
     return typeKeyFieldName;
   }
 
-  /** @param typeKeyFieldName The typeKeyFieldName to set */
+  /**
+   * @param typeKeyFieldName The typeKeyFieldName to set
+   */
   public void setTypeKeyFieldName(String typeKeyFieldName) {
     this.typeKeyFieldName = typeKeyFieldName;
   }
@@ -146,7 +147,9 @@ public class MetadataInputMeta extends BaseTransformMeta<MetadataInput, Metadata
     return typeNameFieldName;
   }
 
-  /** @param typeNameFieldName The typeNameFieldName to set */
+  /**
+   * @param typeNameFieldName The typeNameFieldName to set
+   */
   public void setTypeNameFieldName(String typeNameFieldName) {
     this.typeNameFieldName = typeNameFieldName;
   }
@@ -160,7 +163,9 @@ public class MetadataInputMeta extends BaseTransformMeta<MetadataInput, Metadata
     return typeDescriptionFieldName;
   }
 
-  /** @param typeDescriptionFieldName The typeDescriptionFieldName to set */
+  /**
+   * @param typeDescriptionFieldName The typeDescriptionFieldName to set
+   */
   public void setTypeDescriptionFieldName(String typeDescriptionFieldName) {
     this.typeDescriptionFieldName = typeDescriptionFieldName;
   }
@@ -174,7 +179,9 @@ public class MetadataInputMeta extends BaseTransformMeta<MetadataInput, Metadata
     return typeClassFieldName;
   }
 
-  /** @param typeClassFieldName The typeClassFieldName to set */
+  /**
+   * @param typeClassFieldName The typeClassFieldName to set
+   */
   public void setTypeClassFieldName(String typeClassFieldName) {
     this.typeClassFieldName = typeClassFieldName;
   }
@@ -188,7 +195,9 @@ public class MetadataInputMeta extends BaseTransformMeta<MetadataInput, Metadata
     return nameFieldName;
   }
 
-  /** @param nameFieldName The nameFieldName to set */
+  /**
+   * @param nameFieldName The nameFieldName to set
+   */
   public void setNameFieldName(String nameFieldName) {
     this.nameFieldName = nameFieldName;
   }
@@ -202,7 +211,9 @@ public class MetadataInputMeta extends BaseTransformMeta<MetadataInput, Metadata
     return jsonFieldName;
   }
 
-  /** @param jsonFieldName The jsonFieldName to set */
+  /**
+   * @param jsonFieldName The jsonFieldName to set
+   */
   public void setJsonFieldName(String jsonFieldName) {
     this.jsonFieldName = jsonFieldName;
   }
@@ -216,7 +227,9 @@ public class MetadataInputMeta extends BaseTransformMeta<MetadataInput, Metadata
     return typeKeyFilters;
   }
 
-  /** @param typeKeyFilters The typeKeyFilters to set */
+  /**
+   * @param typeKeyFilters The typeKeyFilters to set
+   */
   public void setTypeKeyFilters(List<String> typeKeyFilters) {
     this.typeKeyFilters = typeKeyFilters;
   }

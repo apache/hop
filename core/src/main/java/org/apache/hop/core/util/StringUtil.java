@@ -22,18 +22,9 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 
 import java.text.DateFormat;
-import java.text.DateFormatSymbols;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.Normalizer;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /** A collection of utilities to manipulate strings. */
 public class StringUtil {
@@ -112,8 +103,7 @@ public class StringUtil {
         "sun.os.patch.level",
       };
 
-  private StringUtil() {
-  }
+  private StringUtil() {}
 
   /**
    * Substitutes variables in <code>aString</code>. Variable names are delimited by open and close
@@ -254,7 +244,6 @@ public class StringUtil {
    *
    * @param aString the string on which to apply the substitution.
    * @param systemProperties the system properties to use
-   *
    * @return the string with the substitution applied.
    */
   public static final synchronized String environmentSubstitute(
@@ -412,7 +401,6 @@ public class StringUtil {
     }
   }
 
-
   /**
    * Check if the string supplied is empty. A String is empty when it is null or when the length is
    * 0
@@ -434,7 +422,6 @@ public class StringUtil {
   public static final boolean isEmpty(StringBuilder string) {
     return string == null || string.length() == 0;
   }
-
 
   public static String getIndent(int indentLevel) {
     return INDENTCHARS.substring(0, indentLevel);

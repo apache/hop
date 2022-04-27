@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopConversionException;

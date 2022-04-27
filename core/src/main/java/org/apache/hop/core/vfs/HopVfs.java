@@ -472,7 +472,9 @@ public class HopVfs {
     return files;
   }
 
-  /** @see StandardFileSystemManager#freeUnusedResources() */
+  /**
+   * @see StandardFileSystemManager#freeUnusedResources()
+   */
   public static void freeUnusedResources() {
     if (fsm != null) {
       fsm.freeUnusedResources();

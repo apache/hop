@@ -29,7 +29,6 @@ import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.util.Utils;
@@ -162,52 +161,72 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the aggregateField. */
+  /**
+   * @return Returns the aggregateField.
+   */
   public String[] getAggregateField() {
     return aggregateField;
   }
 
-  /** @param aggregateField The aggregateField to set. */
+  /**
+   * @param aggregateField The aggregateField to set.
+   */
   public void setAggregateField(String[] aggregateField) {
     this.aggregateField = aggregateField;
   }
 
-  /** @return Returns the aggregateType. */
+  /**
+   * @return Returns the aggregateType.
+   */
   public int[] getAggregateType() {
     return aggregateType;
   }
 
-  /** @param aggregateType The aggregateType to set. */
+  /**
+   * @param aggregateType The aggregateType to set.
+   */
   public void setAggregateType(int[] aggregateType) {
     this.aggregateType = aggregateType;
   }
 
-  /** @return Returns the groupField. */
+  /**
+   * @return Returns the groupField.
+   */
   public String[] getGroupField() {
     return groupField;
   }
 
-  /** @param groupField The groupField to set. */
+  /**
+   * @param groupField The groupField to set.
+   */
   public void setGroupField(String[] groupField) {
     this.groupField = groupField;
   }
 
-  /** @return Returns the subjectField. */
+  /**
+   * @return Returns the subjectField.
+   */
   public String[] getSubjectField() {
     return subjectField;
   }
 
-  /** @param subjectField The subjectField to set. */
+  /**
+   * @param subjectField The subjectField to set.
+   */
   public void setSubjectField(String[] subjectField) {
     this.subjectField = subjectField;
   }
 
-  /** @return Returns the valueField. */
+  /**
+   * @return Returns the valueField.
+   */
   public String[] getValueField() {
     return valueField;
   }
 
-  /** @param valueField The valueField to set. */
+  /**
+   * @param valueField The valueField to set.
+   */
   public void setValueField(String[] valueField) {
     this.valueField = valueField;
   }
@@ -330,7 +349,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    
+
     // re-assemble a new row of metadata
     //
     IRowMeta fields = new RowMeta();
@@ -493,12 +512,16 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
     }
   }
 
-  /** @return the alwaysGivingBackOneRow */
+  /**
+   * @return the alwaysGivingBackOneRow
+   */
   public boolean isAlwaysGivingBackOneRow() {
     return alwaysGivingBackOneRow;
   }
 
-  /** @param alwaysGivingBackOneRow the alwaysGivingBackOneRow to set */
+  /**
+   * @param alwaysGivingBackOneRow the alwaysGivingBackOneRow to set
+   */
   public void setAlwaysGivingBackOneRow(boolean alwaysGivingBackOneRow) {
     this.alwaysGivingBackOneRow = alwaysGivingBackOneRow;
   }

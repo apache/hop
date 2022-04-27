@@ -35,11 +35,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.mozilla.javascript.*;
 import org.w3c.dom.Document;
@@ -118,47 +115,65 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     }
   }
 
-  /** @return Returns the length. */
+  /**
+   * @return Returns the length.
+   */
   public int[] getLength() {
     return length;
   }
 
-  /** @param length The length to set. */
+  /**
+   * @param length The length to set.
+   */
   public void setLength(int[] length) {
     this.length = length;
   }
 
-  /** @return Returns the name. */
+  /**
+   * @return Returns the name.
+   */
   public String[] getFieldname() {
     return fieldname;
   }
 
-  /** @param fieldname The name to set. */
+  /**
+   * @param fieldname The name to set.
+   */
   public void setFieldname(String[] fieldname) {
     this.fieldname = fieldname;
   }
 
-  /** @return Returns the precision. */
+  /**
+   * @return Returns the precision.
+   */
   public int[] getPrecision() {
     return precision;
   }
 
-  /** @param precision The precision to set. */
+  /**
+   * @param precision The precision to set.
+   */
   public void setPrecision(int[] precision) {
     this.precision = precision;
   }
 
-  /** @return Returns the rename. */
+  /**
+   * @return Returns the rename.
+   */
   public String[] getRename() {
     return rename;
   }
 
-  /** @param rename The rename to set. */
+  /**
+   * @param rename The rename to set.
+   */
   public void setRename(String[] rename) {
     this.rename = rename;
   }
 
-  /** @return Returns the type. */
+  /**
+   * @return Returns the type.
+   */
   public int[] getType() {
     return this.type;
   }
@@ -171,7 +186,9 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     extend(fieldname.length);
   }
 
-  /** @param type The type to set. */
+  /**
+   * @param type The type to set.
+   */
   public void setType(int[] type) {
     this.type = type;
   }
@@ -833,12 +850,16 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     return true;
   }
 
-  /** @return the replace */
+  /**
+   * @return the replace
+   */
   public boolean[] getReplace() {
     return replace;
   }
 
-  /** @param replace the replace to set */
+  /**
+   * @param replace the replace to set
+   */
   public void setReplace(boolean[] replace) {
     this.replace = replace;
   }

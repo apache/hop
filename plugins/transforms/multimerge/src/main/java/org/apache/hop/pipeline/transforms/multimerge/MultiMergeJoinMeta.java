@@ -31,9 +31,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
@@ -85,12 +86,16 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
     this.joinType = joinType;
   }
 
-  /** @return Returns the keyFields1. */
+  /**
+   * @return Returns the keyFields1.
+   */
   public String[] getKeyFields() {
     return keyFields;
   }
 
-  /** @param keyFields The keyFields1 to set. */
+  /**
+   * @param keyFields The keyFields1 to set.
+   */
   public void setKeyFields(String[] keyFields) {
     this.keyFields = keyFields;
   }

@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+
 import java.util.List;
 
 public class PipelineLogging extends BaseTransform<PipelineLoggingMeta, PipelineLoggingData>

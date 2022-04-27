@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.mongodbinput;
 
+import com.mongodb.Cursor;
+import com.mongodb.DBObject;
+import com.mongodb.ServerAddress;
+import com.mongodb.util.JSON;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -29,11 +33,8 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+
 import java.util.List;
-import com.mongodb.Cursor;
-import com.mongodb.DBObject;
-import com.mongodb.ServerAddress;
-import com.mongodb.util.JSON;
 
 public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputData> {
   private static final Class<?> PKG = MongoDbInputMeta.class; // For i18n - Translator

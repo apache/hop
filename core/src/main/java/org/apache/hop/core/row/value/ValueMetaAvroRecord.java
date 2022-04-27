@@ -39,7 +39,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 
 @ValueMetaPlugin(
@@ -423,11 +422,12 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
       // Is the value NULL?
       outputStream.writeBoolean(object == null);
 
-      if (object!=null) {
+      if (object != null) {
         GenericRecord genericRecord = (GenericRecord) object;
 
         BinaryEncoder binaryEncoder = EncoderFactory.get().directBinaryEncoder(outputStream, null);
-        GenericDatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(genericRecord.getSchema());
+        GenericDatumWriter<GenericRecord> datumWriter =
+            new GenericDatumWriter<>(genericRecord.getSchema());
         datumWriter.write(genericRecord, binaryEncoder);
       }
     } catch (IOException e) {
@@ -436,7 +436,8 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
   }
 
   @Override
-  public Object readData(DataInputStream inputStream) throws HopFileException, SocketTimeoutException {
+  public Object readData(DataInputStream inputStream)
+      throws HopFileException, SocketTimeoutException {
     try {
       // Is the value NULL?
       if (inputStream.readBoolean()) {
@@ -445,8 +446,9 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
 
       // De-serialize a GenericRow object
       //
-      if (schema==null) {
-        throw new HopFileException("An Avro schema is needed to read a GenericRecord from an input stream");
+      if (schema == null) {
+        throw new HopFileException(
+            "An Avro schema is needed to read a GenericRecord from an input stream");
       }
 
       BinaryDecoder binaryDecoder = DecoderFactory.get().directBinaryDecoder(inputStream, null);
@@ -483,14 +485,13 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
 
   /**
    * Try to get an Integer from an Avro value
+   *
    * @param object
    * @return
    * @throws HopValueException
    */
   @Override
   public Long getInteger(Object object) throws HopValueException {
-
-
 
     return super.getInteger(object);
   }

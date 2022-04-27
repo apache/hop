@@ -17,7 +17,6 @@
 
 package org.apache.hop.workflow.actions.folderisempty;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.workflow.WorkflowMeta;

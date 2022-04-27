@@ -44,6 +44,7 @@ import org.apache.hop.pipeline.transforms.xml.xmloutput.XmlField.ContentType;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
+
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;

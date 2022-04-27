@@ -20,6 +20,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.SAXException;
+
 import javax.xml.XMLConstants;
 
 public class Dom4JUtil {

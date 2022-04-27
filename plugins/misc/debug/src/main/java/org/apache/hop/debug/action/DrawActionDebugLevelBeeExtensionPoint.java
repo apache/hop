@@ -26,7 +26,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.util.BeePainter;
 import org.apache.hop.debug.util.DebugLevelUtil;
 import org.apache.hop.debug.util.Defaults;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.workflow.WorkflowPainterExtension;
 
 import java.awt.image.BufferedImage;

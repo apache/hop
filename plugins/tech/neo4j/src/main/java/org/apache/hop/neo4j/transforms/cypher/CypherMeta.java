@@ -35,10 +35,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 import org.apache.hop.neo4j.model.GraphPropertyType;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -284,7 +281,9 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return connectionName;
   }
 
-  /** @param connectionName The connectionName to set */
+  /**
+   * @param connectionName The connectionName to set
+   */
   public void setConnectionName(String connectionName) {
     this.connectionName = connectionName;
   }
@@ -298,7 +297,9 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return cypher;
   }
 
-  /** @param cypher The cypher to set */
+  /**
+   * @param cypher The cypher to set
+   */
   public void setCypher(String cypher) {
     this.cypher = cypher;
   }
@@ -312,7 +313,9 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return batchSize;
   }
 
-  /** @param batchSize The batchSize to set */
+  /**
+   * @param batchSize The batchSize to set
+   */
   public void setBatchSize(String batchSize) {
     this.batchSize = batchSize;
   }
@@ -326,7 +329,9 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return cypherFromField;
   }
 
-  /** @param cypherFromField The cypherFromField to set */
+  /**
+   * @param cypherFromField The cypherFromField to set
+   */
   public void setCypherFromField(boolean cypherFromField) {
     this.cypherFromField = cypherFromField;
   }
@@ -340,7 +345,9 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return readOnly;
   }
 
-  /** @param readOnly The readOnly to set */
+  /**
+   * @param readOnly The readOnly to set
+   */
   public void setReadOnly(boolean readOnly) {
     this.readOnly = readOnly;
   }
@@ -354,7 +361,9 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return retryingOnDisconnect;
   }
 
-  /** @param retryingOnDisconnect The retrying to set */
+  /**
+   * @param retryingOnDisconnect The retrying to set
+   */
   public void setRetryingOnDisconnect(boolean retryingOnDisconnect) {
     this.retryingOnDisconnect = retryingOnDisconnect;
   }
@@ -368,7 +377,9 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return cypherField;
   }
 
-  /** @param cypherField The cypherField to set */
+  /**
+   * @param cypherField The cypherField to set
+   */
   public void setCypherField(String cypherField) {
     this.cypherField = cypherField;
   }
@@ -382,7 +393,9 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return usingUnwind;
   }
 
-  /** @param usingUnwind The usingUnwind to set */
+  /**
+   * @param usingUnwind The usingUnwind to set
+   */
   public void setUsingUnwind(boolean usingUnwind) {
     this.usingUnwind = usingUnwind;
   }
@@ -405,12 +418,16 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return returningGraph;
   }
 
-  /** @param returningGraph The returningGraph to set */
+  /**
+   * @param returningGraph The returningGraph to set
+   */
   public void setReturningGraph(boolean returningGraph) {
     this.returningGraph = returningGraph;
   }
 
-  /** @param unwindMapName The unwindMapName to set */
+  /**
+   * @param unwindMapName The unwindMapName to set
+   */
   public void setUnwindMapName(String unwindMapName) {
     this.unwindMapName = unwindMapName;
   }
@@ -424,7 +441,9 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return parameterMappings;
   }
 
-  /** @param parameterMappings The parameterMappings to set */
+  /**
+   * @param parameterMappings The parameterMappings to set
+   */
   public void setParameterMappings(List<ParameterMapping> parameterMappings) {
     this.parameterMappings = parameterMappings;
   }
@@ -438,7 +457,9 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return returnValues;
   }
 
-  /** @param returnValues The returnValues to set */
+  /**
+   * @param returnValues The returnValues to set
+   */
   public void setReturnValues(List<ReturnValue> returnValues) {
     this.returnValues = returnValues;
   }
@@ -452,7 +473,9 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return returnGraphField;
   }
 
-  /** @param returnGraphField The returnGraphField to set */
+  /**
+   * @param returnGraphField The returnGraphField to set
+   */
   public void setReturnGraphField(String returnGraphField) {
     this.returnGraphField = returnGraphField;
   }
@@ -466,7 +489,9 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
     return nrRetriesOnError;
   }
 
-  /** @param nrRetriesOnError The nrRetriesOnError to set */
+  /**
+   * @param nrRetriesOnError The nrRetriesOnError to set
+   */
   public void setNrRetriesOnError(String nrRetriesOnError) {
     this.nrRetriesOnError = nrRetriesOnError;
   }
