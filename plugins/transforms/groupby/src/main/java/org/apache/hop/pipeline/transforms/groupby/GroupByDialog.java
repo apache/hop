@@ -106,7 +106,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
 
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
-    backupAllRows = input.passAllRows();
+    backupAllRows = input.isPassAllRows();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -157,7 +157,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            input.setPassAllRows(!input.passAllRows());
+            input.setPassAllRows(!input.isPassAllRows());
             input.setChanged();
             setFlags();
           }
@@ -305,7 +305,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     wlGroup.setLayoutData(fdlGroup);
 
     int nrKeyCols = 1;
-    int nrKeyRows = (input.getGroupField() != null ? input.getGroupField().length : 1);
+    int nrKeyRows = (input.getGroupingFields() != null ? input.getGroupingFields().size() : 1);
 
     ciKey = new ColumnInfo[nrKeyCols];
     ciKey[0] =
@@ -366,7 +366,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
         new ColumnInfo(
             BaseMessages.getString(PKG, "GroupByDialog.ColumnInfo.Type"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            GroupByMeta.typeGroupLongDesc);
+            Aggregation.typeGroupLongDesc);
     ciReturn[3] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "GroupByDialog.ColumnInfo.Value"),
@@ -485,7 +485,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
   public void getData() {
     logDebug(BaseMessages.getString(PKG, "GroupByDialog.Log.GettingKeyInfo"));
 
-    wAllRows.setSelection(input.passAllRows());
+    wAllRows.setSelection(input.isPassAllRows());
 
     if (input.getPrefix() != null) {
       wPrefix.setText(input.getPrefix());
@@ -499,11 +499,11 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     }
     wAlwaysAddResult.setSelection(input.isAlwaysGivingBackOneRow());
 
-    if (input.getGroupField() != null) {
-      for (int i = 0; i < input.getGroupField().length; i++) {
+    if (input.getGroupingFields() != null) {
+      for (int i = 0; i < input.getGroupingFields().size(); i++) {
         TableItem item = wGroup.table.getItem(i);
-        if (input.getGroupField()[i] != null) {
-          item.setText(1, input.getGroupField()[i]);
+        if (input.getGroupingFields().get(i) != null) {
+          item.setText(1, input.getGroupingFields().get(i).getName());
         }
       }
     }
@@ -513,7 +513,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
       TableItem item = wAgg.table.getItem(i++);
       item.setText(1, Const.NVL(aggregation.getField(), ""));
       item.setText(2, Const.NVL(aggregation.getSubject(), ""));
-      item.setText(3, GroupByMeta.getTypeDescLong(aggregation.getType()));
+      item.setText(3, Const.NVL(aggregation.getTypeLabel(), ""));
       item.setText(4, Const.NVL(aggregation.getValue(), ""));
     }
 
@@ -523,7 +523,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     wAgg.optWidth(true);
 
     setFlags();
-    updateAllRowsCheckbox(wAgg, wAllRows, !input.passAllRows());
+    updateAllRowsCheckbox(wAgg, wAllRows, !input.isPassAllRows());
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -550,22 +550,24 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     input.setAlwaysGivingBackOneRow(wAlwaysAddResult.getSelection());
     input.setPassAllRows(wAllRows.getSelection());
 
-    input.allocate(sizegroup);
-
+    input.getGroupingFields().clear();
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < sizegroup; i++) {
       TableItem item = wGroup.getNonEmpty(i);
-      input.getGroupField()[i] = item.getText(1);
+      input.getGroupingFields().add(new GroupingField(item.getText(1)));
     }
 
+    input.getAggregations().clear();
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wAgg.getNonEmpty(i);
       String aggField = item.getText(1);
       String aggSubject = item.getText(2);
-      int aggType = GroupByMeta.getType(item.getText(3));
+      String aggTypeDesc = item.getText(3);
       String aggValue = item.getText(4);
-      input.getAggregations().add(new Aggregation(aggField, aggSubject, aggType, aggValue));
+      Aggregation aggr = new Aggregation(aggField, aggSubject, aggTypeDesc, aggValue);
+
+      input.getAggregations().add(aggr);
     }
 
     transformName = wTransformName.getText();
@@ -639,12 +641,12 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
         IntStream.range(0, aggregationTable.nrNonEmpty())
             .map(
                 row ->
-                    GroupByMeta.getType(
+                    Aggregation.getTypeCode(
                         aggregationTable.getNonEmpty(row).getText(AGGREGATION_TABLE_TYPE_INDEX)))
             .anyMatch(
                 pred ->
-                    pred == GroupByMeta.TYPE_GROUP_CUMULATIVE_SUM
-                        || pred == GroupByMeta.TYPE_GROUP_CUMULATIVE_AVERAGE);
+                    pred == Aggregation.TYPE_GROUP_CUMULATIVE_SUM
+                        || pred == Aggregation.TYPE_GROUP_CUMULATIVE_AVERAGE);
 
     allRowsButton.setEnabled(!isCumulativeSelected);
 
