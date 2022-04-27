@@ -32,11 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 

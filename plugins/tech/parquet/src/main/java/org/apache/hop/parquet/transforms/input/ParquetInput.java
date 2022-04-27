@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.parquet.hadoop.ParquetReader;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 

@@ -42,11 +42,8 @@ import org.apache.hop.pipeline.transforms.fileinput.TextFileInput;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputMeta;
 import org.apache.hop.pipeline.transforms.fileinput.text.BOMDetector;
 import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;

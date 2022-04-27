@@ -39,9 +39,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputAdditionalField;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputFiles;
@@ -278,87 +276,121 @@ public class JsonInputMeta
     this.defaultPathLeafToNull = defaultPathLeafToNull;
   }
 
-  /** @return Returns the shortFileFieldName. */
+  /**
+   * @return Returns the shortFileFieldName.
+   */
   public String getShortFileNameField() {
     return additionalOutputFields.shortFilenameField;
   }
 
-  /** @param field The shortFileFieldName to set. */
+  /**
+   * @param field The shortFileFieldName to set.
+   */
   public void setShortFileNameField(String field) {
     additionalOutputFields.shortFilenameField = field;
   }
 
-  /** @return Returns the pathFieldName. */
+  /**
+   * @return Returns the pathFieldName.
+   */
   public String getPathField() {
     return additionalOutputFields.pathField;
   }
 
-  /** @param field The pathFieldName to set. */
+  /**
+   * @param field The pathFieldName to set.
+   */
   public void setPathField(String field) {
     additionalOutputFields.pathField = field;
   }
 
-  /** @return Returns the hiddenFieldName. */
+  /**
+   * @return Returns the hiddenFieldName.
+   */
   public String isHiddenField() { // name..
     return additionalOutputFields.hiddenField;
   }
 
-  /** @param field The hiddenFieldName to set. */
+  /**
+   * @param field The hiddenFieldName to set.
+   */
   public void setIsHiddenField(String field) { // name..
     additionalOutputFields.hiddenField = field;
   }
 
-  /** @return Returns the lastModificationTimeFieldName. */
+  /**
+   * @return Returns the lastModificationTimeFieldName.
+   */
   public String getLastModificationDateField() {
     return additionalOutputFields.lastModificationField;
   }
 
-  /** @param field The lastModificationTimeFieldName to set. */
+  /**
+   * @param field The lastModificationTimeFieldName to set.
+   */
   public void setLastModificationDateField(String field) {
     additionalOutputFields.lastModificationField = field;
   }
 
-  /** @return Returns the uriNameFieldName. */
+  /**
+   * @return Returns the uriNameFieldName.
+   */
   public String getUriField() {
     return additionalOutputFields.uriField;
   }
 
-  /** @param field The uriNameFieldName to set. */
+  /**
+   * @param field The uriNameFieldName to set.
+   */
   public void setUriField(String field) {
     additionalOutputFields.uriField = field;
   }
 
-  /** @return Returns the uriNameFieldName. */
+  /**
+   * @return Returns the uriNameFieldName.
+   */
   public String getRootUriField() {
     return additionalOutputFields.rootUriField;
   }
 
-  /** @param field The rootUriNameFieldName to set. */
+  /**
+   * @param field The rootUriNameFieldName to set.
+   */
   public void setRootUriField(String field) {
     additionalOutputFields.rootUriField = field;
   }
 
-  /** @return Returns the extensionFieldName. */
+  /**
+   * @return Returns the extensionFieldName.
+   */
   public String getExtensionField() {
     return additionalOutputFields.extensionField;
   }
 
-  /** @param field The extensionFieldName to set. */
+  /**
+   * @param field The extensionFieldName to set.
+   */
   public void setExtensionField(String field) {
     additionalOutputFields.extensionField = field;
   }
 
-  /** @return Returns the sizeFieldName. */
+  /**
+   * @return Returns the sizeFieldName.
+   */
   public String getSizeField() {
     return additionalOutputFields.sizeField;
   }
 
-  /** @param field The sizeFieldName to set. */
+  /**
+   * @param field The sizeFieldName to set.
+   */
   public void setSizeField(String field) {
     additionalOutputFields.sizeField = field;
   }
 
-  /** @return the add result filesname flag */
+  /**
+   * @return the add result filesname flag
+   */
   public boolean addResultFile() {
     return addResultFile;
   }
@@ -388,7 +420,9 @@ public class JsonInputMeta
     return super.getInputFields();
   }
 
-  /** @param inputFields The input fields to set. */
+  /**
+   * @param inputFields The input fields to set.
+   */
   public void setInputFields(JsonInputField[] inputFields) {
     this.inputFields = inputFields;
   }
@@ -468,32 +502,44 @@ public class JsonInputMeta
     this.includeFilename = includeFilename;
   }
 
-  /** @return Returns the includeRowNumber. */
+  /**
+   * @return Returns the includeRowNumber.
+   */
   public boolean includeRowNumber() {
     return includeRowNumber;
   }
 
-  /** @param includeRowNumber The includeRowNumber to set. */
+  /**
+   * @param includeRowNumber The includeRowNumber to set.
+   */
   public void setIncludeRowNumber(boolean includeRowNumber) {
     this.includeRowNumber = includeRowNumber;
   }
 
-  /** @return Returns the rowLimit. */
+  /**
+   * @return Returns the rowLimit.
+   */
   public long getRowLimit() {
     return rowLimit;
   }
 
-  /** @param rowLimit The rowLimit to set. */
+  /**
+   * @param rowLimit The rowLimit to set.
+   */
   public void setRowLimit(long rowLimit) {
     this.rowLimit = rowLimit;
   }
 
-  /** @return the IsIgnoreEmptyFile flag */
+  /**
+   * @return the IsIgnoreEmptyFile flag
+   */
   public boolean isIgnoreEmptyFile() {
     return isIgnoreEmptyFile;
   }
 
-  /** @param isIgnoreEmptyFile the IsIgnoreEmptyFile to set */
+  /**
+   * @param isIgnoreEmptyFile the IsIgnoreEmptyFile to set
+   */
   public void setIgnoreEmptyFile(boolean isIgnoreEmptyFile) {
     this.isIgnoreEmptyFile = isIgnoreEmptyFile;
   }

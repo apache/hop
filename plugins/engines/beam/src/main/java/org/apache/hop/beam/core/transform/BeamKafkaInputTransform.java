@@ -17,11 +17,7 @@
 
 package org.apache.hop.beam.core.transform;
 
-import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.beam.sdk.coders.AtomicCoder;
-import org.apache.beam.sdk.coders.AvroCoder;
-import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.io.kafka.ConfluentSchemaRegistryDeserializerProvider;
 import org.apache.beam.sdk.io.kafka.KafkaIO;
 import org.apache.beam.sdk.metrics.Counter;

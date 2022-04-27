@@ -17,22 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ObjectValidator;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Random;
+import java.util.UUID;
 
 public class ExcelWriterTransformMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

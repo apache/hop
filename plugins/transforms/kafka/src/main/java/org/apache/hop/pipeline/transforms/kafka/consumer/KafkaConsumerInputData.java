@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
-import org.apache.avro.generic.GenericRecord;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;

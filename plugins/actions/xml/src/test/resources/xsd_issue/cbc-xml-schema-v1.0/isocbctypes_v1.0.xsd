@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by Sebastien Michon (OECD) -->
-<xsd:schema xmlns:iso="urn:oecd:ties:isocbctypes:v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:oecd:ties:isocbctypes:v1" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:oecd:ties:isocbctypes:v1"
+            elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
 	<!--  ISO 3166 alpha 2 Country Code 
 
 The following disclaimer refers to all uses of the ISO country code list in the CBC schema: For practical reasons, the list is based on the ISO 3166-1 country list which is currently used by banks and other financial institutions, and hence by tax administrations. The use of this list does not imply the expression by the OECD of any opinion whatsoever concerning the legal status of the territories listed. Its content is without prejudice to the status of or sovereignty over any territory, to the delimitation of international frontiers and boundaries and to the name of any territory, city or area.  

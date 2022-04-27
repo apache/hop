@@ -31,7 +31,6 @@ import org.apache.hop.databases.cassandra.datastax.TableMetaData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,8 +39,10 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DriverCqlRowHandlerTest {
 

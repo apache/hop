@@ -18,14 +18,13 @@
 package org.apache.hop.core.file;
 
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 
-/** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
+/**
+ * @deprecated replaced by implementation in the ...transforms.fileinput.text package
+ */
 @Deprecated
-public interface IInputFileMeta
-    extends ITransformMeta {
+public interface IInputFileMeta extends ITransformMeta {
 
   TextFileInputField[] getInputFields();
 

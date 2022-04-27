@@ -18,6 +18,12 @@
 
 package org.apache.hop.vfs.dropbox;
 
+import com.dropbox.core.DbxException;
+import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.ListFolderResult;
+import com.dropbox.core.v2.files.Metadata;
+import com.dropbox.core.v2.files.UploadUploader;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.vfs2.FileNotFoundException;
 import org.apache.commons.vfs2.FileObject;
@@ -25,18 +31,13 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
+
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import com.dropbox.core.DbxException;
-import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.files.ListFolderResult;
-import com.dropbox.core.v2.files.Metadata;
-import com.dropbox.core.v2.files.UploadUploader;
 
 /** An dropbox file object. */
 public class DropboxFileObject extends AbstractFileObject<DropboxFileSystem> {

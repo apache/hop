@@ -27,8 +27,6 @@ import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.*;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
 import java.util.List;

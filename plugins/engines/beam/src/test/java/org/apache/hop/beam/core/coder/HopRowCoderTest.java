@@ -23,7 +23,6 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -31,8 +30,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
-
-import static org.junit.Assert.assertEquals;
 
 public class HopRowCoderTest extends TestCase {
 

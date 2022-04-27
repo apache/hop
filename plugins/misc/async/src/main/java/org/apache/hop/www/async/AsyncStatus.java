@@ -20,11 +20,7 @@ package org.apache.hop.www.async;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.hop.www.HopServerPipelineStatus;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AsyncStatus {
   private String service;

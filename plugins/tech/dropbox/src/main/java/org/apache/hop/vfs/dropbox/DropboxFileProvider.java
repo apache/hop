@@ -25,6 +25,7 @@ import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
 import org.apache.hop.vfs.dropbox.config.DropboxConfig;
 import org.apache.hop.vfs.dropbox.config.DropboxConfigSingleton;
+
 import java.util.Collection;
 import java.util.Set;
 

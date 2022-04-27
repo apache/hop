@@ -38,11 +38,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -59,7 +57,7 @@ import java.util.Set;
     keywords = "i18n::DatabaseLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/databaselookup.html")
 public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, DatabaseLookupData>
-  implements IProvidesModelerMeta {
+    implements IProvidesModelerMeta {
 
   private static final Class<?> PKG = DatabaseLookupMeta.class; // For Translator
 
@@ -521,7 +519,9 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
     return cached;
   }
 
-  /** @param cached The cached to set */
+  /**
+   * @param cached The cached to set
+   */
   public void setCached(boolean cached) {
     this.cached = cached;
   }
@@ -535,7 +535,9 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
     return cacheSize;
   }
 
-  /** @param cacheSize The cacheSize to set */
+  /**
+   * @param cacheSize The cacheSize to set
+   */
   public void setCacheSize(int cacheSize) {
     this.cacheSize = cacheSize;
   }
@@ -549,7 +551,9 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
     return loadingAllDataInCache;
   }
 
-  /** @param loadingAllDataInCache The loadingAllDataInCache to set */
+  /**
+   * @param loadingAllDataInCache The loadingAllDataInCache to set
+   */
   public void setLoadingAllDataInCache(boolean loadingAllDataInCache) {
     this.loadingAllDataInCache = loadingAllDataInCache;
   }
@@ -563,7 +567,9 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
     return lookup;
   }
 
-  /** @param lookup The lookup to set */
+  /**
+   * @param lookup The lookup to set
+   */
   public void setLookup(Lookup lookup) {
     this.lookup = lookup;
   }

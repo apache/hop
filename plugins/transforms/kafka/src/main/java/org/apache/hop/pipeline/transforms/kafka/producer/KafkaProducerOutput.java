@@ -17,18 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.kafka.producer;
 
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.generic.IndexedRecord;
-import org.apache.avro.specific.SpecificData;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.kafka.consumer.KafkaConsumerField;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaFactory;
@@ -101,11 +95,11 @@ public class KafkaProducerOutput
               .getValueMeta(data.messageFieldIndex)
               .getNativeDataType(r[data.messageFieldIndex]);
 
-        producerRecord =
-            new ProducerRecord<>(
-                resolve(meta.getTopic()),
-                getInputRowMeta().getString(r, data.keyFieldIndex),
-                nativeObject);
+      producerRecord =
+          new ProducerRecord<>(
+              resolve(meta.getTopic()),
+              getInputRowMeta().getString(r, data.keyFieldIndex),
+              nativeObject);
     }
 
     data.kafkaProducer.send(producerRecord);

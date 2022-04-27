@@ -33,7 +33,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 /** User: Dzmitry Stsiapanau Date: 1/31/14 Time: 11:19 AM */

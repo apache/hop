@@ -30,7 +30,9 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class DefaultMongoCollectionWrapperTest {

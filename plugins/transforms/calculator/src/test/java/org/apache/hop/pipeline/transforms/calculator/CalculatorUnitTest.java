@@ -28,13 +28,11 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.*;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.CalculationType;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.*;
-import org.mockito.ArgumentMatcher;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -45,7 +43,9 @@ import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 /**

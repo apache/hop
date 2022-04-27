@@ -29,14 +29,15 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Properties;
+
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Properties;
 
 /** Executes a XSL Transform on the values in the input stream. */
 public class Xslt extends BaseTransform<XsltMeta, XsltData> {
