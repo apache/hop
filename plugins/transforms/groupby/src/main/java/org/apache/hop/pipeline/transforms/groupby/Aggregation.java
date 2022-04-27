@@ -70,7 +70,7 @@ public class Aggregation implements Cloneable {
   public static final int TYPE_GROUP_CONCAT_STRING_CRLF = 21;
 
   public static final String[]
-          typeGroupCode = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */ {
+          typeGroupLabel = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */ {
           "-",
           "SUM",
           "AVERAGE",
@@ -128,7 +128,7 @@ public class Aggregation implements Cloneable {
   private String subject;
 
   @HopMetadataProperty(key = "type", injectionKey = "AGG_TYPE", injectionKeyDescription = "GroupByMeta.Injection.AGG_TYPE")
-  private String typeDesc;
+  private String typeLabel;
 
   private int type;
 
@@ -140,14 +140,14 @@ public class Aggregation implements Cloneable {
   public Aggregation(String field, String subject, String typeDesc, String value) {
     this.field = field;
     this.subject = subject;
-    this.typeDesc = typeDesc;
+    this.typeLabel = getTypeLabelFromLongDesc(typeDesc);
     this.value = value;
-    this.type = getTypeCode(typeDesc);
+    this.type = getTypeCodeFromLongDesc(typeDesc);
   }
 
   @Override
   public Aggregation clone() {
-    return new Aggregation(field, subject, typeDesc, value);
+    return new Aggregation(field, subject, typeLabel, value);
   }
 
   /**
@@ -184,16 +184,13 @@ public class Aggregation implements Cloneable {
    * @return value of type
    */
   public String getTypeLabel() {
-    return typeDesc;
+    return typeLabel;
   }
 
-  public void setTypeDesc(String typeCode) {
-    this.typeDesc = typeCode;
-    this.type = getTypeCode(typeCode);
-  }
 
-  public String getTypeDesc() {
-    return typeDesc;
+  public void setTypeLabel(String typeCode) {
+    this.typeLabel = typeCode;
+    this.type = getTypeCodeFromLabel(typeCode);
   }
 
   /**
@@ -220,12 +217,7 @@ public class Aggregation implements Cloneable {
   }
 
 
-  public final static int getTypeCode(String desc) {
-    for (int i = 0; i < typeGroupCode.length; i++) {
-      if (typeGroupCode[i].equalsIgnoreCase(desc)) {
-        return i;
-      }
-    }
+  public static final int getTypeCodeFromLongDesc(String desc) {
     for (int i = 0; i < typeGroupLongDesc.length; i++) {
       if (typeGroupLongDesc[i].equalsIgnoreCase(desc)) {
         return i;
@@ -233,15 +225,34 @@ public class Aggregation implements Cloneable {
     }
     return 0;
   }
-//
-//  public static final String getTypeLabel(int i) {
-//    if (i < 0 || i >= typeGroupCode.length) {
-//      return null;
-//    }
-//    return typeGroupCode[i];
-//  }
 
-  public static final String getTypeDescLong(int i) {
+  public static final int getTypeCodeFromLabel(String label) {
+    for (int i = 0; i < typeGroupLabel.length; i++) {
+      if (typeGroupLabel[i].equalsIgnoreCase(label)) {
+        return i;
+      }
+    }
+    return 0;
+  }
+
+  public static final String getTypeLabelFromLongDesc(String desc) {
+    int descPos = 0;
+    for (int i = 0; i < typeGroupLongDesc.length; i++) {
+      if (typeGroupLongDesc[i].equalsIgnoreCase(desc)) {
+        descPos = i;
+      }
+    }
+    return typeGroupLabel[descPos];
+  }
+
+  public static final String getTypeLabelFromCode(int i) {
+    if (i < 0 || i >= typeGroupLabel.length) {
+      return null;
+    }
+    return typeGroupLabel[i];
+  }
+
+  public static final String getTypeDescLongFromCode(int i) {
     if (i < 0 || i >= typeGroupLongDesc.length) {
       return null;
     }

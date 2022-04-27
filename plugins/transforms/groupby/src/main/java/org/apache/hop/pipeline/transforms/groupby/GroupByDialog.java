@@ -513,7 +513,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
       TableItem item = wAgg.table.getItem(i++);
       item.setText(1, Const.NVL(aggregation.getField(), ""));
       item.setText(2, Const.NVL(aggregation.getSubject(), ""));
-      item.setText(3, Const.NVL(aggregation.getTypeLabel(), ""));
+      item.setText(3, Const.NVL(Aggregation.getTypeDescLongFromCode(aggregation.getType()), ""));
       item.setText(4, Const.NVL(aggregation.getValue(), ""));
     }
 
@@ -566,7 +566,6 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
       String aggTypeDesc = item.getText(3);
       String aggValue = item.getText(4);
       Aggregation aggr = new Aggregation(aggField, aggSubject, aggTypeDesc, aggValue);
-
       input.getAggregations().add(aggr);
     }
 
@@ -641,7 +640,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
         IntStream.range(0, aggregationTable.nrNonEmpty())
             .map(
                 row ->
-                    Aggregation.getTypeCode(
+                    Aggregation.getTypeCodeFromLongDesc(
                         aggregationTable.getNonEmpty(row).getText(AGGREGATION_TABLE_TYPE_INDEX)))
             .anyMatch(
                 pred ->
