@@ -257,9 +257,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     // Add parameters to the executionConfiguration
     Map<String, String> params = new HashMap<>();
     for (String param : listParameters()) {
-      if (isVariablePassedToRemoteServer(param)) {
         params.put(param, getVariable(param));
-      }
     }
 
     executionConfiguration.getParametersMap().putAll(params);
