@@ -1,0 +1,117 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The REST Client transform enables you to consume RESTfull services.
+
+= Rules accumulator
+
+== Description
+
+The Rules Accumulator collects incoming rows and executes them against a rule set. This may be useful to determine the answer to a question or otherwise analyze a dataset.
+
+https://www.drools.org/[Drools] is the present rule engine implementation and its https://docs.drools.org/7.68.0.Final/drools-docs/html_single/index.html#_droolslanguagereferencechapter[rule language] can be referenced for use by this step. https://docs.drools.org/7.68.0.Final/drools-docs/html_single/index.html#_welcome[Drools documentation]
+
+== Details
+Once all incoming rows have been collected by the Rules Accumulator step (e.g. - the previous step shuts down) the rows are transformed into Rules.Row objects and passed into the rules engine to be executed against the given rule set.
+
+Rules.Row is defined as a key / value Map of fields where key is the name of the field and value is the value of the field; as well as the externalSource boolean property to indicate whether the Rules.Row object was created in the rule set or injected from an external source.
+
+Fields of a row are accessed as "Row (column["<fieldname>"])".
+
+=== Rules Tab
+
+The _Rules_ tab is where you enter your rule definition or a reference to the rule file..
+
+[width="90%",options="header"]
+|===
+|Option|Description
+|Rules filename|
+|Rules script to execute|
+|===
+
+=== Rules result Tab
+
+Rules result tab defines the layout of the Rules output fields.
+
+
+[width="90%",options="header"]
+|===
+|Option|Description
+|Result column name|
+|Result column type|
+|===
+
+== Example
+All Rule Definitions should contain "import org.pentaho.di.trans.steps.rules.Rules.Row;" to give access to the Rules.Row class.
+
+For the input with a row meta: name (String), position (Integer), color (String); a Rules.Row object will be created for each row with a Map containing those fields.
+
+[width="90%",options="header"]
+|===
+|Rules.Row->row (Map)|Name|Position|Color
+||Fred|1|Blue
+||Fred|2|Red
+||Bob|1|Blue
+||Bob|1|Red
+|===
+
+Rules can be defined and applied:
+[source,drools]
+----
+rule "Golfers problem"
+    dialect "mvel"
+    when
+
+    # Define Fred
+    $fred : Row ( externalSource == true,
+        column["name"] == "Fred"
+    )
+
+    # Define Bob
+    $bob : Row ( externalSource == true,
+        column["name"] == "Bob",
+        column["position"] != $fred.column["position"],
+        column["color"] == "blue",
+        column["color"] != $fred.column["color"],
+    )
+
+    then
+
+      Row fredRow = new Row();
+      Row bobRow = new Row();
+
+      fredRow.addColumn("name", "Fred");
+      fredRow.addColumn("position", $fred.column["position"]);
+      fredRow.addColumn("color", $fred.column["color"]);
+
+      bobRow.addColumn("name", "Bob");
+      bobRow.addColumn("position", $bob.column["position"]);
+      bobRow.addColumn("color", $bob.column["color"]);
+
+
+      insert(fredRow);
+      insert(bobRow);
+
+end
+----
+
+Rules.Row objects can be checked as in the above's left hand side.
+
+Rules.Row objects can be created for the data stream as in the above's right hand side.
+
+The step can be told what fields to pickup from the generated row objects by defining the field Map's name in the steps Results tab. Type conversions can be applied by setting the Result column type as well.

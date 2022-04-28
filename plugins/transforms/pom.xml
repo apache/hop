@@ -94,6 +94,7 @@
                 <module>detectemptystream</module>
                 <module>detectlastrow</module>
                 <module>dimensionlookup</module>
+                <module>drools</module>
                 <module>dynamicsqlrow</module>
                 <module>edi2xml</module>
                 <module>excelinput</module>
