@@ -337,7 +337,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
    * @return an array of database connections meta-data. Return an empty array if no connections are
    *     used.
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   public DatabaseMeta[] getUsedDatabaseConnections() {
     return new DatabaseMeta[] {};
   }

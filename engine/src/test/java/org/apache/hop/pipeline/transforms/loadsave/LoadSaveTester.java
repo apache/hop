@@ -150,7 +150,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
    * @deprecated the {@link #testSerialization()} method should be used instead, as additional tests
    *     may be added in the future to cover other topics related to transform serialization
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   // TODO Change method visibility to protected
   public void testXmlRoundTrip() throws HopException {
     T metaToSave = createMeta();

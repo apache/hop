@@ -125,7 +125,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
    * @return Returns the commitSize.
    * @deprecated use public String getCommitSizeVar() instead
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   public int getCommitSize() {
     return Integer.parseInt(commitSize);
   }
@@ -150,7 +150,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
    * @param commitSize The commitSize to set.
    * @deprecated use public void setCommitSize( String commitSize ) instead
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   public void setCommitSize(int commitSize) {
     this.commitSize = Integer.toString(commitSize);
   }

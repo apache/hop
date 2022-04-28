@@ -755,7 +755,7 @@ public class JsonInputMeta
    * @param nrFiles
    * @param nrFields
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   public void allocate(int nrFiles, int nrFields) {
     initArrayFields(nrFiles, nrFields);
   }

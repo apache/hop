@@ -57,7 +57,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
-@Deprecated
+@Deprecated(since="2.0")
 @Transform(
     id = "TextFileInput",
     image = "textfileinput.svg",

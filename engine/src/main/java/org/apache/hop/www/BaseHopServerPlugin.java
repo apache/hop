@@ -39,7 +39,7 @@ public abstract class BaseHopServerPlugin extends BaseHttpServlet
    * @deprecated Should not be called directly. Use {@link #service(HttpServletRequest,
    *     HttpServletResponse)} instead
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   @Override
   public void doGet(HttpServletRequest req, final HttpServletResponse resp) throws IOException {
     service(req, resp);

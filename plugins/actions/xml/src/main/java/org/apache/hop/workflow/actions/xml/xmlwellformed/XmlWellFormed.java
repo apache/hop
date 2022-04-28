@@ -69,16 +69,16 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   public static final String ADD_BAD_FORMED_FILES_ONLY = "only_bad_formed_filenames";
 
   /** @Deprecated no longer used */
-  @Deprecated public boolean argFromPrevious;
+  @Deprecated(since="2.0") public boolean argFromPrevious;
 
   /** @Deprecated no longer used */
-  @Deprecated public boolean includeSubfolders;
+  @Deprecated(since="2.0") public boolean includeSubfolders;
 
   /** @Deprecated no longer used */
-  @Deprecated public String[] sourceFileFolders;
+  @Deprecated(since="2.0") public String[] sourceFileFolders;
 
   /** @Deprecated no longer used */
-  @Deprecated public String[] wildcard;
+  @Deprecated(since="2.0") public String[] wildcard;
 
   private String nrErrorsLessThan;
   private String successCondition;
