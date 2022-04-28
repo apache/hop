@@ -97,6 +97,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     if (StringUtils.isNotBlank(data.realProxyHost)) {
       clientBuilder.setProxy(data.realProxyHost, data.realProxyPort);
     }
+    if (meta.isIgnoreSsl()) {
+      clientBuilder.ignoreSsl(true);
+    }
 
     CloseableHttpClient httpClient = clientBuilder.build();
 

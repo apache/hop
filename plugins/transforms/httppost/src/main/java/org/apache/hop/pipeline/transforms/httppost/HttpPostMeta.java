@@ -78,6 +78,9 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.urlInField")
   private boolean urlInField;
 
+  @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.ignoreSsl")
+  private boolean ignoreSsl;
+
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.urlField")
   private String urlField;
 
@@ -400,5 +403,13 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   /** @return */
   public String getHttpPassword() {
     return httpPassword;
+  }
+
+  public boolean isIgnoreSsl() {
+    return ignoreSsl;
+  }
+
+  public void setIgnoreSsl(boolean ignoreSsl) {
+    this.ignoreSsl = ignoreSsl;
   }
 }
