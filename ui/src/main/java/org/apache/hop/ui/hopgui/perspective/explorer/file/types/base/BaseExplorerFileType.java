@@ -33,7 +33,6 @@ import org.apache.hop.ui.hopgui.perspective.explorer.config.ExplorerPerspectiveC
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.MessageBox;
 
 import java.util.Collections;
@@ -84,7 +83,9 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -99,7 +100,9 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
     return defaultFileExtension;
   }
 
-  /** @param defaultFileExtension The defaultFileExtension to set */
+  /**
+   * @param defaultFileExtension The defaultFileExtension to set
+   */
   public void setDefaultFileExtension(String defaultFileExtension) {
     this.defaultFileExtension = defaultFileExtension;
   }
@@ -114,7 +117,9 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
     return filterExtensions;
   }
 
-  /** @param filterExtensions The filterExtensions to set */
+  /**
+   * @param filterExtensions The filterExtensions to set
+   */
   public void setFilterExtensions(String[] filterExtensions) {
     this.filterExtensions = filterExtensions;
   }
@@ -129,7 +134,9 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
     return filterNames;
   }
 
-  /** @param filterNames The filterNames to set */
+  /**
+   * @param filterNames The filterNames to set
+   */
   public void setFilterNames(String[] filterNames) {
     this.filterNames = filterNames;
   }
@@ -144,7 +151,9 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
     return capabilities;
   }
 
-  /** @param capabilities The capabilities to set */
+  /**
+   * @param capabilities The capabilities to set
+   */
   public void setCapabilities(Properties capabilities) {
     this.capabilities = capabilities;
   }

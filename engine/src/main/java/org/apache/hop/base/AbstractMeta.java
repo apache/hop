@@ -280,7 +280,7 @@ public abstract class AbstractMeta
    * @param name The database name to look for
    * @return The database connection or null if nothing was found.
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   public DatabaseMeta findDatabase(String name) {
     if (metadataProvider == null || StringUtils.isEmpty(name)) {
       return null;

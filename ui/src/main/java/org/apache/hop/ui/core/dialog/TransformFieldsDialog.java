@@ -30,16 +30,12 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-/**
- * Displays the meta-data on the Values in a row as well as the Transform origin of the Value.
- */
+/** Displays the meta-data on the Values in a row as well as the Transform origin of the Value. */
 public class TransformFieldsDialog extends Dialog {
   private static final Class<?> PKG = TransformFieldsDialog.class; // For Translator
 
@@ -220,7 +216,7 @@ public class TransformFieldsDialog extends Dialog {
     fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(buttons[0], -margin * 2);
     wFields.setLayoutData(fdFields);
-    wFields.getTable().addListener(SWT.MouseDoubleClick, e ->  edit());
+    wFields.getTable().addListener(SWT.MouseDoubleClick, e -> edit());
 
     getData();
 

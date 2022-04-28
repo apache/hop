@@ -316,7 +316,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    *
    * @param preview
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   void setPreview(boolean preview);
 
   /**
@@ -324,7 +324,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    *
    * @return
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   boolean isPreview();
 
   /**
@@ -386,7 +386,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    *
    * @return True if feedback needs to be given
    */
-  @Deprecated // TODO: move this to the run configuration API
+  @Deprecated(since="2.0") // TODO: move this to the run configuration API
   boolean isFeedbackShown();
 
   /**
@@ -394,7 +394,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    *
    * @return The feedback size in rows
    */
-  @Deprecated // TODO: move the run configuration API
+  @Deprecated(since="2.0") // TODO: move the run configuration API
   int getFeedbackSize();
 
   /**

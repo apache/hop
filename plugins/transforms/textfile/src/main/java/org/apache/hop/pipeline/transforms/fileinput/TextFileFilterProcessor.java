@@ -22,7 +22,7 @@ package org.apache.hop.pipeline.transforms.fileinput;
  *
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
-@Deprecated
+@Deprecated(since="2.0")
 public class TextFileFilterProcessor {
 
   /** The filters to process */

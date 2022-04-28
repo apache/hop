@@ -58,7 +58,7 @@ import java.util.*;
  * streams.
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
-@Deprecated
+@Deprecated(since="2.0")
 public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInputData> {
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
@@ -162,7 +162,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     return null;
   }
 
-  @Deprecated
+  @Deprecated(since="2.0")
   public static final String[] guessStringsFromLine(
       ILogChannel log, String line, TextFileInputMeta inf, String delimiter) throws HopException {
     return guessStringsFromLine(

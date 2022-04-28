@@ -342,7 +342,7 @@ public class ValueMetaBase implements IValueMeta {
    * @deprecated in favor of a combination of {@link ValueMetaFactory}.createValueMeta() and the
    *     loadMetaData() method.
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   public ValueMetaBase(DataInputStream inputStream) throws HopFileException, HopEofException {
     this();
     try {
@@ -1450,7 +1450,7 @@ public class ValueMetaBase implements IValueMeta {
   /*
    * Do not use this method directly! It is for tests!
    */
-  @Deprecated
+  @Deprecated(since="1.0")
   String convertBinaryStringToString(byte[] binary, boolean emptyStringDiffersFromNull)
       throws HopValueException {
     // OK, so we have an internal representation of the original object, read
@@ -3687,7 +3687,7 @@ public class ValueMetaBase implements IValueMeta {
    * @deprecated
    * Do not use this method directly! It is for tests!
    */
-  @Deprecated
+  @Deprecated(since="1.0")
   boolean isNull(Object data, boolean emptyStringDiffersFromNull) throws HopValueException {
     try {
       Object value = data;

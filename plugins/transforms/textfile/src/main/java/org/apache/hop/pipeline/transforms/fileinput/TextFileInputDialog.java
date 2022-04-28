@@ -71,7 +71,7 @@ import java.util.List;
 import java.util.*;
 
 /** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
-@Deprecated
+@Deprecated(since="2.0")
 public class TextFileInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
