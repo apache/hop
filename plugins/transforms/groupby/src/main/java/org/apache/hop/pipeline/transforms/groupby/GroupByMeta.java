@@ -18,14 +18,10 @@
 package org.apache.hop.pipeline.transforms.groupby;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -34,8 +30,8 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -54,187 +50,110 @@ import java.util.List;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     documentationUrl = "/pipeline/transforms/groupby.html",
     keywords = "i18n::GroupByMeta.keyword")
-@InjectionSupported(
-    localizationPrefix = "GroupByMeta.Injection.",
-    groups = {"GROUPS", "AGGREGATIONS"})
 public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
 
   private static final Class<?> PKG = GroupByMeta.class; // For Translator
 
-  public static final int TYPE_GROUP_NONE = 0;
-
-  public static final int TYPE_GROUP_SUM = 1;
-
-  public static final int TYPE_GROUP_AVERAGE = 2;
-
-  public static final int TYPE_GROUP_MEDIAN = 3;
-
-  public static final int TYPE_GROUP_PERCENTILE = 4;
-
-  public static final int TYPE_GROUP_MIN = 5;
-
-  public static final int TYPE_GROUP_MAX = 6;
-
-  public static final int TYPE_GROUP_COUNT_ALL = 7;
-
-  public static final int TYPE_GROUP_CONCAT_COMMA = 8;
-
-  public static final int TYPE_GROUP_FIRST = 9;
-
-  public static final int TYPE_GROUP_LAST = 10;
-
-  public static final int TYPE_GROUP_FIRST_INCL_NULL = 11;
-
-  public static final int TYPE_GROUP_LAST_INCL_NULL = 12;
-
-  public static final int TYPE_GROUP_CUMULATIVE_SUM = 13;
-
-  public static final int TYPE_GROUP_CUMULATIVE_AVERAGE = 14;
-
-  public static final int TYPE_GROUP_STANDARD_DEVIATION = 15;
-
-  public static final int TYPE_GROUP_CONCAT_STRING = 16;
-
-  public static final int TYPE_GROUP_COUNT_DISTINCT = 17;
-
-  public static final int TYPE_GROUP_COUNT_ANY = 18;
-
-  public static final int TYPE_GROUP_STANDARD_DEVIATION_SAMPLE = 19;
-
-  public static final int TYPE_GROUP_PERCENTILE_NEAREST_RANK = 20;
-
-  public static final int TYPE_GROUP_CONCAT_STRING_CRLF = 21;
-
-  public static final String[]
-      typeGroupCode = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */ {
-    "-",
-    "SUM",
-    "AVERAGE",
-    "MEDIAN",
-    "PERCENTILE",
-    "MIN",
-    "MAX",
-    "COUNT_ALL",
-    "CONCAT_COMMA",
-    "FIRST",
-    "LAST",
-    "FIRST_INCL_NULL",
-    "LAST_INCL_NULL",
-    "CUM_SUM",
-    "CUM_AVG",
-    "STD_DEV",
-    "CONCAT_STRING",
-    "COUNT_DISTINCT",
-    "COUNT_ANY",
-    "STD_DEV_SAMPLE",
-    "PERCENTILE_NEAREST_RANK",
-    "CONCAT_STRING_CRLF"
-  };
-
-  public static final String[] typeGroupLongDesc = {
-    "-",
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.SUM"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.AVERAGE"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.MEDIAN"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.PERCENTILE"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.MIN"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.MAX"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_ALL"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_COMMA"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.FIRST"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.LAST"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.FIRST_INCL_NULL"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.LAST_INCL_NULL"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CUMUMALTIVE_SUM"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CUMUMALTIVE_AVERAGE"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.STANDARD_DEVIATION"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_STRING"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.COUNT_DISTINCT"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.COUNT_ANY"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.STANDARD_DEVIATION_SAMPLE"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.PERCENTILE_NEAREST_RANK"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_STRING_CRLF")
-  };
-
   /** All rows need to pass, adding an extra row at the end of each group/block. */
-  @Injection(name = "PASS_ALL_ROWS")
+  @HopMetadataProperty(key="all_rows", injectionKey = "PASS_ALL_ROWS", injectionKeyDescription = "GroupByMeta.Injection.PASS_ALL_ROWS")
   private boolean passAllRows;
 
   /** Directory to store the temp files */
-  @Injection(name = "TEMP_DIRECTORY")
+  @HopMetadataProperty(injectionKey = "TEMP_DIRECTORY", injectionKeyDescription = "GroupByMeta.Injection.TEMP_DIRECTORY")
   private String directory;
 
   /** Temp files prefix... */
-  @Injection(name = "TEMP_FILE_PREFIX")
+  @HopMetadataProperty(injectionKey = "TEMP_FILE_PREFIX", injectionKeyDescription = "GroupByMeta.Injection.TEMP_FILE_PREFIX")
   private String prefix;
 
   /** Indicate that some rows don't need to be considered : TODO: make work in GUI & worker */
+  @HopMetadataProperty(key="ignore_aggregate")
   private boolean aggregateIgnored;
 
   /**
    * name of the boolean field that indicates we need to ignore the row : TODO: make work in GUI &
    * worker
    */
+  @HopMetadataProperty(key="field_ignore")
   private String aggregateIgnoredField;
 
   /** Fields to group over */
-  @Injection(name = "GROUP_FIELD", group = "GROUPS")
-  private String[] groupField;
+  @HopMetadataProperty(groupKey = "group", key = "field", injectionGroupKey = "GROUPS", injectionGroupDescription = "GroupByMeta.Injection.GROUPS")
+  private List<GroupingField> groupingFields;
 
-  @InjectionDeep private List<Aggregation> aggregations;
+  @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "AGGREGATIONS", injectionGroupDescription = "GroupByMeta.Injection.AGGREGATIONS")
+  private List<Aggregation> aggregations;
 
   /** Add a linenr in the group, resetting to 0 in a new group. */
-  @Injection(name = "ADD_GROUP_LINENR")
+  @HopMetadataProperty(key="add_linenr", injectionKey = "ADD_GROUP_LINENR", injectionKeyDescription = "GroupByMeta.Injection.ADD_GROUP_LINENR")
   private boolean addingLineNrInGroup;
 
   /** The fieldname that will contain the added integer field */
-  @Injection(name = "ADD_GROUP_LINENR_FIELD")
+  @HopMetadataProperty(key="linenr_fieldname", injectionKey = "ADD_GROUP_LINENR_FIELD", injectionKeyDescription = "GroupByMeta.Injection.ADD_GROUP_LINENR_FIELD")
   private String lineNrInGroupField;
 
   /** Flag to indicate that we always give back one row. Defaults to true for existing pipelines. */
-  @Injection(name = "ALWAYS_GIVE_ROW")
+  @HopMetadataProperty(key="give_back_row", injectionKey = "ALWAYS_GIVE_ROW", injectionKeyDescription = "GroupByMeta.Injection.ALWAYS_GIVE_ROW")
   private boolean alwaysGivingBackOneRow;
 
   public GroupByMeta() {
     super(); // allocate BaseTransformMeta
+    groupingFields = new ArrayList<>();
+    aggregations = new ArrayList<>();
   }
 
-  /** @return Returns the aggregateIgnored. */
+  /**
+   * @return Returns the aggregateIgnored.
+   */
   public boolean isAggregateIgnored() {
     return aggregateIgnored;
   }
 
-  /** @param aggregateIgnored The aggregateIgnored to set. */
+  /**
+   * @param aggregateIgnored The aggregateIgnored to set.
+   */
   public void setAggregateIgnored(boolean aggregateIgnored) {
     this.aggregateIgnored = aggregateIgnored;
   }
 
-  /** @return Returns the aggregateIgnoredField. */
+  /**
+   * @return Returns the aggregateIgnoredField.
+   */
   public String getAggregateIgnoredField() {
     return aggregateIgnoredField;
   }
 
-  /** @param aggregateIgnoredField The aggregateIgnoredField to set. */
+  /**
+   * @param aggregateIgnoredField The aggregateIgnoredField to set.
+   */
   public void setAggregateIgnoredField(String aggregateIgnoredField) {
     this.aggregateIgnoredField = aggregateIgnoredField;
   }
 
-  /** @return Returns the groupField. */
-  public String[] getGroupField() {
-    return groupField;
+  /**
+   * @return Returns the groupField.
+   */
+  public List<GroupingField> getGroupingFields() {
+    return groupingFields;
   }
 
-  /** @param groupField The groupField to set. */
-  public void setGroupField(String[] groupField) {
-    this.groupField = groupField;
+  /**
+   * @param groupingFields The groupField to set.
+   */
+  public void setGroupingFields(List<GroupingField> groupingFields) {
+    this.groupingFields = groupingFields;
   }
 
-  /** @return Returns the passAllRows. */
-  public boolean passAllRows() {
+  /**
+   * @return Returns the passAllRows.
+   */
+  public boolean isPassAllRows() {
     return passAllRows;
   }
 
-  /** @param passAllRows The passAllRows to set. */
+  /**
+   * @param passAllRows The passAllRows to set.
+   */
   public void setPassAllRows(boolean passAllRows) {
     this.passAllRows = passAllRows;
   }
@@ -242,24 +161,36 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
   @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
-    readData(transformNode);
-  }
 
-  public void allocate(int groupSize) {
-    groupField = new String[groupSize];
-    aggregations = new ArrayList<>();
+    super.loadXml(transformNode, metadataProvider);
+
+    boolean hasNumberOfValues = false;
+    for (Aggregation item : aggregations) {
+
+      int aggType = item.getType();
+
+     if (aggType == Aggregation.TYPE_GROUP_COUNT_ALL
+              || aggType == Aggregation.TYPE_GROUP_COUNT_DISTINCT
+              || aggType == Aggregation.TYPE_GROUP_COUNT_ANY) {
+        hasNumberOfValues = true;
+      }
+
+    }
+
+    if (!alwaysGivingBackOneRow) {
+      alwaysGivingBackOneRow = hasNumberOfValues;
+    }
   }
 
   @Override
   public Object clone() {
     GroupByMeta groupByMeta = (GroupByMeta) super.clone();
 
-    int szGroup = 0;
-    if (groupField != null) {
-      szGroup = groupField.length;
+    List<GroupingField> groupingFieldsCopy = new ArrayList<>();
+    for (GroupingField item : groupingFields) {
+      groupingFieldsCopy.add(item.clone());
     }
-    groupByMeta.allocate(szGroup);
-    System.arraycopy(groupField, 0, groupByMeta.groupField, 0, szGroup);
+    groupByMeta.setGroupingFields(groupingFieldsCopy);
 
     List<Aggregation> aggsCopy = new ArrayList<>();
     for (Aggregation aggregation : aggregations) {
@@ -268,90 +199,6 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
     groupByMeta.setAggregations(aggsCopy);
 
     return groupByMeta;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      passAllRows = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "all_rows"));
-      aggregateIgnored =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "ignore_aggregate"));
-      aggregateIgnoredField = XmlHandler.getTagValue(transformNode, "field_ignore");
-
-      directory = XmlHandler.getTagValue(transformNode, "directory");
-      prefix = XmlHandler.getTagValue(transformNode, "prefix");
-
-      addingLineNrInGroup =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "add_linenr"));
-      lineNrInGroupField = XmlHandler.getTagValue(transformNode, "linenr_fieldname");
-
-      Node groupNode = XmlHandler.getSubNode(transformNode, "group");
-      Node fieldsNode = XmlHandler.getSubNode(transformNode, "fields");
-
-      int nrGroups = XmlHandler.countNodes(groupNode, "field");
-      int nrFields = XmlHandler.countNodes(fieldsNode, "field");
-
-      allocate(nrGroups);
-
-      for (int i = 0; i < nrGroups; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(groupNode, "field", i);
-        groupField[i] = XmlHandler.getTagValue(fnode, "name");
-      }
-
-      aggregations = new ArrayList<>();
-      boolean hasNumberOfValues = false;
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fieldsNode, "field", i);
-        String aggField = XmlHandler.getTagValue(fnode, "aggregate");
-        String aggSubject = XmlHandler.getTagValue(fnode, "subject");
-        int aggType = getType(XmlHandler.getTagValue(fnode, "type"));
-
-        if (aggType == TYPE_GROUP_COUNT_ALL
-            || aggType == TYPE_GROUP_COUNT_DISTINCT
-            || aggType == TYPE_GROUP_COUNT_ANY) {
-          hasNumberOfValues = true;
-        }
-        String aggValue = XmlHandler.getTagValue(fnode, "valuefield");
-        aggregations.add(new Aggregation(aggField, aggSubject, aggType, aggValue));
-      }
-
-      String giveBackRow = XmlHandler.getTagValue(transformNode, "give_back_row");
-      if (Utils.isEmpty(giveBackRow)) {
-        alwaysGivingBackOneRow = hasNumberOfValues;
-      } else {
-        alwaysGivingBackOneRow = "Y".equalsIgnoreCase(giveBackRow);
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "GroupByMeta.Exception.UnableToLoadTransformMetaFromXML"), e);
-    }
-  }
-
-  public static final int getType(String desc) {
-    for (int i = 0; i < typeGroupCode.length; i++) {
-      if (typeGroupCode[i].equalsIgnoreCase(desc)) {
-        return i;
-      }
-    }
-    for (int i = 0; i < typeGroupLongDesc.length; i++) {
-      if (typeGroupLongDesc[i].equalsIgnoreCase(desc)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  public static final String getTypeDesc(int i) {
-    if (i < 0 || i >= typeGroupCode.length) {
-      return null;
-    }
-    return typeGroupCode[i];
-  }
-
-  public static final String getTypeDescLong(int i) {
-    if (i < 0 || i >= typeGroupLongDesc.length) {
-      return null;
-    }
-    return typeGroupLongDesc[i];
   }
 
   @Override
@@ -364,8 +211,6 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
     aggregateIgnoredField = null;
 
     int sizeGroup = 0;
-
-    allocate(sizeGroup);
   }
 
   @Override
@@ -383,8 +228,8 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
     if (!passAllRows) {
       // Add the grouping fields in the correct order...
       //
-      for (int i = 0; i < groupField.length; i++) {
-        IValueMeta valueMeta = rowMeta.searchValueMeta(groupField[i]);
+      for (int i = 0; i < groupingFields.size(); i++) {
+        IValueMeta valueMeta = rowMeta.searchValueMeta(groupingFields.get(i).getName());
         if (valueMeta != null) {
           fields.addValueMeta(valueMeta);
         }
@@ -400,42 +245,42 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
     for (Aggregation aggregation : aggregations) {
       int aggregationType = aggregation.getType();
       IValueMeta subj = rowMeta.searchValueMeta(aggregation.getSubject());
-      if (subj != null || aggregationType == TYPE_GROUP_COUNT_ANY) {
+      if (subj != null || aggregationType == Aggregation.TYPE_GROUP_COUNT_ANY) {
         String valueName = aggregation.getField();
         int valueType = IValueMeta.TYPE_NONE;
         int length = -1;
         int precision = -1;
 
         switch (aggregationType) {
-          case TYPE_GROUP_SUM:
-          case TYPE_GROUP_AVERAGE:
-          case TYPE_GROUP_CUMULATIVE_SUM:
-          case TYPE_GROUP_CUMULATIVE_AVERAGE:
-          case TYPE_GROUP_FIRST:
-          case TYPE_GROUP_LAST:
-          case TYPE_GROUP_FIRST_INCL_NULL:
-          case TYPE_GROUP_LAST_INCL_NULL:
-          case TYPE_GROUP_MIN:
-          case TYPE_GROUP_MAX:
+          case Aggregation.TYPE_GROUP_SUM:
+          case Aggregation.TYPE_GROUP_AVERAGE:
+          case Aggregation.TYPE_GROUP_CUMULATIVE_SUM:
+          case Aggregation.TYPE_GROUP_CUMULATIVE_AVERAGE:
+          case Aggregation.TYPE_GROUP_FIRST:
+          case Aggregation.TYPE_GROUP_LAST:
+          case Aggregation.TYPE_GROUP_FIRST_INCL_NULL:
+          case Aggregation.TYPE_GROUP_LAST_INCL_NULL:
+          case Aggregation.TYPE_GROUP_MIN:
+          case Aggregation.TYPE_GROUP_MAX:
             valueType = subj.getType();
             break;
-          case TYPE_GROUP_COUNT_DISTINCT:
-          case TYPE_GROUP_COUNT_ANY:
-          case TYPE_GROUP_COUNT_ALL:
+          case Aggregation.TYPE_GROUP_COUNT_DISTINCT:
+          case Aggregation.TYPE_GROUP_COUNT_ANY:
+          case Aggregation.TYPE_GROUP_COUNT_ALL:
             valueType = IValueMeta.TYPE_INTEGER;
             break;
-          case TYPE_GROUP_CONCAT_COMMA:
+          case Aggregation.TYPE_GROUP_CONCAT_COMMA:
             valueType = IValueMeta.TYPE_STRING;
             break;
-          case TYPE_GROUP_STANDARD_DEVIATION:
-          case TYPE_GROUP_MEDIAN:
-          case TYPE_GROUP_STANDARD_DEVIATION_SAMPLE:
-          case TYPE_GROUP_PERCENTILE:
-          case TYPE_GROUP_PERCENTILE_NEAREST_RANK:
+          case Aggregation.TYPE_GROUP_STANDARD_DEVIATION:
+          case Aggregation.TYPE_GROUP_MEDIAN:
+          case Aggregation.TYPE_GROUP_STANDARD_DEVIATION_SAMPLE:
+          case Aggregation.TYPE_GROUP_PERCENTILE:
+          case Aggregation.TYPE_GROUP_PERCENTILE_NEAREST_RANK:
             valueType = IValueMeta.TYPE_NUMBER;
             break;
-          case TYPE_GROUP_CONCAT_STRING:
-          case TYPE_GROUP_CONCAT_STRING_CRLF:
+          case Aggregation.TYPE_GROUP_CONCAT_STRING:
+          case Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF:
             valueType = IValueMeta.TYPE_STRING;
             break;
           default:
@@ -444,17 +289,17 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
 
         // Change type from integer to number in case off averages for cumulative average
         //
-        if (aggregationType == TYPE_GROUP_CUMULATIVE_AVERAGE
+        if (aggregationType == Aggregation.TYPE_GROUP_CUMULATIVE_AVERAGE
             && valueType == IValueMeta.TYPE_INTEGER) {
           valueType = IValueMeta.TYPE_NUMBER;
           precision = -1;
           length = -1;
-        } else if (aggregationType == TYPE_GROUP_COUNT_ALL
-            || aggregationType == TYPE_GROUP_COUNT_DISTINCT
-            || aggregationType == TYPE_GROUP_COUNT_ANY) {
+        } else if (aggregationType == Aggregation.TYPE_GROUP_COUNT_ALL
+            || aggregationType == Aggregation.TYPE_GROUP_COUNT_DISTINCT
+            || aggregationType == Aggregation.TYPE_GROUP_COUNT_ANY) {
           length = IValueMeta.DEFAULT_INTEGER_LENGTH;
           precision = 0;
-        } else if (aggregationType == TYPE_GROUP_SUM
+        } else if (aggregationType == Aggregation.TYPE_GROUP_SUM
             && valueType != IValueMeta.TYPE_INTEGER
             && valueType != IValueMeta.TYPE_NUMBER
             && valueType != IValueMeta.TYPE_BIGNUMBER) {
@@ -501,48 +346,6 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
     rowMeta.addRowMeta(fields);
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(500);
-
-    retval.append("      ").append(XmlHandler.addTagValue("all_rows", passAllRows));
-    retval.append("      ").append(XmlHandler.addTagValue("ignore_aggregate", aggregateIgnored));
-    retval.append("      ").append(XmlHandler.addTagValue("field_ignore", aggregateIgnoredField));
-    retval.append("      ").append(XmlHandler.addTagValue("directory", directory));
-    retval.append("      ").append(XmlHandler.addTagValue("prefix", prefix));
-    retval.append("      ").append(XmlHandler.addTagValue("add_linenr", addingLineNrInGroup));
-    retval.append("      ").append(XmlHandler.addTagValue("linenr_fieldname", lineNrInGroupField));
-    retval.append("      ").append(XmlHandler.addTagValue("give_back_row", alwaysGivingBackOneRow));
-
-    retval.append("      <group>").append(Const.CR);
-    for (int i = 0; i < groupField.length; i++) {
-      retval.append("        <field>").append(Const.CR);
-      retval.append("          ").append(XmlHandler.addTagValue("name", groupField[i]));
-      retval.append("        </field>").append(Const.CR);
-    }
-    retval.append("      </group>").append(Const.CR);
-
-    retval.append("      <fields>").append(Const.CR);
-    for (Aggregation aggregation : aggregations) {
-      retval.append("        <field>").append(Const.CR);
-      retval
-          .append("          ")
-          .append(XmlHandler.addTagValue("aggregate", aggregation.getField()));
-      retval
-          .append("          ")
-          .append(XmlHandler.addTagValue("subject", aggregation.getSubject()));
-      retval
-          .append("          ")
-          .append(XmlHandler.addTagValue("type", getTypeDesc(aggregation.getType())));
-      retval
-          .append("          ")
-          .append(XmlHandler.addTagValue("valuefield", aggregation.getValue()));
-      retval.append("        </field>").append(Const.CR);
-    }
-    retval.append("      </fields>").append(Const.CR);
-
-    return retval.toString();
-  }
 
   @Override
   public void check(
@@ -574,52 +377,72 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
     }
   }
 
-  /** @return Returns the directory. */
+  /**
+   * @return Returns the directory.
+   */
   public String getDirectory() {
     return directory;
   }
 
-  /** @param directory The directory to set. */
+  /**
+   * @param directory The directory to set.
+   */
   public void setDirectory(String directory) {
     this.directory = directory;
   }
 
-  /** @return Returns the prefix. */
+  /**
+   * @return Returns the prefix.
+   */
   public String getPrefix() {
     return prefix;
   }
 
-  /** @param prefix The prefix to set. */
+  /**
+   * @param prefix The prefix to set.
+   */
   public void setPrefix(String prefix) {
     this.prefix = prefix;
   }
 
-  /** @return the addingLineNrInGroup */
+  /**
+   * @return the addingLineNrInGroup
+   */
   public boolean isAddingLineNrInGroup() {
     return addingLineNrInGroup;
   }
 
-  /** @param addingLineNrInGroup the addingLineNrInGroup to set */
+  /**
+   * @param addingLineNrInGroup the addingLineNrInGroup to set
+   */
   public void setAddingLineNrInGroup(boolean addingLineNrInGroup) {
     this.addingLineNrInGroup = addingLineNrInGroup;
   }
 
-  /** @return the lineNrInGroupField */
+  /**
+   * @return the lineNrInGroupField
+   */
   public String getLineNrInGroupField() {
     return lineNrInGroupField;
   }
 
-  /** @param lineNrInGroupField the lineNrInGroupField to set */
+  /**
+   * @param lineNrInGroupField the lineNrInGroupField to set
+   */
   public void setLineNrInGroupField(String lineNrInGroupField) {
     this.lineNrInGroupField = lineNrInGroupField;
   }
 
-  /** @return the alwaysGivingBackOneRow */
+  /**
+   * @return the alwaysGivingBackOneRow
+   */
   public boolean isAlwaysGivingBackOneRow() {
     return alwaysGivingBackOneRow;
   }
 
-  /** @param alwaysGivingBackOneRow the alwaysGivingBackOneRow to set */
+  /**
+   * @param alwaysGivingBackOneRow the alwaysGivingBackOneRow to set
+   */
   public void setAlwaysGivingBackOneRow(boolean alwaysGivingBackOneRow) {
     this.alwaysGivingBackOneRow = alwaysGivingBackOneRow;
   }
@@ -638,7 +461,9 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
     return aggregations;
   }
 
-  /** @param aggregations The aggregations to set */
+  /**
+   * @param aggregations The aggregations to set
+   */
   public void setAggregations(List<Aggregation> aggregations) {
     this.aggregations = aggregations;
   }
