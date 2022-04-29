@@ -1,0 +1,63 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "foo",
+          "data_set_field": "foo"
+        },
+        {
+          "transform_field": "bar",
+          "data_set_field": "bar"
+        },
+        {
+          "transform_field": "twenty_four",
+          "data_set_field": "twenty_four"
+        },
+        {
+          "transform_field": "three",
+          "data_set_field": "three"
+        },
+        {
+          "transform_field": "two_and_a_half",
+          "data_set_field": "two_and_a_half"
+        },
+        {
+          "transform_field": "is_even",
+          "data_set_field": "is_even"
+        },
+        {
+          "transform_field": "is_odd",
+          "data_set_field": "is_odd"
+        },
+        {
+          "transform_field": "dollar",
+          "data_set_field": "dollar"
+        }
+      ],
+      "field_order": [
+        "foo",
+        "bar",
+        "twenty_four",
+        "three",
+        "two_and_a_half",
+        "is_even",
+        "is_odd",
+        "dollar"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-formula-information"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0042-formula-information UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0042-formula-information.hpl",
+  "test_type": "UNIT_TEST"
+}

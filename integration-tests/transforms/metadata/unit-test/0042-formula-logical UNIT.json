@@ -1,0 +1,93 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "foo",
+          "data_set_field": "foo"
+        },
+        {
+          "transform_field": "bar",
+          "data_set_field": "bar"
+        },
+        {
+          "transform_field": "one",
+          "data_set_field": "one"
+        },
+        {
+          "transform_field": "two",
+          "data_set_field": "two"
+        },
+        {
+          "transform_field": "empty",
+          "data_set_field": "empty"
+        },
+        {
+          "transform_field": "and_true",
+          "data_set_field": "and_true"
+        },
+        {
+          "transform_field": "and_foo",
+          "data_set_field": "and_foo"
+        },
+        {
+          "transform_field": "one_equals_two",
+          "data_set_field": "one_equals_two"
+        },
+        {
+          "transform_field": "not_one_equals_two",
+          "data_set_field": "not_one_equals_two"
+        },
+        {
+          "transform_field": "if_equals_then_else_simple",
+          "data_set_field": "if_equals_then_else_simple"
+        },
+        {
+          "transform_field": "or_two_comparisons",
+          "data_set_field": "or_two_comparisons"
+        },
+        {
+          "transform_field": "true",
+          "data_set_field": "true"
+        },
+        {
+          "transform_field": "false",
+          "data_set_field": "false"
+        },
+        {
+          "transform_field": "and_comparisons",
+          "data_set_field": "and_comparisons"
+        }
+      ],
+      "field_order": [
+        "foo",
+        "bar",
+        "one",
+        "two",
+        "empty",
+        "and_true",
+        "and_foo",
+        "one_equals_two",
+        "not_one_equals_two",
+        "if_equals_then_else_simple",
+        "or_two_comparisons",
+        "true",
+        "false",
+        "and_comparisons"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-formula-logical"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0042-formula-logical UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0042-formula-logical.hpl",
+  "test_type": "UNIT_TEST"
+}
