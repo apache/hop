@@ -1410,7 +1410,11 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       TableItem item = wUpIns.getNonEmpty(i);
       in.getFieldLookup()[i] = item.getText(1);
       in.getFieldStream()[i] = item.getText(2);
-      in.getFieldUpdate()[i] = DimensionLookupMeta.getUpdateType(in.isUpdate(), item.getText(3));
+
+      if (wUpdate.getSelection())
+        in.getFieldUpdate()[i] = DimensionLookupMeta.getUpdateType(in.isUpdate(), item.getText(3));
+      else
+        in.getReturnType()[i] = DimensionLookupMeta.getUpdateType(in.isUpdate(), item.getText(3));
     }
 
     in.setSchemaName(wSchema.getText());
