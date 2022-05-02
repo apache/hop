@@ -254,6 +254,14 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
     executionConfiguration.getVariablesMap().putAll(vars);
 
+    // Add parameters to the executionConfiguration
+    Map<String, String> params = new HashMap<>();
+    for (String param : listParameters()) {
+        params.put(param, getVariable(param));
+    }
+
+    executionConfiguration.getParametersMap().putAll(params);
+
     hopServer.getLogChannel().setLogLevel(executionConfiguration.getLogLevel());
 
     try {
