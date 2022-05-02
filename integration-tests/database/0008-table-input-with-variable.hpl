@@ -78,10 +78,9 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <row_threshold>0</row_threshold>
-    <message/>
-    <always_log_rows>Y</always_log_rows>
     <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
     <attributes/>
     <GUI>
       <xloc>624</xloc>
@@ -100,11 +99,11 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <connection>unit-test-db</connection>
+    <execute_each_row>Y</execute_each_row>
+    <lookup>key variable</lookup>
+    <limit>0</limit>
     <sql>select * from public.testtable
 where key = ?</sql>
-    <limit>0</limit>
-    <lookup>key variable</lookup>
-    <execute_each_row>Y</execute_each_row>
     <variables_active>N</variables_active>
     <attributes/>
     <GUI>
@@ -134,7 +133,7 @@ where key = ?</sql>
         <value>
           <name>constant</name>
           <type>Integer</type>
-          <text>1</text>
+          <text>0</text>
           <length>-1</length>
           <precision>0</precision>
           <isnull>N</isnull>
@@ -159,27 +158,55 @@ where key = ?</sql>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <all_rows>N</all_rows>
-    <ignore_aggregate>N</ignore_aggregate>
-    <field_ignore/>
-    <directory>${java.io.tmpdir}</directory>
-    <prefix>grp</prefix>
     <add_linenr>N</add_linenr>
-    <linenr_fieldname/>
-    <give_back_row>N</give_back_row>
-    <group>
-      </group>
+    <ignore_aggregate>N</ignore_aggregate>
     <fields>
       <field>
         <aggregate>value</aggregate>
         <subject>value</subject>
         <type>COUNT_ANY</type>
-        <valuefield/>
       </field>
     </fields>
+    <give_back_row>Y</give_back_row>
+    <directory>${java.io.tmpdir}</directory>
+    <group>
+</group>
+    <all_rows>N</all_rows>
+    <prefix>grp</prefix>
     <attributes/>
     <GUI>
       <xloc>496</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>key variable</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <name>variable</name>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+      </field>
+    </fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <never_ending>N</never_ending>
+    <limit>1</limit>
+    <row_time_field>now</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>144</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
@@ -197,42 +224,6 @@ where key = ?</sql>
     <attributes/>
     <GUI>
       <xloc>768</xloc>
-      <yloc>80</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>key variable</name>
-    <type>RowGenerator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>variable</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-    </fields>
-    <limit>1</limit>
-    <never_ending>N</never_ending>
-    <interval_in_ms>5000</interval_in_ms>
-    <row_time_field>now</row_time_field>
-    <last_time_field>FiveSecondsAgo</last_time_field>
-    <attributes/>
-    <GUI>
-      <xloc>144</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
