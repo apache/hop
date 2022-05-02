@@ -59,6 +59,6 @@ Output: `Encrypted 2be98afc86aa7f2e4cb79ce10df90acde`
 
 Encrypt (obfuscate) the password 'abcd' for use in Hop server.
 
-``./hop-encrypt.sh -hop abcd`
+``./hop-encrypt.sh -server abcd`
 
 Output: `OBF:1s3g1s3i1s3k1s3m`
