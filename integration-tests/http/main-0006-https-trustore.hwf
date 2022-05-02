@@ -226,7 +226,7 @@ limitations under the License.
       <from>0006-http-post-ignore-ssl.hpl</from>
       <to>Abort workflow</to>
       <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
+      <evaluation>N</evaluation>
       <unconditional>N</unconditional>
     </hop>
   </hops>
