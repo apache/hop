@@ -86,6 +86,7 @@ public class HopVfs {
       fsm.addProvider("https", new org.apache.commons.vfs2.provider.https.HttpsFileProvider());
       fsm.addProvider("ftp", new org.apache.commons.vfs2.provider.ftp.FtpFileProvider());
       fsm.addProvider("ftps", new org.apache.commons.vfs2.provider.ftps.FtpsFileProvider());
+      fsm.addProvider("sftp", new org.apache.commons.vfs2.provider.sftp.SftpFileProvider());
       fsm.addProvider("war", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
       fsm.addProvider("par", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
       fsm.addProvider("ear", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
@@ -98,6 +99,7 @@ public class HopVfs {
       fsm.addProvider("bz2", new org.apache.commons.vfs2.provider.bzip2.Bzip2FileProvider());
       fsm.addProvider(
           "files-cache", new org.apache.commons.vfs2.provider.temp.TemporaryFileProvider());
+      fsm.addProvider("hdfs", new org.apache.commons.vfs2.provider.hdfs.HdfsFileProvider());
       fsm.addExtensionMap("jar", "jar");
       fsm.addExtensionMap("zip", "zip");
       fsm.addExtensionMap("gz", "gz");
