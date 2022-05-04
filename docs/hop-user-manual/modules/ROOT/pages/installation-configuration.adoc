@@ -53,7 +53,7 @@ Apache Hop is known to work well on the following widely used Java Runtimes:
 * https://www.microsoft.com/openjdk[Microsoft OpenJDK] (OpenJDK builds for Windows, MacOS and Linux).
 * https://openjdk.java.net/install/[OpenJDK Java Runtime]
 
-Apache Hop works well with these 64-bit java runtimes for version 8 or higher.
+Apache Hop works well with these 64-bit java runtimes for version 11.
 
 Other Java Runtimes may work but haven't been used and tested as extensively as the Oracle and OpenJDK JREs, so you may be pioneering. Feel free to open a https://hop.apache.org/community/tools/#jira[JIRA ticket] if you run into issues, but please mention your JRE and version.
 
@@ -61,9 +61,9 @@ Run `java -version` if you're not sure which Java version is currently installed
 
 [source,shell]
 ----
-openjdk version "1.8.0_312"
-OpenJDK Runtime Environment (build 1.8.0_312-b10)
-OpenJDK 64-Bit Server VM (build 25.312-b10, mixed mode)
+openjdk version "11.0.2" 2019-01-15
+OpenJDK Runtime Environment 18.9 (build 11.0.2+9)
+OpenJDK 64-Bit Server VM 18.9 (build 11.0.2+9, mixed mode)
 ----
 
 Make sure to point the `JAVA_HOME` environment variable for your operating system to your desired JRE installation. Refer to your operating system's documentation for more information on environment variables.
