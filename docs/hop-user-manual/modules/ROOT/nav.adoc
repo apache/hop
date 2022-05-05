@@ -109,6 +109,8 @@ under the License.
 *** xref:pipeline/transforms/serialize-de-from-file.adoc[De-Serialize From File]
 *** xref:pipeline/transforms/detectemptystream.adoc[Detect Empty Stream]
 *** xref:pipeline/transforms/dimensionlookup.adoc[Dimension lookup/update]
+*** xref:pipeline/transforms/rulesaccumulator.adoc[Drools Rule Accumulator]
+*** xref:pipeline/transforms/rulesexecutor.adoc[Drools Rule Executor]
 *** xref:pipeline/transforms/dummy.adoc[Dummy (do nothing)]
 *** xref:pipeline/transforms/dynamicsqlrow.adoc[Dynamic SQL row]
 *** xref:pipeline/transforms/edi2xml.adoc[Edi to XML]
