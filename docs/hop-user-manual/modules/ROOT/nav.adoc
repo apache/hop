@@ -68,6 +68,7 @@ under the License.
 *** xref:pipeline/transforms/apache-tika.adoc[Apache Tika]
 *** xref:pipeline/transforms/avro-decode.adoc[Avro Decode]
 *** xref:pipeline/transforms/avro-file-input.adoc[Avro File Input]
+*** xref:pipeline/transforms/avro-file-output.adoc[Avro File Output]
 *** xref:pipeline/transforms/azure-event-hubs-listener.adoc[Azure Event Hubs Listener]
 *** xref:pipeline/transforms/azure-event-hubs-writer.adoc[Azure Event Hubs Writer]
 *** xref:pipeline/transforms/beambigtableinput.adoc[Beam Bigtable Input]
