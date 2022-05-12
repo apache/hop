@@ -128,57 +128,53 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
 
             CellType cellType = cellValue.getCellType();
 
-            // Calculate the return type on the first row...
-            // for most cases we can try to convert data on a fly.
-            if ( data.returnType[i] < 0 ) {
-                switch (cellType) {
-                    case BLANK:
-                        // should never happen.
-                        break;
-                    case NUMERIC:
-                        outputValue = cellValue.getNumberValue();
-                        int outputValueType = formula.getValueType();
+            switch (cellType) {
+                case BLANK:
+                    // should never happen.
+                    break;
+                case NUMERIC:
+                    outputValue = cellValue.getNumberValue();
+                    int outputValueType = formula.getValueType();
 
-                        switch (outputValueType) {
-                            case IValueMeta.TYPE_NUMBER:
-                                data.returnType[i] = FormulaData.RETURN_TYPE_NUMBER;
-                                formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_NUMBER);
-                                break;
-                            case IValueMeta.TYPE_INTEGER:
-                                data.returnType[i] = FormulaData.RETURN_TYPE_INTEGER;
-                                formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_NUMBER);
-                                break;
-                            case IValueMeta.TYPE_BIGNUMBER:
-                                data.returnType[i] = FormulaData.RETURN_TYPE_BIGDECIMAL;
-                                formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_NUMBER);
-                                break;
-                            case IValueMeta.TYPE_DATE:
-                                outputValue = DateUtil.getJavaDate(cellValue.getNumberValue());
-                                data.returnType[i] = FormulaData.RETURN_TYPE_DATE;
-                                formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_NUMBER);
-                                break;
-                            case IValueMeta.TYPE_TIMESTAMP:
-                                data.returnType[i] = FormulaData.RETURN_TYPE_TIMESTAMP;
-                                formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_NUMBER);
-                                break;
-                            default:
-                                break;
-                        }
-                        // get cell value
-                        break;
-                    case BOOLEAN:
-                        outputValue = cellValue.getBooleanValue();
-                        data.returnType[i] = FormulaData.RETURN_TYPE_BOOLEAN;
-                        formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_BOOLEAN);
-                        break;
-                    case STRING:
-                        outputValue = cellValue.getStringValue();
-                        data.returnType[i] = FormulaData.RETURN_TYPE_STRING;
-                        formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_STRING);
-                        break;
-                    default:
-                        break;
-                }
+                    switch (outputValueType) {
+                        case IValueMeta.TYPE_NUMBER:
+                            data.returnType[i] = FormulaData.RETURN_TYPE_NUMBER;
+                            formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_NUMBER);
+                            break;
+                        case IValueMeta.TYPE_INTEGER:
+                            data.returnType[i] = FormulaData.RETURN_TYPE_INTEGER;
+                            formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_NUMBER);
+                            break;
+                        case IValueMeta.TYPE_BIGNUMBER:
+                            data.returnType[i] = FormulaData.RETURN_TYPE_BIGDECIMAL;
+                            formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_NUMBER);
+                            break;
+                        case IValueMeta.TYPE_DATE:
+                            outputValue = DateUtil.getJavaDate(cellValue.getNumberValue());
+                            data.returnType[i] = FormulaData.RETURN_TYPE_DATE;
+                            formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_NUMBER);
+                            break;
+                        case IValueMeta.TYPE_TIMESTAMP:
+                            data.returnType[i] = FormulaData.RETURN_TYPE_TIMESTAMP;
+                            formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_NUMBER);
+                            break;
+                        default:
+                            break;
+                    }
+                    // get cell value
+                    break;
+                case BOOLEAN:
+                    outputValue = cellValue.getBooleanValue();
+                    data.returnType[i] = FormulaData.RETURN_TYPE_BOOLEAN;
+                    formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_BOOLEAN);
+                    break;
+                case STRING:
+                    outputValue = cellValue.getStringValue();
+                    data.returnType[i] = FormulaData.RETURN_TYPE_STRING;
+                    formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_STRING);
+                    break;
+                default:
+                    break;
             }
 
             int realIndex = (data.replaceIndex[i] < 0) ? tempIndex++: data.replaceIndex[i];

@@ -134,6 +134,23 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
+    <name>Verify</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>sample data</name>
     <type>DataGrid</type>
     <description/>
@@ -146,35 +163,55 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
+        <currency/>
+        <decimal/>
         <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
         <length>-1</length>
         <name>foo</name>
         <precision>-1</precision>
         <type>String</type>
       </field>
       <field>
+        <currency/>
+        <decimal/>
         <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
         <length>-1</length>
         <name>bar</name>
         <precision>-1</precision>
         <type>String</type>
       </field>
       <field>
+        <currency/>
+        <decimal/>
         <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
         <length>-1</length>
         <name>one</name>
         <precision>-1</precision>
         <type>Integer</type>
       </field>
       <field>
+        <currency/>
+        <decimal/>
         <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
         <length>-1</length>
         <name>two</name>
         <precision>-1</precision>
         <type>Integer</type>
       </field>
       <field>
+        <currency/>
+        <decimal/>
         <set_empty_string>Y</set_empty_string>
+        <format/>
+        <group/>
         <length>-1</length>
         <name>empty</name>
         <precision>-1</precision>
@@ -189,27 +226,24 @@ limitations under the License.
         <item>2</item>
         <item/>
       </line>
+      <line>
+        <item>foo2</item>
+        <item>bar2</item>
+        <item>3</item>
+        <item>4</item>
+        <item/>
+      </line>
+      <line>
+        <item>foo3</item>
+        <item>bar3</item>
+        <item>5</item>
+        <item>6</item>
+        <item/>
+      </line>
     </data>
     <attributes/>
     <GUI>
       <xloc>128</xloc>
-      <yloc>80</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Verify</name>
-    <type>Dummy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>400</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
