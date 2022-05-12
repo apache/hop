@@ -66,7 +66,7 @@
                 <include>com.google.cloud:google-cloud-core:jar</include>
                 <include>com.google.cloud:google-cloud-storage:jar</include>
                 <include>com.google.code.findbugs:jsr305:jar</include>
-                <include>com.google.http-client::google-http-client-appengine:jar</include>
+                <include>com.google.http-client:google-http-client-appengine:jar</include>
                 <include>com.google.http-client:google-http-client-jackson2:jar</include>
                 <include>com.google.http-client:google-http-client:jar</include>
                 <include>com.google.j2objc:j2objc-annotations:jar</include>
