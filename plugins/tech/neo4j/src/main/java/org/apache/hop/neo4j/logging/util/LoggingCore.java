@@ -27,6 +27,7 @@ import org.apache.hop.neo4j.logging.Defaults;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.eclipse.swt.graphics.Rectangle;
 import org.neo4j.driver.*;
+import org.neo4j.driver.Record;
 import org.neo4j.driver.types.Node;
 
 import java.text.SimpleDateFormat;

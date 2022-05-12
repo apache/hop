@@ -59,12 +59,12 @@
         <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-avro-serializer</artifactId>
-            <version>5.3.2</version>
+            <version>7.1.1</version>
         </dependency>
         <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-schema-registry-client</artifactId>
-            <version>5.3.2</version>
+            <version>7.1.1</version>
         </dependency>
     </dependencies>
 

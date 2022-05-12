@@ -59,7 +59,7 @@
                 <include>com.sun.jersey:jersey-client:jar</include>
                 <include>com.sun.jersey:jersey-core:jar</include>
                 <include>io.netty:netty:jar</include>
-                <include>javax.activation:activation:jar</include>
+                <include>jakarta.activation:jakarta.activation-api:jar</include>
                 <include>javax.xml.bind:jaxb-api:jar</include>
                 <include>javax.xml.stream:stax-api:jar</include>
                 <include>org.apache.curator:curator-client:jar</include>

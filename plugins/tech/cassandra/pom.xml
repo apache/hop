@@ -47,7 +47,7 @@
         <cassandra.version>3.11.12</cassandra.version>
         <cassandra-driver.version>3.11.1</cassandra-driver.version>
 
-        <netty.version>4.0.44.Final</netty.version>
+        <netty.version>4.1.77.Final</netty.version>
         <clearspring-stream.version>2.8.0</clearspring-stream.version>
         <sigar.version>1.6.4</sigar.version>
         <dropwizard-metrics.version>3.1.0</dropwizard-metrics.version>

@@ -32,6 +32,7 @@ import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.neo4j.driver.*;
+import org.neo4j.driver.Record;
 
 import java.net.URI;
 import java.net.URISyntaxException;

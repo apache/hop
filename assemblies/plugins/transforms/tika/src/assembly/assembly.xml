@@ -62,7 +62,7 @@
         <include>com.pff:java-libpst:jar</include>
         <include>com.rometools:rome:jar</include>
         <include>com.rometools:rome-utils:jar</include>
-        <include>com.sun.activation:jakarta.activation:jar</include>
+        <include>jakarta.activation:jakarta.activation-api:jar</include>
         <include>com.sun.istack:istack-commons-runtime:jar</include>
         <include>com.zaxxer:SparseBitSet:jar</include>
         <include>de.l3s.boilerpipe:boilerpipe:jar</include>

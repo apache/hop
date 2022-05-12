@@ -42,6 +42,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.30</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-yamlinput</artifactId>
             <version>${project.version}</version>

@@ -50,22 +50,22 @@
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-bigquery</artifactId>
-            <version>v2-rev20210410-1.31.0</version>
+            <version>v2-rev459-1.25.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client</artifactId>
-            <version>1.39.2</version>
+            <version>1.41.8</version>
         </dependency>
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client-jackson2</artifactId>
-            <version>1.39.2</version>
+            <version>1.41.8</version>
         </dependency>
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client</artifactId>
-            <version>1.30.6</version>
+            <version>1.33.3</version>
         </dependency>
     </dependencies>
 

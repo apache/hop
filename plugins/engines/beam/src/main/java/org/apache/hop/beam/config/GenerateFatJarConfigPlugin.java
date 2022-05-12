@@ -66,7 +66,7 @@ public class GenerateFatJarConfigPlugin implements IConfigOptions {
         "Found " + installedJarFilenames.size() + " jar files to combine into one fat jar file.");
 
     FatJarBuilder fatJarBuilder =
-        new FatJarBuilder(variables, realFatJarFilename, installedJarFilenames);
+        new FatJarBuilder(log, variables, realFatJarFilename, installedJarFilenames);
     fatJarBuilder.setExtraTransformPluginClasses(null);
     fatJarBuilder.setExtraXpPluginClasses(null);
     fatJarBuilder.buildTargetJar();
