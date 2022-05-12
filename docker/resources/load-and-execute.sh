@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-set -Eeuo pipefail
+set -Euo pipefail
 
 log() {
   # shellcheck disable=SC2046
@@ -205,7 +205,7 @@ if [ -z "${HOP_FILE_PATH}" ]; then
     /tmp/hop-server.xml \
     2>&1 | tee ${HOP_LOG_PATH}
 
-  exitWithCode $?
+  exitWithCode "${PIPESTATUS[0]}"
 else
 
   if [ -z "${HOP_RUN_CONFIG}" ]; then
@@ -221,5 +221,5 @@ else
     ${HOP_EXEC_OPTIONS} \
     2>&1 | tee "${HOP_LOG_PATH}"
 
-  exitWithCode $?
+  exitWithCode "${PIPESTATUS[0]}"
 fi

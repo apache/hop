@@ -2696,7 +2696,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           gc.drawImage(svgFile, 200, 200, 32, 40, gc.getMagnification(), 0);
           gc.setBackground(IGc.EColor.BACKGROUND);
           gc.drawText(
-              BaseMessages.getString(PKG, "PipelineGraph.NewWorkflowBackgroundMessage"), 260, 220);
+              BaseMessages.getString(PKG, "HopGuiWorkflowGraph.NewWorkflowBackgroundMessage"), 260, 220);
         }
       } catch (HopException e) {
         throw new HopException("Error drawing workflow", e);
