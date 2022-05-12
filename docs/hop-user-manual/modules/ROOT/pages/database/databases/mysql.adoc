@@ -31,3 +31,6 @@ under the License.
 |JDBC Url | jdbc:mysql://hostname:33060/databaseName
 |Driver folder | Hop Installation/plugins/databases/mysql/lib
 |===
+
+**Important:** When creating a connection for mysql make sure you select the correct "database type". +
+The Mysql 8+ type will work for the current Drivers. If needed you can use the Mysql driver to use the old "org.gjt.mm.mysql.Driver" Driver path.
