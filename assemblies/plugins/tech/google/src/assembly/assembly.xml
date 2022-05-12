@@ -52,7 +52,7 @@
             <includes>
                 <include>com.google.api:api-common:jar</include>
                 <include>com.google.api-client:google-api-client:jar</include>
-                <include>;com.google.api:gax-httpjson:jar</include>
+                <include>com.google.api:gax-httpjson:jar</include>
                 <include>com.google.api:gax:jar</include>
                 <include>com.google.api.grpc:proto-google-common-protos:jar</include>
                 <include>com.google.api.grpc:proto-google-iam-v1:jar</include>
