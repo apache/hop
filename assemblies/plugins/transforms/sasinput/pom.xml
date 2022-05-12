@@ -37,7 +37,7 @@
     <description>Can read SAS SAS7BDAT files</description>
 
     <properties>
-        <epam-parso-version>2.0.13</epam-parso-version>
+        <epam-parso-version>2.0.14</epam-parso-version>
     </properties>
 
     <dependencies>

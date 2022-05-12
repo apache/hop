@@ -69,8 +69,40 @@
                 <include>io.dropwizard.metrics:metrics-core:jar</include>
                 <include>io.dropwizard.metrics:metrics-jvm:jar</include>
                 <include>io.dropwizard.metrics:metrics-logback:jar</include>
-                <include>io.netty:netty-all:jar</include>
+
+                <include>io.netty:netty-buffer:jar</include>
+                <include>io.netty:netty-codec:jar</include>
+                <include>io.netty:netty-codec-dns:jar</include>
+                <include>io.netty:netty-codec-haproxy:jar</include>
+                <include>io.netty:netty-codec-http2:jar</include>
+                <include>io.netty:netty-codec-http:jar</include>
+                <include>io.netty:netty-codec-memcache:jar</include>
+                <include>io.netty:netty-codec-mqtt:jar</include>
+                <include>io.netty:netty-codec-redis:jar</include>
+                <include>io.netty:netty-codec-smtp:jar</include>
+                <include>io.netty:netty-codec-socks:jar</include>
+                <include>io.netty:netty-codec-stomp:jar</include>
+                <include>io.netty:netty-codec-xml:jar</include>
                 <include>io.netty:netty-common:jar</include>
+                <include>io.netty:netty-handler:jar</include>
+                <include>io.netty:netty-handler-proxy:jar</include>
+                <include>io.netty:netty-jni-util:jar</include>
+                <include>io.netty:netty-resolver:jar</include>
+                <include>io.netty:netty-resolver-dns:jar</include>
+                <include>io.netty:netty-resolver-dns-classes-macos:jar</include>
+                <include>io.netty:netty-resolver-dns-native-macos:jar</include>
+                <include>io.netty:netty-tcnative:jar</include>
+                <include>io.netty:netty-tcnative-classes:jar</include>
+                <include>io.netty:netty-transport:jar</include>
+                <include>io.netty:netty-transport-classes-epoll:jar</include>
+                <include>io.netty:netty-transport-classes-kqueue:jar</include>
+                <include>io.netty:netty-transport-native-epoll:jar</include>
+                <include>io.netty:netty-transport-native-kqueue:jar</include>
+                <include>io.netty:netty-transport-native-unix-common:jar</include>
+                <include>io.netty:netty-transport-rxtx:jar</include>
+                <include>io.netty:netty-transport-sctp:jar</include>
+                <include>io.netty:netty-transport-udt:jar</include>
+
                 <include>javax.inject:javax.inject:jar</include>
                 <include>joda-time:joda-time:jar</include>
                 <include>net.java.dev.jna:jna:jar</include>

@@ -34,6 +34,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +42,8 @@ import java.util.List;
 @GuiPlugin
 public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfiguration
     implements IBeamPipelineEngineRunConfiguration, IVariables, Cloneable {
+
+  public static final String EXPERIMENT_APACHE_HOP_PIPELINE = "apache_hop_pipeline";
 
   @GuiWidgetElement(
       order = "20000-dataflow-options",
@@ -353,6 +356,17 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     // Experimental feature...
     //
     options.setUsePublicIps(isGcpUsingPublicIps());
+
+    // Flag this pipeline as being produced by Apache Hop
+    //
+    List<String> experiments = options.getExperiments();
+    if (experiments==null) {
+      experiments=new ArrayList<>();
+    } else {
+      experiments = new ArrayList<>(experiments);
+    }
+    experiments.add(EXPERIMENT_APACHE_HOP_PIPELINE);
+    options.setExperiments(experiments);
 
     if (StringUtils.isNotEmpty(getFatJar())) {
       options.setFilesToStage(Collections.singletonList(resolve(fatJar)));

@@ -46,6 +46,18 @@
             <version>2.0.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- force correct versions -->
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>${asm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time.version}</version>
+        </dependency>
+
         <!-- Azure VFS -->
 
         <dependency>

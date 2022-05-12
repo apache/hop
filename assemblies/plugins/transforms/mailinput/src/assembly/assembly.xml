@@ -56,7 +56,7 @@
             <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>javax.mail:mail:jar</include>
-                <include>com.sun.activation:javax.activation:jar</include>
+                <include>jakarta.activation:jakarta.activation-api:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

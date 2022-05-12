@@ -113,7 +113,7 @@ public class HopBeamGuiPlugin {
               monitor.setTaskName(
                   BaseMessages.getString(PKG, "BeamGuiPlugin.GenerateFatJar.Progress.Message"));
               FatJarBuilder fatJarBuilder =
-                  new FatJarBuilder(hopGui.getVariables(), filename, jarFilenames);
+                  new FatJarBuilder(hopGui.getLog(), hopGui.getVariables(), filename, jarFilenames);
               fatJarBuilder.setExtraTransformPluginClasses(null);
               fatJarBuilder.setExtraXpPluginClasses(null);
               fatJarBuilder.buildTargetJar();

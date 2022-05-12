@@ -39,14 +39,14 @@
         <google-api-drive.version>v3-rev197-1.25.0</google-api-drive.version>
         <google-api-services-analytics.version>v3-rev169-1.25.0</google-api-services-analytics.version>
         <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>
-        <google-cloud-storage.version>1.53.0</google-cloud-storage.version>
-        <google-http-client-jackson2.version>1.39.2</google-http-client-jackson2.version>
-        <google-http-client.version>1.39.2</google-http-client.version>
-        <google-oauth-client.version>1.31.2</google-oauth-client.version>
-        <google-oauth-client-jetty.version>1.31.2</google-oauth-client-jetty.version>
+        <google-cloud-storage.version>2.6.1</google-cloud-storage.version>
+        <google-http-client-jackson2.version>1.41.8</google-http-client-jackson2.version>
+        <google-http-client.version>1.41.8</google-http-client.version>
+        <google-oauth-client.version>1.33.3</google-oauth-client.version>
+        <google-oauth-client-jetty.version>1.33.3</google-oauth-client-jetty.version>
         <jetty-client.version>6.1.26</jetty-client.version>
-        <grpc.version>1.37.0</grpc.version>
-        <gax-grpc.version>1.63.0</gax-grpc.version>
+        <grpc.version>1.46.0</grpc.version>
+        <gax-grpc.version>2.16.0</gax-grpc.version>
     </properties>
 
     <dependencies>
@@ -58,14 +58,64 @@
 
         <!-- force lib version to match Beam -->
         <dependency>
+            <groupId>com.google.api</groupId>
+            <artifactId>gax-grpc</artifactId>
+            <version>${gax-grpc.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-context</artifactId>
             <version>${grpc.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.api</groupId>
-            <artifactId>gax-grpc</artifactId>
-            <version>${gax-grpc.version}</version>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.20.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api.grpc</groupId>
+            <artifactId>proto-google-common-protos</artifactId>
+            <version>2.8.3</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-storage</artifactId>
+            <version>v1-rev20211201-1.32.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.auth</groupId>
+            <artifactId>google-auth-library-oauth2-http</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.auth</groupId>
+            <artifactId>google-auth-library-oauth2-http</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client</artifactId>
+            <version>1.41.8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-gson</artifactId>
+            <version>1.41.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.threeten</groupId>
+            <artifactId>threetenbp</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.auth</groupId>
+            <artifactId>google-auth-library-credentials</artifactId>
+            <version>1.6.0</version>
         </dependency>
 
         <!-- Google Analytics dependencies -->
