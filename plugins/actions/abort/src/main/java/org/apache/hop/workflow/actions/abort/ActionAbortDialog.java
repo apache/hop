@@ -33,10 +33,10 @@ import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
+
 
 /** This dialog allows you to edit a Action Abort object. */
 public class ActionAbortDialog extends ActionDialog implements IActionDialog {
@@ -51,6 +51,8 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
   private Text wName;
 
   private TextVar wMessageAbort;
+
+  private Button wAlwaysLogRows;
 
   public ActionAbortDialog(
       Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -75,6 +77,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.spacing = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionAbortDialog.Title"));
@@ -121,6 +124,21 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     fdMessageAbort.right = new FormAttachment(100, 0);
     wMessageAbort.setLayoutData(fdMessageAbort);
 
+    SelectionListener slMod = SelectionListener.widgetSelectedAdapter(event -> action.setChanged());
+    // Always log rows
+    wAlwaysLogRows = new Button(shell, SWT.CHECK);
+    wAlwaysLogRows.setSelection(true);
+    props.setLook(wAlwaysLogRows);
+    wAlwaysLogRows.setText(BaseMessages.getString(PKG, "ActionAbortDialog.AlwaysLogRows.Label"));
+    wAlwaysLogRows.setToolTipText(
+        BaseMessages.getString(PKG, "ActionAbortDialog.AlwaysLogRows.Tooltip"));
+    wAlwaysLogRows.addSelectionListener(slMod);
+    FormData fdAlwaysLogRows = new FormData();
+    fdAlwaysLogRows.left = new FormAttachment(middle, 0);
+    fdAlwaysLogRows.top = new FormAttachment(wMessageAbort, margin);
+    fdAlwaysLogRows.right = new FormAttachment(100, 0);
+    wAlwaysLogRows.setLayoutData(fdAlwaysLogRows);
+
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, (Event e) -> ok());
@@ -128,7 +146,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, (Event e) -> cancel());
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wMessageAbort);
+        shell, new Button[] {wOk, wCancel}, margin, 0, wAlwaysLogRows);
 
     getData();
 
@@ -151,6 +169,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     if (action.getMessageAbort() != null) {
       wMessageAbort.setText(action.getMessageAbort());
     }
+    wAlwaysLogRows.setSelection(action.isAlwaysLogRows());
 
     wName.selectAll();
     wName.setFocus();
@@ -172,6 +191,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     }
     action.setName(wName.getText());
     action.setMessageAbort(wMessageAbort.getText());
+    action.setAlwaysLogRows(wAlwaysLogRows.getSelection());
     dispose();
   }
 }

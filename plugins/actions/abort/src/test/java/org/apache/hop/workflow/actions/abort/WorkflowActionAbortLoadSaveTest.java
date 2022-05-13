@@ -20,7 +20,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -35,16 +35,18 @@ public class WorkflowActionAbortLoadSaveTest
 
   @Override
   protected List<String> listAttributes() {
-    return Collections.singletonList("messageAbort");
+    return Arrays.asList("messageAbort", "alwaysLogRows");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
-    return Collections.singletonMap("messageAbort", "getMessageAbort");
+    return toMap(
+        "messageAbort", "getMessageAbort",
+        "alwaysLogRows", "isAlwaysLogRows");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
-    return Collections.singletonMap("messageAbort", "setMessageAbort");
+    return toMap("messageAbort", "setMessageAbort", "alwaysLogRows", "setAlwaysLogRows");
   }
 }
