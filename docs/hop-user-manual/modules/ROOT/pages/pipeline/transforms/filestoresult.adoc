@@ -37,7 +37,7 @@ WARNING: the Files To Result is available for historical reasons. Check the xref
 [width="90%",options="header"]
 |===
 |Option|Description
-|transform name|The name of this transform as it appears in the pipeline workspace.
+|Transform name|The name of this transform as it appears in the pipeline workspace.
 |Filename field|Field that contains the filenames of the files to copy.
 |Type of file to|Select the type of file to set in results.
 |===

@@ -60,7 +60,7 @@ The last value returned plus the size of the range (increment) are stored in a d
 [width="90%",options="header"]
 |===
 |Option|Description
-|transform name|The name of this transform as it appears in the pipeline workspace.
+|Transform name|The name of this transform as it appears in the pipeline workspace.
 |Name of value|The name of the (Integer type) output field (sequence or ID)
 |Slave server|The hop server to get the unique ID range from.
 This can be specified using a variable
