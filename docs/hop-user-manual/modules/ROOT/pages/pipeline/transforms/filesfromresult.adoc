@@ -31,7 +31,7 @@ Every time a file gets processed, used or created in a pipeline or a workflow, t
 [width="90%",options="header"]
 |===
 |Option|Description
-|transform name|The unique transform name within the pipeline
+|Transform name|The unique transform name within the pipeline
 |===
 
 == Output fields

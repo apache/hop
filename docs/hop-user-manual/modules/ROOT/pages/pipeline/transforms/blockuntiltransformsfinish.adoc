@@ -39,7 +39,7 @@ You can use it to avoid the natural concurrency (parallelism) that exists betwee
 [width="90%",options="header"]
 |===
 |Option|Description
-|transform name|The name of the transform to wait for.
+|Transform name|The name of the transform to wait for.
 |CopyNr|The (0-based) copy number of the transform.
 If the named transform has an explicit setting for "Change number of copies to start", and you want to wait for all copies to finish, you'll need to enter one row in the grid for each copy, and use this column to specify which copy of the transform to wait for.
 For the default number of copies (1), the CopyNr is always 0.

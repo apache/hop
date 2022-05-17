@@ -41,7 +41,7 @@ The Get Files Row Count transform counts the number of rows in a file or set of 
 |Rows|
 |Selected
 |Show|
-|transform name|
+|Transform name|
 |===
 
 === Content tab

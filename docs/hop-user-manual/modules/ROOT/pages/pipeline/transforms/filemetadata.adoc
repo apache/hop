@@ -39,7 +39,7 @@ Using 0 rows for 'limit scanned rows' is a way to make sure the entire file is s
 [width="90%",options="header"]
 |===
 |Option|Description
-|transform name|the name for this transform
+|Transform name|the name for this transform
 |filename|the filename to scan for metadata
 |limit scanned rows|the number of rows to limit the scan to (default 10,000).
 Use 0 rows to scan the entire file.
