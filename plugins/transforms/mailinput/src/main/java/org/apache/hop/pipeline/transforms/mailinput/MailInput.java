@@ -32,8 +32,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.actions.getpop.MailConnection;
 import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
 
-import javax.mail.Header;
-import javax.mail.Message;
+import jakarta.mail.Header;
+import jakarta.mail.Message;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;

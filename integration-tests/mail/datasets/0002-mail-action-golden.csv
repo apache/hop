@@ -1,0 +1,2 @@
+fromMailbox,fromDomain,toMailbox,toDomain,contentFrom,contentTo,contentSubject
+wile.e.coyote,acme.com,roadrunner,acme.be,"""Wile E. Coyote"" <wile.e.coyote@acme.com>",roadrunner@acme.be,ACTION: Appointment confirmation

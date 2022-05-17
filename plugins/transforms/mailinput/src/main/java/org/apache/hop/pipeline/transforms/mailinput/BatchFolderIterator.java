@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.mailinput;
 
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
 import java.util.Iterator;
 
 public class BatchFolderIterator implements Iterator<Message> {

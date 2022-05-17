@@ -29,10 +29,10 @@ import org.junit.*;
 import org.mockito.AdditionalMatchers;
 import org.mockito.Mockito;
 
-import javax.mail.Address;
-import javax.mail.Header;
-import javax.mail.Message;
-import javax.mail.MessagingException;
+import jakarta.mail.Address;
+import jakarta.mail.Header;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -560,7 +560,7 @@ public class ParseMailInputTest {
     return fields;
   }
 
-  private Enumeration<?> getEnum(Header[] headers) {
+  private Enumeration<Header> getEnum(Header[] headers) {
     return Collections.enumeration(Arrays.asList(headers));
   }
 }
