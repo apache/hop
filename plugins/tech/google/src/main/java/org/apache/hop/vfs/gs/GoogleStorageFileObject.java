@@ -196,6 +196,10 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       if (blob == null) {
         return 0;
       }
+      if (isFolder()) {
+        // getting the update time of a folder gives an NPE
+        return 0;
+      }
       return blob.getUpdateTime();
     }
     if (hasBucket()) {
