@@ -110,6 +110,7 @@
         <include>com.google.cloud.bigdataoss:util</include>
         <include>com.google.cloud.bigtable:bigtable-client-core</include>
         <include>com.google.cloud.bigtable:bigtable-hbase-1.x-shaded</include>
+        <include>com.google.cloud.bigtable:bigtable-metrics-api</include>
         <include>com.google.cloud.datastore:datastore-v1-proto-client</include>
         <include>com.google.cloud:google-cloud-bigquery</include>
         <include>com.google.cloud:google-cloud-bigquerystorage</include>

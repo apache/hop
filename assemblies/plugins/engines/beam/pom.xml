@@ -54,7 +54,7 @@
     <spark-version>3.1.3</spark-version>
     <flink-version>1.14.4</flink-version>
     <json-simple.version>1.1.1</json-simple.version>
-    <bigtable-hbase-beam.version>1.20.1</bigtable-hbase-beam.version>
+    <bigtable-hbase-beam.version>2.2.0</bigtable-hbase-beam.version>
     <grpc.version>1.46.0</grpc.version>
     <gax-grpc.version>2.16.0</gax-grpc.version>
     <akka.version>2.5.32</akka.version>
@@ -648,6 +648,11 @@
       <groupId>com.google.cloud.bigtable</groupId>
       <artifactId>bigtable-hbase-beam</artifactId>
       <version>${bigtable-hbase-beam.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.cloud.bigtable</groupId>
+      <artifactId>bigtable-metrics-api</artifactId>
+      <version>1.26.3</version>
     </dependency>
 
     <dependency>
