@@ -33,6 +33,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.HopToBQTableRowFn;
 import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone> {
 
@@ -110,6 +112,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
       List<TableFieldSchema> schemaFields = new ArrayList<>();
       for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
         TableFieldSchema schemaField = new TableFieldSchema();
+        validateBQFieldName(valueMeta.getName());
         schemaField.setName(valueMeta.getName());
         switch (valueMeta.getType()) {
           case IValueMeta.TYPE_STRING:
@@ -179,6 +182,61 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
       numErrors.inc();
       LOG.error("Error in Beam BigQuery output transform", e);
       throw new RuntimeException("Error in Beam BigQuery output transform", e);
+    }
+  }
+
+  /**
+   * A column name must contain only letters (a-z, A-Z), numbers (0-9), or underscores (_), and it
+   * must start with a letter or underscore. The maximum column name length is 300 characters. A
+   * column name cannot use any of the following prefixes: _TABLE_, _FILE_, _PARTITION_.
+   *
+   * <p>
+   *
+   * <p>Duplicate * column names are not allowed even if the case differs. For example, a column
+   * named Column1 is * considered identical to a column named column1.
+   *
+   * <p>NOTE: Hop metadata will never have duplicate column names. As such, we're not checking that.
+   *
+   * @param name The BQ field name to validate
+   * @throws HopException
+   */
+  public static void validateBQFieldName(String name) throws HopException {
+    if (StringUtils.isEmpty(name)) {
+      throw new HopException("A BigQuery field name can not be empty");
+    }
+    if (name.length() > 300) {
+      throw new HopException(
+          "A BigQuery field name can not be longer than 300 characters: '" + name + "'");
+    }
+    String lowerName = name.toLowerCase();
+    char first = lowerName.charAt(0);
+    // Starting with a letter or an underscore
+    if (!((first >= 'a' && first <= 'z') || (first == '_'))) {
+      throw new HopException(
+          "A BigQuery field name must start with a letter or an underscore: '" + name + "'");
+    }
+    // Avoid certain prefixes
+    for (String prefix : new String[] {"_table_", "_file_", "_partition_"}) {
+      if (lowerName.startsWith(prefix)) {
+        throw new HopException(
+            "A BigQuery field name can not start with : "
+                + (prefix.toUpperCase())
+                + " for name: '"
+                + name
+                + "'");
+      }
+    }
+    if (name.length() > 1) {
+      // Validate the other characters as well.
+      for (char c : name.substring(1).toLowerCase().toCharArray()) {
+        // A letter, a digit or an underscore
+        if (!((c >= 'a' && c <= 'z') || (c == '_') || (c >= '0' && c <= '9'))) {
+          throw new HopException(
+              "A BigQuery field name can only contain letters, digits or an underscore: '"
+                  + name
+                  + "'");
+        }
+      }
     }
   }
 }
