@@ -74,7 +74,7 @@
     <dependency>
       <groupId>com.google.apis</groupId>
       <artifactId>google-api-services-bigquery</artifactId>
-      <version>v2-rev459-1.25.0</version>
+      <version>v2-rev20220507-1.32.1</version>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
