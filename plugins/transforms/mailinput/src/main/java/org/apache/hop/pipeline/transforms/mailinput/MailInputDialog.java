@@ -51,7 +51,7 @@ import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
-import javax.mail.Folder;
+import jakarta.mail.Folder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 

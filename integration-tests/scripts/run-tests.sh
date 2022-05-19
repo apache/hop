@@ -200,7 +200,7 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/ ; do
         echo ${SPACER}
         echo "Number of Tests: $test_counter"
         echo "Total errors: $errors_counter"
-        echo "Total faliures: $failures_counter"
+        echo "Total failures: $failures_counter"
         echo "Total duration: $total_duration"
 
         #create final report

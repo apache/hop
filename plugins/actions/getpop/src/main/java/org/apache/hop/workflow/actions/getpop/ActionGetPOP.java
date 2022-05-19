@@ -45,7 +45,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.w3c.dom.Node;
 
-import javax.mail.Flags.Flag;
+import jakarta.mail.Flags.Flag;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.actions.getpop;
 
 import com.google.common.annotations.VisibleForTesting;
+
 import com.sun.mail.imap.IMAPSSLStore;
 import com.sun.mail.pop3.POP3SSLStore;
 import org.apache.commons.io.FilenameUtils;
@@ -29,10 +30,10 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 
-import javax.mail.*;
-import javax.mail.Flags.Flag;
-import javax.mail.internet.MimeUtility;
-import javax.mail.search.*;
+import jakarta.mail.*;
+import jakarta.mail.Flags.Flag;
+import jakarta.mail.internet.MimeUtility;
+import jakarta.mail.search.*;
 import java.io.*;
 import java.util.Date;
 import java.util.HashSet;

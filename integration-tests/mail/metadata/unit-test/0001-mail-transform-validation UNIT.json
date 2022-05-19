@@ -1,0 +1,56 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "fromMailbox",
+          "data_set_field": "fromMailbox"
+        },
+        {
+          "transform_field": "fromDomain",
+          "data_set_field": "fromDomain"
+        },
+        {
+          "transform_field": "toMailbox",
+          "data_set_field": "toMailbox"
+        },
+        {
+          "transform_field": "toDomain",
+          "data_set_field": "toDomain"
+        },
+        {
+          "transform_field": "contentFrom",
+          "data_set_field": "contentFrom"
+        },
+        {
+          "transform_field": "contentTo",
+          "data_set_field": "contentTo"
+        },
+        {
+          "transform_field": "contentSubject",
+          "data_set_field": "contentSubject"
+        },
+        {
+          "transform_field": "body",
+          "data_set_field": "body"
+        }
+      ],
+      "field_order": [
+        "body"
+      ],
+      "transform_name": "Result",
+      "data_set_name": "0001-mail-transform-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0001-mail-transform-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0001-mail-transform-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

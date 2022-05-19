@@ -50,8 +50,8 @@
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>javax.mail:mail:jar</include>
-                <include>jakarta.activation:jakarta.activation-api:jar</include>
+                <include>com.sun.mail:jakarta.mail</include>
+                <include>com.sun.activation:jakarta.activation</include>
             </includes>
         </dependencySet>
     </dependencySets>

@@ -206,7 +206,8 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
         int zero = value.asInt();
         assert (zero == 0);
       } catch (Exception e) {
-        throw new HopException("Unable to connect to database '" + name + "' : " + e.getMessage(), e);
+        throw new HopException(
+            "Unable to connect to database '" + name + "' : " + e.getMessage(), e);
       }
     }
   }
@@ -398,17 +399,26 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
 
       Config config = configBuilder.build();
 
+      Driver driver;
       if (isUsingRouting(variables)) {
-        return GraphDatabase.routingDriver(
-            uris, AuthTokens.basic(realUsername, realPassword), config);
+        driver =
+            GraphDatabase.routingDriver(uris, AuthTokens.basic(realUsername, realPassword), config);
       } else {
-        return GraphDatabase.driver(
-            uris.get(0), AuthTokens.basic(realUsername, realPassword), config);
+        driver =
+            GraphDatabase.driver(uris.get(0), AuthTokens.basic(realUsername, realPassword), config);
       }
+
+      // Verify connectivity at this point to ensure we're not being dishonest when testing
+      //
+      driver.verifyConnectivity();
+
+      return driver;
     } catch (URISyntaxException e) {
       throw new HopConfigException(
           "URI syntax problem, check your settings, hostnames especially.  For routing use comma separated server values.",
           e);
+    } catch (Exception e) {
+      throw new HopConfigException("Error obtaining driver for a Neo4j connection", e);
     }
   }
 

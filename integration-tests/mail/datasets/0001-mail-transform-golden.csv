@@ -1,0 +1,11 @@
+fromMailbox,fromDomain,toMailbox,toDomain,contentFrom,contentTo,contentSubject,body
+wile.e.coyote,acme.com,roadrunner,acme.be,"""Wile E. Coyote"" <wile.e.coyote@acme.com>",roadrunner@acme.be,Appointment confirmation,"Dear Mr. Roadrunner, 
+
+as we talked about in our phone call yesterday, please meet me at the agreed upon location later today at 4pm at the bottom of the cliff. 
+For your convenience there will be a large X marked on the road so you know where you need to be.
+
+I'm looking forward to seeing you then to handle our past disagreements.
+
+Kind regards,
+
+Mr. Wile E. Coyote"
