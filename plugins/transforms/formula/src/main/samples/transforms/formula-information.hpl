@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>formula-information</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2022/04/22 14:34:31.363</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2022/04/22 14:34:31.363</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>information grid</from>
+      <to>information formulas</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>information formulas</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <formulas>
+      <formula>
+        <field_name>is_even</field_name>
+        <formula>ISEVEN([three])</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>4</value_type>
+      </formula>
+      <formula>
+        <field_name>is_odd</field_name>
+        <formula>ISODD([twenty_four])</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>4</value_type>
+      </formula>
+      <formula>
+        <field_name>dollar</field_name>
+        <formula>DOLLAR([two_and_a_half],2)</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>1</value_type>
+      </formula>
+    </formulas>
+    <attributes/>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>information grid</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>foo</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>bar</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>twenty_four</name>
+        <precision>-1</precision>
+        <type>Integer</type>
+      </field>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>three</name>
+        <precision>-1</precision>
+        <type>Integer</type>
+      </field>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>two_and_a_half</name>
+        <precision>-1</precision>
+        <type>Number</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>foo</item>
+        <item>bar</item>
+        <item>24</item>
+        <item>3</item>
+        <item>2.5</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
