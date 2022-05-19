@@ -129,6 +129,7 @@ under the License.
 *** xref:pipeline/transforms/filesfromresult.adoc[Files from result]
 *** xref:pipeline/transforms/filestoresult.adoc[Files to result]
 *** xref:pipeline/transforms/filterrows.adoc[Filter Rows]
+*** xref:pipeline/transforms/formula.adoc[Formula]
 *** xref:pipeline/transforms/fuzzymatch.adoc[Fuzzy match]
 *** xref:pipeline/transforms/generaterandomvalue.adoc[Generate Random Value]
 *** xref:pipeline/transforms/getdatafromxml.adoc[Get Data From XML]
