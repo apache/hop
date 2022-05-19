@@ -33,77 +33,86 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
-        id = "Formula",
-        image = "formula.svg",
-        name = "i18n::Formula.name",
-        description = "i18n::Formula.description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
-        keywords = "i18n::Formula.keywords",
-        documentationUrl = "/pipeline/transforms/formula.html")
+    id = "Formula",
+    image = "formula.svg",
+    name = "i18n::Formula.name",
+    description = "i18n::Formula.description",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+    keywords = "i18n::Formula.keywords",
+    documentationUrl = "/pipeline/transforms/formula.html")
 public class FormulaMeta extends BaseTransformMeta<Formula, FormulaData> {
-    private static final Class<?> PKG = Formula.class; // For Translator
 
-    /** The formula calculations to be performed */
-    @HopMetadataProperty(
-            groupKey = "formulas",
-            key = "formula",
-            injectionGroupDescription = "FormulaMeta.Injection.Formulas",
-            injectionKeyDescription = "FormulaMeta.Injection.Formula"
-    )
-    private List<FormulaMetaFunction> formulas;
+  /** The formula calculations to be performed */
+  @HopMetadataProperty(
+      groupKey = "formulas",
+      key = "formula",
+      injectionGroupDescription = "FormulaMeta.Injection.Formulas",
+      injectionKeyDescription = "FormulaMeta.Injection.Formula")
+  private List<FormulaMetaFunction> formulas;
 
-    public FormulaMeta() {
-        super();
-        formulas = new ArrayList<>();
-    }
+  public FormulaMeta() {
+    super();
+    formulas = new ArrayList<>();
+  }
 
-    public FormulaMeta(FormulaMeta m){
-        this.formulas = m.formulas;
-    }
-    public void setFormulas(List<FormulaMetaFunction> formulas){
-        this.formulas = formulas;
-    }
-    public List<FormulaMetaFunction> getFormulas() {
-        return formulas;
-    }
+  public FormulaMeta(FormulaMeta m) {
+    this.formulas = m.formulas;
+  }
 
-    @Override
-    public Object clone(){
-        return new FormulaMeta(this);
-    }
+  public void setFormulas(List<FormulaMetaFunction> formulas) {
+    this.formulas = formulas;
+  }
 
-    @Override
-    public void getFields(IRowMeta row, String name, IRowMeta[] info, TransformMeta nextStep,
-                          IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
-        for ( FormulaMetaFunction formula : formulas ) {
-            if ( Utils.isEmpty( formula.getReplaceField() ) ) {
-                // Not replacing a field.
-                if ( !Utils.isEmpty( formula.getFieldName() ) ) {
-                    // It's a new field!
+  public List<FormulaMetaFunction> getFormulas() {
+    return formulas;
+  }
 
-                    try {
-                        IValueMeta v = ValueMetaFactory.createValueMeta( formula.getFieldName(), formula.getValueType() );
-                        v.setLength( formula.getValueLength(), formula.getValuePrecision() );
-                        v.setOrigin( name );
-                        row.addValueMeta( v );
-                    } catch ( Exception e ) {
-                        throw new HopTransformException( e );
-                    }
-                }
-            } else {
-                // Replacing a field
-                int index = row.indexOfValue( formula.getReplaceField() );
-                if ( index < 0 ) {
-                    throw new HopTransformException( "Unknown field specified to replace with a formula result: ["
-                            + formula.getReplaceField() + "]" );
-                }
-                // Change the data type etc.
-                //
-                IValueMeta v = row.getValueMeta( index ).clone();
-                v.setLength( formula.getValueLength(), formula.getValuePrecision() );
-                v.setOrigin( name );
-                row.setValueMeta( index, v ); // replace it
-            }
+  @Override
+  public Object clone() {
+    return new FormulaMeta(this);
+  }
+
+  @Override
+  public void getFields(
+      IRowMeta row,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextStep,
+      IVariables space,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    for (FormulaMetaFunction formula : formulas) {
+      if (Utils.isEmpty(formula.getReplaceField())) {
+        // Not replacing a field.
+        if (!Utils.isEmpty(formula.getFieldName())) {
+          // It's a new field!
+
+          try {
+            IValueMeta v =
+                ValueMetaFactory.createValueMeta(formula.getFieldName(), formula.getValueType());
+            v.setLength(formula.getValueLength(), formula.getValuePrecision());
+            v.setOrigin(name);
+            row.addValueMeta(v);
+          } catch (Exception e) {
+            throw new HopTransformException(e);
+          }
         }
+      } else {
+        // Replacing a field
+        int index = row.indexOfValue(formula.getReplaceField());
+        if (index < 0) {
+          throw new HopTransformException(
+              "Unknown field specified to replace with a formula result: ["
+                  + formula.getReplaceField()
+                  + "]");
+        }
+        // Change the data type etc.
+        //
+        IValueMeta v = row.getValueMeta(index).clone();
+        v.setLength(formula.getValueLength(), formula.getValuePrecision());
+        v.setOrigin(name);
+        row.setValueMeta(index, v); // replace it
+      }
     }
+  }
 }

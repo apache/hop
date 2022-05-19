@@ -19,15 +19,9 @@ package org.apache.hop.pipeline.transforms.formula.util;
 
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.formula.FormulaMetaFunction;
-import org.apache.poi.ss.formula.WorkbookEvaluator;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,71 +31,70 @@ import java.util.regex.Pattern;
 
 public class FormulaParser {
 
-    private FormulaMetaFunction formulaMetaFunction;
-    private IRowMeta rowMeta;
-    private String[] fieldNames;
-    private String formula, parsedFormula;
-    private List<String> formulaFieldList;
-    private Object[] dataRow;
-    private Row sheetRow;
-    private FormulaEvaluator evaluator;
+  private FormulaMetaFunction formulaMetaFunction;
+  private IRowMeta rowMeta;
+  private String[] fieldNames;
+  private String formula;
+  private List<String> formulaFieldList;
+  private Object[] dataRow;
+  private Row sheetRow;
+  private FormulaEvaluator evaluator;
 
-    public FormulaParser(FormulaMetaFunction formulaMetaFunction, IRowMeta rowMeta, Object[] dataRow, Row sheetRow){
-        this.formulaMetaFunction = formulaMetaFunction;
-        this.rowMeta = rowMeta;
-        this.dataRow = dataRow;
-        this.sheetRow = sheetRow;
-        fieldNames = rowMeta.getFieldNames();
-        formula = formulaMetaFunction.getFormula();
-        evaluator = sheetRow.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
+  public FormulaParser(
+      FormulaMetaFunction formulaMetaFunction, IRowMeta rowMeta, Object[] dataRow, Row sheetRow) {
+    this.formulaMetaFunction = formulaMetaFunction;
+    this.rowMeta = rowMeta;
+    this.dataRow = dataRow;
+    this.sheetRow = sheetRow;
+    fieldNames = rowMeta.getFieldNames();
+    formula = formulaMetaFunction.getFormula();
+    evaluator = sheetRow.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
 
-        formulaFieldList = new ArrayList<String>();
-        Pattern regex = Pattern.compile("\\[(.*?)\\]");
-        Matcher regexMatcher = regex.matcher(formula);
+    formulaFieldList = new ArrayList<>();
+    Pattern regex = Pattern.compile("\\[(.*?)\\]");
+    Matcher regexMatcher = regex.matcher(formula);
 
-        while(regexMatcher.find()){
-            formulaFieldList.add(regexMatcher.group(1));
-        }
+    while (regexMatcher.find()) {
+      formulaFieldList.add(regexMatcher.group(1));
+    }
+  }
+
+  public CellValue getFormulaValue() {
+    String parsedFormula = formula;
+    int fieldIndex = 65;
+    int colIndex = 0;
+    for (String formulaField : formulaFieldList) {
+      char s = (char) fieldIndex;
+      Cell cell = sheetRow.createCell(colIndex);
+      int fieldPosition = rowMeta.indexOfValue(formulaField);
+
+      IValueMeta fieldMeta = rowMeta.getValueMeta(fieldPosition);
+      if (fieldMeta.isBoolean()) {
+        cell.setCellValue((Boolean) dataRow[fieldPosition]);
+      } else if (fieldMeta.isBigNumber()) {
+        cell.setCellValue((RichTextString) dataRow[fieldPosition]);
+      } else if (fieldMeta.isDate()) {
+        cell.setCellValue((Date) dataRow[fieldPosition]);
+      } else if (fieldMeta.isInteger()) {
+        cell.setCellValue((Long) dataRow[fieldPosition]);
+      } else if (fieldMeta.isNumber()) {
+        cell.setCellValue((Double) dataRow[fieldPosition]);
+      } else if (fieldMeta.isString()) {
+        cell.setCellValue((String) dataRow[fieldPosition]);
+      } else if (fieldMeta.getType() == IValueMeta.TYPE_TIMESTAMP) {
+        cell.setCellValue((Timestamp) dataRow[fieldPosition]);
+      } else {
+        cell.setCellValue((String) dataRow[fieldPosition]);
+      }
+
+      parsedFormula = parsedFormula.replaceAll("\\[" + formulaField + "\\]", s + "1");
+      fieldIndex++;
+      colIndex++;
     }
 
-    public CellValue getFormulaValue(){
-        parsedFormula = formula;
-        int fieldIndex = 65;
-        int colIndex = 0;
-        for(String formulaField : formulaFieldList){
-            char s = (char)fieldIndex;
-            Cell cell = sheetRow.createCell(colIndex);
-            int fieldPosition = rowMeta.indexOfValue(formulaField);
+    Cell formulaCell = sheetRow.createCell(colIndex);
+    formulaCell.setCellFormula(parsedFormula);
 
-            IValueMeta fieldMeta = rowMeta.getValueMeta(fieldPosition);
-            if(fieldMeta.isBoolean()){
-                cell.setCellValue((Boolean) dataRow[fieldPosition]);
-            }else if(fieldMeta.isBigNumber()){
-                cell.setCellValue((RichTextString) dataRow[fieldPosition]);
-            }else if(fieldMeta.isDate()){
-                cell.setCellValue((Date)dataRow[fieldPosition]);
-            }else if(fieldMeta.isInteger()){
-                cell.setCellValue((Long)dataRow[fieldPosition]);
-            }else if(fieldMeta.isNumber()){
-                cell.setCellValue((Double)dataRow[fieldPosition]);
-            }else if(fieldMeta.isString()){
-                cell.setCellValue((String)dataRow[fieldPosition]);
-            }else if(fieldMeta.getType() == IValueMeta.TYPE_TIMESTAMP){
-                cell.setCellValue((Timestamp)dataRow[fieldPosition]);
-            }else{
-                cell.setCellValue((String)dataRow[fieldPosition]);
-            }
-
-            parsedFormula = parsedFormula.replaceAll("\\[" + formulaField + "\\]", s + "1");
-            fieldIndex++;
-            colIndex++;
-        }
-
-
-        Cell formulaCell = sheetRow.createCell(colIndex);
-        formulaCell.setCellFormula(parsedFormula);
-
-        return evaluator.evaluate(formulaCell);
-    }
-
+    return evaluator.evaluate(formulaCell);
+  }
 }

@@ -23,21 +23,21 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 public class FormulaData extends BaseTransformData implements ITransformData {
 
-    public static final int RETURN_TYPE_STRING = 0;
-    public static final int RETURN_TYPE_NUMBER = 1;
-    public static final int RETURN_TYPE_INTEGER = 2;
-    public static final int RETURN_TYPE_LONG = 3;
-    public static final int RETURN_TYPE_DATE = 4;
-    public static final int RETURN_TYPE_BIGDECIMAL = 5;
-    public static final int RETURN_TYPE_BYTE_ARRAY = 6;
-    public static final int RETURN_TYPE_BOOLEAN = 7;
-    public static final int RETURN_TYPE_TIMESTAMP = 9;
+  public static final int RETURN_TYPE_STRING = 0;
+  public static final int RETURN_TYPE_NUMBER = 1;
+  public static final int RETURN_TYPE_INTEGER = 2;
+  public static final int RETURN_TYPE_LONG = 3;
+  public static final int RETURN_TYPE_DATE = 4;
+  public static final int RETURN_TYPE_BIGDECIMAL = 5;
+  public static final int RETURN_TYPE_BYTE_ARRAY = 6;
+  public static final int RETURN_TYPE_BOOLEAN = 7;
+  public static final int RETURN_TYPE_TIMESTAMP = 9;
 
-    public IRowMeta outputRowMeta;
-    public int[] returnType;
-    public int[] replaceIndex;
+  public IRowMeta outputRowMeta;
+  public int[] returnType;
+  public int[] replaceIndex;
 
-    public FormulaData(){
-        super();
-    }
+  public FormulaData() {
+    super();
+  }
 }

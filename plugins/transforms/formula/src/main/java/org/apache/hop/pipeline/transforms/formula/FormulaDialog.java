@@ -40,310 +40,323 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class FormulaDialog extends BaseTransformDialog implements ITransformDialog {
-    private static final Class<?> PKG = FormulaDialog.class; // For Translator
+  private static final Class<?> PKG = FormulaDialog.class; // For Translator
 
-    private Label wlFields;
-    private TableView wFields;
-    private FormData fdlFields, fdFields;
+  private TableView wFields;
+  private FormData fdFields;
 
-    private FormulaMeta currentMeta;
-    private FormulaMeta originalMeta;
+  private FormulaMeta currentMeta;
+  private FormulaMeta originalMeta;
 
-    private Map<String, Integer> inputFields;
-    private ColumnInfo[] colinf;
+  private Map<String, Integer> inputFields;
+  private ColumnInfo[] colinf;
 
-    private String[] fieldNames;
+  private String[] fieldNames;
 
-    public FormulaDialog(Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-        super(parent, variables, (BaseTransformMeta) in, tr, sname);
+  public FormulaDialog(
+      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
+    super(parent, variables, (BaseTransformMeta) in, tr, sname);
 
-        // The order here is important... currentMeta is looked at for changes
-        currentMeta = (FormulaMeta) baseTransformMeta;
-        originalMeta = (FormulaMeta) currentMeta.clone();
-        inputFields = new HashMap<String, Integer>();
-    }
+    // The order here is important... currentMeta is looked at for changes
+    currentMeta = (FormulaMeta) baseTransformMeta;
+    originalMeta = (FormulaMeta) currentMeta.clone();
+    inputFields = new HashMap<>();
+  }
 
-    @Override
-    public String open() {
-        Shell parent = getParent();
-        Display display = parent.getDisplay();
+  @Override
+  public String open() {
+    Shell parent = getParent();
+    Display display = parent.getDisplay();
 
-        shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-        props.setLook(shell);
-        setShellImage(shell, currentMeta);
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    props.setLook(shell);
+    setShellImage(shell, currentMeta);
 
-        ModifyListener lsMod = e -> currentMeta.setChanged();
+    ModifyListener lsMod = e -> currentMeta.setChanged();
 
-        changed = currentMeta.hasChanged();
+    changed = currentMeta.hasChanged();
 
-        FormLayout formLayout = new FormLayout();
-        formLayout.marginWidth = Const.FORM_MARGIN;
-        formLayout.marginHeight = Const.FORM_MARGIN;
+    FormLayout formLayout = new FormLayout();
+    formLayout.marginWidth = Const.FORM_MARGIN;
+    formLayout.marginHeight = Const.FORM_MARGIN;
 
-        shell.setLayout(formLayout);
-        shell.setText(BaseMessages.getString(PKG, "FormulaDialog.Shell.Title"));
+    shell.setLayout(formLayout);
+    shell.setText(BaseMessages.getString(PKG, "FormulaDialog.Shell.Title"));
 
-        int middle = props.getMiddlePct();
-        int margin = props.getMargin();
+    int middle = props.getMiddlePct();
+    int margin = props.getMargin();
 
-        // TransformName line
-        //
-        wlTransformName = new Label(shell, SWT.RIGHT);
-        wlTransformName.setText(BaseMessages.getString(PKG, "FormulaDialog.TransformName.Label"));
-        props.setLook(wlTransformName);
-        fdlTransformName = new FormData();
-        fdlTransformName.left = new FormAttachment(0, 0);
-        fdlTransformName.right = new FormAttachment(middle, -margin);
-        fdlTransformName.top = new FormAttachment(0, margin);
-        wlTransformName.setLayoutData(fdlTransformName);
-        wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-        wTransformName.setText(transformName);
-        props.setLook(wTransformName);
-        wTransformName.addModifyListener(lsMod);
-        fdTransformName = new FormData();
-        fdTransformName.left = new FormAttachment(middle, 0);
-        fdTransformName.top = new FormAttachment(0, margin);
-        fdTransformName.right = new FormAttachment(100, 0);
-        wTransformName.setLayoutData(fdTransformName);
+    // TransformName line
+    //
+    wlTransformName = new Label(shell, SWT.RIGHT);
+    wlTransformName.setText(BaseMessages.getString(PKG, "FormulaDialog.TransformName.Label"));
+    props.setLook(wlTransformName);
+    fdlTransformName = new FormData();
+    fdlTransformName.left = new FormAttachment(0, 0);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
+    fdlTransformName.top = new FormAttachment(0, margin);
+    wlTransformName.setLayoutData(fdlTransformName);
+    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransformName.setText(transformName);
+    props.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
+    fdTransformName = new FormData();
+    fdTransformName.left = new FormAttachment(middle, 0);
+    fdTransformName.top = new FormAttachment(0, margin);
+    fdTransformName.right = new FormAttachment(100, 0);
+    wTransformName.setLayoutData(fdTransformName);
 
-        wlFields = new Label( shell, SWT.NONE );
-        wlFields.setText( BaseMessages.getString( PKG, "FormulaDialog.Fields.Label" ) );
-        props.setLook( wlFields );
-        fdlFields = new FormData();
-        fdlFields.left = new FormAttachment( 0, 0 );
-        fdlFields.top = new FormAttachment( wTransformName, margin );
-        wlFields.setLayoutData( fdlFields );
+    Label wlFields = new Label(shell, SWT.NONE);
+    wlFields.setText(BaseMessages.getString(PKG, "FormulaDialog.Fields.Label"));
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
+    fdlFields.left = new FormAttachment(0, 0);
+    fdlFields.top = new FormAttachment(wTransformName, margin);
+    wlFields.setLayoutData(fdlFields);
 
-        final int FieldsRows = currentMeta.getFormulas() != null ? currentMeta.getFormulas().size() : 1;
+    final int FieldsRows = currentMeta.getFormulas() != null ? currentMeta.getFormulas().size() : 1;
 
-        colinf =
-                new ColumnInfo[]{
-                        new ColumnInfo(
-                                BaseMessages.getString(PKG, "FormulaDialog.NewField.Column"), ColumnInfo.COLUMN_TYPE_TEXT, false),
-                        new ColumnInfo(
-                                BaseMessages.getString(PKG, "FormulaDialog.Formula.Column"), ColumnInfo.COLUMN_TYPE_TEXT, false),
-                        new ColumnInfo(
-                                BaseMessages.getString(PKG, "FormulaDialog.ValueType.Column"), ColumnInfo.COLUMN_TYPE_CCOMBO,
-                                ValueMetaFactory.getValueMetaNames()),
-                        new ColumnInfo(
-                                BaseMessages.getString(PKG, "FormulaDialog.Length.Column"), ColumnInfo.COLUMN_TYPE_TEXT, false),
-                        new ColumnInfo(
-                                BaseMessages.getString(PKG, "FormulaDialog.Precision.Column"), ColumnInfo.COLUMN_TYPE_TEXT,
-                                false),
-                        new ColumnInfo(
-                                BaseMessages.getString(PKG, "FormulaDialog.Replace.Column"), ColumnInfo.COLUMN_TYPE_CCOMBO,
-                                new String[]{}),};
+    colinf =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "FormulaDialog.NewField.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "FormulaDialog.Formula.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "FormulaDialog.ValueType.Column"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ValueMetaFactory.getValueMetaNames()),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "FormulaDialog.Length.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "FormulaDialog.Precision.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "FormulaDialog.Replace.Column"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              new String[] {}),
+        };
 
-        wFields = new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    wFields =
+        new TableView(
+            variables,
+            shell,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            colinf,
+            FieldsRows,
+            lsMod,
+            props);
 
-        fdFields = new FormData();
-        fdFields.left = new FormAttachment( 0, 0 );
-        fdFields.top = new FormAttachment( wlFields, margin );
-        fdFields.right = new FormAttachment( 100, 0 );
-        fdFields.bottom = new FormAttachment( 100, -50 );
-        wFields.setLayoutData(fdFields);
+    fdFields = new FormData();
+    fdFields.left = new FormAttachment(0, 0);
+    fdFields.top = new FormAttachment(wlFields, margin);
+    fdFields.right = new FormAttachment(100, 0);
+    fdFields.bottom = new FormAttachment(100, -50);
+    wFields.setLayoutData(fdFields);
 
-        new Thread(() -> {
-            TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-            if (transformMeta != null) {
+    new Thread(
+            () -> {
+              TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+              if (transformMeta != null) {
                 try {
-                    IRowMeta row = pipelineMeta.getPrevTransformFields(variables,transformMeta);
+                  IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
-                    // Remember these fields...
-                    for (int i = 0; i < row.size(); i++) {
-                        inputFields.put(row.getValueMeta(i).getName(), new Integer(i));
-                    }
+                  // Remember these fields...
+                  for (int i = 0; i < row.size(); i++) {
+                    inputFields.put(row.getValueMeta(i).getName(), new Integer(i));
+                  }
 
-                    setComboBoxes();
+                  setComboBoxes();
                 } catch (HopTransformException e) {
-                    logError(BaseMessages.getString(PKG, "FormulaDialog.Log.UnableToFindInput"));
+                  logError(BaseMessages.getString(PKG, "FormulaDialog.Log.UnableToFindInput"));
                 }
-            }
-        }).start();
+              }
+            })
+        .start();
 
-        colinf[1].setSelectionAdapter( new SelectionAdapter() {
-            @Override
-            public void widgetSelected( SelectionEvent e ) {
-                if ( fieldNames == null ) {
-                    return;
+    colinf[1].setSelectionAdapter(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            if (fieldNames == null) {
+              return;
+            }
+
+            TableView tv = (TableView) e.widget;
+            TableItem item = tv.table.getItem(e.y);
+            String formula = item.getText(e.x);
+
+            try {
+              if (!shell.isDisposed()) {
+                FormulaEditor libFormulaEditor =
+                    new FormulaEditor(
+                        shell,
+                        SWT.APPLICATION_MODAL | SWT.SHEET,
+                        Const.NVL(formula, ""),
+                        fieldNames);
+                formula = libFormulaEditor.open();
+                if (formula != null && !tv.isDisposed()) {
+                  tv.setText(formula, e.x, e.y);
                 }
-
-                TableView tv = (TableView) e.widget;
-                TableItem item = tv.table.getItem( e.y );
-                String formula = item.getText( e.x );
-
-                try {
-                    if ( !shell.isDisposed() ) {
-                        FormulaEditor libFormulaEditor =
-                                new FormulaEditor( shell, SWT.APPLICATION_MODAL | SWT.SHEET, Const.NVL( formula, "" ), fieldNames );
-                        formula = libFormulaEditor.open();
-                        if ( formula != null && !tv.isDisposed() ) {
-                            tv.setText( formula, e.x, e.y );
-                        }
-                    }
-                } catch ( Exception ex ) {
-                    new ErrorDialog( shell, "Error", "There was an unexpected error in the formula editor", ex );
-                }
-
+              }
+            } catch (Exception ex) {
+              new ErrorDialog(
+                  shell, "Error", "There was an unexpected error in the formula editor", ex);
             }
-        } );
+          }
+        });
 
-        wFields.addModifyListener( new ModifyListener() {
-            @Override
-            public void modifyText( ModifyEvent arg0 ) {
-                // Now set the combo's
-                shell.getDisplay().asyncExec( new Runnable() {
-                    @Override
-                    public void run() {
-                        setComboBoxes();
-                    }
+    wFields.addModifyListener(
+        arg0 ->
+            // Now set the combo's
+            shell.getDisplay().asyncExec(() -> setComboBoxes()));
 
-                } );
+    // Some buttons
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
-            }
-        } );
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
-        // Some buttons
-        wOk = new Button( shell, SWT.PUSH );
-        wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-        wCancel = new Button( shell, SWT.PUSH );
-        wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    wOk.addListener(SWT.Selection, e -> ok());
 
-        setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
+    wTransformName.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            ok();
+          }
+        });
 
-        wCancel.addListener( SWT.Selection, e -> cancel() );
-        wOk.addListener( SWT.Selection, e -> ok() );
+    // Detect X or ALT-F4 or something that kills this window...
+    shell.addShellListener(
+        new ShellAdapter() {
+          @Override
+          public void shellClosed(ShellEvent e) {
+            cancel();
+          }
+        });
 
+    // Set the shell size, based upon previous time...
+    setSize();
 
-        wTransformName.addSelectionListener( new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ok();
-            }
-        } );
+    getData();
+    currentMeta.setChanged(changed);
 
-        // Detect X or ALT-F4 or something that kills this window...
-        shell.addShellListener( new ShellAdapter() {
-            @Override
-            public void shellClosed( ShellEvent e ) {
-                cancel();
-            }
-        } );
+    shell.open();
+    while (!shell.isDisposed()) {
+      if (!display.readAndDispatch()) {
+        display.sleep();
+      }
+    }
+    return transformName;
+  }
 
-        // Set the shell size, based upon previous time...
-        setSize();
+  protected void setComboBoxes() {
+    // Something was changed in the row.
+    //
+    final Map<String, Integer> fields = new HashMap<>();
 
-        getData();
-        currentMeta.setChanged( changed );
+    // Add the currentMeta fields...
+    fields.putAll(inputFields);
 
-        shell.open();
-        while ( !shell.isDisposed() ) {
-            if ( !display.readAndDispatch() ) {
-                display.sleep();
-            }
+    shell
+        .getDisplay()
+        .syncExec(
+            () -> {
+              // Add the newly create fields.
+              //
+
+              Set<String> keySet = fields.keySet();
+              List<String> entries = new ArrayList<>(keySet);
+
+              String[] fieldNames = entries.toArray(new String[entries.size()]);
+
+              Const.sortStrings(fieldNames);
+
+              colinf[5].setComboValues(fieldNames);
+              FormulaDialog.this.fieldNames = fieldNames;
+            });
+  }
+  /** Copy information from the meta-data currentMeta to the dialog fields. */
+  public void getData() {
+
+    if (currentMeta.getFormulas() != null) {
+      for (int i = 0; i < currentMeta.getFormulas().size(); i++) {
+        FormulaMetaFunction fn = currentMeta.getFormulas().get(i);
+        TableItem item = wFields.table.getItem(i);
+        item.setText(1, Const.NVL(fn.getFieldName(), ""));
+        item.setText(2, Const.NVL(fn.getFormula(), ""));
+        item.setText(3, Const.NVL(ValueMetaFactory.getValueMetaName(fn.getValueType()), ""));
+        if (fn.getValueLength() >= 0) {
+          item.setText(4, "" + fn.getValueLength());
         }
-        return transformName;
+        if (fn.getValuePrecision() >= 0) {
+          item.setText(5, "" + fn.getValuePrecision());
+        }
+        item.setText(6, Const.NVL(fn.getReplaceField(), ""));
+      }
     }
 
-    protected void setComboBoxes() {
-        // Something was changed in the row.
-        //
-        final Map<String, Integer> fields = new HashMap<String, Integer>();
+    wFields.setRowNums();
+    wFields.optWidth(true);
 
-        // Add the currentMeta fields...
-        fields.putAll( inputFields );
+    wTransformName.selectAll();
+    wTransformName.setFocus();
+  }
 
-        shell.getDisplay().syncExec( () -> {
-                // Add the newly create fields.
-                //
-                /*
-                 * int nrNonEmptyFields = wFields.nrNonEmpty(); for (int i=0;i<nrNonEmptyFields;i++) { TableItem item =
-                 * wFields.getNonEmpty(i); fields.put(item.getText(1), new Integer(1000000+i)); // The number is just to debug
-                 * the origin of the fieldname }
-                 */
+  private void cancel() {
+    transformName = null;
+    currentMeta.setChanged(changed);
+    dispose();
+  }
 
-                Set<String> keySet = fields.keySet();
-                List<String> entries = new ArrayList<String>( keySet );
-
-                String[] fieldNames = entries.toArray( new String[entries.size()] );
-
-                Const.sortStrings( fieldNames );
-
-                colinf[5].setComboValues( fieldNames );
-                FormulaDialog.this.fieldNames = fieldNames;
-            }
-         );
-
-    }
-    /**
-     * Copy information from the meta-data currentMeta to the dialog fields.
-     */
-    public void getData() {
-
-        if ( currentMeta.getFormulas() != null ) {
-            for (int i = 0; i < currentMeta.getFormulas().size(); i++ ) {
-                FormulaMetaFunction fn = currentMeta.getFormulas().get(i);
-                TableItem item = wFields.table.getItem( i );
-                item.setText( 1, Const.NVL( fn.getFieldName(), "" ) );
-                item.setText( 2, Const.NVL( fn.getFormula(), "" ) );
-                item.setText( 3, Const.NVL( ValueMetaFactory.getValueMetaName( fn.getValueType() ), "" ) );
-                if ( fn.getValueLength() >= 0 ) {
-                    item.setText( 4, "" + fn.getValueLength() );
-                }
-                if ( fn.getValuePrecision() >= 0 ) {
-                    item.setText( 5, "" + fn.getValuePrecision() );
-                }
-                item.setText( 6, Const.NVL( fn.getReplaceField(), "" ) );
-            }
-        }
-
-        wFields.setRowNums();
-        wFields.optWidth( true );
-
-        wTransformName.selectAll();
-        wTransformName.setFocus();
+  private void ok() {
+    if (Utils.isEmpty(wTransformName.getText())) {
+      return;
     }
 
-    private void cancel() {
-        transformName = null;
-        currentMeta.setChanged( changed );
-        dispose();
+    transformName = wTransformName.getText(); // return value
+
+    currentMeta.getFormulas().clear();
+
+    int nrNonEmptyFields = wFields.nrNonEmpty();
+    for (int i = 0; i < nrNonEmptyFields; i++) {
+      TableItem item = wFields.getNonEmpty(i);
+
+      String fieldName = item.getText(1);
+      String formulaString = item.getText(2);
+      int valueType = ValueMetaFactory.getIdForValueMeta(item.getText(3));
+      int valueLength = Const.toInt(item.getText(4), -1);
+      int valuePrecision = Const.toInt(item.getText(5), -1);
+      String replaceField = item.getText(6);
+
+      // CHECKSTYLE:Indentation:OFF
+      currentMeta
+          .getFormulas()
+          .add(
+              new FormulaMetaFunction(
+                  fieldName, formulaString, valueType, valueLength, valuePrecision, replaceField));
     }
 
-    private void ok() {
-        if ( Utils.isEmpty( wTransformName.getText() ) ) {
-            return;
-        }
-
-        transformName = wTransformName.getText(); // return value
-
-        currentMeta.getFormulas().clear();
-
-        int nrNonEmptyFields = wFields.nrNonEmpty();
-        for ( int i = 0; i < nrNonEmptyFields; i++ ) {
-            TableItem item = wFields.getNonEmpty( i );
-
-            String fieldName = item.getText( 1 );
-            String formulaString = item.getText( 2 );
-            int valueType = ValueMetaFactory.getIdForValueMeta( item.getText( 3 ) );
-            int valueLength = Const.toInt( item.getText( 4 ), -1 );
-            int valuePrecision = Const.toInt( item.getText( 5 ), -1 );
-            String replaceField = item.getText( 6 );
-
-            //CHECKSTYLE:Indentation:OFF
-            currentMeta.getFormulas().add(new FormulaMetaFunction( fieldName, formulaString, valueType,
-                    valueLength, valuePrecision, replaceField ));
-        }
-
-        if ( !originalMeta.equals(currentMeta) ) {
-            currentMeta.setChanged();
-            changed = currentMeta.hasChanged();
-        }
-
-        dispose();
+    if (!originalMeta.equals(currentMeta)) {
+      currentMeta.setChanged();
+      changed = currentMeta.hasChanged();
     }
+
+    dispose();
+  }
 }

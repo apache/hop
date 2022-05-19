@@ -17,197 +17,188 @@
 
 package org.apache.hop.pipeline.transforms.formula;
 
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.Objects;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 
 public class FormulaMetaFunction {
-    public static final String XML_TAG = "formula";
+  public static final String XML_TAG = "formula";
 
-    @HopMetadataProperty(
-            key = "field_name",
-            injectionKeyDescription = "FormulaMeta.Injection.FieldName"
-    )
-    private String fieldName;
+  @HopMetadataProperty(
+      key = "field_name",
+      injectionKeyDescription = "FormulaMeta.Injection.FieldName")
+  private String fieldName;
 
-    @HopMetadataProperty(
-            key = "formula",
-            injectionKeyDescription = "FormulaMeta.Injection.FormulaString"
-    )
-    private String formula;
+  @HopMetadataProperty(
+      key = "formula",
+      injectionKeyDescription = "FormulaMeta.Injection.FormulaString")
+  private String formula;
 
-    @HopMetadataProperty(
-            key = "value_type",
-            injectionKeyDescription = "FormulaMeta.Injection.ValueType"
-    )
-    private int valueType;
-    @HopMetadataProperty(
-            key = "value_length",
-            injectionKeyDescription = "FormulaMeta.Injection.ValueLength"
-    )
-    private int valueLength;
+  @HopMetadataProperty(
+      key = "value_type",
+      injectionKeyDescription = "FormulaMeta.Injection.ValueType")
+  private int valueType;
 
-    @HopMetadataProperty(
-            key = "value_precision",
-            injectionKeyDescription = "FormulaMeta.Injection.ValuePrecision"
-    )
-    private int valuePrecision;
+  @HopMetadataProperty(
+      key = "value_length",
+      injectionKeyDescription = "FormulaMeta.Injection.ValueLength")
+  private int valueLength;
 
-    @HopMetadataProperty(
-            key = "replace_field",
-            injectionKeyDescription = "FormulaMeta.Injection.ReplaceField"
-    )
-    private String replaceField;
+  @HopMetadataProperty(
+      key = "value_precision",
+      injectionKeyDescription = "FormulaMeta.Injection.ValuePrecision")
+  private int valuePrecision;
 
-    /**
-     * This value will be discovered on runtime and need not to be persisted into xml or rep.
-     */
-    private transient boolean needDataConversion = false;
+  @HopMetadataProperty(
+      key = "replace_field",
+      injectionKeyDescription = "FormulaMeta.Injection.ReplaceField")
+  private String replaceField;
 
-    /**
-     *
-     * @param fieldName
-     * @param formula
-     * @param valueType
-     * @param valueLength
-     * @param valuePrecision
-     * @param replaceField
-     */
-    public FormulaMetaFunction( String fieldName, String formula, int valueType, int valueLength,
-                                int valuePrecision, String replaceField ) {
-        this.fieldName = fieldName;
-        this.formula = formula;
-        this.valueType = valueType;
-        this.valueLength = valueLength;
-        this.valuePrecision = valuePrecision;
-        this.replaceField = replaceField;
+  /** This value will be discovered on runtime and need not to be persisted into xml or rep. */
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
+  private transient boolean needDataConversion = false;
 
-        ValueMetaFactory.getIdForValueMeta("Boolean");
+  /**
+   * @param fieldName
+   * @param formula
+   * @param valueType
+   * @param valueLength
+   * @param valuePrecision
+   * @param replaceField
+   */
+  public FormulaMetaFunction(
+      String fieldName,
+      String formula,
+      int valueType,
+      int valueLength,
+      int valuePrecision,
+      String replaceField) {
+    this.fieldName = fieldName;
+    this.formula = formula;
+    this.valueType = valueType;
+    this.valueLength = valueLength;
+    this.valuePrecision = valuePrecision;
+    this.replaceField = replaceField;
+
+    ValueMetaFactory.getIdForValueMeta("Boolean");
+  }
+
+  public FormulaMetaFunction() {
+    valueLength = -1;
+    valuePrecision = -1;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(fieldName, formula, valueType, valueLength, valuePrecision, replaceField);
+  }
+
+  @Override
+  public Object clone() {
+    try {
+      FormulaMetaFunction retval = (FormulaMetaFunction) super.clone();
+      return retval;
+    } catch (CloneNotSupportedException e) {
+      return null;
     }
+  }
 
-    public FormulaMetaFunction(){
-        valueLength = -1;
-        valuePrecision = -1;
-    }
+  /**
+   * @return Returns the fieldName.
+   */
+  public String getFieldName() {
+    return fieldName;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash( fieldName, formula, valueType, valueLength, valuePrecision, replaceField );
-    }
+  /**
+   * @param fieldName The fieldName to set.
+   */
+  public void setFieldName(String fieldName) {
+    this.fieldName = fieldName;
+  }
 
-    @Override
-    public Object clone() {
-        try {
-            FormulaMetaFunction retval = (FormulaMetaFunction) super.clone();
-            return retval;
-        } catch ( CloneNotSupportedException e ) {
-            return null;
-        }
-    }
+  /**
+   * @return Returns the valueLength.
+   */
+  public int getValueLength() {
+    return valueLength;
+  }
 
-    /**
-     * @return Returns the fieldName.
-     */
-    public String getFieldName() {
-        return fieldName;
-    }
+  /**
+   * @param valueLength The valueLength to set.
+   */
+  public void setValueLength(int valueLength) {
+    this.valueLength = valueLength;
+  }
 
-    /**
-     * @param fieldName
-     *          The fieldName to set.
-     */
-    public void setFieldName( String fieldName ) {
-        this.fieldName = fieldName;
-    }
+  /**
+   * @return Returns the valuePrecision.
+   */
+  public int getValuePrecision() {
+    return valuePrecision;
+  }
 
-    /**
-     * @return Returns the valueLength.
-     */
-    public int getValueLength() {
-        return valueLength;
-    }
+  /**
+   * @param valuePrecision The valuePrecision to set.
+   */
+  public void setValuePrecision(int valuePrecision) {
+    this.valuePrecision = valuePrecision;
+  }
 
-    /**
-     * @param valueLength
-     *          The valueLength to set.
-     */
-    public void setValueLength( int valueLength ) {
-        this.valueLength = valueLength;
-    }
+  /**
+   * @return Returns the valueType.
+   */
+  public int getValueType() {
+    return valueType;
+  }
 
-    /**
-     * @return Returns the valuePrecision.
-     */
-    public int getValuePrecision() {
-        return valuePrecision;
-    }
+  /**
+   * @param valueType The valueType to set.
+   */
+  public void setValueType(int valueType) {
+    this.valueType = valueType;
+  }
 
-    /**
-     * @param valuePrecision
-     *          The valuePrecision to set.
-     */
-    public void setValuePrecision( int valuePrecision ) {
-        this.valuePrecision = valuePrecision;
-    }
+  /**
+   * @return the formula
+   */
+  public String getFormula() {
+    return formula;
+  }
 
-    /**
-     * @return Returns the valueType.
-     */
-    public int getValueType() {
-        return valueType;
-    }
+  /**
+   * @param formula the formula to set
+   */
+  public void setFormula(String formula) {
+    this.formula = formula;
+  }
 
-    /**
-     * @param valueType
-     *          The valueType to set.
-     */
-    public void setValueType( int valueType ) {
-        this.valueType = valueType;
-    }
+  /**
+   * @return the replaceField
+   */
+  public String getReplaceField() {
+    return replaceField;
+  }
 
-    /**
-     * @return the formula
-     */
-    public String getFormula() {
-        return formula;
-    }
+  /**
+   * @param replaceField the replaceField to set
+   */
+  public void setReplaceField(String replaceField) {
+    this.replaceField = replaceField;
+  }
 
-    /**
-     * @param formula
-     *          the formula to set
-     */
-    public void setFormula( String formula ) {
-        this.formula = formula;
-    }
+  /**
+   * @return the needDataConversion
+   */
+  public boolean isNeedDataConversion() {
+    return needDataConversion;
+  }
 
-    /**
-     * @return the replaceField
-     */
-    public String getReplaceField() {
-        return replaceField;
-    }
-
-    /**
-     * @param replaceField
-     *          the replaceField to set
-     */
-    public void setReplaceField( String replaceField ) {
-        this.replaceField = replaceField;
-    }
-
-    /**
-     * @return the needDataConversion
-     */
-    public boolean isNeedDataConversion() {
-        return needDataConversion;
-    }
-
-    /**
-     * @param needDataConversion the needDataConversion to set
-     */
-    public void setNeedDataConversion( boolean needDataConversion ) {
-        this.needDataConversion = needDataConversion;
-    }
+  /**
+   * @param needDataConversion the needDataConversion to set
+   */
+  public void setNeedDataConversion(boolean needDataConversion) {
+    this.needDataConversion = needDataConversion;
+  }
 }
