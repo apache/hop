@@ -18,13 +18,13 @@
 #
 #
 
-CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 PROJECT_NAME="$1"
 
 echo "The Project Name = ${PROJECT_NAME}"
 
 if [ -z "${HOP_LOCATION}" ]; then
-    HOP_LOCATION=/opt/hop
+  HOP_LOCATION=/opt/hop
 fi
 
 if [ -z "${SUREFIRE_REPORT}" ]; then
@@ -33,32 +33,32 @@ fi
 
 # Get kafka parameters
 if [ -z "${BOOTSTRAP_SERVERS}" ]; then
-    BOOTSTRAP_SERVERS=kafka:9092
+  BOOTSTRAP_SERVERS=kafka:9092
 fi
 
 # Get database parameters
 if [ -z "${POSTGRES_HOST}" ]; then
-    POSTGRES_HOST=postgres
+  POSTGRES_HOST=postgres
 fi
 
 if [ -z "${POSTGRES_DATABASE}" ]; then
-    POSTGRES_DATABASE=hop_database
+  POSTGRES_DATABASE=hop_database
 fi
 
 if [ -z "${POSTGRES_PORT}" ]; then
-    POSTGRES_PORT=5432
+  POSTGRES_PORT=5432
 fi
 
 if [ -z "${POSTGRES_USER}" ]; then
-    POSTGRES_USER=hop_user
+  POSTGRES_USER=hop_user
 fi
 
 if [ -z "${POSTGRES_PASSWORD}" ]; then
-    POSTGRES_PASSWORD=hop_password
+  POSTGRES_PASSWORD=hop_password
 fi
 
 if [ -z "${PROJECT_NAME}" ]; then
-    PROJECT_NAME="*"
+  PROJECT_NAME="*"
 fi
 
 #set global variables
@@ -85,135 +85,138 @@ mkdir -p "${HOP_AUDIT_FOLDER}"
 TMP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}"
 
 #Loop over project folders
-for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/ ; do
-    #cleanup project testcases
-    rm -f "${TMP_TESTCASES}"
+for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
+  #cleanup project testcases
+  rm -f "${TMP_TESTCASES}"
 
-    if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
+  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
 
-        #set test variables
-        start_time=$SECONDS
-        test_counter=0
-        errors_counter=0
-        skipped_counter=0
-        failures_counter=0
+    # If there is a file called disabled.txt the project is disabled
+    #
+    if [ ! -f "$d/disabled.txt" ]; then
 
-        PROJECT_NAME=$(basename $d)
+      #set test variables
+      start_time=$SECONDS
+      test_counter=0
+      errors_counter=0
+      skipped_counter=0
+      failures_counter=0
 
+      PROJECT_NAME=$(basename $d)
+
+      echo ${SPACER}
+      echo "Starting Tests in project: ${PROJECT_NAME}"
+      echo ${SPACER}
+
+      # Increment timer and set test start time
+      test_counter=$((test_counter + 1))
+
+      # Create New Project
+      export HOP_CONFIG_FOLDER="$d"
+
+      # Find main hwf files in the test sub-folder
+      #
+      # TODO: add hpl support when result is returned correctly
+      #
+      find $d -name 'main*.hwf' | sort | while read f; do
+
+        #cleanup temp files
+        rm -f /tmp/test_output
+        rm -f /tmp/test_output_err
+
+        #set file and test name
+        hop_file="$(realpath $f)"
+        test_name=$(basename $f)
+        test_name=${test_name//'main_'/}
+        test_name=${test_name//'main-'/}
+        test_name=${test_name//'.hwf'/}
+
+        #Starting Test
         echo ${SPACER}
-        echo "Starting Tests in project: ${PROJECT_NAME}"
+        echo "Starting Test: $test_name"
         echo ${SPACER}
 
-        # Increment timer and set test start time
-        test_counter=$((test_counter+1))
+        #Start time test
+        start_time_test=$SECONDS
 
-        # Create New Project
-        export HOP_CONFIG_FOLDER="$d"
+        #Run Test
+        $HOP_LOCATION/hop-run.sh \
+          -r "local" \
+          -e "dev" \
+          -p POSTGRES_HOST=${POSTGRES_HOST} \
+          -p POSTGRES_DATABASE=${POSTGRES_DATABASE} \
+          -p POSTGRES_PORT=${POSTGRES_PORT} \
+          -p POSTGRES_USER=${POSTGRES_USER} \
+          -p POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+          -p BOOTSTRAP_SERVERS=${BOOTSTRAP_SERVERS} \
+          -f $hop_file > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
 
-        # Find main hwf files in the test sub-folder
-        #
-        # TODO: add hpl support when result is returned correctly
-        #
-        find $d -name 'main*.hwf' | sort | while read f ; do
+        #Capture exit code
+        exit_code=${PIPESTATUS[0]}
 
-            #cleanup temp files
-            rm -f /tmp/test_output
-            rm -f /tmp/test_output_err
+        #Test time duration
+        test_duration=$((SECONDS - start_time_test))
 
-            #set file and test name
-            hop_file="$(realpath $f)"
-            test_name=$(basename $f)
-            test_name=${test_name//'main_'/}
-            test_name=${test_name//'main-'/}
-            test_name=${test_name//'.hwf'/}
+        if (($exit_code >= 1)); then
+          errors_counter=$((errors_counter + 1))
+          failures_counter=$((failures_counter + 1))
+          #Create surefire xml failure
+          echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >>${TMP_TESTCASES}
+          echo "<failure type=\"$test_name\"></failure>" >>${TMP_TESTCASES}
+          echo "<system-out>" >>${TMP_TESTCASES}
+          echo "<![CDATA[" >>${TMP_TESTCASES}
+          cat /tmp/test_output >>${TMP_TESTCASES}
+          echo "]]>" >>${TMP_TESTCASES}
+          echo "</system-out>" >>${TMP_TESTCASES}
+          echo "<system-err>" >>${TMP_TESTCASES}
+          echo "<![CDATA[" >>${TMP_TESTCASES}
+          cat /tmp/test_output_err >>${TMP_TESTCASES}
+          echo "]]>" >>${TMP_TESTCASES}
+          echo "</system-err>" >>${TMP_TESTCASES}
+          echo "</testcase>" >>${TMP_TESTCASES}
 
-            #Starting Test
-            echo ${SPACER}
-            echo "Starting Test: $test_name"
-            echo ${SPACER}
-
-            #Start time test
-            start_time_test=$SECONDS
-
-            #Run Test
-            $HOP_LOCATION/hop-run.sh \
-                -r "local" \
-                -e "dev" \
-                -p POSTGRES_HOST=${POSTGRES_HOST} \
-                -p POSTGRES_DATABASE=${POSTGRES_DATABASE} \
-                -p POSTGRES_PORT=${POSTGRES_PORT} \
-                -p POSTGRES_USER=${POSTGRES_USER} \
-                -p POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
-                -p BOOTSTRAP_SERVERS=${BOOTSTRAP_SERVERS} \
-                -f $hop_file > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
-
-            #Capture exit code
-            exit_code=${PIPESTATUS[0]}
-
-            #Test time duration
-            test_duration=$(( SECONDS - start_time_test ))
-
-            if (( $exit_code >= 1 )) ;
-            then
-                errors_counter=$((errors_counter+1))
-                failures_counter=$((failures_counter+1))
-                #Create surefire xml failure
-                echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >> ${TMP_TESTCASES}
-                echo "<failure type=\"$test_name\"></failure>" >> ${TMP_TESTCASES}
-                echo "<system-out>" >> ${TMP_TESTCASES}
-                echo "<![CDATA["  >> ${TMP_TESTCASES}
-                cat /tmp/test_output >> ${TMP_TESTCASES}
-                echo "]]>"  >> ${TMP_TESTCASES}
-                echo "</system-out>" >> ${TMP_TESTCASES}
-                echo "<system-err>" >> ${TMP_TESTCASES}
-                echo "<![CDATA["  >> ${TMP_TESTCASES}
-                cat /tmp/test_output_err >> ${TMP_TESTCASES}
-                echo "]]>"  >> ${TMP_TESTCASES}
-                echo "</system-err>" >> ${TMP_TESTCASES}
-                echo "</testcase>" >> ${TMP_TESTCASES}
-
-            else
-                #Create surefire xml success
-                echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >> ${TMP_TESTCASES}
-                echo "<system-out>" >> ${TMP_TESTCASES}
-                echo "<![CDATA["  >> ${TMP_TESTCASES}
-                cat /tmp/test_output >> ${TMP_TESTCASES}
-                echo "]]>"  >> ${TMP_TESTCASES}
-                echo "</system-out>" >> ${TMP_TESTCASES}
-                echo "</testcase>" >> ${TMP_TESTCASES}
-            fi
-
-            #Print results to console
-            echo ${SPACER}
-            echo "Test Result"
-            echo ${SPACER}
-            echo "Test duration: $test_duration"
-            echo "Test Exit Code: $exit_code"
-
-        done
-
-        total_duration=$(( SECONDS - start_time ))
-
-        #Print End results
-        echo ${SPACER}
-        echo "Final Report"
-        echo ${SPACER}
-        echo "Number of Tests: $test_counter"
-        echo "Total errors: $errors_counter"
-        echo "Total failures: $failures_counter"
-        echo "Total duration: $total_duration"
-
-        #create final report
-        if [ "${SUREFIRE_REPORT}" == "true" ]
-        then 
-
-          echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" > "${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-          echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"$total_duration\" tests=\"$test_counter\" errors=\"$errors_counter\" skipped=\"$skipped_counter\" failures=\"$failures_counter\">" >> "${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-          cat ${TMP_TESTCASES} >> "${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-          echo "</testsuite>" >> "${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-
+        else
+          #Create surefire xml success
+          echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >>${TMP_TESTCASES}
+          echo "<system-out>" >>${TMP_TESTCASES}
+          echo "<![CDATA[" >>${TMP_TESTCASES}
+          cat /tmp/test_output >>${TMP_TESTCASES}
+          echo "]]>" >>${TMP_TESTCASES}
+          echo "</system-out>" >>${TMP_TESTCASES}
+          echo "</testcase>" >>${TMP_TESTCASES}
         fi
+
+        #Print results to console
+        echo ${SPACER}
+        echo "Test Result"
+        echo ${SPACER}
+        echo "Test duration: $test_duration"
+        echo "Test Exit Code: $exit_code"
+
+      done
+
+      total_duration=$((SECONDS - start_time))
+
+      #Print End results
+      echo ${SPACER}
+      echo "Final Report"
+      echo ${SPACER}
+      echo "Number of Tests: $test_counter"
+      echo "Total errors: $errors_counter"
+      echo "Total failures: $failures_counter"
+      echo "Total duration: $total_duration"
+
+      #create final report
+      if [ "${SUREFIRE_REPORT}" == "true" ]; then
+
+        echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+        echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"$total_duration\" tests=\"$test_counter\" errors=\"$errors_counter\" skipped=\"$skipped_counter\" failures=\"$failures_counter\">" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+        cat ${TMP_TESTCASES} >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+        echo "</testsuite>" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+
+      fi
     fi
+  fi
 done
 
 # Cleanup config and audit folders

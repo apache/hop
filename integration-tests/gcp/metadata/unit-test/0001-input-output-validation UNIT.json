@@ -1,0 +1,48 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        },
+        {
+          "transform_field": "minId",
+          "data_set_field": "minId"
+        },
+        {
+          "transform_field": "maxId",
+          "data_set_field": "maxId"
+        },
+        {
+          "transform_field": "minName",
+          "data_set_field": "minName"
+        },
+        {
+          "transform_field": "maxName",
+          "data_set_field": "maxName"
+        }
+      ],
+      "field_order": [
+        "count",
+        "minId",
+        "maxId",
+        "minName",
+        "maxName"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "0001-input-output-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0001-input-output-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0001-input-output-validation.hpl",
+  "test_type": "UNIT_TEST"
+}
