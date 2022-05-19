@@ -30,15 +30,11 @@ services:
   mailhog:
     image: 'mailhog/mailhog:latest'
     ports:
-      - '1025:1025'
-      - '8025:8025'
-    expose:
-      - 8025
+      - "1025"
+      - "8025"
     healthcheck:
       test: [ "CMD-SHELL", "true" ]
       start_period: 2s
       retries: 5
       interval: 3s
       timeout: 15s
-
-
