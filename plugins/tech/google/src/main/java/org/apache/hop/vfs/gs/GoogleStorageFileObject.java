@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFileSystem> {
 
@@ -196,6 +197,10 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       if (blob == null) {
         return 0;
       }
+      if (isFolder()) {
+        // getting the update time of a folder gives an NPE
+        return 0;
+      }
       return blob.getUpdateTime();
     }
     if (hasBucket()) {
@@ -303,5 +308,20 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
     } else {
       return name;
     }
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    GoogleStorageFileObject that = (GoogleStorageFileObject) o;
+
+    return Objects.equals(getName().getPath(), that.getName().getPath());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getName().getPath());
   }
 }

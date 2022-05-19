@@ -18,6 +18,7 @@
 package org.apache.hop.beam.transforms.bigtable;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -25,6 +26,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -40,6 +43,8 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
   private TextVar wProjectId;
   private TextVar wInstanceId;
   private TextVar wTableId;
+  private TextVar wKeyField;
+  private TableView wColumns;
 
   public BeamBigtableInputDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -64,6 +69,16 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
+
+    // Buttons at the bottom!
+    //
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -135,13 +150,64 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
     wTableId.setLayoutData(fdTableId);
     lastControl = wTableId;
 
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, lastControl);
+    Label wlKeyField = new Label(shell, SWT.RIGHT);
+    wlKeyField.setText(BaseMessages.getString(PKG, "BeamBigtableInputDialog.KeyField"));
+    props.setLook(wlKeyField);
+    FormData fdlKeyField = new FormData();
+    fdlKeyField.left = new FormAttachment(0, 0);
+    fdlKeyField.top = new FormAttachment(lastControl, margin);
+    fdlKeyField.right = new FormAttachment(middle, -margin);
+    wlKeyField.setLayoutData(fdlKeyField);
+    wKeyField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wKeyField);
+    FormData fdKeyField = new FormData();
+    fdKeyField.left = new FormAttachment(middle, 0);
+    fdKeyField.top = new FormAttachment(wlKeyField, 0, SWT.CENTER);
+    fdKeyField.right = new FormAttachment(100, 0);
+    wKeyField.setLayoutData(fdKeyField);
+    lastControl = wKeyField;
+
+    Label wlColumns = new Label(shell, SWT.LEFT);
+    wlColumns.setText(BaseMessages.getString(PKG, "BeamBigtableInputDialog.Columns"));
+    props.setLook(wlColumns);
+    FormData fdlColumns = new FormData();
+    fdlColumns.left = new FormAttachment(0, 0);
+    fdlColumns.top = new FormAttachment(lastControl, margin);
+    fdlColumns.right = new FormAttachment(100, 0);
+    wlColumns.setLayoutData(fdlColumns);
+    lastControl = wlColumns;
+
+    ColumnInfo[] columns =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "BeamBigtableInputDialog.Column.Qualifier"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "BeamBigtableInputDialog.Column.Type"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ValueMetaFactory.getValueMetaNames(),
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "BeamBigtableInputDialog.Column.TargetName"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false),
+        };
+    columns[0].setUsingVariables(false);
+    columns[1].setUsingVariables(false);
+    columns[2].setUsingVariables(false);
+
+    wColumns =
+        new TableView(
+            variables, shell, SWT.BORDER, columns, input.getSourceColumns().size(), null, props);
+    FormData fdColumns = new FormData();
+    fdColumns.left = new FormAttachment(0, 0);
+    fdColumns.top = new FormAttachment(lastControl, margin);
+    fdColumns.right = new FormAttachment(100, 0);
+    fdColumns.bottom = new FormAttachment(wOk, -2 * margin);
+    wColumns.setLayoutData(fdColumns);
 
     getData();
 
@@ -156,6 +222,16 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
     wProjectId.setText(Const.NVL(input.getProjectId(), ""));
     wInstanceId.setText(Const.NVL(input.getInstanceId(), ""));
     wTableId.setText(Const.NVL(input.getTableId(), ""));
+    wKeyField.setText(Const.NVL(input.getKeyField(), ""));
+
+    for (int i = 0; i < input.getSourceColumns().size(); i++) {
+      BigtableSourceColumn column = input.getSourceColumns().get(i);
+      TableItem item = wColumns.table.getItem(i);
+      item.setText(1, Const.NVL(column.getQualifier(), ""));
+      item.setText(2, Const.NVL(column.getTargetType(), ""));
+      item.setText(3, Const.NVL(column.getTargetFieldName(), ""));
+    }
+    wColumns.optimizeTableView();
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -183,6 +259,16 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
     in.setProjectId(wProjectId.getText());
     in.setInstanceId(wInstanceId.getText());
     in.setTableId(wTableId.getText());
+    in.setKeyField(wKeyField.getText());
+
+    in.getSourceColumns().clear();
+
+    for (TableItem item : wColumns.getNonEmptyItems()) {
+      String qualifier = item.getText(1);
+      String type = item.getText(2);
+      String name = item.getText(3);
+      in.getSourceColumns().add(new BigtableSourceColumn(qualifier, type, name));
+    }
 
     input.setChanged();
   }

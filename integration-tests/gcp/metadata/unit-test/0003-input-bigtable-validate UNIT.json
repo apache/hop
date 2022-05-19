@@ -1,0 +1,44 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        },
+        {
+          "transform_field": "minName",
+          "data_set_field": "minName"
+        },
+        {
+          "transform_field": "maxName",
+          "data_set_field": "maxName"
+        }
+      ],
+      "field_order": [
+        "stateCode"
+      ],
+      "transform_name": "Validate",
+      "data_set_name": "0003-input-bigtable-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0003-input-bigtable-validate UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0003-input-bigtable-validate.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -133,7 +133,7 @@ public class HopToBigtableFn extends DoFn<HopRow, KV<ByteString, Iterable<Mutati
               Mutation.SetCell.newBuilder()
                   .setFamilyName(column.getFamily())
                   .setColumnQualifier(toByteString(column.getName()))
-                  .setTimestampMicros(System.currentTimeMillis())
+                  .setTimestampMicros(System.currentTimeMillis()*1000)
                   .setValue(toByteString(valueMeta, valueData))
                   .build();
           Mutation mutation = Mutation.newBuilder().setSetCell(setCell).build();

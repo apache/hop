@@ -23,6 +23,7 @@ import org.apache.beam.sdk.io.gcp.bigtable.BigtableIO;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
@@ -126,6 +127,20 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData>
       throw new HopException("Combining data from multiple transforms is not supported yet!");
     }
     TransformMeta previousTransform = previousTransforms.get(0);
+
+    // Verify that each column has qualifier, a family value and a source:
+    //
+    for (BigtableColumn column : columns) {
+      if ( StringUtils.isEmpty(column.getName())) {
+        throw new HopException("Every column needs to have a name");
+      }
+      if ( StringUtils.isEmpty(column.getFamily())) {
+        throw new HopException("Every column needs to have a family value: "+column.getName());
+      }
+      if ( StringUtils.isEmpty(column.getSourceField())) {
+        throw new HopException("Every column needs to have a source field: "+column.getName());
+      }
+    }
 
     BigtableIO.Write write =
         BigtableIO.write()
