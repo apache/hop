@@ -138,17 +138,17 @@
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-core</artifactId>
-      <version>4.2.9</version>
+      <version>3.1.5</version>
     </dependency>
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-jvm</artifactId>
-      <version>4.2.9</version>
+      <version>3.1.5</version>
     </dependency>
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-logback</artifactId>
-      <version>4.2.9</version>
+      <version>3.1.5</version>
     </dependency>
     <dependency>
       <groupId>com.datastax.cassandra</groupId>
