@@ -10,6 +10,7 @@
   ~       http://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
+  ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
@@ -491,29 +492,6 @@
   </function>
 
   <!-- CONCAT -->
-  <function>
-    <category>%Category.Text</category>
-    <name>CONCAT</name>
-    <description>The CONCAT function combines the text from multiple ranges and/or strings, but it doesn't provide delimiter or IgnoreEmpty arguments. </description>
-    <syntax>CONCAT( Text t1 , Text t2, Text tN )</syntax>
-    <returns>Text</returns>
-    <constraints>Requires one or more parameters</constraints>
-    <semantics>Returns the text strings concatenated together</semantics>
-    <examples>
-      <example>
-        <expression>CONCAT("A","B")</expression>
-        <result>AB</result>
-        <level>1</level>
-        <comment>2 parameter concatenation.</comment>
-      </example>
-      <example>
-        <expression>CONCAT("AB","CD","EF")</expression>
-        <result>ABCDEF</result>
-        <level>1</level>
-        <comment>3 parameter concatenation</comment>
-      </example>
-    </examples>
-  </function>
 
   <!-- CONCATENATE -->
   <function>
@@ -3145,33 +3123,6 @@ System 2    The week containing the first Thursday of the year is the first week
   </function>
 
   <!-- Date/Time : this list is complete -->
-
-  <function>
-  	<category>%Category.DateTime</category>
-  	<name>DATEDIF</name>
-  	<description>Return the number of years, months, or days between two date numbers.</description>
-    <syntax>DATEDIF( DateParam StartDate , DateParam EndDate , Text Format )</syntax>
-  	<returns>Number</returns>
-  	<constraints>None</constraints>
-  	<semantics>Compute difference between StartDate and EndDate, in the units given by Format.
-The Format is a code from the following table, entered as text, that specifies the format you want the result of DATEDIF to have:
-y : Years
-m : Months. If there is not a complete month between the dates, 0 will be returned.
-d : Days
-md : Days, ignoring months and years
-ym : Months, ignoring years
-yd : Days, ignoring years
-  	</semantics>
-	<examples>
-	   	<example><expression>DATEDIF(DATE(1990,2,15), DATE(1993,9,15), "y")</expression> <result></result> <level>3</level> <comment></comment></example>
-	   	<example><expression>DATEDIF(DATE(1990,2,15), DATE(1993,9,15), "m")</expression> <result>43</result> <level>3</level> <comment>The number of months between February 15, 1990, and September 15, 1993.</comment></example>
-	   	<example><expression>DATEDIF(DATE(1990,2,15), DATE(1993,9,15), "d")</expression> <result></result> <level>3</level> <comment></comment></example>
-	   	<example><expression>DATEDIF(DATE(1990,2,15), DATE(1993,9,15), "md")</expression> <result>0</result> <level>3</level> <comment>The day of the month for both start-date and end-date is the 15th</comment></example>
-	   	<example><expression>DATEDIF(DATE(1990,2,15), DATE(1993,9,15), "ym")</expression> <result>7</result> <level>3</level> <comment>The number of months between February and September.</comment></example>
-	   	<example><expression>DATEDIF(DATE(1990,2,15), DATE(1993,9,15), "yd")</expression> <result></result> <level></level> <comment></comment></example>
-	</examples>
-  </function>
-
   <function>
     <category>%Category.DateTime</category>
     <name>PARSEDATE</name>
