@@ -113,3 +113,14 @@ Fields tab:
 == Metadata Injection Support
 
 All fields of this transform support metadata injection.
+
+To inject the Avro field type use following codes
+
+AVRO_TYPE_NONE = 0 +
+AVRO_TYPE_BOOLEAN = 1 +
+AVRO_TYPE_DOUBLE = 2 +
+AVRO_TYPE_FLOAT = 3 +
+AVRO_TYPE_INT = 4 +
+AVRO_TYPE_LONG = 5 +
+AVRO_TYPE_STRING = 6 +
+AVRO_TYPE_ENUM = 7
