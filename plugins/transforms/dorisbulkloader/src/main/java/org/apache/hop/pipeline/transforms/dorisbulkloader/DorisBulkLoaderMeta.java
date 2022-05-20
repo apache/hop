@@ -13,29 +13,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
@@ -50,36 +45,86 @@ public class DorisBulkLoaderMeta extends BaseTransformMeta<DorisBulkLoader, Dori
   private static final Class<?> PKG = DorisBulkLoaderMeta.class; // For Translator
 
   /** doris fe host */
-  private String feHost;
+  @HopMetadataProperty private String feHost;
+
   /** doris http port */
-  private String feHttpPort;
+  @HopMetadataProperty private String feHttpPort;
+
   /** doris database name */
-  private String databaseName;
+  @HopMetadataProperty private String databaseName;
+
   /** doris table name */
-  private String tableName;
+  @HopMetadataProperty private String tableName;
+
   /** doris login user */
-  private String loginUser;
+  @HopMetadataProperty private String loginUser;
+
   /** doris login password */
+  @HopMetadataProperty(password = true)
   private String loginPassword;
+
   /** doris stream load data format */
-  private String format;
+  @HopMetadataProperty private String format;
+
   /** doris stream load line delimiter */
-  private String lineDelimiter;
+  @HopMetadataProperty private String lineDelimiter;
+
   /** doris stream load column delimiter */
-  private String columnDelimiter;
+  @HopMetadataProperty private String columnDelimiter;
+
   /** stream load http request headers */
-  private String[] headerNames;
-  private String[] headerValues;
+  @HopMetadataProperty(groupKey = "headers", key = "header")
+  List<DorisHeader> headers;
+
   /** A buffer's capacity, in bytes. */
-  private int bufferSize;
+  @HopMetadataProperty private int bufferSize;
+
   /** BufferSize * BufferCount is the max capacity to buffer data before doing real stream load */
-  private int bufferCount;
+  @HopMetadataProperty private int bufferCount;
 
   /** doris stream load data fieldname */
   private String dataField;
 
   public DorisBulkLoaderMeta() {
     super(); // allocate BaseTransformMeta
+    headers = new ArrayList<>();
+  }
+
+  @Override
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    CheckResult cr;
+
+    // See if we have input streams leading to this transform!
+    if (input.length > 0) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  PKG, "DorisBulkLoaderMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
+              transformMeta);
+    } else {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "DorisBulkLoaderMeta.CheckResult.NoInpuReceived"),
+              transformMeta);
+    }
+    remarks.add(cr);
+  }
+
+  /** whether the transform support error handling */
+  @Override
+  public boolean supportsErrorHandling() {
+    return true;
   }
 
   public String getFeHost() {
@@ -130,14 +175,6 @@ public class DorisBulkLoaderMeta extends BaseTransformMeta<DorisBulkLoader, Dori
     this.loginPassword = loginPassword;
   }
 
-  public String getDataField() {
-    return dataField;
-  }
-
-  public void setDataField(String dataField) {
-    this.dataField = dataField;
-  }
-
   public String getFormat() {
     return format;
   }
@@ -162,20 +199,12 @@ public class DorisBulkLoaderMeta extends BaseTransformMeta<DorisBulkLoader, Dori
     this.columnDelimiter = columnDelimiter;
   }
 
-  public String[] getHeaderNames() {
-    return headerNames;
+  public List<DorisHeader> getHeaders() {
+    return headers;
   }
 
-  public void setHeaderNames(String[] headerNames) {
-    this.headerNames = headerNames;
-  }
-
-  public String[] getHeaderValues() {
-    return headerValues;
-  }
-
-  public void setHeaderValues(String[] headerValues) {
-    this.headerValues = headerValues;
+  public void setHeaders(List<DorisHeader> headers) {
+    this.headers = headers;
   }
 
   public int getBufferSize() {
@@ -194,125 +223,11 @@ public class DorisBulkLoaderMeta extends BaseTransformMeta<DorisBulkLoader, Dori
     this.bufferCount = bufferCount;
   }
 
-  /**
-   * load xml into memory variables
-   * @param transformNode the Node to get the info from
-   * @param metadataProvider the metadata to optionally load external reference metadata from
-   * @throws HopXmlException
-   */
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      feHost = XmlHandler.getTagValue(transformNode, "feHost");
-      feHttpPort = XmlHandler.getTagValue(transformNode, "feHttpPort");
-      databaseName = XmlHandler.getTagValue(transformNode, "databaseName");
-      tableName = XmlHandler.getTagValue(transformNode, "tableName");
-      dataField = XmlHandler.getTagValue(transformNode, "dataField");
-      loginUser = XmlHandler.getTagValue(transformNode, "httpLogin");
-      loginPassword =
-              Encr.decryptPasswordOptionallyEncrypted(
-                      XmlHandler.getTagValue(transformNode, "httpPassword"));
-      format = XmlHandler.getTagValue(transformNode, "format");
-      lineDelimiter = XmlHandler.getTagValue(transformNode, "lineDelimiter");
-      lineDelimiter = XmlHandler.getTagValue(transformNode, "columnDelimiter");
-
-      Node headersNode = XmlHandler.getSubNode(transformNode, "headers");
-      int headerCount = XmlHandler.countNodes(headersNode, "header");
-      allocate(headerCount);
-      for (int i = 0; i < headerCount; i++) {
-        Node anode = XmlHandler.getSubNodeByNr(headersNode, "header", i);
-        headerNames[i] = XmlHandler.getTagValue(anode, "name");
-        headerValues[i] = XmlHandler.getTagValue(anode, "value");
-      }
-
-      bufferSize = Integer.parseInt(XmlHandler.getTagValue(transformNode, "bufferSize"));
-      bufferCount = Integer.parseInt(XmlHandler.getTagValue(transformNode, "bufferCount"));
-    } catch (Exception e) {
-      throw new HopXmlException(
-              BaseMessages.getString(PKG, "DorisBulkLoaderMeta.Exception.UnableToReadTransformMeta"), e);
-    }
+  public String getDataField() {
+    return dataField;
   }
 
-  /**
-   * get xml from memory variables
-   * @return
-   */
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-    retval.append("    ").append(XmlHandler.addTagValue("feHost", feHost));
-    retval.append("    ").append(XmlHandler.addTagValue("feHttpPort", feHttpPort));
-    retval.append("    ").append(XmlHandler.addTagValue("databaseName", databaseName));
-    retval.append("    ").append(XmlHandler.addTagValue("tableName", tableName));
-    retval.append("    ").append(XmlHandler.addTagValue("dataField", dataField));
-    retval.append("    ").append(XmlHandler.addTagValue("httpLogin", loginUser));
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "httpPassword", Encr.encryptPasswordIfNotUsingVariables(loginPassword)));
-    retval.append("    ").append(XmlHandler.addTagValue("format", format));
-    retval.append("    ").append(XmlHandler.addTagValue("lineDelimiter", lineDelimiter));
-    retval.append("    ").append(XmlHandler.addTagValue("columnDelimiter", columnDelimiter));
-
-    retval.append("    <headers>").append(Const.CR);
-    for (int i = 0, len = (headerNames != null ? headerNames.length : 0); i < len; i++) {
-      retval.append("      <header>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", headerNames[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("value", headerValues[i]));
-      retval.append("        </header>").append(Const.CR);
-    }
-    retval.append("      </headers>").append(Const.CR);
-
-    retval.append("    ").append(XmlHandler.addTagValue("bufferSize", bufferSize));
-    retval.append("    ").append(XmlHandler.addTagValue("bufferCount", bufferCount));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void check(
-      List<ICheckResult> remarks,
-      PipelineMeta pipelineMeta,
-      TransformMeta transformMeta,
-      IRowMeta prev,
-      String[] input,
-      String[] output,
-      IRowMeta info,
-      IVariables variables,
-      IHopMetadataProvider metadataProvider) {
-    CheckResult cr;
-
-    // See if we have input streams leading to this transform!
-    if (input.length > 0) {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "DorisBulkLoaderMeta.CheckResult.ReceivingInfoFromOtherTransforms"),
-              transformMeta);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "DorisBulkLoaderMeta.CheckResult.NoInpuReceived"),
-              transformMeta);
-    }
-    remarks.add(cr);
-  }
-
-  /** whether the transform support error handling */
-  @Override
-  public boolean supportsErrorHandling() {
-    return true;
-  }
-
-  /**
-   * allocate memory for doris heetp request header variable
-   * @param headerCount
-   */
-  public void allocate(int headerCount) {
-    headerNames = new String[headerCount];
-    headerValues = new String[headerCount];
+  public void setDataField(String dataField) {
+    this.dataField = dataField;
   }
 }

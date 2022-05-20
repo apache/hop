@@ -13,6 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
@@ -21,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -30,6 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBulkLoaderData> {
@@ -65,7 +68,8 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
         data.setIndexOfBodyField(resolve(meta.getDataField()));
       }
 
-      String rowString = Const.NVL(data.inputRowMeta.getString(r, data.getIndexOfBodyField()), null);
+      String rowString =
+          Const.NVL(data.inputRowMeta.getString(r, data.getIndexOfBodyField()), null);
       if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "DorisBulkLoader.Log.StreamLoadRowValue", rowString));
       }
@@ -93,7 +97,9 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
         sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
-        logError(BaseMessages.getString(PKG, "DorisBulkLoader.ErrorInTransformRunning") + e.getMessage());
+        logError(
+            BaseMessages.getString(PKG, "DorisBulkLoader.ErrorInTransformRunning")
+                + e.getMessage());
         setErrors(1);
         logError(Const.getStackTracker(e));
         stopAll();
@@ -103,7 +109,13 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
 
       if (sendToErrorRow) {
         // Simply add this row to the error row
-        putError(getInputRowMeta(), r, 1, errorMessage, null, BaseMessages.getString(PKG, "DorisBulkLoader.ErrorCode"));
+        putError(
+            getInputRowMeta(),
+            r,
+            1,
+            errorMessage,
+            null,
+            BaseMessages.getString(PKG, "DorisBulkLoader.ErrorCode"));
       }
     }
     return true;
@@ -111,11 +123,13 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
 
   /**
    * process stream load row
+   *
    * @param streamLoadRow the row will be load into doris
    * @param first true then current processed row is the first row
    * @throws Exception
    */
-  public void processStreamLoad(String streamLoadRow, boolean first) throws DorisStreamLoadException {
+  public void processStreamLoad(String streamLoadRow, boolean first)
+      throws DorisStreamLoadException {
     try {
       if (streamLoadRow == null) {
         if (!first) {
@@ -123,7 +137,9 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
           data.dorisStreamLoad.endWritingIntoBuffer();
           ResponseContent responseContent = data.dorisStreamLoad.executeDorisStreamLoad();
           if (log.isDetailed()) {
-            log.logDetailed(BaseMessages.getString(PKG, "DorisBulkLoader.Log.StreamLoadResult", responseContent.toString()));
+            log.logDetailed(
+                BaseMessages.getString(
+                    PKG, "DorisBulkLoader.Log.StreamLoadResult", responseContent.toString()));
           }
           // close doris http client
           data.dorisStreamLoad.close();
@@ -148,18 +164,21 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
         data.dorisStreamLoad.endWritingIntoBuffer();
         ResponseContent responseContent = data.dorisStreamLoad.executeDorisStreamLoad();
         if (log.isDetailed()) {
-          log.logDetailed(BaseMessages.getString(PKG, "DorisBulkLoader.Log.StreamLoadResult", responseContent.toString()));
+          log.logDetailed(
+              BaseMessages.getString(
+                  PKG, "DorisBulkLoader.Log.StreamLoadResult", responseContent.toString()));
         }
         data.dorisStreamLoad.startWritingIntoBuffer();
         if (data.dorisStreamLoad.canWrite(record.length)) {
           data.dorisStreamLoad.writeRecord(record);
         } else {
-          throw new DorisStreamLoadException(BaseMessages.getString(PKG, "DorisBulkLoader.Log.ExceedBufferLimit", streamLoadRow));
+          throw new DorisStreamLoadException(
+              BaseMessages.getString(PKG, "DorisBulkLoader.Log.ExceedBufferLimit", streamLoadRow));
         }
       }
     } catch (Exception e) {
       if (e instanceof DorisStreamLoadException) {
-        throw (DorisStreamLoadException)e;
+        throw (DorisStreamLoadException) e;
       } else {
         throw new DorisStreamLoadException(e);
       }
@@ -168,11 +187,16 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
 
   /**
    * init stream load
+   *
    * @throws IOException
    */
-  private void initStreamLoad() throws IOException {
+  private void initStreamLoad() throws HopException {
     if (log.isDetailed()) {
-      log.logDetailed(BaseMessages.getString(PKG, "DorisBulkLoader.Log.StreamLoadParameter", meta.getXml()));
+      log.logDetailed(
+          BaseMessages.getString(
+              PKG,
+              "DorisBulkLoader.Log.StreamLoadParameter",
+              XmlMetadataUtil.serializeObjectToXml(meta)));
     }
 
     StreamLoadProperty streamLoadProperty = new StreamLoadProperty();
@@ -185,12 +209,10 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
     httpHeaders.put(LoadConstants.FORMAT_KEY, meta.getFormat());
     httpHeaders.put(LoadConstants.LINE_DELIMITER_KEY, meta.getLineDelimiter());
     httpHeaders.put(LoadConstants.FIELD_DELIMITER_KEY, meta.getColumnDelimiter());
-    String[] headers = meta.getHeaderNames();
-    if (headers != null) {
-      String[] headerValues = meta.getHeaderValues();
-      for(int i = 0; i < headers.length; i++) {
-        httpHeaders.put(headers[i], headerValues[i]);
-      }
+    List<DorisHeader> headers = meta.getHeaders();
+    for (int i = 0; i < headers.size(); i++) {
+      DorisHeader header = headers.get(i);
+      httpHeaders.put(header.getName(), header.getValue());
     }
 
     streamLoadProperty.setHttpHeaders(httpHeaders);
@@ -200,5 +222,4 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
 
     data.dorisStreamLoad = new DorisStreamLoad(streamLoadProperty);
   }
-
 }

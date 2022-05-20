@@ -13,6 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
  
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
@@ -28,13 +29,13 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 public class RecordBuffer {
 
-    private BlockingQueue<ByteBuffer> writeQueue;
-    private BlockingQueue<ByteBuffer> readQueue;
+    private final BlockingQueue<ByteBuffer> writeQueue;
+    private final BlockingQueue<ByteBuffer> readQueue;
     private ByteBuffer currentWriteBuffer;
     private ByteBuffer currentReadBuffer;
-    private int bufferSize; // A buffer's capacity, in bytes.
+    private final int bufferSize; // A buffer's capacity, in bytes.
     /** BufferSize * BufferCount is the max capacity to buffer data before doing real stream load */
-    private int bufferCount;
+    private final int bufferCount;
     /** write length in bytes to recordBuffer */
     private long writeLength = 0;
 

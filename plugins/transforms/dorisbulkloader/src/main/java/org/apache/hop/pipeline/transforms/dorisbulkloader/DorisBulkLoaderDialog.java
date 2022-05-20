@@ -6,13 +6,14 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
@@ -50,47 +51,21 @@ import static org.apache.hop.pipeline.transforms.dorisbulkloader.LoadConstants.J
 public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DorisBulkLoaderMeta.class; // For Translator
 
-  private Label wlFeHost;
   private TextVar wFeHost;
-
-  private Label wlFeHttpPort;
   private TextVar wFeHttpPort;
-
-  private Label wlDatabaseName;
   private TextVar wDatabaseName;
-
-  private Label wlTableName;
   private TextVar wTableName;
-
-  private Label wlHttpLogin;
   private TextVar wHttpLogin;
-
-  private Label wlHttpPassword;
   private TextVar wHttpPassword;
-
-  private Label wlDataField;
   private ComboVar wDataField;
-
-  private Label wlFormat;
   private ComboVar wFormat;
-
-  private Label wlLineDelimiter;
   private TextVar wLineDelimiter;
-
-  private Label wlColumnDelimiter;
   private TextVar wColumnDelimiter;
-
-  private Label wlBufferSize;
   private TextVar wBufferSize;
-
-  private Label wlBufferCount;
   private TextVar wBufferCount;
-
   private TableView wHeaders;
-  private ColumnInfo[] colinf;
 
   private final DorisBulkLoaderMeta input;
-
   private String[] inputFieldNames;
 
   public DorisBulkLoaderDialog(
@@ -132,7 +107,8 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.TransformName.Label"));
+    wlTransformName.setText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.TransformName.Label"));
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
@@ -169,14 +145,15 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     // ////////////////////////
     // START Settings GROUP
     Group gConnections = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
-    gConnections.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ConnectionsGroup.Label"));
+    gConnections.setText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ConnectionsGroup.Label"));
     FormLayout settingsLayout = new FormLayout();
     settingsLayout.marginWidth = 3;
     settingsLayout.marginHeight = 3;
     gConnections.setLayout(settingsLayout);
     props.setLook(gConnections);
 
-    wlFeHost = new Label(gConnections, SWT.RIGHT);
+    Label wlFeHost = new Label(gConnections, SWT.RIGHT);
     wlFeHost.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.FeHost.Label"));
     props.setLook(wlFeHost);
     FormData fdlFeHost = new FormData();
@@ -194,7 +171,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdFeHost.right = new FormAttachment(100, 0);
     wFeHost.setLayoutData(fdFeHost);
 
-    wlFeHttpPort = new Label(gConnections, SWT.RIGHT);
+    Label wlFeHttpPort = new Label(gConnections, SWT.RIGHT);
     wlFeHttpPort.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.FeRestPort.Label"));
     props.setLook(wlFeHttpPort);
     FormData fdlFeHttpPort = new FormData();
@@ -203,7 +180,8 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdlFeHttpPort.top = new FormAttachment(wFeHost, margin);
     wlFeHttpPort.setLayoutData(fdlFeHttpPort);
     wFeHttpPort = new TextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wFeHttpPort.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.FeRestPort.Tooltip"));
+    wFeHttpPort.setToolTipText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.FeRestPort.Tooltip"));
     props.setLook(wFeHttpPort);
     wFeHttpPort.addModifyListener(lsMod);
     FormData fdFeHttpPort = new FormData();
@@ -212,7 +190,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdFeHttpPort.right = new FormAttachment(100, 0);
     wFeHttpPort.setLayoutData(fdFeHttpPort);
 
-    wlDatabaseName = new Label(gConnections, SWT.RIGHT);
+    Label wlDatabaseName = new Label(gConnections, SWT.RIGHT);
     wlDatabaseName.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.DatabaseName.Label"));
     props.setLook(wlDatabaseName);
     FormData fdLblDatabaseName = new FormData();
@@ -221,7 +199,8 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdLblDatabaseName.top = new FormAttachment(wFeHttpPort, margin);
     wlDatabaseName.setLayoutData(fdLblDatabaseName);
     wDatabaseName = new TextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wDatabaseName.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.DatabaseName.Tooltip"));
+    wDatabaseName.setToolTipText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.DatabaseName.Tooltip"));
     props.setLook(wDatabaseName);
     wDatabaseName.addModifyListener(lsMod);
     FormData fdDatabaseName = new FormData();
@@ -230,7 +209,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdDatabaseName.right = new FormAttachment(100, 0);
     wDatabaseName.setLayoutData(fdDatabaseName);
 
-    wlTableName = new Label(gConnections, SWT.RIGHT);
+    Label wlTableName = new Label(gConnections, SWT.RIGHT);
     wlTableName.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.TableName.Label"));
     props.setLook(wlTableName);
     FormData fdlTableName = new FormData();
@@ -239,7 +218,8 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdlTableName.top = new FormAttachment(wDatabaseName, margin);
     wlTableName.setLayoutData(fdlTableName);
     wTableName = new TextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTableName.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.TableName.Tooltip"));
+    wTableName.setToolTipText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.TableName.Tooltip"));
     props.setLook(wTableName);
     wTableName.addModifyListener(lsMod);
     FormData fdTableName = new FormData();
@@ -249,7 +229,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wTableName.setLayoutData(fdTableName);
 
     // HTTP Login
-    wlHttpLogin = new Label(gConnections, SWT.RIGHT);
+    Label wlHttpLogin = new Label(gConnections, SWT.RIGHT);
     wlHttpLogin.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.HttpLogin.Label"));
     props.setLook(wlHttpLogin);
     FormData fdlHttpLogin = new FormData();
@@ -259,7 +239,8 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wlHttpLogin.setLayoutData(fdlHttpLogin);
     wHttpLogin = new TextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wHttpLogin.addModifyListener(lsMod);
-    wHttpLogin.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.HttpLogin.Tooltip"));
+    wHttpLogin.setToolTipText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.HttpLogin.Tooltip"));
     props.setLook(wHttpLogin);
     FormData fdHttpLogin = new FormData();
     fdHttpLogin.top = new FormAttachment(wTableName, margin);
@@ -268,7 +249,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wHttpLogin.setLayoutData(fdHttpLogin);
 
     // HTTP Password
-    wlHttpPassword = new Label(gConnections, SWT.RIGHT);
+    Label wlHttpPassword = new Label(gConnections, SWT.RIGHT);
     wlHttpPassword.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.HttpPassword.Label"));
     props.setLook(wlHttpPassword);
     FormData fdLblHttpPassword = new FormData();
@@ -276,9 +257,11 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdLblHttpPassword.left = new FormAttachment(0, 0);
     fdLblHttpPassword.right = new FormAttachment(middle, -margin);
     wlHttpPassword.setLayoutData(fdLblHttpPassword);
-    wHttpPassword = new PasswordTextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wHttpPassword =
+        new PasswordTextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wHttpPassword.addModifyListener(lsMod);
-    wHttpPassword.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.HttpPassword.Tooltip"));
+    wHttpPassword.setToolTipText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.HttpPassword.Tooltip"));
     props.setLook(wHttpPassword);
     FormData fdHttpPassword = new FormData();
     fdHttpPassword.top = new FormAttachment(wHttpLogin, margin);
@@ -294,7 +277,6 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     // END Connections GROUP
     // ////////////////////////
 
-
     // ////////////////////////
     // START Bulk Data GROUP
     Group gBulkData = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
@@ -306,7 +288,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     props.setLook(gBulkData);
 
     // Data Field
-    wlDataField = new Label(gBulkData, SWT.RIGHT);
+    Label wlDataField = new Label(gBulkData, SWT.RIGHT);
     wlDataField.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BulkData.Label"));
     props.setLook(wlDataField);
     FormData fdlBody = new FormData();
@@ -315,7 +297,8 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdlBody.right = new FormAttachment(middle, -margin);
     wlDataField.setLayoutData(fdlBody);
     wDataField = new ComboVar(variables, gBulkData, SWT.BORDER | SWT.READ_ONLY);
-    wDataField.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BulkData.Tooltip"));
+    wDataField.setToolTipText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BulkData.Tooltip"));
     wDataField.setEditable(true);
     props.setLook(wDataField);
     wDataField.addModifyListener(lsMod);
@@ -341,9 +324,8 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
           }
         });
 
-
     // format
-    wlFormat = new Label(gBulkData, SWT.RIGHT);
+    Label wlFormat = new Label(gBulkData, SWT.RIGHT);
     wlFormat.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.Format.Label"));
     props.setLook(wlFormat);
     FormData fdlFormat = new FormData();
@@ -361,47 +343,46 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdFormat.right = new FormAttachment(100, 0);
     wFormat.setLayoutData(fdFormat);
     wFormat.addFocusListener(
-            new FocusListener() {
-              @Override
-              public void focusLost(FocusEvent e) {}
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {}
 
-              @Override
-              public void focusGained(FocusEvent e) {
-                Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-                shell.setCursor(busy);
-                String format = wFormat.getText();
-                wFormat.setItems(new String[] {JSON,CSV});
-                wFormat.setText(format);
-                shell.setCursor(null);
-                busy.dispose();
-              }
-            });
-    wFormat.addSelectionListener(new SelectionListener() {
-      @Override
-      public void widgetSelected(SelectionEvent selectionEvent) {
-        if (JSON.equals(wFormat.getText())) {
-          wLineDelimiter.setText(LoadConstants.LINE_DELIMITER_JSON);
-          wLineDelimiter.setEnabled(false);
-          wColumnDelimiter.setText(LoadConstants.FIELD_DELIMITER_DEFAULT);
-          wColumnDelimiter.setEnabled(false);
-        } else {
-          wLineDelimiter.setEnabled(true);
-          wLineDelimiter.setText(LoadConstants.LINE_DELIMITER_DEFAULT);
-          wColumnDelimiter.setEnabled(true);
-          wColumnDelimiter.setText(LoadConstants.FIELD_DELIMITER_DEFAULT);
-        }
-      }
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            String format = wFormat.getText();
+            wFormat.setItems(new String[] {JSON, CSV});
+            wFormat.setText(format);
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+    wFormat.addSelectionListener(
+        new SelectionListener() {
+          @Override
+          public void widgetSelected(SelectionEvent selectionEvent) {
+            if (JSON.equals(wFormat.getText())) {
+              wLineDelimiter.setText(LoadConstants.LINE_DELIMITER_JSON);
+              wLineDelimiter.setEnabled(false);
+              wColumnDelimiter.setText(LoadConstants.FIELD_DELIMITER_DEFAULT);
+              wColumnDelimiter.setEnabled(false);
+            } else {
+              wLineDelimiter.setEnabled(true);
+              wLineDelimiter.setText(LoadConstants.LINE_DELIMITER_DEFAULT);
+              wColumnDelimiter.setEnabled(true);
+              wColumnDelimiter.setText(LoadConstants.FIELD_DELIMITER_DEFAULT);
+            }
+          }
 
-      @Override
-      public void widgetDefaultSelected(SelectionEvent selectionEvent) {
-
-      }
-    });
-
+          @Override
+          public void widgetDefaultSelected(SelectionEvent selectionEvent) {}
+        });
 
     // lineDelimiter
-    wlLineDelimiter = new Label(gBulkData, SWT.RIGHT);
-    wlLineDelimiter.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.LineDelimiter.Label"));
+    Label wlLineDelimiter = new Label(gBulkData, SWT.RIGHT);
+    wlLineDelimiter.setText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.LineDelimiter.Label"));
     props.setLook(wlLineDelimiter);
     FormData fdlLineDelimiter = new FormData();
     fdlLineDelimiter.top = new FormAttachment(wFormat, margin);
@@ -410,7 +391,8 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wlLineDelimiter.setLayoutData(fdlLineDelimiter);
     wLineDelimiter = new TextVar(variables, gBulkData, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wLineDelimiter.addModifyListener(lsMod);
-    wLineDelimiter.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.LineDelimiter.Tooltip"));
+    wLineDelimiter.setToolTipText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.LineDelimiter.Tooltip"));
     props.setLook(wLineDelimiter);
     FormData fdLineDelimiter = new FormData();
     fdLineDelimiter.top = new FormAttachment(wFormat, margin);
@@ -419,8 +401,9 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wLineDelimiter.setLayoutData(fdLineDelimiter);
 
     // columnDelimiter
-    wlColumnDelimiter = new Label(gBulkData, SWT.RIGHT);
-    wlColumnDelimiter.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnDelimiter.Label"));
+    Label wlColumnDelimiter = new Label(gBulkData, SWT.RIGHT);
+    wlColumnDelimiter.setText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnDelimiter.Label"));
     props.setLook(wlColumnDelimiter);
     FormData fdlColumnDelimiter = new FormData();
     fdlColumnDelimiter.top = new FormAttachment(wLineDelimiter, margin);
@@ -429,7 +412,8 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wlColumnDelimiter.setLayoutData(fdlColumnDelimiter);
     wColumnDelimiter = new TextVar(variables, gBulkData, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wColumnDelimiter.addModifyListener(lsMod);
-    wColumnDelimiter.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnDelimiter.Tooltip"));
+    wColumnDelimiter.setToolTipText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnDelimiter.Tooltip"));
     props.setLook(wColumnDelimiter);
     FormData fdColumnDelimiter = new FormData();
     fdColumnDelimiter.top = new FormAttachment(wLineDelimiter, margin);
@@ -438,7 +422,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wColumnDelimiter.setLayoutData(fdColumnDelimiter);
 
     // bufferSize
-    wlBufferSize = new Label(gBulkData, SWT.RIGHT);
+    Label wlBufferSize = new Label(gBulkData, SWT.RIGHT);
     wlBufferSize.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BufferSize.Label"));
     props.setLook(wlBufferSize);
     FormData fdlBufferSize = new FormData();
@@ -448,7 +432,8 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wlBufferSize.setLayoutData(fdlBufferSize);
     wBufferSize = new TextVar(variables, gBulkData, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wBufferSize.addModifyListener(lsMod);
-    wBufferSize.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BufferSize.Tooltip"));
+    wBufferSize.setToolTipText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BufferSize.Tooltip"));
     props.setLook(wBufferSize);
     FormData fdBufferSize = new FormData();
     fdBufferSize.top = new FormAttachment(wColumnDelimiter, margin);
@@ -456,9 +441,8 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdBufferSize.right = new FormAttachment(100, 0);
     wBufferSize.setLayoutData(fdBufferSize);
 
-
     // bufferCount
-    wlBufferCount = new Label(gBulkData, SWT.RIGHT);
+    Label wlBufferCount = new Label(gBulkData, SWT.RIGHT);
     wlBufferCount.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BufferCount.Label"));
     props.setLook(wlBufferCount);
     FormData fdlBufferCount = new FormData();
@@ -468,7 +452,8 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wlBufferCount.setLayoutData(fdlBufferCount);
     wBufferCount = new TextVar(variables, gBulkData, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wBufferCount.addModifyListener(lsMod);
-    wBufferCount.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BufferCount.Tooltip"));
+    wBufferCount.setToolTipText(
+        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BufferCount.Tooltip"));
     props.setLook(wBufferCount);
     FormData fdBufferCount = new FormData();
     fdBufferCount.top = new FormAttachment(wBufferSize, margin);
@@ -496,7 +481,6 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     // / END OF GENERAL TAB
     // ///////////////////////////////////////////////////////////
 
-
     // ///////////////////////////////////////////////////////////
     // / START OF HEADER TAB
     // ///////////////////////////////////////////////////////////
@@ -518,31 +502,31 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdlFields.top = new FormAttachment(wTransformName, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsRows = input.getHeaderNames() != null ? input.getHeaderNames().length : 0;
+    final int nrHeaders = input.getHeaders().size();
 
-    colinf =
-            new ColumnInfo[] {
-                    new ColumnInfo(
-                            BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnInfo.Header"),
-                            ColumnInfo.COLUMN_TYPE_CCOMBO,
-                            new String[] {""},
-                            false),
-                    new ColumnInfo(
-                            BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnInfo.Value"),
-                            ColumnInfo.COLUMN_TYPE_TEXT,
-                            false)
-            };
+    ColumnInfo[] colinf =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnInfo.Header"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              new String[] {""},
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnInfo.Value"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false)
+        };
 
     colinf[1].setUsingVariables(true);
     wHeaders =
-            new TableView(
-                    variables,
-                    wAdditionalComp,
-                    SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-                    colinf,
-                    FieldsRows,
-                    lsMod,
-                    props);
+        new TableView(
+            variables,
+            wAdditionalComp,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            colinf,
+            nrHeaders,
+            lsMod,
+            props);
 
     FormData fdHeaders = new FormData();
     fdHeaders.left = new FormAttachment(0, 0);
@@ -564,7 +548,6 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     // / END OF HEADER TAB
     // ///////////////////////////////////////////////////////////
 
-
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wTransformName, margin);
@@ -572,7 +555,6 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
     wTabFolder.setSelection(0);
-
 
     //
     // Search and set the fields in the background
@@ -658,16 +640,11 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
       wColumnDelimiter.setText(input.getColumnDelimiter());
     }
 
-    if (input.getHeaderNames() != null) {
-      for (int i = 0; i < input.getHeaderNames().length; i++) {
-        TableItem item = wHeaders.table.getItem(i);
-        if (input.getHeaderNames()[i] != null) {
-          item.setText(1, input.getHeaderNames()[i]);
-        }
-        if (input.getHeaderValues()[i] != null) {
-          item.setText(2, input.getHeaderValues()[i]);
-        }
-      }
+    for (int i = 0; i < input.getHeaders().size(); i++) {
+      DorisHeader header = input.getHeaders().get(i);
+      TableItem item = wHeaders.table.getItem(i);
+      item.setText(1, Const.NVL(header.getName(), ""));
+      item.setText(2, Const.NVL(header.getValue(), ""));
     }
 
     wBufferSize.setText(Integer.toString(input.getBufferSize()));
@@ -679,18 +656,14 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     input.setChanged(changed);
   }
 
-  /**
-   * It will be called when click cancel button
-   */
+  /** It will be called when click cancel button */
   private void cancel() {
     transformName = null;
     input.setChanged(changed);
     dispose();
   }
 
-  /**
-   * It will be called when click ok button
-   */
+  /** It will be called when click ok button */
   private void ok() {
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
@@ -708,11 +681,10 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     input.setColumnDelimiter(wColumnDelimiter.getText());
 
     int headerCount = wHeaders.nrNonEmpty();
-    input.allocate(headerCount);
-    for (int i = 0; i < headerCount; i++) {
-      TableItem item = wHeaders.getNonEmpty(i);
-      input.getHeaderNames()[i] = item.getText(1);
-      input.getHeaderValues()[i] = item.getText(2);
+    input.getHeaders().clear();
+    for (TableItem item : wHeaders.getNonEmptyItems()) {
+      DorisHeader header = new DorisHeader(item.getText(1), item.getText(2));
+      input.getHeaders().add(header);
     }
 
     input.setBufferSize(Integer.parseInt(wBufferSize.getText()));
@@ -721,5 +693,4 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
 
     dispose();
   }
-
 }

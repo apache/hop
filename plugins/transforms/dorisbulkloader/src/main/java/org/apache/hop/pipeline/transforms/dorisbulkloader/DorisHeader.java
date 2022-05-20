@@ -18,33 +18,48 @@
 
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
-public class DorisBulkLoaderData extends BaseTransformData implements ITransformData {
-  public IRowMeta inputRowMeta;
+import java.util.Objects;
 
-  /** Index of doris http body field in upstream fields */
-  private int indexOfBodyField;
+public class DorisHeader {
+  @HopMetadataProperty private String name;
+  @HopMetadataProperty private String value;
 
-  /** doris stream load client */
-  public DorisStreamLoad dorisStreamLoad;
-
-  public DorisBulkLoaderData() {
-    super();
-    this.indexOfBodyField = -1;
-    this.dorisStreamLoad = null;
+  public DorisHeader() {
   }
 
-  public int getIndexOfBodyField() {
-    return indexOfBodyField;
+  public DorisHeader(String name, String value) {
+    this.name = name;
+    this.value = value;
   }
 
-  public void setIndexOfBodyField(String bodyField) {
-    if (!Utils.isEmpty(bodyField)) {
-      indexOfBodyField = this.inputRowMeta.indexOfValue(bodyField);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    DorisHeader that = (DorisHeader) o;
+    return Objects.equals(name, that.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
   }
 }
