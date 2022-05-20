@@ -31,6 +31,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -51,11 +52,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.KeyManagementException;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.List;
 
 public class Rest extends BaseTransform<RestMeta, RestData> {
@@ -319,97 +318,55 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
             .put(ApacheHttpClient4Config.PROPERTY_PREEMPTIVE_BASIC_AUTHENTICATION, true);
       }
       // SSL TRUST STORE CONFIGURATION
-      if (!Utils.isEmpty(data.trustStoreFile)) {
-        try (FileInputStream trustFileStream = new FileInputStream(data.trustStoreFile)) {
-          SSLContext ctx=getSslContext(trustFileStream);
-          HostnameVerifier hv =
-              (hostname, session) -> {
-                if (isDebug()) {
-                  logDebug("Warning: URL Host: " + hostname + " vs. " + session.getPeerHost());
-                }
-                return true;
-              };
-          data.config
-              .getProperties()
-              .put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, new HTTPSProperties(hv, ctx));
-        } catch (NoSuchAlgorithmException e) {
-          throw new HopException(BaseMessages.getString(PKG, "Rest.Error.NoSuchAlgorithm"), e);
-        } catch (KeyStoreException e) {
-          throw new HopException(BaseMessages.getString(PKG, "Rest.Error.KeyStoreException"), e);
-        } catch (CertificateException e) {
-          throw new HopException(BaseMessages.getString(PKG, "Rest.Error.CertificateException"), e);
-        } catch (FileNotFoundException e) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "Rest.Error.FileNotFound", data.trustStoreFile), e);
-        } catch (IOException e) {
-          throw new HopException(BaseMessages.getString(PKG, "Rest.Error.IOException"), e);
-        } catch (KeyManagementException e) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "Rest.Error.KeyManagementException"), e);
-        }
+      if (!Utils.isEmpty(data.trustStoreFile) && !meta.isIgnoreSsl()) {
+        setTrustStoreFile();
+      }
+      if(meta.isIgnoreSsl()){
+        setTrustAll();
       }
     }
   }
 
-  private SSLContext getSslContext(FileInputStream trustFileStream) throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException, KeyManagementException {
-    TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-    // Using null here initialises the TMF with the default trust store.
-    tmf.init((KeyStore) null);
+  private void setTrustAll() throws HopException {
+    try {
+      SSLContext ctx = HttpClientManager.getTrustAllSslContext();
+      HostnameVerifier hv = HttpClientManager.getHostnameVerifier(isDebug(), log);
 
-    // Get hold of the default trust manager
-    X509TrustManager defaultTm = null;
-    for (TrustManager tm : tmf.getTrustManagers()) {
-      if (tm instanceof X509TrustManager) {
-        defaultTm = (X509TrustManager) tm;
-        break;
-      }
+      data.config
+          .getProperties()
+          .put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, new HTTPSProperties(hv, ctx));
+    } catch (NoSuchAlgorithmException e) {
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.NoSuchAlgorithm"), e);
+    } catch (KeyManagementException e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "Rest.Error.KeyManagementException"), e);
     }
+  }
 
-    // Load the trustStore which needs to be imported
-    KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-    trustStore.load(trustFileStream, data.trustStorePassword.toCharArray());
+  private void setTrustStoreFile() throws HopException {
+    try (FileInputStream trustFileStream = new FileInputStream(data.trustStoreFile)) {
 
-    trustFileStream.close();
+      SSLContext ctx = HttpClientManager.getSslContextWithTrustStoreFile(trustFileStream, data.trustStorePassword);
+      HostnameVerifier hv = HttpClientManager.getHostnameVerifier(isDebug(), log);
 
-    tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-    tmf.init(trustStore);
-
-    // Get hold of the default trust manager
-    X509TrustManager trustManager = null;
-    for (TrustManager tm : tmf.getTrustManagers()) {
-      if (tm instanceof X509TrustManager) {
-        trustManager = (X509TrustManager) tm;
-        break;
-      }
+      data.config
+          .getProperties()
+          .put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, new HTTPSProperties(hv, ctx));
+    } catch (NoSuchAlgorithmException e) {
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.NoSuchAlgorithm"), e);
+    } catch (KeyStoreException e) {
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.KeyStoreException"), e);
+    } catch (CertificateException e) {
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.CertificateException"), e);
+    } catch (FileNotFoundException e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "Rest.Error.FileNotFound", data.trustStoreFile), e);
+    } catch (IOException e) {
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.IOException"), e);
+    } catch (KeyManagementException e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "Rest.Error.KeyManagementException"), e);
     }
-
-    final X509TrustManager finalDefaultTm = defaultTm;
-    final X509TrustManager finalTrustManager = trustManager;
-    X509TrustManager customTm = new X509TrustManager() {
-      @Override
-      public X509Certificate[] getAcceptedIssuers() {
-        return finalDefaultTm.getAcceptedIssuers();
-      }
-
-      @Override
-      public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-        try {
-          finalTrustManager.checkServerTrusted(chain, authType);
-        } catch (CertificateException e) {
-          finalDefaultTm.checkServerTrusted(chain, authType);
-        }
-      }
-
-      @Override
-      public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-        finalDefaultTm.checkClientTrusted(chain, authType);
-      }
-    };
-
-    SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
-    sslContext.init(null, new TrustManager[] { customTm }, null);
-
-    return sslContext;
   }
 
   protected MultivaluedMap<String, String> searchForHeaders(ClientResponse response) {

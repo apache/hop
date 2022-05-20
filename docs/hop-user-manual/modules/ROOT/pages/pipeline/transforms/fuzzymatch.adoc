@@ -33,7 +33,7 @@ This transform returns matching values as a separated list as specified by user-
 [width="90%",options="header"]
 |===
 |Option|Description
-|transform name|Name of this transform as it appears in the pipeline workspace
+|Transform name|Name of this transform as it appears in the pipeline workspace
 |Lookup transform|Identifies the transform that contains the fields to match
 |Lookup field|Identifies the field to match
 |Main stream field|Identifies the primary stream to match the Lookup field with

@@ -39,7 +39,9 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.ISubPipelineAwareMeta;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
@@ -55,8 +57,8 @@ import java.util.Map.Entry;
 @Transform(
     id = "MetaInject",
     image = "GenericTransform.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.MetaInject",
-    description = "i18n::BaseTransform.TypeTooltipDesc.MetaInject",
+    name = "i18n::MetaInject.Name",
+    description = "i18n::MetaInject.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::MetaInjectMeta.keyword",
     documentationUrl = "/pipeline/transforms/metainject.html")

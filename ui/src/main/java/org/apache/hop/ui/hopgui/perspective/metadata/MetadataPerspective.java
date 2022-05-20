@@ -71,7 +71,7 @@ import java.util.List;
 @HopPerspectivePlugin(
     id = "200-HopMetadataPerspective",
     name = "i18n::MetadataPerspective.Name",
-    description = "The Hop Metatada Perspective",
+    description = "i18n::MetadataPerspective.Description",
     image = "ui/images/metadata.svg")
 @GuiPlugin(description = "i18n::MetadataPerspective.GuiPlugin.Description")
 public class MetadataPerspective implements IHopPerspective {

@@ -120,23 +120,17 @@ limitations under the License.
     <closeIdleConnectionsTime>-1</closeIdleConnectionsTime>
     <connectionTimeout>10000</connectionTimeout>
     <encoding>UTF-8</encoding>
-    <httpLogin/>
     <httpPassword>Encrypted </httpPassword>
-    <result>
-      <code>result_field</code>
-      <name>result</name>
-      <response_header/>
-      <response_time/>
-    </result>
+    <ignoreSsl>N</ignoreSsl>
     <lookup>
 </lookup>
     <postafile>N</postafile>
-    <proxyHost/>
-    <proxyPort/>
-    <requestEntity/>
+    <result>
+      <code>result_field</code>
+      <name>result</name>
+    </result>
     <socketTimeout>10000</socketTimeout>
     <url>http://${HOSTNAME}/post</url>
-    <urlField/>
     <urlInField>N</urlInField>
     <attributes/>
     <GUI>

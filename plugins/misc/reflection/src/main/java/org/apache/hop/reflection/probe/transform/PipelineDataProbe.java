@@ -25,11 +25,9 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, PipelineDataProbeData>
-{
+public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, PipelineDataProbeData> {
 
   private String sourcePipelineName;
   private String sourceTransformLogChannelId;
@@ -103,7 +101,9 @@ public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, Pipe
     return sourcePipelineName;
   }
 
-  /** @param sourcePipelineName The sourcePipelineName to set */
+  /**
+   * @param sourcePipelineName The sourcePipelineName to set
+   */
   public void setSourcePipelineName(String sourcePipelineName) {
     this.sourcePipelineName = sourcePipelineName;
   }
@@ -117,7 +117,9 @@ public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, Pipe
     return sourceTransformLogChannelId;
   }
 
-  /** @param sourceTransformLogChannelId The sourceTransformLogChannelId to set */
+  /**
+   * @param sourceTransformLogChannelId The sourceTransformLogChannelId to set
+   */
   public void setSourceTransformLogChannelId(String sourceTransformLogChannelId) {
     this.sourceTransformLogChannelId = sourceTransformLogChannelId;
   }
@@ -131,7 +133,9 @@ public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, Pipe
     return sourceTransformName;
   }
 
-  /** @param sourceTransformName The sourceTransformName to set */
+  /**
+   * @param sourceTransformName The sourceTransformName to set
+   */
   public void setSourceTransformName(String sourceTransformName) {
     this.sourceTransformName = sourceTransformName;
   }
@@ -145,7 +149,9 @@ public class PipelineDataProbe extends BaseTransform<PipelineDataProbeMeta, Pipe
     return sourceTransformCopy;
   }
 
-  /** @param sourceTransformCopy The sourceTransformCopy to set */
+  /**
+   * @param sourceTransformCopy The sourceTransformCopy to set
+   */
   public void setSourceTransformCopy(long sourceTransformCopy) {
     this.sourceTransformCopy = sourceTransformCopy;
   }

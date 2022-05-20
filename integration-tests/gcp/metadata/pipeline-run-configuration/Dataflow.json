@@ -1,0 +1,33 @@
+{
+  "engineRunConfiguration": {
+    "BeamDataFlowPipelineEngine": {
+      "gcpSubnetwork": "",
+      "gcpWorkerMachineType": "n1-standard-4",
+      "streamingHopTransformsBufferSize": "",
+      "gcpMaximumNumberOfWorkers": "4",
+      "gcpZone": "",
+      "gcpProjectId": "apache-hop",
+      "userAgent": "Hop",
+      "gcpRegion": "us-east1",
+      "pluginsToStage": "",
+      "gcpUsingPublicIps": true,
+      "tempLocation": "gs://apache-hop-it/tmp/",
+      "gcpWorkerDiskType": "",
+      "gcpAppName": "Apache Hop",
+      "gcpServiceAccount": "apache-hop-it@apache-hop.iam.gserviceaccount.com",
+      "gcpInitialNumberOfWorkers": "1",
+      "gcpStagingLocation": "gs://apache-hop-it/binaries/",
+      "fatJar": "/tmp/hop-fatjar.jar",
+      "streamingHopTransformsFlushInterval": "",
+      "gcpNetwork": "",
+      "gcpDataflowServiceOptions": "",
+      "transformPluginClasses": "",
+      "gcpDiskSizeGb": "",
+      "gcpAutoScalingAlgorithm": "",
+      "xpPluginClasses": ""
+    }
+  },
+  "configurationVariables": [],
+  "name": "Dataflow",
+  "description": ""
+}

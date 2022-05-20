@@ -28,6 +28,6 @@ public interface IInitializer<T> {
    *     transformMeta, and immediately call setter methods. Commonly, this is used for transforms
    *     that define an allocate method, which pre-populate empty arrays
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   void modify(T object);
 }

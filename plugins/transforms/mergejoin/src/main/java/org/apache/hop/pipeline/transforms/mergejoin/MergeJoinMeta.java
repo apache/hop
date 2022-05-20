@@ -43,8 +43,8 @@ import java.util.List;
 @Transform(
     id = "MergeJoin",
     image = "mergejoin.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.MergeJoin",
-    description = "i18n::BaseTransform.TypeTooltipDesc.MergeJoin",
+    name = "i18n::MergeJoin.Name",
+    description = "i18n::MergeJoin.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     keywords = "i18n::MergeJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/mergejoin.html")

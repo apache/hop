@@ -43,9 +43,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
@@ -65,8 +63,8 @@ import java.util.Map;
 @Transform(
     id = "TextFileInput2",
     image = "textfileinput.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.TextFileInput",
-    description = "i18n::BaseTransform.TypeTooltipDesc.TextFileInput",
+    name = "i18n::TextFileInput.Name",
+    description = "i18n::TextFileInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::TextFileInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/textfileinput.html")

@@ -32,7 +32,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 /** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
-@Deprecated
+@Deprecated(since="2.0")
 public class TextFileInputData extends BaseTransformData implements ITransformData {
 
   public List<TextFileLine> lineBuffer;

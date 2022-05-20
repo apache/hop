@@ -45,12 +45,13 @@ import java.util.Map;
 @Transform(
     id = "TypeExitExcelWriterTransform",
     image = "excelwriter.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.TypeExitExcelWriterTransform",
-    description = "i18n::BaseTransform.TypeTooltipDesc.TypeExitExcelWriterTransform",
+    name = "i18n::TypeExitExcelWriterTransform.Name",
+    description = "i18n::TypeExitExcelWriterTransform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::ExcelWriterTransformMeta.keyword",
     documentationUrl = "/pipeline/transforms/excelwriter.html")
-public class ExcelWriterTransformMeta extends BaseTransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
+public class ExcelWriterTransformMeta
+    extends BaseTransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
   private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
 
   public static final String IF_FILE_EXISTS_REUSE = "reuse";
@@ -115,6 +116,8 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta<ExcelWriterTrans
   @HopMetadataProperty(
       groupKey = "fields",
       key = "field",
+      injectionKey = "FIELD",
+      injectionGroupKey = "FIELDS",
       injectionGroupDescription = "ExcelWriterMeta.Injection.Fields",
       injectionKeyDescription = "ExcelWriterMeta.Injection.Field")
   private List<ExcelWriterOutputField> outputFields;
@@ -191,52 +194,72 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta<ExcelWriterTrans
     this.rowWritingMethod = rowWritingMethod;
   }
 
-  /** @return Returns the footer. */
+  /**
+   * @return Returns the footer.
+   */
   public boolean isFooterEnabled() {
     return footerEnabled;
   }
 
-  /** @param footer The footer to set. */
+  /**
+   * @param footer The footer to set.
+   */
   public void setFooterEnabled(boolean footer) {
     this.footerEnabled = footer;
   }
 
-  /** @return Returns the header. */
+  /**
+   * @return Returns the header.
+   */
   public boolean isHeaderEnabled() {
     return headerEnabled;
   }
 
-  /** @param header The header to set. */
+  /**
+   * @param header The header to set.
+   */
   public void setHeaderEnabled(boolean header) {
     this.headerEnabled = header;
   }
 
-  /** @return Returns the add to result filesname. */
+  /**
+   * @return Returns the add to result filesname.
+   */
   public boolean isAddToResultFilenames() {
     return addToResultFilenames;
   }
 
-  /** @param addtoresultfilenames The addtoresultfilenames to set. */
+  /**
+   * @param addtoresultfilenames The addtoresultfilenames to set.
+   */
   public void setAddToResultFilenames(boolean addtoresultfilenames) {
     this.addToResultFilenames = addtoresultfilenames;
   }
 
-  /** @return Returns the outputFields. */
+  /**
+   * @return Returns the outputFields.
+   */
   public List<ExcelWriterOutputField> getOutputFields() {
     return outputFields;
   }
 
-  /** @param outputFields The outputFields to set. */
+  /**
+   * @param outputFields The outputFields to set.
+   */
   public void setOutputFields(List<ExcelWriterOutputField> outputFields) {
     this.outputFields = outputFields;
   }
 
-  /** @return Returns the appendLines. */
+  /**
+   * @return Returns the appendLines.
+   */
   public boolean isAppendLines() {
     return appendLines;
   }
 
-  /** @param append The appendLines to set. */
+  /**
+   * @param append The appendLines to set.
+   */
   public void setAppendLines(boolean append) {
     this.appendLines = append;
   }
@@ -267,21 +290,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta<ExcelWriterTrans
 
   @Override
   public Object clone() {
-    return (ExcelWriterTransformMeta) super.clone();
-  }
-
-  public String getNewLine(String fformat) {
-    String nl = System.getProperty("line.separator");
-
-    if (fformat != null) {
-      if (fformat.equalsIgnoreCase("DOS")) {
-        nl = "\r\n";
-      } else if (fformat.equalsIgnoreCase("UNIX")) {
-        nl = "\n";
-      }
-    }
-
-    return nl;
+    return super.clone();
   }
 
   @Override

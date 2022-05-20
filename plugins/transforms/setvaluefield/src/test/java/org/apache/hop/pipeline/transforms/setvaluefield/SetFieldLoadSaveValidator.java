@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.setvaluefield;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+
 import java.util.Random;
 import java.util.UUID;
 

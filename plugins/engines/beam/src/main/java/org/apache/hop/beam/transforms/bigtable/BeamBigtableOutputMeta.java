@@ -23,6 +23,7 @@ import org.apache.beam.sdk.io.gcp.bigtable.BigtableIO;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
@@ -34,14 +35,11 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.Dummy;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
-import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -57,7 +55,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamBigtableOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/beambigtableoutput.html")
-public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData> implements IBeamPipelineTransformHandler {
+public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "project_id")
   private String projectId;
@@ -129,6 +128,20 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData> 
     }
     TransformMeta previousTransform = previousTransforms.get(0);
 
+    // Verify that each column has qualifier, a family value and a source:
+    //
+    for (BigtableColumn column : columns) {
+      if ( StringUtils.isEmpty(column.getName())) {
+        throw new HopException("Every column needs to have a name");
+      }
+      if ( StringUtils.isEmpty(column.getFamily())) {
+        throw new HopException("Every column needs to have a family value: "+column.getName());
+      }
+      if ( StringUtils.isEmpty(column.getSourceField())) {
+        throw new HopException("Every column needs to have a source field: "+column.getName());
+      }
+    }
+
     BigtableIO.Write write =
         BigtableIO.write()
             .withProjectId(variables.resolve(projectId))
@@ -181,7 +194,9 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData> 
     return projectId;
   }
 
-  /** @param projectId The projectId to set */
+  /**
+   * @param projectId The projectId to set
+   */
   public void setProjectId(String projectId) {
     this.projectId = projectId;
   }
@@ -195,7 +210,9 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData> 
     return instanceId;
   }
 
-  /** @param instanceId The instanceId to set */
+  /**
+   * @param instanceId The instanceId to set
+   */
   public void setInstanceId(String instanceId) {
     this.instanceId = instanceId;
   }
@@ -209,7 +226,9 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData> 
     return tableId;
   }
 
-  /** @param tableId The tableId to set */
+  /**
+   * @param tableId The tableId to set
+   */
   public void setTableId(String tableId) {
     this.tableId = tableId;
   }
@@ -223,7 +242,9 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData> 
     return keyField;
   }
 
-  /** @param keyField The keyField to set */
+  /**
+   * @param keyField The keyField to set
+   */
   public void setKeyField(String keyField) {
     this.keyField = keyField;
   }
@@ -237,7 +258,9 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData> 
     return columns;
   }
 
-  /** @param columns The columns to set */
+  /**
+   * @param columns The columns to set
+   */
   public void setColumns(List<BigtableColumn> columns) {
     this.columns = columns;
   }

@@ -27,8 +27,7 @@ import java.util.List;
 public class KeyValue<T> implements Serializable {
 
   /** The default true values. */
-  public static final List<String> DEFAULT_TRUE_VALUES =
-      Arrays.asList(new String[] {"j", "y", "on", "true"});
+  public static final List<String> DEFAULT_TRUE_VALUES = List.of("j", "y", "on", "true");
 
   /** Valid key characters. */
   public static final String VALID_KEY_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789_-";

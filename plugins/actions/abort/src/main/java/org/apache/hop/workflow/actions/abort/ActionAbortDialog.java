@@ -57,7 +57,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     super(parent, workflowMeta, variables);
     this.action = (ActionAbort) action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "ActionAbortDialog.Jobname.Label"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionAbortDialog.ActionName.Label"));
     }
   }
 

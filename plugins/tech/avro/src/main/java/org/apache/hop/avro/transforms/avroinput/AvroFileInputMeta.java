@@ -26,10 +26,7 @@ import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
@@ -92,7 +89,9 @@ public class AvroFileInputMeta extends BaseTransformMeta<AvroFileInput, AvroFile
     return outputFieldName;
   }
 
-  /** @param outputFieldName The outputFieldName to set */
+  /**
+   * @param outputFieldName The outputFieldName to set
+   */
   public void setOutputFieldName(String outputFieldName) {
     this.outputFieldName = outputFieldName;
   }
@@ -106,7 +105,9 @@ public class AvroFileInputMeta extends BaseTransformMeta<AvroFileInput, AvroFile
     return dataFilenameField;
   }
 
-  /** @param dataFilenameField The dataFilenameField to set */
+  /**
+   * @param dataFilenameField The dataFilenameField to set
+   */
   public void setDataFilenameField(String dataFilenameField) {
     this.dataFilenameField = dataFilenameField;
   }
@@ -120,7 +121,9 @@ public class AvroFileInputMeta extends BaseTransformMeta<AvroFileInput, AvroFile
     return rowsLimit;
   }
 
-  /** @param rowsLimit The rowsLimit to set */
+  /**
+   * @param rowsLimit The rowsLimit to set
+   */
   public void setRowsLimit(String rowsLimit) {
     this.rowsLimit = rowsLimit;
   }

@@ -1,0 +1,58 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "one",
+          "data_set_field": "one"
+        },
+        {
+          "transform_field": "three",
+          "data_set_field": "three"
+        },
+        {
+          "transform_field": "ten",
+          "data_set_field": "ten"
+        },
+        {
+          "transform_field": "two_and_a_half",
+          "data_set_field": "two_and_a_half"
+        },
+        {
+          "transform_field": "percentage",
+          "data_set_field": "percentage"
+        },
+        {
+          "transform_field": "eight",
+          "data_set_field": "eight"
+        },
+        {
+          "transform_field": "mixed_computation",
+          "data_set_field": "mixed_computation"
+        }
+      ],
+      "field_order": [
+        "one",
+        "three",
+        "ten",
+        "two_and_a_half",
+        "percentage",
+        "eight",
+        "mixed_computation"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-formula-basic-computations"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0042-formula-basic-computations UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0042-formula-basic-computations.hpl",
+  "test_type": "UNIT_TEST"
+}

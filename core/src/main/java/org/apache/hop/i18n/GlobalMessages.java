@@ -43,7 +43,7 @@ public class GlobalMessages extends AbstractMessageHandler {
   public static final String[] localeDescr = {
     "English (US)",
     "Nederlands (Beta)",
-    "Simplified Chinese (Beta)",
+    "\u7B80\u4F53\u4E2D\u6587 (Simplified Chinese)",
     "Espa\u00F1ol (Spain) (Beta)",
     "Fran\u00E7ais",
     "Deutsch (Beta)",
@@ -59,7 +59,7 @@ public class GlobalMessages extends AbstractMessageHandler {
   public static final String[] localeBetaStatus = {
           "N", //"English (US)"
           "Y", //"Nederlands"
-          "Y", //"Simplified Chinese"
+          "N", //"Simplified Chinese"
           "Y", //"Espa\u00F1ol (Spain)"
           "N", //"Fran\u00E7ais"
           "Y", //"Deutsch"

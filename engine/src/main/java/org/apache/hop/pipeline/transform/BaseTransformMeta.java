@@ -82,7 +82,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
   
   @Override
   @SuppressWarnings({"unchecked"})
-  public final ITransform createTransform(TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+  public ITransform createTransform(TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
     try {
       ParameterizedType parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
       Class<Main> mainClass = (Class<Main>) parameterizedType.getActualTypeArguments()[0];
@@ -99,7 +99,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
   }
   
   @Override
-  public final ITransformData createTransformData() {
+  public ITransformData createTransformData() {
     try {
       ParameterizedType parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
       @SuppressWarnings({"unchecked"})
@@ -337,7 +337,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
    * @return an array of database connections meta-data. Return an empty array if no connections are
    *     used.
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   public DatabaseMeta[] getUsedDatabaseConnections() {
     return new DatabaseMeta[] {};
   }

@@ -29,8 +29,7 @@ The Avro Decode transform allows you to decode an Avro field and convert it to H
 [width="90%",options="header"]
 |===
 
-|Option
-|Description
+|Option|Description
 
 |Transform name
 |Name of the transform.

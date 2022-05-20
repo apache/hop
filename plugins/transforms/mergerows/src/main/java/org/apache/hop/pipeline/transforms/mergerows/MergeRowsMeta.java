@@ -36,7 +36,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
@@ -49,8 +52,8 @@ import java.util.List;
 @Transform(
     id = "MergeRows",
     image = "mergerows.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.MergeRows",
-    description = "i18n::BaseTransform.TypeTooltipDesc.MergeRows",
+    name = "i18n::MergeRows.Name",
+    description = "i18n::MergeRows.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     keywords = "i18n::MergeRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/mergerows.html")

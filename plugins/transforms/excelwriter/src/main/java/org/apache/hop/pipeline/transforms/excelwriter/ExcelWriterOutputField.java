@@ -21,37 +21,44 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ExcelWriterOutputField implements Cloneable {
 
-  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldName.Field")
+  @HopMetadataProperty(injectionKey = "NAME",
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldName.Field")
   private String name;
 
-  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Type.Field")
+  @HopMetadataProperty(injectionKey = "TYPE",
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Type.Field")
   private String type;
 
-  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Format.Field")
+  @HopMetadataProperty(injectionKey = "FORMAT",
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Format.Field")
   private String format;
 
-  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Title.Field")
+  @HopMetadataProperty(injectionKey = "FIELDTITLE",
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Title.Field")
   private String title;
 
-  @HopMetadataProperty(
+  @HopMetadataProperty(injectionKey = "FORMULA",
       injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldContainFormula.Field")
   private boolean formula;
 
-  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Hyperlink.Field")
+  @HopMetadataProperty(injectionKey = "HYPERLINKFIELD",
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Hyperlink.Field")
   private String hyperlinkField;
 
-  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Comment.Field")
+  @HopMetadataProperty(injectionKey = "CELLCOMMENT",
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Comment.Field")
   private String commentField;
 
-  @HopMetadataProperty(
+  @HopMetadataProperty(injectionKey = "COMMENTAUTHOR",
       injectionKeyDescription = "ExcelWriterMeta.Injection.Output.CommentAuthor.Field")
   private String commentAuthorField;
 
-  @HopMetadataProperty(
+  @HopMetadataProperty(injectionKey = "TITLESTYLE",
       injectionKeyDescription = "ExcelWriterMeta.Injection.Output.TitleStyleCell.Field")
   private String titleStyleCell;
 
-  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Output.StyleCell.Field")
+  @HopMetadataProperty(injectionKey = "STYLECELL",
+          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.StyleCell.Field")
   private String styleCell;
 
   public String getCommentAuthorField() {

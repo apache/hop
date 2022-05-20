@@ -43,8 +43,8 @@ import java.util.List;
 @Transform(
     id = "StringOperations",
     image = "stringoperations.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.StringOperations",
-    description = "i18n::BaseTransform.TypeTooltipDesc.StringOperations",
+    name = "i18n::StringOperations.Name",
+    description = "i18n::StringOperations.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::StringOperationsMeta.keyword",
     documentationUrl = "/pipeline/transforms/stringoperations.html")

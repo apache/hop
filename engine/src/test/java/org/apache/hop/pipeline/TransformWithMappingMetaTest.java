@@ -122,11 +122,10 @@ public class TransformWithMappingMetaTest {
   public void replaceVariablesWithWorkflowInternalVariablesTest() {
     String variableOverwrite = "paramOverwrite";
     String variableChildOnly = "childValueVariable";
-    String[] jobVariables = Const.INTERNAL_WORKFLOW_VARIABLES;
     IVariables ChildVariables = new Variables();
     IVariables replaceByParentVariables = new Variables();
 
-    for (String internalVariable : jobVariables) {
+    for (String internalVariable : Const.INTERNAL_WORKFLOW_VARIABLES) {
       ChildVariables.setVariable(internalVariable, "childValue");
       replaceByParentVariables.setVariable(internalVariable, "parentValue");
     }
@@ -149,11 +148,10 @@ public class TransformWithMappingMetaTest {
   public void replaceVariablesWithPipelineInternalVariablesTest() {
     String variableOverwrite = "paramOverwrite";
     String variableChildOnly = "childValueVariable";
-    String[] jobVariables = Const.INTERNAL_PIPELINE_VARIABLES;
     IVariables ChildVariables = new Variables();
     IVariables replaceByParentVariables = new Variables();
 
-    for (String internalVariable : jobVariables) {
+    for (String internalVariable : Const.INTERNAL_PIPELINE_VARIABLES) {
       ChildVariables.setVariable(internalVariable, "childValue");
       replaceByParentVariables.setVariable(internalVariable, "parentValue");
     }

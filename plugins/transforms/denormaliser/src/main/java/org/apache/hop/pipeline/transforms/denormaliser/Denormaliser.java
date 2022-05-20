@@ -25,7 +25,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.ValueDataUtil;
-import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -34,7 +33,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.math.BigDecimal;
@@ -108,9 +106,9 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
     return true;
   }
 
-  private boolean processFirstRow() throws HopTransformException {   
-    allNullsAreZero = getVariableBoolean(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, false);      
-    minNullIsValued = getVariableBoolean(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, false);    
+  private boolean processFirstRow() throws HopTransformException {
+    allNullsAreZero = getVariableBoolean(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, false);
+    minNullIsValued = getVariableBoolean(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, false);
     data.inputRowMeta = getInputRowMeta();
     data.outputRowMeta = data.inputRowMeta.clone();
     meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);

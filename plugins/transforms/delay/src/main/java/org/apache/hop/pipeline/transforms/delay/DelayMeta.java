@@ -36,8 +36,8 @@ import java.util.List;
 @Transform(
     id = "Delay",
     image = "delay.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.Delay",
-    description = "i18n::BaseTransform.TypeTooltipDesc.Delay",
+    name = "i18n::Delay.Name",
+    description = "i18n::Delay.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::DelayMeta.keyword",
     documentationUrl = "/pipeline/transforms/delay.html")

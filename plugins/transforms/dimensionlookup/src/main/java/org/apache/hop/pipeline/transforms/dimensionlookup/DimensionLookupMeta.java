@@ -57,8 +57,8 @@ import java.util.*;
 @Transform(
     id = "DimensionLookup",
     image = "dimensionlookup.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.DimensionUpdate",
-    description = "i18n::BaseTransform.TypeTooltipDesc.DimensionUpdate",
+    name = "i18n::DimensionUpdate.Name",
+    description = "i18n::DimensionUpdate.Description",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
     keywords = "i18n::DimensionLookupMeta.keyword",

@@ -40,8 +40,8 @@ import java.util.List;
 @Transform(
     id = "HttpPost",
     image = "httppost.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.HTTPPOST",
-    description = "i18n::BaseTransform.TypeTooltipDesc.HTTPPOST",
+    name = "i18n::HTTPPOST.Name",
+    description = "i18n::HTTPPOST.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::HttpPostMeta.keyword",
     documentationUrl = "/pipeline/transforms/httppost.html")
@@ -77,6 +77,9 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.urlInField")
   private boolean urlInField;
+
+  @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.ignoreSsl")
+  private boolean ignoreSsl;
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.urlField")
   private String urlField;
@@ -400,5 +403,13 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   /** @return */
   public String getHttpPassword() {
     return httpPassword;
+  }
+
+  public boolean isIgnoreSsl() {
+    return ignoreSsl;
+  }
+
+  public void setIgnoreSsl(boolean ignoreSsl) {
+    this.ignoreSsl = ignoreSsl;
   }
 }

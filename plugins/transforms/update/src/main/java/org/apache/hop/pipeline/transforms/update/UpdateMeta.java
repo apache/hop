@@ -36,10 +36,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
 
@@ -48,8 +46,8 @@ import java.util.List;
 @Transform(
     id = "Update",
     image = "update.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.Update",
-    description = "i18n::BaseTransform.TypeTooltipDesc.Update",
+    name = "i18n::Update.Name",
+    description = "i18n::Update.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::UpdateMeta.keyword",
     documentationUrl = "/pipeline/transforms/update.html")
@@ -127,7 +125,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
    * @return Returns the commitSize.
    * @deprecated use public String getCommitSizeVar() instead
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   public int getCommitSize() {
     return Integer.parseInt(commitSize);
   }
@@ -152,7 +150,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
    * @param commitSize The commitSize to set.
    * @deprecated use public void setCommitSize( String commitSize ) instead
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   public void setCommitSize(int commitSize) {
     this.commitSize = Integer.toString(commitSize);
   }

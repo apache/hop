@@ -31,7 +31,7 @@ public abstract class SwtUniversalImage {
 
   private Map<String, Image> cache = new TreeMap<>();
 
-  @Deprecated
+  @Deprecated(since="2.0")
   protected abstract Image renderSimple(Device device);
 
   protected abstract Image renderSimple(Device device, int width, int height);
@@ -58,7 +58,7 @@ public abstract class SwtUniversalImage {
   }
 
   /** @deprecated Use getAsBitmapForSize() instead. */
-  @Deprecated
+  @Deprecated(since="2.0")
   public synchronized Image getAsBitmap(Device device) {
     checkDisposed();
 

@@ -16,7 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;

@@ -35,7 +35,7 @@ Running your own Hop Web environment is straightforward but requires you to buil
 
 We'll use Apache Tomcat in this example. If you use another application server, the process should be similar.
 
-Hop 1.x is built with Java 8, so you'll need to https://tomcat.apache.org/download-90.cgi[download the latest Tomcat 9].
+Hop 2.x is built with Java 11, so you'll need to https://tomcat.apache.org/download-90.cgi[download the latest Tomcat 9].
 
 The steps to set up the default Docker image are included in a helper script `docker/create_hop_web_container.sh` in the Hop code base.
 This should get you started to make modifications or create your own version entirely.

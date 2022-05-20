@@ -36,7 +36,6 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.logging.*;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.plugins.JarCache;
@@ -284,7 +283,7 @@ public class HopGui
       // - Load perspectives
       //
       HopGuiEnvironment.init();
-      
+
       // Clear the jar file cache so that we don't waste memory...
       //
       JarCache.getInstance().clear();
@@ -430,8 +429,7 @@ public class HopGui
                 perspective.getId()));
         item.setData(perspective);
         item.addListener(
-            SWT.Selection,
-            event -> setActivePerspective((IHopPerspective) event.widget.getData()));
+            SWT.Selection, event -> setActivePerspective((IHopPerspective) event.widget.getData()));
 
         ClassLoader classLoader = pluginRegistry.getClassLoader(perspectivePlugin);
         Image image =
@@ -444,14 +442,13 @@ public class HopGui
         if (image != null) {
           item.setImage(image);
         }
-        
-        // See if there's a shortcut for the perspective, add it to tooltip...      
+
+        // See if there's a shortcut for the perspective, add it to tooltip...
         KeyboardShortcut shortcut =
             GuiRegistry.getInstance()
-                .findKeyboardShortcut(
-                    perspectiveClass.getName(), "activate", Const.isOSX());
+                .findKeyboardShortcut(perspectiveClass.getName(), "activate", Const.isOSX());
         if (shortcut != null) {
-          item.setToolTipText(item.getToolTipText()+" ("+shortcut.toString()+')');
+          item.setToolTipText(item.getToolTipText() + " (" + shortcut.toString() + ')');
         }
 
         if (first) {
@@ -463,7 +460,7 @@ public class HopGui
       new ErrorDialog(shell, "Error", "Error loading perspectives", e);
     }
   }
-  
+
   private static Display setupDisplay() {
     // Bootstrap Hop
     //
@@ -1147,7 +1144,9 @@ public class HopGui
     return metadataProvider;
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   @Override
   public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
@@ -1185,7 +1184,9 @@ public class HopGui
     return commandLineArguments;
   }
 
-  /** @param commandLineArguments The commandLineArguments to set */
+  /**
+   * @param commandLineArguments The commandLineArguments to set
+   */
   public void setCommandLineArguments(List<String> commandLineArguments) {
     this.commandLineArguments = commandLineArguments;
   }
@@ -1199,7 +1200,9 @@ public class HopGui
     return mainPerspectivesComposite;
   }
 
-  /** @param mainPerspectivesComposite The mainPerspectivesComposite to set */
+  /**
+   * @param mainPerspectivesComposite The mainPerspectivesComposite to set
+   */
   public void setMainPerspectivesComposite(Composite mainPerspectivesComposite) {
     this.mainPerspectivesComposite = mainPerspectivesComposite;
   }
@@ -1213,7 +1216,9 @@ public class HopGui
     return perspectiveManager;
   }
 
-  /** @param perspectiveManager The perspectiveManager to set */
+  /**
+   * @param perspectiveManager The perspectiveManager to set
+   */
   public void setPerspectiveManager(HopPerspectiveManager perspectiveManager) {
     this.perspectiveManager = perspectiveManager;
   }
@@ -1227,7 +1232,9 @@ public class HopGui
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }
@@ -1241,7 +1248,9 @@ public class HopGui
     return props;
   }
 
-  /** @param props The props to set */
+  /**
+   * @param props The props to set
+   */
   public void setProps(PropsUi props) {
     this.props = props;
   }
@@ -1264,7 +1273,9 @@ public class HopGui
     return mainMenu;
   }
 
-  /** @param mainMenu The mainMenu to set */
+  /**
+   * @param mainMenu The mainMenu to set
+   */
   public void setMainMenu(Menu mainMenu) {
     this.mainMenu = mainMenu;
   }
@@ -1278,7 +1289,9 @@ public class HopGui
     return mainToolbar;
   }
 
-  /** @param mainToolbar The mainToolbar to set */
+  /**
+   * @param mainToolbar The mainToolbar to set
+   */
   public void setMainToolbar(ToolBar mainToolbar) {
     this.mainToolbar = mainToolbar;
   }
@@ -1292,7 +1305,9 @@ public class HopGui
     return perspectivesToolbar;
   }
 
-  /** @param perspectivesToolbar The perspectivesToolbar to set */
+  /**
+   * @param perspectivesToolbar The perspectivesToolbar to set
+   */
   public void setPerspectivesToolbar(ToolBar perspectivesToolbar) {
     this.perspectivesToolbar = perspectivesToolbar;
   }
@@ -1306,12 +1321,16 @@ public class HopGui
     return mainHopGuiComposite;
   }
 
-  /** @param mainHopGuiComposite The mainHopGuiComposite to set */
+  /**
+   * @param mainHopGuiComposite The mainHopGuiComposite to set
+   */
   public void setMainHopGuiComposite(Composite mainHopGuiComposite) {
     this.mainHopGuiComposite = mainHopGuiComposite;
   }
 
-  /** @param perspective The perspective to active */
+  /**
+   * @param perspective The perspective to active
+   */
   public void setActivePerspective(IHopPerspective perspective) {
 
     if (perspective == null) {
@@ -1496,7 +1515,9 @@ public class HopGui
     return databaseMetaManager;
   }
 
-  /** @param databaseMetaManager The databaseMetaManager to set */
+  /**
+   * @param databaseMetaManager The databaseMetaManager to set
+   */
   public void setDatabaseMetaManager(MetadataManager<DatabaseMeta> databaseMetaManager) {
     this.databaseMetaManager = databaseMetaManager;
   }
@@ -1510,7 +1531,9 @@ public class HopGui
     return partitionManager;
   }
 
-  /** @param partitionManager The partitionManager to set */
+  /**
+   * @param partitionManager The partitionManager to set
+   */
   public void setPartitionManager(MetadataManager<PartitionSchema> partitionManager) {
     this.partitionManager = partitionManager;
   }
@@ -1524,7 +1547,9 @@ public class HopGui
     return fileDelegate;
   }
 
-  /** @param fileDelegate The fileDelegate to set */
+  /**
+   * @param fileDelegate The fileDelegate to set
+   */
   public void setFileDelegate(HopGuiFileDelegate fileDelegate) {
     this.fileDelegate = fileDelegate;
   }
@@ -1538,7 +1563,9 @@ public class HopGui
     return undoDelegate;
   }
 
-  /** @param undoDelegate The undoDelegate to set */
+  /**
+   * @param undoDelegate The undoDelegate to set
+   */
   public void setUndoDelegate(HopGuiUndoDelegate undoDelegate) {
     this.undoDelegate = undoDelegate;
   }
@@ -1570,7 +1597,9 @@ public class HopGui
     return mainMenuWidgets;
   }
 
-  /** @param mainMenuWidgets The mainMenuWidgets to set */
+  /**
+   * @param mainMenuWidgets The mainMenuWidgets to set
+   */
   public void setMainMenuWidgets(GuiMenuWidgets mainMenuWidgets) {
     this.mainMenuWidgets = mainMenuWidgets;
   }
@@ -1584,7 +1613,9 @@ public class HopGui
     return mainToolbarWidgets;
   }
 
-  /** @param mainToolbarWidgets The mainToolbarWidgets to set */
+  /**
+   * @param mainToolbarWidgets The mainToolbarWidgets to set
+   */
   public void setMainToolbarWidgets(GuiToolbarWidgets mainToolbarWidgets) {
     this.mainToolbarWidgets = mainToolbarWidgets;
   }
@@ -1598,7 +1629,9 @@ public class HopGui
     return openingLastFiles;
   }
 
-  /** @param openingLastFiles The openingLastFiles to set */
+  /**
+   * @param openingLastFiles The openingLastFiles to set
+   */
   public void setOpeningLastFiles(boolean openingLastFiles) {
     this.openingLastFiles = openingLastFiles;
   }
@@ -1621,7 +1654,9 @@ public class HopGui
     return eventsHandler;
   }
 
-  /** @param eventsHandler The eventsHandler to set */
+  /**
+   * @param eventsHandler The eventsHandler to set
+   */
   public void setEventsHandler(HopGuiEventsHandler eventsHandler) {
     this.eventsHandler = eventsHandler;
   }

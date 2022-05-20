@@ -41,8 +41,8 @@ import java.util.List;
 @Transform(
     id = "RowsFromResult",
     image = "rowsfromresult.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.RowsFromResult",
-    description = "i18n::BaseTransform.TypeTooltipDesc.RowsFromResult",
+    name = "i18n::RowsFromResult.Name",
+    description = "i18n::RowsFromResult.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     keywords = "i18n::RowsFromResultMeta.keyword",
     documentationUrl = "/pipeline/transforms/getrowsfromresult.html")

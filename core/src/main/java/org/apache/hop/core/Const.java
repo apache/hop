@@ -288,22 +288,20 @@ public class Const {
       INTERNAL_VARIABLE_PREFIX + ".Entry.Current.Folder";
 
   /** All the internal pipeline variables */
-  public static final String[] INTERNAL_PIPELINE_VARIABLES =
-      new String[] {
+  public static final Set<String> INTERNAL_PIPELINE_VARIABLES = Set.of(      
         Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER,
         Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY,
         Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME,
-        Const.INTERNAL_VARIABLE_PIPELINE_NAME,
-      };
+        Const.INTERNAL_VARIABLE_PIPELINE_NAME
+      );
 
   /** All the internal workflow variables */
-  public static final String[] INTERNAL_WORKFLOW_VARIABLES =
-      new String[] {
+  public static final Set<String> INTERNAL_WORKFLOW_VARIABLES = Set.of(     
         Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER,
         Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER,
         Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME,
-        Const.INTERNAL_VARIABLE_WORKFLOW_NAME,
-      };
+        Const.INTERNAL_VARIABLE_WORKFLOW_NAME
+      );
 
   /** The pipeline filename directory */
   public static final String INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY =

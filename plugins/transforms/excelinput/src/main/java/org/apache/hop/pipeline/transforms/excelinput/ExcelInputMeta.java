@@ -43,10 +43,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -59,8 +57,8 @@ import java.util.Map;
 @Transform(
     id = "ExcelInput",
     image = "excelinput.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.ExcelInput",
-    description = "i18n::BaseTransform.TypeTooltipDesc.ExcelInput",
+    name = "i18n::ExcelInput.Name",
+    description = "i18n::ExcelInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::ExcelInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/excelinput.html")
@@ -225,122 +223,170 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the shortFileFieldName. */
+  /**
+   * @return Returns the shortFileFieldName.
+   */
   public String getShortFileNameField() {
     return shortFileFieldName;
   }
 
-  /** @param field The shortFileFieldName to set. */
+  /**
+   * @param field The shortFileFieldName to set.
+   */
   public void setShortFileNameField(String field) {
     shortFileFieldName = field;
   }
 
-  /** @return Returns the pathFieldName. */
+  /**
+   * @return Returns the pathFieldName.
+   */
   public String getPathField() {
     return pathFieldName;
   }
 
-  /** @param field The pathFieldName to set. */
+  /**
+   * @param field The pathFieldName to set.
+   */
   public void setPathField(String field) {
     this.pathFieldName = field;
   }
 
-  /** @return Returns the hiddenFieldName. */
+  /**
+   * @return Returns the hiddenFieldName.
+   */
   public String isHiddenField() {
     return hiddenFieldName;
   }
 
-  /** @param field The hiddenFieldName to set. */
+  /**
+   * @param field The hiddenFieldName to set.
+   */
   public void setIsHiddenField(String field) {
     hiddenFieldName = field;
   }
 
-  /** @return Returns the lastModificationTimeFieldName. */
+  /**
+   * @return Returns the lastModificationTimeFieldName.
+   */
   public String getLastModificationDateField() {
     return lastModificationTimeFieldName;
   }
 
-  /** @param field The lastModificationTimeFieldName to set. */
+  /**
+   * @param field The lastModificationTimeFieldName to set.
+   */
   public void setLastModificationDateField(String field) {
     lastModificationTimeFieldName = field;
   }
 
-  /** @return Returns the uriNameFieldName. */
+  /**
+   * @return Returns the uriNameFieldName.
+   */
   public String getUriField() {
     return uriNameFieldName;
   }
 
-  /** @param field The uriNameFieldName to set. */
+  /**
+   * @param field The uriNameFieldName to set.
+   */
   public void setUriField(String field) {
     uriNameFieldName = field;
   }
 
-  /** @return Returns the uriNameFieldName. */
+  /**
+   * @return Returns the uriNameFieldName.
+   */
   public String getRootUriField() {
     return rootUriNameFieldName;
   }
 
-  /** @param field The rootUriNameFieldName to set. */
+  /**
+   * @param field The rootUriNameFieldName to set.
+   */
   public void setRootUriField(String field) {
     rootUriNameFieldName = field;
   }
 
-  /** @return Returns the extensionFieldName. */
+  /**
+   * @return Returns the extensionFieldName.
+   */
   public String getExtensionField() {
     return extensionFieldName;
   }
 
-  /** @param field The extensionFieldName to set. */
+  /**
+   * @param field The extensionFieldName to set.
+   */
   public void setExtensionField(String field) {
     extensionFieldName = field;
   }
 
-  /** @return Returns the sizeFieldName. */
+  /**
+   * @return Returns the sizeFieldName.
+   */
   public String getSizeField() {
     return sizeFieldName;
   }
 
-  /** @param field The sizeFieldName to set. */
+  /**
+   * @param field The sizeFieldName to set.
+   */
   public void setSizeField(String field) {
     sizeFieldName = field;
   }
 
-  /** @return Returns the fieldLength. */
+  /**
+   * @return Returns the fieldLength.
+   */
   public ExcelInputField[] getField() {
     return field;
   }
 
-  /** @param fields The excel input fields to set. */
+  /**
+   * @param fields The excel input fields to set.
+   */
   public void setField(ExcelInputField[] fields) {
     this.field = fields;
   }
 
-  /** @return Returns the fileField. */
+  /**
+   * @return Returns the fileField.
+   */
   public String getFileField() {
     return fileField;
   }
 
-  /** @param fileField The fileField to set. */
+  /**
+   * @param fileField The fileField to set.
+   */
   public void setFileField(String fileField) {
     this.fileField = fileField;
   }
 
-  /** @return Returns the fileMask. */
+  /**
+   * @return Returns the fileMask.
+   */
   public String[] getFileMask() {
     return fileMask;
   }
 
-  /** @param fileMask The fileMask to set. */
+  /**
+   * @param fileMask The fileMask to set.
+   */
   public void setFileMask(String[] fileMask) {
     this.fileMask = fileMask;
   }
 
-  /** @return Returns the excludeFileMask. */
+  /**
+   * @return Returns the excludeFileMask.
+   */
   public String[] getExcludeFileMask() {
     return excludeFileMask;
   }
 
-  /** @param excludeFileMask The excludeFileMask to set. */
+  /**
+   * @param excludeFileMask The excludeFileMask to set.
+   */
   public void setExcludeFileMask(String[] excludeFileMask) {
     this.excludeFileMask = excludeFileMask;
   }
@@ -382,112 +428,156 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     }
   }
 
-  /** @return Returns the fileName. */
+  /**
+   * @return Returns the fileName.
+   */
   public String[] getFileName() {
     return fileName;
   }
 
-  /** @param fileName The fileName to set. */
+  /**
+   * @param fileName The fileName to set.
+   */
   public void setFileName(String[] fileName) {
     this.fileName = fileName;
   }
 
-  /** @return Returns the ignoreEmptyRows. */
+  /**
+   * @return Returns the ignoreEmptyRows.
+   */
   public boolean ignoreEmptyRows() {
     return ignoreEmptyRows;
   }
 
-  /** @param ignoreEmptyRows The ignoreEmptyRows to set. */
+  /**
+   * @param ignoreEmptyRows The ignoreEmptyRows to set.
+   */
   public void setIgnoreEmptyRows(boolean ignoreEmptyRows) {
     this.ignoreEmptyRows = ignoreEmptyRows;
   }
 
-  /** @return Returns the rowLimit. */
+  /**
+   * @return Returns the rowLimit.
+   */
   public long getRowLimit() {
     return rowLimit;
   }
 
-  /** @param rowLimit The rowLimit to set. */
+  /**
+   * @param rowLimit The rowLimit to set.
+   */
   public void setRowLimit(long rowLimit) {
     this.rowLimit = rowLimit;
   }
 
-  /** @return Returns the rowNumberField. */
+  /**
+   * @return Returns the rowNumberField.
+   */
   public String getRowNumberField() {
     return rowNumberField;
   }
 
-  /** @param rowNumberField The rowNumberField to set. */
+  /**
+   * @param rowNumberField The rowNumberField to set.
+   */
   public void setRowNumberField(String rowNumberField) {
     this.rowNumberField = rowNumberField;
   }
 
-  /** @return Returns the sheetRowNumberField. */
+  /**
+   * @return Returns the sheetRowNumberField.
+   */
   public String getSheetRowNumberField() {
     return sheetRowNumberField;
   }
 
-  /** @param rowNumberField The rowNumberField to set. */
+  /**
+   * @param rowNumberField The rowNumberField to set.
+   */
   public void setSheetRowNumberField(String rowNumberField) {
     this.sheetRowNumberField = rowNumberField;
   }
 
-  /** @return Returns the sheetField. */
+  /**
+   * @return Returns the sheetField.
+   */
   public String getSheetField() {
     return sheetField;
   }
 
-  /** @param sheetField The sheetField to set. */
+  /**
+   * @param sheetField The sheetField to set.
+   */
   public void setSheetField(String sheetField) {
     this.sheetField = sheetField;
   }
 
-  /** @return Returns the sheetName. */
+  /**
+   * @return Returns the sheetName.
+   */
   public String[] getSheetName() {
     return sheetName;
   }
 
-  /** @param sheetName The sheetName to set. */
+  /**
+   * @param sheetName The sheetName to set.
+   */
   public void setSheetName(String[] sheetName) {
     this.sheetName = sheetName;
   }
 
-  /** @return Returns the startColumn. */
+  /**
+   * @return Returns the startColumn.
+   */
   public int[] getStartColumn() {
     return startColumn;
   }
 
-  /** @param startColumn The startColumn to set. */
+  /**
+   * @param startColumn The startColumn to set.
+   */
   public void setStartColumn(int[] startColumn) {
     this.startColumn = startColumn;
   }
 
-  /** @return Returns the startRow. */
+  /**
+   * @return Returns the startRow.
+   */
   public int[] getStartRow() {
     return startRow;
   }
 
-  /** @param startRow The startRow to set. */
+  /**
+   * @param startRow The startRow to set.
+   */
   public void setStartRow(int[] startRow) {
     this.startRow = startRow;
   }
 
-  /** @return Returns the startsWithHeader. */
+  /**
+   * @return Returns the startsWithHeader.
+   */
   public boolean startsWithHeader() {
     return startsWithHeader;
   }
 
-  /** @param startsWithHeader The startsWithHeader to set. */
+  /**
+   * @param startsWithHeader The startsWithHeader to set.
+   */
   public void setStartsWithHeader(boolean startsWithHeader) {
     this.startsWithHeader = startsWithHeader;
   }
 
-  /** @return Returns the stopOnEmpty. */
+  /**
+   * @return Returns the stopOnEmpty.
+   */
   public boolean stopOnEmpty() {
     return stopOnEmpty;
   }
 
-  /** @param stopOnEmpty The stopOnEmpty to set. */
+  /**
+   * @param stopOnEmpty The stopOnEmpty to set.
+   */
   public void setStopOnEmpty(boolean stopOnEmpty) {
     this.stopOnEmpty = stopOnEmpty;
   }
@@ -1228,62 +1318,86 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     }
   }
 
-  /** @return Returns the acceptingField. */
+  /**
+   * @return Returns the acceptingField.
+   */
   public String getAcceptingField() {
     return acceptingField;
   }
 
-  /** @param acceptingField The acceptingField to set. */
+  /**
+   * @param acceptingField The acceptingField to set.
+   */
   public void setAcceptingField(String acceptingField) {
     this.acceptingField = acceptingField;
   }
 
-  /** @return Returns the acceptingFilenames. */
+  /**
+   * @return Returns the acceptingFilenames.
+   */
   public boolean isAcceptingFilenames() {
     return acceptingFilenames;
   }
 
-  /** @param acceptingFilenames The acceptingFilenames to set. */
+  /**
+   * @param acceptingFilenames The acceptingFilenames to set.
+   */
   public void setAcceptingFilenames(boolean acceptingFilenames) {
     this.acceptingFilenames = acceptingFilenames;
   }
 
-  /** @return Returns the acceptingTransform. */
+  /**
+   * @return Returns the acceptingTransform.
+   */
   public TransformMeta getAcceptingTransform() {
     return acceptingTransform;
   }
 
-  /** @param acceptingTransform The acceptingTransform to set. */
+  /**
+   * @param acceptingTransform The acceptingTransform to set.
+   */
   public void setAcceptingTransform(TransformMeta acceptingTransform) {
     this.acceptingTransform = acceptingTransform;
   }
 
-  /** @return Returns the acceptingTransformName. */
+  /**
+   * @return Returns the acceptingTransformName.
+   */
   public String getAcceptingTransformName() {
     return acceptingTransformName;
   }
 
-  /** @param acceptingTransformName The acceptingTransformName to set. */
+  /**
+   * @param acceptingTransformName The acceptingTransformName to set.
+   */
   public void setAcceptingTransformName(String acceptingTransformName) {
     this.acceptingTransformName = acceptingTransformName;
   }
 
-  /** @return the encoding */
+  /**
+   * @return the encoding
+   */
   public String getEncoding() {
     return encoding;
   }
 
-  /** @param encoding the encoding to set */
+  /**
+   * @param encoding the encoding to set
+   */
   public void setEncoding(String encoding) {
     this.encoding = encoding;
   }
 
-  /** @param isaddresult The isaddresult to set. */
+  /**
+   * @param isaddresult The isaddresult to set.
+   */
   public void setAddResultFile(boolean isaddresult) {
     this.isaddresult = isaddresult;
   }
 
-  /** @return Returns isaddresult. */
+  /**
+   * @return Returns isaddresult.
+   */
   public boolean isAddResultFile() {
     return isaddresult;
   }

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0003-input-bigtable</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2022/05/18 15:48:53.875</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2022/05/18 15:48:53.875</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>customers</from>
+      <to>apache-hop-it.customers</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>apache-hop-it.customers</name>
+    <type>BeamBigtableOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <columns>
+      <column>
+        <family>person</family>
+        <qualifier>lastName</qualifier>
+        <source_field>lastName</source_field>
+      </column>
+      <column>
+        <family>person</family>
+        <qualifier>firstName</qualifier>
+        <source_field>firstName</source_field>
+      </column>
+      <column>
+        <family>location</family>
+        <qualifier>zipCode</qualifier>
+        <source_field>zipCode</source_field>
+      </column>
+      <column>
+        <family>location</family>
+        <qualifier>city</qualifier>
+        <source_field>city</source_field>
+      </column>
+      <column>
+        <family>person</family>
+        <qualifier>birthdate</qualifier>
+        <source_field>birthdate</source_field>
+      </column>
+      <column>
+        <family>location</family>
+        <qualifier>street</qualifier>
+        <source_field>street</source_field>
+      </column>
+      <column>
+        <family>location</family>
+        <qualifier>housenr</qualifier>
+        <source_field>housenr</source_field>
+      </column>
+      <column>
+        <family>location</family>
+        <qualifier>stateCode</qualifier>
+        <source_field>stateCode</source_field>
+      </column>
+      <column>
+        <family>location</family>
+        <qualifier>state</qualifier>
+        <source_field>state</source_field>
+      </column>
+    </columns>
+    <instance_id>apache-hop-it</instance_id>
+    <key_field>id</key_field>
+    <project_id>apache-hop</project_id>
+    <table_id>customers</table_id>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>customers</name>
+    <type>BeamInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name>customers</file_description_name>
+    <input_location>gs://apache-hop-it/input/customers-noheader-1M.txt</input_location>
+    <attributes/>
+    <GUI>
+      <xloc>192</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

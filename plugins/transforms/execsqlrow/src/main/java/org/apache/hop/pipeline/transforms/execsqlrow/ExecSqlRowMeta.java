@@ -41,8 +41,8 @@ import java.util.List;
 @Transform(
     id = "ExecSqlRow",
     image = "execsqlrow.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.ExecSqlRow",
-    description = "i18n::BaseTransform.TypeTooltipDesc.ExecSqlRow",
+    name = "i18n::ExecSqlRow.Name",
+    description = "i18n::ExecSqlRow.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     keywords = "i18n::ExecSqlRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/execsqlrow.html")

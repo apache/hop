@@ -30,13 +30,14 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
+
 import java.util.List;
 
 @Transform(
     id = "RowsToResult",
     image = "rowstoresult.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.RowsToResult",
-    description = "i18n::BaseTransform.TypeTooltipDesc.RowsToResult",
+    name = "i18n::RowsToResult.Name",
+    description = "i18n::RowsToResult.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     keywords = "i18n::RowsToResultMeta.keyword",
     documentationUrl = "/pipeline/transforms/copyrowstoresult.html")

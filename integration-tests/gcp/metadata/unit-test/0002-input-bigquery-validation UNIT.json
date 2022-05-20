@@ -1,0 +1,48 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "rowCount",
+          "data_set_field": "rowCount"
+        },
+        {
+          "transform_field": "minId",
+          "data_set_field": "minId"
+        },
+        {
+          "transform_field": "maxId",
+          "data_set_field": "maxId"
+        },
+        {
+          "transform_field": "minName",
+          "data_set_field": "minName"
+        },
+        {
+          "transform_field": "maxName",
+          "data_set_field": "maxName"
+        }
+      ],
+      "field_order": [
+        "rowCount",
+        "minId",
+        "maxId",
+        "minName",
+        "maxName"
+      ],
+      "transform_name": "Validate",
+      "data_set_name": "0002-input-bigquery-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0002-input-bigquery-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0002-input-bigquery-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

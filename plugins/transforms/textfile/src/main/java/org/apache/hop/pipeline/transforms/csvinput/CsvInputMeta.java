@@ -53,6 +53,7 @@ import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,8 +64,8 @@ import java.util.Map;
 @Transform(
     id = "CSVInput",
     image = "textfileinput.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.CsvInput",
-    description = "i18n::BaseTransform.TypeTooltipDesc.CsvInput",
+    name = "i18n::CsvInput.Name",
+    description = "i18n::CsvInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::CsvInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/csvinput.html")

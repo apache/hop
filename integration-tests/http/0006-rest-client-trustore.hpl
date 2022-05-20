@@ -55,6 +55,11 @@ limitations under the License.
       <to>custom trustore rest client</to>
       <enabled>Y</enabled>
     </hop>
+    <hop>
+      <from>Generate rows</from>
+      <to>ignore trustore (SSL) rest client</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
   <transform>
     <name>Dummy (do nothing)</name>
@@ -123,6 +128,7 @@ limitations under the License.
     <preemptive>N</preemptive>
     <trustStoreFile>${PROJECT_HOME}/files/.keystore</trustStoreFile>
     <trustStorePassword>Encrypted 2be98afc86aa7f2e4a811af7ed997a6ce</trustStorePassword>
+    <ignoreSsl>N</ignoreSsl>
     <headers>
       </headers>
     <parameters>
@@ -167,6 +173,7 @@ limitations under the License.
     <preemptive>N</preemptive>
     <trustStoreFile/>
     <trustStorePassword>Encrypted </trustStorePassword>
+    <ignoreSsl>N</ignoreSsl>
     <headers>
       </headers>
     <parameters>
@@ -183,6 +190,51 @@ limitations under the License.
     <GUI>
       <xloc>320</xloc>
       <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>ignore trustore (SSL) rest client</name>
+    <type>Rest</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <applicationType>TEXT PLAIN</applicationType>
+    <method>GET</method>
+    <url>${HTTPS_TEST_URL}</url>
+    <urlInField>N</urlInField>
+    <dynamicMethod>N</dynamicMethod>
+    <methodFieldName/>
+    <urlField/>
+    <bodyField/>
+    <httpLogin/>
+    <httpPassword>Encrypted </httpPassword>
+    <proxyHost/>
+    <proxyPort/>
+    <preemptive>N</preemptive>
+    <trustStoreFile/>
+    <trustStorePassword>Encrypted </trustStorePassword>
+    <ignoreSsl>Y</ignoreSsl>
+    <headers>
+      </headers>
+    <parameters>
+      </parameters>
+    <matrixParameters>
+      </matrixParameters>
+    <result>
+      <name>result</name>
+      <code/>
+      <response_time/>
+      <response_header/>
+    </result>
+    <attributes/>
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>352</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

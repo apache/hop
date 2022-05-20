@@ -29,18 +29,88 @@ This transform can be used to populate a dimension table or to look up values in
 
 == Options
 
+=== Common fields
+
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Update the dimension?|Enable to update the dimension based on the information in the input stream; if not enabled, the dimension only performs lookups and adds the technical key field to the streams.
+|Connection|Name of the database connection on which the dimension table resides.
+|Target schema|This allows you to specify a schema name.
+|Target table|Name of the dimension table.
+|Commit size|Define the commit size, e.g. setting commit size to 10 generates a commit every 10 inserts or updates.
+|Caching a|
+* Enable the cache?
+Enable this option if you want to enable data caching in this transform; set a cache size of >=0 in previous versions or -1 to disable caching.
+* Pre-load cache?
+You can enhance performance by reading the complete contents of a dimension table prior to performing lookups.
+Performance is increased by the elimination of the round trips to the database and by the sorted list lookup algorithm.
+* Cache size in rows: The cache size in number of rows that will be held in memory to speed up lookups by reducing the number of round trips to the database.
+|Get Fields button|Fills in all the available fields on the input stream, except for the keys you specified.
+|SQL button|Generates the SQL to build the dimension and allows you to execute this SQL.
+|===
+
+=== Keys tab
+Specify the names of the keys in the stream and in the dimension table.
+This will enable the transform to perform the lookup.
 [width="90%",options="header"]
 |===
 |Option|Description
-|Technical key|This is the primary key of the dimension.
-|Version field|Shows the version of the dimension entry (a revision number).
-|Start of date range|This is the field name containing the validity starting date.
-|End of date range|This is the field name containing the validity ending date.
-|Keys|These are the keys used in your source systems.
-For example: customer numbers, product id, etc.
-|Fields|These fields contain the actual information of a dimension.
+|Dimension field|Key field used in the source system. For example: customer numbers, product id, etc.
+|Stream field|Stream field containing the value get from the source system key field.
 |===
 
+=== Fields tab
+For each of the fields you must have in the dimension, you can specify whether you want the values to be updated (for all versions, this is a Type I operation) or you want to have the values inserted into the dimension as a new version.
+In the example we used in the screenshot the birth date is something that's not variable in time, so if the birth date changes, it means that it was wrong in previous versions.
+It's only logical then, that the previous values are corrected in all versions of the dimension entry.[width="90%",options="header"]
+|===
+|Option|Description
+|Dimension field|Fields containing the actual information of a dimension..
+|Stream field to compare with|Stream field containing the incoming value to assign to that table's field.
+|Type of dimension update|Type of update applied (see details below in the section Update of this document).
+|===
+
+=== Technical key tab
+These tab contains the details related to the creation of the surrogate key of the dimension's record.
+[width="90%",options="header"]
+|===
+|Option|Description
+|Technical key field|The primary key of the dimension; also referred to as Surrogate Key.
+Use the new name option to rename the technical key after a lookup.
+For example, if you need to lookup different types of products like ORIGINAL_PRODUCT_TK, REPLACEMENT_PRODUCT_TK, ...
+|Creation of technical key a|Indicates how the technical key is generated, options that are not available for your connection type will be grayed out:
+
+* Use table maximum + 1: A new technical key will be created from the maximum key in the table.
+Note that the new maximum is always cached, so that the maximum does not need to be calculated for each new row.
+* Use sequence: Specify the sequence name if you want to use a database sequence on the table connection to generate the technical key (typical for Oracle e.g.).
+* Use auto increment field: Use an auto increment field in the database table to generate the technical key (supported e.g. by DB2).
+|===
+
+=== Versioning tab
+These tabs defines the way the record's version is generated
+[width="90%",options="header"]
+|===
+|Option|Description
+|Version field|The name of the field in which to store the version (revision number).
+|Stream Datefield|If you have the date at which the dimension entry was last changed, you can specify the name of that field here.
+It allows the dimension entry to be accurately described for what the date range concerns.
+If you don't have such a date, the system date will be taken.
+When the dimension entries are looked up (Update the dimension is not selected) the date field entered into the stream datefield is used to select the appropriate dimension version based on the date from and date to dates in the dimension record.
+|Date range start field|Specify the names of the dimension entries start range.
+|Use an alternative start date? a|When enabled, you can choose an alternative to the "Min.
+Year"/01/01 00:00:00 date that is used.
+You can use any of the following:
+
+* System date: Use the system date as a variable date/time
+* Start date of pipeline: Use the system date, taken at start of the pipeline for the start date
+* Empty (null) value
+* Column value: Select a column from which to take the value.
+
+|Table date range end|The names of the dimension entries end range
+|===
+
+== General considerations
 As a result of the lookup or update operation of this transform type, a field is added to the stream containing the technical key of the dimension.
 In case the field is not found, the value of the dimension entry for not found (0 or 1, based on the type of database) is returned.
 
@@ -58,7 +128,7 @@ These are the optional fields:
 
 As the name of the transform suggests, the functionality of the transform falls into 2 categories, Lookup and Update...
 
-== Lookup
+=== Lookup
 
 In read-only mode (update option is disabled), the transform only performs lookups in a slowly changing dimension.
 The transform will perform a lookup in the dimension table on the specified database connection and in the specified schema.
@@ -90,7 +160,7 @@ Stay away from those.
 We recommend you use sane data types like Integer or long integers.
 Stay away from Double, Decimal or catch-all data types like Oracle's Number (without length or precision; it implicitly uses precision 38 causing us to use the slower BigNumber data type).
 
-== Update
+=== Update
 
 In update mode (update option is enabled) the transform first performs a lookup of the dimension entry as described in the "Lookup" section above.
 The result of the lookup is different though.
@@ -111,58 +181,6 @@ The result can be one of the following situations:
 ** Stream date field" cannot be before the earliest start date of the currently valid rows.
 ** select min(date_from) from dim_table where date_to = "2199-12-31 23:59:59.999"
 ** It is important to ensure that the incoming rows are sorted by the "Stream date field"
-
-== Options
-
-|===
-|Option|Description
-|transform name|Name of the transform.
-|Update the dimension?|Enable to update the dimension based on the information in the input stream; if not enabled, the dimension only performs lookups and adds the technical key field to the streams.
-|Connection|Name of the database connection on which the dimension table resides.
-|Target schema|This allows you to specify a schema name.
-|Target table|Name of the dimension table.
-|Commit size|Define the commit size, e.g. setting commit size to 10 generates a commit every 10 inserts or updates.
-|Caching a|
-* Enable the cache?
-Enable this option if you want to enable data caching in this transform; set a cache size of >=0 in previous versions or -1 to disable caching.
-* Pre-load cache?
-You can enhance performance by reading the complete contents of a dimension table prior to performing lookups.
-Performance is increased by the elimination of the round trips to the database and by the sorted list lookup algorithm.
-* Cache size in rows: The cache size in number of rows that will be held in memory to speed up lookups by reducing the number of round trips to the database.
-|Keys tab|Specify the names of the keys in the stream and in the dimension table.
-This will enable the transform to perform the lookup.
-|Fields tab|For each of the fields you must have in the dimension, you can specify whether you want the values to be updated (for all versions, this is a Type I operation) or you want to have the values inserted into the dimension as a new version.
-In the example we used in the screenshot the birth date is something that's not variable in time, so if the birth date changes, it means that it was wrong in previous versions.
-It's only logical then, that the previous values are corrected in all versions of the dimension entry.
-|Technical key field|The primary key of the dimension; also referred to as Surrogate Key.
-Use the new name option to rename the technical key after a lookup.
-For example, if you need to lookup different types of products like ORIGINAL_PRODUCT_TK, REPLACEMENT_PRODUCT_TK, ...
-|Creation of technical key a|Indicates how the technical key is generated, options that are not available for your connection type will be grayed out:
-
-* Use table maximum + 1: A new technical key will be created from the maximum key in the table.
-Note that the new maximum is always cached, so that the maximum does not need to be calculated for each new row.
-* Use sequence: Specify the sequence name if you want to use a database sequence on the table connection to generate the technical key (typical for Oracle e.g.).
-* Use auto increment field: Use an auto increment field in the database table to generate the technical key (supported e.g. by DB2).
-|Version field|The name of the field in which to store the version (revision number).
-|Stream Datefield|If you have the date at which the dimension entry was last changed, you can specify the name of that field here.
-It allows the dimension entry to be accurately described for what the date range concerns.
-If you don't have such a date, the system date will be taken.
-When the dimension entries are looked up (Update the dimension is not selected) the date field entered into the stream datefield is used to select the appropriate dimension version based on the date from and date to dates in the dimension record.
-|Date range start field|Specify the names of the dimension entries start range.
-|Use an alternative start date? a|When enabled, you can choose an alternative to the "Min.
-Year"/01/01 00:00:00 date that is used.
-You can use any of the following:
-
-* System date: Use the system date as a variable date/time
-* Start date of pipeline: Use the system date, taken at start of the pipeline for the start date
-* Empty (null) value
-* Column value: Select a column from which to take the value.
-\\\\
-
-|Table date range end|The names of the dimension entries end range
-|Get Fields button|Fills in all the available fields on the input stream, except for the keys you specified.
-|SQL button|Generates the SQL to build the dimension and allows you to execute this SQL.
-|===
 
 == Metadata Injection Support
 

@@ -17,7 +17,6 @@
  */
 package org.apache.hop.workflow.actions.addresultfilenames;
 
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
@@ -25,8 +24,6 @@ import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport
 import org.junit.Before;
 import org.junit.ClassRule;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 public class WorkflowActionAddResultFilenamesLoadSaveTest

@@ -30,7 +30,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +41,8 @@ import java.util.List;
 @Transform(
     id = "RowGenerator",
     image = "rowgenerator.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.GenerateRows",
-    description = "i18n::BaseTransform.TypeTooltipDesc.GenerateRows",
+    name = "i18n::GenerateRows.Name",
+    description = "i18n::GenerateRows.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::RowGeneratorMeta.keyword",
     documentationUrl = "/pipeline/transforms/rowgenerator.html")

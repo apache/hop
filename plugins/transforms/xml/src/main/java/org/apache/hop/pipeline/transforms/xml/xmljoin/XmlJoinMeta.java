@@ -42,6 +42,7 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
+
 import java.util.Arrays;
 import java.util.List;
 

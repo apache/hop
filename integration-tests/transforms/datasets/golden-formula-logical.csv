@@ -1,0 +1,4 @@
+foo,bar,one,two,empty,and_true,and_foo,one_equals_two,not_one_equals_two,if_equals_then_else_simple,or_two_comparisons,true,false,and_comparisons
+foo,bar,1,2,,Y,Y,N,Y,bar,N,Y,N,Y
+foo2,bar2,3,4,,Y,Y,N,Y,bar2,N,Y,N,Y
+foo3,bar3,5,6,,Y,Y,N,Y,bar3,N,Y,N,Y

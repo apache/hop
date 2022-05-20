@@ -42,8 +42,8 @@ import java.util.List;
 @Transform(
     id = "WebServiceLookup",
     image = "webservice.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.WebServiceLookup",
-    description = "i18n::BaseTransform.TypeTooltipDesc.WebServiceLookup",
+    name = "i18n::WebServiceLookup.Name",
+    description = "i18n::WebServiceLookup.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::WebServiceMeta.keyword",
     documentationUrl = "/pipeline/transforms/webservices.html")

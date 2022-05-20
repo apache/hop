@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transforms.fileinput;
 
 /** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
-@Deprecated
+@Deprecated(since="2.0")
 public class TextFileFilter implements Cloneable {
   /** The position of the occurrence of the filter string to check at */
   private int filterPosition;

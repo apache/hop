@@ -96,6 +96,7 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog implements
     formLayout.marginHeight = Const.FORM_MARGIN;
     shell.setLayout(formLayout);
 
+    int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
     // The buttons at the bottom of the dialog
@@ -118,14 +119,14 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog implements
     //
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    wlTransformName.setLayoutData(new FormDataBuilder().left().top().result());
+    wlTransformName.setLayoutData(new FormDataBuilder().right(middle, -margin).result());
     props.setLook(wlTransformName);
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     wTransformName.addListener(SWT.Modify, e -> input.setChanged());
     wTransformName.setLayoutData(
-        new FormDataBuilder().left().top(wlTransformName, margin).right(100, 0).result());
+        new FormDataBuilder().left(wlTransformName, margin).top(wlTransformName, 0, SWT.CENTER).right().result());
     props.setLook(wTransformName);
 
     // Table with fields

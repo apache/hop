@@ -28,19 +28,15 @@ The steps on this page and the detail pages for Spark, Flink and Google Dataflow
 
 === Java
 
-You'll already have Java installed to run Apache Hop.
-
-Even though Hop runs fine on Java versions higher than 8, both Apache Hop and Apache Beam are built with java 8.
-
-Make sure you're using a Java 8 runtime to avoid any potential issues, either by setting java 8 as your default JRE or through the `JAVA_HOME` environment variable.
+You'll already have Java installed to run Apache Hop. Both Apache Hop and Beam require a Java 11 environment.
 
 Double-check your java version with the `java -version` command. Your output should look similar to the one below.
 
 [source, shell]
 ----
-openjdk version "1.8.0_312"
-OpenJDK Runtime Environment (build 1.8.0_312-b10)
-OpenJDK 64-Bit Server VM (build 25.312-b10, mixed mode)
+openjdk version "11.0.15" 2022-04-19
+OpenJDK Runtime Environment Homebrew (build 11.0.15+0)
+OpenJDK 64-Bit Server VM Homebrew (build 11.0.15+0, mixed mode)
 ----
 
 === the samples project

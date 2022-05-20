@@ -50,8 +50,8 @@ import java.util.List;
 @Transform(
     id = "ConcatFields",
     image = "concatfields.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.ConcatFields",
-    description = "i18n::BaseTransform.TypeTooltipDesc.ConcatFields",
+    name = "i18n::ConcatFields.Name",
+    description = "i18n::ConcatFields.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::ConcatFieldsMeta.keyword",
     documentationUrl = "/pipeline/transforms/concatfields.html")

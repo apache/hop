@@ -47,8 +47,8 @@ import java.util.List;
 @Transform(
     id = "SortedMerge",
     image = "sortedmerge.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.SortedMerge",
-    description = "i18n::BaseTransform.TypeTooltipDesc.SortedMerge",
+    name = "i18n::SortedMerge.Name",
+    description = "i18n::SortedMerge.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SortedMergeMeta.keyword",
     documentationUrl = "/pipeline/transforms/sortedmerge.html")

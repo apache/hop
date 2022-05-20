@@ -75,6 +75,8 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
   private CTabFolder wTabFolder;
 
   private TextVar wBootstrapServers;
+  private final int middle = props.getMiddlePct();
+  private final int margin = props.getMargin();
 
   public KafkaProducerOutputDialog(
       Shell parent,
@@ -111,6 +113,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, 0);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
     wlTransformName.setLayoutData(fdlTransformName);
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -118,9 +121,9 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     props.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(0, 0);
+    fdTransformName.left = new FormAttachment(wlTransformName, margin);
     fdTransformName.right = new FormAttachment(100, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 5);
+    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
     wTransformName.setLayoutData(fdTransformName);
 
     Label topSeparator = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
@@ -185,58 +188,58 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     setupLayout.marginWidth = 15;
     wSetupComp.setLayout(setupLayout);
 
-    Label wlBootstrapServers = new Label(wSetupComp, SWT.LEFT);
+    Label wlBootstrapServers = new Label(wSetupComp, SWT.RIGHT);
     props.setLook(wlBootstrapServers);
     wlBootstrapServers.setText(
         BaseMessages.getString(PKG, "KafkaProducerOutputDialog.BootstrapServers"));
     FormData fdlBootstrapServers = new FormData();
     fdlBootstrapServers.left = new FormAttachment(0, 0);
     fdlBootstrapServers.top = new FormAttachment(0, 0);
-    fdlBootstrapServers.right = new FormAttachment(100, 0);
+    fdlBootstrapServers.right = new FormAttachment(middle, -margin);
     wlBootstrapServers.setLayoutData(fdlBootstrapServers);
 
     wBootstrapServers = new TextVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wBootstrapServers);
     wBootstrapServers.addModifyListener(lsMod);
     FormData fdBootstrapServers = new FormData();
-    fdBootstrapServers.left = new FormAttachment(0, 0);
-    fdBootstrapServers.top = new FormAttachment(wlBootstrapServers, props.getMargin());
+    fdBootstrapServers.left = new FormAttachment(wlBootstrapServers, margin);
+    fdBootstrapServers.top = new FormAttachment(wlBootstrapServers, 0, SWT.CENTER);
     fdBootstrapServers.right = new FormAttachment(100, 0);
     wBootstrapServers.setLayoutData(fdBootstrapServers);
 
-    Label wlClientId = new Label(wSetupComp, SWT.LEFT);
+    Label wlClientId = new Label(wSetupComp, SWT.RIGHT);
     props.setLook(wlClientId);
     wlClientId.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.ClientId"));
     FormData fdlClientId = new FormData();
     fdlClientId.left = new FormAttachment(0, 0);
-    fdlClientId.top = new FormAttachment(wBootstrapServers, 2 * props.getMargin());
-    fdlClientId.right = new FormAttachment(100, 0);
+    fdlClientId.top = new FormAttachment(wBootstrapServers, margin);
+    fdlClientId.right = new FormAttachment(middle, -margin);
     wlClientId.setLayoutData(fdlClientId);
 
     wClientId = new TextVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wClientId);
     wClientId.addModifyListener(lsMod);
     FormData fdClientId = new FormData();
-    fdClientId.left = new FormAttachment(0, 0);
-    fdClientId.top = new FormAttachment(wlClientId, props.getMargin());
+    fdClientId.left = new FormAttachment(wlClientId, margin);
+    fdClientId.top = new FormAttachment(wlClientId, 0, SWT.CENTER);
     fdClientId.right = new FormAttachment(100, 0);
     wClientId.setLayoutData(fdClientId);
 
-    Label wlTopic = new Label(wSetupComp, SWT.LEFT);
+    Label wlTopic = new Label(wSetupComp, SWT.RIGHT);
     props.setLook(wlTopic);
     wlTopic.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.Topic"));
     FormData fdlTopic = new FormData();
     fdlTopic.left = new FormAttachment(0, 0);
-    fdlTopic.top = new FormAttachment(wClientId, 2 * props.getMargin());
-    fdlTopic.right = new FormAttachment(100, 0);
+    fdlTopic.top = new FormAttachment(wClientId, margin);
+    fdlTopic.right = new FormAttachment(middle, -margin);
     wlTopic.setLayoutData(fdlTopic);
 
     wTopic = new ComboVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTopic);
     wTopic.addModifyListener(lsMod);
     FormData fdTopic = new FormData();
-    fdTopic.left = new FormAttachment(0, 0);
-    fdTopic.top = new FormAttachment(wlTopic, props.getMargin());
+    fdTopic.left = new FormAttachment(wlTopic, margin);
+    fdTopic.top = new FormAttachment(wlTopic, 0, SWT.CENTER);
     fdTopic.right = new FormAttachment(100, 0); // 60% of dialog width
     wTopic.setLayoutData(fdTopic);
     wTopic
@@ -255,21 +258,21 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
               kafkaDialogHelper.clusterNameChanged(event);
             });
 
-    Label wlKeyField = new Label(wSetupComp, SWT.LEFT);
+    Label wlKeyField = new Label(wSetupComp, SWT.RIGHT);
     props.setLook(wlKeyField);
     wlKeyField.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.KeyField"));
     FormData fdlKeyField = new FormData();
     fdlKeyField.left = new FormAttachment(0, 0);
-    fdlKeyField.top = new FormAttachment(wTopic, 2 * props.getMargin());
-    fdlKeyField.right = new FormAttachment(100, 0);
+    fdlKeyField.top = new FormAttachment(wTopic, margin);
+    fdlKeyField.right = new FormAttachment(middle, -margin);
     wlKeyField.setLayoutData(fdlKeyField);
 
     wKeyField = new ComboVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wKeyField);
     wKeyField.addModifyListener(lsMod);
     FormData fdKeyField = new FormData();
-    fdKeyField.left = new FormAttachment(0, 0);
-    fdKeyField.top = new FormAttachment(wlKeyField, props.getMargin());
+    fdKeyField.left = new FormAttachment(wlKeyField, margin);
+    fdKeyField.top = new FormAttachment(wlKeyField, 0, SWT.CENTER);
     fdKeyField.right = new FormAttachment(100, 0);
     wKeyField.setLayoutData(fdKeyField);
     Listener lsKeyFocus =
@@ -277,21 +280,21 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
             KafkaDialogHelper.populateFieldsList(variables, pipelineMeta, wKeyField, transformName);
     wKeyField.getCComboWidget().addListener(SWT.FocusIn, lsKeyFocus);
 
-    Label wlMessageField = new Label(wSetupComp, SWT.LEFT);
+    Label wlMessageField = new Label(wSetupComp, SWT.RIGHT);
     props.setLook(wlMessageField);
     wlMessageField.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.MessageField"));
     FormData fdlMessageField = new FormData();
     fdlMessageField.left = new FormAttachment(0, 0);
-    fdlMessageField.top = new FormAttachment(wKeyField, 2 * props.getMargin());
-    fdlMessageField.right = new FormAttachment(100, 0);
+    fdlMessageField.top = new FormAttachment(wKeyField, margin);
+    fdlMessageField.right = new FormAttachment(middle, -margin);
     wlMessageField.setLayoutData(fdlMessageField);
 
     wMessageField = new ComboVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wMessageField);
     wMessageField.addModifyListener(lsMod);
     FormData fdMessageField = new FormData();
-    fdMessageField.left = new FormAttachment(0, 0);
-    fdMessageField.top = new FormAttachment(wlMessageField, props.getMargin());
+    fdMessageField.left = new FormAttachment(wlMessageField, margin);
+    fdMessageField.top = new FormAttachment(wlMessageField, 0, SWT.CENTER);
     fdMessageField.right = new FormAttachment(100, 0);
     wMessageField.setLayoutData(fdMessageField);
     Listener lsMessageFocus =

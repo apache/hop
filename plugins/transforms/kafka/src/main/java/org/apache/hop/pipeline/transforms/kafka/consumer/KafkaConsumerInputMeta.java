@@ -39,10 +39,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
@@ -402,7 +400,6 @@ public class KafkaConsumerInputMeta
     return newClone;
   }
 
-
   @Override
   public void getFields(
       IRowMeta rowMeta,
@@ -433,19 +430,18 @@ public class KafkaConsumerInputMeta
                 });
       }
 
-      // Check if we get called from error path and only in that case, show fields that will dump the
+      // Check if we get called from error path and only in that case, show fields that will dump
+      // the
       // record coming from the kafka queue.
       TransformErrorMeta transformErrorMeta = getParentTransformMeta().getTransformErrorMeta();
-      if (transformErrorMeta != null && transformErrorMeta.getTargetTransform().getName().equals(nextTransform.getName())) {
+      if (transformErrorMeta != null
+          && transformErrorMeta.getTargetTransform().getName().equals(nextTransform.getName())) {
         rowMeta.addValueMeta(createValueMetaString(getKeyField().getOutputName()));
         rowMeta.addValueMeta(createValueMetaString(getMessageField().getOutputName()));
         rowMeta.addValueMeta(createValueMetaString(getTopicField().getOutputName()));
-        rowMeta.addValueMeta(
-            createValueMetaInteger(getPartitionField().getOutputName()));
-        rowMeta.addValueMeta(
-            createValueMetaInteger(getOffsetField().getOutputName()));
-        rowMeta.addValueMeta(
-            createValueMetaInteger(getTimestampField().getOutputName()));
+        rowMeta.addValueMeta(createValueMetaInteger(getPartitionField().getOutputName()));
+        rowMeta.addValueMeta(createValueMetaInteger(getOffsetField().getOutputName()));
+        rowMeta.addValueMeta(createValueMetaInteger(getTimestampField().getOutputName()));
       }
     } catch (HopException e) {
       getLog().logDebug("could not get fields, probable AEL");
@@ -541,7 +537,9 @@ public class KafkaConsumerInputMeta
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   @Override
   public void setFilename(String filename) {
     this.filename = filename;
@@ -556,7 +554,9 @@ public class KafkaConsumerInputMeta
     return batchSize;
   }
 
-  /** @param batchSize The batchSize to set */
+  /**
+   * @param batchSize The batchSize to set
+   */
   public void setBatchSize(String batchSize) {
     this.batchSize = batchSize;
   }
@@ -570,7 +570,9 @@ public class KafkaConsumerInputMeta
     return batchDuration;
   }
 
-  /** @param batchDuration The batchDuration to set */
+  /**
+   * @param batchDuration The batchDuration to set
+   */
   public void setBatchDuration(String batchDuration) {
     this.batchDuration = batchDuration;
   }
@@ -601,7 +603,9 @@ public class KafkaConsumerInputMeta
     return directBootstrapServers;
   }
 
-  /** @param directBootstrapServers The directBootstrapServers to set */
+  /**
+   * @param directBootstrapServers The directBootstrapServers to set
+   */
   public void setDirectBootstrapServers(String directBootstrapServers) {
     this.directBootstrapServers = directBootstrapServers;
   }
@@ -615,7 +619,9 @@ public class KafkaConsumerInputMeta
     return topics;
   }
 
-  /** @param topics The topics to set */
+  /**
+   * @param topics The topics to set
+   */
   public void setTopics(List<String> topics) {
     this.topics = topics;
   }
@@ -629,7 +635,9 @@ public class KafkaConsumerInputMeta
     return consumerGroup;
   }
 
-  /** @param consumerGroup The consumerGroup to set */
+  /**
+   * @param consumerGroup The consumerGroup to set
+   */
   public void setConsumerGroup(String consumerGroup) {
     this.consumerGroup = consumerGroup;
   }
@@ -643,7 +651,9 @@ public class KafkaConsumerInputMeta
     return keyField;
   }
 
-  /** @param keyField The keyField to set */
+  /**
+   * @param keyField The keyField to set
+   */
   public void setKeyField(KafkaConsumerField keyField) {
     this.keyField = keyField;
   }
@@ -657,7 +667,9 @@ public class KafkaConsumerInputMeta
     return messageField;
   }
 
-  /** @param messageField The messageField to set */
+  /**
+   * @param messageField The messageField to set
+   */
   public void setMessageField(KafkaConsumerField messageField) {
     this.messageField = messageField;
   }
@@ -671,7 +683,9 @@ public class KafkaConsumerInputMeta
     return injectedConfigNames;
   }
 
-  /** @param injectedConfigNames The injectedConfigNames to set */
+  /**
+   * @param injectedConfigNames The injectedConfigNames to set
+   */
   public void setInjectedConfigNames(List<String> injectedConfigNames) {
     this.injectedConfigNames = injectedConfigNames;
   }
@@ -685,7 +699,9 @@ public class KafkaConsumerInputMeta
     return injectedConfigValues;
   }
 
-  /** @param injectedConfigValues The injectedConfigValues to set */
+  /**
+   * @param injectedConfigValues The injectedConfigValues to set
+   */
   public void setInjectedConfigValues(List<String> injectedConfigValues) {
     this.injectedConfigValues = injectedConfigValues;
   }
@@ -699,7 +715,9 @@ public class KafkaConsumerInputMeta
     return topicField;
   }
 
-  /** @param topicField The topicField to set */
+  /**
+   * @param topicField The topicField to set
+   */
   public void setTopicField(KafkaConsumerField topicField) {
     this.topicField = topicField;
   }
@@ -713,7 +731,9 @@ public class KafkaConsumerInputMeta
     return offsetField;
   }
 
-  /** @param offsetField The offsetField to set */
+  /**
+   * @param offsetField The offsetField to set
+   */
   public void setOffsetField(KafkaConsumerField offsetField) {
     this.offsetField = offsetField;
   }
@@ -727,7 +747,9 @@ public class KafkaConsumerInputMeta
     return partitionField;
   }
 
-  /** @param partitionField The partitionField to set */
+  /**
+   * @param partitionField The partitionField to set
+   */
   public void setPartitionField(KafkaConsumerField partitionField) {
     this.partitionField = partitionField;
   }
@@ -741,7 +763,9 @@ public class KafkaConsumerInputMeta
     return timestampField;
   }
 
-  /** @param timestampField The timestampField to set */
+  /**
+   * @param timestampField The timestampField to set
+   */
   public void setTimestampField(KafkaConsumerField timestampField) {
     this.timestampField = timestampField;
   }
@@ -755,7 +779,9 @@ public class KafkaConsumerInputMeta
     return autoCommit;
   }
 
-  /** @param autoCommit The autoCommit to set */
+  /**
+   * @param autoCommit The autoCommit to set
+   */
   public void setAutoCommit(boolean autoCommit) {
     this.autoCommit = autoCommit;
   }

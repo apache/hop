@@ -19,10 +19,6 @@ package org.apache.hop.core.logging;
 
 import org.apache.hop.core.metrics.MetricsSnapshotType;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-
 public class Metrics implements IMetrics {
 
   // Database
@@ -211,5 +207,4 @@ public class Metrics implements IMetrics {
 
     return ((IMetrics) obj).getCode().equalsIgnoreCase(code);
   }
-
 }

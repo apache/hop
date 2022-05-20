@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.salesforce;
 
+import com.google.common.primitives.Ints;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -27,9 +28,9 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+
 import java.util.Calendar;
 import java.util.TimeZone;
-import com.google.common.primitives.Ints;
 
 public abstract class SalesforceTransform<Meta extends SalesforceTransformMeta, Data extends SalesforceTransformData> extends BaseTransform<Meta, Data> {
 

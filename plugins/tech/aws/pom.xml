@@ -35,7 +35,7 @@
     <properties>
         <!-- Third-party dependencies -->
         <slf4j-api.version>1.7.32</slf4j-api.version>
-        <guava.version>31.0.1-jre</guava.version>
+        <guava.version>31.1-jre</guava.version>
 
         <!-- Test dependencies -->
         <mockito.version>1.10.19</mockito.version>

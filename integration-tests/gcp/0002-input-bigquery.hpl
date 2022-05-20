@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0002-input-bigquery</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2022/05/17 15:06:32.277</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2022/05/17 15:06:32.277</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+    <notepad>
+      <note>                          This truncates table 'customers'</note>
+      <xloc>368</xloc>
+      <yloc>96</yloc>
+      <width>272</width>
+      <heigth>28</heigth>
+      <fontname>Noto Sans</fontname>
+      <fontsize>12</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>200</fontcolorred>
+      <fontcolorgreen>231</fontcolorgreen>
+      <fontcolorblue>250</fontcolorblue>
+      <backgroundcolorred>15</backgroundcolorred>
+      <backgroundcolorgreen>136</backgroundcolorgreen>
+      <backgroundcolorblue>210</backgroundcolorblue>
+      <bordercolorred>200</bordercolorred>
+      <bordercolorgreen>231</bordercolorgreen>
+      <bordercolorblue>250</bordercolorblue>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>customers</from>
+      <to>apache-hop.it.customers</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>apache-hop.it.customers</name>
+    <type>BeamBQOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <create_if_needed>Y</create_if_needed>
+    <dataset_id>it</dataset_id>
+    <fail_if_not_empty>N</fail_if_not_empty>
+    <project_id>apache-hop</project_id>
+    <table_id>customers</table_id>
+    <truncate_table>Y</truncate_table>
+    <attributes/>
+    <GUI>
+      <xloc>368</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>customers</name>
+    <type>BeamInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name>customers</file_description_name>
+    <input_location>gs://apache-hop-it/input/customers-noheader-1M.txt</input_location>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

@@ -51,8 +51,8 @@ import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
 @Transform(
     id = "ReplaceString",
     image = "replaceinstring.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.ReplaceString",
-    description = "i18n::BaseTransform.TypeTooltipDesc.ReplaceString",
+    name = "i18n::ReplaceString.Name",
+    description = "i18n::ReplaceString.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::ReplaceStringMeta.keyword",
     documentationUrl = "/pipeline/transforms/replacestring.html")

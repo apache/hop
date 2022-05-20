@@ -52,6 +52,7 @@
         <include>com.github.javafaker:javafaker:jar</include>
         <include>org.yaml:snakeyaml:jar</include>
         <include>com.github.mifmif:generex:jar</include>
+        <include>dk.brics.automaton:automaton:jar</include>
       </includes>
     </dependencySet>
   </dependencySets>

@@ -163,6 +163,9 @@ public class PipelinePreviewProgressDialog {
 
       // It makes no sense to continue, so just stop running...
       //
+      if (!progressMonitor.isCanceled()) {
+          progressMonitor.done();
+        }
       return;
     }
 

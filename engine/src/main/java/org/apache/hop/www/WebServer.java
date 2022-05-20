@@ -419,12 +419,16 @@ public class WebServer {
     return isValid;
   }
 
-  /** @return the hostname */
+  /**
+   * @return the hostname
+   */
   public String getHostname() {
     return hostname;
   }
 
-  /** @param hostname the hostname to set */
+  /**
+   * @param hostname the hostname to set
+   */
   public void setHostname(String hostname) {
     this.hostname = hostname;
   }
@@ -482,7 +486,9 @@ public class WebServer {
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }

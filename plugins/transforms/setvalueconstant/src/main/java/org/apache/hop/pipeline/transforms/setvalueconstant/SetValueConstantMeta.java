@@ -45,8 +45,8 @@ import java.util.List;
 @Transform(
     id = "SetValueConstant",
     image = "setvalueconstant.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.SetValueConstant",
-    description = "i18n::BaseTransform.TypeTooltipDesc.SetValueConstant",
+    name = "i18n::SetValueConstant.Name",
+    description = "i18n::SetValueConstant.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SetValueConstantMeta.keyword",
     documentationUrl = "/pipeline/transforms/setvalueconstant.html")

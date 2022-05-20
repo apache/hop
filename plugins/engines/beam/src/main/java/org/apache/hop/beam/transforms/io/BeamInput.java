@@ -21,7 +21,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class BeamInput extends BaseTransform<BeamInputMeta, BeamInputData> {
@@ -31,8 +30,9 @@ public class BeamInput extends BaseTransform<BeamInputMeta, BeamInputData> {
    * class to implement your own transforms.
    *
    * @param transformMeta The TransformMeta object to run.
-   * @param transformDataInterface the data object to store temporary data, database connections,
-   *     caches, result sets, hashtables etc.
+   * @param meta the meta object containing all metadata
+   * @param data the data object to store temporary data, database connections, caches, result sets,
+   *     hashtables etc.
    * @param copyNr The copynumber for this transform.
    * @param pipelineMeta The TransInfo of which the transform transformMeta is part of.
    * @param pipeline The (running) transformation to obtain information shared among the transforms.

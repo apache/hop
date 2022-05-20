@@ -42,8 +42,8 @@ import java.util.List;
 @Transform(
     id = "RandomValue",
     image = "randomvalue.svg",
-    name = "i18n::BaseTransform.TypeTooltipDesc.RandomValue",
-    description = "i18n::BaseTransform.TypeLongDesc.RandomValue",
+    name = "i18n::RandomValue.Name",
+    description = "i18n::RandomValue.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::RandomValueMeta.keyword",
     documentationUrl = "/pipeline/transforms/generaterandomvalue.html")

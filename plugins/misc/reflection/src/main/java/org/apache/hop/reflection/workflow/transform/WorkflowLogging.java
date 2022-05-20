@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+
 import java.util.List;
 
 public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, WorkflowLoggingData> {

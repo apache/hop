@@ -22,7 +22,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.workflow.actions.getpop.MailConnection;
 
-import javax.mail.Message;
+import jakarta.mail.Message;
 import java.util.Iterator;
 
 public class MailInputData extends BaseTransformData implements ITransformData {

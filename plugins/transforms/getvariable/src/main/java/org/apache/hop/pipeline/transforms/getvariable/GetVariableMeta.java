@@ -50,8 +50,8 @@ import java.util.List;
 @Transform(
     id = "GetVariable",
     image = "getvariable.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.GetVariable",
-    description = "i18n::BaseTransform.TypeTooltipDesc.GetVariable",
+    name = "i18n::GetVariable.Name",
+    description = "i18n::GetVariable.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     keywords = "i18n::GetVariableMeta.keyword",
     documentationUrl = "/pipeline/transforms/getvariable.html")

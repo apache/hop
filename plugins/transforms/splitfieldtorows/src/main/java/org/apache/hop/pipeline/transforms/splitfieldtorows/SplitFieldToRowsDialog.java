@@ -51,7 +51,6 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
   private Label wlInclRownumField;
   private TextVar wInclRownumField;
 
-  private Label wlResetRownum;
   private Button wResetRownum;
 
   private final SplitFieldToRowsMeta input;
@@ -178,7 +177,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
     props.setLook(wlDelimiterIsRegex);
     FormData fdlDelimiterIsRegex = new FormData();
     fdlDelimiterIsRegex.left = new FormAttachment(0, 0);
-    fdlDelimiterIsRegex.top = new FormAttachment(wDelimiter);
+    fdlDelimiterIsRegex.top = new FormAttachment(wDelimiter, margin);
     fdlDelimiterIsRegex.right = new FormAttachment(middle, -margin);
     wlDelimiterIsRegex.setLayoutData(fdlDelimiterIsRegex);
     wDelimiterIsRegex = new Button(shell, SWT.CHECK);
@@ -275,20 +274,14 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
     fdInclRownumField.right = new FormAttachment(100, 0);
     wInclRownumField.setLayoutData(fdInclRownumField);
 
-    wlResetRownum = new Label(wAdditionalFields, SWT.RIGHT);
-    wlResetRownum.setText(BaseMessages.getString(PKG, "SplitFieldToRowsDialog.ResetRownum.Label"));
-    props.setLook(wlResetRownum);
-    FormData fdlResetRownum = new FormData();
-    fdlResetRownum.left = new FormAttachment(wInclRownum, margin);
-    fdlResetRownum.top = new FormAttachment(wInclRownumField, margin);
-    wlResetRownum.setLayoutData(fdlResetRownum);
     wResetRownum = new Button(wAdditionalFields, SWT.CHECK);
+    wResetRownum.setText(BaseMessages.getString(PKG, "SplitFieldToRowsDialog.ResetRownum.Label"));
     props.setLook(wResetRownum);
     wResetRownum.setToolTipText(
         BaseMessages.getString(PKG, "SplitFieldToRowsDialog.ResetRownum.Tooltip"));
     fdRownum = new FormData();
-    fdRownum.left = new FormAttachment(wlResetRownum, margin);
-    fdRownum.top = new FormAttachment(wlResetRownum, 0, SWT.CENTER);
+    fdRownum.left = new FormAttachment(wlInclRownum, margin);
+    fdRownum.top = new FormAttachment(wInclRownumField, margin);
     wResetRownum.setLayoutData(fdRownum);
     wResetRownum.addSelectionListener(new ComponentSelectionListener(input));
 
@@ -315,7 +308,6 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
   public void setIncludeRownum() {
     wlInclRownumField.setEnabled(wInclRownum.getSelection());
     wInclRownumField.setEnabled(wInclRownum.getSelection());
-    wlResetRownum.setEnabled(wInclRownum.getSelection());
     wResetRownum.setEnabled(wInclRownum.getSelection());
   }
 

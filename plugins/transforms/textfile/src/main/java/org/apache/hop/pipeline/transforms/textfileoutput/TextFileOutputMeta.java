@@ -38,10 +38,8 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -55,8 +53,8 @@ import java.util.Map;
 @Transform(
     id = "TextFileOutput",
     image = "textfileoutput.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.TextFileOutput",
-    description = "i18n::BaseTransform.TypeTooltipDesc.TextFileOutput",
+    name = "i18n::TextFileOutput.Name",
+    description = "i18n::TextFileOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::TextFileOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/textfileoutput.html")
@@ -380,7 +378,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
    * @return Returns the splitEvery.
    * @deprecated use {@link #getSplitEvery(IVariables)} or {@link #getSplitEveryRows()}
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   public int getSplitEvery() {
     return Const.toInt(splitEveryRows, 0);
   }
@@ -412,7 +410,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
    * @param splitEvery The splitEvery to set.
    * @deprecated use {@link #setSplitEveryRows(String)}
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   public void setSplitEvery(int splitEvery) {
     splitEveryRows = Integer.toString(splitEvery);
   }

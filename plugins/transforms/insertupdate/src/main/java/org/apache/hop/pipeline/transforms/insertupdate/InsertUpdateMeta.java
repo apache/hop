@@ -33,11 +33,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
 
@@ -47,13 +45,13 @@ import java.util.List;
 @Transform(
     id = "InsertUpdate",
     image = "insertupdate.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.InsertUpdate",
-    description = "i18n::BaseTransform.TypeTooltipDesc.InsertUpdate",
+    name = "i18n::InsertUpdate.Name",
+    description = "i18n::InsertUpdate.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::InsertUpdateMeta.keyword",
     documentationUrl = "/pipeline/transforms/insertupdate.html")
 public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpdateData>
-  implements IProvidesModelerMeta {
+    implements IProvidesModelerMeta {
   private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
 
   private IHopMetadataProvider metadataProvider;
@@ -100,7 +98,9 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
     return null;
   }
 
-  /** @return Returns the commitSize. */
+  /**
+   * @return Returns the commitSize.
+   */
   public String getCommitSize() {
     return commitSize;
   }
@@ -116,7 +116,9 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
     return Integer.parseInt(vs.resolve(commitSize));
   }
 
-  /** @param commitSize The commitSize to set. */
+  /**
+   * @param commitSize The commitSize to set.
+   */
   public void setCommitSize(String commitSize) {
     this.commitSize = commitSize;
   }
@@ -148,13 +150,17 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
     return updateStreamFields;
   }
 
-  /** @return Returns the tableName. */
+  /**
+   * @return Returns the tableName.
+   */
   @Override
   public String getTableName() {
     return insertUpdateLookupField.getTableName();
   }
 
-  /** @return Returns the tableName. */
+  /**
+   * @return Returns the tableName.
+   */
   @Override
   public String getSchemaName() {
     return insertUpdateLookupField.getSchemaName();
@@ -437,8 +443,9 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
 
     String connectionName = variables.resolve(connection);
 
-    if ( StringUtils.isEmpty(connectionName)) {
-      sqlStatement.setError(BaseMessages.getString(PKG, "InsertUpdateMeta.ReturnValue.NoConnectionDefined"));
+    if (StringUtils.isEmpty(connectionName)) {
+      sqlStatement.setError(
+          BaseMessages.getString(PKG, "InsertUpdateMeta.ReturnValue.NoConnectionDefined"));
       return sqlStatement;
     }
 
@@ -521,7 +528,8 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
           }
 
           // Key lookup dimensions...
-          if (idxFields != null && !db.checkIndexExists(
+          if (idxFields != null
+              && !db.checkIndexExists(
                   variables.resolve(insertUpdateLookupField.getSchemaName()),
                   variables.resolve(insertUpdateLookupField.getTableName()),
                   idxFields)) {
@@ -619,12 +627,16 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
     }
   }
 
-  /** @return Returns the updateBypassed. */
+  /**
+   * @return Returns the updateBypassed.
+   */
   public boolean isUpdateBypassed() {
     return updateBypassed;
   }
 
-  /** @param updateBypassed The updateBypassed to set. */
+  /**
+   * @param updateBypassed The updateBypassed to set.
+   */
   public void setUpdateBypassed(boolean updateBypassed) {
     this.updateBypassed = updateBypassed;
   }

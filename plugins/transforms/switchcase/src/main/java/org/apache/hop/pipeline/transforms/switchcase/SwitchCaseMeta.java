@@ -30,7 +30,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
@@ -42,8 +45,8 @@ import java.util.List;
 @Transform(
     id = "SwitchCase",
     image = "switchcase.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.SwitchCase",
-    description = "i18n::BaseTransform.TypeTooltipDesc.SwitchCase",
+    name = "i18n::SwitchCase.Name",
+    description = "i18n::SwitchCase.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::SwitchCaseMeta.keyword",
     documentationUrl = "/pipeline/transforms/switchcase.html")

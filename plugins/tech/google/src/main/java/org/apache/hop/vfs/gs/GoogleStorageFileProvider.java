@@ -21,15 +21,13 @@ package org.apache.hop.vfs.gs;
 import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
 
 public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
 
   public static final Collection<Capability> capabilities =
-      Collections.unmodifiableCollection(
-          Arrays.asList(
+      Set.of(
               Capability.CREATE,
               Capability.DELETE,
               Capability.GET_TYPE,
@@ -39,7 +37,7 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
               Capability.LIST_CHILDREN,
               Capability.READ_CONTENT,
               Capability.URI,
-              Capability.WRITE_CONTENT));
+              Capability.WRITE_CONTENT);
 
   @Override
   public Collection<Capability> getCapabilities() {

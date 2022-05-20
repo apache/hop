@@ -33,9 +33,11 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
@@ -48,8 +50,8 @@ import java.util.List;
 @Transform(
     id = "StreamLookup",
     image = "streamlookup.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.StreamLookup",
-    description = "i18n::BaseTransform.TypeTooltipDesc.StreamLookup",
+    name = "i18n::StreamLookup.Name",
+    description = "i18n::StreamLookup.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::StreamLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/streamlookup.html")

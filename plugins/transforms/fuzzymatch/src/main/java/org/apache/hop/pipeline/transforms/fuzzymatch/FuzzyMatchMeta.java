@@ -34,7 +34,10 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
@@ -46,8 +49,8 @@ import java.util.List;
 @Transform(
     id = "FuzzyMatch",
     image = "fuzzymatch.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.FuzzyMatch",
-    description = "i18n::BaseTransform.TypeTooltipDesc.FuzzyMatch",
+    name = "i18n::FuzzyMatch.Name",
+    description = "i18n::FuzzyMatch.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::FuzzyMatchMeta.keyword",
     documentationUrl = "/pipeline/transforms/fuzzymatch.html")

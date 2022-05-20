@@ -37,7 +37,7 @@ TIP: Lists also works on numeric values like integers. In this case, the list of
 [width="90%",options="header"]
 |===
 |Option|Description
-|transform name|Optionally, you can change the name of this transform to fit your needs.
+|Transform name|Optionally, you can change the name of this transform to fit your needs.
 |Send 'true' data to transform|The rows for which the condition specified is true are sent to this transform
 |Send 'false' data to transform|The rows for which the condition specified are false are sent to this transform
 |The Condition|

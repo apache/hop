@@ -1,0 +1,31 @@
+{
+  "variables" : [ {
+    "name" : "MAIL_TO",
+    "value" : "roadrunner@acme.be",
+    "description" : "Target mail address"
+  }, {
+    "name" : "MAIL_SENDER_NAME",
+    "value" : "Wile E. Coyote",
+    "description" : "The person sending the mail"
+  }, {
+    "name" : "MAIL_SENDER_ADDRESS",
+    "value" : "wile.e.coyote@acme.com",
+    "description" : "The sender's mail address"
+  }, {
+    "name" : "MAIL_SMTP_SERVER",
+    "value" : "mailhog",
+    "description" : "The server address (link in docker file)"
+  }, {
+    "name" : "MAIL_SMTP_PORT",
+    "value" : "1025",
+    "description" : "The server port to use"
+  }, {
+    "name" : "MAIL_MESSAGE",
+    "value" : "Dear Mr. Roadrunner, \n\nas we talked about in our phone call yesterday, please meet me at the agreed upon location later today at 4pm at the bottom of the cliff. \nFor your convenience there will be a large X marked on the road so you know where you need to be.\n\nI'm looking forward to seeing you then to handle our past disagreements.\n\nKind regards,\n\nMr. Wile E. Coyote\n",
+    "description" : "The message to send"
+  }, {
+    "name" : "MAIL_SUBJECT",
+    "value" : "Appointment confirmation",
+    "description" : "The subject"
+  } ]
+}

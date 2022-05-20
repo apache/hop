@@ -1,0 +1,3161 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Formula transform allows you to apply Excel-like formulas and functions on fields in a pipeline.
+
+:openvar: {
+:closevar: }
+
+:toc: macro
+
+= Formula
+
+== Description
+
+The Formula transform allows you to apply Excel-like formulas and functions on fields in a pipeline.
+
+== Options
+
+[width="90%",options="header"]
+|===
+|Option|Description
+|transform name|Change the name of this transform to explain the purpose of the formula fields you're adding.
+|New Field|the name of the new field that will be created from the formula
+|Formula|the formula that will be used to create the new field. Click on the field to open the Formula Editor (see the Formula Editor section for more details).
+|Value type|the data type for the new formula field
+|Length|field length
+|Precision|field precision
+|Replace|select a pipeline field from the dropdown to replace that field's value with the formula result.
+|===
+
+== Formula Editor
+
+The Formula Editor is opened when you click on the Formula field in the options table (or go there through tab navigation).
+
+The Formula Editor consists of three main areas:
+
+* the formula list (left hand side) shows a categorized list of functions that are available for use. Click on a formula to open it's description, syntax and example formulas in the documentation panel.
+* documentation panel (lower right) shows the documentation for the selected formula. The information shown in this panel consists of a formula's
+** name
+** description
+** syntax
+** return type
+** constraints (optional)
+** semantics (optional)
+** examples (optional)
+
+TIP: Check the Apache POI docs page for a https://poi.apache.org/components/spreadsheet/eval-devguide.html#What+functions+are+supported[list of support formulas^].
+
+toc::[]
+
+== Functions
+
+=== Basic Computation
+
+==== %
+
+[width="90%"]
+|===
+|*description*|Percentage calculation, for example 12% resolves to 0.12
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+==== (
+
+[width="90%"]
+|===
+|*description*|Opening bracket to influence calculation order in an expression
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+==== )
+
+[width="90%"]
+|===
+|*description*|Closing bracket to influence calculation order in an expression
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+==== *
+
+[width="90%"]
+|===
+|*description*|Multiply 2 numeric values
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+==== +
+
+[width="90%"]
+|===
+|*description*|Sum of 2 numeric values
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+==== -
+
+[width="90%"]
+|===
+|*description*|Subtract 2 numeric values
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+==== /
+
+[width="90%"]
+|===
+|*description*|Divide 2 numeric values
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+==== ^
+
+[width="90%"]
+|===
+|*description*|Calculates a number to the nth power, for example 2^6 resolves to 64
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+=== Comparisons
+
+==== <
+
+[width="90%"]
+|===
+|*description*|See if one value is less than the other
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+==== <=
+
+[width="90%"]
+|===
+|*description*|See if one value is less than or equal to the other
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+==== <>
+
+[width="90%"]
+|===
+|*description*|See if 2 values are different
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+==== =
+
+[width="90%"]
+|===
+|*description*|Verify that 2 values are equal
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+==== >
+
+[width="90%"]
+|===
+|*description*|See if one value is larger than the other
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+==== >=
+
+[width="90%"]
+|===
+|*description*|See if one value is larger than or equal to the other
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+
+=== DateTime
+
+==== DATE
+
+[width="90%"]
+|===
+|*description*|Construct date from year, month, and day of month.
+|*syntax*|DATE( Integer Year ; Integer Month ; Integer Day )
+|*returns*|Date
+|*semantics*|This computes the date's serial number given Year, Month, and Day. Fractional values are truncated. The value of the serial number depends on the current epoch. Note that some applications may not handle correctly dates before 1904; in particular, many spreadsheets incorrectly claim that 1900 is a leap year (it was not; there was no 1900-02-29).
+|*constraints*|1 <= Month <= 12; 1 <= Day <= 31
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|DATE(2005;1;31)=[.C7] |True|Simple date value.
+|DATE(2005;12;31)-DATE(1904;1;1) |37255|Date differences are computed correctly.
+|DATE(2004;2;29)=DATE(2004;2;28)+1 |True|2004 was a leap year.
+|DATE(2000;2;29)=DATE(2000;2;28)+1 |True|2000 was a leap year.
+|DATE(2005;3;1)=DATE(2005;2;28)+1 |True|2005 was not a leap year.
+|DATE(2017.5; 1; 2)=DATE(2017; 1; 2) |True|Fractional values for year are truncated
+|DATE(2006; 2.5; 3)=DATE(2006; 2; 3) |True|Fractional values for month are truncated
+|DATE(2006; 1; 3.5)=DATE(2006; 1; 3) |True|Fractional values for day are truncated
+|DATE(2006; 13; 3)=DATE(2007; 1; 3) |True|Months > 12 roll over to year
+|DATE(2006; 1; 32)=DATE(2006; 2; 1) |True|Days greater than month limit roll over to month
+|DATE(2006; 25; 34)=DATE(2008;2;3) |True|Days and months roll over transitively
+|DATE(2006;-1; 1)=DATE(2005;11;1) |True|Negative months roll year backward
+|DATE(2006;4;-1)=DATE(2006;3;30) |True|Negative days roll month backward
+|DATE(2006;-4;-1)=DATE(2005;7;30) |True|Negative days and months roll backward transitively
+|DATE(2003;2;29)=DATE(2003;3;1) |True|Non-leap year rolls forward
+|===
+
+==== DATEDIF
+
+[width="90%"]
+|===
+|*description*|Return the number of years, months, or days between two date numbers.
+|*syntax*|DATEDIF( DateParam StartDate ; DateParam EndDate ; Text Format )
+|*returns*|Number
+|*semantics*|Compute difference between StartDate and EndDate, in the units given by Format.
+The Format is a code from the following table, entered as text, that specifies the format you want the result of DATEDIF to have:
+y : Years
+m : Months. If there is not a complete month between the dates, 0 will be returned.
+d : Days
+md : Days, ignoring months and years
+ym : Months, ignoring years
+yd : Days, ignoring years
+
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|DATEDIF(DATE(1990;2;15); DATE(1993;9;15); "y") ||
+|DATEDIF(DATE(1990;2;15); DATE(1993;9;15); "m") |43|The number of months between February 15, 1990, and September 15, 1993.
+|DATEDIF(DATE(1990;2;15); DATE(1993;9;15); "d") ||
+|DATEDIF(DATE(1990;2;15); DATE(1993;9;15); "md") |0|The day of the month for both start-date and end-date is the 15th
+|DATEDIF(DATE(1990;2;15); DATE(1993;9;15); "ym") |7|The number of months between February and September.
+|DATEDIF(DATE(1990;2;15); DATE(1993;9;15); "yd") ||
+|===
+
+==== DATETIMEVALUE
+
+[width="90%"]
+|===
+|*description*|Returns an internal number for a text having a datetime format.
+|*syntax*|DATETIMEVALUE( Text D )
+|*returns*|DateTime
+|*semantics*|This computes the serial number of the text string D, using the current locale. This function acceptS ISO date format (YYYY-MM-DD HH:mm:ss), which is locale-independent.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|DATETIMEVALUE("2004-12-25 12:56:45") |2004-12-25 12:56:45|DATETIMEVALUE
+|===
+
+==== DATEVALUE
+
+[width="90%"]
+|===
+|*description*|Return date serial number from given text
+|*syntax*|DATEVALUE( Text D )
+|*returns*|Date
+|*semantics*|This computes the serial number of the text string D, using the current locale. This function must accept ISO date format (YYYY-MM-DD), which is locale-independent. It is semantically equal VALUE(Date) if Date has a date format, since text matching a date format is automatically converted to a serial number when used as a Number. If the text of D has a combined date and time format, e.g. YYYY-MM-DD HH:MM:SS, the integer part of the date serial number is returned. If the text of Date does not have a date or time format, an implementation may return an error. See VALUE for more information on date formats.
+In an OpenDocument file, the calculation settings table:null-year and table:null-date affect this function.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|DATEVALUE("2004-12-25")=DATE(2004;12;25) |True|DATEVALUE
+|DATEVALUE("2004-12-25 12:34:56")=DATE(2004;12;25) |True|Only the integer part is returned
+|DATEVALUE("2004-12-25 12:34:56") |2004-12-25|Only the date part of the date time is returned
+|===
+
+==== DAY
+
+[width="90%"]
+|===
+|*description*|Returns the day of a date, represented by a serial number. The day is given as an integer ranging from 1 to 31.
+|*syntax*|DAY( DateParam Date )
+|*returns*|Number
+|*semantics*|Returns the day portion of the date.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|DAY(DATE(2006;5;21)) |21|Basic extraction.
+|DAY("2006-12-15") |12|Text allowed too, since it's a DateParam
+|===
+
+==== DAYS
+
+[width="90%"]
+|===
+|*description*|Calculates the number of days between two dates.
+|*syntax*|DAYS( Date endDate; Date startDate )
+|*returns*|Integer
+|*semantics*|Computers the number of days between 2 dates
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|DAYS(DATEVALUE("2004-12-23");DATEVALUE("2004-12-25")) |2|DAYS
+|DAYS(DATEVALUE("2004-12-25");DATEVALUE("2004-12-23")) |-2|DAYS
+|===
+
+==== DAYS360
+
+[width="90%"]
+|===
+|*description*|The DAYS360 function returns the number of days between two dates based on a 360-day year (twelve 30-day months), which is used in some accounting calculations. Use this function to help compute payments if your accounting system is based on twelve 30-day months.
+|*syntax*|DAYS360(start_date,end_date,[method])
+|*returns*|Number
+|*semantics*|Returns the day portion of the date. Method (optional): A logical value that specifies whether to use the U.S. or European method in the calculation. check https://support.microsoft.com/en-us/office/days360-function-b9a509fd-49ef-407e-94df-0cbda5718c2a[the Microsoft docs] for details.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|DAY(DATE(2006;5;21)) |21|Basic extraction.
+|DAY("2006-12-15") |12|Text allowed too, since it's a DateParam
+|===
+
+==== EDATE
+
+[width="90%"]
+|===
+|*description*|Returns the serial number that represents the date that is the indicated number of months before or after a specified date (the start_date). Use EDATE to calculate maturity dates or due dates that fall on the same day of the month as the date of issue.
+|*syntax*|EDATE(start_date, months)
+|*returns*|Date
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|EDATE([DATE_FIELD],1) |15-Feb-22|The date, one month after the date above
+|EDATE([DATE_FIELD],-1) |15-Dec-22|The date, one month before the date above
+|===
+
+==== EOMONTH
+
+[width="90%"]
+|===
+|*description*|Returns the serial number for the last day of the month that is the indicated number of months before or after start_date. Use EOMONTH to calculate maturity dates or due dates that fall on the last day of the month.
+|*syntax*|EOMONTH(start_date, months)
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|EOMONTH([DATE_FIELD]],1) |2/28/2022|Date of the last day of the month, one month after the date in [DATE_FIELD].
+|===
+
+==== HOUR
+
+[width="90%"]
+|===
+|*description*|Extract the hour (0 through 23) from a time.
+|*syntax*|HOUR( TimeParam T )
+|*returns*|Number
+|*semantics*|Semantics: Extract from T the hour value, 0 through 23, as per a 24-hour clock. This is equal to:
+DayFraction=(T-INT(T))
+Hour=INT(DayFraction*24)
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|HOUR(5/24) |5|5/24ths of a day is 5 hours, aka 5AM.
+|HOUR(5/24-1/(24*60*60)) |4|A second before 5AM, it's 4AM.
+|HOUR("14:00") |14|TimeParam accepts text
+|===
+
+==== MINUTE
+
+[width="90%"]
+|===
+|*description*|Determines the sequential number for the minute of the hour (0-59) for the time value.
+|*syntax*|MINUTE( DateTime )
+|*returns*|Integer
+|*semantics*|Returns the sequential number for the minute of the hour
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|MINUTE(DATETIMEVALUE("2004-12-23 12:25:45")) |25|MINUTE
+|===
+
+==== MONTH
+
+[width="90%"]
+|===
+|*description*|Extract the month from a date
+|*syntax*|MONTH( DateParam Date )
+|*returns*|Number
+|*semantics*|Takes a date and returns the month portion.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|MONTH([.C7]) |1|Month extraction from date in cell.
+|MONTH(DATE(2006;5;21)) |5|Month extraction from DATE() value.
+|===
+
+==== MONTHEND
+
+[width="90%"]
+|===
+|*description*|Return the last day of the month.
+|*syntax*|MONTHEND( Date )
+|*returns*|Date
+|*semantics*|Returns the date for the last day of the month
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|MONTHEND(DATEVALUE("2004-12-23")) |2004-12-31|MINUTE
+|===
+
+==== NETWORKDAYS
+
+[width="90%"]
+|===
+|*description*|Returns the number of whole working days between start_date and end_date. Working days exclude weekends and any dates identified in holidays. Use NETWORKDAYS to calculate employee benefits that accrue based on the number of days worked during a specific term.
+|*syntax*|NETWORKDAYS(start_date, end_date, [holidays])
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|NETWORKDAYS([FIELD1],[FIELD2]) |110|Number of workdays between the start (10/1/2021) and end date (3/1/2022).
+|NETWORKDAYS([FIELD1],[FIELD2],[FIELD3]) |109|Number of workdays between the start (10/1/2012) and end date (3/1/2013), with the 11/22/2012 holiday as a non-working day.
+|===
+
+==== NOW
+
+[width="90%"]
+|===
+|*description*|Return the serial number of the current date and time.
+|*syntax*|NOW()
+|*returns*|DateTime
+|*semantics*|This returns the current day and time serial number, using the current locale. If you want only the serial number of the current day, use TODAY.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|NOW()>DATE(2006;1;3) |True|NOW constantly changes, but we know it's beyond this date.
+|INT(NOW())=TODAY() |True|NOW() is part of TODAY(). WARNING: this test is allowed to fail if the locale transitions through midnight while computing this test; this failure is incredibly unlikely to occur in practice.
+|===
+
+==== NPER
+
+[width="90%"]
+|===
+|*description*|Returns the number of periods for an investment based on periodic, constant payments and a constant interest rate.
+|*syntax*|NPER(rate,pmt,pv,[fv],[type])
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|NPER([FIELD1]/12, [FIELD2], [FIELD3], [FIELD4], 1) |59.673865|Periods for the investment with the above terms
+|===
+
+==== PARSEDATE
+
+[width="90%"]
+|===
+|*description*|Parses a date using a SimpleDateFormat format string
+|*syntax*|PARSEDATE( Text date; Text format; Text locale; Text timezone )
+|*returns*|Date
+|*semantics*|This computes the date based on the provided format, locale, and timezone.  If timezone is provided, assumes the date is in UTC and converts the date from UTC to the specified timezone.
+|*constraints*|format must be a valid SimpleDateFormat
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|PARSEDATE("2004/12/25 12:56:45.878";"yyyy/MM/dd HH:mm:ss.SSS") |2004-12-25 12:56:45.878|Simple parse.
+|PARSEDATE("2004-12-25"; "yyyy-MM-dd"; "en"; "MDT" ) |2004-12-24 17:00:00.000|2004/12/25 00:00:00 UTC is 2004-12-24 17:00:00 MDT
+|===
+
+==== PREVWEEKDAY
+
+[width="90%"]
+|===
+|*description*|Return the date of the previous weekday from the current date.
+|*syntax*|PREVWEEKDAY( Integer weekdayDefinition )
+|*returns*|Date
+|*semantics*|weekdayDefinition fixes the start of the weekend and the type of calculation to be used.
+(1 = weekend = saturday + sunday,
+2 = weekend = friday + saturday)
+|*constraints*|weekdayDefinition in values 1 or 2
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|PREVWEEKDAY(1) |2019-05-07|If this were run on 2019-05-08.
+|===
+
+==== SECOND
+
+[width="90%"]
+|===
+|*description*|Determines the sequential number for the second of the minute (0-59) for the time value.
+|*syntax*|SECOND( DateTime )
+|*returns*|Integer
+|*semantics*|Returns the sequential number for the second of the minute
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|SECOND(DATETIMEVALUE("2004-12-23 12:25:45")) |45|MINUTE
+|===
+
+==== TIME
+
+[width="90%"]
+|===
+|*description*|Construct time from hours, minutes, and seconds.
+|*syntax*|TIME( Number hours ; Number minutes ; Number seconds )
+|*returns*|Time
+|*semantics*|Returns the fraction of the day consumed by the given time, i.e.:
+((hours*60*60)+(minutes*60)+seconds)/(24*60*60)
+      Time is a subtype of number, where a time value of 1 = 1 day = 24 hours. Note that the time inside one day is a fraction between 0 and 1, so typical implementations will only be able to compute approximations of the correct time value.
+      Implementations may first perform INT() on the hour, minute, and second before doing the calculation. Therefore, only integer values are portable between implementations. Hours, minutes, and seconds may be arbitrary numbers (they must not be limited to the ranges 0..24, 0..59, or 0..60 respectively).
+      Note that in typical implementations, a value displayed as time has its integer portion discarded and then time is computed; for computational purposes, though, the entire value is retained.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|TIME(0;0;0) |0|All zero arguments becomes midnight, 12:00:00 AM.
+|TIME(23;59;59)*60*60*24 |86399±ε|This is 11:59:59 PM.
+|TIME(11;125;144)*60*60*24 |47244±ε|Seconds and minutes roll over transitively; this is 1:07:24 PM.
+|TIME(11;0; -117)*60*60*24 |39483±ε|Negative seconds roll minutes backwards, 10:58:03 AM
+|TIME(11;-117;0)*60*60*24 |32580±ε|Negative minutes roll hours backwards, 9:03:00 AM
+|TIME(11;-125;-144)*60*60*24 |-31956±ε|Negative seconds and minutes roll backwards transitively, 8:52:36 AM
+|===
+
+==== TIMEVALUE
+
+[width="90%"]
+|===
+|*description*|Returns an internal number for a text having a time format.
+|*syntax*|TIMEVALUE( Text D )
+|*returns*|Integer
+|*semantics*|This computes the serial number of the text string D, using the current locale. This function acceptS ISO time format (HH:mm:ss), which is locale-independent.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|TIMEVALUE("12:56:45") |12:56:45|TIMEVALUE
+|TIMEVALUE("2004-12-25 12:56:45") |12:56:45|TIMEVALUE
+|===
+
+==== TODAY
+
+[width="90%"]
+|===
+|*description*|Return the serial number of today
+|*syntax*|TODAY()
+|*returns*|Date
+|*semantics*|This returns the current day's serial number, using current locale. This only returns the date, not the datetime value; if you need the specific time of day as well, use NOW().
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|TODAY()>DATE(2006;1;3) |True|Every date TODAY() changes, but we know it's beyond this date.
+|INT(TODAY())=TODAY() |True|TODAY() returns an integer. WARNING: this test is allowed to fail if the locale transitions through midnight while computing this test; because TODAY() is referenced twice, in some implementations this would result in a race condition) This is incredibly unlikely to occur in practice.
+|===
+
+==== WEEKDAY
+
+[width="90%"]
+|===
+|*description*|Extract the day of the week from a date; if text, uses current locale to convert to a date.
+|*syntax*|WEEKDAY( DateParam Date [ ; Integer Type = 1 ] )
+|*returns*|Number
+|*semantics*|Returns the day of the week from a date, as a number from 0 through 7. The exact meaning depends on the value of Type:
+1.When Type is 1, Sunday is the first day of the week, with value 1; Saturday has value 7.
+2.When Type is 2, Monday is the first day of the week, with value 1; Sunday has value 7.
+3.When Type is 3, Monday is the first day of the week, with value 0; Sunday has value 6.
+
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|WEEKDAY(DATE(2006;5;21)) |1|Year-month-date format
+|WEEKDAY(DATE(2005;1;1)) |7|Saturday.
+|WEEKDAY(DATE(2005;1;1);1) |7|Saturday.
+|WEEKDAY(DATE(2005;1;1);2) |6|Saturday.
+|WEEKDAY(DATE(2005;1;1);3) |5|Saturday.
+|===
+
+==== WEEKNUM
+
+[width="90%"]
+|===
+|*description*|Returns the week number of a specific date. For example, the week containing January 1 is the first week of the year, and is numbered week 1. There are two systems used for this function:
+
+System 1    The week containing January 1 is the first week of the year, and is numbered week 1.
+
+System 2    The week containing the first Thursday of the year is the first week of the year, and is numbered as week 1. This system is the methodology specified in ISO 8601, which is commonly known as the European week numbering system.
+|*syntax*|WEEKNUM(serial_number,[return_type])
+|*returns*|Integer
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|WEEKNUM("3/9/2012") |10|Number of the week in the year that 3/9/2012 occurs, based on weeks beginning on Sunday (default).
+|WEEKNUM("3/9/2012",2) |11|Number of the week in the year that 3/9/2012 occurs, based on a week beginning on Monday (the second argument, 2).
+|===
+
+==== WORKDAY
+
+[width="90%"]
+|===
+|*description*|Returns a number that represents a date that is the indicated number of working days before or after a date (the starting date). Working days exclude weekends and any dates identified as holidays. Use WORKDAY to exclude weekends or holidays when you calculate invoice due dates, expected delivery times, or the number of days of work performed.
+|*syntax*|WORKDAY(start_date, days, [holidays])
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|WORKDAY([DATE_FIELD],[NB_DAYS_FIELD]) ||
+|===
+
+==== YEAR
+
+[width="90%"]
+|===
+|*description*|Extract the year from a date given in the current locale of the application.
+|*syntax*|YEAR( DateParam D )
+|*returns*|Number
+|*semantics*|Parses a date-formatted string in the current locale's format and returns the year portion.
+If a year is given as a two-digit number, as in "05-21-15", then the year returned is either 1915 or 2015, depending upon the a break point in the calculation context.  In an OpenDocument document, this break point is determined by table:null-year.
+Applications shall support extracting the year from a date beginning in 1900. Three-digit year numbers precede adoption of the Gregorian calendar, and may return either an error or the year number. Four-digit year numbers preceding 1582 (inception of the Gregorian Calendar) may return either an error or the year number. Four-digit year numbers following 1582 should return the year number.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|YEAR(DATE(1904;1;1)) |1904|Extracts year from a given date.
+|===
+
+==== YEARFRAC
+
+[width="90%"]
+|===
+|*description*|YEARFRAC calculates the fraction of the year represented by the number of whole days between two dates (the start_date and the end_date). For instance, you can use YEARFRAC to identify the proportion of a whole year's benefits, or obligations to assign to a specific term.
+|*syntax*|YEARFRAC(start_date, end_date, [basis])
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|YEARFRAC("1/1/2012","7/30/2012") |0.58055556|Fraction of the year between 1/1/2012 and 7/30/12, omitting the Basis argument.
+|YEARFRAC("1/1/2012","7/30/2012",1) |0.57650273|Fraction between same dates, using the Actual/Actual basis argument. Because 2012 is a Leap year, it has a 366 day basis.
+|YEARFRAC("1/1/2012","7/30/2012",3) |0.57808219|Fraction between same dates, using the Actual/365 basis argument. Uses a 365 day basis.
+|===
+
+==== YESTERDAY
+
+[width="90%"]
+|===
+|*description*|Return the serial number of the previous day
+|*syntax*|YESTERDAY()
+|*returns*|Date
+|*semantics*|This returns the previous day's serial number, using current locale. This only returns the date, not the datetime value.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|TODAY()>YESTERDAY() |False|Every date YESTERDAY() changes, but we know it's less than today.
+|INT(YESTERDAY)=YESTERDAY() |True|YESTERDAY() returns an integer. WARNING: this test is allowed to fail if the locale transitions through midnight while computing this test; because YESTERDAY() is referenced twice, in some implementations this would result in a race condition) This is incredibly unlikely to occur in practice.
+|===
+
+=== Financial
+
+==== PMT
+
+[width="90%"]
+|===
+|*description*|PMT, one of the financial functions, calculates the payment for a loan based on constant payments and a constant interest rate.
+|*syntax*|PMT(rate, nper, pv, [fv], [type])
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|PMT([FIELD1]/12,[FIELD2],[FIELD3]) |($1,037.03)|Monthly payment for a loan with terms specified as arguments in [FIELD1]:[FIELD3].
+|===
+
+==== PV
+
+[width="90%"]
+|===
+|*description*|PV, one of the financial functions, calculates the present value of a loan or an investment, based on a constant interest rate. You can use PV with either periodic, constant payments (such as a mortgage or other loan), or a future value that's your investment goal.
+|*syntax*|PV(rate, nper, pmt, [fv], [type])
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|PV([FIELD2]/12, 12*[FIELD3], [FIELD1], , 0) |($59,777.15)|Present value of an annuity with the terms in [FIELD1]:[FIELD3].
+|===
+
+=== Information
+
+==== CHOOSE
+
+[width="90%"]
+|===
+|*description*|Uses an index to return a value from a list of values. Uses index_num to return a value from the list of value arguments. Use CHOOSE to select one of up to 254 values based on the index number. For example, if value1 through value7 are the days of the week, CHOOSE returns one of the days when a number between 1 and 7 is used as index_num.
+|*syntax*|CHOOSE( Integer Index ; { Any Value }+ )
+|*returns*|Any
+|*semantics*|Uses Index to determine which value, from a list of values, to return. If Index is 1, CHOOSE returns the first Value; if Index is 2, CHOOSE returns the second value, and so on. Note that the Values may be formula expressions. Expression paths of parameters other than the one chosen are not calculated or evaluated for side effects.
+|*constraints*|Returns an error if Index < 1 or if there is no corresponding value in the list of Values.
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|CHOOSE(3;"Apple";"Orange";"Grape";"Perry") |"Grape"|Simple selection.
+|CHOOSE(0;"Apple";"Orange";"Grape";"Perry") |Error|Index has to be at least 1.
+|CHOOSE(5;"Apple";"Orange";"Grape";"Perry") |Error|Index can't refer to non-existent entry.
+|CHOOSE(2;SUM([.B4:.B5]);SUM([.B5])) |3|Simple selection, using a set of formulas.
+|SUM(CHOOSE(2;[.B4:.B5];[.B5])) |3|CHOOSE can pass references
+|===
+
+==== COUNT
+
+[width="90%"]
+|===
+|*description*|The COUNT function counts the number of cells that contain numbers, and counts numbers within the list of arguments. Use the COUNT function to get the number of entries in a number field that is in a range or array of numbers.
+|*syntax*|COUNT( { Any Value }+ )
+|*returns*|Integer
+|*semantics*|Counts the parameters where the parameter's value is parseable as a number.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|COUNT(1;2;3) |3|Simple count.
+|COUNT("1","ABC","9EF") |1|Only counts parameters that are numbers.
+|===
+
+==== COUNTA
+
+[width="90%"]
+|===
+|*description*|The COUNTA function counts the number of cells that are not empty in a range.
+|*syntax*|COUNTA( { Any Value }+ )
+|*returns*|Integer
+|*semantics*|Counts the parameters where the parameter's value is not null.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|COUNTA(1,2,3) |3|Simple count.
+|COUNTA("1","ABC","9EF") |3|Simple count.
+|COUNTA("1","ABC","9EF") |3|Does not count the null 3rd parameter.
+|===
+
+==== COUNTBLANK
+
+[width="90%"]
+|===
+|*description*|Use the COUNTBLANK function, one of the Statistical functions, to count the number of empty cells in a range of cells.
+|*syntax*|COUNTBLANK( { Any Value }+ )
+|*returns*|Integer
+|*semantics*|Counts the parameters where the parameter's value is null.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|COUNTBLANK(1;;;2;3) |2|Simple count.
+|COUNTBLANK(1;2;3) |0|Simple count.
+|COUNTBLANK("1";"ABC";"9EF") |0|Simple count.
+|COUNTBLANK("1";"ABC";;"9EF") |1|Simple count.
+|===
+
+==== DELTA
+
+[width="90%"]
+|===
+|*description*|Tests whether two values are equal. Returns 1 if number1 = number2; returns 0 otherwise. Use this function to filter a set of values. For example, by summing several DELTA functions you calculate the count of equal pairs. This function is also known as the Kronecker Delta function.
+|*syntax*|DELTA(number1, [number2])
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|DELTA(5, 4) |0|Checks whether 5 equals 4
+|DELTA(5, 5) |1|Checks whether 5 equals 5
+|DELTA(0.5, 0) |0|Checks whether 0.5 equals 0
+|===
+
+==== ERROR
+
+[width="90%"]
+|===
+|*description*|Raises an evaluation error with the given message.
+|*syntax*|ERROR( Text errorMessage; Text errorCode )
+|*returns*|Error
+|*semantics*|errorCode defaults to -1 if not set.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ERROR("Threw an error";1) |Error|Simple error.
+|===
+
+==== ISBLANK
+
+[width="90%"]
+|===
+|*description*|Return TRUE if the referenced cell is blank, else return FALSE
+|*syntax*|ISBLANK( Scalar X )
+|*returns*|Logical
+|*semantics*|If X is of type Number, Text, or Logical, return FALSE. If X is a reference to a cell, examine the cell; if it is blank (has no value), return TRUE, but if it has a value, return FALSE. A cell with the empty string is not considered blank.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ISBLANK(1) |False|Numbers return false.
+|ISBLANK("") |False|Text, even empty string, returns false.
+|ISBLANK([.B8]) |True|Blank cell is true.
+|ISBLANK([.B7]) |False|Non-blank cell is false.
+|===
+
+==== ISERR
+
+[width="90%"]
+|===
+|*description*|Return True if the parameter has type Error and is not NA, else return False.
+|*syntax*|ISERR( Scalar X )
+|*returns*|Logical
+|*semantics*| If X is of type Error, and ISNA(X) is not true, returns TRUE. Otherwise it returns FALSE. Note that this function returns False if given NA(); if this is not desired, use ISERROR. Note that this function does not propagate error values.
+ISERR(X) is the same as:
+IF(ISNA(X),FALSE(),ISERROR(X))
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ISERR(1/0) |True|Error values other than NA() return true.
+|ISERR(NA()) |False|NA() does NOT return True.
+|ISERR("#N/A") |False|Text is not an error.
+|ISERR(1) |False|Numbers are not an error.
+|===
+
+==== ISERROR
+
+[width="90%"]
+|===
+|*description*|Return TRUE if the parameter has type Error, else return FALSE
+|*syntax*|ISERROR( Scalar X )
+|*returns*|Logical
+|*semantics*|If X is of type Error, returns TRUE, else returns FALSE. Note that this function returns True if given NA(); if this is not desired, use ISERR. Note that this function does not propagate error values.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ISERROR(1/0) |True|Error values return true.
+|ISERROR(NA()) |True|Even NA().
+|ISERROR("#N/A") |False|Text is not an error.
+|ISERROR(1) |False|Numbers are not an error.
+|ISERROR(CHOOSE(0; "Apple"; "Orange"; "Grape"; "Perry")) |True|If CHOOSE given out-of-range value, ISERROR needs to capture it.
+|===
+
+==== ISEVEN
+
+[width="90%"]
+|===
+|*description*|Return TRUE if the value is even, else return FALSE
+|*syntax*|ISEVEN( Number X )
+|*returns*|Logical
+|*semantics*|First, compute X1=TRUNC(X). Then, if X is even (a division by 2 has a remainder of 0), return True, else return False. The result is implementation-defined if given a logical value; an application may return either an Error or the result of converting the logical value to a number (per Conversion to Number).
+|*constraints*|X must not be Logical
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ISEVEN(2) |True|2 is even, because (2 modulo 2) = 0
+|ISEVEN(6) |True|6 is even, because (6 modulo 2) = 0
+|ISEVEN(2.1) |True|
+|ISEVEN(2.5) |True|
+|ISEVEN(2.9) |True|TRUNC(2.9)=2, and 2 is even.
+|ISEVEN(3) |False|3 is not even.
+|ISEVEN(3.9) |False|TRUNC(3.9)=3, and 3 is not even.
+|ISEVEN(-2) |True|
+|ISEVEN(-2.1) |True|
+|ISEVEN(-2.5) |True|
+|ISEVEN(-2.9) |True|TRUNC(-2.9)=-2, and -2 is even.
+|ISEVEN(-3) |False|
+|ISEVEN(NA()) |NA|
+|ISEVEN(0) |True|
+|===
+
+==== ISLOGICAL
+
+[width="90%"]
+|===
+|*description*|Return TRUE if the parameter has type Logical, else return FALSE
+|*syntax*|ISLOGICAL( Scalar X )
+|*returns*|Logical
+|*semantics*|If X is of type Logical, returns TRUE, else FALSE. For applications that do not have a distinct logical type, also ISNUMBER(X) will return TRUE.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ISLOGICAL(TRUE()) |True|Logical values return true.
+|ISLOGICAL(FALSE()) |True|Logical values return true.
+|ISLOGICAL("TRUE") |False|Text values are not logicals, even if they can be converted.
+|===
+
+==== ISNA
+
+[width="90%"]
+|===
+|*description*|Return True if the parameter is of type NA, else return False.
+|*syntax*|ISERR( Scalar X )
+|*returns*|Logical
+|*semantics*|If X is NA, return True, else return False. Note that if X is a reference, the value being referenced is considered. This function does not propagate error values.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ISNA(1/0) |False|Error values other than NA() return False – the error does not propagate.
+|ISNA(NA()) |True|By definition
+|ISNA(#N/A) |True|By definition
+|ISNA("#N/A") |False|Text is not NA
+|ISNA(1) |False|Numbers are not NA
+|===
+
+==== ISNONTEXT
+
+[width="90%"]
+|===
+|*description*|Return TRUE if the parameter does not have type Text, else return FALSE
+|*syntax*|ISNONTEXT( Scalar X )
+|*returns*|Logical
+|*semantics*| If X is of type Text, returns TRUE, else FALSE. If X is a reference, examines what X references. References to blank cells are NOT considered text, so a reference to a blank cell will return TRUE.
+ISNONTEXT(X) is the same as:
+NOT(ISTEXT(X))
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ISNONTEXT(1) |True|Numbers are not text
+|ISNONTEXT(TRUE()) |True|Logical values are not text.
+|ISNONTEXT("1") |False|Text values are text, even if they can be converted into a number.
+|ISNONTEXT([.B7]) |False|B7 is a cell with text
+|ISNONTEXT([.B9]) |True|B9 is an error, thus not text
+|ISNONTEXT([.B8]) |True|B8 is a blank cell, so this will return TRUE
+|===
+
+==== ISNUMBER
+
+[width="90%"]
+|===
+|*description*|Return TRUE if the parameter has type Number, else return FALSE
+|*syntax*|ISNUMBER( Scalar X )
+|*returns*|Logical
+|*semantics*| If X is of type Number, returns TRUE, else FALSE. Level 1 implementations may not have a distinguished logical type; in such implementations, ISNUMBER(TRUE()) is TRUE.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ISNUMBER(1) |True|Numbers are numbers
+|ISNUMBER("1") |False|Text values are not numbers, even if they can be converted into a number.
+|===
+
+==== ISODD
+
+[width="90%"]
+|===
+|*description*|Return TRUE if the value is even, else return FALSE
+|*syntax*|ISODD( Number X )
+|*returns*|Logical
+|*semantics*|First, compute X1=TRUNC(X). Then, if X is odd (a division by 2 has a remainder of 1), return True, else return False. The result is implementation-defined if given a logical value; an application may return either an Error or the result of converting the logical value to a number (per Conversion to Number).
+|*constraints*|X must not be Logical
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ISODD(3) |True|3 is odd, because (3 modulo 2) = 1
+|ISODD(5) |True|5 is odd, because (5 modulo 2) = 1
+|ISODD(3.1) |True|TRUNC(3.1)=3, and 3 is odd
+|ISODD(3.5) |True|3 is odd.
+|ISODD(3.9) |True|TRUNC(3.9)=3, and 3 is odd.
+|ISODD(4) |False|
+|ISODD(4.9) |False|
+|ISODD(-3) |True|
+|ISODD(-3.1) |True|
+|ISODD(-3.5) |True|
+|ISODD(-3.9) |True|TRUNC(-3.9)=-3, and -3 is odd.
+|ISODD(-4) |False|
+|ISODD(NA()) |NA|
+|ISODD(0) |False|
+|ISODD(1) |True|
+|ISODD(2) |False|
+|ISODD(2.9) |False|
+|===
+
+==== ISREF
+
+[width="90%"]
+|===
+|*description*|Return True if the parameter is of type reference, else return False.
+|*syntax*|ISREF( Any X )
+|*returns*|Logical
+|*semantics*| If X is of type Reference or ReferenceList, return True, else return False. Note that unlike nearly all other functions, when given a reference this function does not then examine the value being referenced. Some functions and operators return references, and thus ISREF will return True when given their results. X may be a ReferenceList, in which case ISREF returns True.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ISREF([.B3]) |True|
+|ISREF([.B3]:[.C4]) |True|The range operator produces references
+|ISREF(1) |False|Numbers are not references
+|ISREF("A1") |False|Text is not a reference, even if it looks a little like one
+|ISREF(NA()) |NA|Errors propagate through this function
+|===
+
+==== ISTEXT
+
+[width="90%"]
+|===
+|*description*|Return TRUE if the parameter has type Text, else return FALSE
+|*syntax*|ISTEXT( Scalar X )
+|*returns*|Logical
+|*semantics*|If X is of type Text, returns TRUE, else FALSE. References to blank cells are NOT considered text.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ISTEXT(1) |False|Numbers are not text
+|ISTEXT("1") |True|Text values are text, even if they can be converted into a number.
+|===
+
+==== NA
+
+[width="90%"]
+|===
+|*description*|Return the constant error value #N/A.
+|*syntax*|NA()
+|*returns*|Error
+|*semantics*|This function takes no arguments and returns the error NA.
+|*constraints*|Must have 0 parameters
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ISERROR(NA()) |True|NA is an error.
+|ISNA(NA()) |True|Obviously, if this doesn't work, NA() or ISNA() is broken.
+|ISNA(5+NA()) |True|NA propagates through various functions and operators, just like any other error type.
+|===
+
+==== VALUE
+
+[width="90%"]
+|===
+|*description*|Returns the number value of a String.
+|*syntax*|VALUE( Text number )
+|*returns*|Decimal
+|*semantics*|Converts a String to a number
+|*constraints*|The number parameter must be parseable as a number
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|VALUE("123") |123|Simple value.
+|===
+
+=== Logical
+
+==== AND
+
+[width="90%"]
+|===
+|*description*|Use the AND function, one of the logical functions, to determine if all conditions in a test are TRUE.
+|*syntax*|AND( { Logical|NumberSequenceList L }+ )
+|*returns*|Logical
+|*semantics*|Computes the logical AND of the parameters. If all parameters are True, returns True; if any are False, returns False. When given one parameter, this has the effect of converting that one parameter into a logical value. When given zero parameters, applications may return a Logical value or an error.
+Also in array context a logical AND of all arguments is computed, range or array parameters are not evaluated as a matrix and no array is returned. This behavior is consistent with functions like SUM. To compute a logical AND of arrays per element use the * operator in array context.
+|*constraints*|Must have 1 or more parameters
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|AND(FALSE();FALSE()) |False|Simple AND.
+|AND(FALSE();TRUE()) |False|Simple AND.
+|AND(TRUE();FALSE()) |False|Simple AND.
+|AND(TRUE();TRUE()) |True|Simple AND.
+|AND(TRUE();NA()) |NA|Returns an error if given one.
+|AND(1;TRUE()) |True|Nonzero considered TRUE.
+|AND(0;TRUE()) |False|Zero considered FALSE.
+|AND(TRUE();TRUE();TRUE()) |True|More than two parameters okay.
+|AND(TRUE()) |True|One parameter okay - simply returns it.
+|===
+
+==== FALSE
+
+[width="90%"]
+|===
+|*description*|Returns constant FALSE
+|*syntax*|FALSE()
+|*returns*|Logical
+|*semantics*|Returns logical constant FALSE. Although this is syntactically a function call, semantically it is a constant, and typical applications optimize this because it is a constant. Note that this may or may not be equal to 0 when compared using “=”. It always has the value of 0 if used in a context requiring Number (because of the automatic conversions), so if ISNUMBER(FALSE()), then it must have the value 0.
+|*constraints*|Must have 0 parameters
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|FALSE() |False|Constant.
+|IF(ISNUMBER(FALSE());FALSE()=0;FALSE()) |True|Applications that implement logical values as 0/1 must map FALSE() to 0
+|2+FALSE() |2|FALSE converts to 0 in Number context
+|===
+
+==== IF
+
+[width="90%"]
+|===
+|*description*|Return one of two values, depending on a condition
+|*syntax*|IF( Logical Condition [ ; [ Any IfTrue ] [ ; [ Any IfFalse ] ] ] )
+|*returns*|Any
+|*semantics*|Computes Condition. If it is TRUE, it returns IfTrue, else it returns IfFalse. If there is only 1 parameter, IfTrue is considered to be TRUE(). If there are less than 3 parameters, IfFalse is considered to be FALSE(). Thus the 1 parameter version converts Condition into a Logical value. If there are 2 or 3 parameters but the second parameter is null (two consecutive ; semicolons), IfFalse is considered to be 0. If there are 3 parameters but the third parameter is null, IfFalse is considered to be 0. This function only evaluates IfTrue, or ifFalse, and never both; that is to say, it short-circuits.
+|*constraints*|None.
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|IF(FALSE();7;8) |8|Simple if.
+|IF(TRUE();7;8) |7|Simple if.
+|IF(TRUE();"HI";8) |"HI"|Can return strings, and the two sides need not have equal types
+|IF(1;7;8) |7|A non-zero is considered true.
+|IF(5;7;8) |7|A non-zero is considered true.
+|IF(0;7;8) |8|A zero is considered false.
+|IF(TRUE();[.B4];8) |2|The result can be a reference.
+|IF(TRUE();[.B4]+5;8) |7|The result can be a formula.
+|IF("x";7;8) |Error|Condition has to be convertible to Logical.
+|IF("1";7;8) |Error|Condition has to be convertible to Logical.
+|IF("";7;8) |Error|Condition has to be convertible to Logical; empty string is not the same as False
+|IF(FALSE();7) |FALSE|Default IfFalse is FALSE
+|IF(3) |TRUE|Default IfTrue is TRUE
+|IF(FALSE();7;) |0|Empty parameter is considered 0
+|IF(TRUE();7) |0|Empty parameter is considered 0
+|IF(TRUE();4;1/0) |4|If condition is true, ifFalse is not considered – even if it would produce Error.
+|IF(FALSE();1/0;5) |5|If condition is false, ifTrue is not considered – even if it would produce Error.
+|===
+
+==== IFNA
+
+[width="90%"]
+|===
+|*description*|Returns the value unless it is null, then return an alternate value
+|*syntax*|IFNA( Text string; Text alternateValue )
+|*returns*|Text
+|*semantics*|If string is not null return string, else return alternateValue.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|IFNA(;"Null String") |Null String|
+|IFNA("ABC";"Null String") |ABC|
+|===
+
+==== IFS
+
+[width="90%"]
+|===
+|*description*|The IFS function checks whether one or more conditions are met, and returns a value that corresponds to the first TRUE condition. IFS can take the place of multiple nested IF statements, and is much easier to read with multiple conditions.
+|*syntax*|IFS([Something is True1, Value if True1,Something is True2,Value if True2,Something is True3,Value if True3)
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|IFS([FIELD]>89,"A",[FIELD]>79,"B",[FIELD]>69,"C",[FIELD]>59,"D",TRUE,"F") |one character|IF([FIELD] is Greater Than 89, then return a "A", IF [FIELD] is Greater Than 79, then return a "B", and so on and for all other values less than 59, return an "F").
+|===
+
+==== NOT
+
+[width="90%"]
+|===
+|*description*|Compute logical NOT
+|*syntax*|NOT( Logical L )
+|*returns*|Logical
+|*semantics*|Computes the logical NOT. If given TRUE, returns FALSE; if given FALSE, returns TRUE.
+|*constraints*|Must have 1 parameter
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|NOT(FALSE()) |True|Simple NOT, given FALSE.
+|NOT(TRUE()) |False|Simple NOT, given TRUE.
+|NOT(1/0) |Error|NOT returns an error if given an error value
+|===
+
+==== OR
+
+[width="90%"]
+|===
+|*description*|Compute logical OR of all parameters.
+|*syntax*|OR( { Logical|NumberSequenceList L }+ )
+|*returns*|Logical
+|*semantics*|Computes the logical OR of the parameters. If all parameters are False, it shall return False; if any are True, it shall returns True. When given one parameter, this has the effect of converting that one parameter into a logical value. When given zero parameters, applications may return a Logical value or an error.
+Also in array context a logical OR of all arguments is computed, range or array parameters are not evaluated as a matrix and no array is returned. This behavior is consistent with functions like SUM. To compute a logical OR of arrays per element use the + operator in array context.
+|*constraints*|Must have 1 or more parameters
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|OR(FALSE();FALSE()) |False|Simple OR.
+|OR(FALSE();TRUE()) |True|Simple OR.
+|OR(TRUE();FALSE()) |True|Simple OR.
+|OR(TRUE();TRUE()) |True|Simple OR.
+|OR(FALSE();NA()) |NA|Returns an error if given one.
+|OR(FALSE();FALSE();TRUE()) |True|More than two parameters okay.
+|OR(TRUE()) |True|One parameter okay - simply returns it
+|===
+
+==== TRUE
+
+[width="90%"]
+|===
+|*description*|Returns constant TRUE
+|*syntax*|TRUE()
+|*returns*|Logical
+|*semantics*|Returns logical constant TRUE. Although this is syntactically a function call, semantically it is a constant, and typical applications optimize this because it is a constant. Note that this may or may not be equal to 1 when compared using “=”. It always has the value of 1 if used in a context requiring Number (because of the automatic conversions), so if ISNUMBER(TRUE()), then it must have the value 1.
+|*constraints*|Must have 0 parameters
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|TRUE() |True|Constant.
+|IF(ISNUMBER(TRUE());TRUE()=1;TRUE()) |True|Applications that implement logical values as 0/1 must map TRUE() to 1
+|2+TRUE() |3|TRUE converts to 1 in Number context
+|===
+
+=== Mathematical
+
+==== ABS
+
+[width="90%"]
+|===
+|*description*|Returns the absolute value of a number. The absolute value of a number is the number without its sign.
+|*syntax*|ABS( NUMBER N )
+|*returns*|Number
+|*semantics*| If N < 0, returns -N, otherwise returns N.
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ABS(2) |2|Positive values return unchanged.
+|ABS(-2) |2|If less than zero, return negation
+|ABS([FIELD_NAME]) |4 (sample)|the absolute value of a (numeric) field with name FIELD_NAME is returned.
+|===
+
+==== ACOS
+
+[width="90%"]
+|===
+|*description*|Returns the arccosine, or inverse cosine, of a number. The arccosine is the angle whose cosine is number. The returned angle is given in radians in the range 0 (zero) to pi.
+|*syntax*|ACOS( NUMBER N )
+|*returns*|
+|*semantics*|
+|*constraints*|The cosine of the angle you want and must be from -1 to 1.
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ACOS(-0.5) |2.094395102|Arccosine of -0.5 in radians, 2*pi/3
+|===
+
+==== ACOSH
+
+[width="90%"]
+|===
+|*description*|Returns the inverse hyperbolic cosine of a number. The number must be greater than or equal to 1. The inverse hyperbolic cosine is the value whose hyperbolic cosine is number, so ACOSH(COSH(number)) equals number.
+|*syntax*|ACOSH( NUMBER N )
+|*returns*|
+|*semantics*|
+|*constraints*|The field or number passed as an argument needs to be any real number equal to or greater than 1
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ACOSH(1) |0|Inverse hyperbolic cosine of 1
+|===
+
+==== ASIN
+
+[width="90%"]
+|===
+|*description*|Returns the arcsine, or inverse sine, of a number. The arcsine is the angle whose sine is number. The returned angle is given in radians in the range -pi/2 to pi/2.
+|*syntax*|ASIN( Number N )
+|*returns*|Number
+|*semantics*|Returns the inverse sine of N.
+|*constraints*|Value N must be between -1 and 1
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ASIN(0.5) |0.5235987755|
+|===
+
+==== ASINH
+
+[width="90%"]
+|===
+|*description*|Returns the inverse hyperbolic sine of a number. The inverse hyperbolic sine is the value whose hyperbolic sine is number, so ASINH(SINH(number)) equals number.
+|*syntax*|ASIN( Number N )
+|*returns*|Number
+|*semantics*|Returns the inverse sine of N.
+|*constraints*|Value N must be between -1 and 1
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ASIN(0.5) |0.5235987755|
+|===
+
+==== ATAN
+
+[width="90%"]
+|===
+|*description*|Returns the arctangent, or inverse tangent, of a number. The arctangent is the angle whose tangent is number. The returned angle is given in radians in the range -pi/2 to pi/2.
+|*syntax*|ATAN( Number N )
+|*returns*|Number
+|*semantics*|Returns the arc tangent of N.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ATAN(10) |1.4711276743|
+|===
+
+==== ATAN2
+
+[width="90%"]
+|===
+|*description*|Returns the arctangent, or inverse tangent, of the specified x- and y-coordinates. The arctangent is the angle from the x-axis to a line containing the origin (0, 0) and a point with coordinates (x_num, y_num). The angle is given in radians between -pi and pi, excluding -pi.
+|*syntax*|ATAN2( Number X; Number Y )
+|*returns*|Number
+|*semantics*|X is the x coordinate, Y is the y coordinate
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ATAN2(10;5) |0.785398163|
+|ATAN2(1, 1) |0.785398163|Arctangent of the point 1,1 in radians, pi/4
+|===
+
+==== ATANH
+
+[width="90%"]
+|===
+|*description*|Returns the inverse hyperbolic tangent of a number. Number must be between -1 and 1 (excluding -1 and 1). The inverse hyperbolic tangent is the value whose hyperbolic tangent is number, so ATANH(TANH(number)) equals number.
+|*syntax*|ATANH( Number N )
+|*returns*|Number
+|*semantics*|X is the x coordinate, Y is the y coordinate
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ATANH(0.76159416) |1.00000001|Inverse hyperbolic tangent of 0.76159416
+|ATANH(-0.1) |-0.100335348|
+|===
+
+==== AVEDEV
+
+[width="90%"]
+|===
+|*description*|Returns the average of the absolute deviations of data points from their mean. AVEDEV is a measure of the variability in a data set.
+|*syntax*|AVEDEV( Number X, Number Y, ...)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|AVEDEV(4,5,6,7,5,4,3) |1.020408|
+|===
+
+==== AVERAGE
+
+[width="90%"]
+|===
+|*description*|Returns the average (arithmetic mean) of the arguments. For example, if the range A1:A20 contains numbers, the formula =AVERAGE(A1:A20) returns the average of those numbers.
+|*syntax*|AVERAGE( { NumberSequence N }+ )
+|*returns*|Number
+|*semantics*|Computes SUM(List) / COUNT(List).
+|*constraints*|At least one number included. Returns an error if no numbers provided.
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|AVERAGE(2;4) |3|Simple average
+|===
+
+==== CEILING
+
+[width="90%"]
+|===
+|*description*|Returns number rounded up, away from zero, to the nearest multiple of significance. For example, if you want to avoid using pennies in your prices and your product is priced at $4.42, use the formula =CEILING(4.42,0.05) to round prices up to the nearest nickel.
+|*syntax*|CEILING( Number N, significance)
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|CEILING(2.5, 1) ||Rounds 2.5 up to nearest multiple of 1
+|CEILING(-2.5, -2) |-4|Rounds -2.5 up to nearest multiple of -2
+|CEILING(0.234, 0.01) |0.24|Rounds 0.234 up to the nearest multiple of 0.01
+|===
+
+==== COMBIN
+
+[width="90%"]
+|===
+|*description*|Returns the number of combinations for a given number of items. Use COMBIN to determine the total possible number of groups for a given number of items.
+|*syntax*|COMBIN(Number N, number_chosen)
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|COMBIN(8,2) |28|Possible two-person teams that can be formed from 8 candidates.
+|===
+
+==== COMPLEX
+
+[width="90%"]
+|===
+|*description*|Converts real and imaginary coefficients into a complex number of the form x + yi or x + yj.
+|*syntax*|COMPLEX(real_num, i_num, [suffix])
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|COMPLEX(3,4) |3+4i|Complex number with 3 and 4 as the real and imaginary coefficients
+|COMPLEX(3,4,"j") |3+4j|Complex number with 3 and 4 as the real and imaginary coefficients, and j as the suffix
+|COMPLEX(0,1) |i|Complex number with 0 and 1 as the real and imaginary coefficients
+|===
+
+==== COS
+
+[width="90%"]
+|===
+|*description*|Returns the cosine for the specified number.
+|*syntax*|COS( Number )
+|*returns*|Number
+|*semantics*|Number is the angle in the radians for which the cosine is to be returned.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|COS(10) |-0.839071529|
+|===
+
+==== COSH
+
+[width="90%"]
+|===
+|*description*|Returns the hyperbolic cosine of a number.
+|*syntax*|COSH( Number )
+|*returns*|Number
+|*semantics*|Number is the angle in the radians for which the cosine is to be returned.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|COSH(4) |27.308233|Hyperbolic cosine of 4
+|===
+
+==== DEGREES
+
+[width="90%"]
+|===
+|*description*|Converts radians into degrees.
+|*syntax*|DEGREES(angle)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|DEGREES(PI()) |180|Degrees of pi radians
+|===
+
+==== EVEN
+
+[width="90%"]
+|===
+|*description*|Rounds a number up to the nearest even integer. Rounding is away from zero.
+|*syntax*|EVEN( Number N )
+|*returns*|Number
+|*semantics*|Returns the even integer whose sign is the same as N's and whose absolute value is greater than or equal to the absolute value of N. That is, if rounding is required, it is rounded away from zero.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|EVEN(6) |6|Positive even integers remain unchanged.
+|EVEN(-4) |-4|Negative even integers remain unchanged.
+|EVEN(1) |2|Non-even positive integers round up.
+|EVEN(0.3) |2|Positive floating values round up.
+|EVEN(-1) |-2|Non-even negative integers round down.
+|EVEN(-0.3) |-2|Negative floating values round down.
+|EVEN(0) |0|Since zero is even, EVEN(0) returns zero.
+|===
+
+==== EXP
+
+[width="90%"]
+|===
+|*description*|Calculates the exponent for basis e.
+|*syntax*|EXP( Number )
+|*returns*|Number
+|*semantics*|Number is the exponent applied to base e.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|EXP(10) |22026.46579|
+|===
+
+==== FACT
+
+[width="90%"]
+|===
+|*description*|Returns the factorial of a number. The factorial of a number is equal to 1*2*3*...* number.
+|*syntax*|FACT(number)
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|FACT(5) |120|Factorial of 5, or 1*2*3*4*5
+|FACT(1.9) |1|Factorial of the integer of 1.9
+|===
+
+==== FACTDOUBLE
+
+[width="90%"]
+|===
+|*description*|Returns the double factorial of a number.
+|*syntax*|FACTDOUBLE(number)
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|FACTDOUBLE(5) |120|Double factorial of 6. For 6, an even number, the double factorial is equivalent to 6*4*2; using this equation:
+n!! = n*(n-2)*(n-4)...(4)(2)
+|FACTDOUBLE(5) |120|Double factorial of 7. For 7, an odd number, the double factorial is equivalent to 7*5*3; using this equation:
+n!! = n*(n-2)*(n-4)...(3)(1)
+|===
+
+==== FIXED
+
+[width="90%"]
+|===
+|*description*|Rounds a number to the specified number of decimals, formats the number in decimal format using a period and commas, and returns the result as text.
+|*syntax*|FIXED(number, [decimals], [no_commas])
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|FIXED([NUMBER_FIELD]], 1) |1,234.6|Rounds the number in [NUMBER_FIELD] one digit to the right of the decimal point.
+|FIXED([NUMBER_FIELD]], -1, TRUE) |-1230|Rounds the number in [NUMBER_FIELD] one digit to the left of the decimal point, without commas (the TRUE argument).
+|FIXED("190") |190.000|Decimal places not specified
+|FIXED("190.89";1) |190.9|Rounds to 1 decimal place
+|FIXED("1190.89";1;TRUE()) |1190.9|No grouping character
+|FIXED("1190.89";1;FALSE()) |1,190.9|With grouping character
+|===
+
+==== FLOOR
+
+[width="90%"]
+|===
+|*description*|Rounds number down, toward zero, to the nearest multiple of significance.
+|*syntax*|FLOOR(number, significance)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|FLOOR(3.7,2) |2|Rounds 3.7 down to nearest multiple of 2.
+|FLOOR(-2.5,-2) |-2|Rounds -2.5 down to nearest multiple of -2.
+|FLOOR(0.234,0.01) |0.23|Rounds 0.234 down to the nearest multiple of 0.01.
+|===
+
+==== HEX2DEC
+
+[width="90%"]
+|===
+|*description*|Converts a hexadecimal number to decimal.
+|*syntax*|HEX2DEC(number)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|HEX2DEC("FFFFFFFF5B") |-165|Converts hexadecimal FFFFFFFF5B to decimal
+|===
+
+==== HYPERLINK
+
+[width="90%"]
+|===
+|*description*|The HYPERLINK function creates a shortcut that opens a document stored on a network server or opens a link on an intranet or the Internet
+|*syntax*|HYPERLINK(link_location, [friendly_name])
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|HYPERLINK("https://hop.apache.org/manual/latest/pipeline/transforms/formula.html", "Formula Transform") |returns a hyperlink to the Formula Transform doc page|returns a hyperlink to the Formula Transform doc page
+|===
+
+==== IMAGINARY
+
+[width="90%"]
+|===
+|*description*|Returns the imaginary coefficient of a complex number in x + yi or x + yj text format.
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|IMAGINARY("3+4i") |4|Imaginary coefficient of the complex number 3+4i
+|IMAGINARY("0-j") |-1|Imaginary coefficient of the complex number 0-j
+|IMAGINARY(4) |0|Imaginary coefficient 4
+|===
+
+==== IMREAL
+
+[width="90%"]
+|===
+|*description*|Returns the real coefficient of a complex number in x + yi or x + yj text format.
+|*syntax*|
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|IMREAL("6-9i") |6|Real coefficient of 6-9i
+|===
+
+==== INT
+
+[width="90%"]
+|===
+|*description*|Rounds a number down to the nearest integer.
+|*syntax*|
+|*returns*|Integer
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|INT(8.9) |8|Rounds 8.9 down
+|INT(-8.9) |-9|Rounds -8.9 down. Rounding a negative number down rounds it away from 0.
+|INT(2) |2|Positive integers remain unchanged
+|INT(-3) |-3|Negative integers remain unchanged
+|INT(1.2) |1|Positive floating values are truncated
+|INT(1.7) |1|It doesn’t matter if the fractional part is > 0.5
+|INT(-1.2) |-2|Negative floating values round towards negative infinity
+|INT((1/3)*3) |1|Naive users expect INT to "correctly" make integers even if there are limits on precision.
+|===
+
+==== INT
+
+[width="90%"]
+|===
+|*description*|Rounds a number down to the nearest integer.
+|*syntax*|INT( Number N )
+|*returns*|Number
+|*semantics*|Returns the nearest integer whose value is less than or equal to N. Rounding is towards negative infinity.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|INT(8.9) |8|Rounds 8.9 down
+|INT(-8.9) |-9|Rounds -8.9 down. Rounding a negative number down rounds it away from 0.
+|INT(2) |2|Positive integers remain unchanged
+|INT(-3) |-3|Negative integers remain unchanged
+|INT(1.2) |1|Positive floating values are truncated
+|INT(1.7) |1|It doesn’t matter if the fractional part is > 0.5
+|INT(-1.2) |-2|Negative floating values round towards negative infinity
+|INT((1/3)*3) |1|Naive users expect INT to "correctly" make integers even if there are limits on precision.
+|===
+
+==== LN
+
+[width="90%"]
+|===
+|*description*|Calculates the natural logarithm of a number.
+|*syntax*|LN( Number )
+|*returns*|Number
+|*semantics*|Returns the natural logarithm of number.
+|*constraints*|Number must be greater than 0
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|LN(10) |2.30258509|
+|===
+
+==== LOG
+
+[width="90%"]
+|===
+|*description*|Returns the logarithm of a number to the base you specify.
+|*syntax*|LOG(number, [base])
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|LOG(10) |1|Logarithm of 10. Because the second argument (base) is omitted, it is assumed to be 10. The result, 1, is the power to which the base must be raised to equal 10.
+|LOG(8, 2) |3|Logarithm of 8 with base 2. The result, 3, is the power to which the base must be raised to equal 8.
+|LOG(86, 2.7182818) |4.4543473|Logarithm of 86 with base e (approximately 2.718). The result, 4.454, is the power to which the base must be raised to equal 86.
+|===
+
+==== LOG10
+
+[width="90%"]
+|===
+|*description*|Calculates the base-10 logarithm of a number.
+|*syntax*|LOG10( Number )
+|*returns*|Number
+|*semantics*|Returns the base-10 logarithm of number.
+|*constraints*|Number must be greater than 0
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|LOG10(10) |1|
+|===
+
+==== MAX
+
+[width="90%"]
+|===
+|*description*|Return the maximum from a set of numbers.
+|*syntax*|MAX( { NumberSequenceList N } )
+|*returns*|Number
+|*semantics*|Returns the value of the maximum number in the list passed in. Non-numbers are ignored. Note that if logical types are a distinct type, they are not included. What happens when MAX is provided 0 parameters is implementation-defined, but MAX with no parameters should return 0.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|MAX(2;4;1;-8) |4|Negative numbers are smaller than positive numbers.
+|MAX([.B4:.B5]) |3|The maximum of (2,3) is 3.
+|===
+
+==== MIN
+
+[width="90%"]
+|===
+|*description*|Return the minimum from a set of numbers.
+|*syntax*|MIN( { NumberSequenceList N } )
+|*returns*|Number
+|*semantics*|Returns the value of the minimum number in the list passed in. Returns zero if no numbers are provided in the list. What happens when MIN is provided 0 parameters is implementation-defined, but MIN() with no parameters should return 0.
+|*constraints*|None.
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|MIN(2;4;1;-8) |-8|Negative numbers are smaller than positive numbers.
+|MIN([.B4:.B5]) |2|The minimum of (2,3) is 2.
+|MIN([.B3]) |0|If no numbers are provided in all ranges, MIN returns 0
+|MIN("a") |Error|Non-numbers inline are NOT ignored.
+|MIN([.B3:.B5]) |2|Cell text is not converted to numbers and is ignored.
+|===
+
+==== MOD
+
+[width="90%"]
+|===
+|*description*|Calculates the remainder of a division.
+|*syntax*|MOD( Number divisor, Number dividend )
+|*returns*|Integer
+|*semantics*|Returns the remainder of divisor/dividend
+|*constraints*|Dividend must not be 0
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|MOD(10,3) |1|3 goes into 10 three times with a remainder of 1
+|===
+
+==== N
+
+[width="90%"]
+|===
+|*description*|Returns the number of a value.
+|*syntax*|N( String )
+|*returns*|Integer
+|*semantics*|Parses the value as a number.  If the value cannot be parsed as a number, returns 0.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|N("10") |10|Simple N
+|N(TRUE()) |1|True evaluates to 1
+|N("ABC") |0|Non-numeric strings return 0
+|===
+
+==== NPV
+
+[width="90%"]
+|===
+|*description*|Calculates the net present value of an investment by using a discount rate and a series of future payments (negative values) and income (positive values).
+|*syntax*|NPV(rate,value1,[value2],...)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|NPV([FIELD1], [FIELD2], [FIELD3], [FIELD4], [FIELD5]) |$1,188.44|Net present value of this investment
+|===
+
+==== OCT2DEC
+
+[width="90%"]
+|===
+|*description*|Converts an octal number to decimal.
+|*syntax*|OCT2DEC(number)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|OCT2DEC(7777777533) |-165|Converts octal 7777777533 to decimal form.
+|===
+
+==== ODD
+
+[width="90%"]
+|===
+|*description*|Rounds a number up to the nearest odd integer, where "up" means "away from 0".
+|*syntax*|ODD( Number N )
+|*returns*|Number
+|*semantics*|Returns the odd integer whose sign is the same as N's and whose absolute value is greater than or equal to the absolute value of N. In other words, any "rounding" is away from zero. By definition, ODD(0) is 1.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ODD(5) |5|Positive odd integers remain unchanged.
+|ODD(-5) |-5|Negative odd integers remain unchanged.
+|ODD(2) |3|Non-odd positive integers round up.
+|ODD(0.3) |1|Positive floating values round up.
+|ODD(-2) |-3|Non-odd negative integers round down.
+|ODD(-0.3) |-1|Negative floating values round down.
+|ODD(0) |1|By definition, ODD(0) is 1.
+|===
+
+==== PI
+
+[width="90%"]
+|===
+|*description*|Returns the value of PI.
+|*syntax*|PI()
+|*returns*|Number
+|*semantics*|Returns the constant value of PI 3.14159...
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|FIXED(PI();5) |3.14159|Constant
+|===
+
+==== POISSON
+
+[width="90%"]
+|===
+|*description*|Returns the Poisson distribution. A common application of the Poisson distribution is predicting the number of events over a specific time, such as the number of cars arriving at a toll plaza in 1 minute.
+|*syntax*|POISSON(x,mean,cumulative)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|POISSON([FIELD1],[FIELD2],TRUE) |0.124652|Cumulative Poisson probability with the terms above (0.124652)
+|POISSON([FIELD1],[FIELD2],FALSE) |0.084224|Poisson probability mass function with the terms above (0.084224)
+|===
+
+==== POWER
+
+[width="90%"]
+|===
+|*description*|Computes a number raised to the power by another number.
+|*syntax*|POWER( Number number, Number power )
+|*returns*|Number
+|*semantics*|Returns number ^ power
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|POWER(2;3) |8|Simple POWER
+|===
+
+==== QUOTIENT
+
+[width="90%"]
+|===
+|*description*|Returns the integer portion of a division. Use this function when you want to discard the remainder of a division.
+|*syntax*|QUOTIENT(numerator, denominator)
+|*returns*|Integer
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|QUOTIENT(5, 2) |2|Integer portion of 5/2
+|QUOTIENT(4.5, 3.1) |1|Integer portion of 4.5/3.1
+|QUOTIENT(-10, 3) |-3|Integer portion of -10/3
+|===
+
+==== RADIANS
+
+[width="90%"]
+|===
+|*description*|Converts degrees to radians.
+|*syntax*|RADIANS(angle)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|RADIANS(270) |4.712389|270 degrees as radians (4.712389 or 3π/2 radians)
+|===
+
+==== RAND
+
+[width="90%"]
+|===
+|*description*|RAND returns an evenly distributed random real number greater than or equal to 0 and less than 1. A new random real number is returned every time the worksheet is calculated.
+|*syntax*|RAND()
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|RAND() |varies|A random number greater than or equal to 0 and less than 1
+|===
+
+==== RANDBETWEEN
+
+[width="90%"]
+|===
+|*description*|Returns a random integer number between the numbers you specify. A new random integer number is returned every time the worksheet is calculated.
+|*syntax*|RANDBETWEEN(bottom, top)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|RANDBETWEEN(1,100) |varies|Random number between 1 and 100 (varies)
+|RANDBETWEEN(-1,1) |varies|Random number between -1 and 1 (varies)
+|===
+
+==== ROUND
+
+[width="90%"]
+|===
+|*description*|The ROUND function rounds a number to a specified number of digits. For example, if field [FIELD1] contains 23.7825, and you want to round that value to two decimal places, you can use the following formula:
+|*syntax*|ROUND(number, num_digits)
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ROUND(-1.475, 2) |-1.48|Rounds -1.475 to two decimal places
+|ROUND(626.3,-3) |1000|Rounds 626.3 to the nearest multiple of 1000
+|ROUND(-50.55,-2) |-100|Rounds -50.55 to the nearest multiple of 100
+|===
+
+==== ROUNDDOWN
+
+[width="90%"]
+|===
+|*description*|Rounds a number down, toward zero.
+|*syntax*|ROUNDDOWN(number, num_digits)
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ROUNDDOWN(3.14159, 3) |3.141|Rounds 3.14159 down to three decimal places.
+|ROUNDDOWN(31415.92654, -2) |31400|Rounds 31415.92654 down to 2 decimal places to the left of the decimal point.
+|===
+
+==== ROUNDUP
+
+[width="90%"]
+|===
+|*description*|Rounds a number up, away from 0 (zero).
+|*syntax*|ROUNDUP(number, num_digits)
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ROUNDUP(3.2,0) |4|Rounds 3.2 up to zero decimal places.
+|ROUNDUP(31415.92654, -2) |31500|Rounds 31415.92654 up to 2 decimal places to the left of the decimal point.
+|===
+
+==== SIGN
+
+[width="90%"]
+|===
+|*description*|Determines the sign of a number. Returns 1 if the number is positive, zero (0) if the number is 0, and -1 if the number is negative.
+|*syntax*|SIGN(number)
+|*returns*|Integer
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|SIGN(10) |1|Sign of a positive number.
+|SIGN(4-4) |0|Sign of the result of 4 minus 4 (zero).
+|SIGN(-0.00001) |-1|Sign of a negative number.
+|===
+
+==== SIN
+
+[width="90%"]
+|===
+|*description*|Returns the sine of a number.
+|*syntax*|SIN( Number )
+|*returns*|Number
+|*semantics*|Number is the angle in radians for which the sine is to be calculated.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|SIN(10) |-0.54402111|Simple SIN
+|===
+
+==== SINH
+
+[width="90%"]
+|===
+|*description*|Returns the hyperbolic sine of a number.
+|*syntax*|SINH(number)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|2.868*SINH(0.0342*1.03) |0.1010491|Probability of obtaining a result of less than 1.03 seconds.
+|===
+
+==== SQRT
+
+[width="90%"]
+|===
+|*description*|Returns the square root of a number.
+|*syntax*|SQRT( Number )
+|*returns*|Number
+|*semantics*|Returns the square root of number.
+|*constraints*|Number must be positive.
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|SQRT(4) |2|Simple SQRT
+|===
+
+==== SUM
+
+[width="90%"]
+|===
+|*description*|Sum (add) the set of numbers, including all numbers in ranges
+|*syntax*|SUM( { NumberSequenceList N }+ )
+|*returns*|Number
+|*semantics*|Adds numbers (and only numbers) together (see the text on conversions). Applications may allow SUM to receive 0 parameters (and return 0), but portable documents must not depend on SUM() with zero parameters returning 0.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|SUM(1;2;3) |6|Simple sum.
+|SUM(TRUE();2;3) |6|TRUE() is 1.
+|SUM([.B4:.B5]) |5|2+3 is 5.
+|===
+
+==== SUMSQ
+
+[width="90%"]
+|===
+|*description*|Returns the sum of the squares of the arguments.
+|*syntax*|SUMSQ(number1, [number2], ...)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|SUMSQ(3, 4) |25|Sum of the squares of 3 and 4 (25)
+|===
+
+==== SWITCH
+
+[width="90%"]
+|===
+|*description*|The SWITCH function evaluates one value (called the expression) against a list of values, and returns the result corresponding to the first matching value. If there is no match, an optional default value may be returned.
+|*syntax*|
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|SWITCH(WEEKDAY([DATE_FIELD]),1,"Sunday",2,"Monday",3,"Tuesday","No match") |Because [DATE_FIELD]=2, and Monday is the result argument corresponding to the value 2, SWITCH returns Monday|
+|SWITCH([DATE_FIELD],1,"Sunday",2,"Monday",3,"Tuesday","No match") |Tuesday|
+|===
+
+==== T.DIST
+
+[width="90%"]
+|===
+|*description*|Returns the Student's left-tailed t-distribution. The t-distribution is used in the hypothesis testing of small sample data sets. Use this function in place of a table of critical values for the t-distribution.
+|*syntax*|T.DIST(x,deg_freedom, cumulative)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|T.DIST(60,1,TRUE) |0.99469533|Student's left-tailed t-distribution for 60, returned as the cumulative distribution function, using 1 degree of freedom.
+|T.DIST(8,3,FALSE) |0.00073691|Student's left-tailed t-distribution for 8, returned as the probability density function, using 3 degrees of freedom.
+|===
+
+==== T.DIST.2T
+
+[width="90%"]
+|===
+|*description*|Returns the two-tailed Student's t-distribution. The Student's t-distribution is used in the hypothesis testing of small sample data sets. Use this function in place of a table of critical values for the t-distribution.
+|*syntax*|T.DIST.2T(x,deg_freedom)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|T.DIST.2T(1.959999998, 60) |5.46%|Two-tailed distribution (0.054645, or 5.46 percent)
+|===
+
+==== T.DIST.RT
+
+[width="90%"]
+|===
+|*description*|Returns the right-tailed Student's t-distribution. The t-distribution is used in the hypothesis testing of small sample data sets. Use this function in place of a table of critical values for the t-distribution.
+|*syntax*|T.DIST.RT(x,deg_freedom)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|T.DIST.RT(1.959999998,60) |0.027322|Two-tailed distribution (0.027322, or 2.73 percent)
+|===
+
+==== TAN
+
+[width="90%"]
+|===
+|*description*|Returns the tangent of the given angle.
+|*syntax*|TAN(number)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|TAN(0.785) |0.99920|Tangent of 0.785 radians (0.99920)
+|TAN(45*PI()/180) |1|Tangent of 45 degrees (1)
+|TAN(RADIANS(45)) |1|Tangent of 45 degrees (1)
+|===
+
+==== TANH
+
+[width="90%"]
+|===
+|*description*|Returns the hyperbolic tangent of a number.
+|*syntax*|TANH(number)
+|*returns*|
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|TANH(-2) |-0.964028|Hyperbolic tangent of -2 (-0.96403)
+|TANH(0) |0|Hyperbolic tangent of 0 (0)
+|TANH(0.5) |0.462117|Hyperbolic tangent of 0.5 (0.462117)
+|===
+
+==== TDIST
+
+[width="90%"]
+|===
+|*description*|Returns the Percentage Points (probability) for the Student t-distribution where a numeric value (x) is a calculated value of t for which the Percentage Points are to be computed. The t-distribution is used in the hypothesis testing of small sample data sets. Use this function in place of a table of critical values for the t-distribution.
+|*syntax*|TDIST(x,deg_freedom,tails)
+|*returns*|Number
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|TDIST(1.959999998,60,2) |5.46%|Two-tailed distribution (0.054644930, or 5.46 percent)
+|TDIST(1.959999998,60,1) |2.73%|One-tailed distribution (0.027322465 or 2.73 percent)
+|===
+
+==== TRUNC
+
+[width="90%"]
+|===
+|*description*|Truncates a number to an integer by removing the fractional part of the number.
+|*syntax*|TRUNC(number, [num_digits])
+|*returns*|Integer
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|TRUNC(8.9) |8|Truncates 8.9 to return the integer part (8).
+|TRUNC(-8.9) |-8|Truncates a negative number to return the integer part (-8).
+|TRUNC(0.45) |0|Truncates a number between 0 and 1, returning the integer part (0).
+|===
+
+==== VAR
+
+[width="90%"]
+|===
+|*description*|Calculates the variance based on a sample.
+|*syntax*|VAR( { NumberSequence N }+ )
+|*returns*|Number
+|*semantics*|Returns the variance.
+|*constraints*|None.
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|VAR(10;5;1) |20.333333|Simple VAR
+|===
+
+=== Text
+
+==== &
+
+[width="90%"]
+|===
+|*description*|Concatenate two strings.
+|*syntax*|Text Left & Text Right
+|*returns*|Text
+|*semantics*|Concatenates two text (string) values. Due to the way conversion works, numbers are converted to strings. Note that this is equivalent to CONCATENATE(Left,Right). (Note: CONCATENATE is not yet available in libformula version 0.1.18.2)
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|"Hi " & "there" |"Hi there"|Simple concatenation.
+|"H" & "" |"H"|Concatenating an empty string produces no change.
+|-5&"b" |“-5b”|Unary “-” has higher precedence than “&”
+|3&2-1 |“31”|Binary “-” has higher precedence than “&”
+|===
+
+==== ASC
+
+[width="90%"]
+|===
+|*description*|Converts full-width to half-width ASCII and katakana characters.
+|*syntax*|ASC( Text t1 )
+|*returns*|Text
+|*semantics*|
+|*constraints*|None
+|===
+
+
+==== CHAR
+
+[width="90%"]
+|===
+|*description*|Converts a code number into a ASCII character or letter. Returns the character specified by a number. Use CHAR to translate code page numbers you might get from files on other types of computers into characters.
+|*syntax*|CHAR( Integer )
+|*returns*|Text
+|*semantics*|Returns the text representation of an ASCII decimal code
+|*constraints*|Integer between 0 and 255 inclusive
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|CHAR(100) |d|Ascii character decimal 100 is a lower case d.
+|CHAR(65) |A|Displays the character represented by 65 in the computer's character set.
+|CHAR(33) |!|Displays the character represented by 33 in the computer's character set.
+|===
+
+==== CLEAN
+
+[width="90%"]
+|===
+|*description*|Removes all nonprintable characters from text. Use CLEAN on text imported from other applications that contains characters that may not print with your operating system. For example, you can use CLEAN to remove some low-level computer code that is frequently at the beginning and end of data files and cannot be printed.
+|*syntax*|CLEAN( Text )
+|*returns*|Text
+|*semantics*|Removes non-printable characters such as ASCII 0 through 31 from a string
+|*constraints*|None
+|===
+
+
+==== CODE
+
+[width="90%"]
+|===
+|*description*|Returns the numeric code for the first character character in a text string. The returned code corresponds to the character set used by your computer.
+|*syntax*|CODE( Text )
+|*returns*|Text
+|*semantics*|Returns the Unicode decimal code
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|CODE("d") |100|Unicode character d is decimal 100.
+|===
+
+==== CONCAT
+
+[width="90%"]
+|===
+|*description*|The CONCAT function combines the text from multiple ranges and/or strings, but it doesn't provide delimiter or IgnoreEmpty arguments.
+|*syntax*|CONCAT( Text t1 ; Text t2; Text tN )
+|*returns*|Text
+|*semantics*|Returns the text strings concatenated together
+|*constraints*|Requires one or more parameters
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|CONCAT("A";"B") |AB|2 parameter concatenation.
+|CONCAT("AB";"CD";"EF") |ABCDEF|3 parameter concatenation
+|===
+
+==== CONCATENATE
+
+[width="90%"]
+|===
+|*description*|The CONCAT function combines the text from multiple ranges and/or strings, but it doesn't provide delimiter or IgnoreEmpty arguments.
+|*syntax*|CONCAT( Text t1 ; Text t2; Text tN )
+|*returns*|Text
+|*semantics*|Returns the text strings concatenated together
+|*constraints*|Requires one or more parameters
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|CONCATENATE("A";"B") |AB|2 parameter concatenation.
+|CONCATENATE("AB";"CD";"EF") |ABCDEF|3 parameter concatenation
+|===
+
+==== DOLLAR
+
+[width="90%"]
+|===
+|*description*|Convert the parameters to Text formatted as currency.
+|*syntax*|DOLLAR( Text text, Integer decimalPlaces )
+|*returns*|Text
+|*semantics*|Text is the incoming string or number to format, decimalPlaces is the number of decimal places to use.  If i2 is not provided defaults to 2.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|DOLLAR("190") |$190.00|Decimal places not specified
+|DOLLAR("190.89";1) |$190.9|Rounds to 1 decimal place
+|===
+
+==== EXACT
+
+[width="90%"]
+|===
+|*description*|Report if two text values are exactly equal using a case-sensitive comparison
+|*syntax*|EXACT( Text t1 ; Text t2 )
+|*returns*|Logical
+|*semantics*|Converts both sides to text, and then returns TRUE if the two text values are "exactly" equal, including case, otherwise it returns FALSE.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|EXACT("A";"A") |True|Trivial comparison.
+|EXACT("A";"a") |False|EXACT, unlike "=", considers different cases different.
+|EXACT(1;1) |True|EXACT does work with numbers.
+|EXACT((1/3)*3;1) |True|Numerical comparisons ignore "trivial" differences that depend only on numeric precision of finite numbers.
+|EXACT(TRUE();TRUE()) |True|Works with Logical values.
+|EXACT("1";2) |False|Different types with different values are different.
+|EXACT("h";1) |False|If text and number, and text can't be converted to a number, they are different and NOT an error.
+|EXACT("1";1) |True|If text and number, see if number converted to text is equal.
+|EXACT(“ 1”;1) |False|This converts 1 into the Text value “1”, the compares and finds that it's not the same as “ 1” (note the leading space).
+|===
+
+==== FIND
+
+[width="90%"]
+|===
+|*description*|Return the starting position of a given text.
+|*syntax*|FIND( Text Search ; Text T [ ; Integer Start = 1 ] )
+|*returns*|Number
+|*semantics*|
+|*constraints*|Start >= 1
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|FIND("b";"abcabc") |2|Simple FIND()
+|FIND("b";"abcabcabc"; 3) |5|Start changes the start of the search
+|FIND("b";"ABC";1) |Error|Matching is case-sensitive.
+|FIND("b";"bbbb") |1|Simple FIND(), default is 1
+|FIND("b";"bbbb";2) |2|
+|FIND("b";"bbbb";2.9) |2|INT(Start) used as starting position
+|FIND("b";"bbbb";0) |Error|Start >= 0
+|FIND("b";"bbbb";0.9) |Error|
+|===
+
+==== FIXED
+
+[width="90%"]
+|===
+|*description*|Round the number to a specified number of decimals and format the result as a text.
+|*syntax*|FIXED( Text text, Integer decimalPlaces, Boolean omitGroupChar )
+|*returns*|Text
+|*semantics*|Text is the incoming string or number to format, decimalPlaces is the number of decimal places to use.  If decimalPlaces is not provided defaults to 3. omitGroupChar indicates if the grouping character (for example ",") should be omitted from the result.  Defaults to false.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|FIXED([NUMBER_FIELD]], 1) |1,234.6|Rounds the number in [NUMBER_FIELD] one digit to the right of the decimal point.
+|FIXED([NUMBER_FIELD]], -1, TRUE) |-1230|Rounds the number in [NUMBER_FIELD] one digit to the left of the decimal point, without commas (the TRUE argument).
+|FIXED("190") |190.000|Decimal places not specified
+|FIXED("190.89";1) |190.9|Rounds to 1 decimal place
+|FIXED("1190.89";1;TRUE()) |1190.9|No grouping character
+|FIXED("1190.89";1;FALSE()) |1,190.9|With grouping character
+|===
+
+==== LEFT
+
+[width="90%"]
+|===
+|*description*|Return a selected number of text characters from the left.
+|*syntax*|LEFT( Text T [ ; Integer Length ] )
+|*returns*|Text
+|*semantics*|Returns the INT(Length) number of characters of text T, starting from the left. If Length is omitted, it defaults to 1; otherwise, it computes Length=INT(Length). If T has fewer than Length characters, it returns T. This means that if T is an empty string (which has length 0) or the parameter Length is 0, LEFT() will always return an empty string. Note that if Length<0, an Error is returned. This function must return the same string as MID(T; 1; Length).
+
+|*constraints*|Length >= 0
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|LEFT("Hello";2) |"He"|Simple LEFT().
+|LEFT("Hello";2.9) |"He"|INT(), not round to nearest or round towards positive infinity, must be used to convert length into an integer.
+|LEFT("Hello") |"H"|Length defaults to 1.
+|LEFT("Hello";20) |"Hello"|If Length is longer than T, returns T.
+|LEFT("Hello";0) |""|If Length 0, returns empty string.
+|LEFT("";4) |""|Given an empty string, always returns empty string.
+|LEFT("xxx";-0.1) |Error|It makes no sense to request a negative number of characters. Also, this tests to ensure that INT() is used to convert non-integers to integers; if -0.1 were incorrectly rounded to 0 (as it would be by round-to-nearest or round-toward-zero), this would incorrectly return a null string.
+|LEFT("Hello";2^15-1) |"Hello"|If Length > LEN(T) entire string is returned.
+|===
+
+==== LEN
+
+[width="90%"]
+|===
+|*description*|Return the length, in characters, of given text
+|*syntax*|LEN( Text T )
+|*returns*|Integer
+|*semantics*|Computes number of characters (not the number of bytes) in T. Implementations that support ISO 10646 / Unicode shall consider any character in the Basic Multilingual Plane (BMP) basic plane as one character, even if they occupy multiple bytes. (The BMP are the characters numbered 0 through 65535 inclusive). Implementations should consider any character not in the BMP as one character as well.
+|*constraints*|None.
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|LEN("Hi There") |8|Space is a character.
+|LEN("") |0|Empty string has zero characters.
+|LEN(55) |2|Numbers are automatically converted.
+|===
+
+==== LOWER
+
+[width="90%"]
+|===
+|*description*|Return input string, but with all uppercase letters converted to lowercase letters.
+|*syntax*|LOWER( Text T )
+|*returns*|Text
+|*semantics*|Return input string, but with all uppercase letters converted to lowercase letters. As with most functions, it is side-effect free (it does not modify the source values). All implementations shall convert A-Z to a-z. However, as this function can be locale aware, results may be unexpected in certain cases.  For example in a Turkish locale an upper case "I without dot" U+0049 is converted to a lower case "i without dot" U+0131.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|LOWER("HELLObc7") |"hellobc7"|Uppercase converted to lowercase; other characters just copied to result.
+|===
+
+==== MID
+
+[width="90%"]
+|===
+|*description*|MID returns a specific number of characters from a text string, starting at the position you specify, based on the number of characters you specify.
+|*syntax*|MID(text, start_num, num_chars)
+|*returns*|String
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|MID([FIELD],1,5) ||Returns 5 characters from the string in [FIELD], starting at the 1st character.
+|MID([FIELD],7,20) ||Returns 20 characters from the string in [FIELD], starting at the 7th character. Because the number of characters to return (20) is greater than the length of the string (10), all characters, beginning with the 7th, are returned. No empty characters (spaces) are added to the end.
+|MID("123456789";5;3) |"567"|Simple use of MID.
+|MID("123456789";20;3)
+|""|If Start is beyond string, return empty string.
+|MID("123456789";-1;0)
+|Error|Start cannot be less than one; even if the length is 0
+|MID("123456789";1;0)
+|""|But otherwise, length=0 produces the empty string
+|MID("123456789";2.9;1)
+|"2"|INT(Start) is used
+|MID("123456789";2;2.9)
+|"23"|INT(Length) is used
+|===
+
+==== MID
+
+[width="90%"]
+|===
+|*description*|Returns extracted text, given an original text, starting position, and length.
+|*syntax*|MID( Text T ; Integer Start ; Integer Length )
+|*returns*|Text
+|*semantics*|Returns the characters from T, starting at character position Start, for up to Length characters. For the integer conversions, Start=INT(Start), and Length=INT(Length). If there are less than Length characters starting at start, it returns as many characters as it can beginning with Start. In particular, if Start > LEN(T), it returns the empty string (""). If Start < 0, it returns an Error. If Start >=0, and Length=0, it returns the empty string. Note that MID(T;1;Length) produces the same results as LEFT(T;Length).
+|*constraints*|Start >= 1, Length >= 0.
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|MID([FIELD],1,5) ||Returns 5 characters from the string in [FIELD], starting at the 1st character.
+|MID([FIELD],7,20) ||Returns 20 characters from the string in [FIELD], starting at the 7th character. Because the number of characters to return (20) is greater than the length of the string (10), all characters, beginning with the 7th, are returned. No empty characters (spaces) are added to the end.
+|MID("123456789";5;3) |"567"|Simple use of MID.
+|MID("123456789";20;3)
+|""|If Start is beyond string, return empty string.
+|MID("123456789";-1;0)
+|Error|Start cannot be less than one; even if the length is 0
+|MID("123456789";1;0)
+|""|But otherwise, length=0 produces the empty string
+|MID("123456789";2.9;1)
+|"2"|INT(Start) is used
+|MID("123456789";2;2.9)
+|"23"|INT(Length) is used
+|===
+
+==== PROPER
+
+[width="90%"]
+|===
+|*description*|Return the input string with the first letter of each word converted to an uppercase letter.
+|*syntax*|PROPER(Text T)
+|*returns*|Text
+|*semantics*|Return input string with the first letter of each word as an uppercase letter. As with most functions, it is side-effect free (it does not modify the source values).
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|PROPER("hello there") |Hello There|The first letter is uppercase and the following letter are lowercase.
+|===
+
+==== REPLACE
+
+[width="90%"]
+|===
+|*description*|Returns text where an old text is substituted with a new text.
+|*syntax*|REPLACE( Text T ; Number Start ; Number Len ; Text New )
+|*returns*|Text
+|*semantics*|Returns text T, but remove the characters starting at character position Start for Len characters, and instead replace them with New. Character positions defined by Start begin at 1 (for the leftmost character). If Len=0, the text New is inserted before character position Start, and all the text before and after Start is retained.
+|*constraints*|Start >= 1.
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|REPLACE("123456789";5;3;"Q") |"1234Q89"|Replacement text may have different length.
+|REPLACE("123456789";5;0;"Q") |"1234Q56789"|If Len=0, 0 characters removed.
+|===
+
+==== REPT
+
+[width="90%"]
+|===
+|*description*|Return text repeated Count times.
+|*syntax*|REPT( Text T ; Integer Count )
+|*returns*|Text
+|*semantics*|Returns text T repeated Count number of times; if Count is zero, an empty string is returned. If Count < 0, the result is Error.
+|*constraints*|Count >= 0
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|REPT("X";3) |"XXX"|
+|REPT("XY";2) |"XYXY"|Repeated text can have length > 1.
+|REPT("X";2.9) |"XX"|INT(Count) used if count is a fraction
+|REPT("X";0) |""|If Count is zero, empty string
+|REPT("X";-1) |Error|If Count is negative, Error.
+|===
+
+==== RIGHT
+
+[width="90%"]
+|===
+|*description*|Return a selected number of text characters from the right.
+|*syntax*|RIGHT( Text T [ ; Integer Length ] )
+|*returns*|Text
+|*semantics*|Returns the Length number of characters of text T, starting from the right. If Length is omitted, it defaults to 1; otherwise, it computes Length=INT(Length). If T has fewer than Length characters, it returns T (unchanged). This means that if T is an empty string (which has length 0) or the parameter Length is 0, RIGHT() will always return an empty string. Note that if Length<0, an Error is returned.
+|*constraints*|Length >= 0
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|RIGHT("Hello";2) |"lo"|Simple RIGHT().
+|RIGHT("Hello") |"o"|Length defaults to 1.
+|RIGHT("Hello";20) |"Hello"|If Length is longer than T, returns T.
+|RIGHT("Hello";0) |""|If Length 0, returns empty string.
+|RIGHT("Hello";2^15-1) |“Hello”|If Length is larger than T and is very large, it still returns the original short string.
+|RIGHT("";4) |""|Given an empty string, always returns empty string.
+|RIGHT("Hello";-1) |Error|It makes no sense to request a negative number of characters.
+|RIGHT("Hello";-0.1) |Error|Must use INT, not round-to-nearest or round-towards zero, to convert Length to Integer
+|===
+
+==== ROMAN
+
+[width="90%"]
+|===
+|*description*|Converts an arabic numeral to roman, as text.
+|*syntax*|ROMAN(number, [form])
+|*returns*|Text
+|*semantics*|
+|*constraints*|
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|ROMAN(499,0) |CDXCIX|Classic roman numeral style for 499 (CDXCIX)
+|ROMAN(499,1) |LDVLIV|More concise version for 499 (LDVLI
+|ROMAN(499,2) |XDIX|More concise version for 499 (XDIX)
+|ROMAN(499,3) |VDIV|More concise version for 499 (VDIV)
+|ROMAN(499,4) |ID|Simplified version for 499 (ID)
+|===
+
+==== SEARCH
+
+[width="90%"]
+|===
+|*description*|Looks for a string of text within another (NOT case sensitive)
+|*syntax*|SEARCH( Text findText, Text text, Integer startPosition )
+|*returns*|Text
+|*semantics*|findText is the text to search for, text is the String to search in, startPosition is the integer position within the string to start searching
+|*constraints*|startPosition > 0
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|SEARCH("p";"Apple") |2|
+|SEARCH("p";"Apple";3) |3|Starts searching at index 3
+|===
+
+==== STRINGCOUNT
+
+[width="90%"]
+|===
+|*description*|Counts the occurrences of text in a string.
+|*syntax*|SEARCH( Text text, Text findText )
+|*returns*|Text
+|*semantics*|text is the String to search in, findText is the text to search for.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|STRINGCOUNT("Apple";"p") |2|
+|STRINGCOUNT("APPLE";"p") |0|Function is case sensitive
+|===
+
+==== SUBSTITUTE
+
+[width="90%"]
+|===
+|*description*|Returns text where an old text is substituted with a new text.
+|*syntax*|SUBSTITUTE( Text T ; Text Old ; Text New [ ; Number Which ] )
+|*returns*|Text
+|*semantics*|Returns text T, but with text Old replaced by text New (when searching from the left). If Which is omitted, every occurrence of Old is replaced with New; if Which is provided, only that occurrence of Old is replaced by New (starting the count from 1). If there is no match, or if Old has length 0, the value of T is returned. Note that Old and New may have different lengths. If Which is present and Which < 1, returns Error.
+|*constraints*|Which >= 1 (when provided)
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|SUBSTITUTE("121212";"2";"ab") |"1ab1ab1ab"|Without Which, all replaced.
+|SUBSTITUTE("121212";"2";"ab";2) |"121ab12"|Which starts counting from 1.
+|SUBSTITUTE("Hello";"x";"ab") |"Hello"|If not found, returns unchanged.
+|SUBSTITUTE("xyz";"";"ab") |"xyz"|Returns T if Old is Length 0.
+|SUBSTITUTE("";"";"ab") |""|Returns T if Old is Length 0, even if T is empty (it does not consider an empty T to “match” an empty Old).
+|SUBSTITUTE("Hello"; "H"; "J"; 0) |Error|Which cannot be less than 1.
+|===
+
+==== T
+
+[width="90%"]
+|===
+|*description*|Return the text (if text), else return 0-length Text value
+|*syntax*|T( Any X )
+|*returns*|Text
+|*semantics*|The type of (a dereferenced) X is examined; if it is of type Text, it is returned, else an empty string (Text value of zero length) is returned. This is not a type-conversion function; T(5) produces an empty string, not "5".
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|T("HI") |"HI"|T does not change text.
+|T([.B3]) |"7"|References transformed into what they reference.
+|T(5) |""|Non-text converted into null string.
+|===
+
+==== TEXT
+
+[width="90%"]
+|===
+|*description*|Return the value converted to a text.
+|*syntax*|TEXT( Scalar X ; Text FormatCode )
+|*returns*|Text
+|*semantics*|Converts the value X to a text according to the rules of a number format code passed as FormatCode and returns it.
+|*constraints*|The FormatCode is a sequence of characters with an application-defined meaning.
+Portable Contraints: The result of this function may change across locales. If separators such as decimal or group separator are involved, conversion may give unexpected results if the separators don't match that of the current locale. Across applications the result may change to the extend to which number format codes and their subtleties are supported. Portable documents should not use this function.
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|TEXT(12345.6789;"#,##0.00") |"12,345.68"|Non-text converted to text. This is locale-specific.
+|TEXT(3;"0"" good things""") |"3 good things"|
+|===
+
+==== TRIM
+
+[width="90%"]
+|===
+|*description*|Remove leading and trailing spaces, and replace all internal multiple spaces with a single space.
+|*syntax*|TRIM( Text T )
+|*returns*|Text
+|*semantics*|Takes T and removes all leading and trailing space. Any other sequence of 2 or more spaces is replaced with a single space.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|TRIM(" ABC  ") |"ABC"|
+|===
+
+==== UNICHAR
+
+[width="90%"]
+|===
+|*description*|Converts a code number into a Unicode character or letter.
+|*syntax*|UNICHAR( Integer )
+|*returns*|Text
+|*semantics*|Returns the text representation of an Unicode decimal code
+|*constraints*|Integer must be a valid Unicode character code
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|UNICHAR(100) |d|Unicode character decimal 100 is a lower case d.
+|===
+
+==== UNICODE
+
+[width="90%"]
+|===
+|*description*|Returns the numeric Unicode code for the first character character in a text string.
+|*syntax*|UNICODE( Text )
+|*returns*|Text
+|*semantics*|Returns the Unicode decimal code
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|UNICODE("d") |100|Unicode character d is decimal 100.
+|===
+
+==== UPPER
+
+[width="90%"]
+|===
+|*description*|Return input string, but with all lowercase letters converted to uppercase letters.
+|*syntax*|UPPER( Text T )
+|*returns*|Text
+|*semantics*|Return input string, but with all lowercase letters converted to uppercase letters. As with most functions, it is side-effect free (it does not modify the source values). All implementations shall convert a-z to A-Z. However, as this function can be locale aware, results may be unexpected in certain cases, for example in a Turkish locale a lower case "i with dot" U+0069 is converted to an upper case "I with dot" U+0130.
+|*constraints*|None
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|UPPER("Habc7") |"HABC7"|Lowercase converted to upper case; other characters just copied to result.
+|===
+
+==== URLENCODE
+
+[width="90%"]
+|===
+|*description*|Applies URL-Encoding to a text given in the first parameter using the encoding specified in the second parameter. If no encoding is given, UTF-8 is assumed.
+|*syntax*|URLENCODE( Text text, Text encoding )
+|*returns*|Text
+|*semantics*|text is the string to encode, encoding is the character set to use when encoding.
+|*constraints*|Encoding must be a valid character set.
+|===
+
+*Examples*
+|===
+|expression|result|comment
+|URLENCODE("&PARAM1=value?param2=value2") |%26PARAM1%3Dvalue%3Fparam2%3Dvalue2|
+|===
+
+

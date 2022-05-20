@@ -472,6 +472,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     FormData fdlRowsCountField = new FormData();
     fdlRowsCountField.left = new FormAttachment(wInclFilesCount, margin);
     fdlRowsCountField.top = new FormAttachment(0, margin);
+    fdlRowsCountField.right = new FormAttachment(middle, -margin);
     wlRowsCountField.setLayoutData(fdlRowsCountField);
     wRowsCountField =
         new TextVar(variables, wFilesCountFieldGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -553,6 +554,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     FormData fdlRowSeparator = new FormData();
     fdlRowSeparator.left = new FormAttachment(wInclFilesCount, margin);
     fdlRowSeparator.top = new FormAttachment(wRowSeparatorFormat, margin);
+    fdlRowSeparator.right = new FormAttachment(middle, -margin);
     wlRowSeparator.setLayoutData(fdlRowSeparator);
     wRowSeparator = new TextVar(variables, wRowSeparatorGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wRowSeparator);

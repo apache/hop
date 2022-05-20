@@ -1209,7 +1209,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     actionFtpDelete.setRemoteDirectory(wFtpDirectory.getText());
     actionFtpDelete.setWildcard(wWildcard.getText());
     actionFtpDelete.setTimeout(Const.toInt(wTimeout.getText(), 10000));
-    actionFtpDelete.setActiveConnection(wActive.getSelection());
+    
 
     actionFtpDelete.setUseProxy(wUseProxy.getSelection());
     actionFtpDelete.setProxyHost(wProxyHost.getText());

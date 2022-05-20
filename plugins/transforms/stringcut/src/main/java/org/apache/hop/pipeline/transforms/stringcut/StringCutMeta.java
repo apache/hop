@@ -40,8 +40,8 @@ import java.util.List;
 @Transform(
     id = "StringCut",
     image = "stringcut.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.StringCut",
-    description = "i18n::BaseTransform.TypeTooltipDesc.StringCut",
+    name = "i18n::StringCut.Name",
+    description = "i18n::StringCut.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::StringCutMeta.keyword",
     documentationUrl = "/pipeline/transforms/stringcut.html")

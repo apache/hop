@@ -81,6 +81,7 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
     formLayout.marginHeight = Const.FORM_MARGIN;
     shell.setLayout(formLayout);
 
+    int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
     // The buttons at the bottom of the dialog
@@ -99,14 +100,14 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    wlTransformName.setLayoutData(new FormDataBuilder().left().top().result());
+    wlTransformName.setLayoutData(new FormDataBuilder().right(middle, -margin).result());
     props.setLook(wlTransformName);
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     wTransformName.addListener(SWT.Modify, e -> input.setChanged());
     wTransformName.setLayoutData(
-        new FormDataBuilder().left().top(wlTransformName, margin).right(100, 0).result());
+        new FormDataBuilder().left(wlTransformName, 0).top(wlTransformName, 0, SWT.CENTER).right().result());
     props.setLook(wTransformName);
 
     // Treat empty strings as nulls
@@ -114,7 +115,7 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
     wEmptyStrings = new Button(shell, SWT.CHECK);
     wEmptyStrings.setText(BaseMessages.getString(PKG, "CoalesceDialog.Shell.EmptyStringsAsNulls"));
     wEmptyStrings.setLayoutData(
-        new FormDataBuilder().left().top(wTransformName, margin * 2).result());
+        new FormDataBuilder().left(wTransformName, 0).top(wTransformName, margin * 2).result());
     wEmptyStrings.addListener(SWT.Selection, e -> input.setChanged());
     props.setLook(wEmptyStrings);
 

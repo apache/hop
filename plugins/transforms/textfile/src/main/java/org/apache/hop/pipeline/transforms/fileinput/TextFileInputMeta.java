@@ -18,6 +18,7 @@
 
 package org.apache.hop.pipeline.transforms.fileinput;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
@@ -32,11 +33,7 @@ import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.*;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -53,19 +50,19 @@ import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import com.google.common.annotations.VisibleForTesting;
 
 /** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
-@Deprecated
+@Deprecated(since="2.0")
 @Transform(
     id = "TextFileInput",
     image = "textfileinput.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.TextFileInput",
-    description = "i18n::BaseTransform.TypeTooltipDesc.TextFileInput",
+    name = "i18n::TextFileInput.Name",
+    description = "i18n::TextFileInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::TextFileInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/textfileinput.html")

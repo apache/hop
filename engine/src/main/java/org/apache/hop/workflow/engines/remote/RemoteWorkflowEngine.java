@@ -244,16 +244,6 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       }
       workflowExecutionConfiguration.setGatheringMetrics(gatheringMetrics);
 
-      // Pass all variables to the parameters map...
-      //
-      Map<String, String> parametersMap = workflowExecutionConfiguration.getParametersMap();
-      for (String variableName : this.getVariableNames()) {
-        String variableValue = this.getVariable(variableName);
-        if (variableName != null && variableValue != null) {
-          parametersMap.put(variableName, variableValue);
-        }
-      }
-
       sendToHopServer(this, workflowMeta, workflowExecutionConfiguration, metadataProvider);
       fireWorkflowStartedListeners();
 
@@ -368,6 +358,14 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
           executionConfiguration.getVariablesMap().put(var, getVariable(var));
         }
       }
+
+      // Add parameters to the execution configuration
+      //
+      Map<String, String> parametersMap = executionConfiguration.getParametersMap();
+      for (String param : listParameters()) {
+        parametersMap.put(param, getVariable(param));
+      }
+
 
       if (remoteWorkflowRunConfiguration.isExportingResources()) {
         // First export the workflow...

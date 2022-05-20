@@ -25,7 +25,6 @@ import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.HopLogStore;
@@ -519,7 +518,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     return cmd;
   }
 
-  /** @param cmd The cmd to set */
+  /**
+   * @param cmd The cmd to set
+   */
   public void setCmd(CommandLine cmd) {
     this.cmd = cmd;
   }
@@ -533,7 +534,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
@@ -547,7 +550,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     return level;
   }
 
-  /** @param level The level to set */
+  /**
+   * @param level The level to set
+   */
   public void setLevel(String level) {
     this.level = level;
   }
@@ -561,7 +566,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     return helpRequested;
   }
 
-  /** @param helpRequested The helpRequested to set */
+  /**
+   * @param helpRequested The helpRequested to set
+   */
   public void setHelpRequested(boolean helpRequested) {
     this.helpRequested = helpRequested;
   }
@@ -575,7 +582,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     return parameters;
   }
 
-  /** @param parameters The parameters to set */
+  /**
+   * @param parameters The parameters to set
+   */
   public void setParameters(String[] parameters) {
     this.parameters = parameters;
   }
@@ -589,7 +598,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     return runConfigurationName;
   }
 
-  /** @param runConfigurationName The runConfigurationName to set */
+  /**
+   * @param runConfigurationName The runConfigurationName to set
+   */
   public void setRunConfigurationName(String runConfigurationName) {
     this.runConfigurationName = runConfigurationName;
   }
@@ -603,7 +614,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     return printingOptions;
   }
 
-  /** @param printingOptions The printingOptions to set */
+  /**
+   * @param printingOptions The printingOptions to set
+   */
   public void setPrintingOptions(boolean printingOptions) {
     this.printingOptions = printingOptions;
   }
@@ -617,7 +630,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     return systemProperties;
   }
 
-  /** @param systemProperties The systemProperties to set */
+  /**
+   * @param systemProperties The systemProperties to set
+   */
   public void setSystemProperties(String[] systemProperties) {
     this.systemProperties = systemProperties;
   }
@@ -631,7 +646,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }
@@ -645,7 +662,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     return realRunConfigurationName;
   }
 
-  /** @param realRunConfigurationName The realRunConfigurationName to set */
+  /**
+   * @param realRunConfigurationName The realRunConfigurationName to set
+   */
   public void setRealRunConfigurationName(String realRunConfigurationName) {
     this.realRunConfigurationName = realRunConfigurationName;
   }
@@ -659,17 +678,23 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     return realFilename;
   }
 
-  /** @param realFilename The realFilename to set */
+  /**
+   * @param realFilename The realFilename to set
+   */
   public void setRealFilename(String realFilename) {
     this.realFilename = realFilename;
   }
 
-  /** @param log The log to set */
+  /**
+   * @param log The log to set
+   */
   public void setLog(ILogChannel log) {
     this.log = log;
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   @Override
   public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
@@ -720,7 +745,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // Clear the jar file cache so that we don't waste memory...
       //
       JarCache.getInstance().clear();
-      
+
       // Set up the metadata to use
       //
       hopRun.metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(hopRun.variables);

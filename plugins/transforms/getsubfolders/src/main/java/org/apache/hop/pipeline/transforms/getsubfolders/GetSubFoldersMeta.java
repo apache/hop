@@ -51,8 +51,8 @@ import java.util.Map;
 @Transform(
     id = "GetSubFolders",
     image = "getsubfolders.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.GetSubFolders",
-    description = "i18n::BaseTransform.TypeTooltipDesc.GetSubFolders",
+    name = "i18n::GetSubFolders.Name",
+    description = "i18n::GetSubFolders.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::GetSubFoldersMeta.keyword",
     documentationUrl = "/pipeline/transforms/getsubfolders.html")

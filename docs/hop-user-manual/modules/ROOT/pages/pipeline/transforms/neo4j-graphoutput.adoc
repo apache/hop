@@ -47,7 +47,7 @@ Use the provided button in the graph model editor to generate the Neo4j Index an
 
 |===
 |Option |Description
-|transform name|the name for this transform in the pipeline
+|Transform name|the name for this transform in the pipeline
 |Neo4j connection|the Neo4j connection to write the graph to
 |Graph model|the xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j graph model] to use
 |Batch size (rows)|batch size to use for writing data to Neo4j

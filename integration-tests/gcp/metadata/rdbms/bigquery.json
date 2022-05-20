@@ -1,0 +1,26 @@
+{
+  "rdbms": {
+    "GOOGLEBIGQUERY": {
+      "databaseName": "apache-hop.it",
+      "pluginId": "GOOGLEBIGQUERY",
+      "accessType": 0,
+      "hostname": "",
+      "password": "Encrypted ",
+      "port": "",
+      "pluginName": "Google BigQuery",
+      "attributes": {
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
+        "QUOTE_ALL_FIELDS": "N",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "SQL_CONNECT": "",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "PREFERRED_SCHEMA_NAME": ""
+      },
+      "manualUrl": "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;\nProjectId\u003dapache-hop;OAuthType\u003d0;\nOAuthServiceAcctEmail\u003dapache-hop-it@apache-hop.iam.gserviceaccount.com;\nOAuthPvtKeyPath\u003d/home/matt/parking/google-key-apache-hop-it.json",
+      "username": ""
+    }
+  },
+  "name": "bigquery"
+}

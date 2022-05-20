@@ -43,7 +43,6 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
@@ -57,7 +56,7 @@ import java.util.*;
 @HopPerspectivePlugin(
     id = "500-HopPluginExplorerPerspective",
     name = "i18n::PluginExplorerPerspective.Name",
-    description = "The Hop Plugin Explorer Perspective",
+    description = "i18n::PluginExplorerPerspective.Description",
     image = "ui/images/plugin.svg")
 @GuiPlugin(description = "i18n::PluginExplorerPerspective.GuiPlugin.Description")
 public class HopPluginExplorePerspective implements IHopPerspective {
@@ -119,13 +118,13 @@ public class HopPluginExplorePerspective implements IHopPerspective {
     composite = new Composite(parent, SWT.NONE);
     composite.setLayout(new FormLayout());
     props.setLook(composite);
-    
+
     FormData formData = new FormData();
     formData.left = new FormAttachment(0, 0);
     formData.top = new FormAttachment(0, 0);
     formData.right = new FormAttachment(100, 0);
     formData.bottom = new FormAttachment(100, 0);
-    composite.setLayoutData(formData);   
+    composite.setLayoutData(formData);
 
     Label label = new Label(composite, SWT.LEFT);
     label.setText(BaseMessages.getString(PKG, "PluginExplorerPerspective.PluginType.Label"));
@@ -152,7 +151,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
           }
         });
     props.setLook(wPluginType, Props.WIDGET_STYLE_TOOLBAR);
-    
+
     IRowMeta rowMeta = metaMap.get(selectedPluginType);
     ColumnInfo[] colinf = new ColumnInfo[rowMeta.size()];
     for (int i = 0; i < rowMeta.size(); i++) {

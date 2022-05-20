@@ -64,7 +64,7 @@ public class GuiCompositeWidgets {
    * @param variables
    * @param maxNrItems
    */
-  @Deprecated
+  @Deprecated(since="2.0")
   public GuiCompositeWidgets(IVariables variables, int maxNrItems) {
     this.variables = variables;
     labelsMap = new HashMap<>();

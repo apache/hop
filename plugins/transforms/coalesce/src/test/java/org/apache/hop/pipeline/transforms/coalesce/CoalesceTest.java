@@ -27,7 +27,9 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Random;
+import java.util.UUID;
 
 public class CoalesceTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

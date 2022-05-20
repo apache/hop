@@ -61,7 +61,6 @@ import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngineRunConfiguration> {
