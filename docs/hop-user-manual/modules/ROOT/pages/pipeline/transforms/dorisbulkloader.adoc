@@ -1,0 +1,75 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Doris Bulk loader transform allows you to bulk insert data to DorisDB
+
+= Doris Bulk Loader
+
+== Description
+
+Apache Doris is a modern MPP analytical database product. It can provide sub-second queries and efficient real-time data analysis. With it's distributed architecture, up to 10PB level datasets will be well supported and easy to operate.
+
+Apache Doris can meet various data analysis demands, including history data reports, real-time data analysis, interactive data analysis, and exploratory data analysis. Make your data analysis easier!
+
+The Doris Bulk Loader allows you to insert data into Apache Doris at high speed and volume, making it a faster way to load data than using the traditional database insert statements.
+
+
+
+== Options
+
+=== General
+
+[width="90%",options="header"]
+|===
+|Option|Description
+|Transform name
+|Name of the transform; This name has to be unique in a single pipeline
+|FE Host
+|Hostname of the FE Host
+|FE HTTP Port
+|Port used to connect to the FE Host
+|Database Name
+|The database you want to connect to
+|Table Name
+|Table name to bulk load records to
+|Login User
+|User used to connect to the database
+|Login Password
+|Password to connect to the database
+|Data Field
+|The Data has to be combined to a single field, this can be a csv style field or json data
+|Format
+|Indicator to tell the transform it is expecting CSV style or JSON style data
+|Line Delimiter
+|The Delimiter used to indicate line endings
+|Column separator
+|When using CSV style data this will indicate what character to split fields on
+|Buffer Size
+|Size of the buffer in bytes (0 = unlimited)
+|Buffer Count
+|Buffer Size * Buffer Count is the max capacity to buffer data before doing real stream load (0 = unlimited)
+|===
+
+=== Headers
+
+[width="90%",options="header"]
+|===
+|Option|Description
+|Header/value
+|Use this to add extra option to the bulk load command
+|===

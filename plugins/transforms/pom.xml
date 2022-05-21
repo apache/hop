@@ -94,6 +94,7 @@
                 <module>detectemptystream</module>
                 <module>detectlastrow</module>
                 <module>dimensionlookup</module>
+                <module>dorisbulkloader</module>
                 <module>drools</module>
                 <module>dynamicsqlrow</module>
                 <module>edi2xml</module>
@@ -111,7 +112,6 @@
                 <module>filestoresult</module>
                 <module>filterrows</module>
                 <module>flattener</module>
-                <module>formula</module>
                 <module>fuzzymatch</module>
                 <module>getfilenames</module>
                 <module>getfilesrowcount</module>
