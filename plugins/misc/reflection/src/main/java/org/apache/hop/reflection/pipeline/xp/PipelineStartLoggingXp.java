@@ -34,8 +34,10 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.reflection.pipeline.meta.PipelineLog;
+import org.apache.hop.reflection.pipeline.meta.PipelineToLogLocation;
 import org.apache.hop.reflection.pipeline.transform.PipelineLogging;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -78,7 +80,6 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
       final IPipelineEngine<PipelineMeta> pipeline,
       final IVariables variables)
       throws HopException {
-    try {
 
       // See if we need to do anything at all...
       //
@@ -100,14 +101,40 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
 
       // See if the file exists...
       FileObject loggingFileObject = HopVfs.getFileObject(loggingPipelineFilename);
-      if (!loggingFileObject.exists()) {
-        log.logBasic(
-            "WARNING: The Pipeline Log pipeline file '"
-                + loggingPipelineFilename
-                + "' couldn't be found to execute.");
-        return;
+      try {
+        if (!loggingFileObject.exists()) {
+          log.logBasic(
+              "WARNING: The Pipeline Log pipeline file '"
+                  + loggingPipelineFilename
+                  + "' couldn't be found to execute.");
+          return;
+        }
+      } catch (Exception e) {
+        pipeline.stopAll();
+        throw new HopException(
+                "Error handling Pipeline Log metadata object '"
+                        + pipelineLog.getName()
+                        + "' at the start of pipeline: "
+                        + pipeline,
+                e);
       }
 
+      // check if we need to log everything or specific pipelines only.
+      if(pipelineLog.getPipelinesToLog().isEmpty() ) {
+        logPipeline(pipelineLog, pipeline, loggingPipelineFilename, variables);
+      }else {
+        for(PipelineToLogLocation pipelineToLogLocation: pipelineLog.getPipelinesToLog()){
+            String pipelineUri = HopVfs.getFileObject(pipeline.getFilename()).getPublicURIString();
+            String pipelineToLogUri = HopVfs.getFileObject(variables.resolve(pipelineToLogLocation.getPipelineToLogFilename())).getPublicURIString();
+          if(pipelineUri.equals(pipelineToLogUri)){
+            logPipeline(pipelineLog, pipeline, loggingPipelineFilename, variables);
+          }
+        }
+      }
+  }
+
+  private void logPipeline(PipelineLog pipelineLog, IPipelineEngine<PipelineMeta> pipeline, String loggingPipelineFilename, IVariables variables) throws HopException{
+    try{
       final Timer timer = new Timer();
 
       if (pipelineLog.isExecutingAtStart()) {
@@ -116,59 +143,58 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
 
       if (pipelineLog.isExecutingAtEnd()) {
         pipeline.addExecutionFinishedListener(
-            engine -> {
-              executeLoggingPipeline(
-                  pipelineLog, "end", loggingPipelineFilename, pipeline, variables);
-              timer.cancel();
-            });
+                engine -> {
+                  executeLoggingPipeline(
+                          pipelineLog, "end", loggingPipelineFilename, pipeline, variables);
+                  timer.cancel();
+                });
         pipeline.addExecutionStoppedListener(
-            engine -> {
-              try {
-                executeLoggingPipeline(
-                    pipelineLog, "stop", loggingPipelineFilename, pipeline, variables);
-              } catch (Exception e) {
-                throw new RuntimeException(
-                    "Unable to do interval logging for Pipeline Log object '"
-                        + pipelineLog.getName()
-                        + "'",
-                    e);
-              }
-              timer.cancel();
-            });
+                engine -> {
+                  try {
+                    executeLoggingPipeline(
+                            pipelineLog, "stop", loggingPipelineFilename, pipeline, variables);
+                  } catch (Exception e) {
+                    throw new RuntimeException(
+                            "Unable to do interval logging for Pipeline Log object '"
+                                    + pipelineLog.getName()
+                                    + "'",
+                            e);
+                  }
+                  timer.cancel();
+                });
       }
 
       if (pipelineLog.isExecutingPeriodically()) {
         int intervalInSeconds =
-            Const.toInt(variables.resolve(pipelineLog.getIntervalInSeconds()), -1);
+                Const.toInt(variables.resolve(pipelineLog.getIntervalInSeconds()), -1);
         if (intervalInSeconds > 0) {
           TimerTask timerTask =
-              new TimerTask() {
-                @Override
-                public void run() {
-                  try {
-                    executeLoggingPipeline(
-                        pipelineLog, "interval", loggingPipelineFilename, pipeline, variables);
-                  } catch (Exception e) {
-                    throw new RuntimeException(
-                        "Unable to do interval logging for Pipeline Log object '"
-                            + pipelineLog.getName()
-                            + "'",
-                        e);
-                  }
-                }
-              };
+                  new TimerTask() {
+                    @Override
+                    public void run() {
+                      try {
+                        executeLoggingPipeline(
+                                pipelineLog, "interval", loggingPipelineFilename, pipeline, variables);
+                      } catch (Exception e) {
+                        throw new RuntimeException(
+                                "Unable to do interval logging for Pipeline Log object '"
+                                        + pipelineLog.getName()
+                                        + "'",
+                                e);
+                      }
+                    }
+                  };
           timer.schedule(timerTask, intervalInSeconds * 1000L, intervalInSeconds * 1000L);
         }
       }
-
     } catch (Exception e) {
       pipeline.stopAll();
       throw new HopException(
-          "Error handling Pipeline Log metadata object '"
-              + pipelineLog.getName()
-              + "' at the start of pipeline: "
-              + pipeline,
-          e);
+              "Error handling Pipeline Log metadata object '"
+                      + pipelineLog.getName()
+                      + "' at the start of pipeline: "
+                      + pipeline,
+              e);
     }
   }
 

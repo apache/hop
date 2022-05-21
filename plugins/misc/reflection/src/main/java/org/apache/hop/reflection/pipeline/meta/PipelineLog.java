@@ -23,6 +23,9 @@ import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @HopMetadata(
     key = "pipeline-log",
     name = "Pipeline Log",
@@ -39,6 +42,7 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty private boolean executingPeriodically;
   @HopMetadataProperty private String intervalInSeconds;
   @HopMetadataProperty private boolean executingAtEnd;
+  @HopMetadataProperty private List<PipelineToLogLocation> pipelinesToLog;
 
   public PipelineLog() {
     enabled = true;
@@ -47,10 +51,12 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
     executingPeriodically = false;
     intervalInSeconds = "30";
     executingAtEnd = true;
+    pipelinesToLog = new ArrayList<>();
   }
 
   public PipelineLog(String name) {
     super(name);
+    pipelinesToLog = new ArrayList<>();
   }
 
   public PipelineLog(
@@ -61,7 +67,8 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
       boolean executingAtStart,
       boolean executingPeriodically,
       String intervalInSeconds,
-      boolean executingAtEnd) {
+      boolean executingAtEnd,
+      List<PipelineToLogLocation> pipelinesToLog) {
     super(name);
     this.enabled = enabled;
     this.loggingParentsOnly = loggingParentsOnly;
@@ -70,6 +77,7 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
     this.executingPeriodically = executingPeriodically;
     this.intervalInSeconds = intervalInSeconds;
     this.executingAtEnd = executingAtEnd;
+    this.pipelinesToLog = pipelinesToLog;
   }
 
   /**
@@ -168,5 +176,13 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
   /** @param executingAtEnd The executingAtEnd to set */
   public void setExecutingAtEnd(boolean executingAtEnd) {
     this.executingAtEnd = executingAtEnd;
+  }
+
+  public List<PipelineToLogLocation> getPipelinesToLog(){
+    return pipelinesToLog;
+  }
+
+  public void setPipelinesToLog(List<PipelineToLogLocation> pipelinesToLog){
+    this.pipelinesToLog = pipelinesToLog;
   }
 }

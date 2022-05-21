@@ -31,6 +31,8 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
@@ -39,6 +41,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Editor that allows you to change Pipeline Log metadata
@@ -57,6 +62,8 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
   private Button wPeriodic;
   private Label wlInterval;
   private TextVar wInterval;
+  private TableView wPipelines;
+
 
   public PipelineLogEditor(
       HopGui hopGui, MetadataManager<PipelineLog> manager, PipelineLog metadata) {
@@ -265,6 +272,40 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     wInterval.addListener(SWT.Selection, this::enableFields);
     lastControl = wlInterval;
 
+    // The locations in a table view:
+    //
+    Label wlSources = new Label(parent, SWT.LEFT);
+    props.setLook(wlSources);
+    wlSources.setText(BaseMessages.getString(PKG, "PipelineLoggingEditor.Sources.Label"));
+    FormData fdlSources = new FormData();
+    fdlSources.left = new FormAttachment(0, 0);
+    fdlSources.right = new FormAttachment(100, 0);
+    fdlSources.top = new FormAttachment(lastControl, 2 * margin);
+    wlSources.setLayoutData(fdlSources);
+    lastControl = wlSources;
+    ColumnInfo[] columns = {
+            new ColumnInfo(
+                    BaseMessages.getString(PKG, "PipelineLoggingEditor.SourcesTable.Column.Pipeline"),
+                    ColumnInfo.COLUMN_TYPE_TEXT,
+                    false,
+                    false),
+    };
+    wPipelines =
+            new TableView(
+                    manager.getVariables(),
+                    parent,
+                    SWT.BORDER,
+                    columns,
+                    0,
+                    e -> setChanged(),
+                    props);
+    FormData fdSources = new FormData();
+    fdSources.left = new FormAttachment(0, 0);
+    fdSources.top = new FormAttachment(lastControl, margin);
+    fdSources.right = new FormAttachment(100, 0);
+    fdSources.bottom = new FormAttachment(100, 0);
+    wPipelines.setLayoutData(fdSources);
+
     setWidgetsContent();
 
     // Add listener to detect change after loading data
@@ -390,6 +431,14 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     wAtEnd.setSelection(pl.isExecutingAtEnd());
     wPeriodic.setSelection(pl.isExecutingPeriodically());
     wInterval.setText(Const.NVL(pl.getIntervalInSeconds(), ""));
+    wPipelines.removeAll();
+    List<PipelineToLogLocation> pipelinesToLog = pl.getPipelinesToLog();
+    for(PipelineToLogLocation pipelineToLog : pipelinesToLog){
+      TableItem item = new TableItem(wPipelines.table, SWT.NONE);
+      item.setText(1, Const.NVL(pipelineToLog.getPipelineToLogFilename(), ""));
+    }
+    wPipelines.setRowNums();
+    wPipelines.optimizeTableView();
   }
 
   @Override
@@ -402,6 +451,13 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     pl.setExecutingAtEnd(wAtEnd.getSelection());
     pl.setExecutingPeriodically(wPeriodic.getSelection());
     pl.setIntervalInSeconds(wInterval.getText());
+    List<PipelineToLogLocation> locations = new ArrayList<>();
+    List<TableItem> items = wPipelines.getNonEmptyItems();
+    for (TableItem item : items) {
+      String filename = item.getText(1);
+      locations.add(new PipelineToLogLocation(filename));
+    }
+    pl.setPipelinesToLog(locations);
   }
 
   @Override
