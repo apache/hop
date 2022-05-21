@@ -44,18 +44,25 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.json.simple.JSONObject;
 
-import javax.net.ssl.*;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.net.HttpURLConnection;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Rest extends BaseTransform<RestMeta, RestData> {
   private static final Class<?> PKG = RestMeta.class; // For Translator
@@ -193,6 +200,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         } else if (data.method.equals(RestMeta.HTTP_METHOD_OPTIONS)) {
           response = builder.options(ClientResponse.class);
         } else if (data.method.equals(RestMeta.HTTP_METHOD_PATCH)) {
+          //Workaround to make PATCH work, remove when updating to Jersey 2.X
+          allowMethods("PATCH");
           if (null != contentType) {
             response =
                 builder
@@ -321,7 +330,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       if (!Utils.isEmpty(data.trustStoreFile) && !meta.isIgnoreSsl()) {
         setTrustStoreFile();
       }
-      if(meta.isIgnoreSsl()){
+      if (meta.isIgnoreSsl()) {
         setTrustAll();
       }
     }
@@ -338,15 +347,16 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     } catch (NoSuchAlgorithmException e) {
       throw new HopException(BaseMessages.getString(PKG, "Rest.Error.NoSuchAlgorithm"), e);
     } catch (KeyManagementException e) {
-      throw new HopException(
-          BaseMessages.getString(PKG, "Rest.Error.KeyManagementException"), e);
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.KeyManagementException"), e);
     }
   }
 
   private void setTrustStoreFile() throws HopException {
     try (FileInputStream trustFileStream = new FileInputStream(data.trustStoreFile)) {
 
-      SSLContext ctx = HttpClientManager.getSslContextWithTrustStoreFile(trustFileStream, data.trustStorePassword);
+      SSLContext ctx =
+          HttpClientManager.getSslContextWithTrustStoreFile(
+              trustFileStream, data.trustStorePassword);
       HostnameVerifier hv = HttpClientManager.getHostnameVerifier(isDebug(), log);
 
       data.config
@@ -364,8 +374,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     } catch (IOException e) {
       throw new HopException(BaseMessages.getString(PKG, "Rest.Error.IOException"), e);
     } catch (KeyManagementException e) {
-      throw new HopException(
-          BaseMessages.getString(PKG, "Rest.Error.KeyManagementException"), e);
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.KeyManagementException"), e);
     }
   }
 
@@ -594,5 +603,27 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     data.indexOfHeaderFields = null;
     data.paramNames = null;
     super.dispose();
+  }
+
+  // Workaround to make PATCH method work, remove when updating to jersey 2.X
+  private static void allowMethods(String... methods) {
+    try {
+      Field methodsField = HttpURLConnection.class.getDeclaredField("methods");
+
+      Field modifiersField = Field.class.getDeclaredField("modifiers");
+      modifiersField.setAccessible(true);
+      modifiersField.setInt(methodsField, methodsField.getModifiers() & ~Modifier.FINAL);
+
+      methodsField.setAccessible(true);
+
+      String[] oldMethods = (String[]) methodsField.get(null);
+      Set<String> methodsSet = new LinkedHashSet<>(Arrays.asList(oldMethods));
+      methodsSet.addAll(Arrays.asList(methods));
+      String[] newMethods = methodsSet.toArray(new String[0]);
+
+      methodsField.set(null /*static field*/, newMethods);
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw new IllegalStateException(e);
+    }
   }
 }
