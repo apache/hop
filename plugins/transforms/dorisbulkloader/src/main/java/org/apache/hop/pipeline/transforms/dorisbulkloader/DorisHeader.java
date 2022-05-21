@@ -26,8 +26,7 @@ public class DorisHeader {
   @HopMetadataProperty private String name;
   @HopMetadataProperty private String value;
 
-  public DorisHeader() {
-  }
+  public DorisHeader() {}
 
   public DorisHeader(String name, String value) {
     this.name = name;

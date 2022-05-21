@@ -15,29 +15,28 @@
  * limitations under the License.
  *
  */
- 
+
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
 
 public class DorisStreamLoadException extends Exception {
-    public DorisStreamLoadException() {
-        super();
-    }
+  public DorisStreamLoadException() {
+    super();
+  }
 
-    public DorisStreamLoadException(String message) {
-        super(message);
-    }
+  public DorisStreamLoadException(String message) {
+    super(message);
+  }
 
-    public DorisStreamLoadException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public DorisStreamLoadException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public DorisStreamLoadException(Throwable cause) {
-        super(cause);
-    }
+  public DorisStreamLoadException(Throwable cause) {
+    super(cause);
+  }
 
-    protected DorisStreamLoadException(String message, Throwable cause,
-                                       boolean enableSuppression,
-                                       boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
+  protected DorisStreamLoadException(
+      String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    super(message, cause, enableSuppression, writableStackTrace);
+  }
 }

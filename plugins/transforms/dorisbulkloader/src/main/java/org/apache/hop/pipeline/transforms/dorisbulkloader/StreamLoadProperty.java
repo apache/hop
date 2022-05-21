@@ -15,110 +15,108 @@
  * limitations under the License.
  *
  */
- 
+
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
 
 import java.util.Map;
 
 public class StreamLoadProperty {
-    /** doris fe host */
-    private String feHost;
+  /** doris fe host */
+  private String feHost;
 
-    /** doris http port */
-    private String feHttpPort;
+  /** doris http port */
+  private String feHttpPort;
 
-    /** doris database name */
-    private String databaseName;
+  /** doris database name */
+  private String databaseName;
 
-    /** doris table name */
-    private String tableName;
+  /** doris table name */
+  private String tableName;
 
-    /** doris login user */
-    private String loginUser;
+  /** doris login user */
+  private String loginUser;
 
-    /** doris login password */
-    private String loginPassword;
+  /** doris login password */
+  private String loginPassword;
 
-    /** http headers to call stream load api */
-    private Map<String,String> httpHeaders;
+  /** http headers to call stream load api */
+  private Map<String, String> httpHeaders;
 
-    /** A buffer's capacity, in bytes.  */
-    private int bufferSize;
+  /** A buffer's capacity, in bytes. */
+  private int bufferSize;
 
-    /** BufferSize * BufferCount is the max capacity to buffer data before doing real stream load */
-    private int bufferCount;
+  /** BufferSize * BufferCount is the max capacity to buffer data before doing real stream load */
+  private int bufferCount;
 
-    public String getFeHost() {
-        return feHost;
-    }
+  public String getFeHost() {
+    return feHost;
+  }
 
-    public void setFeHost(String feHost) {
-        this.feHost = feHost;
-    }
+  public void setFeHost(String feHost) {
+    this.feHost = feHost;
+  }
 
-    public String getFeHttpPort() {
-        return feHttpPort;
-    }
+  public String getFeHttpPort() {
+    return feHttpPort;
+  }
 
-    public void setFeHttpPort(String feHttpPort) {
-        this.feHttpPort = feHttpPort;
-    }
+  public void setFeHttpPort(String feHttpPort) {
+    this.feHttpPort = feHttpPort;
+  }
 
-    public String getDatabaseName() {
-        return databaseName;
-    }
+  public String getDatabaseName() {
+    return databaseName;
+  }
 
-    public void setDatabaseName(String databaseName) {
-        this.databaseName = databaseName;
-    }
+  public void setDatabaseName(String databaseName) {
+    this.databaseName = databaseName;
+  }
 
-    public String getTableName() {
-        return tableName;
-    }
+  public String getTableName() {
+    return tableName;
+  }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
+  public void setTableName(String tableName) {
+    this.tableName = tableName;
+  }
 
-    public String getLoginUser() {
-        return loginUser;
-    }
+  public String getLoginUser() {
+    return loginUser;
+  }
 
-    public void setLoginUser(String loginUser) {
-        this.loginUser = loginUser;
-    }
+  public void setLoginUser(String loginUser) {
+    this.loginUser = loginUser;
+  }
 
-    public String getLoginPassword() {
-        return loginPassword;
-    }
+  public String getLoginPassword() {
+    return loginPassword;
+  }
 
-    public void setLoginPassword(String loginPassword) {
-        this.loginPassword = loginPassword;
-    }
+  public void setLoginPassword(String loginPassword) {
+    this.loginPassword = loginPassword;
+  }
 
-    public Map<String, String> getHttpHeaders() {
-        return httpHeaders;
-    }
+  public Map<String, String> getHttpHeaders() {
+    return httpHeaders;
+  }
 
-    public void setHttpHeaders(Map<String, String> httpHeaders) {
-        this.httpHeaders = httpHeaders;
-    }
+  public void setHttpHeaders(Map<String, String> httpHeaders) {
+    this.httpHeaders = httpHeaders;
+  }
 
-    public int getBufferSize() {
-        return bufferSize;
-    }
+  public int getBufferSize() {
+    return bufferSize;
+  }
 
-    public void setBufferSize(int bufferSize) {
-        this.bufferSize = bufferSize;
-    }
+  public void setBufferSize(int bufferSize) {
+    this.bufferSize = bufferSize;
+  }
 
-    public int getBufferCount() {
-        return bufferCount;
-    }
+  public int getBufferCount() {
+    return bufferCount;
+  }
 
-    public void setBufferCount(int bufferCount) {
-        this.bufferCount = bufferCount;
-    }
-
-
+  public void setBufferCount(int bufferCount) {
+    this.bufferCount = bufferCount;
+  }
 }
