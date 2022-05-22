@@ -113,7 +113,7 @@ limitations under the License.
     </partitioning>
     <applicationType>TEXT PLAIN</applicationType>
     <method>HEAD</method>
-    <url>http://${HOSTNAME}/head</url>
+    <url>http://${HOSTNAME}/get</url>
     <urlInField>N</urlInField>
     <dynamicMethod>N</dynamicMethod>
     <methodFieldName/>
