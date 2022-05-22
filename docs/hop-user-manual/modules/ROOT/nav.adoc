@@ -25,6 +25,7 @@ under the License.
 ** xref:getting-started/hop-next-steps.adoc[Next Steps]
 * xref:concepts.adoc[Concepts]
 * xref:installation-configuration.adoc[Installation and Configuration]
+* xref:supported-jvms.adoc[Supported Java Versions]
 * xref:hop-gui/index.adoc[Hop Gui]
 ** xref:hop-gui/file-dialog.adoc[File Dialog]
 ** xref:hop-gui/hop-gui-popup-dialog.adoc[Popup Dialog]
