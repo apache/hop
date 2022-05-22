@@ -30,11 +30,6 @@
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
         </file>
-<!--        <file>-->
-<!--            <source>${project.basedir}/src/main/resources/dependencies.xml</source>-->
-<!--            <outputDirectory>.</outputDirectory>-->
-<!--            <filtered>true</filtered>-->
-<!--        </file>-->
     </files>
     <fileSets>
         <fileSet>
