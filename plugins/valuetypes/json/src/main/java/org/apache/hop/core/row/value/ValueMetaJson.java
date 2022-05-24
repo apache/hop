@@ -17,8 +17,10 @@
 
 package org.apache.hop.core.row.value;
 
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
@@ -65,7 +67,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
 
   public JsonNode convertStringToJson(String jsonString) throws HopValueException {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
+      ObjectMapper objectMapper = JsonMapper.builder().enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES).build();      
       return objectMapper.readTree(jsonString);
     } catch (Exception e) {
       throw new HopValueException("Error converting string to JSON value: '" + jsonString + "'", e);
