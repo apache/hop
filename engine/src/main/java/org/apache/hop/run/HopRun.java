@@ -247,7 +247,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       pipeline.startThreads();
       pipeline.waitUntilFinished();
       // TODO: how to see if a pipeline fails? getresult always return true
-      setFinishedWithoutError(true);
+      setFinishedWithoutError(pipeline.getResult().getNrErrors() == 0l);
     } catch (Exception e) {
       throw new ExecutionException(cmd, "Error running pipeline locally", e);
     }
