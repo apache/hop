@@ -335,7 +335,7 @@ public class GuiResource {
     imageMap = new HashMap<>();
     colorMap = new HashMap<>();
 
-    colorBackground = new ManagedColor(display, props.contrastColor(new RGB(255,255,255)));
+    colorBackground = new ManagedColor(display, props.contrastColor(new RGB(240,240,240)));
     colorGraph = new ManagedColor(display, props.contrastColor(new RGB(255,255,255)));
     colorTab = new ManagedColor(display, props.contrastColor(new RGB(128,128,128)));
     colorSuccessGreen = new ManagedColor(display, props.contrastColor(0, 139, 0));
@@ -350,7 +350,7 @@ public class GuiResource {
 
     colorBlueCustomGrid = new ManagedColor(display, props.contrastColor(240, 248, 255));
 
-    colorWhite = new ManagedColor(display, props.contrastColor(255, 255, 255));
+    colorWhite = new ManagedColor(display, props.contrastColor(254, 254, 254));
     colorDemoGray = new ManagedColor(display, props.contrastColor(240, 240, 240));
     colorLightGray = new ManagedColor(display, props.contrastColor(225, 225, 225));
     colorGray = new ManagedColor(display, props.contrastColor(215, 215, 215));

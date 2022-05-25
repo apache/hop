@@ -202,7 +202,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wbBrowse.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.Browse.Label"));
     FormData fdBrowse = new FormData();
     fdBrowse.right = new FormAttachment(100, 0);
-    fdBrowse.top = new FormAttachment(wlPath, Const.isOSX() ? 0 : 5);
+    fdBrowse.bottom = new FormAttachment(wlPath, 0, SWT.CENTER);
     wbBrowse.setLayoutData(fdBrowse);
     wbBrowse.addListener(SWT.Selection, e -> selectWorkflowFile());
 
@@ -299,9 +299,9 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
           BaseDialog.presentFileDialog(
               shell,
               wPath,
-              variables,new String[0], new String[0],
-//              fileType.getFilterExtensions(),
-//              fileType.getFilterNames(),
+              variables,
+              fileType.getFilterExtensions(),
+              fileType.getFilterNames(),
               true);
       if (filename != null) {
 

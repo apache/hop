@@ -17,7 +17,6 @@
 
 package org.apache.hop.neo4j.transforms.output;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -40,13 +39,9 @@ import org.neo4j.driver.summary.Notification;
 import org.neo4j.driver.summary.ResultSummary;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputData> {
-
-  private static final Class<?> PKG =
-      Neo4JOutput.class; // for i18n purposes, needed by Translator2!!
 
   public Neo4JOutput(
       TransformMeta s,
@@ -206,52 +201,30 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     } else {
 
       boolean changedLabel = calculateLabelsAndDetectChanges(row);
-      if (changedLabel) {
-        emptyUnwindList(changedLabel);
+      if (changedLabel || data.unwindList.size() >= data.batchSize) {
+        emptyUnwindList();
       }
 
-      // Add rows to the unwind list.  Just put all the properties from the nodes and relationship
+      // Add rows to the UNWIND list.  Just put all the properties from the nodes and relationship
       // in there
-      // This could lead to property name collisions so we prepend the properties in the list with
+      // This could lead to property name collisions, so we prepend the properties in the list with
       // alias and underscore
       //
       Map<String, Object> propsMap = new HashMap<>();
 
       if (data.fromOperationType != OperationType.NONE) {
         addPropertiesToMap(
-            propsMap,
-            "f",
-            data.fromNodePropIndexes,
-            getInputRowMeta(),
-            row,
-            meta.getFromNodePropNames(),
-            data.fromNodePropTypes);
+            propsMap, data.fromNodePropIndexes, getInputRowMeta(), row, data.fromNodePropTypes);
       }
       if (data.toOperationType != OperationType.NONE) {
         addPropertiesToMap(
-            propsMap,
-            "t",
-            data.toNodePropIndexes,
-            getInputRowMeta(),
-            row,
-            meta.getToNodePropNames(),
-            data.toNodePropTypes);
+            propsMap, data.toNodePropIndexes, getInputRowMeta(), row, data.toNodePropTypes);
       }
       if (data.relOperationType != OperationType.NONE) {
         addPropertiesToMap(
-            propsMap,
-            "r",
-            data.relPropIndexes,
-            getInputRowMeta(),
-            row,
-            meta.getRelPropNames(),
-            data.relPropTypes);
+            propsMap, data.relPropIndexes, getInputRowMeta(), row, data.relPropTypes);
       }
       data.unwindList.add(propsMap);
-
-      if (data.unwindList.size() >= data.batchSize) {
-        emptyUnwindList(changedLabel);
-      }
 
       // Simply pass on the current row .
       //
@@ -268,11 +241,9 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
   private void addPropertiesToMap(
       Map<String, Object> rowMap,
-      String alias,
       int[] nodePropIndexes,
       IRowMeta rowMeta,
       Object[] row,
-      String[] nodePropNames,
       GraphPropertyType[] propertyTypes)
       throws HopValueException {
 
@@ -291,199 +262,179 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     }
   }
 
-  private void emptyUnwindList(boolean changedLabel) throws HopException {
+  private void emptyUnwindList() throws HopException {
 
     try {
       Map<String, Object> properties = Collections.singletonMap("props", data.unwindList);
 
-      if (data.cypher == null || changedLabel) {
+      StringBuilder cypher = new StringBuilder();
+      cypher.append("UNWIND $props as pr ").append(Const.CR);
 
-        StringBuilder cypher = new StringBuilder();
-        cypher.append("UNWIND $props as pr ").append(Const.CR);
-
-        // The cypher for the 'from' node:
-        //
-        boolean takePreviousFrom =
-            data.dynamicFromLabels && changedLabel && data.previousFromLabelsClause != null;
-        String fromLabelClause =
-            takePreviousFrom ? data.previousFromLabelsClause : data.fromLabelsClause;
-        String fromMatchClause =
-            getMatchClause(
-                meta.getFromNodePropNames(),
-                meta.getFromNodePropPrimary(),
-                data.fromNodePropIndexes,
-                "f");
-        switch (data.fromOperationType) {
-          case NONE:
-            break;
-          case CREATE:
-            cypher
-                .append("CREATE( ")
-                .append(fromLabelClause)
-                .append(" ")
-                .append(fromMatchClause)
-                .append(") ")
-                .append(Const.CR);
-            String setClause =
-                getSetClause(
-                    false,
-                    "f",
-                    meta.getFromNodePropNames(),
-                    meta.getFromNodePropPrimary(),
-                    data.fromNodePropIndexes);
-            if (StringUtils.isNotEmpty(setClause)) {
-              cypher.append(setClause).append(Const.CR);
-            }
-            updateUsageMap(data.fromLabels, GraphUsage.NODE_CREATE);
-            break;
-          case MERGE:
-            cypher
-                .append("MERGE( ")
-                .append(fromLabelClause)
-                .append(" ")
-                .append(fromMatchClause)
-                .append(") ")
-                .append(Const.CR);
-            setClause =
-                getSetClause(
-                    false,
-                    "f",
-                    meta.getFromNodePropNames(),
-                    meta.getFromNodePropPrimary(),
-                    data.fromNodePropIndexes);
-            if (StringUtils.isNotEmpty(setClause)) {
-              cypher.append(setClause).append(Const.CR);
-            }
-            updateUsageMap(data.fromLabels, GraphUsage.NODE_UPDATE);
-            break;
-          case MATCH:
-            cypher
-                .append("MATCH( ")
-                .append(fromLabelClause)
-                .append(" ")
-                .append(fromMatchClause)
-                .append(") ")
-                .append(Const.CR);
-            updateUsageMap(data.toLabels, GraphUsage.NODE_READ);
-            break;
-          default:
-            throw new HopException(
-                "Unsupported operation type for the 'from' node: " + data.fromOperationType);
-        }
-
-        // The cypher for the 'to' node:
-        //
-        boolean takePreviousTo = data.dynamicToLabels && changedLabel;
-        String toLabelsClause = takePreviousTo ? data.previousToLabelsClause : data.toLabelsClause;
-        String toMatchClause =
-            getMatchClause(
-                meta.getToNodePropNames(),
-                meta.getToNodePropPrimary(),
-                data.toNodePropIndexes,
-                "f");
-        switch (data.toOperationType) {
-          case NONE:
-            break;
-          case CREATE:
-            cypher
-                .append("CREATE( ")
-                .append(toLabelsClause)
-                .append(" ")
-                .append(toMatchClause)
-                .append(") ")
-                .append(Const.CR);
-            String setClause =
-                getSetClause(
-                    false,
-                    "t",
-                    meta.getToNodePropNames(),
-                    meta.getToNodePropPrimary(),
-                    data.toNodePropIndexes);
-            if (StringUtils.isNotEmpty(setClause)) {
-              cypher.append(setClause).append(Const.CR);
-            }
-            updateUsageMap(data.toLabels, GraphUsage.NODE_CREATE);
-            break;
-          case MERGE:
-            cypher
-                .append("MERGE( ")
-                .append(toLabelsClause)
-                .append(" ")
-                .append(toMatchClause)
-                .append(") ")
-                .append(Const.CR);
-            setClause =
-                getSetClause(
-                    false,
-                    "t",
-                    meta.getToNodePropNames(),
-                    meta.getToNodePropPrimary(),
-                    data.toNodePropIndexes);
-            if (StringUtils.isNotEmpty(setClause)) {
-              cypher.append(setClause).append(Const.CR);
-            }
-            updateUsageMap(data.toLabels, GraphUsage.NODE_UPDATE);
-            break;
-          case MATCH:
-            cypher
-                .append("MATCH( ")
-                .append(toLabelsClause)
-                .append(" ")
-                .append(toMatchClause)
-                .append(") ")
-                .append(Const.CR);
-            updateUsageMap(data.toLabels, GraphUsage.NODE_READ);
-            break;
-          default:
-            throw new HopException(
-                "Unsupported operation type for the 'to' node: " + data.toOperationType);
-        }
-
-        // The cypher for the relationship:
-        //
-        String relationshipSetClause =
-            getSetClause(
-                false,
-                "r",
-                meta.getRelPropNames(),
-                new boolean[meta.getRelPropNames().length],
-                data.relPropIndexes);
-        switch (data.relOperationType) {
-          case NONE:
-            break;
-          case MERGE:
-            cypher
-                .append("MERGE (f)-[")
-                .append("r:")
-                .append(data.relationshipLabel)
-                .append("]->(t) ")
-                .append(Const.CR)
-                .append(relationshipSetClause)
-                .append(Const.CR);
-            updateUsageMap(Arrays.asList(data.relationshipLabel), GraphUsage.RELATIONSHIP_UPDATE);
-            ;
-            break;
-          case CREATE:
-            cypher
-                .append("CREATE (f)-[")
-                .append("r:")
-                .append(data.relationshipLabel)
-                .append("]->(t) ")
-                .append(Const.CR)
-                .append(
-                    getSetClause(
-                        false,
-                        "r",
-                        meta.getRelPropNames(),
-                        new boolean[meta.getRelPropNames().length],
-                        data.relPropIndexes))
-                .append(Const.CR);
-            updateUsageMap(Arrays.asList(data.relationshipLabel), GraphUsage.RELATIONSHIP_CREATE);
-            break;
-        }
-
-        data.cypher = cypher.toString();
+      // The cypher for the 'from' node:
+      //
+      String fromLabelClause = data.previousFromLabelsClause;
+      String fromMatchClause =
+          getMatchClause(
+              meta.getFromNodePropNames(), meta.getFromNodePropPrimary(), data.fromNodePropIndexes);
+      switch (data.fromOperationType) {
+        case NONE:
+          break;
+        case CREATE:
+          cypher
+              .append("CREATE( ")
+              .append(fromLabelClause)
+              .append(" ")
+              .append(fromMatchClause)
+              .append(") ")
+              .append(Const.CR);
+          String setClause =
+              getSetClause(
+                  "f",
+                  meta.getFromNodePropNames(),
+                  meta.getFromNodePropPrimary(),
+                  data.fromNodePropIndexes);
+          if (StringUtils.isNotEmpty(setClause)) {
+            cypher.append(setClause).append(Const.CR);
+          }
+          updateUsageMap(data.fromLabels, GraphUsage.NODE_CREATE);
+          break;
+        case MERGE:
+          cypher
+              .append("MERGE( ")
+              .append(fromLabelClause)
+              .append(" ")
+              .append(fromMatchClause)
+              .append(") ")
+              .append(Const.CR);
+          setClause =
+              getSetClause(
+                  "f",
+                  meta.getFromNodePropNames(),
+                  meta.getFromNodePropPrimary(),
+                  data.fromNodePropIndexes);
+          if (StringUtils.isNotEmpty(setClause)) {
+            cypher.append(setClause).append(Const.CR);
+          }
+          updateUsageMap(data.fromLabels, GraphUsage.NODE_UPDATE);
+          break;
+        case MATCH:
+          cypher
+              .append("MATCH( ")
+              .append(fromLabelClause)
+              .append(" ")
+              .append(fromMatchClause)
+              .append(") ")
+              .append(Const.CR);
+          updateUsageMap(data.toLabels, GraphUsage.NODE_READ);
+          break;
+        default:
+          throw new HopException(
+              "Unsupported operation type for the 'from' node: " + data.fromOperationType);
       }
+
+      // The cypher for the 'to' node:
+      //
+      String toLabelsClause = data.previousToLabelsClause;
+      String toMatchClause =
+          getMatchClause(
+              meta.getToNodePropNames(), meta.getToNodePropPrimary(), data.toNodePropIndexes);
+      switch (data.toOperationType) {
+        case NONE:
+          break;
+        case CREATE:
+          cypher
+              .append("CREATE( ")
+              .append(toLabelsClause)
+              .append(" ")
+              .append(toMatchClause)
+              .append(") ")
+              .append(Const.CR);
+          String setClause =
+              getSetClause(
+                  "t",
+                  meta.getToNodePropNames(),
+                  meta.getToNodePropPrimary(),
+                  data.toNodePropIndexes);
+          if (StringUtils.isNotEmpty(setClause)) {
+            cypher.append(setClause).append(Const.CR);
+          }
+          updateUsageMap(data.toLabels, GraphUsage.NODE_CREATE);
+          break;
+        case MERGE:
+          cypher
+              .append("MERGE( ")
+              .append(toLabelsClause)
+              .append(" ")
+              .append(toMatchClause)
+              .append(") ")
+              .append(Const.CR);
+          setClause =
+              getSetClause(
+                  "t",
+                  meta.getToNodePropNames(),
+                  meta.getToNodePropPrimary(),
+                  data.toNodePropIndexes);
+          if (StringUtils.isNotEmpty(setClause)) {
+            cypher.append(setClause).append(Const.CR);
+          }
+          updateUsageMap(data.toLabels, GraphUsage.NODE_UPDATE);
+          break;
+        case MATCH:
+          cypher
+              .append("MATCH( ")
+              .append(toLabelsClause)
+              .append(" ")
+              .append(toMatchClause)
+              .append(") ")
+              .append(Const.CR);
+          updateUsageMap(data.toLabels, GraphUsage.NODE_READ);
+          break;
+        default:
+          throw new HopException(
+              "Unsupported operation type for the 'to' node: " + data.toOperationType);
+      }
+
+      // The cypher for the relationship:
+      //
+      String relationshipSetClause =
+          getSetClause(
+              "r",
+              meta.getRelPropNames(),
+              new boolean[meta.getRelPropNames().length],
+              data.relPropIndexes);
+      switch (data.relOperationType) {
+        case NONE:
+          break;
+        case MERGE:
+          cypher
+              .append("MERGE (f)-[")
+              .append("r:")
+              .append(data.relationshipLabel)
+              .append("]->(t) ")
+              .append(Const.CR)
+              .append(relationshipSetClause)
+              .append(Const.CR);
+          updateUsageMap(List.of(data.relationshipLabel), GraphUsage.RELATIONSHIP_UPDATE);
+          break;
+        case CREATE:
+          cypher
+              .append("CREATE (f)-[")
+              .append("r:")
+              .append(data.relationshipLabel)
+              .append("]->(t) ")
+              .append(Const.CR)
+              .append(
+                  getSetClause(
+                      "r",
+                      meta.getRelPropNames(),
+                      new boolean[meta.getRelPropNames().length],
+                      data.relPropIndexes))
+              .append(Const.CR);
+          updateUsageMap(List.of(data.relationshipLabel), GraphUsage.RELATIONSHIP_CREATE);
+          break;
+      }
+
+      data.cypher = cypher.toString();
 
       // OK now we have the cypher statement, we can execute it...
       //
@@ -508,7 +459,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
   }
 
   private String getMatchClause(
-      String[] propertyNames, boolean[] propertyPrimary, int[] nodePropIndexes, String alias) {
+      String[] propertyNames, boolean[] propertyPrimary, int[] nodePropIndexes) {
     StringBuilder clause = new StringBuilder();
 
     for (int i = 0; i < propertyNames.length; i++) {
@@ -528,15 +479,11 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
   }
 
   private String getSetClause(
-      boolean allProperties,
-      String alias,
-      String[] propertyNames,
-      boolean[] propertyPrimary,
-      int[] nodePropIndexes) {
+      String alias, String[] propertyNames, boolean[] propertyPrimary, int[] nodePropIndexes) {
     StringBuilder clause = new StringBuilder();
 
     for (int i = 0; i < propertyNames.length; i++) {
-      if (allProperties || !propertyPrimary[i]) {
+      if (!propertyPrimary[i]) {
         if (clause.length() > 0) {
           clause.append(", ");
         }
@@ -719,7 +666,6 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       // Pass it forward...
       //
       Object[] outputRowData = RowDataUtil.createResizedCopy(row, data.outputRowMeta.size());
-      int startIndex = rowMeta.size();
       outputRowData[rowMeta.size()] = graphData;
       putRow(data.outputRowMeta, outputRowData);
 
@@ -880,73 +826,6 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     }
   }
 
-  private String buildParameterClause(String parameterName) {
-    if (data.version4) {
-      return "$" + parameterName;
-    } else {
-      return "{" + parameterName + "}";
-    }
-  }
-
-  private String generateMatchClause(
-      String alias,
-      String mapName,
-      List<String> nodeLabels,
-      String[] nodeProps,
-      String[] nodePropNames,
-      GraphPropertyType[] nodePropTypes,
-      boolean[] nodePropPrimary,
-      IRowMeta rowMeta,
-      Object[] rowData,
-      int[] nodePropIndexes,
-      Map<String, Object> parameters,
-      AtomicInteger paramNr)
-      throws HopValueException {
-    String matchClause = "(" + alias;
-    for (int i = 0; i < nodeLabels.size(); i++) {
-      String label = escapeProp(nodeLabels.get(i));
-      matchClause += ":" + label;
-    }
-    matchClause += " {";
-
-    boolean firstProperty = true;
-    for (int i = 0; i < nodeProps.length; i++) {
-      if (nodePropPrimary[i]) {
-        if (firstProperty) {
-          firstProperty = false;
-        } else {
-          matchClause += ", ";
-        }
-        String propName;
-        if (StringUtils.isNotEmpty(nodePropNames[i])) {
-          propName = nodePropNames[i];
-        } else {
-          propName = nodeProps[i];
-        }
-        String parameterName = "param" + paramNr.incrementAndGet();
-
-        if (mapName == null) {
-          matchClause += propName + " : " + buildParameterClause(parameterName);
-        } else {
-          matchClause += propName + " : " + mapName + "." + parameterName;
-        }
-
-        if (parameters != null) {
-          IValueMeta valueMeta = rowMeta.getValueMeta(nodePropIndexes[i]);
-          Object valueData = rowData[nodePropIndexes[i]];
-
-          GraphPropertyType propertyType = nodePropTypes[i];
-          Object neoValue = propertyType.convertFromHop(valueMeta, valueData);
-
-          parameters.put(parameterName, neoValue);
-        }
-      }
-    }
-    matchClause += " })";
-
-    return matchClause;
-  }
-
   public List<String> getNodeLabels(
       String[] labelFields,
       String[] labelValues,
@@ -976,10 +855,6 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       str = "`" + str + "`";
     }
     return str;
-  }
-
-  public String escapeProp(String str) {
-    return StringEscapeUtils.escapeJava(str);
   }
 
   private void createNodePropertyIndexes(
@@ -1025,11 +900,8 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
     // Which labels to index?
     //
-    Set<String> labels = new HashSet<>();
-    labels.addAll(
-        Arrays.asList(nodeLabelValues).stream()
-            .filter(s -> StringUtils.isNotEmpty(s))
-            .collect(Collectors.toList()));
+    Set<String> labels =
+        Arrays.stream(nodeLabelValues).filter(StringUtils::isNotEmpty).collect(Collectors.toSet());
 
     for (String nodeLabelField : nodeLabelFields) {
       if (StringUtils.isNotEmpty(nodeLabelField)) {
@@ -1070,7 +942,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
     if (!isStopped()) {
       if (data.unwindList != null && data.unwindList.size() > 0) {
-        emptyUnwindList(true); // force write!
+        emptyUnwindList(); // force write!
       }
     }
 
@@ -1082,26 +954,19 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
   /**
    * Update the usagemap. Add all the labels to the node usage.
    *
-   * @param labels
-   * @param usage
+   * @param labels The labels of the usage
+   * @param usage The usage itself
    */
-  protected void updateUsageMap(List<String> labels, GraphUsage usage) throws HopValueException {
+  protected void updateUsageMap(List<String> labels, GraphUsage usage) {
 
     if (labels == null) {
       return;
     }
 
-    Map<String, Set<String>> transformsMap = data.usageMap.get(usage.name());
-    if (transformsMap == null) {
-      transformsMap = new HashMap<>();
-      data.usageMap.put(usage.name(), transformsMap);
-    }
+    Map<String, Set<String>> transformsMap =
+        data.usageMap.computeIfAbsent(usage.name(), k -> new HashMap<>());
 
-    Set<String> labelSet = transformsMap.get(getTransformName());
-    if (labelSet == null) {
-      labelSet = new HashSet<>();
-      transformsMap.put(getTransformName(), labelSet);
-    }
+    Set<String> labelSet = transformsMap.computeIfAbsent(getTransformName(), k -> new HashSet<>());
 
     for (String label : labels) {
       if (StringUtils.isNotEmpty(label)) {
