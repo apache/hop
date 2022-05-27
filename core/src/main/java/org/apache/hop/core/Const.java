@@ -536,14 +536,12 @@ public class Const {
   public static final String HOP_PLUGIN_CLASSES = "HOP_PLUGIN_CLASSES";
 
   /**
-   * Name of the environment variable to specify additional packaged to scan for plugin annotations
-   * (warning: slow!)
+   * Name of the environment variable to specify alternative location for plugins.
    */
   @Variable(
+      scope = VariableScope.SYSTEM,
       description =
-          "A comma delimited list of packages to scan for plugin annotations (warning: slow!!)")
-  public static final String HOP_PLUGIN_PACKAGES = "HOP_PLUGIN_PACKAGES";
-
+          "The variable which points to the alternative location for plugins.")
   public static final String HOP_PLUGIN_BASE_FOLDERS = "HOP_PLUGIN_BASE_FOLDERS";
 
   /**
