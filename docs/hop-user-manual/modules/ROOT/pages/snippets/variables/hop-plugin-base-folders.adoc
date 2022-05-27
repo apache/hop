@@ -16,3 +16,6 @@ under the License.
 ////
 HOP_PLUGIN_BASE_FOLDERS::
 Set this variable to point Hop to a comma separated list of folders where you want Hop to look for additional plugins.
+
+IMPORTANT: When using this variable it will also unset your default plugins folder, make sure to add the default plugin folder to the comma separated list. This can be a relative path to the installation eg.  `export HOP_PLUGIN_BASE_FOLDERS=./plugins,/additional/plugin/folder`. +
+The `./plugins` will point to the plugins in the base installation folder
