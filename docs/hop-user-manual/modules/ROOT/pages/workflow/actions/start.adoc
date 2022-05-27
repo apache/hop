@@ -16,7 +16,8 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description:
+:description: The Start action in a workflow is the startingpoint of each Workflow
+:imagesdir: ../assets/images
 
 = Start
 
@@ -25,3 +26,12 @@ under the License.
 The Start action is the starting point for workflow execution.
 
 NOTE: Every workflow needs to have one and only one start action.
+
+The start action has additional options to repeat a workflow, this works both in the local and remote workflow engine.
+
+image::actions/action-start-dialog.png[The alt text of the image]
+
+When you activate the repeat option the workflow will continue to run and restart based on the interval you specify. This can be on a fixed day with a specific timestamp. Or every x seconds/minutes
+
+While this does not replace a scheduler it can be used for basic scheduling. Please note that using this will keep the workflow in a running state meaning the Java process will continue to exist and use resources on the system.
+
