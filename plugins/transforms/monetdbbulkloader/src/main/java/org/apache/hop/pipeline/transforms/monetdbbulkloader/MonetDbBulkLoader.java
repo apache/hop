@@ -24,7 +24,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.ValueDataUtil;
 import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.util.StreamLogger;
 import org.apache.hop.core.util.Utils;
@@ -38,23 +40,25 @@ import org.monetdb.mcl.io.BufferedMCLReader;
 import org.monetdb.mcl.io.BufferedMCLWriter;
 import org.monetdb.mcl.net.MapiSocket;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 
 public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, MonetDbBulkLoaderData> {
   private static final Class<?> PKG =
-      MonetDbBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
+          MonetDbBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
   private IRowMeta physicalTableRowMeta;
   private static final String ERROR_LOADING_DATA = "Error loading data: ";
 
   public MonetDbBulkLoader(
-      TransformMeta transformMeta,
-      MonetDbBulkLoaderMeta meta,
-      MonetDbBulkLoaderData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
+          TransformMeta transformMeta,
+          MonetDbBulkLoaderMeta meta,
+          MonetDbBulkLoaderData data,
+          int copyNr,
+          PipelineMeta pipelineMeta,
+          Pipeline pipeline) {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
@@ -185,7 +189,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
   }
 
   protected void writeRowToMonetDB(IRowMeta rowMeta, Object[] r, DatabaseMeta dm)
-      throws HopException {
+          throws HopException {
     if (data.bufferIndex == data.bufferSize || log.isDebug()) {
       writeBufferToMonetDB(dm);
     }
@@ -248,10 +252,10 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
                 }
               }
               break;
-              //
-              // formatter pattern to
-              // the user.
-              //
+            //
+            // formatter pattern to
+            // the user.
+            //
             case IValueMeta.TYPE_TIMESTAMP:
             case IValueMeta.TYPE_DATE:
               // Keep the data format as indicated.
@@ -277,10 +281,10 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
                   // TIMESTAMP - DATE and TIME put together (e.g., 2012-12-21 15:51:36)
 
                   if (colMeta != null
-                      && colMeta.getOriginalColumnTypeName().equalsIgnoreCase("date")) {
+                          && colMeta.getOriginalColumnTypeName().equalsIgnoreCase("date")) {
                     line.append(data.monetDateMeta.getString(value));
                   } else if (colMeta != null
-                      && colMeta.getOriginalColumnTypeName().equalsIgnoreCase("time")) {
+                          && colMeta.getOriginalColumnTypeName().equalsIgnoreCase("time")) {
                     line.append(data.monetTimeMeta.getString(value));
                   } else {
                     // colMeta.getOriginalColumnTypeName().equalsIgnoreCase("timestamp")
@@ -306,7 +310,19 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
                 if (dbl == null) {
                   line.append(data.nullrepresentation);
                 } else {
-                  line.append(dbl);
+                  IValueMeta colMeta = null;
+                  if (physicalTableRowMeta != null) {
+                    colMeta = physicalTableRowMeta.getValueMeta(index);
+                  }
+                  IValueMeta valueMetaInt = new ValueMetaInteger(valueMeta.getName());
+                  Long precision = Long.valueOf(colMeta.getPrecision());
+                  line.append(
+                          ValueDataUtil.round(
+                                  valueMeta,
+                                  dbl,
+                                  valueMetaInt,
+                                  precision,
+                                  java.math.BigDecimal.ROUND_HALF_UP));
                 }
               }
               break;
@@ -315,11 +331,23 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
               if (valueMeta.isStorageBinaryString() && meta.getFieldFormatOk()[i]) {
                 line.append(valueMeta.getString(valueData));
               } else {
-                String string = valueMeta.getString(valueData);
-                if (string == null) {
+                BigDecimal bd = valueMeta.getBigNumber(valueData);
+                if (bd == null) {
                   line.append(data.nullrepresentation);
                 } else {
-                  line.append(string);
+                  IValueMeta colMeta = null;
+                  if (physicalTableRowMeta != null) {
+                    colMeta = physicalTableRowMeta.getValueMeta(index);
+                  }
+                  IValueMeta valueMetaInt = new ValueMetaInteger(valueMeta.getName());
+                  Long precision = Long.valueOf(colMeta.getPrecision());
+                  line.append(
+                          ValueDataUtil.round(
+                                  valueMeta,
+                                  bd,
+                                  valueMetaInt,
+                                  precision,
+                                  java.math.BigDecimal.ROUND_HALF_UP));
                 }
               }
               break;
@@ -348,8 +376,8 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
     String cmd;
     String table = data.schemaTable;
     String truncateStatement =
-        meta.getDatabaseMeta()
-            .getTruncateTableStatement(variables, meta.getSchemaName(), meta.getTableName());
+            meta.getDatabaseMeta()
+                    .getTruncateTableStatement(variables, meta.getSchemaName(), meta.getTableName());
     if (truncateStatement == null) {
       throw new HopException("Truncate table is not supported!");
     }
@@ -385,7 +413,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       logDetailed("getTransformname: " + getTransformName());
     }
     SqlStatement statement =
-        meta.getTableDdl(variables, getPipelineMeta(), getTransformName(), true, data, true);
+            meta.getTableDdl(variables, getPipelineMeta(), getTransformName(), true, data, true);
     if (log.isDetailed()) {
       logDetailed("Statement: " + statement);
     }
@@ -424,15 +452,15 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       }
 
       cmdBuff
-          .append("COPY ")
-          .append(data.bufferIndex)
-          .append(" RECORDS INTO ")
-          .append(data.schemaTable)
-          .append(" FROM STDIN USING DELIMITERS '")
-          .append(data.separator)
-          .append("','" + Const.CR + "','")
-          .append(data.quote)
-          .append("' NULL AS '" + nullRep + "';");
+              .append("COPY ")
+              .append(data.bufferIndex)
+              .append(" RECORDS INTO ")
+              .append(data.schemaTable)
+              .append(" FROM STDIN USING DELIMITERS '")
+              .append(data.separator)
+              .append("','" + Const.CR + "','")
+              .append(data.quote)
+              .append("' NULL AS '" + nullRep + "';");
       String cmd = cmdBuff.toString();
 
       // See if we need to execute extra SQL statements...
@@ -511,7 +539,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
     // Confirming Database Connection is defined.
     if (meta.getDatabaseMeta() == null) {
       throw new HopException(
-          BaseMessages.getString(PKG, "MonetDbBulkLoaderMeta.GetSQL.NoConnectionDefined"));
+              BaseMessages.getString(PKG, "MonetDbBulkLoaderMeta.GetSQL.NoConnectionDefined"));
     }
   }
 
@@ -571,16 +599,16 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       // Support parameterized database connection names
       String connectionName = meta.getDbConnectionName();
       if (!Utils.isEmpty(connectionName)
-          && connectionName.startsWith("${")
-          && connectionName.endsWith("}")) {
+              && connectionName.startsWith("${")
+              && connectionName.endsWith("}")) {
         meta.setDatabaseMeta(getPipelineMeta().findDatabase(resolve(connectionName)));
       }
 
       // Schema-table combination...
       data.schemaTable =
-          meta.getDatabaseMeta(this)
-              .getQuotedSchemaTableCombination(
-                  variables, meta.getSchemaName(), meta.getTableName());
+              meta.getDatabaseMeta(this)
+                      .getQuotedSchemaTableCombination(
+                              variables, meta.getSchemaName(), meta.getTableName());
 
       return true;
     }
@@ -607,13 +635,13 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
   }
 
   protected static MapiSocket getMonetDBConnection(
-      String host, int port, String user, String password, String db) throws Exception {
+          String host, int port, String user, String password, String db) throws Exception {
     return getMonetDBConnection(host, port, user, password, db, null);
   }
 
   protected static MapiSocket getMonetDBConnection(
-      String host, int port, String user, String password, String db, ILogChannel log)
-      throws Exception {
+          String host, int port, String user, String password, String db, ILogChannel log)
+          throws Exception {
     MapiSocket mserver = new MapiSocket();
     mserver.setDatabase(db);
     mserver.setLanguage("sql");
@@ -664,8 +692,8 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
    * @param database to connect to
    */
   protected static void executeSql(
-      String query, String host, int port, String user, String password, String db)
-      throws Exception {
+          String query, String host, int port, String user, String password, String db)
+          throws Exception {
     MapiSocket mserver = null;
     try {
       mserver = getMonetDBConnection(host, port, user, password, db);
