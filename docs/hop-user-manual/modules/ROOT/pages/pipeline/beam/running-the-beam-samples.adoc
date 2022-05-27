@@ -75,5 +75,6 @@ Save this file in a convenient location and file name. Either store this outside
 * xref:pipeline/beam/beam-samples-direct-runner.adoc[Direct Runner]
 * xref:pipeline/beam/beam-samples-flink.adoc[Apache Flink]
 * xref:pipeline/beam/beam-samples-spark.adoc[Apache Spark]
+** xref:pipeline/beam/spark-on-local-host.adoc[Apache Spark from GUI/Hop Server]
 * Google Cloud Dataflow: TODO
 

@@ -47,6 +47,7 @@ under the License.
 **** xref:pipeline/beam/beam-samples-direct-runner.adoc[Direct Runner]
 **** xref:pipeline/beam/beam-samples-flink.adoc[Apache Flink]
 **** xref:pipeline/beam/beam-samples-spark.adoc[Apache Spark]
+**** xref:pipeline/beam/spark-on-local-host.adoc[Apache Spark on Local]
 ** xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline Run Configurations]
 *** xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Beam Google DataFlow]
 *** xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Beam Direct]

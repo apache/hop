@@ -1,0 +1,73 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[RunningTheBeamSamplesSparkOnLocal]]
+:imagesdir: ../assets/images
+:description: This page contains instructions on how to get spark running form the GUI or the Hop Server
+
+= Apache Spark and Hop
+
+Due to conflicting libraries it is currently not possible to support all Beam runtime engines out of the box from the GUI and Hop server.
+This is a known problem and we are looking for a solution to support all runners out of the box.
+The good news is that the Apache Flink and Google Dataflow will work, but for spark some changes to the installation are needed.
+This guide will explain what you need to change to a Hop 2.0 installation to get Spark running.
+
+IMPORTANT: When applying these changes the Flink and Google Dataflow runner will stop working.
+
+== Installation guide
+
+The first step is to download Apache Spark, this can be done from their official https://spark.apache.org/downloads.html[download page].
+Make sure you fetch the version that is listed as supported in our xref:pipeline/beam/getting-started-with-beam.adoc#supportedversions[documentation] we will be using this package to add jars to the Hop installation. You can also fetch these jars from your Spark cluster if needed.
+
+=== Cleaning up Hop
+
+For this to work we will both need to remove and add some files to the Beam plugin located under `/plugins/engines/beam/lib` folder
+
+==== Files to remove
+Following files have to be removed from the `/plugins/engines/beam/lib` folder
+
+- flink-shaded-jackson-*
+- jackson-module-scala*
+- scala-java8-compat*
+- scala-library*
+- scala-parser-combinators*
+
+==== Files to add
+Following files have to be added to the `/plugins/engines/beam/lib` folder, you can find them in <spark installation>/jars folder
+
+- json4s-ast*
+- json4s-core*
+- json4s-jackson*
+- json4s-scalap*
+- log4j*
+- scala-compiler*
+- scala-library*
+- scala-parser-combinators*
+- scala-reflect*
+- scala-xml*
+- spark-unsafe*
+- xbean-asm7-shaded*
+
+==== Files to fetch from Maven Central
+Due to version conflicts following file has to be fetched from maven central
+
+- jackson-module-scala* (https://repo1.maven.org/maven2/com/fasterxml/jackson/module/jackson-module-scala_2.12/2.13.3/jackson-module-scala_2.12-2.13.3.jar[Direct link])
+
+=== Rebuild the fat jar
+
+The final step would be to build the fat-jar this can be done from the GUI `Tools -> Generate a Hop fat jar` or you can use the command line `./hop-conf.sh -fj <location>/fat-jar.jar`
+
+

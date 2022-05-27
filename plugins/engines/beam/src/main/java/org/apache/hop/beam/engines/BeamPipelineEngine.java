@@ -185,6 +185,11 @@ public abstract class BeamPipelineEngine extends Variables
 
       beamEngineRunConfiguration = (IBeamPipelineEngineRunConfiguration) engineRunConfiguration;
 
+      if (beamEngineRunConfiguration.getRunnerType() == RunnerType.Spark) {
+        logChannel.logBasic(
+            "Make sure Hop is correctly configured for more information see: https://hop.apache.org/manual/latest/pipeline/beam/spark-on-local-host.html");
+      }
+
       converter =
           new HopPipelineMetaToBeamPipelineConverter(
               this, pipelineMeta, metadataProvider, beamEngineRunConfiguration);
@@ -380,7 +385,8 @@ public abstract class BeamPipelineEngine extends Variables
       if (beamPipelineResults != null) {
         Set<String> transformNames = new HashSet<>(Arrays.asList(pipelineMeta.getTransformNames()));
         Map<String, EngineComponent> componentsMap = new HashMap<>();
-        MetricResults metrics = safelyCall(() -> beamPipelineResults.metrics(), EMPTY_METRIC_RESULTS);
+        MetricResults metrics =
+            safelyCall(() -> beamPipelineResults.metrics(), EMPTY_METRIC_RESULTS);
         MetricQueryResults allResults = metrics.queryMetrics(MetricsFilter.builder().build());
 
         for (MetricResult<Long> result : allResults.getCounters()) {
@@ -423,7 +429,8 @@ public abstract class BeamPipelineEngine extends Variables
 
             // Set the transform status to reflect the pipeline status.
             //
-            switch (safelyCall(() -> beamPipelineResults.getState(), PipelineResult.State.UNKNOWN)) {
+            switch (safelyCall(
+                () -> beamPipelineResults.getState(), PipelineResult.State.UNKNOWN)) {
               case DONE:
                 engineComponent.setRunning(false);
                 engineComponent.setStatus(ComponentExecutionStatus.STATUS_FINISHED);
@@ -488,7 +495,8 @@ public abstract class BeamPipelineEngine extends Variables
 
     // This seems to be the most reliable way of checking the state...
     //
-    PipelineResult.State pipelineState = safelyCall(() -> beamPipelineResults.waitUntilFinish(Duration.millis(1)));
+    PipelineResult.State pipelineState =
+        safelyCall(() -> beamPipelineResults.waitUntilFinish(Duration.millis(1)));
     if (pipelineState != null) {
       boolean cancelPipeline = false;
       boolean cancelRefreshTimer = false;
@@ -843,7 +851,9 @@ public abstract class BeamPipelineEngine extends Variables
     return parentPipeline;
   }
 
-  /** @param parentPipeline The parentPipeline to set */
+  /**
+   * @param parentPipeline The parentPipeline to set
+   */
   @Override
   public void setParentPipeline(IPipelineEngine parentPipeline) {
     this.parentPipeline = parentPipeline;
@@ -859,7 +869,9 @@ public abstract class BeamPipelineEngine extends Variables
     return parentWorkflow;
   }
 
-  /** @param parentWorkflow The parentWorkflow to set */
+  /**
+   * @param parentWorkflow The parentWorkflow to set
+   */
   @Override
   public void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow) {
     this.parentWorkflow = parentWorkflow;
@@ -875,7 +887,9 @@ public abstract class BeamPipelineEngine extends Variables
     return executionStartedListeners;
   }
 
-  /** @param executionStartedListeners The executionStartedListeners to set */
+  /**
+   * @param executionStartedListeners The executionStartedListeners to set
+   */
   public void setExecutionStartedListeners(
       List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners) {
     this.executionStartedListeners = executionStartedListeners;
@@ -900,7 +914,9 @@ public abstract class BeamPipelineEngine extends Variables
     return executionFinishedListeners;
   }
 
-  /** @param executionFinishedListeners The executionFinishedListeners to set */
+  /**
+   * @param executionFinishedListeners The executionFinishedListeners to set
+   */
   public void setExecutionFinishedListeners(
       List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners) {
     this.executionFinishedListeners = executionFinishedListeners;
@@ -954,7 +970,9 @@ public abstract class BeamPipelineEngine extends Variables
     return executionStoppedListeners;
   }
 
-  /** @param executionStoppedListeners The executionStoppedListeners to set */
+  /**
+   * @param executionStoppedListeners The executionStoppedListeners to set
+   */
   public void setExecutionStoppedListeners(
       List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> executionStoppedListeners) {
     this.executionStoppedListeners = executionStoppedListeners;
@@ -970,7 +988,9 @@ public abstract class BeamPipelineEngine extends Variables
     return errors;
   }
 
-  /** @param errors The errors to set */
+  /**
+   * @param errors The errors to set
+   */
   public void setErrors(int errors) {
     this.errors = errors;
   }
@@ -985,7 +1005,9 @@ public abstract class BeamPipelineEngine extends Variables
     return pipelineRunConfiguration;
   }
 
-  /** @param pipelineRunConfiguration The pipelineRunConfiguration to set */
+  /**
+   * @param pipelineRunConfiguration The pipelineRunConfiguration to set
+   */
   @Override
   public void setPipelineRunConfiguration(PipelineRunConfiguration pipelineRunConfiguration) {
     this.pipelineRunConfiguration = pipelineRunConfiguration;
@@ -1001,7 +1023,9 @@ public abstract class BeamPipelineEngine extends Variables
     return pipelineMeta;
   }
 
-  /** @param subject The subject to set */
+  /**
+   * @param subject The subject to set
+   */
   @Override
   public void setPipelineMeta(PipelineMeta subject) {
     this.pipelineMeta = subject;
@@ -1017,7 +1041,9 @@ public abstract class BeamPipelineEngine extends Variables
     return pluginId;
   }
 
-  /** @param pluginId The pluginId to set */
+  /**
+   * @param pluginId The pluginId to set
+   */
   @Override
   public void setPluginId(String pluginId) {
     this.pluginId = pluginId;
@@ -1033,7 +1059,9 @@ public abstract class BeamPipelineEngine extends Variables
     return preparing;
   }
 
-  /** @param preparing The preparing to set */
+  /**
+   * @param preparing The preparing to set
+   */
   public void setPreparing(boolean preparing) {
     this.preparing = preparing;
   }
@@ -1048,7 +1076,9 @@ public abstract class BeamPipelineEngine extends Variables
     return readyToStart;
   }
 
-  /** @param readyToStart The readyToStart to set */
+  /**
+   * @param readyToStart The readyToStart to set
+   */
   public void setReadyToStart(boolean readyToStart) {
     this.readyToStart = readyToStart;
   }
@@ -1063,7 +1093,9 @@ public abstract class BeamPipelineEngine extends Variables
     return running;
   }
 
-  /** @param running The running to set */
+  /**
+   * @param running The running to set
+   */
   public void setRunning(boolean running) {
     this.running = running;
   }
@@ -1078,7 +1110,9 @@ public abstract class BeamPipelineEngine extends Variables
     return stopped;
   }
 
-  /** @param stopped The stopped to set */
+  /**
+   * @param stopped The stopped to set
+   */
   public void setStopped(boolean stopped) {
     this.stopped = stopped;
   }
@@ -1093,7 +1127,9 @@ public abstract class BeamPipelineEngine extends Variables
     return metadataProvider;
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   @Override
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
@@ -1109,7 +1145,9 @@ public abstract class BeamPipelineEngine extends Variables
     return logChannel;
   }
 
-  /** @param log The logChannel to set */
+  /**
+   * @param log The logChannel to set
+   */
   @Override
   public void setLogChannel(ILogChannel log) {
     this.logChannel = log;
@@ -1125,7 +1163,9 @@ public abstract class BeamPipelineEngine extends Variables
     return containerId;
   }
 
-  /** @param containerId The serverObjectId to set */
+  /**
+   * @param containerId The serverObjectId to set
+   */
   @Override
   public void setContainerId(String containerId) {
     this.containerId = containerId;
@@ -1141,7 +1181,9 @@ public abstract class BeamPipelineEngine extends Variables
     return engineMetrics;
   }
 
-  /** @param engineMetrics The engineMetrics to set */
+  /**
+   * @param engineMetrics The engineMetrics to set
+   */
   public void setEngineMetrics(EngineMetrics engineMetrics) {
     this.engineMetrics = engineMetrics;
   }
@@ -1156,7 +1198,9 @@ public abstract class BeamPipelineEngine extends Variables
     return finished;
   }
 
-  /** @param finished The finished to set */
+  /**
+   * @param finished The finished to set
+   */
   public void setFinished(boolean finished) {
     this.finished = finished;
   }
@@ -1171,7 +1215,9 @@ public abstract class BeamPipelineEngine extends Variables
     return paused;
   }
 
-  /** @param paused The paused to set */
+  /**
+   * @param paused The paused to set
+   */
   public void setPaused(boolean paused) {
     this.paused = paused;
   }
@@ -1186,7 +1232,9 @@ public abstract class BeamPipelineEngine extends Variables
     return parent;
   }
 
-  /** @param parent The parent to set */
+  /**
+   * @param parent The parent to set
+   */
   @Override
   public void setParent(ILoggingObject parent) {
     this.parent = parent;
@@ -1205,7 +1253,9 @@ public abstract class BeamPipelineEngine extends Variables
     return logLevel;
   }
 
-  /** @param logLevel The logLevel to set */
+  /**
+   * @param logLevel The logLevel to set
+   */
   @Override
   public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
@@ -1221,7 +1271,9 @@ public abstract class BeamPipelineEngine extends Variables
     return preview;
   }
 
-  /** @param preview The preview to set */
+  /**
+   * @param preview The preview to set
+   */
   @Override
   public void setPreview(boolean preview) {
     this.preview = preview;
@@ -1236,7 +1288,9 @@ public abstract class BeamPipelineEngine extends Variables
     return hasHaltedComponents;
   }
 
-  /** @param hasHaltedComponents The hasHaltedComponents to set */
+  /**
+   * @param hasHaltedComponents The hasHaltedComponents to set
+   */
   public void setHasHaltedComponents(boolean hasHaltedComponents) {
     this.hasHaltedComponents = hasHaltedComponents;
   }
@@ -1250,7 +1304,9 @@ public abstract class BeamPipelineEngine extends Variables
     return lastLogLineNr;
   }
 
-  /** @param lastLogLineNr The lastLogLineNr to set */
+  /**
+   * @param lastLogLineNr The lastLogLineNr to set
+   */
   public void setLastLogLineNr(int lastLogLineNr) {
     this.lastLogLineNr = lastLogLineNr;
   }
@@ -1264,7 +1320,9 @@ public abstract class BeamPipelineEngine extends Variables
     return loggingObject;
   }
 
-  /** @param loggingObject The loggingObject to set */
+  /**
+   * @param loggingObject The loggingObject to set
+   */
   public void setLoggingObject(ILoggingObject loggingObject) {
     this.loggingObject = loggingObject;
   }
@@ -1279,7 +1337,9 @@ public abstract class BeamPipelineEngine extends Variables
     return previousResult;
   }
 
-  /** @param previousResult The previousResult to set */
+  /**
+   * @param previousResult The previousResult to set
+   */
   @Override
   public void setPreviousResult(Result previousResult) {
     this.previousResult = previousResult;
@@ -1294,7 +1354,9 @@ public abstract class BeamPipelineEngine extends Variables
     return activeSubPipelines;
   }
 
-  /** @param activeSubPipelines The activeSubPipelines to set */
+  /**
+   * @param activeSubPipelines The activeSubPipelines to set
+   */
   public void setActiveSubPipelines(Map<String, IPipelineEngine> activeSubPipelines) {
     this.activeSubPipelines = activeSubPipelines;
   }
@@ -1308,7 +1370,9 @@ public abstract class BeamPipelineEngine extends Variables
     return activeSubWorkflows;
   }
 
-  /** @param activeSubWorkflows The activeSubWorkflows to set */
+  /**
+   * @param activeSubWorkflows The activeSubWorkflows to set
+   */
   public void setActiveSubWorkflows(Map<String, IWorkflowEngine<WorkflowMeta>> activeSubWorkflows) {
     this.activeSubWorkflows = activeSubWorkflows;
   }
@@ -1398,7 +1462,9 @@ public abstract class BeamPipelineEngine extends Variables
     return namedParams;
   }
 
-  /** @param namedParams The namedParams to set */
+  /**
+   * @param namedParams The namedParams to set
+   */
   public void setNamedParams(INamedParameters namedParams) {
     this.namedParams = namedParams;
   }
@@ -1422,17 +1488,23 @@ public abstract class BeamPipelineEngine extends Variables
     return extensionDataMap;
   }
 
-  /** @param statusDescription The statusDescription to set */
+  /**
+   * @param statusDescription The statusDescription to set
+   */
   public void setStatusDescription(String statusDescription) {
     this.statusDescription = statusDescription;
   }
 
-  /** @param status The status to set */
+  /**
+   * @param status The status to set
+   */
   public void setStatus(ComponentExecutionStatus status) {
     this.status = status;
   }
 
-  /** @param extensionDataMap The extensionDataMap to set */
+  /**
+   * @param extensionDataMap The extensionDataMap to set
+   */
   public void setExtensionDataMap(Map<String, Object> extensionDataMap) {
     this.extensionDataMap = extensionDataMap;
   }
@@ -1447,7 +1519,9 @@ public abstract class BeamPipelineEngine extends Variables
     return executionStartDate;
   }
 
-  /** @param executionStartDate The executionStartDate to set */
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
   public void setExecutionStartDate(Date executionStartDate) {
     this.executionStartDate = executionStartDate;
   }
@@ -1462,7 +1536,9 @@ public abstract class BeamPipelineEngine extends Variables
     return executionEndDate;
   }
 
-  /** @param executionEndDate The executionEndDate to set */
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
   public void setExecutionEndDate(Date executionEndDate) {
     this.executionEndDate = executionEndDate;
   }
@@ -1476,7 +1552,9 @@ public abstract class BeamPipelineEngine extends Variables
     return converter;
   }
 
-  /** @param converter The converter to set */
+  /**
+   * @param converter The converter to set
+   */
   public void setConverter(HopPipelineMetaToBeamPipelineConverter converter) {
     this.converter = converter;
   }
@@ -1490,7 +1568,9 @@ public abstract class BeamPipelineEngine extends Variables
     return beamPipeline;
   }
 
-  /** @param beamPipeline The beamPipeline to set */
+  /**
+   * @param beamPipeline The beamPipeline to set
+   */
   public void setBeamPipeline(org.apache.beam.sdk.Pipeline beamPipeline) {
     this.beamPipeline = beamPipeline;
   }
@@ -1504,7 +1584,9 @@ public abstract class BeamPipelineEngine extends Variables
     return beamThread;
   }
 
-  /** @param beamThread The beamThread to set */
+  /**
+   * @param beamThread The beamThread to set
+   */
   public void setBeamThread(Thread beamThread) {
     this.beamThread = beamThread;
   }
@@ -1518,7 +1600,9 @@ public abstract class BeamPipelineEngine extends Variables
     return beamPipelineResults;
   }
 
-  /** @param beamPipelineResults The beamPipelineResults to set */
+  /**
+   * @param beamPipelineResults The beamPipelineResults to set
+   */
   public void setBeamPipelineResults(PipelineResult beamPipelineResults) {
     this.beamPipelineResults = beamPipelineResults;
   }
@@ -1532,7 +1616,9 @@ public abstract class BeamPipelineEngine extends Variables
     return beamEngineRunConfiguration;
   }
 
-  /** @param beamEngineRunConfiguration The beamEngineRunConfiguration to set */
+  /**
+   * @param beamEngineRunConfiguration The beamEngineRunConfiguration to set
+   */
   public void setBeamEngineRunConfiguration(
       IBeamPipelineEngineRunConfiguration beamEngineRunConfiguration) {
     this.beamEngineRunConfiguration = beamEngineRunConfiguration;
