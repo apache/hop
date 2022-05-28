@@ -17,30 +17,22 @@
 
 package org.apache.hop.pipeline.transforms.formula.editor;
 
-import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.formula.FormulaMeta;
-import org.apache.hop.pipeline.transforms.formula.editor.util.CompletionProposal;
 import org.apache.hop.pipeline.transforms.formula.function.FunctionDescription;
 import org.apache.hop.pipeline.transforms.formula.function.FunctionLib;
-import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.apache.hop.core.plugins.PluginRegistry.log;
 
 public class FormulaEditor extends Dialog implements KeyListener {
   public static final Class<?> PKG = FormulaMeta.class; // For Translator
@@ -49,7 +41,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
   private Shell shell;
   private Tree tree;
   private SashForm sashForm;
-  private StyledText expressionEditor;
+  private StyledTextComp expressionEditor;
   private String formula;
   private Browser message;
 
@@ -71,10 +63,12 @@ public class FormulaEditor extends Dialog implements KeyListener {
   private String[] categories;
 
   private SashForm rightSash;
+  private IVariables variables;
 
-  public FormulaEditor(Shell parent, int style, String formula, String[] inputFields)
+  public FormulaEditor(IVariables variables, Shell parent, int style, String formula, String[] inputFields)
       throws Exception {
     super(parent, style);
+    this.variables = variables;
     this.formula = formula;
     this.inputFields = inputFields;
 
@@ -184,7 +178,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
     // An expression editor on the right
     //
-    expressionEditor = new StyledText(rightSash, SWT.NONE);
+    expressionEditor = new StyledTextComp(variables, rightSash, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     expressionEditor.setText(this.formula);
     expressionEditor.addModifyListener(event -> setStyles());
     expressionEditor.addKeyListener(this);
@@ -278,6 +272,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
     };
     FormulaEditor lbe =
         new FormulaEditor(
+                null,
             new Shell(display, SWT.NONE),
             SWT.NONE,
             "MID(UPPER([name] & \" \" & [firstname]);5;10)",
@@ -286,131 +281,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
   }
 
   public void keyPressed(KeyEvent e) {
-    // TODO
-    boolean ctrl = ((e.stateMask & SWT.CONTROL) != 0);
-
-    List<CompletionProposal> proposals = new ArrayList<>();
-
-    // CTRL-SPACE?
-    //
-    if (ctrl && e.character == ' ') {
-      // Gab the content before the cursor position...
-      //
-      StringBuilder beforeBuffer = new StringBuilder();
-      String editor = expressionEditor.getText();
-      int pos = expressionEditor.getCaretOffset() - 1;
-      while (pos >= 0 && pos < editor.length()) {
-        char c = editor.charAt(pos);
-        if (Character.isWhitespace(c)) {
-          break;
-        }
-        if (Character.isLetterOrDigit(c) || c == '[') {
-          beforeBuffer.insert(0, c);
-          pos--;
-        } else {
-          break;
-        }
-      }
-
-      String before = beforeBuffer.toString();
-      log.logBasic("BEFORE = " + before);
-
-      // if we just have [ we display only the field names...
-      //
-      if (before.equals("[")) {
-        for (String fieldName : inputFields) {
-          proposals.add(
-              new CompletionProposal(
-                  "[" + fieldName + "] (input field)", fieldName + "]", fieldName.length() + 1));
-        }
-      } else if (Utils.isEmpty(before)) {
-        for (String fieldName : inputFields) {
-          proposals.add(
-              new CompletionProposal(
-                  "[" + fieldName + "] (input field)",
-                  "[" + fieldName + "]",
-                  fieldName.length() + 2));
-        }
-      } else {
-        // Only add those where "before" matches the start of the keyword or function
-        //
-        for (String fieldName : inputFields) {
-          String key = "[" + fieldName;
-          if (key.startsWith(before) && !key.equalsIgnoreCase(before)) {
-            proposals.add(
-                new CompletionProposal(
-                    "[" + fieldName + "] (keyword)",
-                    fieldName.substring(before.length()) + "]",
-                    fieldName.length() - before.length() + 1));
-          }
-        }
-        for (String function : functions) {
-          if (function.startsWith(before) && !function.equalsIgnoreCase(before)) {
-            proposals.add(
-                new CompletionProposal(
-                    function + "() (Function)",
-                    function.substring(before.length()) + "()",
-                    function.length() - before.length() + 1));
-          }
-        }
-      }
-
-      if (helperMenu == null) {
-        helperMenu = new Menu(shell, SWT.POP_UP);
-      } else {
-        for (MenuItem item : helperMenu.getItems()) {
-          item.dispose();
-        }
-      }
-      final int offset = expressionEditor.getCaretOffset();
-      Point p = expressionEditor.getLocationAtOffset(offset);
-      int h = expressionEditor.getLineHeight(offset);
-      Point l = GuiResource.calculateControlPosition(expressionEditor);
-
-      MenuItem first = null;
-      if (proposals.size() == 1) {
-        MenuItem item = new MenuItem(helperMenu, SWT.NONE);
-        if (first == null) {
-          first = item;
-        }
-        final CompletionProposal proposal = proposals.get(0);
-        item.setText(proposal.getMenuText());
-        item.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent se) {
-                expressionEditor.insert(proposal.getCompletionString());
-                expressionEditor.setSelection(offset + proposal.getOffset());
-              }
-            });
-        helperMenu.setLocation(l.x + p.x, l.y + p.y + h);
-        helperMenu.setDefaultItem(first);
-        helperMenu.setVisible(true);
-      } else if (proposals.size() > 0) {
-        int nr = 0;
-        for (final CompletionProposal proposal : proposals) {
-          MenuItem item = new MenuItem(helperMenu, SWT.NONE);
-          if (first == null) {
-            first = item;
-          }
-          item.setText(proposal.getMenuText());
-          item.addSelectionListener(
-              new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent se) {
-                  expressionEditor.insert(proposal.getCompletionString());
-                  expressionEditor.setSelection(offset + proposal.getOffset());
-                }
-              });
-          if (nr++ > 5) {
-            break;
-          }
-        }
-        helperMenu.setLocation(l.x + p.x, l.y + p.y + h);
-        helperMenu.setDefaultItem(first);
-        helperMenu.setVisible(true);
-      }
-    }
+    // implement later
   }
 
   @Override

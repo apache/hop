@@ -201,6 +201,7 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
               if (!shell.isDisposed()) {
                 FormulaEditor libFormulaEditor =
                     new FormulaEditor(
+                        variables,
                         shell,
                         SWT.APPLICATION_MODAL | SWT.SHEET,
                         Const.NVL(formula, ""),
