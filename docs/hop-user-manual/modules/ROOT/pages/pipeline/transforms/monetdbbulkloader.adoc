@@ -62,6 +62,8 @@ This tab contains the destination settings, buffer size and location for the log
 
 This tab contains information about the temporary files that are generated to load the data.
 
+
+
 |===
 |Field|Description
 
@@ -83,3 +85,23 @@ This tab contains information about the temporary files that are generated to lo
 === Output Fields tab
 
 This tab contains the source to target mapping.
+
+|===
+|Field|Description
+
+|Target table field
+|Field containing the name of the field in the target table
+
+|Incoming stream field
+|Field containing the value we want to insert in target table
+
+|Format is ok
+|Set to Y if the incoming stream's field is the correct format according to the target datatatype.
+
+*NOTE:*
+
+This setting is evaluated only when Lazy Conversion is applied.
+
+For example: imagine you are getting values from a text file, your incoming data contains numbers or dates and Lazy Conversion is enabled in the input transform. In this case, the data is not transformed internally to the target data type and is managed as a String by Hop. By setting this flag to Y, we are saying Hop that the incoming data's value is already in a format clearly understandable by the target database according to the target datatype.
+
+|===
