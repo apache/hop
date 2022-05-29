@@ -208,11 +208,8 @@ notices and license terms. Your use of the source code for the these
 subcomponents is subject to the terms and conditions of the following
 licenses.
 
-This product bundles accessors-smart 1.2, which is available under a
+This product bundles accessors-smart 2.4.8, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
-
-This product bundles activation 1.1, which is available under a
-"Common Development and Distribution 1.0" license. For details, see licenses/LICENSE-CDDL10.
 
 This product bundles activation 1.1.1, which is available under a
 "Common Development and Distribution 1.0" license. For details, see licenses/LICENSE-CDDL10.
@@ -226,16 +223,16 @@ This product bundles adapter-rxjava 2.7.2, which is available under a
 This product bundles airline 0.6, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles akka-actor_2.11 2.5.21, which is available under a
+This product bundles akka-actor_2.11 2.5.32, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles akka-protobuf_2.11 2.5.21, which is available under a
+This product bundles akka-protobuf_2.11 2.5.32, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles akka-slf4j_2.11 2.5.21, which is available under a
+This product bundles akka-slf4j_2.11 2.5.32, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles akka-stream_2.11 2.5.21, which is available under a
+This product bundles akka-stream_2.11 2.5.32, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles animal-sniffer-annotations 1.19, which is available under a
@@ -243,6 +240,9 @@ This product bundles animal-sniffer-annotations 1.19, which is available under a
 
 This product bundles annotations 4.1.1.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
+
+This product bundles antlr-runtime 3.5.3, which is available under a
+"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles aopalliance-repackaged 2.6.1, which is available under a
 "Eclipse Public 2.0" license. For details, see licenses/LICENSE-EPL20.
@@ -262,7 +262,7 @@ This product bundles apacheds-kerberos-codec 2.0.0-M15, which is available under
 This product bundles api-asn1-api 1.0.0-M20, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles api-common 1.10.1, which is available under a
+This product bundles api-common 2.1.5, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles api-util 1.0.0-M20, which is available under a
@@ -271,19 +271,13 @@ This product bundles api-util 1.0.0-M20, which is available under a
 This product bundles args4j 2.33, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
-This product bundles asm 3.2, which is available under a
+This product bundles asm 9.3, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles asm 5.0.4, which is available under a
+This product bundles asm-analysis 9.3, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles asm 9.2, which is available under a
-"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
-
-This product bundles asm-analysis 5.0.3, which is available under a
-"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
-
-This product bundles asm-util 5.0.3, which is available under a
+This product bundles asm-util 9.3, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles audience-annotations 0.12.0, which is available under a
@@ -295,16 +289,13 @@ This product bundles auto-common 0.8, which is available under a
 This product bundles auto-service 1.0-rc4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles auto-value-annotations 1.7.4, which is available under a
+This product bundles auto-value-annotations 1.9, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles avro 1.10.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
+This product bundles automaton 1.11-8, which is available under a
+"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles avro 1.7.7, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles avro 1.8.2, which is available under a
+This product bundles avro 1.11.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles avro-ipc 1.8.2, which is available under a
@@ -313,13 +304,13 @@ This product bundles avro-ipc 1.8.2, which is available under a
 This product bundles avro-mapred-1.8.2-hadoop2.jar , which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles aws-java-sdk-cloudwatch 1.12.106, which is available under a
+This product bundles aws-java-sdk-cloudwatch 1.12.135, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles aws-java-sdk-core 1.11.974, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles aws-java-sdk-dynamodb 1.12.106, which is available under a
+This product bundles aws-java-sdk-dynamodb 1.12.135, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles aws-java-sdk-kms 1.11.974, which is available under a
@@ -328,13 +319,13 @@ This product bundles aws-java-sdk-kms 1.11.974, which is available under a
 This product bundles aws-java-sdk-s3 1.11.974, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles aws-java-sdk-sns 1.12.106, which is available under a
+This product bundles aws-java-sdk-sns 1.12.135, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles aws-java-sdk-sqs 1.12.106, which is available under a
+This product bundles aws-java-sdk-sqs 1.12.135, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles aws-java-sdk-sts 1.12.106, which is available under a
+This product bundles aws-java-sdk-sts 1.12.135, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles azure-annotations 1.10.0, which is available under a
@@ -409,85 +400,85 @@ This product bundles batik-util 1.14, which is available under a
 This product bundles batik-xml 1.14, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles bcmail-jdk15on 1.69, which is available under a
+This product bundles bcmail-jdk15on 1.70, which is available under a
 "Bouncy Castle Licence" license. For details, see licenses/LICENSE-BOUNCY.
 
-This product bundles bcpkix-jdk15on 1.69, which is available under a
+This product bundles bcpkix-jdk15on 1.70, which is available under a
 "Bouncy Castle Licence" license. For details, see licenses/LICENSE-BOUNCY.
 
-This product bundles bcprov-jdk15on 1.69, which is available under a
+This product bundles bcprov-jdk15on 1.70, which is available under a
 "Bouncy Castle Licence" license. For details, see licenses/LICENSE-BOUNCY.
 
-This product bundles bcutil-jdk15on 1.69, which is available under a
+This product bundles bcutil-jdk15on 1.70, which is available under a
 "Bouncy Castle Licence" license. For details, see licenses/LICENSE-BOUNCY.
 
-This product bundles beam-model-fn-execution 2.35.0, which is available under a
+This product bundles beam-model-fn-execution 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-model-job-management 2.35.0, which is available under a
+This product bundles beam-model-job-management 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-model-pipeline 2.35.0, which is available under a
+This product bundles beam-model-pipeline 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-core-construction-java 2.35.0, which is available under a
+This product bundles beam-runners-core-construction-java 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-core-java 2.35.0, which is available under a
+This product bundles beam-runners-core-java 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-direct-java 2.35.0, which is available under a
+This product bundles beam-runners-direct-java 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-flink-1.13 2.35.0, which is available under a
+This product bundles beam-runners-flink-1.14 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-google-cloud-dataflow-java 2.35.0, which is available under a
+This product bundles beam-runners-google-cloud-dataflow-java 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-java-fn-execution 2.35.0, which is available under a
+This product bundles beam-runners-java-fn-execution 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-spark-3 2.35.0, which is available under a
+This product bundles beam-runners-spark-3 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-core 2.35.0, which is available under a
+This product bundles beam-sdks-java-core 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-extensions-google-cloud-platform-core 2.35.0, which is available under a
+This product bundles beam-sdks-java-extensions-google-cloud-platform-core 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-extensions-join-library 2.35.0, which is available under a
+This product bundles beam-sdks-java-extensions-join-library 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-extensions-protobuf 2.35.0, which is available under a
+This product bundles beam-sdks-java-extensions-protobuf 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-fn-execution 2.35.0, which is available under a
+This product bundles beam-sdks-java-fn-execution 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-amazon-web-services 2.35.0, which is available under a
+This product bundles beam-sdks-java-io-amazon-web-services 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-google-cloud-platform 2.35.0, which is available under a
+This product bundles beam-sdks-java-io-google-cloud-platform 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-hadoop-common 2.35.0, which is available under a
+This product bundles beam-sdks-java-io-hadoop-common 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-hadoop-file-system 2.35.0, which is available under a
+This product bundles beam-sdks-java-io-hadoop-file-system 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-kafka 2.35.0, which is available under a
+This product bundles beam-sdks-java-io-kafka 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-synthetic 2.35.0, which is available under a
+This product bundles beam-sdks-java-io-synthetic 2.38.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles beam-vendor-bytebuddy-1_11_0 0.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-vendor-grpc-1_36_0 0.2, which is available under a
+This product bundles beam-vendor-grpc-1_43_2 0.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles beam-vendor-guava-26_0-jre 0.1, which is available under a
@@ -496,7 +487,10 @@ This product bundles beam-vendor-guava-26_0-jre 0.1, which is available under a
 This product bundles bigtable-client-core 1.25.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles bigtable-hbase-1.x-shaded 1.20.1, which is available under a
+This product bundles bigtable-hbase-1.x-shaded 2.2.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles bigtable-metrics-api 1.26.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles blueprints-core 2.6.0, which is available under a
@@ -538,10 +532,7 @@ This product bundles client-runtime 1.7.3, which is available under a
 This product bundles com.wcohen.secondstring 0.1, which is available under a
 "The University of Illinois/NCSA Open Source" license. For details, see licenses/LICENSE-NCSA.
 
-This product bundles common-config 5.3.2, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles common-utils 5.3.2, which is available under a
+This product bundles common-utils 7.1.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles commons-beanutils 1.9.4, which is available under a
@@ -550,10 +541,7 @@ This product bundles commons-beanutils 1.9.4, which is available under a
 This product bundles commons-cli 1.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles commons-codec 1.10, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles commons-codec 1.14, which is available under a
+This product bundles commons-codec 1.15, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles commons-collections 3.2.2, which is available under a
@@ -568,16 +556,10 @@ This product bundles commons-compiler 3.1.2, which is available under a
 This product bundles commons-compress 1.21, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles commons-configuration 1.6, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles commons-configuration 1.9, which is available under a
+This product bundles commons-configuration 1.10, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles commons-crypto 1.1.0, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles commons-csv 1.8, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles commons-csv 1.9.0, which is available under a
@@ -610,10 +592,7 @@ This product bundles commons-logging 1.1.3, which is available under a
 This product bundles commons-math3 3.6.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles commons-net 3.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles commons-net 3.7.2, which is available under a
+This product bundles commons-net 3.8.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles commons-pool 1.5.7, which is available under a
@@ -625,10 +604,7 @@ This product bundles commons-validator 1.3.1, which is available under a
 This product bundles commons-vfs2 2.9.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles compress-lzf 0.8.4, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles compress-lzf 1.0.3, which is available under a
+This product bundles compress-lzf 1.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles concurrent-trees 2.4.0, which is available under a
@@ -649,25 +625,16 @@ This product bundles converter-jackson 2.7.2, which is available under a
 This product bundles core 0.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles curator-client 2.13.0, which is available under a
+This product bundles curator-client 5.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles curator-client 2.6.0, which is available under a
+This product bundles curator-framework 5.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles curator-framework 2.13.0, which is available under a
+This product bundles curator-recipes 5.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles curator-framework 2.6.0, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles curator-recipes 2.13.0, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles curator-recipes 2.6.0, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles curvesapi 1.06, which is available under a
+This product bundles curvesapi 1.07, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
 
 This product bundles datastore-v1-proto-client 2.1.3, which is available under a
@@ -688,7 +655,28 @@ This product bundles disruptor 3.0.1, which is available under a
 This product bundles dom4j 2.1.3, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles dropbox-core-sdk 4.0.0, which is available under a
+This product bundles drools-compiler 7.68.0.Final, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles drools-core 7.68.0.Final, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles drools-core-dynamic 7.68.0.Final, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles drools-core-reflective 7.68.0.Final, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles drools-decisiontables 7.68.0.Final, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles drools-mvel 7.68.0.Final, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles drools-templates 7.68.0.Final, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles dropbox-core-sdk 5.0.0, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
 This product bundles ecj 4.4.2, which is available under a
@@ -703,7 +691,7 @@ This product bundles enunciate-core-annotations 1.27, which is available under a
 This product bundles enunciate-jersey-rt 1.27, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles error_prone_annotations 2.4.0, which is available under a
+This product bundles error_prone_annotations 2.10.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles failureaccess 1.0.1, which is available under a
@@ -715,46 +703,52 @@ This product bundles findbugs-annotations 1.3.9-1, which is available under a
 This product bundles flexjson 2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-annotations 1.13.5, which is available under a
+This product bundles flink-annotations 1.14.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-clients_2.11 1.13.5, which is available under a
+This product bundles flink-clients_2.11 1.14.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-core 1.13.5, which is available under a
+This product bundles flink-core 1.14.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-hadoop-fs 1.13.5, which is available under a
+This product bundles flink-hadoop-fs 1.14.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-java 1.13.5, which is available under a
+This product bundles flink-java 1.14.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-metrics-core 1.13.5, which is available under a
+This product bundles flink-metrics-core 1.14.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-optimizer_2.11 1.13.5, which is available under a
+This product bundles flink-optimizer 1.14.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-queryable-state-client-java 1.13.5, which is available under a
+This product bundles flink-queryable-state-client-java 1.14.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-runtime_2.11 1.13.5, which is available under a
+This product bundles flink-rpc-akka-loader 1.14.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-shaded-asm-7 7.1-13.0, which is available under a
+This product bundles flink-rpc-core 1.14.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-shaded-guava 18.0-13.0, which is available under a
+This product bundles flink-runtime 1.14.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-shaded-jackson 2.12.1-13.0, which is available under a
+This product bundles flink-shaded-asm-7 7.1-14.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-shaded-netty 4.1.49.Final-13.0, which is available under a
+This product bundles flink-shaded-guava 30.1.1-jre-14.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-streaming-java_2.11 1.13.5, which is available under a
+This product bundles flink-shaded-jackson 2.12.4-14.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles flink-shaded-netty 4.1.65.Final-14.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles flink-streaming-java_2.11 1.14.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles flogger 0.7.3, which is available under a
@@ -763,28 +757,25 @@ This product bundles flogger 0.7.3, which is available under a
 This product bundles flogger-system-backend 0.7.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles fontbox 2.0.24, which is available under a
+This product bundles fontbox 2.0.25, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles force-partner-api 50.0.0, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles force-shading 1.13.5, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles force-wsc 50.0.0, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles gax 1.63.0, which is available under a
+This product bundles gax 2.16.0, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles gax-grpc 1.63.0, which is available under a
+This product bundles gax-grpc 2.11.0, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles gax-httpjson 0.52.0, which is available under a
+This product bundles gax-grpc-2.8.1-testlib.jar , which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles gax-httpjson 0.80.0, which is available under a
+This product bundles gax-httpjson 0.101.0, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles gcsio 2.2.4, which is available under a
@@ -802,7 +793,7 @@ This product bundles google-api-client-jackson2 1.32.2, which is available under
 This product bundles google-api-services-analytics v3-rev169-1.25.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-api-services-bigquery v2-rev20210410-1.31.0, which is available under a
+This product bundles google-api-services-bigquery v2-rev20220507-1.32.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles google-api-services-clouddebugger v2-rev20210813-1.32.1, which is available under a
@@ -817,115 +808,88 @@ This product bundles google-api-services-dataflow v1b3-rev20210818-1.32.1, which
 This product bundles google-api-services-drive v3-rev197-1.25.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-api-services-pubsub v1-rev20211012-1.32.1, which is available under a
+This product bundles google-api-services-pubsub v1-rev20211130-1.32.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles google-api-services-sheets v4-rev612-1.25.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-api-services-storage v1-rev20181013-1.27.0, which is available under a
+This product bundles google-api-services-storage v1-rev20211201-1.32.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-api-services-storage v1-rev20211018-1.32.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles google-auth-library-credentials 0.22.2, which is available under a
+This product bundles google-auth-library-credentials 1.6.0, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles google-auth-library-credentials 0.24.0, which is available under a
-"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
-
-This product bundles google-auth-library-oauth2-http 0.22.2, which is available under a
-"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
-
-This product bundles google-auth-library-oauth2-http 0.24.0, which is available under a
+This product bundles google-auth-library-oauth2-http 1.6.0, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles google-cloud-bigquery 1.128.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-cloud-bigquerystorage 2.4.2, which is available under a
+This product bundles google-cloud-bigquerystorage 2.10.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles google-cloud-bigtable 1.27.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-cloud-core 1.53.0, which is available under a
+This product bundles google-cloud-core 2.6.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-cloud-core-grpc 2.2.0, which is available under a
+This product bundles google-cloud-core-grpc 2.4.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-cloud-core-http 1.53.0, which is available under a
+This product bundles google-cloud-core-http 2.6.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-cloud-spanner 6.14.0, which is available under a
+This product bundles google-cloud-spanner 6.20.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-cloud-storage 1.53.0, which is available under a
+This product bundles google-cloud-storage 2.6.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles google-extensions 0.7.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-http-client 1.39.2, which is available under a
+This product bundles google-http-client 1.41.8, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-http-client 1.40.1, which is available under a
+This product bundles google-http-client-apache-v2 1.41.7, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-http-client-apache-v2 1.38.0, which is available under a
+This product bundles google-http-client-appengine 1.41.7, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-http-client-appengine 1.27.0, which is available under a
+This product bundles google-http-client-gson 1.41.8, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-http-client-appengine 1.39.2, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles google-http-client-gson 1.38.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles google-http-client-gson 1.39.2, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles google-http-client-jackson2 1.39.2, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles google-http-client-jackson2 1.40.1, which is available under a
+This product bundles google-http-client-jackson2 1.41.8, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles google-http-client-protobuf 1.40.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-oauth-client 1.30.6, which is available under a
+This product bundles google-oauth-client 1.33.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-oauth-client 1.31.2, which is available under a
+This product bundles google-oauth-client-java6 1.33.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-oauth-client-java6 1.31.2, which is available under a
+This product bundles google-oauth-client-jetty 1.33.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-oauth-client-jetty 1.31.2, which is available under a
+This product bundles grpc-alts 1.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles grizzled-slf4j_2.11 1.3.2, which is available under a
-"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
-
-This product bundles grpc-alts 1.37.0, which is available under a
+This product bundles grpc-api 1.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles grpc-api 1.37.0, which is available under a
+This product bundles grpc-auth 1.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles grpc-auth 1.37.0, which is available under a
+This product bundles grpc-context 1.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles grpc-context 1.37.0, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles grpc-core 1.37.0, which is available under a
+This product bundles grpc-core 1.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles grpc-google-cloud-bigtable-admin-v2 1.27.1, which is available under a
@@ -934,37 +898,34 @@ This product bundles grpc-google-cloud-bigtable-admin-v2 1.27.1, which is availa
 This product bundles grpc-google-cloud-bigtable-v2 1.27.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles grpc-google-cloud-pubsub-v1 1.96.7, which is available under a
+This product bundles grpc-google-cloud-pubsub-v1 1.97.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles grpc-google-common-protos 2.3.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles grpc-grpclb 1.37.0, which is available under a
+This product bundles grpc-grpclb 1.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles grpc-netty 1.37.0, which is available under a
+This product bundles grpc-netty 1.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles grpc-netty-shaded 1.41.0, which is available under a
+This product bundles grpc-netty-shaded 1.44.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles grpc-protobuf 1.37.0, which is available under a
+This product bundles grpc-protobuf 1.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles grpc-protobuf-lite 1.37.0, which is available under a
+This product bundles grpc-protobuf-lite 1.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles grpc-stub 1.37.0, which is available under a
+This product bundles grpc-stub 1.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles gson 2.8.5, which is available under a
+This product bundles gson 2.9.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles gson-2.2.4.jar , which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles guava 31.0.1-jre, which is available under a
+This product bundles guava 31.1-jre, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles h2 2.0.206, which is available under a
@@ -973,31 +934,16 @@ This product bundles h2 2.0.206, which is available under a
 This product bundles hadoop-annotations 2.10.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles hadoop-annotations 2.6.5, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles hadoop-auth 2.10.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles hadoop-auth 2.6.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles hadoop-client 2.10.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles hadoop-client 2.6.5, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles hadoop-common 2.10.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles hadoop-common 2.6.5, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles hadoop-hdfs 2.10.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles hadoop-hdfs 2.6.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles hadoop-hdfs-client 3.3.1, which is available under a
@@ -1006,58 +952,31 @@ This product bundles hadoop-hdfs-client 3.3.1, which is available under a
 This product bundles hadoop-mapreduce-client-app 2.10.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles hadoop-mapreduce-client-app 2.6.5, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles hadoop-mapreduce-client-common 2.10.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles hadoop-mapreduce-client-common 2.6.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles hadoop-mapreduce-client-core 2.10.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles hadoop-mapreduce-client-core 2.6.5, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles hadoop-mapreduce-client-jobclient 2.10.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles hadoop-mapreduce-client-jobclient 2.6.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles hadoop-mapreduce-client-shuffle 2.10.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles hadoop-mapreduce-client-shuffle 2.6.5, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles hadoop-yarn-api 2.10.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles hadoop-yarn-api 2.6.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles hadoop-yarn-client 2.10.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles hadoop-yarn-client 2.6.5, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles hadoop-yarn-common 2.10.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles hadoop-yarn-common 2.6.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles hadoop-yarn-server-common 2.10.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles hadoop-yarn-server-common 2.6.5, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles hbase-shaded-client 1.4.12, which is available under a
+This product bundles hbase-shaded-client 1.7.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles high-scale-lib 1.0.6, which is available under a
@@ -1078,16 +997,13 @@ This product bundles hppc 0.5.4, which is available under a
 This product bundles hsqldb 2.5.0, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles htrace-core 3.0.4, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles htrace-core 3.1.0-incubating, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles httpclient 4.5.3, which is available under a
+This product bundles httpclient 4.5.13, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles httpcore 4.4.6, which is available under a
+This product bundles httpcore 4.4.13, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles ini4j 0.5.4, which is available under a
@@ -1114,34 +1030,34 @@ This product bundles jackcess 4.0.1, which is available under a
 This product bundles jackcess-encrypt 4.0.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jackson-annotations 2.13.0, which is available under a
+This product bundles jackson-annotations 2.13.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jackson-core 2.13.0, which is available under a
+This product bundles jackson-core 2.13.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jackson-core-asl 1.9.13, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jackson-databind 2.13.0, which is available under a
+This product bundles jackson-databind 2.13.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jackson-dataformat-cbor 2.13.0, which is available under a
+This product bundles jackson-dataformat-avro 2.13.2, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles jackson-dataformat-cbor 2.13.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jackson-datatype-joda 2.10.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jackson-jaxrs 1.8.3, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles jackson-jaxrs 1.9.13, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jackson-jaxrs-base 2.13.0, which is available under a
+This product bundles jackson-jaxrs-base 2.13.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jackson-jaxrs-json-provider 2.13.0, which is available under a
+This product bundles jackson-jaxrs-json-provider 2.13.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jackson-mapper-asl 1.9.13, which is available under a
@@ -1150,10 +1066,7 @@ This product bundles jackson-mapper-asl 1.9.13, which is available under a
 This product bundles jackson-module-paranamer 2.10.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jackson-module-scala_2.11 2.13.0, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles jackson-xc 1.8.3, which is available under a
+This product bundles jackson-module-scala_2.11 2.13.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jackson-xc 1.9.13, which is available under a
@@ -1162,8 +1075,14 @@ This product bundles jackson-xc 1.9.13, which is available under a
 This product bundles jai-imageio-core 1.4.0, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles jakarta.activation 1.2.2, which is available under a
+This product bundles jakarta.activation 2.0.1, which is available under a
 "Eclipse Public 1.0" license. For details, see licenses/LICENSE-EPL10.
+
+This product bundles jakarta.activation-api 2.1.0, which is available under a
+"Eclipse Public 1.0" license. For details, see licenses/LICENSE-EPL10.
+
+This product bundles jakarta.mail 2.0.1, which is available under a
+"Eclipse Public 2.0" license. For details, see licenses/LICENSE-EPL20.
 
 This product bundles jakarta.xml.bind-api 2.3.3, which is available under a
 "Eclipse Public 1.0" license. For details, see licenses/LICENSE-EPL10.
@@ -1171,7 +1090,7 @@ This product bundles jakarta.xml.bind-api 2.3.3, which is available under a
 This product bundles jamm 0.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jandex 2.2.2.Final, which is available under a
+This product bundles jandex 2.4.2.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles janino 3.1.2, which is available under a
@@ -1189,7 +1108,7 @@ This product bundles JavaEWAH 1.1.6, which is available under a
 This product bundles javafaker 1.0.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles javassist 3.20.0-GA, which is available under a
+This product bundles javassist 3.28.0-GA, which is available under a
 "Mozilla Public 1.1" license. For details, see licenses/LICENSE-MPL11.
 
 This product bundles javax.annotation-api 1.3.2, which is available under a
@@ -1204,10 +1123,10 @@ This product bundles javax.servlet-api 3.1.0, which is available under a
 This product bundles jaxb-api 2.2.2, which is available under a
 "Common Development and Distribution 1.1" license. For details, see licenses/LICENSE-CDDL11.
 
-This product bundles jaxb-runtime 2.3.4, which is available under a
+This product bundles jaxb-runtime 2.3.5, which is available under a
 "Eclipse Public 1.0" license. For details, see licenses/LICENSE-EPL10.
 
-This product bundles jaxen 1.1.6, which is available under a
+This product bundles jaxen 1.2.0, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
 
 This product bundles jbcrypt 0.3m, which is available under a
@@ -1222,22 +1141,22 @@ This product bundles jcip-annotations 1.0-1, which is available under a
 This product bundles jcl-over-slf4j 1.7.30, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jcl-over-slf4j 1.7.32, which is available under a
+This product bundles jcl-over-slf4j 1.7.35, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jctools-core 1.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jdom2 2.0.6, which is available under a
+This product bundles jdom2 2.0.6.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jempbox 1.8.16, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jersey-apache-client4 1.19.1, which is available under a
+This product bundles jersey-apache-client4 1.19.4, which is available under a
 "Common Development and Distribution 1.1" license. For details, see licenses/LICENSE-CDDL11.
 
-This product bundles jersey-bundle 1.19.1, which is available under a
+This product bundles jersey-bundle 1.19.4, which is available under a
 "Common Development and Distribution 1.1" license. For details, see licenses/LICENSE-CDDL11.
 
 This product bundles jersey-client 1.9, which is available under a
@@ -1261,7 +1180,7 @@ This product bundles jersey-core 1.9, which is available under a
 This product bundles jersey-media-jaxb 2.30, which is available under a
 "Eclipse Public 2.0" license. For details, see licenses/LICENSE-EPL20.
 
-This product bundles jersey-multipart 1.19.1, which is available under a
+This product bundles jersey-multipart 1.19.4, which is available under a
 "Common Development and Distribution 1.1" license. For details, see licenses/LICENSE-CDDL11.
 
 This product bundles jersey-server 2.30, which is available under a
@@ -1321,22 +1240,13 @@ This product bundles jhighlight 1.0.3, which is available under a
 This product bundles jmatio 1.5, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles jmespath-java 1.12.106, which is available under a
+This product bundles jmespath-java 1.12.135, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jna 4.2.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles joda-time 2.10.10, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles joda-time 2.4, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles joda-time 2.9.2, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles joda-time 2.9.9, which is available under a
+This product bundles joda-time 2.10.14, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jsch 0.1.54, which is available under a
@@ -1351,13 +1261,10 @@ This product bundles json-path 2.1.0, which is available under a
 This product bundles json-simple 1.1.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles json-smart 2.2, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles json-smart 2.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jsr305 1.3.9, which is available under a
+This product bundles json-smart 2.4.8, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jsr305 3.0.2, which is available under a
@@ -1375,22 +1282,34 @@ This product bundles jul-to-slf4j 1.7.30, which is available under a
 This product bundles juniversalchardet 1.0.3, which is available under a
 "Mozilla Public 1.1" license. For details, see licenses/LICENSE-MPL11.
 
-This product bundles junrar 7.4.0, which is available under a
+This product bundles junrar 7.4.1, which is available under a
 "UnRar License" license. For details, see licenses/LICENSE-UNRAR.
 
 This product bundles jzlib 1.0.7, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles kafka-avro-serializer 5.3.2, which is available under a
+This product bundles kafka-avro-serializer 7.1.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles kafka-clients 0.10.2.1, which is available under a
+This product bundles kafka-clients 2.4.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles kafka-clients 1.0.0, which is available under a
+This product bundles kafka-schema-registry-client 7.1.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles kafka-schema-registry-client 5.3.2, which is available under a
+This product bundles kie-api 7.68.0.Final, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles kie-internal 7.68.0.Final, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles kie-memory-compiler 7.68.0.Final, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles kie-soup-maven-support 7.68.0.Final, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles kie-soup-project-datamodel-commons 7.68.0.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles kryo 2.24.0, which is available under a
@@ -1399,7 +1318,7 @@ This product bundles kryo 2.24.0, which is available under a
 This product bundles kryo-shaded 4.0.2, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles lang-tag 1.5, which is available under a
+This product bundles lang-tag 1.6, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles leveldbjni-all 1.8, which is available under a
@@ -1411,13 +1330,16 @@ This product bundles libphonenumber 8.12.33, which is available under a
 This product bundles libthrift 0.9.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles log4j-api 2.17.1, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles logging-interceptor 3.12.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles lz4 1.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles lz4-java 1.7.1, which is available under a
+This product bundles lz4-java 1.8.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles mail 1.4.7, which is available under a
@@ -1429,7 +1351,7 @@ This product bundles metadata-extractor 2.16.0, which is available under a
 This product bundles metrics-core 3.1.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles metrics-core 4.1.1, which is available under a
+This product bundles metrics-core 4.2.9, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles metrics-graphite 4.1.1, which is available under a
@@ -1441,17 +1363,17 @@ This product bundles metrics-json 4.1.1, which is available under a
 This product bundles metrics-jvm 3.1.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles metrics-jvm 4.1.1, which is available under a
+This product bundles metrics-jvm 4.2.9, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles metrics-logback 3.1.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles mimepull 1.9.3, which is available under a
 "Common Development and Distribution 1.1" license. For details, see licenses/LICENSE-CDDL11.
 
-This product bundles minlog 1.2, which is available under a
-"2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
-
-This product bundles minlog 1.3.0, which is available under a
-"2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
+This product bundles minlog 1.3.1, which is available under a
+"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles monetdb-jdbc 3.1, which is available under a
 "Mozilla Public 2.0" license. For details, see licenses/LICENSE-MPL20.
@@ -1462,61 +1384,52 @@ This product bundles mongo-java-driver 3.12.7, which is available under a
 This product bundles mssql-jdbc 7.4.1.jre8, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
+This product bundles mvel2 2.4.14.Final, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles neo4j-java-driver 4.3.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles netty 3.10.6.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles netty 3.6.2.Final, which is available under a
+This product bundles netty-buffer 4.1.77.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles netty-all 4.0.44.Final, which is available under a
+This product bundles netty-codec 4.1.77.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles netty-buffer 4.1.52.Final, which is available under a
+This product bundles netty-codec-http 4.1.72.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles netty-codec 4.1.52.Final, which is available under a
+This product bundles netty-codec-http2 4.1.72.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles netty-codec-http 4.1.52.Final, which is available under a
+This product bundles netty-codec-socks 4.1.72.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles netty-codec-http2 4.1.52.Final, which is available under a
+This product bundles netty-common 4.1.77.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles netty-codec-socks 4.1.52.Final, which is available under a
+This product bundles netty-handler 4.1.77.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles netty-common 4.0.56.Final, which is available under a
+This product bundles netty-handler-proxy 4.1.72.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles netty-common 4.1.52.Final, which is available under a
+This product bundles netty-resolver 4.1.77.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles netty-handler 4.1.52.Final, which is available under a
+This product bundles netty-tcnative-boringssl-static 2.0.46.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles netty-handler-proxy 4.1.52.Final, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles netty-resolver 4.1.52.Final, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles netty-tcnative-boringssl-static 2.0.33.Final, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles netty-transport 4.1.52.Final, which is available under a
+This product bundles netty-transport 4.1.77.Final, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles nimbus-jose-jwt 6.0.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles oauth2-oidc-sdk 6.5, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles objenesis 2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles odfdom-java 0.8.7, which is available under a
@@ -1543,13 +1456,13 @@ This product bundles okhttp-urlconnection 3.12.2, which is available under a
 This product bundles okio 1.6.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles opencensus-api 0.28.0, which is available under a
+This product bundles opencensus-api 0.31.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles opencensus-contrib-grpc-util 0.28.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles opencensus-contrib-http-util 0.28.0, which is available under a
+This product bundles opencensus-contrib-http-util 0.31.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles opencsv 2.3, which is available under a
@@ -1572,9 +1485,6 @@ This product bundles oro 2.0.8, which is available under a
 
 This product bundles osgi-resource-locator 1.0.3, which is available under a
 "Eclipse Public 2.0" license. For details, see licenses/LICENSE-EPL20.
-
-This product bundles paranamer 2.7, which is available under a
-"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles paranamer 2.8, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
@@ -1600,97 +1510,82 @@ This product bundles parquet-hadoop 1.12.0, which is available under a
 This product bundles parquet-jackson 1.12.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles parso 2.0.13, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles parso 2.0.14, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles pdfbox 2.0.24, which is available under a
+This product bundles pdfbox 2.0.25, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles pdfbox-debugger 2.0.24, which is available under a
+This product bundles pdfbox-debugger 2.0.25, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles pdfbox-tools 2.0.24, which is available under a
+This product bundles pdfbox-tools 2.0.25, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles perfmark-api 0.23.0, which is available under a
+This product bundles perfmark-api 0.25.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles picocli 3.7.0, which is available under a
+This product bundles picocli 4.6.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles poi 5.2.0, which is available under a
+This product bundles poi 4.1.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles poi 5.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles poi-ooxml 5.2.0, which is available under a
+This product bundles poi-ooxml 4.1.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles poi-ooxml 5.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles poi-ooxml-lite 5.2.0, which is available under a
+This product bundles poi-ooxml-lite 5.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles poi-ooxml-lite 5.2.1, which is available under a
+This product bundles poi-ooxml-schemas 4.1.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles poi-scratchpad 5.2.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles poi-scratchpad 5.2.1, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles postgresql 42.3.3, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
 
-This product bundles proto-google-cloud-bigquerystorage-v1beta2 0.128.2, which is available under a
+This product bundles proto-google-cloud-bigquerystorage-v1 2.10.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-bigtable-admin-v2 2.2.0, which is available under a
+This product bundles proto-google-cloud-bigtable-admin-v2 2.5.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-bigtable-v2 2.2.0, which is available under a
+This product bundles proto-google-cloud-bigtable-v2 2.5.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-datastore-v1 0.92.3, which is available under a
+This product bundles proto-google-cloud-datastore-v1 0.93.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-pubsub-v1 1.96.7, which is available under a
+This product bundles proto-google-cloud-pubsub-v1 1.97.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-spanner-admin-database-v1 6.14.0, which is available under a
+This product bundles proto-google-cloud-spanner-admin-database-v1 6.20.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-spanner-admin-instance-v1 6.14.0, which is available under a
+This product bundles proto-google-cloud-spanner-admin-instance-v1 6.20.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-spanner-v1 6.14.0, which is available under a
+This product bundles proto-google-cloud-spanner-v1 6.20.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-common-protos 2.0.1, which is available under a
+This product bundles proto-google-common-protos 2.8.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-iam-v1 0.12.0, which is available under a
+This product bundles proto-google-iam-v1 1.3.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-iam-v1 1.0.12, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles protobuf-java 2.5.0, which is available under a
-"2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
-
-This product bundles protobuf-java 3.12.0, which is available under a
+This product bundles protobuf-java 3.20.1, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles protobuf-java-util 3.12.0, which is available under a
-"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
-
-This product bundles protobuf-java-util 3.6.1, which is available under a
+This product bundles protobuf-java-util 3.19.4, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles proton-j 0.33.4, which is available under a
@@ -1704,9 +1599,6 @@ This product bundles pyrolite 4.30, which is available under a
 
 This product bundles qpid-proton-j-extensions 1.2.3, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
-
-This product bundles reactive-streams 1.0.2, which is available under a
-"Creative Commons" license. For details, see licenses/LICENSE-CC0.
 
 This product bundles reactive-streams 1.0.3, which is available under a
 "Creative Commons" license. For details, see licenses/LICENSE-CC0.
@@ -1723,10 +1615,10 @@ This product bundles rhino 1.7.12, which is available under a
 This product bundles RoaringBitmap 0.9.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles rome 1.16.0, which is available under a
+This product bundles rome 1.18.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles rome-utils 1.16.0, which is available under a
+This product bundles rome-utils 1.18.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles rxjava 1.3.8, which is available under a
@@ -1747,9 +1639,6 @@ This product bundles scala-library 2.11.12, which is available under a
 This product bundles scala-parser-combinators_2.11 1.1.1, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles scopt_2.11 3.5.0, which is available under a
-"The MIT" license. For details, see licenses/LICENSE-MIT.
-
 This product bundles servlet-api 2.5-20081211, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
@@ -1765,19 +1654,10 @@ This product bundles slf4j-api 1.7.32, which is available under a
 This product bundles slf4j-nop 1.7.32, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
-This product bundles snakeyaml 1.11, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
 This product bundles snakeyaml 1.26, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles snakeyaml-1.23-android.jar , which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles snappy-java 1.1.0, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles snappy-java 1.1.1.7, which is available under a
+This product bundles snakeyaml 1.30, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles snappy-java 1.1.8.4, which is available under a
@@ -1795,28 +1675,25 @@ This product bundles snowflake-jdbc 3.11.1, which is available under a
 This product bundles spark-avro_2.11 4.0.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles spark-core_2.12 3.1.2, which is available under a
+This product bundles spark-core_2.12 3.1.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles spark-kvstore_2.12 3.1.2, which is available under a
+This product bundles spark-kvstore_2.12 3.1.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles spark-launcher_2.12 3.1.2, which is available under a
+This product bundles spark-launcher_2.12 3.1.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles spark-network-common_2.12 3.1.2, which is available under a
+This product bundles spark-network-common_2.12 3.1.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles spark-network-shuffle_2.12 3.1.2, which is available under a
+This product bundles spark-network-shuffle_2.12 3.1.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles spark-streaming_2.12 3.1.2, which is available under a
+This product bundles spark-streaming_2.12 3.1.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles spark-tags_2.12 3.1.2, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles spark-unsafe_2.12 3.1.2, which is available under a
+This product bundles spark-tags_2.12 3.1.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles SparseBitSet 1.2, which is available under a
@@ -1834,7 +1711,10 @@ This product bundles spring-expression 4.3.18.RELEASE, which is available under 
 This product bundles sqlite-jdbc 3.28.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles ssl-config-core_2.11 0.3.7, which is available under a
+This product bundles sshlib 2.2.20, which is available under a
+"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
+
+This product bundles ssl-config-core_2.11 0.3.8, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles ST4 4.0.8, which is available under a
@@ -1852,7 +1732,7 @@ This product bundles swt.jar , which is available under a
 This product bundles tagsoup 1.2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles threetenbp 1.5.0, which is available under a
+This product bundles threetenbp 1.6.0, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles thrift-server 0.3.7, which is available under a
@@ -1927,17 +1807,11 @@ This product bundles tika-parser-xmp-commons 2.3.0, which is available under a
 This product bundles tika-parser-zip-commons 2.3.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles trilead-ssh2 1.0.0-build222, which is available under a
-"Trilead Library License (BSD-Like)" license. For details, see licenses/LICENSE-TRILEAD.
-
-This product bundles txw2 2.3.4, which is available under a
+This product bundles txw2 2.3.5, which is available under a
 "Eclipse Public 1.0" license. For details, see licenses/LICENSE-EPL10.
 
 This product bundles tyrus-standalone-client 1.13.1, which is available under a
 "Common Development and Distribution 1.1" license. For details, see licenses/LICENSE-CDDL11.
-
-This product bundles unused 1.0.0, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
 
 This product bundles util 2.2.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
@@ -1963,10 +1837,10 @@ This product bundles wsdl4j 1.6.2, which is available under a
 This product bundles xercesImpl 2.12.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles xml-apis 1.4.01, which is available under a
+This product bundles xml-apis-ext 1.3.04, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles xml-apis-ext 1.3.04, which is available under a
+This product bundles xmlbeans 3.1.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles xmlbeans 5.0.3, which is available under a
@@ -1981,23 +1855,11 @@ This product bundles xmlgraphics-commons 2.7, which is available under a
 This product bundles xmpcore 6.1.11, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles xz 1.5, which is available under a
-"Public Domain" license. For details, see Public Domain.
-
 This product bundles xz 1.9, which is available under a
 "Public Domain" license. For details, see Public Domain.
 
-This product bundles zkclient 0.10, which is available under a
+This product bundles zookeeper 3.8.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles zookeeper 3.4.14, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles zookeeper 3.4.6, which is available under a
-"Apache 2.0" license. For details, see LICENSE.
-
-This product bundles zstd-jni 1.4.8-1, which is available under a
-"2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
-
-This product bundles zstd-jni 1.4.9-1, which is available under a
+This product bundles zstd-jni 1.5.2-2, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
