@@ -20,13 +20,14 @@ package org.apache.hop.pipeline.transforms.drools;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class RulesAccumulator  extends BaseTransform<RulesAccumulatorMeta, RulesAccumulatorData> {
-  // private static Class<?> PKG = Rules.class; // for i18n purposes
+  private static Class<?> PKG = Rules.class; // for i18n purposes
 
   public RulesAccumulator(
           TransformMeta transformMeta,
@@ -55,7 +56,16 @@ public class RulesAccumulator  extends BaseTransform<RulesAccumulatorMeta, Rules
       data.setRuleFilePath( meta.getRuleFile() );
       data.setRuleString( meta.getRuleDefinition() );
 
-      data.initializeRules();
+
+      try {
+        data.initializeRules();
+      } catch (RuleValidationException e) {
+
+        for (String message : e.getMessages()) {
+          log.logError(message);
+        }
+        throw new HopTransformException(BaseMessages.getString(PKG, "RulesData.Error.CompileDRL"));
+      }
       data.initializeInput( getInputRowMeta() );
 
       return true;

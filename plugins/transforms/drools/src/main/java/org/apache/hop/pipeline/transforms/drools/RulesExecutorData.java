@@ -77,7 +77,7 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
   }
 
 
-  public void initializeRules() {
+  public void initializeRules() throws RuleValidationException {
 
     // To ensure the plugin classloader use for dependency resolution
     ClassLoader orig = Thread.currentThread().getContextClassLoader();
@@ -97,8 +97,7 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
 
     Results results1 = kieHelper.verify();
     if (results1.hasMessages(Message.Level.ERROR)) {
-      System.out.println(results1.getMessages());
-      throw new RuntimeException(BaseMessages.getString(PKG, "RulesData.Error.CompileDRL"));
+      throw new RuleValidationException(results1.getMessages());
     }
 
     // reset classloader back to original
