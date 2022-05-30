@@ -48,7 +48,7 @@ public class ClickhouseDatabaseMetaTest {
 
   @Test
   public void testUrl() throws Exception {
-    assertEquals("cc.blynk.clickhouse.ClickHouseDriver", nativeMeta.getDriverClass());
+    assertEquals("com.clickhouse.jdbc.ClickHouseDriver", nativeMeta.getDriverClass());
 
     assertEquals(
         "jdbc:clickhouse://localhost:8123/sampledb",
