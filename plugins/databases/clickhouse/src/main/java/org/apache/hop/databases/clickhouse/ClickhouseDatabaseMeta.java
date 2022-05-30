@@ -53,7 +53,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
 
   @Override
   public String getDriverClass() {
-    return "cc.blynk.clickhouse.ClickHouseDriver";
+    return "com.clickhouse.jdbc.ClickHouseDriver";
   }
 
   @Override
