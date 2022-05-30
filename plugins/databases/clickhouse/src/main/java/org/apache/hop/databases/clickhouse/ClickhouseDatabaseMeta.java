@@ -399,6 +399,11 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return false;
   }
 
+  @Override
+  public boolean isRequiresName() {
+    return false;
+  }
+
   /**
    * @return true if we need to supply the schema-name to getTables in order to get a correct list
    *     of items.
