@@ -25,7 +25,7 @@ public class Rules {
   public static class Row {
     private Map<String, Object> row;
 
-    private Boolean external;
+    private boolean external;
 
     public Row() {
       this( new Hashtable<String, Object>(), false );
@@ -64,7 +64,7 @@ public class Rules {
 
     private Object payload;
 
-    private Boolean external;
+    private boolean external;
 
     public Column() {
       this.external = false;
@@ -112,11 +112,11 @@ public class Rules {
       this.payload = payload;
     }
 
-    public void setExternalSource( Boolean external ) {
+    public void setExternalSource( boolean external ) {
       this.external = external;
     }
 
-    public Boolean isExternalSource() {
+    public boolean isExternalSource() {
       return external;
     }
   }

@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.drools;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -26,9 +27,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.Arrays;
 
-
 public class RulesExecutor extends BaseTransform<RulesExecutorMeta, RulesExecutorData> {
-  // private static Class<?> PKG = Rules.class; // for i18n purposes
+  private static Class<?> PKG = Rules.class; // for i18n purposes
 
   public RulesExecutor(
       TransformMeta transformMeta,
@@ -55,7 +55,16 @@ public class RulesExecutor extends BaseTransform<RulesExecutorMeta, RulesExecuto
     data.setRuleFilePath(meta.getRuleFile());
     data.setRuleString(meta.getRuleDefinition());
 
-    data.initializeRules();
+    try {
+      data.initializeRules();
+    } catch (RuleValidationException e) {
+
+      for (String message : e.getMessages()) {
+        log.logError(message);
+      }
+      throw new HopTransformException(BaseMessages.getString(PKG, "RulesData.Error.CompileDRL"));
+    }
+
     data.initializeColumns(getInputRowMeta());
 
     return true;
@@ -76,6 +85,7 @@ public class RulesExecutor extends BaseTransform<RulesExecutorMeta, RulesExecuto
     }
 
     if (first) {
+
       if (!runtimeInit()) {
         return false;
       }
