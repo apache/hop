@@ -241,7 +241,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   /** @return This indicator separates the normal URL from the options */
   @Override
   public String getExtraOptionIndicator() {
-    return "&";
+    return "?";
   }
 
   /** @return true if the database supports schemas */

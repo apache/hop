@@ -374,6 +374,7 @@ public class Database implements IVariables, ILoggingObject {
 
     try {
       String url = resolve(databaseMeta.getURL(this));
+      log.logDebug("Connecting to database using URL: " + url);
 
       String username = resolve(databaseMeta.getUsername());
       String password =
