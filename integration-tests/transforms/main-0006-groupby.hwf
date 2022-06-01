@@ -63,6 +63,9 @@ limitations under the License.
         <test_name>
           <name>0006-groupby-all-rows UNIT</name>
         </test_name>
+        <test_name>
+          <name>0006-groupby-concat UNIT</name>
+        </test_name>
       </test_names>
       <parallel>N</parallel>
       <xloc>432</xloc>

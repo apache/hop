@@ -91,6 +91,8 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
   public static final int TYPE_GROUP_COUNT_DISTINCT = 15;
 
   public static final int TYPE_GROUP_COUNT_ANY = 16;
+  
+  public static final int TYPE_GROUP_CONCAT_DISTINCT = 17;
 
   public static final String[]
       typeGroupCode = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */ {
@@ -111,6 +113,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
     "CONCAT_STRING",
     "COUNT_DISTINCT",
     "COUNT_ANY",
+    "CONCAT_DISTINCT",
   };
 
   public static final String[] typeGroupLongDesc = {
@@ -131,6 +134,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
     BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.CONCAT_STRING"),
     BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.COUNT_DISTINCT"),
     BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.COUNT_ANY"),
+    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.CONCAT_DISTINCT"),
   };
 
   @Injection(name = "GROUPFIELD", group = "FIELDS")
@@ -388,9 +392,6 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
           case TYPE_GROUP_COUNT_ANY:
             valueType = IValueMeta.TYPE_INTEGER;
             break;
-          case TYPE_GROUP_CONCAT_COMMA:
-            valueType = IValueMeta.TYPE_STRING;
-            break;
           case TYPE_GROUP_SUM:
           case TYPE_GROUP_AVERAGE:
             if (subj.isNumeric()) {
@@ -404,7 +405,9 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
           case TYPE_GROUP_STANDARD_DEVIATION:
             valueType = IValueMeta.TYPE_NUMBER;
             break;
+          case TYPE_GROUP_CONCAT_COMMA:
           case TYPE_GROUP_CONCAT_STRING:
+          case TYPE_GROUP_CONCAT_DISTINCT:
             valueType = IValueMeta.TYPE_STRING;
             break;
           default:

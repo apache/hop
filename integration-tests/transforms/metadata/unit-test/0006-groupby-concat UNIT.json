@@ -1,0 +1,48 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "KEY1",
+          "data_set_field": "KEY1"
+        },
+        {
+          "transform_field": "COLORS",
+          "data_set_field": "COLORS"
+        },
+        {
+          "transform_field": "DISTINCT_COLORS",
+          "data_set_field": "DISTINCT_COLORS"
+        },
+        {
+          "transform_field": "NUMBERS",
+          "data_set_field": "NUMBERS"
+        },
+        {
+          "transform_field": "DISTINCT_NUMBERS",
+          "data_set_field": "DISTINCT_NUMBERS"
+        }
+      ],
+      "field_order": [
+        "KEY1",
+        "COLORS",
+        "DISTINCT_COLORS",
+        "NUMBERS",
+        "DISTINCT_NUMBERS"
+      ],
+      "transform_name": "Sort rows result",
+      "data_set_name": "golden-groupby-concat"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0006-groupby-concat UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0006-groupby-concat.hpl",
+  "test_type": "UNIT_TEST"
+}

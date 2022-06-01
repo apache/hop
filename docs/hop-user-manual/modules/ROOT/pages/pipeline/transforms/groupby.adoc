@@ -76,5 +76,6 @@ Here are the available aggregation methods :
 - Number of rows (without field argument)
 - Standard deviation (sample)
 - Percentile (nearest-rank method)
-- Concatenate string separated by by new line (CRLF)
+- Concatenate string separated by new line (CRLF)
+- Concatenate distinct values separated by <Value>: specify the separator in the Value column (This supports xref::variables.adoc#_hexadecimal_values[hexadecimals])
 |===

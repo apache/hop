@@ -33,7 +33,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
 import java.io.*;
 import java.net.SocketTimeoutException;
 import java.util.*;
@@ -537,8 +536,12 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
             }
             sb.append(subjMeta.getString(subj));
           }
-
           break;
+        case Aggregation.TYPE_GROUP_CONCAT_DISTINCT:
+          if (subj != null) {
+            SortedSet<Object> set = (SortedSet<Object>) value;
+            set.add(subj);
+          }          
         default:
           break;
       }
@@ -616,6 +619,10 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           vMeta = new ValueMetaString(fieldName);
           v = new StringBuilder();
           break;
+        case Aggregation.TYPE_GROUP_CONCAT_DISTINCT:
+          vMeta = new ValueMetaString(fieldName);
+          v = new TreeSet<>();
+          break;          
         default:
           // TODO raise an error here because we cannot continue successfully maybe the UI should
           // validate this
@@ -757,6 +764,18 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         case Aggregation.TYPE_GROUP_CONCAT_STRING:
           ag = ((StringBuilder) ag).toString();
           break;
+        case Aggregation.TYPE_GROUP_CONCAT_DISTINCT:
+          IValueMeta subjMeta = data.inputRowMeta.getValueMeta(data.subjectnrs[i]);
+          String separator = "";
+          if (!Utils.isEmpty(aggregation.getValue())) {
+            separator = resolve(aggregation.getValue());
+          }
+          StringJoiner joiner = new StringJoiner(separator);         
+          for (Object value: (SortedSet<Object>) ag) {
+              joiner.add(subjMeta.getString(value));
+          }
+          ag = joiner.toString();
+          break;           
         default:
           break;
       }
