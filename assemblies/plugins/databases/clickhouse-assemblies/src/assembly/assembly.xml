@@ -51,9 +51,8 @@
             <useProjectArtifact>false</useProjectArtifact>
             <scope>runtime</scope>
             <includes>
-                <include>cc.blynk.clickhouse:clickhouse4j</include>
-                <include>org.slf4j:slf4j-api</include>
-                <include>org.slf4j:slf4j-nop</include>
+                <include>com.clickhouse:clickhouse-jdbc</include>
+                <include>com.clickhouse:clickhouse-http-client</include>
             </includes>
         </dependencySet>
     </dependencySets>

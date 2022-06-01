@@ -37,7 +37,7 @@
     <properties>
         <slf4j-api.version>1.7.32</slf4j-api.version>
         <slf4j-nop.version>1.7.32</slf4j-nop.version>
-        <clickhouse.jdbc.version>1.4.4</clickhouse.jdbc.version>
+        <clickhouse.jdbc.version>0.3.2-patch9</clickhouse.jdbc.version>
     </properties>
 
     <dependencies>
@@ -47,19 +47,24 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>cc.blynk.clickhouse</groupId>
-            <artifactId>clickhouse4j</artifactId>
+            <!-- will stop using ru.yandex.clickhouse starting from 0.4.0  -->
+            <groupId>com.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
             <version>${clickhouse.jdbc.version}</version>
+            <!-- below is only needed when all you want is a shaded jar -->
+            <classifier>http</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-nop</artifactId>
-            <version>${slf4j-nop.version}</version>
+            <groupId>com.clickhouse</groupId>
+            <!-- or clickhouse-grpc-client if you prefer gRPC -->
+            <artifactId>clickhouse-http-client</artifactId>
+            <version>${clickhouse.jdbc.version}</version>
         </dependency>
     </dependencies>
 </project>
