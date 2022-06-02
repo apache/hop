@@ -26,6 +26,7 @@ services:
         - JENKINS_UID=1000
         - JENKINS_GROUP=jenkins
         - JENKINS_GID=1000
+        - GCP_KEY_FILE=./test
     volumes:
       - ../../integration-tests/:/files
     environment:

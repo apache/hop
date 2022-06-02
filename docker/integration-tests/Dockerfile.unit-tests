@@ -30,6 +30,7 @@ ARG JENKINS_USER=hop
 ARG JENKINS_GROUP=hop
 ARG JENKINS_UID=1000
 ARG JENKINS_GID=1000
+ARG GCP_KEY_FILE=
 # Set system properties
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -73,6 +74,9 @@ RUN pip3 install parquet-tools
 
 COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ./assemblies/client/target/hop-* ${DEPLOYMENT_PATH}/hop.zip
 
+# Copy gcp key
+COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ${GCP_KEY_FILE} /tmp/google-key-apache-hop-it.json
+
 # Unzip and install in correct location
 
 RUN unzip ${DEPLOYMENT_PATH}/hop.zip -d ${DEPLOYMENT_PATH} \
@@ -86,6 +90,7 @@ RUN unzip ${DEPLOYMENT_PATH}/hop.zip -d ${DEPLOYMENT_PATH} \
 VOLUME ["/files"]
 USER ${JENKINS_USER}
 ENV PATH=$PATH:${DEPLOYMENT_PATH}/hop
+ENV GOOGLE_APPLICATION_CREDENTIALS="/tmp/google-key-apache-hop-it.json"
 WORKDIR /home/${JENKINS_USER}
 # CMD ["/bin/bash"]
 ENTRYPOINT []

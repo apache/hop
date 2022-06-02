@@ -160,6 +160,8 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
         if (($exit_code >= 1)); then
           errors_counter=$((errors_counter + 1))
           failures_counter=$((failures_counter + 1))
+          #Write single line to overview file
+          echo $test_name >>"${CURRENT_DIR}"/../surefire-reports/failed_tests
           #Create surefire xml failure
           echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >>${TMP_TESTCASES}
           echo "<failure type=\"$test_name\"></failure>" >>${TMP_TESTCASES}
@@ -176,6 +178,8 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
           echo "</testcase>" >>${TMP_TESTCASES}
 
         else
+          #Write single line to overview file
+          echo $test_name >>"${CURRENT_DIR}"/../surefire-reports/passed_tests
           #Create surefire xml success
           echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >>${TMP_TESTCASES}
           echo "<system-out>" >>${TMP_TESTCASES}
@@ -196,15 +200,6 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       done
 
       total_duration=$((SECONDS - start_time))
-
-      #Print End results
-      echo ${SPACER}
-      echo "Final Report"
-      echo ${SPACER}
-      echo "Number of Tests: $test_counter"
-      echo "Total errors: $errors_counter"
-      echo "Total failures: $failures_counter"
-      echo "Total duration: $total_duration"
 
       #create final report
       if [ "${SUREFIRE_REPORT}" == "true" ]; then
