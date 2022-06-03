@@ -69,6 +69,8 @@ public class Aggregation implements Cloneable {
 
   public static final int TYPE_GROUP_CONCAT_STRING_CRLF = 21;
 
+  public static final int TYPE_GROUP_CONCAT_DISTINCT = 22;
+  
   public static final String[]
           typeGroupLabel = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */ {
           "-",
@@ -92,7 +94,8 @@ public class Aggregation implements Cloneable {
           "COUNT_ANY",
           "STD_DEV_SAMPLE",
           "PERCENTILE_NEAREST_RANK",
-          "CONCAT_STRING_CRLF"
+          "CONCAT_STRING_CRLF",
+          "CONCAT_DISTINCT",
   };
 
   public static final String[] typeGroupLongDesc = {
@@ -117,7 +120,8 @@ public class Aggregation implements Cloneable {
           BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.COUNT_ANY"),
           BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.STANDARD_DEVIATION_SAMPLE"),
           BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.PERCENTILE_NEAREST_RANK"),
-          BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_STRING_CRLF")
+          BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_STRING_CRLF"),
+          BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_DISTINCT")
   };
 
 

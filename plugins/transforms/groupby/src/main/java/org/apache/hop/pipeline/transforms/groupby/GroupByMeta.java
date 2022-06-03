@@ -281,6 +281,7 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
             break;
           case Aggregation.TYPE_GROUP_CONCAT_STRING:
           case Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF:
+          case Aggregation.TYPE_GROUP_CONCAT_DISTINCT:
             valueType = IValueMeta.TYPE_STRING;
             break;
           default:

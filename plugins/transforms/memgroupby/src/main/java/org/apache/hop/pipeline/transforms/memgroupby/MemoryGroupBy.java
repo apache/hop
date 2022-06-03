@@ -367,6 +367,11 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
             sb.append(subjMeta.getString(subj));
           }
           break;
+        case MemoryGroupByMeta.TYPE_GROUP_CONCAT_DISTINCT:
+          if (subj != null) {
+            SortedSet<Object> set = (SortedSet<Object>) value;
+            set.add(subj);
+          }
         default:
           break;
       }
@@ -436,6 +441,10 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           vMeta = new ValueMetaString(meta.getAggregateField()[i]);
           v = new StringBuilder();
           break;
+        case MemoryGroupByMeta.TYPE_GROUP_CONCAT_DISTINCT:
+          vMeta = new ValueMetaString(meta.getAggregateField()[i]);
+          v = new TreeSet<>();
+          break;          
         default:
           throw new HopException(
               "Unknown data type for aggregation : " + meta.getAggregateField()[i]);
@@ -524,6 +533,18 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           case MemoryGroupByMeta.TYPE_GROUP_CONCAT_STRING:
             ag = ((StringBuilder) ag).toString();
             break;
+          case MemoryGroupByMeta.TYPE_GROUP_CONCAT_DISTINCT:
+            IValueMeta subjMeta = data.inputRowMeta.getValueMeta(data.subjectnrs[i]);
+            String separator = "";
+            if (!Utils.isEmpty(meta.getValueField()[i])) {
+              separator = resolve(meta.getValueField()[i]);
+            }
+            StringJoiner joiner = new StringJoiner(separator);         
+            for (Object value: (SortedSet<Object>) ag) {
+                joiner.add(subjMeta.getString(value));
+            }
+            ag = joiner.toString();
+            break;            
           default:
             break;
         }
