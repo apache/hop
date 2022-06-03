@@ -98,7 +98,7 @@ pipeline {
         }
         stage('Create Docker image & Run Tests'){
             steps {
-                    sh "cp $GCP_CREDS google-key-apache-hop-it.json"
+                    sh 'cp $GCP_CREDS google-key-apache-hop-it.json'
                     sh "integration-tests/scripts/run-tests-docker.sh JENKINS_USER=${jenkins_user} JENKINS_UID=${jenkins_uid} JENKINS_GROUP=${jenkins_group} JENKINS_GID=${jenkins_gid} GCP_KEY_FILE=google-key-apache-hop-it.json"
                 }
             post {
