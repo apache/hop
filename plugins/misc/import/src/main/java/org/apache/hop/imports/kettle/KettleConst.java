@@ -43,6 +43,9 @@ public class KettleConst {
                 },
                 {"target_step_name", "target_transform_name"},
                 {"step_performance_capturing_delay", "transform_performance_capturing_delay"},
+                {"transformationPath", "pipelinePath"},
+                {"SUB_STEP", "subTransform"},
+                {"variablemapping", "variable_mapping"},
                 // jobs
                 {"job", "workflow"},
                 {"job_version", "workflow_version"},
@@ -145,6 +148,7 @@ public class KettleConst {
                 {"Mapping", "SimpleMapping"},
                 // Text File Input deprecated
                 {"TextFileInput", "TextFileInput2"},
+                {"KettleKafkaConsumerInput", "KafkaConsumer"}
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
