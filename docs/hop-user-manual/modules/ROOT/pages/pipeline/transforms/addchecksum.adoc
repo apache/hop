@@ -35,7 +35,7 @@ Note: This name has to be unique in a single pipeline.
 These are the types that are available:
 
 * CRC32 : 32-bit Cyclic Redundancy Check : http://en.wikipedia.org/wiki/Cyclic_redundancy_check
-*ADLER 32 : Checksum algorithm by Mark Adler: http://en.wikipedia.org/wiki/Adler-32
+* ADLER 32 : Checksum algorithm by Mark Adler: http://en.wikipedia.org/wiki/Adler-32
 * MD5 : Message Digest algorithm 5 : http://en.wikipedia.org/wiki/MD5
 * SHA-1 : Secure Hash Algorithm 1 : http://en.wikipedia.org/wiki/SHA-1
 * SHA-256 : Secure Hash Algorithm 2 : http://en.wikipedia.org/wiki/SHA-256
