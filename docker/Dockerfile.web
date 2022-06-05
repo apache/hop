@@ -49,4 +49,6 @@ COPY ./docker/resources/run-web.sh /tmp/
 # Fix hop-config.json
 RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' "${CATALINA_HOME}"/webapps/ROOT/config/hop-config.json
 
+RUN mkdir -p "$CATALINA_HOME"/libswt/linux/x86_64
+
 CMD ["/bin/bash", "/tmp/run-web.sh"]
