@@ -193,9 +193,19 @@ public class HopBeamGuiPlugin {
   public static final List<String> findInstalledJarFilenames() {
     Set<File> jarFiles = new HashSet<>();
     jarFiles.addAll(FileUtils.listFiles(new File("lib"), new String[] {"jar"}, true));
-    jarFiles.addAll(
-        FileUtils.listFiles(new File("libswt/linux/x86_64"), new String[] {"jar"}, true));
+
+    File libSwtFiles = new File("libswt/linux/x86_64");
+    if (libSwtFiles.exists())
+      jarFiles.addAll(
+          FileUtils.listFiles(libSwtFiles, new String[] {"jar"}, true));
+
     jarFiles.addAll(FileUtils.listFiles(new File("plugins"), new String[] {"jar"}, true));
+
+    // If we are in the hop-web Docker container, we need to import the Hop main JARs too for Dataflow
+    // (and for other runners probably too)
+    File hopWebJars = new File("webapps/ROOT/WEB-INF/lib");
+    if (hopWebJars.exists())
+      jarFiles.addAll(FileUtils.listFiles(hopWebJars, new String[] {"jar"}, true));
 
     List<String> jarFilenames = new ArrayList<>();
     jarFiles.forEach(file -> jarFilenames.add(file.toString()));
