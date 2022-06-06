@@ -422,6 +422,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.top = new FormAttachment(wCacheSize, margin);
     fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
