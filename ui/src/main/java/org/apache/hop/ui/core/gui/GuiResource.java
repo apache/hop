@@ -55,61 +55,61 @@ public class GuiResource {
   // 33 resources
 
   /* * * Colors * * */
-  private ManagedColor colorBackground;
+  private Color colorBackground;
 
-  private ManagedColor colorGraph;
+  private Color colorGraph;
 
-  private ManagedColor colorTab;
+  private Color colorTab;
 
-  private ManagedColor colorRed;
+  private Color colorRed;
 
-  private ManagedColor colorSuccessGreen;
+  private Color colorSuccessGreen;
 
-  private ManagedColor colorBlueCustomGrid;
+  private Color colorBlueCustomGrid;
 
-  private ManagedColor colorGreen;
+  private Color colorGreen;
 
-  private ManagedColor colorBlue;
+  private Color colorBlue;
 
-  private ManagedColor colorOrange;
+  private Color colorOrange;
 
-  private ManagedColor colorYellow;
+  private Color colorYellow;
 
-  private ManagedColor colorMagenta;
+  private Color colorMagenta;
 
-  private ManagedColor colorPurpule;
+  private Color colorPurpule;
 
-  private ManagedColor colorIndigo;
+  private Color colorIndigo;
 
-  private ManagedColor colorBlack;
+  private Color colorBlack;
 
-  private ManagedColor colorGray;
+  private Color colorGray;
 
-  private ManagedColor colorDarkGray;
+  private Color colorDarkGray;
 
-  private ManagedColor colorLightGray;
+  private Color colorLightGray;
 
-  private ManagedColor colorDemoGray;
+  private Color colorDemoGray;
 
-  private ManagedColor colorWhite;
+  private Color colorWhite;
 
-  private ManagedColor colorDirectory;
+  private Color colorDirectory;
 
-  private ManagedColor colorHop;
+  private Color colorHop;
 
-  private ManagedColor colorLight;
+  private Color colorLight;
 
-  private ManagedColor colorCream;
+  private Color colorCream;
 
-  private ManagedColor colorLightBlue;
+  private Color colorLightBlue;
 
-  private ManagedColor colorCrystalText;
+  private Color colorCrystalText;
 
-  private ManagedColor colorHopDefault;
+  private Color colorHopDefault;
 
-  private ManagedColor colorHopTrue;
+  private Color colorHopTrue;
 
-  private ManagedColor colorDeprecated;
+  private Color colorDeprecated;
 
   /* * * Fonts * * */
   private ManagedFont fontGraph;
@@ -335,42 +335,34 @@ public class GuiResource {
     imageMap = new HashMap<>();
     colorMap = new HashMap<>();
 
-    colorBackground = new ManagedColor(display, props.contrastColor(new RGB(240,240,240)));
-    colorGraph = new ManagedColor(display, props.contrastColor(new RGB(255,255,255)));
-    colorTab = new ManagedColor(display, props.contrastColor(new RGB(128,128,128)));
-    colorSuccessGreen = new ManagedColor(display, props.contrastColor(0, 139, 0));
-    colorRed = new ManagedColor(display, props.contrastColor(255, 0, 0));
-    colorGreen = new ManagedColor(display, props.contrastColor(0, 255, 0));
-    colorBlue = new ManagedColor(display, props.contrastColor(0, 0, 255));
-    colorYellow = new ManagedColor(display, props.contrastColor(255, 255, 0));
-    colorMagenta = new ManagedColor(display, props.contrastColor(255, 0, 255));
-    colorPurpule = new ManagedColor(display, props.contrastColor(128, 0, 128));
-    colorIndigo = new ManagedColor(display, props.contrastColor(75, 0, 130));
-    colorOrange = new ManagedColor(display, props.contrastColor(255, 165, 0));
-
-    colorBlueCustomGrid = new ManagedColor(display, props.contrastColor(240, 248, 255));
-
-    colorWhite = new ManagedColor(display, props.contrastColor(254, 254, 254));
-    colorDemoGray = new ManagedColor(display, props.contrastColor(240, 240, 240));
-    colorLightGray = new ManagedColor(display, props.contrastColor(225, 225, 225));
-    colorGray = new ManagedColor(display, props.contrastColor(215, 215, 215));
-    colorDarkGray = new ManagedColor(display, props.contrastColor(100, 100, 100));
-    colorBlack = new ManagedColor(display, props.contrastColor(0, 0, 0));
-    colorLightBlue =
-        new ManagedColor(display, props.contrastColor(135, 206, 250)); // light sky blue
-
-    colorDirectory = new ManagedColor(display, props.contrastColor(0, 0, 255));
-    colorHop = new ManagedColor(display, props.contrastColor(188, 198, 82));
-    colorLight = new ManagedColor(display, props.contrastColor(238, 248, 152));
-    colorCream = new ManagedColor(display, props.contrastColor(248, 246, 231));
-
-    colorCrystalText = new ManagedColor(display, props.contrastColor(61, 99, 128));
-
-    colorHopDefault = new ManagedColor(display, props.contrastColor(61, 99, 128));
-
-    colorHopTrue = new ManagedColor(display, props.contrastColor(12, 178, 15));
-
-    colorDeprecated = new ManagedColor(display, props.contrastColor(246, 196, 56));
+    colorBackground = new Color(props.contrastColor(new RGB(240,240,240)));
+    colorGraph = new Color(props.contrastColor(new RGB(255,255,255)));
+    colorTab = new Color(props.contrastColor(new RGB(128,128,128)));
+    colorSuccessGreen = new Color(props.contrastColor(0, 139, 0));
+    colorRed = new Color(props.contrastColor(255, 0, 0));
+    colorGreen = new Color(props.contrastColor(0, 255, 0));
+    colorBlue = new Color(props.contrastColor(0, 0, 255));
+    colorYellow = new Color(props.contrastColor(255, 255, 0));
+    colorMagenta = new Color(props.contrastColor(255, 0, 255));
+    colorPurpule = new Color(props.contrastColor(128, 0, 128));
+    colorIndigo = new Color(props.contrastColor(75, 0, 130));
+    colorOrange = new Color(props.contrastColor(255, 165, 0));
+    colorBlueCustomGrid = new Color(props.contrastColor(240, 248, 255));
+    colorWhite = new Color(props.contrastColor(254, 254, 254));
+    colorDemoGray = new Color(props.contrastColor(240, 240, 240));
+    colorLightGray = new Color(props.contrastColor(225, 225, 225));
+    colorGray = new Color(props.contrastColor(215, 215, 215));
+    colorDarkGray = new Color(props.contrastColor(100, 100, 100));
+    colorBlack = new Color(props.contrastColor(0, 0, 0));
+    colorLightBlue = new Color(props.contrastColor(135, 206, 250)); // light sky blue
+    colorDirectory = new Color(props.contrastColor(0, 0, 255));
+    colorHop = new Color(props.contrastColor(188, 198, 82));
+    colorLight = new Color(props.contrastColor(238, 248, 152));
+    colorCream = new Color(props.contrastColor(248, 246, 231));
+    colorCrystalText = new Color(props.contrastColor(61, 99, 128));
+    colorHopDefault = new Color(props.contrastColor(61, 99, 128));
+    colorHopTrue = new Color(props.contrastColor(12, 178, 15));
+    colorDeprecated = new Color(props.contrastColor(246, 196, 56));
 
     // Load all images from files...
     loadFonts();
@@ -381,36 +373,6 @@ public class GuiResource {
   }
 
   private void dispose(boolean reload) {
-    // Colors
-    colorBackground.dispose();
-    colorGraph.dispose();
-    colorTab.dispose();
-
-    colorRed.dispose();
-    colorSuccessGreen.dispose();
-    colorGreen.dispose();
-    colorBlue.dispose();
-    colorGray.dispose();
-    colorYellow.dispose();
-    colorMagenta.dispose();
-    colorPurpule.dispose();
-    colorIndigo.dispose();
-    colorOrange.dispose();
-    colorBlueCustomGrid.dispose();
-
-    colorWhite.dispose();
-    colorDemoGray.dispose();
-    colorLightGray.dispose();
-    colorDarkGray.dispose();
-    colorBlack.dispose();
-    colorLightBlue.dispose();
-
-    colorDirectory.dispose();
-    colorHop.dispose();
-    colorLight.dispose();
-    colorCream.dispose();
-
-    disposeColors(colorMap.values());
 
     if (!reload) {
       // display shutdown, clean up our mess
@@ -558,12 +520,6 @@ public class GuiResource {
   private void disposeUniversalImages(Collection<SwtUniversalImage> c) {
     for (SwtUniversalImage image : c) {
       image.dispose();
-    }
-  }
-
-  private void disposeColors(Collection<Color> colors) {
-    for (Color color : colors) {
-      color.dispose();
     }
   }
 
@@ -922,105 +878,105 @@ public class GuiResource {
 
   /** @return Returns the colorBackground. */
   public Color getColorBackground() {
-    return colorBackground.getColor();
+    return colorBackground;
   }
 
   /** @return Returns the colorBlack. */
   public Color getColorBlack() {
-    return colorBlack.getColor();
+    return colorBlack;
   }
 
   /** @return Returns the colorBlue. */
   public Color getColorBlue() {
-    return colorBlue.getColor();
+    return colorBlue;
   }
 
   /** @return Returns the colorDarkGray. */
   public Color getColorDarkGray() {
-    return colorDarkGray.getColor();
+    return colorDarkGray;
   }
 
   /** @return Returns the colorDemoGray. */
   public Color getColorDemoGray() {
-    return colorDemoGray.getColor();
+    return colorDemoGray;
   }
 
   /** @return Returns the colorDirectory. */
   public Color getColorDirectory() {
-    return colorDirectory.getColor();
+    return colorDirectory;
   }
 
   /** @return Returns the colorGraph. */
   public Color getColorGraph() {
-    return colorGraph.getColor();
+    return colorGraph;
   }
 
   /** @return Returns the colorGray. */
   public Color getColorGray() {
-    return colorGray.getColor();
+    return colorGray;
   }
 
   /** @return Returns the colorGreen. */
   public Color getColorGreen() {
-    return colorGreen.getColor();
+    return colorGreen;
   }
 
   /** @return Returns the colorLightGray. */
   public Color getColorLightGray() {
-    return colorLightGray.getColor();
+    return colorLightGray;
   }
 
   /** @return Returns the colorLightBlue. */
   public Color getColorLightBlue() {
-    return colorLightBlue.getColor();
+    return colorLightBlue;
   }
 
   /** @return Returns the colorMagenta. */
   public Color getColorMagenta() {
-    return colorMagenta.getColor();
+    return colorMagenta;
   }
 
   public Color getColorPurpule() {
-    return colorPurpule.getColor();
+    return colorPurpule;
   }
 
   public Color getColorIndigo() {
-    return colorIndigo.getColor();
+    return colorIndigo;
   }
 
   /** @return Returns the colorOrange. */
   public Color getColorOrange() {
-    return colorOrange.getColor();
+    return colorOrange;
   }
 
   /** @return Returns the colorSuccessGreen. */
   public Color getColorSuccessGreen() {
-    return colorSuccessGreen.getColor();
+    return colorSuccessGreen;
   }
 
   /** @return Returns the colorRed. */
   public Color getColorRed() {
-    return colorRed.getColor();
+    return colorRed;
   }
 
   /** @return Returns the colorBlueCustomGrid. */
   public Color getColorBlueCustomGrid() {
-    return colorBlueCustomGrid.getColor();
+    return colorBlueCustomGrid;
   }
 
   /** @return Returns the colorTab. */
   public Color getColorTab() {
-    return colorTab.getColor();
+    return colorTab;
   }
 
   /** @return Returns the colorWhite. */
   public Color getColorWhite() {
-    return colorWhite.getColor();
+    return colorWhite;
   }
 
   /** @return Returns the colorYellow. */
   public Color getColorYellow() {
-    return colorYellow.getColor();
+    return colorYellow;
   }
 
   /** @return Returns the fontFixed. */
@@ -1259,7 +1215,7 @@ public class GuiResource {
 
   /** @return the color */
   public Color getColorHop() {
-    return colorHop.getColor();
+    return colorHop;
   }
 
   /** @return the imageLogoSmall */
@@ -1278,32 +1234,32 @@ public class GuiResource {
 
   /** @return the colorLight */
   public Color getColorLight() {
-    return colorLight.getColor();
+    return colorLight;
   }
 
   /** @return the colorCream */
   public Color getColorCream() {
-    return colorCream.getColor();
+    return colorCream;
   }
 
   /** @return the default color of text in the Crystal theme */
   public Color getColorCrystalText() {
-    return colorCrystalText.getColor();
+    return colorCrystalText;
   }
 
   /** @return the default color the hop lines for default/unconditional */
   public Color getColorHopDefault() {
-    return colorHopDefault.getColor();
+    return colorHopDefault;
   }
 
   /** @return the default color the hop lines for the "OK" condition */
   public Color getColorHopTrue() {
-    return colorHopTrue.getColor();
+    return colorHopTrue;
   }
 
   /** @return the default color the deprecated condition */
   public Color getColorDeprecated() {
-    return colorDeprecated.getColor();
+    return colorDeprecated;
   }
 
   public void drawGradient(Display display, GC gc, Rectangle rect, boolean vertical) {
