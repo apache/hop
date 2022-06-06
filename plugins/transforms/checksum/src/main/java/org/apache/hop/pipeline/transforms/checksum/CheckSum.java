@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.checksum;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -108,7 +109,6 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
         outputRowData = RowDataUtil.addValueData(r, data.nrInfields, checksum);
       } else {
         // get checksum
-
         byte[] o = createCheckSum(r);
 
         switch (meta.getResultType()) {
@@ -116,12 +116,13 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
             outputRowData = RowDataUtil.addValueData(r, data.nrInfields, o);
             break;
           case HEXADECIMAL:
-            String hex = new String(Hex.encodeHex(o));
+            String hex = (o == null) ? null : Hex.encodeHexString(o);
             outputRowData = RowDataUtil.addValueData(r, data.nrInfields, hex);
             break;
           case STRING:
           default:
-            outputRowData = RowDataUtil.addValueData(r, data.nrInfields, getStringFromBytes(o));
+            String str = (o == null) ? null : getStringFromBytes(o);
+            outputRowData = RowDataUtil.addValueData(r, data.nrInfields, str);
             break;
         }
       }
@@ -162,18 +163,25 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
 
     // Loop through fields
     for (int i = 0; i < data.fieldnr; i++) {
-      if (getInputRowMeta().getValueMeta(data.fieldnrs[i]).isBinary()) {
-        baos.write(getInputRowMeta().getBinary(r, data.fieldnrs[i]));
+      IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.fieldnrs[i]);
+      if (valueMeta.isBinary()) {
+        byte[] bytes = getInputRowMeta().getBinary(r, data.fieldnrs[i]);
+        if (bytes != null) {
+          baos.write(bytes);
+        }
       } else {
-        baos.write(
-            getInputRowMeta()
-                .getValueMeta(data.fieldnrs[i])
-                .getNativeDataType(r[data.fieldnrs[i]])
-                .toString()
-                .getBytes());
+        Object value = valueMeta.getNativeDataType(r[data.fieldnrs[i]]);
+        if (value != null) {
+          baos.write(value.toString().getBytes());
+        }    
       }
     }
 
+    // Return null when all input values are null.
+    if (baos.size() == 0) {
+      return null;
+    }
+    
     // Updates the digest using the specified array of bytes
     data.digest.update(baos.toByteArray());
 
@@ -204,17 +212,26 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
 
     // Loop through fields
     for (int i = 0; i < data.fieldnr; i++) {
-      if (getInputRowMeta().getValueMeta(data.fieldnrs[i]).isBinary()) {
-        baos.write(getInputRowMeta().getBinary(r, data.fieldnrs[i]));
+      IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.fieldnrs[i]);
+
+      if (valueMeta.isBinary()) {
+        byte[] bytes = getInputRowMeta().getBinary(r, data.fieldnrs[i]);
+        if (bytes != null) {
+          baos.write(bytes);
+        }
       } else {
-        baos.write(
-            getInputRowMeta()
-                .getValueMeta(data.fieldnrs[i])
-                .getNativeDataType(r[data.fieldnrs[i]])
-                .toString()
-                .getBytes());
+        Object value = valueMeta.getNativeDataType(r[data.fieldnrs[i]]);
+        if (value != null) {
+          baos.write(value.toString().getBytes());
+        }
       }
     }
+
+    // Return null when all input values are null.
+    if (baos.size() == 0) {
+      return null;
+    }
+    
     byteArray = baos.toByteArray();
 
     if (meta.getCheckSumType() == CheckSumMeta.CheckSumType.CRC32) {
