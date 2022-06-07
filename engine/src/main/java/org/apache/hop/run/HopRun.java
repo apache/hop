@@ -169,6 +169,18 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     }
   }
 
+  private void prepareInternalOptions(CommandLine cmd, String[] args) {
+    for (String arg : args) {
+      if (arg.startsWith("-h") || arg.startsWith("--help")) {
+        return;
+      }
+    }
+    String[] helpArgs = new String[args.length + 1];
+    System.arraycopy(args, 0, helpArgs, 0, args.length);
+    helpArgs[args.length] = "-h";
+    cmd.parseArgs(helpArgs);
+  }
+
   private void buildVariableSpace() throws IOException {
     // Also grabs the system properties from hop.config.
     //
@@ -726,6 +738,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       //
       CommandLine cmd = new CommandLine(hopRun);
 
+      if (args.length > 0){
+        hopRun.prepareInternalOptions(new CommandLine(hopRun), args);
+      }
       // Apply the system properties to the JVM
       //
       hopRun.applySystemProperties();
