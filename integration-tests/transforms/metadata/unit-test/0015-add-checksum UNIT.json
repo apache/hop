@@ -7,24 +7,24 @@
     {
       "field_mappings": [
         {
-          "transform_field": "addler32",
-          "data_set_field": "addler32"
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "mod",
+          "data_set_field": "mod"
         },
         {
           "transform_field": "crc32",
           "data_set_field": "crc32"
         },
         {
-          "transform_field": "id",
-          "data_set_field": "id"
+          "transform_field": "addler32",
+          "data_set_field": "addler32"
         },
         {
           "transform_field": "md5",
           "data_set_field": "md5"
-        },
-        {
-          "transform_field": "mod",
-          "data_set_field": "mod"
         },
         {
           "transform_field": "sha1",
@@ -37,12 +37,17 @@
         {
           "transform_field": "sha384",
           "data_set_field": "sha384"
+        },
+        {
+          "transform_field": "sha512",
+          "data_set_field": "sha512"
         }
       ],
       "field_order": [
-        "id"
+        "id",
+        "mod"
       ],
-      "transform_name": "sha512",
+      "transform_name": "Dummy (do nothing)",
       "data_set_name": "golden-add-checksum"
     }
   ],

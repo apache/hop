@@ -51,18 +51,8 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>mod</from>
-      <to>CRC32</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>CRC32</from>
       <to>addler32</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>addler32</from>
-      <to>md5</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -81,11 +71,55 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
+      <from>addler32</from>
+      <to>md5</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Special cases null values</from>
+      <to>Append streams</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>mod</from>
+      <to>Append streams</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Append streams</from>
+      <to>CRC32</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
       <from>sha384</from>
       <to>sha512</to>
       <enabled>Y</enabled>
     </hop>
+    <hop>
+      <from>sha512</from>
+      <to>Dummy (do nothing)</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
+  <transform>
+    <name>Append streams</name>
+    <type>Append</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <head_name>Special cases null values</head_name>
+    <tail_name>mod</tail_name>
+    <attributes/>
+    <GUI>
+      <xloc>208</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
   <transform>
     <name>CRC32</name>
     <type>CheckSum</type>
@@ -110,8 +144,8 @@ limitations under the License.
     <resultType>hexadecimal</resultType>
     <attributes/>
     <GUI>
-      <xloc>96</xloc>
-      <yloc>176</yloc>
+      <xloc>304</xloc>
+      <yloc>352</yloc>
     </GUI>
   </transform>
   <transform>
@@ -134,8 +168,63 @@ limitations under the License.
     <row_time_field>now</row_time_field>
     <attributes/>
     <GUI>
+      <xloc>208</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Special cases null values</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>id</name>
+        <precision>-1</precision>
+        <type>Integer</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>mod</name>
+        <precision>-1</precision>
+        <type>Integer</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item/>
+        <item>2</item>
+      </line>
+      <line>
+        <item>1</item>
+        <item/>
+      </line>
+      <line>
+        <item/>
+        <item/>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
       <xloc>96</xloc>
-      <yloc>80</yloc>
+      <yloc>352</yloc>
     </GUI>
   </transform>
   <transform>
@@ -162,8 +251,8 @@ limitations under the License.
     <resultType>hexadecimal</resultType>
     <attributes/>
     <GUI>
-      <xloc>192</xloc>
-      <yloc>176</yloc>
+      <xloc>400</xloc>
+      <yloc>352</yloc>
     </GUI>
   </transform>
   <transform>
@@ -186,8 +275,8 @@ limitations under the License.
     <valuename>id</valuename>
     <attributes/>
     <GUI>
-      <xloc>240</xloc>
-      <yloc>80</yloc>
+      <xloc>208</xloc>
+      <yloc>176</yloc>
     </GUI>
   </transform>
   <transform>
@@ -214,8 +303,8 @@ limitations under the License.
     <resultType>hexadecimal</resultType>
     <attributes/>
     <GUI>
-      <xloc>288</xloc>
-      <yloc>176</yloc>
+      <xloc>496</xloc>
+      <yloc>352</yloc>
     </GUI>
   </transform>
   <transform>
@@ -251,8 +340,8 @@ limitations under the License.
     </calculation>
     <attributes/>
     <GUI>
-      <xloc>368</xloc>
-      <yloc>80</yloc>
+      <xloc>208</xloc>
+      <yloc>256</yloc>
     </GUI>
   </transform>
   <transform>
@@ -279,8 +368,8 @@ limitations under the License.
     <resultType>hexadecimal</resultType>
     <attributes/>
     <GUI>
-      <xloc>384</xloc>
-      <yloc>176</yloc>
+      <xloc>592</xloc>
+      <yloc>352</yloc>
     </GUI>
   </transform>
   <transform>
@@ -307,8 +396,8 @@ limitations under the License.
     <resultType>hexadecimal</resultType>
     <attributes/>
     <GUI>
-      <xloc>480</xloc>
-      <yloc>176</yloc>
+      <xloc>688</xloc>
+      <yloc>352</yloc>
     </GUI>
   </transform>
   <transform>
@@ -335,8 +424,8 @@ limitations under the License.
     <resultType>hexadecimal</resultType>
     <attributes/>
     <GUI>
-      <xloc>576</xloc>
-      <yloc>176</yloc>
+      <xloc>784</xloc>
+      <yloc>352</yloc>
     </GUI>
   </transform>
   <transform>
@@ -363,8 +452,25 @@ limitations under the License.
     <resultType>hexadecimal</resultType>
     <attributes/>
     <GUI>
-      <xloc>672</xloc>
-      <yloc>176</yloc>
+      <xloc>880</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Dummy (do nothing)</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>992</xloc>
+      <yloc>352</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
