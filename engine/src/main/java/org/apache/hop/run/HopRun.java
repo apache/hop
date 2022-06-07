@@ -170,6 +170,11 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
   }
 
   private void prepareInternalOptions(CommandLine cmd, String[] args) {
+    for (String arg : args) {
+      if (arg.startsWith("-h") || arg.startsWith("--help")) {
+        return;
+      }
+    }
     String[] helpArgs = new String[args.length + 1];
     System.arraycopy(args, 0, helpArgs, 0, args.length);
     helpArgs[args.length] = "-h";
@@ -734,7 +739,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       CommandLine cmd = new CommandLine(hopRun);
 
       if (args.length > 0){
-        hopRun.prepareInternalOptions(cmd, args);
+        hopRun.prepareInternalOptions(new CommandLine(hopRun), args);
       }
       // Apply the system properties to the JVM
       //
