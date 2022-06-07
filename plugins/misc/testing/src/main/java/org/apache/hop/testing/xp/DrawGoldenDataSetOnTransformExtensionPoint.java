@@ -73,9 +73,6 @@ public class DrawGoldenDataSetOnTransformExtensionPoint
     // Now we're here, draw a marker and indicate the name of the unit test
     //
     IGc gc = ext.gc;
-    int iconSize = ext.iconSize;
-    int x = ext.x1;
-    int y = ext.y1;
 
     gc.setLineWidth(transformMeta.isSelected() ? 2 : 1);
     gc.setForeground(IGc.EColor.CRYSTAL);
@@ -88,7 +85,7 @@ public class DrawGoldenDataSetOnTransformExtensionPoint
     // Draw it at the right hand side
     //
     int arrowSize = textExtent.y;
-    Point point = new Point(x + iconSize, y + (iconSize - textExtent.y) / 2);
+    Point point = new Point(ext.x1 + ext.iconSize, ext.y1 + (ext.iconSize - textExtent.y) / 2);
 
     int[] arrow =
         new int[] {
@@ -115,9 +112,9 @@ public class DrawGoldenDataSetOnTransformExtensionPoint
             AreaOwner.AreaType.CUSTOM,
             point.x,
             point.y,
-            textExtent.x,
+            textExtent.x + arrowSize,
             textExtent.y,
-            new Point(0, 0),
+            ext.offset,
             DataSetConst.AREA_DRAWN_GOLDEN_DATA_SET,
             transformMeta.getName()));
 
@@ -155,3 +152,4 @@ public class DrawGoldenDataSetOnTransformExtensionPoint
     }
   }
 }
+
