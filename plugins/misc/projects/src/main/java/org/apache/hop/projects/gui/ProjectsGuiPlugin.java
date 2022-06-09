@@ -153,6 +153,10 @@ public class ProjectsGuiPlugin {
             }
             enableHopGuiProject(projectConfig.getProjectName(), project, environment);
           }
+          
+          // refresh automatically when the projects changes
+          //
+          hopGui.getEventsHandler().fire(projectName, HopGuiEvents.ProjectUpdated.name());
         }
       }
     } catch (Exception e) {
