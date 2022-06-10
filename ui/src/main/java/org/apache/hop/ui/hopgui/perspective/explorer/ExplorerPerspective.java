@@ -40,6 +40,7 @@ import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -240,7 +241,20 @@ public class ExplorerPerspective implements IHopPerspective {
     createTabFolder(sash);
 
     sash.setWeights(20, 80);
+    
+    // refresh the file explorer when project activated or updated.
+    //
+    hopGui
+        .getEventsHandler()
+        .addEventListener(
+            getClass().getName()+"ProjectActivated", e -> refresh(), HopGuiEvents.ProjectActivated.name());
 
+    hopGui
+    .getEventsHandler()
+    .addEventListener(
+        getClass().getName()+"ProjectUpdated", e -> refresh(), HopGuiEvents.ProjectUpdated.name());
+
+    
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
   }
 
