@@ -81,8 +81,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
           || meta.getOperationType() == JsonOutputMeta.OPERATION_TYPE_BOTH) {
         // Init global json items array only if output to file is needed
         data.jsonItems = new ArrayList<>();
+        data.isWriteToFile = true;
         if (!meta.isDoNotOpenNewFileInit()) {
-          if (!openNewFile()) {
+          if (data.isWriteToFile && !openNewFile()) {
             logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
             stopAll();
             setErrors(1);
@@ -90,10 +91,6 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
           }
         }
       }
-
-      data.isWriteToFile =
-          meta.getOperationType() == JsonOutputMeta.OPERATION_TYPE_BOTH
-              || meta.getOperationType() == JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE;
 
       data.realBlocName = Const.NVL(resolve(meta.getJsonBloc()), "");
       return true;
@@ -111,10 +108,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       if (!data.rowsAreSafe) {
         // Let's output the remaining unsafe data
         outPutRow(prevRow);
-        if (data.isWriteToFile) {
-          String value = serializeJson(data.jsonItems, true);
-          writeJsonFile(value);
-        }
+        if (data.isWriteToFile)
+          writeJsonFile();
       }
       setOutputDone();
       return false;
@@ -125,8 +120,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       if (onFirstRecord(r)) return false;
     }
 
-    manageRowItems(r);
     data.rowsAreSafe = false;
+
+    manageRowItems(r);
 
     return true;
   }
@@ -213,8 +209,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     if (meta.getSplitOutputAfter() > 0 && (data.nrRow) % meta.getSplitOutputAfter() == 0) {
       // Output the new row
       logDebug("Record Num: " + data.nrRow + " - Generating JSON chunk");
-      String value = serializeJson(data.jsonItems, true);
-      writeJsonFile(value);
+      serializeJson(data.jsonItems);
+      writeJsonFile();
       data.jsonItems = new ArrayList<>();
     }
   }
@@ -232,16 +228,15 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   @SuppressWarnings("unchecked")
   private void outPutRow(Object[] rowData) throws HopException {
     // We can now output an object
-    String value = null;
     ObjectNode globalItemNode = null;
 
     if (data.jsonKeyGroupItems == null || data.jsonKeyGroupItems.size() == 0) return;
 
     if (data.jsonKeyGroupItems != null && data.jsonKeyGroupItems.size() > 0) {
-      value = serializeJson(data.jsonKeyGroupItems, false);
+      serializeJson(data.jsonKeyGroupItems);
     }
 
-    int jsonLength = value.length();
+    data.jsonLength = data.jsonSerialized.length();
 
     if (data.outputRowMeta != null) {
 
@@ -294,7 +289,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         try {
           // TODO: Maybe there will be an opportunity for better code here without going through
           // JSON serialization here...
-          JsonNode jsonNode = mapper.readTree(value);
+          JsonNode jsonNode = mapper.readTree(data.jsonSerialized);
           if (meta.getOutputValue() != null) globalItemNode.put(meta.getOutputValue(), jsonNode);
         } catch (IOException e) {
           // TBD Exception must be properly managed
@@ -305,12 +300,12 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
       Object[] additionalRowFields = new Object[1];
 
-      additionalRowFields[0] = value;
+      additionalRowFields[0] = data.jsonSerialized;
       int nextFieldPos = 1;
 
       // Fill accessory fields
       if (meta.getJsonSizeFieldname() != null && meta.getJsonSizeFieldname().length() > 0) {
-        additionalRowFields[nextFieldPos] = Long.valueOf(jsonLength);
+        additionalRowFields[nextFieldPos] = Long.valueOf(data.jsonLength);
         nextFieldPos++;
       }
 
@@ -324,20 +319,15 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     data.rowsAreSafe = true;
   }
 
-  private void writeJsonFile(String value) throws HopTransformException {
+  private void writeJsonFile() throws HopTransformException {
     // Open a file
-    if (!openNewFile()) {
+    if (data.isWriteToFile && !openNewFile()) {
       throw new HopTransformException(
           BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
     }
     // Write data to file
-
-    if (data.jsonItems != null && data.jsonItems.size() > 0) {
-      value = serializeJson(data.jsonItems, true);
-    }
-
     try {
-      data.writer.write(value);
+      data.writer.write(data.jsonSerialized);
     } catch (Exception e) {
       throw new HopTransformException(BaseMessages.getString(PKG, "JsonOutput.Error.Writing"), e);
     }
@@ -345,10 +335,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     closeFile();
   }
 
-  private String serializeJson(List<ObjectNode> jsonItemsList, boolean outputToFile) {
+  private void serializeJson(List<ObjectNode> jsonItemsList) {
 
     ObjectNode theNode = new ObjectNode(nc);
-    String value = null;
 
     try {
       if (meta.getJsonBloc() != null && meta.getJsonBloc().length() > 0) {
@@ -362,12 +351,12 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
                         : (!meta.isUseArrayWithSingleInstance()
                             ? jsonItemsList.get(0)
                             : jsonItemsList))));
-        if (meta.isJsonPrittified() && outputToFile)
-          value = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(theNode);
-        else value = mapper.writeValueAsString(theNode);
+        if (meta.isJsonPrittified())
+          data.jsonSerialized = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(theNode);
+        else data.jsonSerialized = mapper.writeValueAsString(theNode);
       } else {
-        if (meta.isJsonPrittified() && outputToFile)
-          value =
+        if (meta.isJsonPrittified())
+          data.jsonSerialized =
               mapper
                   .writerWithDefaultPrettyPrinter()
                   .writeValueAsString(
@@ -377,7 +366,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
                               ? jsonItemsList.get(0)
                               : jsonItemsList)));
         else
-          value =
+          data.jsonSerialized =
               mapper.writeValueAsString(
                   (jsonItemsList.size() > 1
                       ? jsonItemsList
@@ -389,8 +378,6 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       // TBD Exception must be properly managed
       e.printStackTrace();
     }
-
-    return value;
   }
 
   // Is the row r of the same group as previous?
@@ -515,6 +502,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   }
 
   public boolean openNewFile() {
+
     if (data.writer != null) {
       return true;
     }

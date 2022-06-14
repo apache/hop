@@ -136,73 +136,99 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     this.doNotOpenNewFileInit = doNotOpenNewFileInit;
   }
 
-  /** @return Returns the create parent folder flag. */
+  /**
+   * @return Returns the create parent folder flag.
+   */
   public boolean isCreateParentFolder() {
     return createparentfolder;
   }
 
-  /** @param createparentfolder The create parent folder flag to set. */
+  /**
+   * @param createparentfolder The create parent folder flag to set.
+   */
   public void setCreateParentFolder(boolean createparentfolder) {
     this.createparentfolder = createparentfolder;
   }
 
-  /** @return Returns the extension. */
+  /**
+   * @return Returns the extension.
+   */
   @Override
   public String getExtension() {
     return extension;
   }
 
-  /** @param extension The extension to set. */
+  /**
+   * @param extension The extension to set.
+   */
   @Override
   public void setExtension(String extension) {
     this.extension = extension;
   }
 
-  /** @return Returns the fileAppended. */
+  /**
+   * @return Returns the fileAppended.
+   */
   public boolean isFileAppended() {
     return fileAppended;
   }
 
-  /** @param fileAppended The fileAppended to set. */
+  /**
+   * @param fileAppended The fileAppended to set.
+   */
   public void setFileAppended(boolean fileAppended) {
     this.fileAppended = fileAppended;
   }
 
-  /** @return Returns the fileName. */
+  /**
+   * @return Returns the fileName.
+   */
   @Override
   public String getFileName() {
     return fileName;
   }
 
-  /** @return Returns the timeInFilename. */
+  /**
+   * @return Returns the timeInFilename.
+   */
   @Override
   public boolean isTimeInFilename() {
     return timeInFilename;
   }
 
-  /** @return Returns the dateInFilename. */
+  /**
+   * @return Returns the dateInFilename.
+   */
   @Override
   public boolean isDateInFilename() {
     return dateInFilename;
   }
 
-  /** @param dateInFilename The dateInFilename to set. */
+  /**
+   * @param dateInFilename The dateInFilename to set.
+   */
   public void setDateInFilename(boolean dateInFilename) {
     this.dateInFilename = dateInFilename;
   }
 
-  /** @param timeInFilename The timeInFilename to set. */
+  /**
+   * @param timeInFilename The timeInFilename to set.
+   */
   public void setTimeInFilename(boolean timeInFilename) {
     this.timeInFilename = timeInFilename;
   }
 
-  /** @param fileName The fileName to set. */
+  /**
+   * @param fileName The fileName to set.
+   */
   @Override
   public void setFileName(String fileName) {
     this.fileName = fileName;
   }
 
-  /** @return Returns the Add to result filename flag. */
+  /**
+   * @return Returns the Add to result filename flag.
+   */
   public boolean addToResult() {
     return addToResult;
   }
@@ -249,12 +275,16 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     this.operationType = operationType;
   }
 
-  /** @return Returns the outputFields. */
+  /**
+   * @return Returns the outputFields.
+   */
   public JsonOutputField[] getOutputFields() {
     return outputFields;
   }
 
-  /** @param outputFields The outputFields to set. */
+  /**
+   * @param outputFields The outputFields to set.
+   */
   public void setOutputFields(JsonOutputField[] outputFields) {
     this.outputFields = outputFields;
   }
@@ -304,7 +334,9 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     return retval;
   }
 
-  /** @param addToResult The Add file to result to set. */
+  /**
+   * @param addToResult The Add file to result to set.
+   */
   public void setAddToResult(boolean addToResult) {
     this.addToResult = addToResult;
   }
@@ -632,12 +664,16 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     this.encoding = encoding;
   }
 
-  /** @return Returns the jsonBloc. */
+  /**
+   * @return Returns the jsonBloc.
+   */
   public String getJsonBloc() {
     return jsonBloc;
   }
 
-  /** @param jsonBloc The root node to set. */
+  /**
+   * @param jsonBloc The root node to set.
+   */
   public void setJsonBloc(String jsonBloc) {
     this.jsonBloc = jsonBloc;
   }
