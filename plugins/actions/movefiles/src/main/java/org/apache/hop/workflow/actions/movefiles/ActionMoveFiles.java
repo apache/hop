@@ -399,7 +399,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                     vWildcardPrevious));
           }
 
-          if (!ProcessFileFolder(
+          if (!processFileFolder(
               vSourceFileFolderPrevious,
               vDestinationFileFolderPrevious,
               vWildcardPrevious,
@@ -449,7 +449,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                     vwildcard[i]));
           }
 
-          if (!ProcessFileFolder(
+          if (!processFileFolder(
               vSourceFileFolder[i],
               vDestinationFileFolder[i],
               vwildcard[i],
@@ -509,7 +509,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     return retval;
   }
 
-  private boolean ProcessFileFolder(
+  private boolean processFileFolder(
       String sourcefilefoldername,
       String destinationfilefoldername,
       String wildcard,
@@ -582,8 +582,10 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                   HopVfs.getFilename(destinationfilefolder) + Const.FILE_SEPARATOR + shortfilename;
               FileObject destinationfile = HopVfs.getFileObject(destinationfilenamefull);
 
+              destinationfile.createFolder();
+
               entrystatus =
-                  MoveFile(
+                  moveFile(
                       shortfilename,
                       sourcefilefolder,
                       destinationfile,
@@ -619,7 +621,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               destinationfile = HopVfs.getFileObject(destinationfilenamefull);
 
               entrystatus =
-                  MoveFile(
+                  moveFile(
                       shortfilename,
                       sourcefilefolder,
                       destinationfile,
@@ -682,7 +684,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                   // Fetch files in list one after one ...
                   currentfile = fileObjects[j];
 
-                  if (!MoveOneFile(
+                  if (!moveOneFile(
                       currentfile,
                       sourcefilefolder,
                       realDestinationFilefoldername,
@@ -752,7 +754,8 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     return entrystatus;
   }
 
-  private boolean MoveFile(
+  private boolean moveFile
+          (
       String shortfilename,
       FileObject sourcefilename,
       FileObject destinationfilename,
@@ -764,9 +767,18 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     boolean retval = false;
     try {
       if (!destinationfilename.exists()) {
+
+        if (includeSubfolders) {
+          // Check if
+          FileObject destinationFilePath = HopVfs.getFileObject(destinationfilename.getName().getParent().toString());
+          if (!destinationFilePath.exists())
+            destinationFilePath.createFolder();
+        }
+
         if (!simulate) {
           sourcefilename.moveTo(destinationfilename);
         }
+
         if (log.isDetailed()) {
           logDetailed(
               BaseMessages.getString(
@@ -991,7 +1003,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     return retval;
   }
 
-  private boolean MoveOneFile(
+  private boolean moveOneFile(
       FileObject currentfile,
       FileObject sourcefilefolder,
       String realDestinationFilefoldername,
@@ -1049,7 +1061,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             if (currentfile.getType() == FileType.FOLDER) {
               if (includeSubfolders && moveEmptyFolders && Utils.isEmpty(wildcard)) {
                 entrystatus =
-                    MoveFile(
+                    moveFile(
                         shortfilename,
                         currentfile,
                         filename,
@@ -1059,9 +1071,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               }
             } else {
 
-              if (GetFileWildcard(sourceshortfilename, realWildcard)) {
+              if (getFileWildcard(sourceshortfilename, realWildcard)) {
                 entrystatus =
-                    MoveFile(
+                    moveFile(
                         shortfilename,
                         currentfile,
                         filename,
@@ -1077,7 +1089,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           if (currentfile.getType() == FileType.FOLDER) {
             if (includeSubfolders && moveEmptyFolders && Utils.isEmpty(wildcard)) {
               entrystatus =
-                  MoveFile(
+                  moveFile(
                       shortfilename,
                       currentfile,
                       filename,
@@ -1088,9 +1100,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           } else {
 
             // file...Check if exists
-            if (GetFileWildcard(sourceshortfilename, realWildcard)) {
+            if (getFileWildcard(sourceshortfilename, realWildcard)) {
               entrystatus =
-                  MoveFile(
+                  moveFile(
                       shortfilename,
                       currentfile,
                       filename,
@@ -1218,7 +1230,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
    * @param wildcard
    * @return True if the selectedfile matches the wildcard
    **********************************************************/
-  private boolean GetFileWildcard(String selectedfile, String wildcard) {
+  private boolean getFileWildcard(String selectedfile, String wildcard) {
     Pattern pattern = null;
     boolean getIt = true;
 
