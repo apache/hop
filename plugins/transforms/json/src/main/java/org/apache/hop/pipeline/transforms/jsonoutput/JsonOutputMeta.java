@@ -23,6 +23,9 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.injection.InjectionDeep;
+import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -46,10 +49,14 @@ import java.util.List;
     categoryDescription = "i18n::JsonOutput.category",
     keywords = "i18n::JsonOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/jsonoutput.html")
+@InjectionSupported(
+        localizationPrefix = "JsonOutput.Injection.",
+        groups = {"GENERAL", "FIELDS"})
 public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputData> {
   private static final Class<?> PKG = JsonOutputMeta.class; // For Translator
 
   /** Operations type */
+  @Injection(name = "OPERATION", group = "GENERAL")
   private int operationType;
 
   /** The operations description */
@@ -69,30 +76,38 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   public static final int OPERATION_TYPE_BOTH = 2;
 
   /** The encoding to use for reading: null or empty string means system default encoding */
+  @Injection(name = "ENCODING", group = "GENERAL")
   private String encoding;
 
   /** The name value containing the resulting Json fragment */
+  @Injection(name = "OUTPUT_VALUE", group = "GENERAL")
   private String outputValue;
 
   /** The name of the json bloc */
+  @Injection(name = "JSON_BLOC_NAME", group = "GENERAL")
   private String jsonBloc;
 
+  @Injection(name = "NR_ROWS_IN_BLOC", group = "GENERAL")
   private String nrRowsInBloc;
 
   /* THE FIELD SPECIFICATIONS ... */
 
   /** The output fields */
+  @InjectionDeep
   private JsonOutputField[] outputFields;
 
+  @Injection(name = "ADD_TO_RESULT", group = "GENERAL")
   private boolean addToResult;
 
   /** Flag to indicate the we want to append to the end of an existing file (if it exists) */
+  @Injection(name = "APPEND", group = "GENERAL")
   private boolean fileAppended;
 
   /** Flag to indicate whether or not to create JSON structures compatible with pre v4.3.0 */
   private boolean compatibilityMode;
 
   /** Flag: create parent folder if needed */
+  @Injection(name = "CREATE_PARENT_FOLDER", group = "GENERAL")
   private boolean createparentfolder;
 
   private boolean doNotOpenNewFileInit;
