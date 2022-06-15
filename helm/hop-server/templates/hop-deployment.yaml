@@ -65,3 +65,4 @@ spec:
                 configMapKeyRef:
                   name: {{ include "hop.fullname" . }}
                   key: port
+            {{- include "helpers.list-extra-env-variables" . | indent 12 }}

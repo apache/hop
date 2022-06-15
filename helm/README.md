@@ -27,6 +27,7 @@ Variable    | Required    | Description
 ---	|----	|---
 replicaCount | Yes | Number of replicas
 image.tag | Yes | Hop release
+image.env | No | Extra environnement variables, e.g. `HOP_SERVER_METADATA_FOLDER`
 service.type | Yes | Expose via Nodeport or Loadbalancer
 service.port | Yes | Port of the service
 service.targetPort | Yes | Port of the pod(s)
@@ -38,7 +39,7 @@ hop.port | Yes | The port for hop server
 Create a secret for the hop server
 
 ```bash
-kubectl create secret generic hop-server   --from-literal=pass=admin
+kubectl create secret generic hop-server --from-literal=pass=admin
 ```
 
 install the helm hop-server chart:

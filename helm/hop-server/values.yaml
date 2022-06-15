@@ -26,6 +26,13 @@ image:
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "1.0-SNAPSHOT"
+  env:
+    # HOP_SERVER_METADATA_FOLDER: "/files/projects/my-project/metadata"
+    # HOP_CONFIG_FOLDER: "/files/config"
+    # HOP_ENVIRONMENT_NAME: "my-project-env"
+    # HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS: "/files/projects/my-project/main-config.json,/files/projects/my-project/extra-config.json"
+    # HOP_PROJECT_NAME: "my-project"
+    # HOP_PROJECT_FOLDER: "/files/projects/my-project"
 
 imagePullSecrets: [ ]
 nameOverride: ""
