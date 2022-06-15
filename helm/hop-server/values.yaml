@@ -86,6 +86,10 @@ tolerations: [ ]
 
 affinity: { }
 
+persistence:
+  enabled: false
+  existingClaim: my-claim
+
 hop:
   port: 8081
   user: admin

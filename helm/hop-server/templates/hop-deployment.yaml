@@ -66,3 +66,14 @@ spec:
                   name: {{ include "hop.fullname" . }}
                   key: port
             {{- include "helpers.list-extra-env-variables" . | indent 12 }}
+          volumeMounts:
+            - name: {{ template "hop.fullname" . }}-data
+              mountPath: /files
+      volumes:
+        - name: {{ template "hop.fullname" . }}-data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (printf "%s-%s" (include "hop.fullname" .) "data") }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
