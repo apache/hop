@@ -1849,6 +1849,36 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   /**
+   * Get the DELETE statement for the current database given the table name
+   *
+   * @param tableName
+   * @return
+   */
+  public String getSqlDeleteStmt(String tableName) {
+    return iDatabase.getSqlDeleteStmt(tableName);
+  }
+
+  /**
+   * Get the UPDATE statement for the current database given the table name
+   *
+   * @param tableName
+   * @return
+   */
+  public String getSqlUpdateStmt(String tableName) {
+    return iDatabase.getSqlUpdateStmt(tableName);
+  }
+
+  /* Returns weather or not the database supports a custom SQL statement to perform delete operations */
+  public boolean isSupportsCustomDeleteStmt() {
+    return iDatabase.isSupportsCustomDeleteStmt();
+  }
+
+  /* Returns weather or not the database supports a custom SQL statement to perform update operations */
+  public boolean isSupportsCustomUpdateStmt() {
+    return iDatabase.isSupportsCustomUpdateStmt();
+  }
+
+  /**
    * @return true if the database is streaming results (normally this is an option just for MySQL).
    */
   public boolean isStreamingResults() {

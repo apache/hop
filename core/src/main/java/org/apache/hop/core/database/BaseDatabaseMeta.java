@@ -405,6 +405,40 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return true;
   }
 
+  /* Returns weather or not the database supports a custom SQL statement to perform delete operations */
+  @Override
+  public boolean isSupportsCustomDeleteStmt() {
+    return false;
+  }
+
+  /* Returns weather or not the database supports a custom SQL statement to perform update operations */
+  @Override
+  public boolean isSupportsCustomUpdateStmt() {
+    return false;
+  }
+
+  /**
+   * Get the DELETE statement for the current database given the table name
+   *
+   * @param tableName
+   * @return
+   */
+  @Override
+  public String getSqlDeleteStmt(String tableName) {
+    return "DELETE FROM " + tableName;
+  }
+
+  /**
+   * Get the UPDATE statement for the current database given the table name
+   *
+   * @param tableName
+   * @return
+   */
+  @Override
+  public String getSqlUpdateStmt(String tableName) {
+    return "UPDATE " + tableName + Const.CR + "SET ";
+  }
+
   @Override
   public String getLimitClause(int nrRows) {
     return "";

@@ -1291,9 +1291,13 @@ public class Database implements IVariables, ILoggingObject {
         // You should have called something else!
         if (upperSql.startsWith("INSERT")) {
           result.setNrLinesOutput(count);
-        } else if (upperSql.startsWith("UPDATE")) {
+        } else if (!databaseMeta.isSupportsCustomUpdateStmt() && upperSql.startsWith("UPDATE")) {
           result.setNrLinesUpdated(count);
-        } else if (upperSql.startsWith("DELETE")) {
+        } else if (databaseMeta.isSupportsCustomUpdateStmt() && upperSql.contains("UPDATE")) {
+          result.setNrLinesUpdated(count);
+        } else if (!databaseMeta.isSupportsCustomDeleteStmt() && upperSql.startsWith("DELETE")) {
+          result.setNrLinesDeleted(count);
+        } else if (databaseMeta.isSupportsCustomDeleteStmt() && upperSql.contains("DELETE")) {
           result.setNrLinesDeleted(count);
         }
       }
@@ -2523,7 +2527,7 @@ public class Database implements IVariables, ILoggingObject {
       String schemaTable =
           databaseMeta.getQuotedSchemaTableCombination(this, schemaName, tableName);
 
-      sql.append("UPDATE ").append(schemaTable).append(Const.CR).append("SET ");
+      sql.append(databaseMeta.getSqlUpdateStmt(schemaTable));
 
       for (int i = 0; i < sets.length; i++) {
         if (i != 0) {
@@ -2596,7 +2600,7 @@ public class Database implements IVariables, ILoggingObject {
       String sql;
 
       String table = databaseMeta.getQuotedSchemaTableCombination(this, schemaName, tableName);
-      sql = "DELETE FROM " + table + Const.CR;
+      sql = databaseMeta.getSqlDeleteStmt(table) + Const.CR;
       sql += "WHERE ";
 
       for (int i = 0; i < codes.length; i++) {
@@ -2992,7 +2996,7 @@ public class Database implements IVariables, ILoggingObject {
       }
       execStatement(truncateStatement);
     } else {
-      execStatement("DELETE FROM " + databaseMeta.quoteField(tableName));
+      execStatement(databaseMeta.getSqlDeleteStmt(databaseMeta.quoteField(tableName)));
     }
   }
 
@@ -3006,7 +3010,7 @@ public class Database implements IVariables, ILoggingObject {
       execStatement(truncateStatement);
     } else {
       execStatement(
-          "DELETE FROM " + databaseMeta.getQuotedSchemaTableCombination(this, schema, tableName));
+              databaseMeta.getSqlDeleteStmt(databaseMeta.getQuotedSchemaTableCombination(this, schema, tableName)));
     }
   }
 
@@ -4235,8 +4239,7 @@ public class Database implements IVariables, ILoggingObject {
       }
       return truncateStatement;
     } else {
-      return ("DELETE FROM "
-          + databaseMeta.getQuotedSchemaTableCombination(this, schema, tableName));
+      return (databaseMeta.getSqlDeleteStmt(databaseMeta.getQuotedSchemaTableCombination(this, schema, tableName)));
     }
   }
 
