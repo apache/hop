@@ -22,23 +22,20 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** This class knows how to handle the MetaData for the Json output transform */
 @Transform(
@@ -49,71 +46,100 @@ import java.util.List;
     categoryDescription = "i18n::JsonOutput.category",
     keywords = "i18n::JsonOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/jsonoutput.html")
-@InjectionSupported(
-        localizationPrefix = "JsonOutput.Injection.",
-        groups = {"GENERAL", "FIELDS"})
 public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputData> {
   private static final Class<?> PKG = JsonOutputMeta.class; // For Translator
 
   /** Operations type */
-  @Injection(name = "OPERATION", group = "GENERAL")
-  private int operationType;
+  @HopMetadataProperty(
+          key = "operation_type",
+          injectionKeyDescription = "JsonOutput.Injection.OPERATION"
+  )
+  private String operationType;
 
   /** The operations description */
-  public static final String[] operationTypeDesc = {
-    BaseMessages.getString(PKG, "JsonOutputMeta.operationType.OutputValue"),
-    BaseMessages.getString(PKG, "JsonOutputMeta.operationType.WriteToFile"),
-    BaseMessages.getString(PKG, "JsonOutputMeta.operationType.Both")
-  };
+  public static final Map<String, String> operationTypeDesc = Map.of(
+          "outputvalue", BaseMessages.getString(PKG, "JsonOutputMeta.operationType.OutputValue"),
+          "writetofile", BaseMessages.getString(PKG, "JsonOutputMeta.operationType.WriteToFile"),
+          "both",BaseMessages.getString(PKG, "JsonOutputMeta.operationType.Both")
+  );
+
+  public static final Map<String, String> operationDescType = Map.of(
+          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.OutputValue"),"outputvalue",
+          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.WriteToFile"),"writetofile",
+          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.Both"), "both"
+  );
 
   /** The operations type codes */
   public static final String[] operationTypeCode = {"outputvalue", "writetofile", "both"};
 
-  public static final int OPERATION_TYPE_OUTPUT_VALUE = 0;
+  public static final String OPERATION_TYPE_OUTPUT_VALUE = "outputvalue";
 
-  public static final int OPERATION_TYPE_WRITE_TO_FILE = 1;
+  public static final String OPERATION_TYPE_WRITE_TO_FILE = "writetofile";
 
-  public static final int OPERATION_TYPE_BOTH = 2;
+  public static final String OPERATION_TYPE_BOTH = "both";
 
   /** The encoding to use for reading: null or empty string means system default encoding */
-  @Injection(name = "ENCODING", group = "GENERAL")
+  @HopMetadataProperty(
+          injectionKeyDescription = "JsonOutput.Injection.ENCODING"
+  )
   private String encoding;
 
   /** The name value containing the resulting Json fragment */
-  @Injection(name = "OUTPUT_VALUE", group = "GENERAL")
+  @HopMetadataProperty(
+          injectionKeyDescription = "JsonOutput.Injection.OUTPUT_VALUE"
+  )
   private String outputValue;
 
   /** The name of the json bloc */
-  @Injection(name = "JSON_BLOC_NAME", group = "GENERAL")
+  @HopMetadataProperty(
+          injectionKeyDescription = "JsonOutput.Injection.JSON_BLOC_NAME"
+  )
   private String jsonBloc;
 
-  @Injection(name = "NR_ROWS_IN_BLOC", group = "GENERAL")
+  @HopMetadataProperty(
+          injectionKeyDescription = "JsonOutput.Injection.NR_ROWS_IN_BLOC"
+  )
   private String nrRowsInBloc;
 
   /* THE FIELD SPECIFICATIONS ... */
 
   /** The output fields */
-  @InjectionDeep
-  private JsonOutputField[] outputFields;
+  @HopMetadataProperty(
+          groupKey = "fields",
+          key = "field",
+          injectionKey = "FIELD",
+          injectionGroupKey = "FIELDS",
+          injectionKeyDescription = "JsonOutput.Injection.FIELD",
+          injectionGroupDescription = "JsonOutput.Injection.FIELDS"
+  )
+  private List<JsonOutputField> outputFields;
 
-  @Injection(name = "ADD_TO_RESULT", group = "GENERAL")
+  @HopMetadataProperty(
+          injectionKeyDescription = "JsonOutput.Injection.ADD_TO_RESULT"
+  )
   private boolean addToResult;
 
   /** Flag to indicate the we want to append to the end of an existing file (if it exists) */
-  @Injection(name = "APPEND", group = "GENERAL")
+  @HopMetadataProperty(
+          injectionKeyDescription = "JsonOutput.Injection.APPEND"
+  )
   private boolean fileAppended;
 
   /** Flag to indicate whether or not to create JSON structures compatible with pre v4.3.0 */
   private boolean compatibilityMode;
 
   /** Flag: create parent folder if needed */
-  @Injection(name = "CREATE_PARENT_FOLDER", group = "GENERAL")
-  private boolean createparentfolder;
+  @HopMetadataProperty(
+          injectionKeyDescription = "JsonOutput.Injection.CREATE_PARENT_FOLDER"
+  )
+  private boolean createParentFolder;
 
   private boolean doNotOpenNewFileInit;
 
   public JsonOutputMeta() {
     super(); // allocate BaseTransformMeta
+
+    outputFields = new ArrayList<>();
   }
 
   public boolean isDoNotOpenNewFileInit() {
@@ -126,12 +152,12 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
 
   /** @return Returns the create parent folder flag. */
   public boolean isCreateParentFolder() {
-    return createparentfolder;
+    return createParentFolder;
   }
 
   /** @param createparentfolder The create parent folder flag to set. */
   public void setCreateParentFolder(boolean createparentfolder) {
-    this.createparentfolder = createparentfolder;
+    this.createParentFolder = createparentfolder;
   }
 
   /** @return Returns the fileAppended. */
@@ -155,137 +181,49 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   }
 
   /** @return Returns the Add to result filesname flag. */
-  public boolean addToResult() {
+  public boolean isAddToResult() {
     return addToResult;
   }
 
-  public int getOperationType() {
+  public String getOperationType() {
     return operationType;
   }
 
-  public static int getOperationTypeByDesc(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < operationTypeDesc.length; i++) {
-      if (operationTypeDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    // If this fails, try to match using the code.
-    return getOperationTypeByCode(tt);
-  }
-
-  public void setOperationType(int operationType) {
+  public void setOperationType(String operationType) {
     this.operationType = operationType;
   }
 
-  public static String getOperationTypeDesc(int i) {
-    if (i < 0 || i >= operationTypeDesc.length) {
-      return operationTypeDesc[0];
-    }
-    return operationTypeDesc[i];
-  }
-
-  private static int getOperationTypeByCode(String tt) {
+  private static String getOperationTypeByCode(String tt) {
     if (tt == null) {
-      return 0;
+      return "";
     }
 
     for (int i = 0; i < operationTypeCode.length; i++) {
       if (operationTypeCode[i].equalsIgnoreCase(tt)) {
-        return i;
+        return operationTypeCode[i];
       }
     }
-    return 0;
+    return "";
   }
 
   /** @return Returns the outputFields. */
-  public JsonOutputField[] getOutputFields() {
+  public List<JsonOutputField> getOutputFields() {
     return outputFields;
   }
 
   /** @param outputFields The outputFields to set. */
-  public void setOutputFields(JsonOutputField[] outputFields) {
+  public void setOutputFields(List<JsonOutputField> outputFields) {
     this.outputFields = outputFields;
   }
 
   @Override
-  public void loadXml(Node transformnode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformnode);
-  }
-
-  public void allocate(int nrFields) {
-    outputFields = new JsonOutputField[nrFields];
-  }
-
-  @Override
   public Object clone() {
-    JsonOutputMeta retval = (JsonOutputMeta) super.clone();
-    int nrFields = outputFields.length;
-
-    retval.allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      retval.outputFields[i] = (JsonOutputField) outputFields[i].clone();
-    }
-
-    return retval;
+    return super.clone();
   }
 
   /** @param addToResult The Add file to result to set. */
   public void setAddToResult(boolean addToResult) {
     this.addToResult = addToResult;
-  }
-
-  private void readData(Node transformnode) throws HopXmlException {
-    try {
-      outputValue = XmlHandler.getTagValue(transformnode, "outputValue");
-      jsonBloc = XmlHandler.getTagValue(transformnode, "jsonBloc");
-      nrRowsInBloc = XmlHandler.getTagValue(transformnode, "nrRowsInBloc");
-      operationType =
-          getOperationTypeByCode(
-              Const.NVL(XmlHandler.getTagValue(transformnode, "operation_type"), ""));
-      compatibilityMode =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "compatibility_mode"));
-
-      encoding = XmlHandler.getTagValue(transformnode, "encoding");
-      addToResult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "AddToResult"));
-      fileName = XmlHandler.getTagValue(transformnode, "file", "name");
-      createparentfolder =
-          "Y"
-              .equalsIgnoreCase(
-                  XmlHandler.getTagValue(transformnode, "file", "create_parent_folder"));
-      extension = XmlHandler.getTagValue(transformnode, "file", "extention");
-      fileAppended = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "append"));
-      partNrInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "haspartno"));
-      dateInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "add_date"));
-      timeInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "file", "add_time"));
-      doNotOpenNewFileInit =
-          "Y"
-              .equalsIgnoreCase(
-                  XmlHandler.getTagValue(transformnode, "file", "DoNotOpenNewFileInit"));
-
-      Node fields = XmlHandler.getSubNode(transformnode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      allocate(nrFields);
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        outputFields[i] = new JsonOutputField();
-        outputFields[i].setFieldName(XmlHandler.getTagValue(fnode, "name"));
-        outputFields[i].setElementName(XmlHandler.getTagValue(fnode, "element"));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from Xml", e);
-    }
   }
 
   @Override
@@ -298,12 +236,12 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     extension = "json";
     int nrFields = 0;
 
-    allocate(nrFields);
 
     for (int i = 0; i < nrFields; i++) {
-      outputFields[i] = new JsonOutputField();
-      outputFields[i].setFieldName("field" + i);
-      outputFields[i].setElementName("field" + i);
+      JsonOutputField outputField = new JsonOutputField();
+      outputField.setFieldName("field" + i);
+      outputField.setElementName("field" + i);
+      outputFields.add(outputField);
     }
   }
 
@@ -329,49 +267,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
       return operationTypeCode[0];
     }
     return operationTypeCode[i];
-  }
-
-  @Override
-  public String getXml() {
-    StringBuffer retval = new StringBuffer(500);
-
-    retval.append("    ").append(XmlHandler.addTagValue("outputValue", outputValue));
-    retval.append("    ").append(XmlHandler.addTagValue("jsonBloc", jsonBloc));
-    retval.append("    ").append(XmlHandler.addTagValue("nrRowsInBloc", nrRowsInBloc));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("operation_type", getOperationTypeCode(operationType)));
-    retval.append("    ").append(XmlHandler.addTagValue("compatibility_mode", compatibilityMode));
-    retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
-    retval.append("    ").append(XmlHandler.addTagValue("addtoresult", addToResult));
-    retval.append("    <file>" + Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("name", fileName));
-    retval.append("      ").append(XmlHandler.addTagValue("extention", extension));
-    retval.append("      ").append(XmlHandler.addTagValue("append", fileAppended));
-    retval.append("      ").append(XmlHandler.addTagValue("haspartno", partNrInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("add_date", dateInFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("add_time", timeInFilename));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("create_parent_folder", createparentfolder));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("DoNotOpenNewFileInit", doNotOpenNewFileInit));
-    retval.append("      </file>" + Const.CR);
-
-    retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < outputFields.length; i++) {
-      JsonOutputField field = outputFields[i];
-
-      if (field.getFieldName() != null && field.getFieldName().length() != 0) {
-        retval.append("      <field>").append(Const.CR);
-        retval.append("        ").append(XmlHandler.addTagValue("name", field.getFieldName()));
-        retval.append("        ").append(XmlHandler.addTagValue("element", field.getElementName()));
-        retval.append("    </field>" + Const.CR);
-      }
-    }
-    retval.append("    </fields>").append(Const.CR);
-    return retval.toString();
   }
 
   @Override
@@ -420,10 +315,10 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < outputFields.length; i++) {
-        int idx = prev.indexOfValue(outputFields[i].getFieldName());
+      for (int i = 0; i < outputFields.size(); i++) {
+        int idx = prev.indexOfValue(outputFields.get(i).getFieldName());
         if (idx < 0) {
-          errorMessage += "\t\t" + outputFields[i].getFieldName() + Const.CR;
+          errorMessage += "\t\t" + outputFields.get(i).getFieldName() + Const.CR;
           errorFound = true;
         }
       }

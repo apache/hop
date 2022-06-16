@@ -198,7 +198,8 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdOperation.top = new FormAttachment(wNrRowsInBloc, margin);
     fdOperation.right = new FormAttachment(100, -margin);
     wOperation.setLayoutData(fdOperation);
-    wOperation.setItems(JsonOutputMeta.operationTypeDesc);
+    String[] operationTypeDescArray = JsonOutputMeta.operationDescType.keySet().toArray(new String[JsonOutputMeta.operationDescType.size()]);
+    wOperation.setItems(operationTypeDescArray);
     wOperation.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -651,7 +652,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
 
     setButtonPositions(new Button[] {wGet}, margin, null);
 
-    final int FieldsRows = input.getOutputFields().length;
+    final int FieldsRows = input.getOutputFields().size();
 
     colinf =
         new ColumnInfo[] {
@@ -790,7 +791,8 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wEncoding.setText(Const.NVL(input.getEncoding(), ""));
     wOutputValue.setText(Const.NVL(input.getOutputValue(), ""));
     wCompatibilityMode.setSelection(input.isCompatibilityMode());
-    wOperation.setText(JsonOutputMeta.getOperationTypeDesc(input.getOperationType()));
+
+    wOperation.setText(JsonOutputMeta.operationTypeDesc.get(input.getOperationType()));
     wFilename.setText(Const.NVL(input.getFileName(), ""));
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
     wExtension.setText(Const.NVL(input.getExtension(), "js"));
@@ -800,15 +802,15 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wAppend.setSelection(input.isFileAppended());
 
     wEncoding.setText(Const.NVL(input.getEncoding(), ""));
-    wAddToResult.setSelection(input.addToResult());
+    wAddToResult.setSelection(input.isAddToResult());
     wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
 
     if (isDebug()) {
       logDebug(BaseMessages.getString(PKG, "JsonOutputDialog.Log.GettingFieldsInfo"));
     }
 
-    for (int i = 0; i < input.getOutputFields().length; i++) {
-      JsonOutputField field = input.getOutputFields()[i];
+    for (int i = 0; i < input.getOutputFields().size(); i++) {
+      JsonOutputField field = input.getOutputFields().get(i);
 
       TableItem item = wFields.table.getItem(i);
       item.setText(1, Const.NVL(field.getFieldName(), ""));
@@ -834,7 +836,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     jsometa.setEncoding(wEncoding.getText());
     jsometa.setOutputValue(wOutputValue.getText());
     jsometa.setCompatibilityMode(wCompatibilityMode.getSelection());
-    jsometa.setOperationType(JsonOutputMeta.getOperationTypeByDesc(wOperation.getText()));
+    jsometa.setOperationType(JsonOutputMeta.operationDescType.get(wOperation.getText()));
     jsometa.setCreateParentFolder(wCreateParentFolder.getSelection());
     jsometa.setFileName(wFilename.getText());
     jsometa.setExtension(wExtension.getText());
@@ -848,8 +850,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     jsometa.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
 
     int nrFields = wFields.nrNonEmpty();
-
-    jsometa.allocate(nrFields);
+    input.getOutputFields().clear();
 
     for (int i = 0; i < nrFields; i++) {
       JsonOutputField field = new JsonOutputField();
@@ -858,7 +859,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
       field.setFieldName(item.getText(1));
       field.setElementName(item.getText(2));
       // CHECKSTYLE:Indentation:OFF
-      jsometa.getOutputFields()[i] = field;
+      jsometa.getOutputFields().add(field);
     }
   }
 
@@ -926,7 +927,8 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void updateOperation() {
-    int opType = JsonOutputMeta.getOperationTypeByDesc(wOperation.getText());
+    String opType = wOperation.getText();
+//    String opType = JsonOutputMeta.getOperationTypeByDesc(wOperation.getText());
     boolean activeFile = opType != JsonOutputMeta.OPERATION_TYPE_OUTPUT_VALUE;
 
     wlFilename.setEnabled(activeFile);
@@ -951,7 +953,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wbShowFiles.setEnabled(activeFile);
 
     boolean activeOutputValue =
-        JsonOutputMeta.getOperationTypeByDesc(wOperation.getText())
+      wOperation.getText()
             != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE;
 
     wlOutputValue.setEnabled(activeOutputValue);
