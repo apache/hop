@@ -197,6 +197,7 @@ public class MailConnectionTest {
           "junit",
           false,
           false,
+          false,
           "junit");
 
       store = Mockito.mock(Store.class);
