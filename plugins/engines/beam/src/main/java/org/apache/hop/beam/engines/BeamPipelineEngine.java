@@ -31,6 +31,7 @@ import org.apache.beam.sdk.metrics.MetricsFilter;
 import org.apache.beam.sdk.util.ThrowingSupplier;
 import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
+import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -188,6 +189,9 @@ public abstract class BeamPipelineEngine extends Variables
       if (beamEngineRunConfiguration.getRunnerType() == RunnerType.Spark) {
         logChannel.logBasic(
             "Make sure Hop is correctly configured for more information see: https://hop.apache.org/manual/latest/pipeline/beam/spark-on-local-host.html");
+      }
+      if (logLevel != null) {
+        beamEngineRunConfiguration.setVariable(BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL, logLevel.getCode());
       }
 
       converter =

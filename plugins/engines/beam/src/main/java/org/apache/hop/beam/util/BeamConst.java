@@ -45,6 +45,7 @@ public class BeamConst {
 
   public static final String STRING_TRANSFORM_FLAG_BATCH = "Batch";
   public static final String STRING_TRANSFORM_FLAG_SINGLE_THREADED = "SingleThreaded";
+  public static final String STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL = "LogLevel";
 
   private static List<String[]> gcpWorkerCodeDescriptions =
       Arrays.asList(

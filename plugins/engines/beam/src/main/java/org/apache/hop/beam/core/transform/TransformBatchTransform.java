@@ -29,9 +29,9 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -424,7 +424,7 @@ public class TransformBatchTransform extends TransformTransform {
                   pipelineMeta,
                   Variables.getADefaultVariableSpace(),
                   new LoggingObject("apache-beam-transform"));
-          pipeline.setLogLevel(LogLevel.ERROR);
+          pipeline.setLogLevel(context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
           pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
 
           // Give transforms variables from above
