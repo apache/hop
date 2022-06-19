@@ -68,7 +68,7 @@ OpenJDK 64-Bit Server VM 18.9 (build 11.0.2+9, mixed mode)
 
 Make sure to point the `JAVA_HOME` environment variable for your operating system to your desired JRE installation. Refer to your operating system's documentation for more information on environment variables.
 
-== Basic Installation
+== Basic Installation [[basic]]
 
 The basic installation for Apache Hop couldn't be easier:
 
@@ -79,6 +79,18 @@ The basic installation for Apache Hop couldn't be easier:
 ** `hop-gui.bat` (Windows) or `hop-gui.sh` (Linux, MacOS): run xref:hop-gui/index.adoc[Hop Gui]
 ** `hop-run.bat` (Windows) or `hop-run.sh` (Linux, MacOS): xref:/hop-run/index.adoc[run workflows or pipelines] from the command line.
 ** `hop-server.bat` (Windows) or `hop-server.sh` (Linux, MacOS): start a xref:/hop-server/index.adoc[Hop Server] instance.
+
+== Upgrade
+
+Multiple Hop versions can be installed side by side with the same process as described in the <<basic, Basic Installation>>.
+
+Hop installations are self-contained by default, which means you'll start with the default configuration and project and environment list with after new Hop install.
+
+This can be changed by setting the `HOP_CONFIG_FOLDER` system variable in your operating system to a folder outside any of your Hop installations.
+
+In the default self-contained configuration, Hop keeps your preferences, projects and environment in the `hop/conf` folder. If you have a configuration you'd like to keep in one of your Hop installations, copy the contents of that `hop/conf` folder to the folder your `HOP_CONFIG_FOLDER` points to.
+
+Check the <<envvars, Environment Variables>> section for more system variables that can make your life with multiple Hop versions or installations a lot easier.
 
 == Additional configuration
 
@@ -103,7 +115,8 @@ Check the documentation for your JRE for more information about additional JVM c
 
 TIP: **Developers**: a couple of lines below the `-Xmx` parameter, you'll find another `HOP_OPTIONS` line that contains `-Xdebug`. Uncomment this line to allow debuggers to attach to your running Hop instance. Check the xref:dev-manual::setup-dev-environment.adoc[developer documentation] for more information.
 
-=== Hop environment variables
+
+=== Hop environment variables [[envvars]]
 
 The following (operating system) environment variables can add a lot of flexibility to configure Hop to your exact needs.
 
