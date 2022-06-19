@@ -71,7 +71,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     public void execute(Object[] row) throws HopException {
 
       for (int i = 0; i < data.nrFields; i++) {
-        JsonOutputField outputField = meta.getOutputFields()[i];
+        JsonOutputField outputField = meta.getOutputFields().get(i);
 
         IValueMeta v = data.inputRowMeta.getValueMeta(data.fieldIndexes[i]);
 
@@ -128,7 +128,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       JSONObject jo = new JSONObject();
 
       for (int i = 0; i < data.nrFields; i++) {
-        JsonOutputField outputField = meta.getOutputFields()[i];
+        JsonOutputField outputField = meta.getOutputFields().get(i);
 
         IValueMeta v = data.inputRowMeta.getValueMeta(data.fieldIndexes[i]);
 
@@ -200,15 +200,15 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
       // Cache the field name indexes
       //
-      data.nrFields = meta.getOutputFields().length;
+      data.nrFields = meta.getOutputFields().size();
       data.fieldIndexes = new int[data.nrFields];
       for (int i = 0; i < data.nrFields; i++) {
         data.fieldIndexes[i] =
-            data.inputRowMeta.indexOfValue(meta.getOutputFields()[i].getFieldName());
+            data.inputRowMeta.indexOfValue(meta.getOutputFields().get(i).getFieldName());
         if (data.fieldIndexes[i] < 0) {
           throw new HopException(BaseMessages.getString(PKG, "JsonOutput.Exception.FieldNotFound"));
         }
-        JsonOutputField field = meta.getOutputFields()[i];
+        JsonOutputField field = meta.getOutputFields().get(i);
         field.setElementName(resolve(field.getElementName()));
       }
     }
@@ -355,7 +355,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
       String filename = buildFilename();
       createParentFolder(filename);
-      if (meta.addToResult()) {
+      if (meta.isAddToResult()) {
         // Add this to the result file names...
         ResultFile resultFile =
             new ResultFile(
