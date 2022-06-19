@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.coder.HopRowCoder;
 import org.apache.hop.beam.core.util.HopBeamUtil;
+import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.beam.pipeline.handler.BeamGenericTransformHandler;
@@ -43,6 +44,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.row.IRowMeta;
@@ -196,6 +198,13 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
       pipelineOptions.setJobName(sanitizeJobName(pipelineMeta.getName()));
 
       pipelineOptions.setRunner(runnerClass);
+      pipelineOptions
+          .as(HopPipelineExecutionOptions.class)
+          .setLogLevel(
+              LogLevel.getLogLevelForCode(
+                  pipelineRunConfiguration.getVariable(
+                      BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL)));
+
       Pipeline pipeline = Pipeline.create(pipelineOptions);
 
       pipeline.getCoderRegistry().registerCoderForClass(HopRow.class, new HopRowCoder());
