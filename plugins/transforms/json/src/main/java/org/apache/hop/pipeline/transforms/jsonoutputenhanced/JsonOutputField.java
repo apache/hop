@@ -98,12 +98,16 @@ public class JsonOutputField implements Cloneable {
     this.fieldName = fieldname;
   }
 
-  /** @return Returns the elementName. */
+  /**
+   * @return Returns the elementName.
+   */
   public String getElementName() {
     return elementName;
   }
 
-  /** @param elementName The elementName to set. */
+  /**
+   * @param elementName The elementName to set.
+   */
   public void setElementName(String elementName) {
     this.elementName = elementName;
   }
