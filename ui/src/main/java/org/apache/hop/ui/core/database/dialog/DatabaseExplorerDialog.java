@@ -115,7 +115,7 @@ public class DatabaseExplorerDialog extends Dialog {
       IVariables variables,
       DatabaseMeta conn,
       List<DatabaseMeta> databases) {
-    this(parent, style, variables, conn, databases, false, false);
+    this(parent, style, variables, conn, databases, false, true);
   }
 
   public DatabaseExplorerDialog(
@@ -732,8 +732,18 @@ public class DatabaseExplorerDialog extends Dialog {
       }
     }
 
-    GetPreviewTableProgressDialog pd =
-        new GetPreviewTableProgressDialog(shell, variables, dbMeta, null, tableName, limit);
+    String[] tableNameParts = tableName.split("\\.");
+
+    GetPreviewTableProgressDialog pd = null;
+    if (schemaName == null && tableNameParts.length == 2) {
+      // Table name contains both schema name and table name concatenated
+      pd =
+          new GetPreviewTableProgressDialog(
+              shell, variables, dbMeta, tableNameParts[0], tableNameParts[1], limit);
+    } else {
+      pd = new GetPreviewTableProgressDialog(shell, variables, dbMeta, null, tableName, limit);
+    }
+
     List<Object[]> rows = pd.open();
     if (rows != null) // otherwise an already shown error...
     {
@@ -884,12 +894,10 @@ public class DatabaseExplorerDialog extends Dialog {
             || STRING_SYNONYMS.equalsIgnoreCase(path[1])) {
           schemaName = null;
           tableName = table;
-          if (dbMeta.getIDatabase().isMsSqlServerVariant()) {
-            String[] st = tableName.split("\\.", 2);
-            if (st.length > 1) { // we have a dot in there and need to separate
-              schemaName = st[0];
-              tableName = st[1];
-            }
+          String[] st = tableName.split("\\.", 2);
+          if (st.length > 1) { // we have a dot in there and need to separate
+            schemaName = st[0];
+            tableName = st[1];
           }
           dispose();
         }
@@ -929,42 +937,58 @@ public class DatabaseExplorerDialog extends Dialog {
     }
   }
 
-  /** @return the schemaName */
+  /**
+   * @return the schemaName
+   */
   public String getSchemaName() {
     return schemaName;
   }
 
-  /** @param schemaName the schemaName to set */
+  /**
+   * @param schemaName the schemaName to set
+   */
   public void setSchemaName(String schemaName) {
     this.schemaName = schemaName;
   }
 
-  /** @return the tableName */
+  /**
+   * @return the tableName
+   */
   public String getTableName() {
     return tableName;
   }
 
-  /** @param tableName the tableName to set */
+  /**
+   * @param tableName the tableName to set
+   */
   public void setTableName(String tableName) {
     this.tableName = tableName;
   }
 
-  /** @return the splitSchemaAndTable */
+  /**
+   * @return the splitSchemaAndTable
+   */
   public boolean isSplitSchemaAndTable() {
     return splitSchemaAndTable;
   }
 
-  /** @param splitSchemaAndTable the splitSchemaAndTable to set */
+  /**
+   * @param splitSchemaAndTable the splitSchemaAndTable to set
+   */
   public void setSplitSchemaAndTable(boolean splitSchemaAndTable) {
     this.splitSchemaAndTable = splitSchemaAndTable;
   }
 
-  /** @return the selectSchema */
+  /**
+   * @return the selectSchema
+   */
   public String getSelectedSchema() {
     return selectedSchema;
   }
 
-  /** @param selectSchema the selectSchema to set */
+  /**
+   * @param selectSchema the selectSchema to set
+   */
   public void setSelectedSchema(String selectSchema) {
     this.selectedSchema = selectSchema;
   }
