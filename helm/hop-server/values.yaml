@@ -31,7 +31,7 @@ image:
   name: docker.io/apache/hop
   pullPolicy: IfNotPresent
   # Overrides the image tag
-  tag: "1.2.0"
+  tag: "latest"
   env:
     # HOP_SERVER_METADATA_FOLDER: "/files/projects/my-project/metadata"
     # HOP_CONFIG_FOLDER: "/files/config"
