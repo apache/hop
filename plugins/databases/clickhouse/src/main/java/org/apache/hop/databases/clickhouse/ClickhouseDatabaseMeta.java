@@ -57,6 +57,38 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   @Override
+  public boolean isSupportsCustomDeleteStmt() {
+    return true;
+  }
+
+  @Override
+  public boolean isSupportsCustomUpdateStmt() {
+    return true;
+  }
+
+  /**
+   * Get the DELETE statement for the current database given the table name
+   *
+   * @param tableName
+   * @return
+   */
+  @Override
+  public String getSqlDeleteStmt(String tableName) {
+    return "ALTER TABLE " + tableName + " DELETE ";
+  }
+
+  /**
+   * Get the UPDATE statement for the current database given the table name
+   *
+   * @param tableName
+   * @return
+   */
+  @Override
+  public String getSqlUpdateStmt(String tableName) {
+    return "ALTER TABLE " + tableName + " UPDATE ";
+  }
+
+  @Override
   public String getURL(String hostName, String port, String databaseName) {
 
     Validate.notEmpty(hostName, "Host name is empty");

@@ -17,9 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
+import org.apache.hop.metadata.api.HopMetadataProperty;
+
 /** Describes a single field in an Json output file */
 public class JsonOutputField implements Cloneable {
+  @HopMetadataProperty(
+          key = "name",
+          injectionGroupKey = "FIELDS",
+          injectionKeyDescription = "JsonOutput.Injection.JSON_FIELDNAME"
+  )
   private String fieldName;
+  @HopMetadataProperty(
+          key = "element",
+          injectionGroupKey = "FIELDS",
+          injectionKeyDescription = "JsonOutput.Injection.JSON_ELEMENTNAME"
+  )
   private String elementName;
 
   public JsonOutputField(

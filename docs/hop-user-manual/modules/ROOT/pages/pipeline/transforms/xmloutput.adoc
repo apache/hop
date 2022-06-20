@@ -63,9 +63,9 @@ This encoding is specified in the header of the XML file.
 |Option|Description
 |Fieldname|The name of the field.
 |Elementname|The name of the element in the XML file to use.
-Type: Type of the field can be either String, Date, or Number.
+|Content Type| Is the field an attribute or Element
 |Type|Type of the field can be either String, Date, or Number.
-Format mask from which to convert; see Number formats for a complete description of format specifiers.
+|Format| The format mask used to convert the values
 |Length a|The length option depends on the field type follows:
 
 * Number - Total number of significant figures in a number

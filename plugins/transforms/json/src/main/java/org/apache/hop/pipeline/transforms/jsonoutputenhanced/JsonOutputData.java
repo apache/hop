@@ -44,6 +44,8 @@ public class JsonOutputData extends BaseTransformData implements ITransformData 
   public int splitnr;
   public Writer writer;
   public boolean isWriteToFile;
+  public String jsonSerialized;
+  public long jsonLength;
 
   /** */
   public JsonOutputData() {

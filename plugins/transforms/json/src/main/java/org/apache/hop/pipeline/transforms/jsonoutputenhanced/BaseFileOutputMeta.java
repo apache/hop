@@ -26,7 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /** A base implementation for all output file based metas. */
-public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends JsonOutputData> extends BaseTransformMeta<Main, Data> {
+public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends JsonOutputData>
+    extends BaseTransformMeta<Main, Data> {
 
   /** Flag: add the stepnr in the filename */
   @Injection(name = "INC_TRANSFORMNR_IN_FILENAME")

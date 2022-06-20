@@ -17,3 +17,5 @@ under the License.
 HOP_CONFIG_FOLDER::
 Hop stores your configuration in the `config` folder by default.
 Set this environment variable to point to a folder outside of your Hop installation to keep your configuration, projects and environment list etc, no matter which Hop version or installation you use.
+
+TIP: copy the contents of an existing `hop/conf` folder to the path set in `HOP_CONFIG_FOLDER` to move the configuration from one of your Hop installations to your new central location.

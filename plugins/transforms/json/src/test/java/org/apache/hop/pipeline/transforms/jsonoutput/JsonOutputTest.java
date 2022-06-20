@@ -225,26 +225,31 @@ public class JsonOutputTest extends TestCase {
         new TransformMeta(textFileInputPid, testFileOutputName, jsonOutputMeta);
 
     // initialize the fields
-    JsonOutputField[] fields = new JsonOutputField[3];
-    for (int idx = 0; idx < fields.length; idx++) {
-      fields[idx] = new JsonOutputField();
-    }
+    List<JsonOutputField> fields = new ArrayList<>();
+//    for (int idx = 0; idx < fields.length; idx++) {
+//      fields[idx] = new JsonOutputField();
+//    }
 
     // populate the fields
     // it is important that the setPosition(int)
     // is invoked with the correct position as
     // we are testing the reading of a delimited file.
-    fields[0].setFieldName("id");
-    fields[0].setElementName("id");
+    JsonOutputField outputField1 = new JsonOutputField();
+    outputField1.setFieldName("id");
+    outputField1.setElementName("id");
+    fields.add(outputField1);
 
-    fields[1].setFieldName("state");
-    fields[1].setElementName("state");
+    JsonOutputField outputField2 = new JsonOutputField();
+    outputField2.setFieldName("state");
+    outputField2.setElementName("state");
+    fields.add(outputField2);
 
-    fields[2].setFieldName("city");
-    fields[2].setElementName("city");
+    JsonOutputField outputField3 = new JsonOutputField();
+    outputField3.setFieldName("city");
+    outputField3.setElementName("city");
+    fields.add(outputField3);
 
     // call this to allocate the number of fields
-    jsonOutputMeta.allocate(fields.length);
     jsonOutputMeta.setOutputFields(fields);
 
     // set meta properties- these were determined by running Spoon

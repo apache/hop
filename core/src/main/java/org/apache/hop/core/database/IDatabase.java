@@ -143,6 +143,11 @@ public interface IDatabase extends Cloneable {
   /** @return Whether or not the database can use auto increment type of fields (pk) */
   boolean isSupportsAutoInc();
 
+  /* Returns weather or not the database supports a custom SQL statement to perform delete operations */
+  boolean isSupportsCustomDeleteStmt();
+
+  /* Returns weather or not the database supports a custom SQL statement to perform update operations */
+  boolean isSupportsCustomUpdateStmt();
   /**
    * Describe a Value as a field in the database.
    *
@@ -861,6 +866,19 @@ public interface IDatabase extends Cloneable {
   String getSqlValue(IValueMeta valueMeta, Object valueData, String dateFormat)
       throws HopValueException;
 
+  /**
+   * Get the DELETE statement for the current database given the table name
+   * @param tableName
+   * @return
+   */
+  String getSqlDeleteStmt(String tableName);
+
+  /**
+   * Get the UPDATE statement for the current database given the table name
+   * @param tableName
+   * @return
+   */
+  String getSqlUpdateStmt(String tableName);
   /**
    * @return true if this database only supports metadata retrieval on a result set, never on a
    *     statement (even if the statement has been executed)

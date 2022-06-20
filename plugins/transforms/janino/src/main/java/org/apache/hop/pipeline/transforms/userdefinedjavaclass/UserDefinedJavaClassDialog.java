@@ -1165,7 +1165,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
       InfoTransformDefinition transformDefinition = new InfoTransformDefinition();
       int colNr = 1;
       transformDefinition.tag = item.getText(colNr++);
-      transformDefinition.transformMeta = pipelineMeta.findTransform(item.getText(colNr++));
+      transformDefinition.transformName = item.getText(colNr++);
+      transformDefinition.transformMeta = pipelineMeta.findTransform(transformDefinition.transformName);
       transformDefinition.description = item.getText(colNr++);
       meta.getInfoTransformDefinitions().add(transformDefinition);
     }
@@ -1177,7 +1178,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
       TargetTransformDefinition transformDefinition = new TargetTransformDefinition();
       int colNr = 1;
       transformDefinition.tag = item.getText(colNr++);
-      transformDefinition.transformMeta = pipelineMeta.findTransform(item.getText(colNr++));
+      transformDefinition.transformName = item.getText(colNr++);
+      transformDefinition.transformMeta = pipelineMeta.findTransform(transformDefinition.transformName);
       transformDefinition.description = item.getText(colNr++);
       meta.getTargetTransformDefinitions().add(transformDefinition);
     }

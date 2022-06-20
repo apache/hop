@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 
 import java.text.SimpleDateFormat;
@@ -29,43 +29,46 @@ import java.util.Date;
 public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends JsonOutputData> extends BaseTransformMeta<Main, Data> {
 
   /** Flag: add the transformnr in the filename */
-  @Injection(name = "INC_TRANSFORMNR_IN_FILENAME")
+  @HopMetadataProperty(
+        injectionKeyDescription = "JsonOutput.Injection.INC_TRANSFORMNR_IN_FILENAME"
+  )
   protected boolean transformNrInFilename;
 
   /** Flag: add the partition number in the filename */
-  @Injection(name = "INC_PARTNR_IN_FILENAME")
+  @HopMetadataProperty(
+          injectionKeyDescription = "JsonOutput.Injection.INC_PARTNR_IN_FILENAME")
   protected boolean partNrInFilename;
 
   /** Flag: add the date in the filename */
-  @Injection(name = "INC_DATE_IN_FILENAME")
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.INC_DATE_IN_FILENAME")
   protected boolean dateInFilename;
 
   /** Flag: add the time in the filename */
-  @Injection(name = "INC_TIME_IN_FILENAME")
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.INC_TIME_IN_FILENAME")
   protected boolean timeInFilename;
 
   /** The file extention in case of a generated filename */
-  @Injection(name = "EXTENSION")
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.EXTENSION")
   protected String extension;
 
   /** The base name of the output file */
-  @Injection(name = "FILENAME")
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.FILENAME")
   protected String fileName;
 
   /** Whether to treat this as a command to be executed and piped into */
-  @Injection(name = "RUN_AS_COMMAND")
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.RUN_AS_COMMAND")
   private boolean fileAsCommand;
 
   /** Flag : Do not open new file when transformation start */
-  @Injection(name = "SPECIFY_DATE_FORMAT")
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.SPECIFY_DATE_FORMAT")
   private boolean specifyingFormat;
 
   /** The date format appended to the file name */
-  @Injection(name = "DATE_FORMAT")
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.DATE_FORMAT")
   private String dateTimeFormat;
 
   /** The file compression: None, Zip or Gzip */
-  @Injection(name = "COMPRESSION")
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.COMPRESSION")
   private String fileCompression;
 
   public String getExtension() {
@@ -128,8 +131,16 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
     return partNrInFilename;
   }
 
+  public void setPartNrInFilename(boolean partNrInFilename){
+    this.partNrInFilename = partNrInFilename;
+  }
+
   public boolean isTransformNrInFilename() {
     return transformNrInFilename;
+  }
+
+  public void setTransformNrInFilename(boolean transformNrInFilename){
+    this.transformNrInFilename = transformNrInFilename;
   }
 
   public String getFileCompression() {

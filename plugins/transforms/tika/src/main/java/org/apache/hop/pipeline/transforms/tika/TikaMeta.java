@@ -49,6 +49,7 @@ import java.util.Map;
     name = "i18n::Tika.Name",
     description = "i18n::Tika.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    documentationUrl = "/pipeline/transforms/apache-tika.html",       
     keywords = "i18n::Tika.Keywords")
 public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
   private static final Class<?> PKG = TikaMeta.class; // for Translator

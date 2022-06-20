@@ -53,10 +53,18 @@ HOP_OPTIONS="${HOP_OPTIONS} -DHOP_PLATFORM_RUNTIME=Encrypt -DHOP_PLATFORM_OS="$(
 
 case $(uname -s) in
 Linux)
-  CLASSPATH="lib/*"
+    if $($_HOP_JAVA -XshowSettings:properties -version 2>&1| grep -q "os.arch = aarch64"); then
+        CLASSPATH="lib/*:libswt/linux/arm64/*"
+    else
+        CLASSPATH="lib/*:libswt/linux/$(uname -m)/*"
+    fi
   ;;
 Darwin)
-  CLASSPATH="lib/*"
+  if $($_HOP_JAVA -XshowSettings:properties -version 2>&1| grep -q "os.arch = aarch64"); then
+      CLASSPATH="lib/*:libswt/osx/arm64/*"
+  else
+      CLASSPATH="lib/*:libswt/osx/x86_64/*"
+  fi
   HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
   ;;
 esac
