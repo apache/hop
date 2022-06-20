@@ -79,3 +79,13 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Function to format extra environment variables
+*/}}
+{{- define "helpers.list-extra-env-variables"}}
+{{- range $key, $val := .Values.image.env }}
+- name: {{ $key }}
+  value: {{ $val | quote }}
+{{- end }}
+{{- end }}
