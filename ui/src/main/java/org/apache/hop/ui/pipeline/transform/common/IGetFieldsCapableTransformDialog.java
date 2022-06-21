@@ -178,13 +178,13 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
     return rowValues;
   }
 
-  default Set<String> repopulateFields(
+  default List<String> repopulateFields(
       final TransformMetaType meta,
       final Map<String, List<String>> previousFieldValues,
       final boolean reloadAllFields) {
     // incoming field names
     final String[] incomingFieldNames = getFieldNames(meta);
-    final Set<String> newFieldNames = new HashSet();
+    final List<String> newFieldNames = new ArrayList();
     for (final String incomingFieldName : incomingFieldNames) {
       final TableItem item = new TableItem(getFieldsTable().table, SWT.NONE);
       int columnIndexOffset = getFieldsTable().hasIndexColumn() ? 1 : 0;
@@ -247,7 +247,7 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
     getFieldsTable().optWidth(true);
 
     // ...repopulate the field values in the correct order, keeping track of new incoming fields
-    final Set<String> newFieldNames = repopulateFields(meta, fieldValues, reloadAllFields);
+    final List<String> newFieldNames = repopulateFields(meta, fieldValues, reloadAllFields);
 
     populateMeta(meta);
     final String message = loadFieldsImpl(meta, samples);
@@ -257,19 +257,25 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
       }
       // OK, what's the result of our search?
       getData(meta, false, reloadAllFields, newFieldNames);
-      getFieldsTable().removeEmptyRows();
-      getFieldsTable().setRowNums();
-      getFieldsTable().optWidth(true);
     }
     return message;
   }
 
   default TableItem getTableItem(final String fieldName) {
+    return getTableItem(fieldName, false);
+  }
+
+  default TableItem getTableItem(final String fieldName, boolean alwaysCreateNewFields) {
     // try to find a table item corresponding to the current field name
-    TableItem item = findTableItem(fieldName);
-    // if one doesn't exist, create a new one
-    if (item == null) {
+    TableItem item = null;
+    if (alwaysCreateNewFields) {
       item = new TableItem(getFieldsTable().table, SWT.NONE);
+    } else {
+      item = findTableItem(fieldName);
+      // if one doesn't exist, create a new one
+      if (item == null) {
+        item = new TableItem(getFieldsTable().table, SWT.NONE);
+      }
     }
     return item;
   }
@@ -278,7 +284,7 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
       final TransformMetaType inputMeta,
       final boolean copyTransformName,
       final boolean reloadAllFields,
-      final Set<String> newFieldNames);
+      final List<String> newFieldNames);
 
   default TransformMetaType getPopulatedMeta() {
     final TransformMetaType newMeta = getNewMetaInstance();

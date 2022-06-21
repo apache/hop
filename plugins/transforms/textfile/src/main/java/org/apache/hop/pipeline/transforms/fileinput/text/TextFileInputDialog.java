@@ -2114,7 +2114,7 @@ public class TextFileInputDialog extends BaseTransformDialog
       final TextFileInputMeta meta,
       final boolean copyTransformName,
       final boolean reloadAllFields,
-      final Set<String> newFieldNames) {
+      final List<String> newFieldNames) {
     if (copyTransformName) {
       wTransformName.setText(transformName);
     }
@@ -2308,11 +2308,11 @@ public class TextFileInputDialog extends BaseTransformDialog
       TextFileInputMeta in,
       boolean insertAtTop,
       final boolean reloadAllFields,
-      final Set<String> newFieldNames) {
+      final List<String> newFieldNames) {
     final List<String> lowerCaseNewFieldNames =
         newFieldNames == null
             ? new ArrayList()
-            : newFieldNames.stream().map(String::toLowerCase).collect(Collectors.toList());
+            : newFieldNames;
     for (int i = 0; i < in.inputFields.length; i++) {
       BaseFileField field = in.inputFields[i];
 
@@ -2321,7 +2321,7 @@ public class TextFileInputDialog extends BaseTransformDialog
       if (insertAtTop) {
         item = new TableItem(wFields.table, SWT.NONE, i);
       } else {
-        item = getTableItem(field.getName());
+        item = getTableItem(field.getName(), true);
       }
       if (!reloadAllFields && !lowerCaseNewFieldNames.contains(field.getName().toLowerCase())) {
         continue;

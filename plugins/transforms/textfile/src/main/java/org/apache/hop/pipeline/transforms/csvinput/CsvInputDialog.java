@@ -677,7 +677,7 @@ public class CsvInputDialog extends BaseTransformDialog
       final CsvInputMeta inputMeta,
       final boolean copyTransformName,
       final boolean reloadAllFields,
-      final Set<String> newFieldNames) {
+      final List<String> newFieldNames) {
     if (copyTransformName) {
       wTransformName.setText(transformName);
     }
@@ -701,10 +701,10 @@ public class CsvInputDialog extends BaseTransformDialog
     final List<String> fieldName =
         newFieldNames == null
             ? new ArrayList()
-            : newFieldNames.stream().map(String::toString).collect(Collectors.toList());
+            : newFieldNames;
     for (int i = 0; i < inputMeta.getInputFields().length; i++) {
       TextFileInputField field = inputMeta.getInputFields()[i];
-      final TableItem item = getTableItem(field.getName());
+      final TableItem item = getTableItem(field.getName(), true);
       // update the item only if we are reloading all fields, or the field is new
       if (!reloadAllFields && !fieldName.contains(field.getName())) {
         continue;

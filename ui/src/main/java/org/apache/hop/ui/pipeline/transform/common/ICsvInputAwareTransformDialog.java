@@ -99,6 +99,9 @@ public interface ICsvInputAwareTransformDialog {
           && fieldNames[i].endsWith(meta.getEnclosure())
           && fieldNames[i].length() > 1) {
         fieldNames[i] = fieldNames[i].substring(1, fieldNames[i].length() - 1);
+      } else if (meta.hasHeader() && fieldNames[i].length()==0) {
+        final DecimalFormat df = new DecimalFormat("000");
+        fieldNames[i] = "EmptyField_" + df.format(i);
       }
       // trim again, now that the enclosure characters have been removed
       fieldNames[i] = Const.trim(fieldNames[i]);
