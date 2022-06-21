@@ -29,4 +29,8 @@ public class SplitGraphData extends BaseTransformData implements ITransformData 
   public String typeField;
   public String idField;
   public String propertySetField;
+
+  public SplitGraphData() {
+    super();
+  }
 }

@@ -96,6 +96,10 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
    */
   protected boolean hasTopLevelJsonDocInsert = false;
 
+  public MongoDbOutputData() {
+    super();
+  }
+
   public static boolean scanForInsertTopLevelJSONDoc(List<MongoDbOutputMeta.MongoField> fieldDefs)
       throws HopException {
 

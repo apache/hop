@@ -51,4 +51,8 @@ public class CypherData extends BaseTransformData implements ITransformData {
 
   public Map<String, GraphPropertyDataType> returnSourceTypeMap;
   public int attempts;
+
+  public CypherData() {
+    super();
+  }
 }

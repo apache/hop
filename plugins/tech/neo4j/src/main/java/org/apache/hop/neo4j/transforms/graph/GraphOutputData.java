@@ -74,4 +74,7 @@ public class GraphOutputData extends BaseNeoTransformData implements ITransformD
   // To set a label on a node after merge, for a specific node name, map a field value to the specified node label
   public Map<String, Map<String, String>> nodeValueLabelSetMap;
 
+  public GraphOutputData() {
+    super();
+  }
 }
