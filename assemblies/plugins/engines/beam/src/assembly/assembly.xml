@@ -312,7 +312,7 @@
         <include>oro:oro</include>
         <include>xmlenc:xmlenc</include>
 
-        <!-- AWS S3 Beam support -->
+        <!-- AWS S3 -->
         <include>org.apache.beam:beam-sdks-java-io-amazon-web-services:jar</include>
         <include>com.amazonaws:aws-java-sdk-cloudwatch:jar</include>
         <include>com.amazonaws:jmespath-java:jar</include>
@@ -325,6 +325,12 @@
         <include>com.amazonaws:aws-java-sdk-sns:jar</include>
         <include>com.amazonaws:aws-java-sdk-sqs:jar</include>
         <include>com.amazonaws:aws-java-sdk-sts:jar</include>
+
+        <!-- AWS Kinesis -->
+        <include>org.apache.beam:beam-sdks-java-io-kinesis:jar</include>
+        <include>com.amazonaws:aws-java-sdk-kinesis:jar</include>
+        <include>com.amazonaws:amazon-kinesis-client:jar</include>
+        <include>com.amazonaws:amazon-kinesis-producer:jar</include>
 
       </includes>
     </dependencySet>

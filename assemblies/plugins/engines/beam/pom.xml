@@ -637,6 +637,11 @@
       <artifactId>beam-sdks-java-io-amazon-web-services</artifactId>
       <version>${apache-beam-version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.beam</groupId>
+      <artifactId>beam-sdks-java-io-kinesis</artifactId>
+      <version>${apache-beam-version}</version>
+    </dependency>
 
     <dependency>
       <groupId>commons-collections</groupId>
