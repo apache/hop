@@ -40,4 +40,8 @@ public class ImporterData extends BaseTransformData implements ITransformData {
   public String readBufferSize;
   public String maxMemory;
   public String processors;
+
+  public ImporterData() {
+    super();
+  }
 }

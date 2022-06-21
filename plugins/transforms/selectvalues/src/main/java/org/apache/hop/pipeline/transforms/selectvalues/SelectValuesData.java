@@ -22,6 +22,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 public class SelectValuesData extends BaseTransformData implements ITransformData {
+
   public int[] fieldnrs;
   public int[] extraFieldnrs;
   public int[] removenrs;
@@ -41,4 +42,8 @@ public class SelectValuesData extends BaseTransformData implements ITransformDat
   public boolean select; // "normal" selection of fields.
   public boolean deselect; // de-select mode
   public boolean metadata; // change meta-data (rename & change length/precision)
+  
+  public SelectValuesData() {
+    super();
+  }
 }

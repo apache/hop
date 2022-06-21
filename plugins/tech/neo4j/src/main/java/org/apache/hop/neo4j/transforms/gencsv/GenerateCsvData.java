@@ -39,6 +39,10 @@ public class GenerateCsvData extends BaseTransformData implements ITransformData
 
   public Map<String, CsvFile> fileMap;
 
+  public GenerateCsvData() {
+    super();
+  }
+
   public static String getPropertySetKey(
       String sourcePipeline, String sourceTransform, String propertySetId) {
     StringBuilder key = new StringBuilder();

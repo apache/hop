@@ -37,4 +37,8 @@ public class SplunkInputData extends BaseTransformData implements ITransformData
   public ServiceArgs serviceArgs;
   public Service service;
   public InputStream eventsStream;
+
+  public SplunkInputData() {
+    super();
+  }
 }

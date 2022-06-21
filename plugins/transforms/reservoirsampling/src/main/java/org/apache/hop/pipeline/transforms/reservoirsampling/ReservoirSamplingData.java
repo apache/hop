@@ -63,6 +63,10 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
     DISABLED
   }
 
+  public ReservoirSamplingData() {
+    super();
+  }
+  
   /**
    * Set the meta data for the output format
    *

@@ -43,4 +43,8 @@ public class ParquetOutputData extends BaseTransformData implements ITransformDa
   public int pageSize;
   public int dictionaryPageSize;
   public Schema avroSchema;
+  
+  public ParquetOutputData() {
+    super();   
+  }
 }

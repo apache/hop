@@ -23,6 +23,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Detect last row data */
 public class DetectLastRowData extends BaseTransformData implements ITransformData {
+
   public IRowMeta outputRowMeta;
   public int NrPrevFields;
   public IRowMeta previousRowMeta;
@@ -31,6 +32,10 @@ public class DetectLastRowData extends BaseTransformData implements ITransformDa
 
   private final Object[] falseArray = new Object[] {Boolean.FALSE};
 
+  public DetectLastRowData() {
+    super();
+  }
+  
   /** Return a array with a constant True. */
   public Object[] getTrueArray() {
     return trueArray;
