@@ -30,7 +30,7 @@ public class SetValueConstantData extends BaseTransformData implements ITransfor
   private int[] fieldnrs;
   private int fieldnr;
 
-  SetValueConstantData() {
+  public SetValueConstantData() {
     super();
   }
 
