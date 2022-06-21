@@ -17,6 +17,7 @@
 
 package org.apache.hop.www;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -42,6 +43,7 @@ import org.apache.hop.www.service.WebService;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -60,6 +62,11 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
 
   public WebServiceServlet(PipelineMap pipelineMap) {
     super(pipelineMap);
+  }
+
+  @Override
+  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    this.doGet(request, response);
   }
 
   @Override
@@ -103,6 +110,14 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
       String transformName = variables.resolve(webService.getTransformName());
       String fieldName = variables.resolve(webService.getFieldName());
       String contentType = variables.resolve(webService.getContentType());
+      String bodyContentVariable = variables.resolve(webService.getBodyContentVariable());
+
+      String bodyContent = "";
+      if (StringUtils.isNotEmpty(bodyContentVariable)) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        IOUtils.copy(request.getInputStream(), out);
+        bodyContent = out.toString(StandardCharsets.UTF_8);
+      }
 
       if (StringUtils.isEmpty(contentType)) {
         response.setContentType("text/plain");
@@ -123,6 +138,10 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
       LocalPipelineEngine pipeline =
           new LocalPipelineEngine(pipelineMeta, variables, servletLoggingObject);
       pipeline.setContainerId(serverObjectId);
+
+      if (StringUtils.isNotEmpty(bodyContentVariable)) {
+        pipeline.setVariable(bodyContentVariable, Const.NVL(bodyContent, ""));
+      }
 
       // Set all the other parameters as variables/parameters...
       //

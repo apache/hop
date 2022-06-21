@@ -60,6 +60,9 @@ Make sure that the pipeline you want to execute is available on the server.
 |List status on server
 |Enable this option if you want the executions of the web service pipeline to be listed in the status of the server.
 
+|Request body content variable
+|This is the name of the variable which at runtime will contain the content of the request body content.  This is useful when doing a POST against the webservice.
+
 |===
 
 == Hop Server configuration
@@ -115,6 +118,10 @@ This corresponds to the Web Service metadata object.
 
 |===
 
+=== POST
+
+Beside the default GET you can also do a POST against the web service and pass in a request body.  The content of this body is then picked up if you set the request body content variable.  This variable will contain the body content every time the POST request triggers the execution of the underlying pipeline.
+
 === Request example
 
 The following executes Hop Web Service `test` as seen in the screenshot above.
@@ -128,3 +135,4 @@ http://localhost:8181/hop/webService/?service=test&A=valueA&B=valueB
 The web service pipeline looks like this:
 
 image::hop-server/web-service-pipeline-example.png[Web Service pipeline example,75%,align="left"]
+

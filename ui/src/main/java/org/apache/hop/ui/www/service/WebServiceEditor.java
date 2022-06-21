@@ -59,6 +59,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
   private TextVar wField;
   private ComboVar wContentType;
   private Button wListStatus;
+  private TextVar wBodyContentVariable;
 
   public WebServiceEditor(HopGui hopGui, MetadataManager<WebService> manager, WebService metadata) {
     super(hopGui, manager, metadata);
@@ -169,7 +170,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wFilename.setLayoutData(fdFilename);
     lastControl = wlFilename;
 
-    // Transform name
+    // The transform to read from
     //
     Label wlTransform = new Label(parent, SWT.RIGHT);
     props.setLook(wlTransform);
@@ -188,7 +189,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wTransform.setLayoutData(fdTransform);
     lastControl = wlTransform;
 
-    // Transform name
+    // Field to read from
     //
     Label wlField = new Label(parent, SWT.RIGHT);
     props.setLook(wlField);
@@ -247,6 +248,28 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdListStatus.right = new FormAttachment(100, 0);
     fdListStatus.top = new FormAttachment(wlListStatus, 0, SWT.CENTER);
     wListStatus.setLayoutData(fdListStatus);
+    lastControl = wListStatus;
+
+    // BodyContentVariable to read from
+    //
+    Label wlBodyContentVariable = new Label(parent, SWT.RIGHT);
+    props.setLook(wlBodyContentVariable);
+    wlBodyContentVariable.setText(BaseMessages.getString(PKG, "WebServiceEditor.BodyContentVariable.Label"));
+    wlBodyContentVariable.setToolTipText(BaseMessages.getString(PKG, "WebServiceEditor.BodyContentVariable.Tooltip"));
+    FormData fdlBodyContentVariable = new FormData();
+    fdlBodyContentVariable.left = new FormAttachment(0, 0);
+    fdlBodyContentVariable.right = new FormAttachment(middle, 0);
+    fdlBodyContentVariable.top = new FormAttachment(lastControl, 2 * margin);
+    wlBodyContentVariable.setLayoutData(fdlBodyContentVariable);
+    wBodyContentVariable = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBodyContentVariable.setToolTipText(BaseMessages.getString(PKG, "WebServiceEditor.BodyContentVariable.Tooltip"));
+    props.setLook(wBodyContentVariable);
+    FormData fdBodyContentVariable = new FormData();
+    fdBodyContentVariable.left = new FormAttachment(middle, margin);
+    fdBodyContentVariable.right = new FormAttachment(100, 0);
+    fdBodyContentVariable.top = new FormAttachment(wlBodyContentVariable, 0, SWT.CENTER);
+    wBodyContentVariable.setLayoutData(fdBodyContentVariable);
+    lastControl = wlBodyContentVariable;
 
     setWidgetsContent();
 
@@ -259,6 +282,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wField.addListener(SWT.Modify, modifyListener);
     wContentType.addListener(SWT.Modify, modifyListener);
     wListStatus.addListener(SWT.Selection, modifyListener);
+    wBodyContentVariable.addListener(SWT.Modify, modifyListener);
   }
 
   /**
@@ -361,6 +385,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wField.setText(Const.NVL(ws.getFieldName(), ""));
     wContentType.setText(Const.NVL(ws.getContentType(), ""));
     wListStatus.setSelection(ws.isListingStatus());
+    wBodyContentVariable.setText(Const.NVL(ws.getBodyContentVariable(), ""));
   }
 
   @Override
@@ -372,6 +397,8 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     ws.setFieldName(wField.getText());
     ws.setContentType(wContentType.getText());
     ws.setListingStatus(wListStatus.getSelection());
+    ws.setBodyContentVariable(wBodyContentVariable.getText());
+
   }
 
   @Override
