@@ -461,6 +461,11 @@
             <artifactId>bigtable-metrics-api</artifactId>
             <version>1.26.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-kinesis</artifactId>
+            <version>${apache-beam-version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.hop</groupId>

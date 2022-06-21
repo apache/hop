@@ -37,17 +37,16 @@ import java.util.List;
 
 public class StaticHopRowFn extends DoFn<KV<byte[], byte[]>, HopRow> {
 
-  private String transformName;
-  private String rowMetaJson;
-  private String rowDataXml;
-  private boolean neverEnding;
-  private int currentTimeFieldIndex;
-  private int previousTimeFieldIndex;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
+  private final String transformName;
+  private final String rowMetaJson;
+  private final String rowDataXml;
+  private final boolean neverEnding;
+  private final int currentTimeFieldIndex;
+  private final int previousTimeFieldIndex;
+  private final List<String> transformPluginClasses;
+  private final List<String> xpPluginClasses;
 
   private transient RowMetaAndData rowMetaAndData;
-  private transient Counter inputCounter;
   private transient Counter writtenCounter;
   private transient Date previousDate;
 
@@ -73,7 +72,6 @@ public class StaticHopRowFn extends DoFn<KV<byte[], byte[]>, HopRow> {
   @Setup
   public void setUp() {
     try {
-      inputCounter = Metrics.counter(Pipeline.METRIC_NAME_INPUT, transformName);
       writtenCounter = Metrics.counter(Pipeline.METRIC_NAME_WRITTEN, transformName);
 
       // Initialize Hop Beam
@@ -119,6 +117,7 @@ public class StaticHopRowFn extends DoFn<KV<byte[], byte[]>, HopRow> {
       }
 
       processContext.output(new HopRow(rowCopy));
+      writtenCounter.inc();
     } catch (HopException e) {
       throw new RuntimeException("Unable to create copy of row", e);
     }

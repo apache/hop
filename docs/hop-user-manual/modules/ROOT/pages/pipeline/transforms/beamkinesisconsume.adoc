@@ -1,0 +1,103 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Beam Kinesis Consume transform consumes records from a Kinesis stream using the Beam pipeline execution engine.
+
+= Beam Kinesis Consume
+
+== Description
+
+The Beam link:https://aws.amazon.com/kinesis/[Kinesis] Consume transform consumes (reads) messages from an Amazon Kinesis stream using the Beam pipeline execution engine.
+
+== Limitations
+
+The main limitation of the Kinesis consumer is that it currently only supports reading String messages.  Please create a request in JIRA if you want to see support for Avro messages and other formats.
+
+== Options
+
+[width="90%",options="header"]
+|===
+
+|Option|Description
+
+|Transform name
+|Name of the transform, this name has to be unique in a single pipeline.
+
+|AWS access key
+|The Amazon Web Services access key to authenticate with.
+
+|AWS secret key
+|The Amazon Web Services secret key to authenticate with.
+
+|Stream name
+|The name of the Kinesis stream to consume from.
+
+|The name of the unique ID output field
+|This is the name of the field in the output of the transform which will contain a unique ID for the data (message) received.
+
+|The name of the data output field
+|This is the name of the field that will contain the actual data (message)
+
+|The type of data retrieved
+|Only String data (messages) are supported for now.
+
+|Partition key field name
+|Optional: the name of the field in the output which will contain the partition key
+
+|Sequence number field name
+|Optional: the name of the field in the output which will contain the sequence number of the message
+
+|Sub-sequence number field name
+|Optional: the name of the field in the output which will contain the sub-sequence number of the message
+
+|Shard ID field name
+|Optional: the name of the field in the output which will contain the Shard ID of the message
+
+|Stream name field name
+|Optional: the name of the field in the output which will contain the name of the stream being read
+
+|Maximum number of records
+|Optional: the maximum number of records this transform will read before stopping
+
+|Maximum read time (ms)
+|Optional: the maximum time in ms this transform will read before stopping
+
+|Request record limit
+|Optional: the number of records which will be read at once in every request (micro-batch)
+
+|Arrival time watermark policy?
+|Watermark messages at the time of arrival in the Beam pipeline.
+
+|Arrival watermark idle time (ms)
+|Denotes the duration for which the watermark can be idle
+
+|Processing time watermark?
+|Watermark message at the time of processing in the Beam pipeline.
+
+|Fixed delay rate limit policy?
+|Specifies a fixed delay rate limit policy with the default delay of 1s
+
+|Fixed delay rate limit policy delay (ms)
+|Specifies a fixed delay rate limit policy with the given delay.
+
+|Maximum capacity per shard
+|Specifies the maximum number of messages per one shard.
+
+|===
+
+

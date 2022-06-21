@@ -37,6 +37,7 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty private String fieldName;
   @HopMetadataProperty private String contentType;
   @HopMetadataProperty private boolean listingStatus;
+  @HopMetadataProperty private String bodyContentVariable;
 
   public WebService() {}
 
@@ -47,7 +48,8 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
       String transformName,
       String fieldName,
       String contentType,
-      boolean listingStatus) {
+      boolean listingStatus,
+      String bodyContentVariable) {
     super(name);
     this.enabled = enabled;
     this.filename = filename;
@@ -55,6 +57,7 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     this.fieldName = fieldName;
     this.contentType = contentType;
     this.listingStatus = listingStatus;
+    this.bodyContentVariable = bodyContentVariable;
   }
 
   /**
@@ -66,7 +69,9 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     return enabled;
   }
 
-  /** @param enabled The enabled to set */
+  /**
+   * @param enabled The enabled to set
+   */
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
@@ -80,7 +85,9 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
@@ -94,7 +101,9 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     return transformName;
   }
 
-  /** @param transformName The transformName to set */
+  /**
+   * @param transformName The transformName to set
+   */
   public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
@@ -108,7 +117,9 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set */
+  /**
+   * @param fieldName The fieldName to set
+   */
   public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
@@ -122,7 +133,9 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     return contentType;
   }
 
-  /** @param contentType The contentType to set */
+  /**
+   * @param contentType The contentType to set
+   */
   public void setContentType(String contentType) {
     this.contentType = contentType;
   }
@@ -136,8 +149,18 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     return listingStatus;
   }
 
-  /** @param listingStatus The listingStatus to set */
+  /**
+   * @param listingStatus The listingStatus to set
+   */
   public void setListingStatus(boolean listingStatus) {
     this.listingStatus = listingStatus;
+  }
+
+  public String getBodyContentVariable() {
+    return bodyContentVariable;
+  }
+
+  public void setBodyContentVariable(String bodyContentVariable) {
+    this.bodyContentVariable = bodyContentVariable;
   }
 }
