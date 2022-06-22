@@ -136,6 +136,61 @@ The Additional output fields tab contains the following options to specify addit
 |Root uri field|Specify the field that contains only the root part of the URI.
 |===
 
+== Considerations
+Normally, while processing input JSON files, if the field contains a null record then the output will not be shown.
+
+For example if we have a JSON file like this
+```
+{
+	"id": "123456",
+	"testArray": [
+		{
+			"id": "1654879",
+			"Name": null,
+			"testArray_inner_one": [
+				{
+					"id": "15697",
+					"Name": "Robert"
+				}
+			]
+		},
+		{
+			"id": "888",
+			"Name": "Robert222",
+			"testArray_inner_two": [
+				{
+					"id": "4309",
+					"Name": null
+				}
+			]
+		}
+	]
+}
+```
+
+looking at the default behavior the output will be
+
+```
+id;ResourceName
+123456;Robert222
+```
+
+whereas it must be
+
+```
+id;ResourceName
+123456;
+123456;Robert222
+```
+
+To change Hop default behavior in considering Null values, we must add a new configuration variable HOP_JSON_INPUT_INCLUDE_NULLS with value Y
+
+```
+HOP_JSON_INPUT_INCLUDE_NULLS = Y
+```
+
+By setting this variable, the behavior changes the way we want and the output will change accordingly.
+
 == Metadata Injection Support
 
 All fields of this transform support metadata injection.

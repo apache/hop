@@ -25,8 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.EnumSet;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -92,4 +91,23 @@ public class FastJsonReaderTest {
     assertEquals(true, fJsonReader.isDefaultPathLeafToNull());
     assertEquals(expectedOptions, fJsonReader.getJsonConfiguration().getOptions());
   }
+
+  @Test
+  public void testFastJsonReaderGetMaxRowSize() throws HopException {
+    List<List<Integer>> mainList = new ArrayList<>();
+    List<Integer> l1 = new ArrayList<>();
+    List<Integer> l2 = new ArrayList<>();
+    List<Integer> l3 = new ArrayList<>();
+    l1.add( 1 );
+    l2.add( 1 );
+    l2.add( 2 );
+    l3.add( 1 );
+    l3.add( 2 );
+    l3.add( 3 );
+    mainList.add( l1 );
+    mainList.add( l2 );
+    mainList.add( l3 );
+    assertEquals( 3, FastJsonReader.getMaxRowSize( Collections.singletonList( mainList ) ) );
+  }
+
 }

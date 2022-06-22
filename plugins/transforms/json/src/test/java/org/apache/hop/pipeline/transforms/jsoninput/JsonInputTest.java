@@ -1369,4 +1369,31 @@ public class JsonInputTest {
         PATH,
         inputMeta.getInputFields()[0].getPath());
   }
+
+  @Test
+  public void testParsingWithNullFinding() throws Exception {
+    JsonInputField a = new JsonInputField( "A" );
+    a.setPath( "$..A.F1" );
+    a.setType( IValueMeta.TYPE_STRING );
+    JsonInputField b = new JsonInputField( "B" );
+    b.setPath( "$..B.F2" );
+    b.setType( IValueMeta.TYPE_STRING );
+    //Create two meta inputs with two different orders a,b and b,a
+    List results = new ArrayList<>();
+    List<JsonInputMeta> metas = Arrays.asList( createSimpleMeta( "json", a, b ), createSimpleMeta( "json", b, a ) );
+    for ( JsonInputMeta meta : metas ) {
+      JsonInputMeta metaAB = createSimpleMeta( "json", a, b );
+      JsonInput jsonInput = createJsonInput( "json", meta, new Object[] { "{'B':{'F2': one}, 'C':{'B': {'F2': three}}}" } );
+      jsonInput.addRowListener( new RowAdapter() {
+        @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) {
+          results.addAll( Arrays.asList( row ) );
+        }
+      } );
+      processRows( jsonInput, 3 );
+      Assert.assertEquals( "error", 0, jsonInput.getErrors() );
+      //Regardless of the order the result should contain the findings "one" and "three".
+      Assert.assertTrue( results.contains( "one" ) );
+      Assert.assertTrue( results.contains( "three" ) );
+    }
+  }
 }

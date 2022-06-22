@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
 import com.jayway.jsonpath.*;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.SingleRowRowSet;
 import org.apache.hop.core.exception.HopException;
@@ -156,7 +157,7 @@ public class FastJsonReader implements IJsonReader {
   public IRowSet parse(InputStream in) throws HopException {
     readInput(in);
     List<List<?>> results = evalCombinedResult();
-    int len = results.isEmpty() ? 0 : results.get(0).size();
+    int len = results.isEmpty() ? 0 : getMaxRowSize( results );
     if (log.isDetailed()) {
       log.logDetailed(BaseMessages.getString(PKG, "JsonInput.Log.NrRecords", len));
     }
@@ -164,6 +165,15 @@ public class FastJsonReader implements IJsonReader {
       return getEmptyResponse();
     }
     return new TransposedRowSet(results);
+  }
+
+  /**
+   * Gets the max size of the result rows.
+   * @param results A list of lists representing the result rows
+   * @return the size of the largest row in the results
+   */
+  protected static int getMaxRowSize( List<List<?>> results ) {
+    return results.stream().mapToInt( List::size ).max().getAsInt();
   }
 
   private IRowSet getEmptyResponse() {
@@ -177,13 +187,18 @@ public class FastJsonReader implements IJsonReader {
     private List<List<?>> results;
     private final int rowCount;
     private int rowNbr;
-    /** if should skip null-only rows; size won't be exact if set */
+    /**
+     * if should skip null-only rows; size won't be exact if set
+     * If HOP_JSON_INPUT_INCLUDE_NULLS is "Y" then nulls will be included otherwise they will not (default behavior)
+     */
     private boolean cullNulls = true;
+    private boolean includeNulls =
+            "Y".equalsIgnoreCase( System.getProperty( Const.HOP_JSON_INPUT_INCLUDE_NULLS, Const.JSON_INPUT_INCLUDE_NULLS ) );
 
     public TransposedRowSet(List<List<?>> results) {
       super();
       this.results = results;
-      this.rowCount = results.isEmpty() ? 0 : results.get(0).size();
+      this.rowCount = results.isEmpty() ? 0 : FastJsonReader.getMaxRowSize( results );
     }
 
     @Override
@@ -203,7 +218,7 @@ public class FastJsonReader implements IJsonReader {
           }
           Object val = results.get(col).get(rowNbr);
           rowData[col] = val;
-          allNulls &= val == null;
+          allNulls &= ( val == null && !includeNulls );
         }
         rowNbr++;
       } while (allNulls);
