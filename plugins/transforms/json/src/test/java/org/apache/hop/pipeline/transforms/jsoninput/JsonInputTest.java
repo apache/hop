@@ -1370,11 +1370,6 @@ public class JsonInputTest {
         inputMeta.getInputFields()[0].getPath());
   }
 
-  /*
-   * see PDI-19132. When parsing, if the first field returned null, the second field would also return null, when in
-   * reality the path existed. This test makes sure that regardless of the order of the fields being searched the result
-   * is the same (the field with a path that exists returns the correct value).
-   */
   @Test
   public void testParsingWithNullFinding() throws Exception {
     JsonInputField a = new JsonInputField( "A" );
