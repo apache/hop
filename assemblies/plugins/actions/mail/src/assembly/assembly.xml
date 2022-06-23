@@ -52,7 +52,7 @@
             <includes>
                 <include>com.sun.mail:jakarta.mail</include>
                 <include>com.sun.activation:jakarta.activation</include>
-                <include>jakarta.activation:jakarta.activation-api</include>            </includes>
+          </includes>
         </dependencySet>
     </dependencySets>
 </assembly>
