@@ -335,34 +335,35 @@ public class GuiResource {
     imageMap = new HashMap<>();
     colorMap = new HashMap<>();
 
-    colorBackground = new Color(props.contrastColor(new RGB(240,240,240)));
-    colorGraph = new Color(props.contrastColor(new RGB(255,255,255)));
-    colorTab = new Color(props.contrastColor(new RGB(128,128,128)));
-    colorSuccessGreen = new Color(props.contrastColor(0, 139, 0));
-    colorRed = new Color(props.contrastColor(255, 0, 0));
-    colorGreen = new Color(props.contrastColor(0, 255, 0));
-    colorBlue = new Color(props.contrastColor(0, 0, 255));
-    colorYellow = new Color(props.contrastColor(255, 255, 0));
-    colorMagenta = new Color(props.contrastColor(255, 0, 255));
-    colorPurpule = new Color(props.contrastColor(128, 0, 128));
-    colorIndigo = new Color(props.contrastColor(75, 0, 130));
-    colorOrange = new Color(props.contrastColor(255, 165, 0));
-    colorBlueCustomGrid = new Color(props.contrastColor(240, 248, 255));
-    colorWhite = new Color(props.contrastColor(254, 254, 254));
-    colorDemoGray = new Color(props.contrastColor(240, 240, 240));
-    colorLightGray = new Color(props.contrastColor(225, 225, 225));
-    colorGray = new Color(props.contrastColor(215, 215, 215));
-    colorDarkGray = new Color(props.contrastColor(100, 100, 100));
-    colorBlack = new Color(props.contrastColor(0, 0, 0));
-    colorLightBlue = new Color(props.contrastColor(135, 206, 250)); // light sky blue
-    colorDirectory = new Color(props.contrastColor(0, 0, 255));
-    colorHop = new Color(props.contrastColor(188, 198, 82));
-    colorLight = new Color(props.contrastColor(238, 248, 152));
-    colorCream = new Color(props.contrastColor(248, 246, 231));
-    colorCrystalText = new Color(props.contrastColor(61, 99, 128));
-    colorHopDefault = new Color(props.contrastColor(61, 99, 128));
-    colorHopTrue = new Color(props.contrastColor(12, 178, 15));
-    colorDeprecated = new Color(props.contrastColor(246, 196, 56));
+    // It is recommended not to use the Device to create the color, but the RAP needs a screen (to be removed if the RAP evolves)!
+    colorBackground = new Color(display, props.contrastColor(new RGB(240,240,240)));
+    colorGraph = new Color(display, props.contrastColor(new RGB(255,255,255)));
+    colorTab = new Color(display, props.contrastColor(new RGB(128,128,128)));
+    colorSuccessGreen = new Color(display, props.contrastColor(0, 139, 0));
+    colorRed = new Color(display, props.contrastColor(255, 0, 0));
+    colorGreen = new Color(display, props.contrastColor(0, 255, 0));
+    colorBlue = new Color(display, props.contrastColor(0, 0, 255));
+    colorYellow = new Color(display, props.contrastColor(255, 255, 0));
+    colorMagenta = new Color(display, props.contrastColor(255, 0, 255));
+    colorPurpule = new Color(display, props.contrastColor(128, 0, 128));
+    colorIndigo = new Color(display, props.contrastColor(75, 0, 130));
+    colorOrange = new Color(display, props.contrastColor(255, 165, 0));
+    colorBlueCustomGrid = new Color(display, props.contrastColor(240, 248, 255));
+    colorWhite = new Color(display, props.contrastColor(254, 254, 254));
+    colorDemoGray = new Color(display, props.contrastColor(240, 240, 240));
+    colorLightGray = new Color(display, props.contrastColor(225, 225, 225));
+    colorGray = new Color(display, props.contrastColor(215, 215, 215));
+    colorDarkGray = new Color(display, props.contrastColor(100, 100, 100));
+    colorBlack = new Color(display, props.contrastColor(0, 0, 0));
+    colorLightBlue = new Color(display, props.contrastColor(135, 206, 250)); // light sky blue
+    colorDirectory = new Color(display, props.contrastColor(0, 0, 255));
+    colorHop = new Color(display, props.contrastColor(188, 198, 82));
+    colorLight = new Color(display, props.contrastColor(238, 248, 152));
+    colorCream = new Color(display, props.contrastColor(248, 246, 231));
+    colorCrystalText = new Color(display, props.contrastColor(61, 99, 128));
+    colorHopDefault = new Color(display, props.contrastColor(61, 99, 128));
+    colorHopTrue = new Color(display, props.contrastColor(12, 178, 15));
+    colorDeprecated = new Color(display, props.contrastColor(246, 196, 56));
 
     // Load all images from files...
     loadFonts();
