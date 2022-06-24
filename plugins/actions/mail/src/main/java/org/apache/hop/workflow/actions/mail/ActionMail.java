@@ -17,6 +17,14 @@
 
 package org.apache.hop.workflow.actions.mail;
 
+import jakarta.activation.DataHandler;
+import jakarta.activation.FileDataSource;
+import jakarta.activation.URLDataSource;
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
@@ -45,14 +53,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.w3c.dom.Node;
 
-import jakarta.activation.DataHandler;
-import jakarta.activation.FileDataSource;
-import jakarta.activation.URLDataSource;
-import jakarta.mail.*;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeBodyPart;
-import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.MimeMultipart;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -108,6 +108,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
   private String zipFilename;
 
   private boolean usingAuthentication;
+  private boolean usexoauth2;
 
   private String authenticationUser;
 
@@ -200,6 +201,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     retval.append("      ").append(XmlHandler.addTagValue("zip_name", zipFilename));
 
     retval.append("      ").append(XmlHandler.addTagValue("use_auth", usingAuthentication));
+    retval.append("      ").append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
     retval
         .append("      ")
         .append(XmlHandler.addTagValue("use_secure_auth", usingSecureAuthentication));
@@ -266,10 +268,10 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       setContactPhone(XmlHandler.getTagValue(entrynode, "contact_phone"));
       setComment(XmlHandler.getTagValue(entrynode, "comment"));
       setIncludingFiles("Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_files")));
-
       setUsingAuthentication("Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "use_auth")));
       setUsingSecureAuthentication(
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "use_secure_auth")));
+      setUseXOAUTH2("Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "usexoauth2")));
       setAuthenticationUser(XmlHandler.getTagValue(entrynode, "auth_user"));
       setAuthenticationPassword(
           Encr.decryptPasswordOptionallyEncrypted(
@@ -430,127 +432,185 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     this.includingFiles = includeFiles;
   }
 
-  /** @return Returns the zipFilename. */
+  /**
+   * @return Returns the zipFilename.
+   */
   public String getZipFilename() {
     return zipFilename;
   }
 
-  /** @param zipFilename The zipFilename to set. */
+  /**
+   * @param zipFilename The zipFilename to set.
+   */
   public void setZipFilename(String zipFilename) {
     this.zipFilename = zipFilename;
   }
 
-  /** @return Returns the zipFiles. */
+  /**
+   * @return Returns the zipFiles.
+   */
   public boolean isZipFiles() {
     return zipFiles;
   }
 
-  /** @param zipFiles The zipFiles to set. */
+  /**
+   * @param zipFiles The zipFiles to set.
+   */
   public void setZipFiles(boolean zipFiles) {
     this.zipFiles = zipFiles;
   }
 
-  /** @return Returns the authenticationPassword. */
+  /**
+   * @return Returns the authenticationPassword.
+   */
   public String getAuthenticationPassword() {
     return authenticationPassword;
   }
 
-  /** @param authenticationPassword The authenticationPassword to set. */
+  /**
+   * @param authenticationPassword The authenticationPassword to set.
+   */
   public void setAuthenticationPassword(String authenticationPassword) {
     this.authenticationPassword = authenticationPassword;
   }
 
-  /** @return Returns the authenticationUser. */
+  public void setUseXOAUTH2( boolean usexoauth2 ) {
+    this.usexoauth2 = usexoauth2;
+  }
+
+  public boolean isUseXOAUTH2() {
+    return this.usexoauth2;
+  }
+
+  /**
+   * @return Returns the authenticationUser.
+   */
   public String getAuthenticationUser() {
     return authenticationUser;
   }
 
-  /** @param authenticationUser The authenticationUser to set. */
+  /**
+   * @param authenticationUser The authenticationUser to set.
+   */
   public void setAuthenticationUser(String authenticationUser) {
     this.authenticationUser = authenticationUser;
   }
 
-  /** @return Returns the usingAuthentication. */
+  /**
+   * @return Returns the usingAuthentication.
+   */
   public boolean isUsingAuthentication() {
     return usingAuthentication;
   }
 
-  /** @param usingAuthentication The usingAuthentication to set. */
+  /**
+   * @param usingAuthentication The usingAuthentication to set.
+   */
   public void setUsingAuthentication(boolean usingAuthentication) {
     this.usingAuthentication = usingAuthentication;
   }
 
-  /** @return the onlySendComment flag */
+  /**
+   * @return the onlySendComment flag
+   */
   public boolean isOnlySendComment() {
     return onlySendComment;
   }
 
-  /** @param onlySendComment the onlySendComment flag to set */
+  /**
+   * @param onlySendComment the onlySendComment flag to set
+   */
   public void setOnlySendComment(boolean onlySendComment) {
     this.onlySendComment = onlySendComment;
   }
 
-  /** @return the useHTML flag */
+  /**
+   * @return the useHTML flag
+   */
   public boolean isUseHTML() {
     return useHTML;
   }
 
-  /** @param useHTML the useHTML to set */
+  /**
+   * @param useHTML the useHTML to set
+   */
   public void setUseHTML(boolean useHTML) {
     this.useHTML = useHTML;
   }
 
-  /** @return the encoding */
+  /**
+   * @return the encoding
+   */
   public String getEncoding() {
     return encoding;
   }
 
-  /** @return the secure connection type */
+  /**
+   * @return the secure connection type
+   */
   public String getSecureConnectionType() {
     return secureConnectionType;
   }
 
-  /** @param secureConnectionType the secure connection type to set */
+  /**
+   * @param secureConnectionType the secure connection type to set
+   */
   public void setSecureConnectionType(String secureConnectionType) {
     this.secureConnectionType = secureConnectionType;
   }
 
-  /** @param encoding the encoding to set */
+  /**
+   * @param encoding the encoding to set
+   */
   public void setEncoding(String encoding) {
     this.encoding = encoding;
   }
 
-  /** @param replyToAddresses the replayToAddresses to set */
+  /**
+   * @param replyToAddresses the replayToAddresses to set
+   */
   public void setReplyToAddresses(String replyToAddresses) {
     this.replyToAddresses = replyToAddresses;
   }
 
-  /** @return replayToAddresses */
+  /**
+   * @return replayToAddresses
+   */
   public String getReplyToAddresses() {
     return this.replyToAddresses;
   }
 
-  /** @param usePriority the usePriority to set */
+  /**
+   * @param usePriority the usePriority to set
+   */
   public void setUsePriority(boolean usePriority) {
     this.usePriority = usePriority;
   }
 
-  /** @return the usePriority flag */
+  /**
+   * @return the usePriority flag
+   */
   public boolean isUsePriority() {
     return usePriority;
   }
 
-  /** @return the priority */
+  /**
+   * @return the priority
+   */
   public String getPriority() {
     return priority;
   }
 
-  /** @param importance the importance to set */
+  /**
+   * @param importance the importance to set
+   */
   public void setImportance(String importance) {
     this.importance = importance;
   }
 
-  /** @return the importance */
+  /**
+   * @return the importance
+   */
   public String getImportance() {
     return importance;
   }
@@ -563,7 +623,9 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     this.sensitivity = sensitivity;
   }
 
-  /** @param priority the priority to set */
+  /**
+   * @param priority the priority to set
+   */
   public void setPriority(String priority) {
     this.priority = priority;
   }
@@ -585,6 +647,9 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
     String protocol = "smtp";
     if (usingSecureAuthentication) {
+      if (usexoauth2) {
+        props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
+      }
       if (secureConnectionType.equals("TLS")) {
         // Allow TLS authentication
         props.put("mail.smtp.starttls.enable", "true");
@@ -1155,22 +1220,30 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
-  /** @return the usingSecureAuthentication */
+  /**
+   * @return the usingSecureAuthentication
+   */
   public boolean isUsingSecureAuthentication() {
     return usingSecureAuthentication;
   }
 
-  /** @param usingSecureAuthentication the usingSecureAuthentication to set */
+  /**
+   * @param usingSecureAuthentication the usingSecureAuthentication to set
+   */
   public void setUsingSecureAuthentication(boolean usingSecureAuthentication) {
     this.usingSecureAuthentication = usingSecureAuthentication;
   }
 
-  /** @return the port */
+  /**
+   * @return the port
+   */
   public String getPort() {
     return port;
   }
 
-  /** @param port the port to set */
+  /**
+   * @param port the port to set
+   */
   public void setPort(String port) {
     this.port = port;
   }

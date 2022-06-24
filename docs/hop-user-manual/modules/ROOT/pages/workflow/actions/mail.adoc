@@ -67,6 +67,7 @@ To enter more than one address in the Cc: field, separate them with a space.
 |SMTP Server|The SMTP server address
 |Port|The port on which the SMTP Server is running
 |Use Authentication|Enable to use authentication to the SMTP Server
+|Use XOAUTH2 |If checked XOAuth2 will be used to authenticate with the server.
 |Authentication user|SMTP user account name
 |Authentication password|SMTP user account password
 |Use Secure Authentication?|Enable to use secure authentication

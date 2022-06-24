@@ -17,6 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.mail;
 
+import jakarta.activation.DataHandler;
+import jakarta.activation.URLDataSource;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -35,17 +46,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import jakarta.activation.DataHandler;
-import jakarta.activation.URLDataSource;
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
-import jakarta.mail.Session;
-import jakarta.mail.Transport;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeBodyPart;
-import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.MimeMultipart;
-import jakarta.mail.util.ByteArrayDataSource;
 import java.io.*;
 import java.util.Date;
 import java.util.HashSet;
@@ -584,6 +584,10 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
 
     String protocol = "smtp";
     if (meta.isUsingSecureAuthentication()) {
+      if (meta.isUseXOAUTH2()) {
+        data.props.put("mail.smtp.ssl.enable", "true");
+        data.props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
+      }
       if (meta.getSecureConnectionType().equals("TLS")) {
         // Allow TLS authentication
         data.props.put("mail.smtp.starttls.enable", "true");

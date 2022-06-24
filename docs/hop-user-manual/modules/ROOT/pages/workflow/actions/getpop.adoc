@@ -31,6 +31,8 @@ The Get Mail From POP action retrieves mails from a POP server and stores them i
 |Option|Description
 |Workflow action name|The name of the workflow action.
 |Source Host|The host name or IP-address of the pop server.
+|Use SSL |If checked A secure connection will be used to communicate with the server.
+|Use XOAUTH2 |If checked XOAuth2 will be used to authenticate with the server.
 |Username|The username to log in with.
 |Password|The password to log in with.
 |Use POP with SSL|Check this if the POP server uses SSL (Secure Socket Layer, Encrypted).
