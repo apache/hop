@@ -33,7 +33,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <mongo-driver.version>3.12.7</mongo-driver.version>
+        <mongo-driver.version>3.12.8</mongo-driver.version>
         <easymock.version>3.4</easymock.version>
         <hamcrest.version>2.2</hamcrest.version>
         <powermock.version>2.0.9</powermock.version>
