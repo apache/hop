@@ -36,7 +36,7 @@
     <description></description>
 
     <properties>
-        <mongo-driver.version>3.12.7</mongo-driver.version>
+        <mongo-driver.version>3.12.8</mongo-driver.version>
     </properties>
 
     <dependencies>
