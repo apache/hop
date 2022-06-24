@@ -127,6 +127,8 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
   private Button wUseSSL;
 
+  private Button wUseXOAUTH2;
+
   private Button wUseProxy;
 
   private Label wlProxyUsername;
@@ -349,13 +351,38 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
           }
         });
 
+    // USE connection with XOAUTH2
+    Label wlUseXOAUTH2 = new Label( wServerSettings, SWT.RIGHT );
+    wlUseXOAUTH2.setText( BaseMessages.getString( PKG, "ActionGetPOP.UseXOAUTH2Mails.Label" ) );
+    props.setLook( wlUseXOAUTH2 );
+    FormData fdlUseXOAUTH2 = new FormData();
+    fdlUseXOAUTH2.left = new FormAttachment( 0, 0 );
+    fdlUseXOAUTH2.top = new FormAttachment( wUseSSL, margin );
+    fdlUseXOAUTH2.right = new FormAttachment( middle, -margin );
+    wlUseXOAUTH2.setLayoutData( fdlUseXOAUTH2 );
+    wUseXOAUTH2 = new Button( wServerSettings, SWT.CHECK );
+    props.setLook( wUseXOAUTH2 );
+    FormData fdUseXOAUTH2 = new FormData();
+    wUseXOAUTH2.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.UseXOAUTH2Mails.Tooltip" ) );
+    fdUseXOAUTH2.left = new FormAttachment( middle, 0 );
+    fdUseXOAUTH2.top = new FormAttachment( wUseSSL, margin );
+    fdUseXOAUTH2.right = new FormAttachment( 100, 0 );
+    wUseXOAUTH2.setLayoutData( fdUseXOAUTH2 );
+
+    wUseXOAUTH2.addSelectionListener( new SelectionAdapter() {
+      public void widgetSelected( SelectionEvent e ) {
+        closeMailConnection();
+        refreshPort( true );
+      }
+    } );
+
     // port
     Label wlPort = new Label(wServerSettings, SWT.RIGHT);
     wlPort.setText(BaseMessages.getString(PKG, "ActionGetPOP.SSLPort.Label"));
     props.setLook(wlPort);
     FormData fdlPort = new FormData();
     fdlPort.left = new FormAttachment(0, 0);
-    fdlPort.top = new FormAttachment(wlUseSSL, 2 * margin);
+    fdlPort.top = new FormAttachment(wlUseXOAUTH2, 2 * margin);
     fdlPort.right = new FormAttachment(middle, -margin);
     wlPort.setLayoutData(fdlPort);
     wPort = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -1561,6 +1588,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
                 realuser,
                 realpass,
                 wUseSSL.getSelection(),
+                wUseXOAUTH2.getSelection(),
                 wUseProxy.getSelection(),
                 realproxyuser);
         mailConn.connect();
@@ -1850,6 +1878,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     }
 
     wUseSSL.setSelection(action.isUseSSL());
+    wUseXOAUTH2.setSelection(action.isUseXOAUTH2());
     wGetMessage.setSelection(action.isSaveMessage());
     wGetAttachment.setSelection(action.isSaveAttachment());
     wDifferentFolderForAttachment.setSelection(action.isDifferentFolderForAttachment());
@@ -1960,6 +1989,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     action.setUserName(wUserName.getText());
     action.setPassword(wPassword.getText());
     action.setUseSSL(wUseSSL.getSelection());
+    action.setUseXOAUTH2(wUseXOAUTH2.getSelection());
     action.setSaveAttachment(wGetAttachment.getSelection());
     action.setSaveMessage(wGetMessage.getSelection());
     action.setDifferentFolderForAttachment(wDifferentFolderForAttachment.getSelection());

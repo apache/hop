@@ -77,6 +77,9 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
   private Button wUseSecAuth;
 
+  private Label wlUseXOAUTH2;
+  private Button wUseXOAUTH2;
+
   private LabelTextVar wAuthUser;
 
   private LabelTextVar wAuthPass;
@@ -495,6 +498,24 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
           }
         });
 
+    // USE connection with XOAUTH2
+    wlUseXOAUTH2 = new Label( wAuthentificationGroup, SWT.RIGHT );
+    wlUseXOAUTH2.setText( BaseMessages.getString( PKG, "ActionMail.UseXOAUTH2Mails.Label" ) );
+    props.setLook( wlUseXOAUTH2 );
+    FormData fdlUseXOAUTH2 = new FormData();
+    fdlUseXOAUTH2.left = new FormAttachment( 0, 0 );
+    fdlUseXOAUTH2.top = new FormAttachment( wUseAuth, margin );
+    fdlUseXOAUTH2.right = new FormAttachment( middle, -margin );
+    wlUseXOAUTH2.setLayoutData( fdlUseXOAUTH2 );
+    wUseXOAUTH2 = new Button( wAuthentificationGroup, SWT.CHECK );
+    props.setLook( wUseXOAUTH2 );
+    FormData fdUseXOAUTH2 = new FormData();
+    wUseXOAUTH2.setToolTipText( BaseMessages.getString( PKG, "ActionMail.UseXOAUTH2Mails.Tooltip" ) );
+    fdUseXOAUTH2.left = new FormAttachment( middle, margin );
+    fdUseXOAUTH2.top = new FormAttachment( wlUseXOAUTH2, 0 , SWT.CENTER);
+    fdUseXOAUTH2.right = new FormAttachment( 100, 0 );
+    wUseXOAUTH2.setLayoutData( fdUseXOAUTH2 );
+
     // AuthUser line
     wAuthUser =
         new LabelTextVar(
@@ -505,7 +526,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wAuthUser.addModifyListener(lsMod);
     FormData fdAuthUser = new FormData();
     fdAuthUser.left = new FormAttachment(0, 0);
-    fdAuthUser.top = new FormAttachment(wlUseAuth, 2 * margin);
+    fdAuthUser.top = new FormAttachment(wlUseXOAUTH2, 2 * margin);
     fdAuthUser.right = new FormAttachment(100, 0);
     wAuthUser.setLayoutData(fdAuthUser);
 
@@ -1345,9 +1366,12 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wAuthPass.setEnabled(wUseAuth.getSelection());
     wUseSecAuth.setEnabled(wUseAuth.getSelection());
     wlUseSecAuth.setEnabled(wUseAuth.getSelection());
+    wlUseXOAUTH2.setEnabled(wUseAuth.getSelection());
+    wUseXOAUTH2.setEnabled(wUseAuth.getSelection());
     if (!wUseAuth.getSelection()) {
       wSecureConnectionType.setEnabled(false);
       wlSecureConnectionType.setEnabled(false);
+      wUseXOAUTH2.setEnabled(false);
     } else {
       setSecureConnectiontype();
     }
@@ -1372,7 +1396,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wPerson.setText(Const.nullToEmpty(action.getContactPerson()));
     wPhone.setText(Const.nullToEmpty(action.getContactPhone()));
     wComment.setText(Const.nullToEmpty(action.getComment()));
-
+    wUseXOAUTH2.setSelection(action.isUseXOAUTH2());
     wAddDate.setSelection(action.getIncludeDate());
     wIncludeFiles.setSelection(action.isIncludingFiles());
 
@@ -1502,7 +1526,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     action.setContactPerson(wPerson.getText());
     action.setContactPhone(wPhone.getText());
     action.setComment(wComment.getText());
-
+    action.setUseXOAUTH2(wUseXOAUTH2.getSelection());
     action.setIncludeDate(wAddDate.getSelection());
     action.setIncludingFiles(wIncludeFiles.getSelection());
     action.setFileType(wTypes.getSelectionIndices());

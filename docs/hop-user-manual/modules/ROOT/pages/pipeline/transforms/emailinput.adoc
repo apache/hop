@@ -36,6 +36,7 @@ On this tab you will find the general mail server connection settings:
 |Transform name|Name of the transform.
 |Source host|The mail server host
 |Use SSL?|Check this option if your server needs an SSL connection
+|Use XOAUTH2 |If checked XOAuth2 will be used to authenticate with the server.
 |Username|The username of the mailbox to connect to
 |Password|The password to use
 |Use proxy?|Check this option if you want to connect through a proxy.

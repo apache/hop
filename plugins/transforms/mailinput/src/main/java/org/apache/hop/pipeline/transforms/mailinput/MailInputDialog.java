@@ -100,6 +100,9 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
   private Label wlUseSSL;
   private Button wUseSSL;
 
+  private Label wlUseXOAUTH2;
+  private Button wUseXOAUTH2;
+
   private Label wlIncludeSubFolders;
   private Button wIncludeSubFolders;
 
@@ -296,13 +299,38 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
           }
         });
 
+    // USE connection with XOAUTH2
+    wlUseXOAUTH2 = new Label( wServerSettings, SWT.RIGHT );
+    wlUseXOAUTH2.setText( BaseMessages.getString( PKG, "MailInput.UseXOAUTH2Mails.Label" ) );
+    props.setLook( wlUseXOAUTH2 );
+    FormData fdlUseXOAUTH2 = new FormData();
+    fdlUseXOAUTH2.left = new FormAttachment( 0, 0 );
+    fdlUseXOAUTH2.top = new FormAttachment( wUseSSL, margin );
+    fdlUseXOAUTH2.right = new FormAttachment( middle, -margin );
+    wlUseXOAUTH2.setLayoutData( fdlUseXOAUTH2 );
+    wUseXOAUTH2 = new Button( wServerSettings, SWT.CHECK );
+    props.setLook( wUseXOAUTH2 );
+    FormData fdUseXOAUTH2 = new FormData();
+    wUseXOAUTH2.setToolTipText( BaseMessages.getString( PKG, "MailInput.UseXOAUTH2Mails.Tooltip" ) );
+    fdUseXOAUTH2.left = new FormAttachment( middle, 0 );
+    fdUseXOAUTH2.top = new FormAttachment( wUseSSL, margin );
+    fdUseXOAUTH2.right = new FormAttachment( 100, 0 );
+    wUseXOAUTH2.setLayoutData( fdUseXOAUTH2 );
+
+    wUseXOAUTH2.addSelectionListener( new SelectionAdapter() {
+      public void widgetSelected( SelectionEvent e ) {
+        closeMailConnection();
+        refreshPort( true );
+      }
+    } );
+
     // port
     wlPort = new Label(wServerSettings, SWT.RIGHT);
     wlPort.setText(BaseMessages.getString(PKG, "MailInput.SSLPort.Label"));
     props.setLook(wlPort);
     FormData fdlPort = new FormData();
     fdlPort.left = new FormAttachment(0, 0);
-    fdlPort.top = new FormAttachment(wUseSSL, margin);
+    fdlPort.top = new FormAttachment(wUseXOAUTH2, margin);
     fdlPort.right = new FormAttachment(middle, -margin);
     wlPort.setLayoutData(fdlPort);
     wPort = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -311,7 +339,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wPort.addModifyListener(lsMod);
     FormData fdPort = new FormData();
     fdPort.left = new FormAttachment(middle, 0);
-    fdPort.top = new FormAttachment(wUseSSL, margin);
+    fdPort.top = new FormAttachment(wUseXOAUTH2, margin);
     fdPort.right = new FormAttachment(100, 0);
     wPort.setLayoutData(fdPort);
 
@@ -1249,6 +1277,8 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
     wUseSSL.setSelection(input.isUseSSL());
 
+    wUseXOAUTH2.setSelection(input.isUseXOAUTH2());
+
     if (input.getPort() != null) {
       wPort.setText(input.getPort());
     }
@@ -1379,6 +1409,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     in.setUserName(wUserName.getText());
     in.setPassword(wPassword.getText());
     in.setUseSSL(wUseSSL.getSelection());
+    in.setUseXOAUTH2(wUseXOAUTH2.getSelection());
     in.setPort(wPort.getText());
 
     // Option 'retrieve unread' is removed and there is only 2 options.
@@ -1574,6 +1605,8 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wlUseProxy.setEnabled(enableRemoteOpts);
     wUseSSL.setEnabled(enableRemoteOpts);
     wlUseSSL.setEnabled(enableRemoteOpts);
+    wUseXOAUTH2.setEnabled(enableRemoteOpts);
+    wlUseXOAUTH2.setEnabled(enableRemoteOpts);
   }
 
   @Override
@@ -1632,6 +1665,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
                 realuser,
                 realpass,
                 wUseSSL.getSelection(),
+                wUseXOAUTH2.getSelection(),
                 wUseProxy.getSelection(),
                 realProxyUsername);
         mailConn.connect();

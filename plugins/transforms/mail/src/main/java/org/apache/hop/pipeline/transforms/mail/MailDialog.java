@@ -96,6 +96,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
   private Button wUseAuth;
 
+  private Label wlUseXOAUTH2;
+  private Button wUseXOAUTH2;
+
   private Label wlUseSecAuth;
 
   private Button wUseSecAuth;
@@ -750,13 +753,31 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
           }
         });
 
+    // USE connection with XOAUTH2
+    wlUseXOAUTH2 = new Label(wAuthentificationGroup, SWT.RIGHT);
+    wlUseXOAUTH2.setText(BaseMessages.getString(PKG, "Mail.UseXOAUTH2Mails.Label"));
+    props.setLook(wlUseXOAUTH2);
+    FormData fdlUseXOAUTH2 = new FormData();
+    fdlUseXOAUTH2.left = new FormAttachment(0, 0);
+    fdlUseXOAUTH2.top = new FormAttachment(wUseAuth, margin);
+    fdlUseXOAUTH2.right = new FormAttachment(middle, -margin);
+    wlUseXOAUTH2.setLayoutData(fdlUseXOAUTH2);
+    wUseXOAUTH2 = new Button(wAuthentificationGroup, SWT.CHECK);
+    props.setLook(wUseXOAUTH2);
+    FormData fdUseXOAUTH2 = new FormData();
+    wUseXOAUTH2.setToolTipText(BaseMessages.getString(PKG, "Mail.UseXOAUTH2Mails.Tooltip"));
+    fdUseXOAUTH2.left = new FormAttachment(middle, 0);
+    fdUseXOAUTH2.top = new FormAttachment(wUseAuth, margin);
+    fdUseXOAUTH2.right = new FormAttachment(100, 0);
+    wUseXOAUTH2.setLayoutData(fdUseXOAUTH2);
+
     // AuthUser line
     wlAuthUser = new Label(wAuthentificationGroup, SWT.RIGHT);
     wlAuthUser.setText(BaseMessages.getString(PKG, "Mail.AuthenticationUser.Label"));
     props.setLook(wlAuthUser);
     FormData fdlAuthUser = new FormData();
     fdlAuthUser.left = new FormAttachment(0, -margin);
-    fdlAuthUser.top = new FormAttachment(wUseAuth, margin);
+    fdlAuthUser.top = new FormAttachment(wUseXOAUTH2, margin);
     fdlAuthUser.right = new FormAttachment(middle, -2 * margin);
     wlAuthUser.setLayoutData(fdlAuthUser);
 
@@ -766,7 +787,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAuthUser.addModifyListener(lsMod);
     FormData fdAuthUser = new FormData();
     fdAuthUser.left = new FormAttachment(middle, -margin);
-    fdAuthUser.top = new FormAttachment(wUseAuth, margin);
+    fdAuthUser.top = new FormAttachment(wUseXOAUTH2, margin);
     fdAuthUser.right = new FormAttachment(100, -margin);
     wAuthUser.setLayoutData(fdAuthUser);
     wAuthUser.addFocusListener(
@@ -2399,6 +2420,8 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAuthPass.setEnabled(wUseAuth.getSelection());
     wUseSecAuth.setEnabled(wUseAuth.getSelection());
     wlUseSecAuth.setEnabled(wUseAuth.getSelection());
+    wlUseXOAUTH2.setEnabled(wUseAuth.getSelection());
+    wUseXOAUTH2.setEnabled(wUseAuth.getSelection());
     if (!wUseAuth.getSelection()) {
       wSecureConnectionType.setEnabled(false);
       wlSecureConnectionType.setEnabled(false);
@@ -2492,6 +2515,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     }
 
     wUseAuth.setSelection(input.isUsingAuthentication());
+    wUseXOAUTH2.setSelection(input.isUseXOAUTH2());
     wUseSecAuth.setSelection(input.isUsingSecureAuthentication());
     if (input.getAuthenticationUser() != null) {
       wAuthUser.setText(input.getAuthenticationUser());
@@ -2629,6 +2653,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     input.setZipFilename(wZipFilename.getText());
     input.setZipFiles(wZipFiles.getSelection());
     input.setAuthenticationUser(wAuthUser.getText());
+    input.setUseXOAUTH2(wUseXOAUTH2.getSelection());
     input.setAuthenticationPassword(wAuthPass.getText());
     input.setUsingAuthentication(wUseAuth.getSelection());
     input.setUsingSecureAuthentication(wUseSecAuth.getSelection());

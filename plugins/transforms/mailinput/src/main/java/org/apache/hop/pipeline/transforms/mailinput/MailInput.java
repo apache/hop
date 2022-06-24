@@ -464,6 +464,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
               realusername,
               realpassword,
               meta.isUseSSL(),
+              meta.isUseXOAUTH2(),
               meta.isUseProxy(),
               realProxyUsername);
       // connect

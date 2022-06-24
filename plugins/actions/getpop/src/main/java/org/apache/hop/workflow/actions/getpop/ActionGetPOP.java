@@ -81,6 +81,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private String password;
   private boolean usessl;
   private String sslport;
+  private boolean usexoauth2;
   private boolean useproxy;
   private String proxyusername;
   private String outputdirectory;
@@ -130,6 +131,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     password = null;
     usessl = false;
     sslport = null;
+    usexoauth2 = false;
     useproxy = false;
     proxyusername = null;
     outputdirectory = null;
@@ -188,6 +190,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
             XmlHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables(password)));
     retval.append("      ").append(XmlHandler.addTagValue("usessl", usessl));
     retval.append("      ").append(XmlHandler.addTagValue("sslport", sslport));
+    retval.append("      ").append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
     retval.append("      ").append(XmlHandler.addTagValue("outputdirectory", outputdirectory));
     retval.append("      ").append(XmlHandler.addTagValue("filenamepattern", filenamepattern));
     retval.append("      ").append(XmlHandler.addTagValue("retrievemails", retrievemails));
@@ -271,6 +274,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
           Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(entrynode, "password"));
       usessl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "usessl"));
       sslport = XmlHandler.getTagValue(entrynode, "sslport");
+      usexoauth2 = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "usexoauth2"));
       outputdirectory = XmlHandler.getTagValue(entrynode, "outputdirectory");
       filenamepattern = XmlHandler.getTagValue(entrynode, "filenamepattern");
       if (Utils.isEmpty(filenamepattern)) {
@@ -368,6 +372,14 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
   public void setPort(String sslport) {
     this.sslport = sslport;
+  }
+
+  public void setUseXOAUTH2( boolean usexoauth2 ) {
+    this.usexoauth2 = usexoauth2;
+  }
+
+  public boolean isUseXOAUTH2() {
+    return this.usexoauth2;
   }
 
   public void setFirstMails(String firstmails) {
@@ -811,6 +823,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
               realusername,
               realpassword,
               isUseSSL(),
+              isUseXOAUTH2(),
               isUseProxy(),
               realProxyUsername);
       // connect

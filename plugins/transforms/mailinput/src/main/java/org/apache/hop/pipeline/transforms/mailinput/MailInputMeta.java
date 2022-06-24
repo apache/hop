@@ -64,6 +64,7 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   private String username;
   private String password;
   private boolean usessl;
+  private boolean usexoauth2;
   private String sslport;
   private String firstmails;
   public int retrievemails;
@@ -133,6 +134,7 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
     password =
         Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(transformNode, "password"));
     usessl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "usessl"));
+    usexoauth2 = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "usexoauth2"));
     sslport = XmlHandler.getTagValue(transformNode, "sslport");
     retrievemails = Const.toInt(XmlHandler.getTagValue(transformNode, "retrievemails"), -1);
     firstmails = XmlHandler.getTagValue(transformNode, "firstmails");
@@ -201,6 +203,7 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
     username = null;
     password = null;
     usessl = false;
+    usexoauth2 = false;
     sslport = null;
     retrievemails = 0;
     firstmails = null;
@@ -259,6 +262,7 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
         .append(
             XmlHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables(password)));
     retval.append("      ").append(XmlHandler.addTagValue("usessl", usessl));
+    retval.append("      ").append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
     retval.append("      ").append(XmlHandler.addTagValue("sslport", sslport));
     retval.append("      ").append(XmlHandler.addTagValue("retrievemails", retrievemails));
     retval.append("      ").append(XmlHandler.addTagValue("firstmails", firstmails));
@@ -597,6 +601,21 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   /** @return Returns the usessl. */
   public boolean isUseSSL() {
     return usessl;
+  }
+
+  /**
+   * @param usexoauth2
+   *          The usexoauth2 to set.
+   */
+  public void setUseXOAUTH2( boolean usexoauth2 ) {
+    this.usexoauth2 = usexoauth2;
+  }
+
+  /**
+   * @return Returns the usexoauth2.
+   */
+  public boolean isUseXOAUTH2() {
+    return usexoauth2;
   }
 
   /** @param password The password to set. */

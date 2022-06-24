@@ -55,6 +55,7 @@ This tab contains details for your SMTP server, including authentication and enc
 |SMTP server|URL, hostname, or IP address of your SMTP server.
 |Port|Port number for your SMTP service.
 |Use authentication|If checked, you will be able to enter an SMTP username and password in the next few fields.
+|Use XOAUTH2 |If checked XOAuth2 will be used to authenticate with the server.
 |Authentication user|The SMTP username to use for server authentication.
 |Authentication password|The password for the previously defined SMTP username.
 |Use secure authentication|If checked you will be able to specify SSL or TLS encryption in the next field.

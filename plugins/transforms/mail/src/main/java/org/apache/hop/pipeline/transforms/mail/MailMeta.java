@@ -99,6 +99,8 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
 
   private boolean usingAuthentication;
 
+  private boolean usexoauth2;
+
   private String authenticationUser;
 
   private String authenticationPassword;
@@ -198,6 +200,7 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
     setComment(XmlHandler.getTagValue(transformNode, "comment"));
     setIncludingFiles("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "include_files")));
     setUsingAuthentication("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "use_auth")));
+    setUseXOAUTH2("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "usexoauth2")));
     setUsingSecureAuthentication(
         "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "use_secure_auth")));
     setAuthenticationUser(XmlHandler.getTagValue(transformNode, "auth_user"));
@@ -316,6 +319,7 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
     retval.append("      ").append(XmlHandler.addTagValue("zip_name", this.zipFilename));
     retval.append("      ").append(XmlHandler.addTagValue("zip_limit_size", this.ziplimitsize));
     retval.append("      ").append(XmlHandler.addTagValue("use_auth", this.usingAuthentication));
+    retval.append("      ").append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
     retval
         .append("      ")
         .append(XmlHandler.addTagValue("use_secure_auth", this.usingSecureAuthentication));
@@ -543,157 +547,233 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
     this.includingFiles = includeFiles;
   }
 
-  /** @return Returns the zipFilename. */
+  /**
+   * @return Returns the zipFilename.
+   */
   public String getZipFilename() {
     return this.zipFilename;
   }
 
-  /** @return Returns the ziplimitsize. */
+  /**
+   * @return Returns the ziplimitsize.
+   */
   public String getZipLimitSize() {
     return this.ziplimitsize;
   }
 
-  /** @param ziplimitsize The ziplimitsize to set. */
+  /**
+   * @param ziplimitsize The ziplimitsize to set.
+   */
   public void setZipLimitSize(String ziplimitsize) {
     this.ziplimitsize = ziplimitsize;
   }
 
-  /** @param zipFilename The zipFilename to set. */
+  /**
+   * @param zipFilename The zipFilename to set.
+   */
   public void setZipFilename(String zipFilename) {
     this.zipFilename = zipFilename;
   }
 
-  /** @return Returns the zipFiles. */
+  /**
+   * @return Returns the zipFiles.
+   */
   public boolean isZipFiles() {
     return zipFiles;
   }
 
-  /** @param zipFiles The zipFiles to set. */
+  /**
+   * @param zipFiles The zipFiles to set.
+   */
   public void setZipFiles(boolean zipFiles) {
     this.zipFiles = zipFiles;
   }
 
-  /** @return Returns the authenticationPassword. */
+  /**
+   * @return Returns the authenticationPassword.
+   */
   public String getAuthenticationPassword() {
     return this.authenticationPassword;
   }
 
-  /** @param authenticationPassword The authenticationPassword to set. */
+  /**
+   * @param authenticationPassword The authenticationPassword to set.
+   */
   public void setAuthenticationPassword(String authenticationPassword) {
     this.authenticationPassword = authenticationPassword;
   }
 
-  /** @return Returns the authenticationUser. */
+  /**
+   * @return Returns the authenticationUser.
+   */
   public String getAuthenticationUser() {
     return this.authenticationUser;
   }
 
-  /** @param authenticationUser The authenticationUser to set. */
+  /**
+   * @param authenticationUser The authenticationUser to set.
+   */
   public void setAuthenticationUser(String authenticationUser) {
     this.authenticationUser = authenticationUser;
   }
 
-  /** @return Returns the usingAuthentication. */
+  /**
+   * @return Returns the usingAuthentication.
+   */
   public boolean isUsingAuthentication() {
     return this.usingAuthentication;
   }
 
-  /** @param usingAuthentication The usingAuthentication to set. */
+  /**
+   * @param usingAuthentication The usingAuthentication to set.
+   */
   public void setUsingAuthentication(boolean usingAuthentication) {
     this.usingAuthentication = usingAuthentication;
   }
 
-  /** @return the onlySendComment flag */
+  /**
+   * @return the onlySendComment flag
+   */
   public boolean isOnlySendComment() {
     return this.onlySendComment;
   }
 
-  /** @param onlySendComment the onlySendComment flag to set */
+  /**
+   * @param onlySendComment the onlySendComment flag to set
+   */
   public void setOnlySendComment(boolean onlySendComment) {
     this.onlySendComment = onlySendComment;
   }
 
-  /** @return the useHTML flag */
+  /**
+   * @return the useHTML flag
+   */
   public boolean isUseHTML() {
     return this.useHTML;
   }
 
-  /** @param useHTML the useHTML to set */
+  /**
+   * @param useHTML the useHTML to set
+   */
   public void setUseHTML(boolean useHTML) {
     this.useHTML = useHTML;
   }
 
-  /** @return the encoding */
+  /**
+   * @return the encoding
+   */
   public String getEncoding() {
     return this.encoding;
   }
 
-  /** @return the secure connection type */
+  /**
+   * @return the secure connection type
+   */
   public String getSecureConnectionType() {
     return this.secureConnectionType;
   }
 
-  /** @param secureConnectionType the secureconnectiontype to set */
+  /**
+   * @param secureConnectionType the secureconnectiontype to set
+   */
   public void setSecureConnectionType(String secureConnectionType) {
     this.secureConnectionType = secureConnectionType;
   }
 
-  /** @param replyToAddresses the replyToAddresses to set */
+  /**
+   * @param replyToAddresses the replyToAddresses to set
+   */
   public void setReplyToAddresses(String replyToAddresses) {
     this.replyToAddresses = replyToAddresses;
   }
 
-  /** @return the secure replyToAddresses */
+  /**
+   * @return the secure replyToAddresses
+   */
   public String getReplyToAddresses() {
     return this.replyToAddresses;
   }
 
-  /** @param encoding the encoding to set */
+  /**
+   * @param encoding the encoding to set
+   */
   public void setEncoding(String encoding) {
     this.encoding = encoding;
   }
 
-  /** @return the usingSecureAuthentication */
+  /**
+   * @return the usingSecureAuthentication
+   */
   public boolean isUsingSecureAuthentication() {
     return this.usingSecureAuthentication;
   }
 
-  /** @param usingSecureAuthentication the usingSecureAuthentication to set */
+  /**
+   * @param usingSecureAuthentication the usingSecureAuthentication to set
+   */
   public void setUsingSecureAuthentication(boolean usingSecureAuthentication) {
     this.usingSecureAuthentication = usingSecureAuthentication;
   }
 
-  /** @return the port */
+  /**
+   * @param usexoauth2 The usexoauth2 to set.
+   */
+  public void setUseXOAUTH2(boolean usexoauth2) {
+    this.usexoauth2 = usexoauth2;
+  }
+
+  /**
+   * @return Returns the usexoauth2.
+   */
+  public boolean isUseXOAUTH2() {
+    return usexoauth2;
+  }
+
+  /**
+   * @return the port
+   */
   public String getPort() {
     return this.port;
   }
 
-  /** @param port the port to set */
+  /**
+   * @param port the port to set
+   */
   public void setPort(String port) {
     this.port = port;
   }
 
-  /** @param usePriority the usePriority to set */
+  /**
+   * @param usePriority the usePriority to set
+   */
   public void setUsePriority(boolean usePriority) {
     this.usePriority = usePriority;
   }
 
-  /** @return the usePriority flag */
+  /**
+   * @return the usePriority flag
+   */
   public boolean isUsePriority() {
     return this.usePriority;
   }
 
-  /** @return the priority */
+  /**
+   * @return the priority
+   */
   public String getPriority() {
     return this.priority;
   }
 
-  /** @param importance the importance to set */
+  /**
+   * @param importance the importance to set
+   */
   public void setImportance(String importance) {
     this.importance = importance;
   }
 
-  /** @return the importance */
+  /**
+   * @return the importance
+   */
   public String getImportance() {
     return this.importance;
   }
@@ -706,7 +786,9 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
     this.sensitivity = sensitivity;
   }
 
-  /** @param priority the priority to set */
+  /**
+   * @param priority the priority to set
+   */
   public void setPriority(String priority) {
     this.priority = priority;
   }

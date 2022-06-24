@@ -52,6 +52,7 @@ public class MailConnection {
   private String username;
   private String password;
   private boolean usessl;
+  private boolean usexoauth2;
   private boolean useproxy;
   private String proxyusername;
   /** Protocol used. Should be PROTOCOL_POP3 (0) for POP3 and PROTOCOL_IMAP (1) to IMAP */
@@ -97,6 +98,7 @@ public class MailConnection {
    * @param port port number on the server
    * @param password
    * @param usessl specify if the connection is established via SSL
+   * @param usexoauth2 specify if the connection use XOAUTH2
    * @param useproxy specify if we use proxy authentication
    * @param proxyusername proxy authorised user
    */
@@ -108,6 +110,7 @@ public class MailConnection {
       String username,
       String password,
       boolean usessl,
+      boolean usexoauth2,
       boolean useproxy,
       String proxyusername)
       throws HopException {
@@ -126,6 +129,7 @@ public class MailConnection {
     this.username = username;
     this.password = password;
     this.usessl = usessl;
+    this.usexoauth2 = usexoauth2;
     this.protocol = protocol;
     this.nrSavedMessages = 0;
     this.nrDeletedMessages = 0;
@@ -164,6 +168,10 @@ public class MailConnection {
         this.prop.setProperty("mail." + protocolString + ".socketFactory.fallback", "false");
         this.prop.setProperty("mail." + protocolString + ".port", "" + port);
         this.prop.setProperty("mail." + protocolString + ".socketFactory.port", "" + port);
+        if (usexoauth2) {
+            this.prop.setProperty("mail." + protocolString + ".ssl.enable", "true");
+            this.prop.setProperty("mail." + protocolString + ".auth.mechanisms", "XOAUTH2");
+        }
 
         // Create session object
         this.session = Session.getInstance(this.prop, null);
@@ -209,6 +217,13 @@ public class MailConnection {
   /** @return Returns the use of SSL. true if the connection use SSL */
   public boolean isUseSSL() {
     return this.usessl;
+  }
+
+  /**
+   * @return Returns the use of XOAUTH2. true if the connection use XOAUTH2
+   */
+  public boolean isUseXOAUTH2() {
+    return this.usexoauth2;
   }
 
   /** @return Returns the use of proxy. true if the connection use proxy */
