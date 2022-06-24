@@ -348,8 +348,9 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         wLoaderComp.setLayout( loaderLayout );
 
         // Connection line
-        wConnection = addConnectionLine( wLoaderComp, wTransformName, input.getDatabaseMeta(), lsMod );
-        if ( input.getDatabaseMeta() == null && pipelineMeta.nrDatabases() == 1 ) {
+        DatabaseMeta dbm = pipelineMeta.findDatabase(input.getConnection(), variables);
+        wConnection = addConnectionLine( wLoaderComp, wTransformName, dbm, lsMod );
+        if ( input.getConnection() == null && pipelineMeta.nrDatabases() == 1 ) {
             wConnection.select( 0 );
         }
         wConnection.addModifyListener( lsMod );
@@ -968,12 +969,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         fdbDoMapping.left = new FormAttachment( 50, margin );
         fdbDoMapping.bottom = new FormAttachment( 100, 0 );
         wDoMapping.setLayoutData( fdbDoMapping );
-        wDoMapping.addSelectionListener( new SelectionAdapter() {
-            @Override
-            public void widgetSelected( SelectionEvent selectionEvent ) {
-                generateMappings();
-            }
-        } );
 
         final int FieldsCols = 2;
         final int FieldsRows = input.getSnowflakeBulkLoaderFields().size();
@@ -1117,6 +1112,8 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         wSql.addListener(SWT.Selection, e -> create());
         wOk.addListener(SWT.Selection, e -> ok());
         wCancel.addListener(SWT.Selection, e -> cancel());
+        wGet.addListener(SWT.Selection, e -> get());
+        wDoMapping.addListener(SWT.Selection, e -> generateMappings());
 
         lsResize = new Listener() {
             public void handleEvent( Event event ) {
@@ -1176,8 +1173,8 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
      * Copy information from the meta-data input to the dialog fields.
      */
     private void getData() {
-        if ( input.getDatabaseMeta() != null ) {
-            wConnection.setText( input.getDatabaseMeta().getName() );
+        if ( input.getConnection() != null ) {
+            wConnection.setText( input.getConnection() );
         }
 
         if ( input.getTargetSchema() != null ) {
@@ -1273,7 +1270,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
      * @param sbl The transform metadata
      */
     private void getInfo(SnowflakeBulkLoaderMeta sbl ) {
-        sbl.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
+        sbl.setConnection( wConnection.getText());
         sbl.setTargetSchema( wSchema.getText() );
         sbl.setTargetTable( wTable.getText() );
         sbl.setLocationTypeById( wLocationType.getSelectionIndex() );
@@ -1367,7 +1364,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         }
 
         // refresh data
-        input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
+        input.setConnection( wConnection.getText() );
         input.setTargetTable( variables.resolve( wTable.getText() ) );
         input.setTargetSchema( variables.resolve( wSchema.getText() ) );
         ITransformMeta iTransformMeta = transformMeta.getTransform();
@@ -1655,45 +1652,62 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     // Generate code for create table...
     // Conversions done by Database
     private void create() {
-
         DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
 
         try{
-
             SnowflakeBulkLoaderMeta info = new SnowflakeBulkLoaderMeta();
             getInfo(info);
-
-            String name = transformName;
-            TransformMeta transformMeta =
-                    new TransformMeta(
-                            BaseMessages.getString(PKG, "SnowflakeBulkLoaderDialog.TransformMeta.Title"), transformName, info);
             IRowMeta prev = pipelineMeta.getPrevTransformFields(variables, transformName);
+            TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
 
-            SqlStatement sql =
-                    info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, false, null, false);
-            if (!sql.hasError()) {
-                if (sql.hasSql()) {
-                    SqlEditor sqledit =
-                            new SqlEditor(
-                                    shell,
-                                    SWT.NONE,
-                                    variables,
-                                    info.getDatabaseMeta(),
-                                    DbCache.getInstance(),
-                                    sql.getSql());
-                    sqledit.open();
+            if(info.isSpecifyFields()){
+                // Only use the fields that were specified.
+                IRowMeta prevNew = new RowMeta();
+
+                for (int i = 0; i < info.getSnowflakeBulkLoaderFields().size(); i++) {
+                    SnowflakeBulkLoaderField sf = info.getSnowflakeBulkLoaderFields().get(i);
+                    IValueMeta insValue = prev.searchValueMeta(sf.getStreamField());
+                    if (insValue != null) {
+                        IValueMeta insertValue = insValue.clone();
+                        insertValue.setName(sf.getTableField());
+                        prevNew.addValueMeta(insertValue);
+                    } else {
+                        throw new HopTransformException(
+                                BaseMessages.getString(
+                                        PKG, "TableOutputDialog.FailedToFindField.Message", sf.getStreamField()));
+                    }
+                }
+                prev = prevNew;
+            }
+
+            if(isValidRowMeta(prev)){
+                SqlStatement sql =
+                        info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
+                if (!sql.hasError()) {
+                    if (sql.hasSql()) {
+                        SqlEditor sqledit =
+                                new SqlEditor(
+                                        shell,
+                                        SWT.NONE,
+                                        variables,
+                                        databaseMeta,
+                                        DbCache.getInstance(),
+                                        sql.getSql());
+                        sqledit.open();
+                    } else {
+                        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+                        mb.setMessage(BaseMessages.getString(PKG, "SnowflakeBulkLoaderDialog.NoSQLNeeds.DialogMessage"));
+                        mb.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoaderDialog.NoSQLNeeds.DialogTitle"));
+                        mb.open();
+                    }
                 } else {
-                    MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-                    mb.setMessage(BaseMessages.getString(PKG, "SnowflakeBulkLoaderDialog.NoSQLNeeds.DialogMessage"));
-                    mb.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoaderDialog.NoSQLNeeds.DialogTitle"));
+                    MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+                    mb.setMessage(sql.getError());
+                    mb.setText(BaseMessages.getString(PKG, "SnowBulkLoaderDialog.SQLError.DialogTitle"));
                     mb.open();
                 }
-            } else {
-                MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-                mb.setMessage(sql.getError());
-                mb.setText(BaseMessages.getString(PKG, "SnowBulkLoaderDialog.SQLError.DialogTitle"));
-                mb.open();
             }
+
         } catch (HopException ke) {
             new ErrorDialog(
                     shell,
@@ -1703,5 +1717,15 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
             ke.printStackTrace();
         }
 
+    }
+
+    private static boolean isValidRowMeta(IRowMeta rowMeta) {
+        for (IValueMeta value : rowMeta.getValueMetaList()) {
+            String name = value.getName();
+            if (name == null || name.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 }

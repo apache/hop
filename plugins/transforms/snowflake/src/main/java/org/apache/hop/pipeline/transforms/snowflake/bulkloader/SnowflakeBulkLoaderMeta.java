@@ -4,12 +4,16 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -41,6 +45,7 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
     /*
      * Static constants for the identifiers used when saving the step to XML or the repository
      */
+/*
     private static final String CONNECTION = "connection";
     private static final String TARGET_SCHEMA = "target_schema";
     private static final String TARGET_TABLE = "target_table";
@@ -65,6 +70,7 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
     private static final String FIELD = "field";
     private static final String STREAM_FIELD = "stream_field";
     private static final String TABLE_FIELD = "table_field";
+*/
 
     /*
      * Static constants used for the bulk loader when creating temp files.
@@ -108,7 +114,11 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
     /**
      * The database connection to use
      */
-    private DatabaseMeta databaseMeta;
+    @HopMetadataProperty(
+            key = "connection",
+            injectionKeyDescription = ""
+    )
+    private String connection;
 
     /**
      * The schema to use
@@ -315,17 +325,17 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
     /**
      * @return The metadata of the database connection to use when bulk loading
      */
-    public DatabaseMeta getDatabaseMeta() {
-        return databaseMeta;
+    public String getConnection() {
+        return connection;
     }
 
     /**
      * Set the database connection to use
      *
-     * @param databaseMeta The metadata for the database connection
+     * @param connection The database connection name
      */
-    public void setDatabaseMeta( DatabaseMeta databaseMeta ) {
-        this.databaseMeta = databaseMeta;
+    public void setConnection(String connection) {
+        this.connection = connection;
     }
 
     /**
@@ -793,23 +803,6 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
         return fileDate;
     }
 
-/*
-    */
-/**
-     * Loads the step metadata from the XML ktr file
-     *
-     * @param stepNode  The node in the XML
-     * @param databases The list of databases
-     * @param metaStore The metastore
-     * @throws HXMLException
-     *//*
-
-    public void loadXML( Node stepNode, List<DatabaseMeta> databases, IMetaStore metaStore )
-            throws KettleXMLException {
-        readData( stepNode, databases );
-    }
-*/
-
     /**
      * Clones the step so that it can be copied and used in clusters
      *
@@ -972,8 +965,10 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
         String realTableName = variables.resolve( targetTable );
         String realSchemaName = variables.resolve( targetSchema );
 
-        if ( databaseMeta != null ) {
-            Database db = new Database( loggingObject, variables, databaseMeta );
+        if ( connection != null ) {
+            DatabaseMeta databaseMeta = getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
+            Database db = new Database( loggingObject, variables, databaseMeta);
             try {
                 db.connect();
 
@@ -981,7 +976,7 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
                     String schemaTable = databaseMeta.getQuotedSchemaTableCombination(variables, realSchemaName, realTableName );
 
                     // Check if this table exists...
-                    if ( db.checkTableExists( targetSchema, schemaTable ) ) {
+                    if ( db.checkTableExists( realSchemaName, realTableName ) ) {
                         return db.getTableFields( schemaTable );
                     } else {
                         throw new HopException( BaseMessages.getString( PKG, "SnowflakeBulkLoaderMeta.Exception.TableNotFound" ) );
@@ -1005,13 +1000,15 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
      * Gets the list of databases used by the step
      * @return The list of databases used by the step
      */
+/*
     public DatabaseMeta[] getUsedDatabaseConnections() {
-        if ( databaseMeta != null ) {
-            return new DatabaseMeta[]{ databaseMeta };
+        if ( connection != null ) {
+            return new DatabaseMeta[]{connection};
         } else {
             return super.getUsedDatabaseConnections();
         }
     }
+*/
 
     /**
      * Gets the step data
@@ -1144,6 +1141,105 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
         returnValue.append( ";" );
 
         return returnValue.toString();
+    }
+
+    @Override
+    public SqlStatement getSqlStatements(
+            IVariables variables,
+            PipelineMeta pipelineMeta,
+            TransformMeta transformMeta,
+            IRowMeta prev,
+            IHopMetadataProvider metadataProvider)
+            throws HopTransformException {
+
+        DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
+
+        SqlStatement retval =
+                new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
+
+        if (databaseMeta != null) {
+            if (prev != null && prev.size() > 0) {
+
+                if (!Utils.isEmpty(targetTable)) {
+                    Database db = new Database(loggingObject, variables, databaseMeta);
+                    try {
+                        db.connect();
+
+                        String schemaTable =
+                                databaseMeta.getQuotedSchemaTableCombination(variables, targetSchema, targetTable);
+                        String crTable = db.getDDL(schemaTable, prev, null, false, null);
+
+                        // Empty string means: nothing to do: set it to null...
+                        if (crTable == null || crTable.length() == 0) {
+                            crTable = null;
+                        }
+
+                        retval.setSql(crTable);
+                    } catch (HopDatabaseException dbe) {
+                        retval.setError(
+                                BaseMessages.getString(
+                                        PKG, "TableOutputMeta.Error.ErrorConnecting", dbe.getMessage()));
+                    } finally {
+                        db.disconnect();
+                    }
+                } else {
+                    retval.setError(BaseMessages.getString(PKG, "TableOutputMeta.Error.NoTable"));
+                }
+
+                /*
+                // Copy the row
+                IRowMeta tableFields = new RowMeta();
+
+
+
+                // Now change the field names
+                for (int i = 0; i < snowflakeBulkLoaderFields.size(); i++) {
+                    IValueMeta v = prev.searchValueMeta(snowflakeBulkLoaderFields.get(i).getStreamField());
+                    if (v != null) {
+                        IValueMeta tableField = v.clone();
+                        tableField.setName(snowflakeBulkLoaderFields.get(i).getTableField());
+                        tableFields.addValueMeta(tableField);
+                    } else {
+                        throw new HopTransformException(
+                                "Unable to find field ["
+                                        + snowflakeBulkLoaderFields.get(i).getStreamField()
+                                        + "] in the input rows");
+                    }
+                }
+
+                if (!Utils.isEmpty(targetTable)) {
+                    Database db = new Database(loggingObject, variables, databaseMeta);
+                    try {
+                        db.connect();
+
+                        String schemaTable =
+                                databaseMeta.getQuotedSchemaTableCombination(variables, targetSchema, targetTable);
+                        String sql = db.getDDL(schemaTable, tableFields, null, false, null, true);
+
+                        if (sql.length() == 0) {
+                            retval.setSql(null);
+                        } else {
+                            retval.setSql(sql);
+                        }
+                    } catch (HopException e) {
+                        retval.setError(
+                                BaseMessages.getString(PKG, "SnowflakeBulkLoaderMeta.GetSQL.ErrorOccurred")
+                                        + e.getMessage());
+                    }
+                } else {
+                    retval.setError(
+                            BaseMessages.getString(PKG, "SnowflakeBulkLoaderMeta.GetSQL.NoTableDefinedOnConnection"));
+                }
+*/
+            } else {
+                retval.setError(
+                        BaseMessages.getString(PKG, "SnowflakeBulkLoaderMeta.GetSQL.NotReceivingAnyFields"));
+            }
+        } else {
+            retval.setError(BaseMessages.getString(PKG, "SnowflakeBulkLoaderMeta.GetSQL.NoConnectionDefined"));
+        }
+
+        return retval;
     }
 
 }

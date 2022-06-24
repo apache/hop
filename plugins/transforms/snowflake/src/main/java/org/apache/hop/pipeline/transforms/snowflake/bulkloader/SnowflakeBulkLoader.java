@@ -631,8 +631,6 @@ public class SnowflakeBulkLoader extends BaseTransform<SnowflakeBulkLoaderMeta, 
 
     /**
      * Initialize the step by connecting to the database and calculating some constants that will be used.
-     * @param smi The step meta
-     * @param sdi The step data
      * @return True if successfully initialized
      */
     public boolean init() {
@@ -641,16 +639,13 @@ public class SnowflakeBulkLoader extends BaseTransform<SnowflakeBulkLoaderMeta, 
             data.splitnr = 0;
 
             try {
-                data.databaseMeta = meta.getDatabaseMeta();
-/*        if ( !data.databaseMeta.getPluginId().equals( "SNOWFLAKE" ) ) {
-          throw new KettleException( "Database is not a Snowflake database" );
-        }
-*/
+                data.databaseMeta = this.getPipelineMeta().findDatabase(meta.getConnection(), variables);
+
                 data.db = new Database( this, variables, data.databaseMeta );
                 data.db.connect();
 
                 if ( log.isBasic() ) {
-                    logBasic( "Connected to database [" + meta.getDatabaseMeta() + "]" );
+                    logBasic( "Connected to database [" + meta.getConnection() + "]" );
                 }
 
                 data.db.setCommit( Integer.MAX_VALUE );
