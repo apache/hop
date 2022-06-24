@@ -382,7 +382,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     input.setRejectDuplicateRow(wRejectDuplicateRow.getSelection());
     input.setErrorDescription(wErrorDesc.getText());
     input.setCompareFields(fields);
-    transformName = wTransformName.getText(); // return value
+
 
     if ("Y".equalsIgnoreCase(props.getCustomParameter(STRING_SORT_WARNING_PARAMETER, "Y"))) {
       MessageDialogWithToggle md =
@@ -400,20 +400,20 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     }
 
     // Remove any error hops coming out of UniqueRows when Reject Duplicate Rows checkbox is
-    // unselected.
+    // unselected. This has to be completed before the transformname is changed
     if (!wRejectDuplicateRow.getSelection()) {
       List<PipelineHopMeta> hops = this.pipelineMeta.getPipelineHops();
-      IntStream.range(0, hops.size())
-          .filter(
-              hopInd -> {
-                PipelineHopMeta hop = hops.get(hopInd);
-                return (hop.isErrorHop()
-                    && hop.getFromTransform()
-                        .getTransformPluginId()
-                        .equals(this.input.getParentTransformMeta().getTransformPluginId()));
-              })
-          .forEach(hopInd -> this.pipelineMeta.removePipelineHop(hopInd));
+      IntStream.range(0, hops.size() - 1)
+              .filter(
+                      hopInd -> {
+                        PipelineHopMeta hop = hops.get(hopInd);
+                        return (hop.isErrorHop()
+                                && hop.getFromTransform().getName().equals(this.transformName));
+                      })
+              .forEach(hopInd -> this.pipelineMeta.removePipelineHop(hopInd));
     }
+
+    transformName = wTransformName.getText(); // return value
 
     dispose();
   }
