@@ -1,0 +1,78 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:description: The Snowflake Warehouse Manager action provides functionality to create, drop, resume, suspend, and alter warehouses.
+
+= Snowflake Warehouse Manager
+
+The Snowflake Warehouse Manager action provides functionality to create, drop, resume, suspend, and alter warehouses.
+This allows Hop workflows to resume a warehouse before loading, and then suspend the warehouse as soon as it is done, along with resizing warehouses for portions of the load that may require more processing power.
+
+== Options
+
+- **Connection**: The connection to the Snowflake database to use
+- **Warehouse name**: The name of the warehouse
+- **Action**: (Create, Drop, Resume, Suspend, Alter) What is the action you wish to take against the warehouse.
+
+=== Action: Create warehouse
+
+This action creates a new warehouse using the settings you provide.
+
+- **Replace?**: If the warehouse already exists, replace the existing warehouse with your new settings.
+- **Fail if warehouse exists?**: If the warehouse already exists the action will fail.  If not checked and Replace? is not checked the action will perform no action if the warehouse already exists.
+- **Warehouse Size**: (X-Small, Small, Medium, Large, X-Large, 2X-Large, 3X-Large) The size of the warehouse to create.
+- **Warehouse Type**: (Standard, Enterprise) The type of warehouse to create.  Enterprise warehouses have more memory available than Standard warehouses.
+- **Max cluster size**: The maximum cluster size for clustered warehouses.
+- **Min cluster size**: The minimum cluster size for clustered warehouses.
+- **Auto suspend**: The number of minutes of inactivity after which the warehouse will automatically suspend.
+- **Auto resume?**: Should the warehouse automatically resume when queries are run against it?
+- **Initially suspended?**: Should the warehouse be created in a suspended state.
+- **Resource monitor**: The resource monitor used for tracking Snowflake usage and billing.
+- **Comment**: A comment to be included about the warehouse.
+
+=== Action: Drop warehouse
+
+This action removes a warehouse from Snowflake.
+
+- **Fail if warehouse does not exist?**: If the warehouse does not exist, the action will fail.
+
+=== Action: Resume warehouse
+
+This action resumes a warehouse in Snowflake.  The warehouse must be in a suspended state prior to this action, or the action will fail.
+
+- **Fail if warehouse does not exist?**: If the warehouse does not exist, the action will fail.
+
+=== Action: Suspend warehouse
+
+This action suspends a warehouse in Snowflake.  The warehouse must be in a started state prior to this action, or the action will fail.
+
+- **Fail if warehouse does not exist?**: If the warehouse does not exist, the action will fail.
+
+=== Action: Alter warehouse
+
+This action alters the warehouse, enabling users to re-size, change warehouse types, change auto-suspend settings, etc.
+
+- **Fail if warehouse does not exist?**: If the warehouse does not exist, the action will fail.
+- **Warehouse Size**: (X-Small, Small, Medium, Large, X-Large, 2X-Large, 3X-Large) The size of the warehouse to create.
+- **Warehouse Type**: (Standard, Enterprise) The type of warehouse to create.  Enterprise warehouses have more memory available than Standard warehouses.
+- **Max cluster size**: The maximum cluster size for clustered warehouses.
+- **Min cluster size**: The minimum cluster size for clustered warehouses.
+- **Auto suspend**: The number of minutes of inactivity after which the warehouse will automatically suspend.
+- **Auto resume?**: Should the warehouse automatically resume when queries are run against it?
+- **Resource monitor**: The resource monitor used for tracking Snowflake usage and billing.
+- **Comment**: A comment to be included about the warehouse.

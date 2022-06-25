@@ -76,6 +76,7 @@
         <module>shell</module>
         <module>simpleeval</module>
         <module>snmptrap</module>
+        <module>snowflake</module>
         <module>sql</module>
         <module>success</module>
         <module>tableexists</module>
