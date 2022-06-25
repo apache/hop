@@ -137,6 +137,7 @@
     <module>setvalueconstant</module>
     <module>setvaluefield</module>
     <module>setvariable</module>
+    <module>snowflake</module>
     <module>sort</module>
     <module>sortedmerge</module>
     <module>splitfieldtorows</module>

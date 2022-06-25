@@ -192,7 +192,6 @@
         <include>io.opencensus:opencensus-contrib-grpc-util</include>
         <include>io.opencensus:opencensus-contrib-http-util</include>
         <include>io.perfmark:perfmark-api</include>
-        <include>javax.activation:activation</include>
         <include>javax.annotation:javax.annotation-api</include>
         <include>javax.servlet:javax.servlet-api</include>
         <include>javax.xml.bind:jaxb-api</include>

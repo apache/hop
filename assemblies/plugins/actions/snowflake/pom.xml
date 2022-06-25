@@ -23,29 +23,26 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>hop-assemblies-plugins-databases</artifactId>
         <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins-actions</artifactId>
         <version>2.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hop-assemblies-plugins-databases-snowflake</artifactId>
+    <artifactId>hop-assemblies-plugins-action-snowflake</artifactId>
     <version>2.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Hop Assemblies Plugins Databases Snowflake</name>
+    <name>Hop Assemblies Plugins Actions Snowflake Warehouse Manager</name>
     <description></description>
+
+    <properties>
+        <snowflake.jdbc.version>3.13.19</snowflake.jdbc.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-databases-snowflake</artifactId>
+            <artifactId>hop-action-snowflake</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>net.snowflake</groupId>
-            <artifactId>snowflake-jdbc</artifactId>
-            <version>3.13.19</version>
-        </dependency>
     </dependencies>
-
 </project>
