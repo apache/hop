@@ -294,7 +294,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
          * Modify Listeners
          * ************************************************/
 
-        // Basic modify listener, sets if anything has changed.  Pentaho's way to know the transformation
+        // Basic modify listener, sets if anything has changed.  Hop's way to know the pipeline
         // needs saved
         ModifyListener lsMod = new ModifyListener() {
             public void modifyText( ModifyEvent e ) {
@@ -1272,7 +1272,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     }
 
     /**
-     * Cancel making changes.  Do not save any of the changes and do not set the transformation as changed.
+     * Cancel making changes.  Do not save any of the changes and do not set the pipeline as changed.
      */
     private void cancel() {
         transformName = null;

@@ -77,7 +77,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     private WarehouseManager warehouseManager;
 
     /**
-     * Step name line
+     * Action name line
      */
     private Label wlName;
     private Text wName;
@@ -1084,8 +1084,8 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     private void ok() {
         if ( StringUtil.isEmpty( wName.getText() ) ) {
             MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-            mb.setText( BaseMessages.getString( PKG, "System.StepJobEntryNameMissing.Title" ) );
-            mb.setMessage( BaseMessages.getString( PKG, "System.JobEntryNameMissing.Msg" ) );
+            mb.setText( BaseMessages.getString( PKG, "System.ActionNameMissing.Title" ) );
+            mb.setMessage( BaseMessages.getString( PKG, "System.ActionNameMissing.Msg" ) );
             mb.open();
             return;
         }

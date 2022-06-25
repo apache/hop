@@ -59,35 +59,6 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
     private static Class<?> PKG = SnowflakeBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
     protected static final String DEBUG_MODE_VAR = "${SNOWFLAKE_DEBUG_MODE}";
-    /*
-     * Static constants for the identifiers used when saving the step to XML or the repository
-     */
-/*
-    private static final String CONNECTION = "connection";
-    private static final String TARGET_SCHEMA = "target_schema";
-    private static final String TARGET_TABLE = "target_table";
-    private static final String LOCATION_TYPE = "location_type";
-    private static final String STAGE_NAME = "stage_name";
-    private static final String WORK_DIRECTORY = "work_directory";
-    private static final String ON_ERROR = "on_error";
-    private static final String ERROR_LIMIT = "error_limit";
-    private static final String SPLIT_SIZE = "split_size";
-    private static final String REMOVE_FILES = "remove_files";
-    private static final String DATA_TYPE = "data_type";
-    private static final String TRIM_WHITESPACE = "trim_whitespace";
-    private static final String NULL_IF = "null_if";
-    private static final String ERROR_COLUMN_MISMATCH = "error_column_mismatch";
-    private static final String STRIP_NULL = "strip_null";
-    private static final String IGNORE_UTF_8 = "ignore_utf8";
-    private static final String ALLOW_DUPLICATE_ELEMENT = "allow_duplicate_element";
-    private static final String ENABLE_OCTAL = "enable_octal";
-    private static final String SPECIFY_FIELDS = "specify_fields";
-    private static final String JSON_FIELD = "json_field";
-    private static final String FIELDS = "fields";
-    private static final String FIELD = "field";
-    private static final String STREAM_FIELD = "stream_field";
-    private static final String TABLE_FIELD = "table_field";
-*/
 
     /*
      * Static constants used for the bulk loader when creating temp files.
@@ -220,13 +191,13 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
     private boolean removeFiles;
 
     /**
-     * The target step for bulk loader output
+     * The target transform for bulk loader output
      */
     @HopMetadataProperty(
         key = "output_target_transform",
         injectionKeyDescription = ""
     )
-    private String outputTargetStep;
+    private String outputTargetTransform;
 
     /**
      * The data type of the data (csv, json)
@@ -568,18 +539,18 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
     }
 
     /**
-     * @return The step to direct the output data to.
+     * @return The transform to direct the output data to.
      */
-    public String getOutputTargetStep() {
-        return outputTargetStep;
+    public String getOutputTargetTransform() {
+        return outputTargetTransform;
     }
 
     /**
-     * Set the step to direct bulk loader output to.
-     * @param outputTargetStep The step name
+     * Set the transform to direct bulk loader output to.
+     * @param outputTargetTransform The transform name
      */
-    public void setOutputTargetStep( String outputTargetStep ) {
-        this.outputTargetStep = outputTargetStep;
+    public void setOutputTargetTransform(String outputTargetTransform) {
+        this.outputTargetTransform = outputTargetTransform;
     }
 
     /**
@@ -821,7 +792,7 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
     }
 
     /**
-     * Clones the step so that it can be copied and used in clusters
+     * Clones the transform so that it can be copied and used in clusters
      *
      * @return A copy of the transform
      */
@@ -851,11 +822,11 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
     }
 
     /**
-     * Builds a filename for a temporary file  The filename is in tableName_date_time_stepnr_partnr_splitnr.gz format
+     * Builds a filename for a temporary file  The filename is in tableName_date_time_transformnr_partnr_splitnr.gz format
      *
      * @param variables       The variables currently set
-     * @param transformNumber  The step number.  Used when multiple copies of the step are started.
-     * @param partNumber  The partition number.  Used when the transformation is executed clustered, the number of the
+     * @param transformNumber  The transform number.  Used when multiple copies of the transform are started.
+     * @param partNumber  The partition number.  Used when the pipeline is executed clustered, the number of the
      *                    partition.
      * @param splitNumber The split number.  Used when the file is split into multiple chunks.
      * @return The filename to use
@@ -895,11 +866,11 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
     }
 
     /**
-     * Check the step to make sure it is valid.  This is what is run when the user presses the check transformation
-     * button in PDI
+     * Check the transform to make sure it is valid.  This is what is run when the user presses the check pipeline
+     * button in Hop
      * @param remarks The list of remarks to add to
-     * @param pipelineMeta The transformation metadata
-     * @param transformMeta The step metadata
+     * @param pipelineMeta The pipeline metadata
+     * @param transformMeta The transform metadata
      * @param prev The metadata about the input stream
      * @param input The input fields
      * @param output The output fields
@@ -943,7 +914,7 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
             }
         }
 
-        // See if we have input streams leading to this step!
+        // See if we have input streams leading to this transform!
         if ( input.length > 0 ) {
             cr =
                     new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -1014,8 +985,8 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
     }
 
     /**
-     * Gets the list of databases used by the step
-     * @return The list of databases used by the step
+     * Gets the list of databases used by the transform
+     * @return The list of databases used by the transform
      */
 /*
     public DatabaseMeta[] getUsedDatabaseConnections() {
@@ -1028,8 +999,8 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
 */
 
     /**
-     * Gets the step data
-     * @return The step data
+     * Gets the transform data
+     * @return The transform data
      */
     public ITransformData getTransformData() {
         return new SnowflakeBulkLoaderData();

@@ -70,10 +70,10 @@ public class SnowflakeBulkLoaderData extends BaseTransformData implements ITrans
 
     public byte[] binaryNullValue;
 
-    // Indicates that at least one file has been opened by the step
+    // Indicates that at least one file has been opened by the transform
     public boolean oneFileOpened;
 
-    // A list of files that have been previous created by the step
+    // A list of files that have been previous created by the transform
     public List<String> previouslyOpenedFiles;
 
     /**

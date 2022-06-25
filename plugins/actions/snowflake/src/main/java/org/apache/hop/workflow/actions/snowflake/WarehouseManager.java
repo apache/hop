@@ -65,7 +65,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     public static final String RESOURCE_MONITOR = "resourceMonitor";
     public static final String CONNECTION = "connection";
     /**
-     * The type of management actions this step supports
+     * The type of management actions this action supports
      */
     private static final String[] MANAGEMENT_ACTIONS = { "create", "drop", "resume", "suspend", "alter" };
     public static final int MANAGEMENT_ACTION_CREATE = 0;

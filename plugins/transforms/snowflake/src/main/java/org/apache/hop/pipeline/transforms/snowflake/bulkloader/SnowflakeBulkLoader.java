@@ -151,8 +151,8 @@ public class SnowflakeBulkLoader extends BaseTransform<SnowflakeBulkLoaderMeta, 
 
     /**
      * Runs a desc table to get the fields, and field types from the database.  Uses a desc table as opposed
-     * to the select * from table limit 0 that Pentaho normally uses to get the fields and types, due to the need
-     * to handle the Time type.  The select * method through Pentaho does not give us the ability to differentiate
+     * to the select * from table limit 0 that Hop normally uses to get the fields and types, due to the need
+     * to handle the Time type.  The select * method through Hop does not give us the ability to differentiate
      * time from timestamp.
      * @throws HopException
      */
@@ -636,9 +636,9 @@ public class SnowflakeBulkLoader extends BaseTransform<SnowflakeBulkLoaderMeta, 
     }
 
     /**
-     * Checks if a filename was previously opened by the step
+     * Checks if a filename was previously opened by the transform
      * @param filename The filename to check
-     * @return True if the step had previously opened the file
+     * @return True if the transform had previously opened the file
      */
     private boolean checkPreviouslyOpened( String filename ) {
 
@@ -647,7 +647,7 @@ public class SnowflakeBulkLoader extends BaseTransform<SnowflakeBulkLoaderMeta, 
     }
 
     /**
-     * Initialize the step by connecting to the database and calculating some constants that will be used.
+     * Initialize the transform by connecting to the database and calculating some constants that will be used.
      * @return True if successfully initialized
      */
     public boolean init() {
@@ -703,7 +703,7 @@ public class SnowflakeBulkLoader extends BaseTransform<SnowflakeBulkLoaderMeta, 
     }
 
     /**
-     * Clean up after the step.  Close any open files, remove temp files, close any database connections.
+     * Clean up after the transform.  Close any open files, remove temp files, close any database connections.
      */
     public void dispose() {
         if ( data.oneFileOpened ) {

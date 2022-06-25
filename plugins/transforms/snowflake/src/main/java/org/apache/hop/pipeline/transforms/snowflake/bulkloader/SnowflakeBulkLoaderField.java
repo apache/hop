@@ -21,7 +21,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /**
- * Describes a single field mapping from the Pentaho stream to the Snowflake table
+ * Describes a single field mapping from the Hop stream to the Snowflake table
  */
 public class SnowflakeBulkLoaderField implements Cloneable{
 
@@ -85,7 +85,7 @@ public class SnowflakeBulkLoaderField implements Cloneable{
 
     /**
      * Set the stream field
-     * @param streamField The name of the field on the Pentaho stream
+     * @param streamField The name of the field on the Hop stream
      */
     public void setStreamField( String streamField ) {
         this.streamField = streamField;
