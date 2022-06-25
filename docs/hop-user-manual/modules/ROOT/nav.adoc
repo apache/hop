@@ -82,6 +82,8 @@ under the License.
 *** xref:pipeline/transforms/beaminput.adoc[Beam Input]
 *** xref:pipeline/transforms/beamkafkaconsume.adoc[Beam Kafka Consume]
 *** xref:pipeline/transforms/beamkafkaproduce.adoc[Beam Kafka Produce]
+*** xref:pipeline/transforms/beamkinesisconsume.adoc[Beam Kinesis Consume]
+*** xref:pipeline/transforms/beamkinesisproduce.adoc[Beam Kinesis Produce]
 *** xref:pipeline/transforms/beamoutput.adoc[Beam Output]
 *** xref:pipeline/transforms/beamtimestamp.adoc[Beam Timestamp]
 *** xref:pipeline/transforms/beamwindow.adoc[Beam Window]
