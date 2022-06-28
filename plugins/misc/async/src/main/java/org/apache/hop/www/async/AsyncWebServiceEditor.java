@@ -327,10 +327,4 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     }
     return wName.setFocus();
   }
-
-  @Override
-  public void setChanged() {
-    this.isChanged = true;
-    MetadataPerspective.getInstance().updateEditor(this);
-  }
 }

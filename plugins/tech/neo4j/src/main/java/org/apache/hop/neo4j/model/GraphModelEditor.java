@@ -2064,14 +2064,8 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     }
   }
 
-  @Override
-  public void setChanged() {
-    this.isChanged = true;
-    MetadataPerspective.getInstance().updateEditor(this);
-  }
-
   public void clearChanged() {
-    this.isChanged = false;
+    resetChanged();
     MetadataPerspective.getInstance().updateEditor(this);
   }
 }

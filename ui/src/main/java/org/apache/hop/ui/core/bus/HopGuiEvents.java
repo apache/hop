@@ -20,7 +20,6 @@ package org.apache.hop.ui.core.bus;
 public enum HopGuiEvents {
   MetadataChanged,
   MetadataCreated,
-  MetadataUpdated,
   MetadataDeleted,
 
   WorkflowCreated,
