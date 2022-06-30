@@ -33,11 +33,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.*;
 
 /** Execute a process * */
 public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData> {
 
   private static final Class<?> PKG = ExecProcessMeta.class; // For Translator
+  private boolean killing;
+  private CountDownLatch waitForLatch;
 
   public ExecProcess(
       TransformMeta transformMeta,
@@ -197,6 +200,18 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
     return true;
   }
 
+  @Override
+  public void stopRunning() throws HopException {
+    if (waitForLatch != null) {
+      killing = true;
+      try {
+        waitForLatch.await();
+      } catch (InterruptedException e) {
+        throw new HopException("Interrupted exception while kill the process", e);
+      }
+    }
+  }
+
   private void execProcess(String process, ProcessResult processresult) throws HopException {
     execProcess(new String[] {process}, processresult);
   }
@@ -204,6 +219,7 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
   private void execProcess(String[] process, ProcessResult processresult) throws HopException {
 
     Process p = null;
+    waitForLatch = new CountDownLatch(1);
     try {
       String errorMsg = null;
       // execute process
@@ -219,16 +235,49 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
       if (p == null) {
         processresult.setErrorStream(errorMsg);
       } else {
-        // get output stream
-        processresult.setOutputStream(
-            getOutputString(new BufferedReader(new InputStreamReader(p.getInputStream()))));
+        CompletableFuture<IOException> future =
+            p.onExit()
+                .thenApply(
+                    processRef -> {
+                      try {
+                        // get output stream
+                        processresult.setOutputStream(
+                            getOutputString(
+                                new BufferedReader(
+                                    new InputStreamReader(processRef.getInputStream()))));
 
-        // get error message
-        processresult.setErrorStream(
-            getOutputString(new BufferedReader(new InputStreamReader(p.getErrorStream()))));
+                        // get error message
+                        processresult.setErrorStream(
+                            getOutputString(
+                                new BufferedReader(
+                                    new InputStreamReader(processRef.getErrorStream()))));
+                      } catch (IOException e) {
+                        return e;
+                      }
+                      return null;
+                    });
 
         // Wait until end
-        p.waitFor();
+        IOException exception;
+        while (true) {
+          try {
+            exception = future.get(1, TimeUnit.SECONDS);
+            break;
+          } catch (TimeoutException ignore) {
+            if (killing) {
+              p.children().forEach(ProcessHandle::destroy);
+              if (p.isAlive()) {
+                p.destroy();
+              }
+              exception = future.get();
+              logMinimal(BaseMessages.getString(PKG, "ExecProcess.AbortProcess"));
+              break;
+            }
+          }
+        }
+        if (exception != null) {
+          throw exception;
+        }
 
         // get exit status
         processresult.setExistStatus(p.exitValue());
@@ -242,6 +291,10 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
     } catch (Exception e) {
       throw new HopException(e);
     } finally {
+      if (killing || waitForLatch.getCount() > 0) {
+        waitForLatch.countDown();
+        killing = false;
+      }
       if (p != null) {
         p.destroy();
       }
