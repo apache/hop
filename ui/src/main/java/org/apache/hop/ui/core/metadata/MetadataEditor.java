@@ -30,6 +30,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -201,9 +202,14 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
   @Override
   public void setChanged() {
-    if (this.isChanged == false) {
+    if (!this.isChanged) {
       this.isChanged = true;
       MetadataPerspective.getInstance().updateEditor(this);
+      try {
+        hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
+      } catch (HopException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 

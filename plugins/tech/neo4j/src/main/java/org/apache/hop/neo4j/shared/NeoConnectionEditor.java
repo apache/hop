@@ -817,14 +817,8 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     return wName.setFocus();
   }
 
-  @Override
-  public void setChanged() {
-    this.isChanged = true;
-    MetadataPerspective.getInstance().updateEditor(this);
-  }
-
   public void clearChanged() {
-    this.isChanged = false;
+    resetChanged();
     MetadataPerspective.getInstance().updateEditor(this);
   }
 }

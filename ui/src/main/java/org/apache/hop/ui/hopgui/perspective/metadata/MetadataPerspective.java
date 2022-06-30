@@ -512,6 +512,8 @@ public class MetadataPerspective implements IHopPerspective {
                 HopGui.getInstance().getVariables(), metadataProvider, metadataClass);
 
         manager.newMetadataWithEditor();
+
+        hopGui.getEventsHandler().fire(HopGuiEvents.MetadataCreated.name());
       } catch (Exception e) {
         new ErrorDialog(
             getShell(),
@@ -540,6 +542,8 @@ public class MetadataPerspective implements IHopPerspective {
         try {
           MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
           manager.editWithEditor(objectName);
+
+          hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
         } catch (Exception e) {
           new ErrorDialog(getShell(), "Error", "Error editing metadata", e);
         }
@@ -603,6 +607,12 @@ public class MetadataPerspective implements IHopPerspective {
       text.selectAll();
       text.setFocus();
       treeEditor.setEditor(text, item);
+
+      try {
+        hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
+      } catch (HopException e) {
+        throw new RuntimeException("Error fire metadata changed event", e);
+      }
     }
   }
 
@@ -628,6 +638,8 @@ public class MetadataPerspective implements IHopPerspective {
 
         refresh();
         updateSelection();
+
+        hopGui.getEventsHandler().fire(HopGuiEvents.MetadataDeleted.name());
       } catch (Exception e) {
         new ErrorDialog(getShell(), "Error", "Error delete metadata", e);
       }
@@ -666,6 +678,8 @@ public class MetadataPerspective implements IHopPerspective {
           }
         }
         refresh();
+
+        hopGui.getEventsHandler().fire(HopGuiEvents.MetadataCreated.name());
       } catch (Exception e) {
         new ErrorDialog(
             getShell(),
@@ -719,7 +733,7 @@ public class MetadataPerspective implements IHopPerspective {
       toolTip = "i18n::MetadataPerspective.ToolbarElement.Refresh.Tooltip",
       image = "ui/images/refresh.svg")
   @GuiKeyboardShortcut(key = SWT.F5)
-  @GuiOsxKeyboardShortcut(key = SWT.F5)  
+  @GuiOsxKeyboardShortcut(key = SWT.F5)
   public void refresh() {
     try {
       tree.setRedraw(false);
