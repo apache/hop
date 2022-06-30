@@ -187,21 +187,6 @@ public class MetadataPerspective implements IHopPerspective {
         .addEventListener(
             getClass().getName(), e -> refresh(), HopGuiEvents.MetadataChanged.name());
 
-    hopGui
-        .getEventsHandler()
-        .addEventListener(
-            getClass().getName(), e -> System.out.println("metadata created!!!"), HopGuiEvents.MetadataCreated.name());
-
-    hopGui
-        .getEventsHandler()
-        .addEventListener(
-            getClass().getName(), e -> System.out.println("metadata changed!!!"), HopGuiEvents.MetadataChanged.name());
-
-    hopGui
-        .getEventsHandler()
-        .addEventListener(
-            getClass().getName(), e -> System.out.println("metadata deleted!!!"), HopGuiEvents.MetadataDeleted.name());
-
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
   }
 
@@ -626,7 +611,7 @@ public class MetadataPerspective implements IHopPerspective {
       try {
         hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
       } catch (HopException e) {
-        throw new RuntimeException("Error fire metadata changed event",e);
+        throw new RuntimeException("Error fire metadata changed event", e);
       }
     }
   }
@@ -748,7 +733,7 @@ public class MetadataPerspective implements IHopPerspective {
       toolTip = "i18n::MetadataPerspective.ToolbarElement.Refresh.Tooltip",
       image = "ui/images/refresh.svg")
   @GuiKeyboardShortcut(key = SWT.F5)
-  @GuiOsxKeyboardShortcut(key = SWT.F5)  
+  @GuiOsxKeyboardShortcut(key = SWT.F5)
   public void refresh() {
     try {
       tree.setRedraw(false);
