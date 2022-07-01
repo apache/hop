@@ -39,13 +39,13 @@ It is better to create smaller workflows and aggregate them.
 
 == Options
 
-=== pipeline Specification Tab
+=== workflow Specification Tab
 
 [width="90%",options="header"]
 |===
 |Option|Description
 |Action name|Name of the action.
-|Workflow Filename|Specify the XML file name of the pipeline to start.
+|Workflow Filename|Specify the XML file name of the workflow to start.
 Click to browse through your local files.
 |===
 
@@ -54,9 +54,9 @@ Click to browse through your local files.
 [width="90%",options="header"]
 |===
 |Option|Description
-|Copy previous results to args?|The results from a previous pipeline can copied as arguments of the workflow using the "Copy rows to result" transform.
-If Execute for every input row is enabled then each row is a set of command line arguments to be passed into the workflow, otherwise only the first row is used to generate the command line arguments.
-|Copy previous results to parameters?|If Execute for every input row is enabled then each row is a set of command line workflowarguments to be passed into the , otherwise only the first row is used to generate the command line arguments.
+|Copy previous results to args?|The results from a previous workflow can copied as arguments of the workflow using the "Copy rows to result" transform.
+If "Execute for every input row" is enabled then each row is a set of command line arguments to be passed into the workflow, otherwise only the first row is used to generate the command line arguments.
+|Copy previous results to parameters?|If "Execute for every input row" is enabled then each row is a set of command line workflow arguments to be passed into the workflow, otherwise only the first row is used to generate the command line arguments.
 |Execute for every input row?|Implements looping; if the previous workflow action returns a set of result rows, the workflow executes once for every row found.
 One row is passed to the workflow at every execution.
 For example, you can execute a workflow for each file found in a directory.
@@ -86,13 +86,13 @@ If, however, you want all your log information kept in one place, you must set u
 |Name of logfile|The directory and base name of the log file; for example C:\logs
 |Create parent folder|Create the parent folder for the log file if it does not exist
 |Extension of logfile|The file name extension; for example, log or txt
-|Include date in logfile?|Adds the system date to the filename with format YYYYMMDD (_20051231).
-|Include time in logfile?|Adds the system time to the filename with format HHMMSS (_235959).
+|Include date in logfile?|Adds the system date to the filename with format YYYYMMDD (eg 20051231).
+|Include time in logfile?|Adds the system time to the filename with format HHMMSS (eg 235959).
 |Loglevel|Specifies the logging level for the execution of the workflow.
 See also the logging window in Logging
 |===
 
-=== Argument Tab
+=== Arguments Tab
 
 [width="90%",options="header"]
 |===
@@ -107,12 +107,14 @@ Specify which parameters will be passed to the pipeline:
 [width="90%",options="header"]
 |===
 |Option|Description
-|Pass all parameter values down to the sub-pipeline|Enable this option to pass all parameters of the workflow down to the sub-pipeline.
-|Parameters|Specify the parameter name that will be passed to the pipeline.
+|Pass all parameter values down to the sub-workflow|Enable this option to pass all parameters of the workflow down to the sub-workflow.
+|Parameters|Specify the parameter names that will be passed to the workflow.
 |Stream column name|Allows you to capture fields of incoming records of a result set as a parameter.
-|Value a| Allows you to specify the values for the pipeline's parameters.
+|Value|Allows you to specify the values for the pipeline's parameters.
 You can do this by:
-- Manually typing a value (Ex: ETL workflow) - Use a parameter to set the value (Ex: {openvar}Internal.workflow.Name{closevar}
-- Using a combination of manually specified values and parameter values (Ex: {openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt)
+
+- Manually typing some text (Ex: ETL workflow)
+- Using a parameter to set the value (Ex: {openvar}Internal.workflow.Name{closevar})
+- Using a combination of manually specified text and parameter values (Ex: {openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt)
 |===
 
