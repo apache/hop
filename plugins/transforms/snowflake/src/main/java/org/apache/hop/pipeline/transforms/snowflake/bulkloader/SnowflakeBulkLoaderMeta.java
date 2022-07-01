@@ -56,7 +56,7 @@ import java.util.List;
 )
 public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoader, SnowflakeBulkLoaderData> {
 
-    private static Class<?> PKG = SnowflakeBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
+    private static final Class<?> PKG = SnowflakeBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
     protected static final String DEBUG_MODE_VAR = "${SNOWFLAKE_DEBUG_MODE}";
 
@@ -317,12 +317,12 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
         return connection;
     }
 
-    /**
-     * Set the database connection to use
-     *
-     * @param connection The database connection name
-     */
-    public void setConnection(String connection) {
+  /**
+   * Set the database connection to use
+   *
+   * @param connection The database connection name
+   */
+  public void setConnection(String connection) {
         this.connection = connection;
     }
 
@@ -791,19 +791,19 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
         return fileDate;
     }
 
-    /**
-     * Clones the transform so that it can be copied and used in clusters
-     *
-     * @return A copy of the transform
-     */
-    public Object clone() {
+  /**
+   * Clones the transform so that it can be copied and used in clusters
+   *
+   * @return A copy of the transform
+   */
+  @Override
+  public Object clone() {
         return super.clone();
     }
 
-    /**
-     * Sets the default values for all metadata attributes.
-     */
-    public void setDefault() {
+  /** Sets the default values for all metadata attributes. */
+  @Override
+  public void setDefault() {
         locationType = LOCATION_TYPE_CODES[LOCATION_TYPE_USER];
         workDirectory = "${java.io.tmpdir}";
         onError = ON_ERROR_CODES[ON_ERROR_ABORT];
@@ -878,6 +878,7 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
      * @param variables The variable space
      * @param metadataProvider The metastore
      */
+    @Override
     public void check(List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                       IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                       IHopMetadataProvider metadataProvider ) {
@@ -890,21 +891,21 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
                             PKG, "SnowflakeBulkLoadMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
             remarks.add( cr );
 
-            String error_message = "";
-            boolean error_found = false;
+            String errorMessage = "";
+            boolean errorFound = false;
 
             // Starting from selected fields in ...
             for ( SnowflakeBulkLoaderField snowflakeBulkLoaderField : snowflakeBulkLoaderFields ) {
                 int idx = prev.indexOfValue( snowflakeBulkLoaderField.getStreamField() );
                 if ( idx < 0 ) {
-                    error_message += "\t\t" + snowflakeBulkLoaderField.getStreamField() + Const.CR;
-                    error_found = true;
+                    errorMessage += "\t\t" + snowflakeBulkLoaderField.getStreamField() + Const.CR;
+                    errorFound = true;
                 }
             }
-            if ( error_found ) {
-                error_message =
-                        BaseMessages.getString( PKG, "SnowflakeBulkLoadMeta.CheckResult.FieldsNotFound", error_message );
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            if ( errorFound ) {
+                errorMessage =
+                        BaseMessages.getString( PKG, "SnowflakeBulkLoadMeta.CheckResult.FieldsNotFound", errorMessage );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
                 remarks.add( cr );
             } else {
                 cr =
@@ -943,13 +944,15 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
         }
     }
 
-    /**
-     * Gets a list of fields in the database table
-     * @param variables The variable space
-     * @return The metadata about the fields in the table.
-     * @throws HopException
-     */
-    public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
+  /**
+   * Gets a list of fields in the database table
+   *
+   * @param variables The variable space
+   * @return The metadata about the fields in the table.
+   * @throws HopException
+   */
+  @Override
+  public IRowMeta getRequiredFields(IVariables variables) throws HopException {
         String realTableName = variables.resolve( targetTable );
         String realSchemaName = variables.resolve( targetSchema );
 
@@ -983,20 +986,6 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
         }
 
     }
-
-    /**
-     * Gets the list of databases used by the transform
-     * @return The list of databases used by the transform
-     */
-/*
-    public DatabaseMeta[] getUsedDatabaseConnections() {
-        if ( connection != null ) {
-            return new DatabaseMeta[]{connection};
-        } else {
-            return super.getUsedDatabaseConnections();
-        }
-    }
-*/
 
     /**
      * Gets the transform data
@@ -1173,52 +1162,6 @@ public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoad
                 } else {
                     retval.setError(BaseMessages.getString(PKG, "TableOutputMeta.Error.NoTable"));
                 }
-
-                /*
-                // Copy the row
-                IRowMeta tableFields = new RowMeta();
-
-
-
-                // Now change the field names
-                for (int i = 0; i < snowflakeBulkLoaderFields.size(); i++) {
-                    IValueMeta v = prev.searchValueMeta(snowflakeBulkLoaderFields.get(i).getStreamField());
-                    if (v != null) {
-                        IValueMeta tableField = v.clone();
-                        tableField.setName(snowflakeBulkLoaderFields.get(i).getTableField());
-                        tableFields.addValueMeta(tableField);
-                    } else {
-                        throw new HopTransformException(
-                                "Unable to find field ["
-                                        + snowflakeBulkLoaderFields.get(i).getStreamField()
-                                        + "] in the input rows");
-                    }
-                }
-
-                if (!Utils.isEmpty(targetTable)) {
-                    Database db = new Database(loggingObject, variables, databaseMeta);
-                    try {
-                        db.connect();
-
-                        String schemaTable =
-                                databaseMeta.getQuotedSchemaTableCombination(variables, targetSchema, targetTable);
-                        String sql = db.getDDL(schemaTable, tableFields, null, false, null, true);
-
-                        if (sql.length() == 0) {
-                            retval.setSql(null);
-                        } else {
-                            retval.setSql(sql);
-                        }
-                    } catch (HopException e) {
-                        retval.setError(
-                                BaseMessages.getString(PKG, "SnowflakeBulkLoaderMeta.GetSQL.ErrorOccurred")
-                                        + e.getMessage());
-                    }
-                } else {
-                    retval.setError(
-                            BaseMessages.getString(PKG, "SnowflakeBulkLoaderMeta.GetSQL.NoTableDefinedOnConnection"));
-                }
-*/
             } else {
                 retval.setError(
                         BaseMessages.getString(PKG, "SnowflakeBulkLoaderMeta.GetSQL.NotReceivingAnyFields"));
