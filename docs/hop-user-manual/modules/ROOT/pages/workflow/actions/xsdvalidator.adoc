@@ -31,7 +31,7 @@ As such, there are 2 entities at work here:
 * The XML you want to validate the layout for
 * The XSD (Schema) file that describes what the XML file should look like.
 
-See also the XSD Validator action.
+See also the xref:pipeline/transforms/xsdvalidator[XSD Validator pipeline transform].
 
 == Options
 
