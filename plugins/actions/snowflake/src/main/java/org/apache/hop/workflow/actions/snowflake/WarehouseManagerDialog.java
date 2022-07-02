@@ -254,7 +254,9 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
               } catch (Exception ex) {
                 warehouseManager.logDebug("Error getting warehouses", ex);
               } finally {
-                db.disconnect();
+                if (db != null) {
+                  db.disconnect();
+                }
               }
             }
           }
@@ -1182,7 +1184,9 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
       } catch (Exception ex) {
         warehouseManager.logDebug("Error getting resource monitors", ex);
       } finally {
-        db.disconnect();
+        if (db != null) {
+          db.disconnect();
+        }
       }
     }
   }
