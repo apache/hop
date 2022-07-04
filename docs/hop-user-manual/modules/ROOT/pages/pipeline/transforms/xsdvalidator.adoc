@@ -33,7 +33,7 @@ As such, there are 2 entities at work here:
 
 To make matters more complex, it's possible to store the XSD inside the XML itself.
 
-See also the xref:workflow/actions/xsdvalidator[XSD Validator workflow action].
+See also the xref:workflow/actions/xsdvalidator.adoc[XSD Validator workflow action].
 
 == Options
 
