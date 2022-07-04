@@ -96,8 +96,6 @@ But if you don't want to mix the values for aaa and bbb, you can group by the X 
 ----
 X   , Y , Z
 ------------
-X   , Y , Z
-------------
 aaa , 1 , <null>
 aaa , 2 , 1
 aaa , 3 , 2
