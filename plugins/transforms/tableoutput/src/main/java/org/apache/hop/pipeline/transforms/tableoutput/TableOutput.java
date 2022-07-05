@@ -62,8 +62,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
     if (r == null) { // no more input to be expected...
-      // truncate the table if there are no rows at all coming into this transform
-      if (first && meta.isTruncateTable()) {
+      if (first && meta.isTruncateTable() && !meta.isOnlyWhenHaveRows()) {
         truncateTable();
       }
       return false;

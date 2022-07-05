@@ -71,6 +71,8 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
   private Label wlTruncate;
   private Button wTruncate;
 
+  private Button wOnlyWhenHaveRows;
+
   private Label wlIgnore;
   private Button wIgnore;
 
@@ -286,6 +288,31 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
           }
         };
     wTruncate.addSelectionListener(lsSelMod);
+    wTruncate.addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent e) {
+        setFlags();
+      }
+    });
+
+    // Truncate only when have rows
+    Label wlOnlyWhenHaveRows = new Label(shell, SWT.RIGHT);
+    wlOnlyWhenHaveRows.setText(BaseMessages.getString(PKG, "TableOutputDialog.OnlyWhenHaveRows.Label"));
+    props.setLook(wlOnlyWhenHaveRows);
+    FormData fdlOnlyWhenHaveRows = new FormData();
+    fdlOnlyWhenHaveRows.left = new FormAttachment(0, 0);
+    fdlOnlyWhenHaveRows.top = new FormAttachment(wlTruncate, margin);
+    fdlOnlyWhenHaveRows.right = new FormAttachment(middle, -margin);
+    wlOnlyWhenHaveRows.setLayoutData(fdlOnlyWhenHaveRows);
+    wOnlyWhenHaveRows = new Button(shell, SWT.CHECK);
+    wOnlyWhenHaveRows.setToolTipText(BaseMessages.getString(PKG, "TableOutputDialog.OnlyWhenHaveRows.Tooltip"));
+    props.setLook(wOnlyWhenHaveRows);
+    FormData fdTruncateWhenHaveRows = new FormData();
+    fdTruncateWhenHaveRows.left = new FormAttachment(middle, 0);
+    fdTruncateWhenHaveRows.top = new FormAttachment(wlOnlyWhenHaveRows, 0, SWT.CENTER);
+    fdTruncateWhenHaveRows.right = new FormAttachment(100, 0);
+    wOnlyWhenHaveRows.setLayoutData(fdTruncateWhenHaveRows);
+    wOnlyWhenHaveRows.addSelectionListener(lsSelMod);
 
     // Ignore errors
     wlIgnore = new Label(shell, SWT.RIGHT);
@@ -293,7 +320,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook(wlIgnore);
     FormData fdlIgnore = new FormData();
     fdlIgnore.left = new FormAttachment(0, 0);
-    fdlIgnore.top = new FormAttachment(wTruncate, margin);
+    fdlIgnore.top = new FormAttachment(wOnlyWhenHaveRows, margin);
     fdlIgnore.right = new FormAttachment(middle, -margin);
     wlIgnore.setLayoutData(fdlIgnore);
     wIgnore = new Button(shell, SWT.CHECK);
@@ -1164,6 +1191,8 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlTruncate.setEnabled(enableTruncate);
     wTruncate.setEnabled(enableTruncate);
 
+    wOnlyWhenHaveRows.setEnabled(useTruncate);
+
     wlReturnField.setEnabled(returnKeys);
     wReturnField.setEnabled(returnKeys);
 
@@ -1211,6 +1240,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     }
 
     wTruncate.setSelection(input.isTruncateTable());
+    wOnlyWhenHaveRows.setSelection(input.isOnlyWhenHaveRows());
     wIgnore.setSelection(input.isIgnoreErrors());
     wBatch.setSelection(input.isUseBatchUpdate());
 
@@ -1266,6 +1296,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     info.setConnection(wConnection.getText());
     info.setCommitSize(wCommit.getText());
     info.setTruncateTable(wTruncate.getSelection());
+    info.setOnlyWhenHaveRows(wOnlyWhenHaveRows.getSelection());
     info.setIgnoreErrors(wIgnore.getSelection());
     info.setUseBatchUpdate(wBatch.getSelection());
     info.setPartitioningEnabled(wUsePart.getSelection());

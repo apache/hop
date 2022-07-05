@@ -87,6 +87,12 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
   private boolean truncateTable;
 
   @HopMetadataProperty(
+      key = "only_when_have_rows",
+      injectionKey = "ONLY_WHEN_HAVE_ROWS",
+      injectionKeyDescription = "TableOutputMeta.Inject.OnlyWhenHaveRows.Field")
+  private boolean onlyWhenHaveRows;
+
+  @HopMetadataProperty(
       key = "ignore_errors",
       injectionKey = "IGNORE_INSERT_ERRORS",
       injectionKeyDescription = "TableOutputMeta.Injection.IgnoreErrors.Field")
@@ -338,6 +344,20 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
   /** @param truncateTable The truncate table flag to set. */
   public void setTruncateTable(boolean truncateTable) {
     this.truncateTable = truncateTable;
+  }
+
+  /**
+   * @return Returns the onlyWhenHaveRows flag.
+   */
+  public boolean isOnlyWhenHaveRows() {
+    return onlyWhenHaveRows;
+  }
+
+  /**
+   * @param onlyWhenHaveRows The onlyWhenHaveRows to set.
+   */
+  public void setOnlyWhenHaveRows(boolean onlyWhenHaveRows) {
+    this.onlyWhenHaveRows = onlyWhenHaveRows;
   }
 
   /** @param ignoreErrors The ignore errors flag to set. */
