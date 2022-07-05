@@ -198,7 +198,10 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdOperation.top = new FormAttachment(wNrRowsInBloc, margin);
     fdOperation.right = new FormAttachment(100, -margin);
     wOperation.setLayoutData(fdOperation);
-    String[] operationTypeDescArray = JsonOutputMeta.operationDescType.keySet().toArray(new String[JsonOutputMeta.operationDescType.size()]);
+    String[] operationTypeDescArray =
+        JsonOutputMeta.operationDescType
+            .keySet()
+            .toArray(new String[JsonOutputMeta.operationDescType.size()]);
     wOperation.setItems(operationTypeDescArray);
     wOperation.addSelectionListener(
         new SelectionAdapter() {
@@ -747,11 +750,8 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
 
   protected void setComboBoxes() {
     // Something was changed in the row.
-    //
-    final Map<String, Integer> fields = new HashMap<>();
-
     // Add the currentMeta fields...
-    fields.putAll(inputFields);
+    final Map<String, Integer> fields = new HashMap<>(inputFields);
 
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<>(keySet);
@@ -876,10 +876,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void get() {
-    boolean gotPreviousFields = false;
-    if (gotPreviousFields) {
-      return;
-    }
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null) {
@@ -892,27 +888,25 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
             5,
             6,
             (tableItem, v) -> {
-              if (v.isNumber()) {
-                if (v.getLength() > 0) {
-                  int le = v.getLength();
-                  int pr = v.getPrecision();
+              if (v.isNumber() && v.getLength() > 0) {
+                int le = v.getLength();
+                int pr = v.getPrecision();
 
-                  if (v.getPrecision() <= 0) {
-                    pr = 0;
-                  }
-
-                  String mask = " ";
-                  for (int m = 0; m < le - pr; m++) {
-                    mask += "0";
-                  }
-                  if (pr > 0) {
-                    mask += ".";
-                  }
-                  for (int m = 0; m < pr; m++) {
-                    mask += "0";
-                  }
-                  tableItem.setText(4, mask);
+                if (v.getPrecision() <= 0) {
+                  pr = 0;
                 }
+
+                String mask = " ";
+                for (int m = 0; m < le - pr; m++) {
+                  mask += "0";
+                }
+                if (pr > 0) {
+                  mask += ".";
+                }
+                for (int m = 0; m < pr; m++) {
+                  mask += "0";
+                }
+                tableItem.setText(4, mask);
               }
               return true;
             });
@@ -928,8 +922,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
 
   private void updateOperation() {
     String opType = wOperation.getText();
-//    String opType = JsonOutputMeta.getOperationTypeByDesc(wOperation.getText());
-    boolean activeFile = opType != JsonOutputMeta.OPERATION_TYPE_OUTPUT_VALUE;
+    boolean activeFile = !opType.equals(JsonOutputMeta.OPERATION_TYPE_OUTPUT_VALUE);
 
     wlFilename.setEnabled(activeFile);
     wFilename.setEnabled(activeFile);
@@ -952,9 +945,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wAddToResult.setEnabled(activeFile);
     wbShowFiles.setEnabled(activeFile);
 
-    boolean activeOutputValue =
-      wOperation.getText()
-            != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE;
+    boolean activeOutputValue = !Objects.equals(wOperation.getText(), JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE);
 
     wlOutputValue.setEnabled(activeOutputValue);
     wOutputValue.setEnabled(activeOutputValue);
