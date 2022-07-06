@@ -51,7 +51,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::TableOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/tableoutput.html")
-public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputData> implements IProvidesModelerMeta {
+public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputData>
+    implements IProvidesModelerMeta {
   private static final Class<?> PKG = TableOutputMeta.class; // For Translator
 
   private static final String PARTION_PER_DAY = "DAY";
@@ -182,102 +183,142 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
     this.fields = fields;
   }
 
-  /** @return Returns the generatedKeyField. */
+  /**
+   * @return Returns the generatedKeyField.
+   */
   public String getGeneratedKeyField() {
     return generatedKeyField;
   }
 
-  /** @param generatedKeyField The generatedKeyField to set. */
+  /**
+   * @param generatedKeyField The generatedKeyField to set.
+   */
   public void setGeneratedKeyField(String generatedKeyField) {
     this.generatedKeyField = generatedKeyField;
   }
 
-  /** @return Returns the returningGeneratedKeys. */
+  /**
+   * @return Returns the returningGeneratedKeys.
+   */
   public boolean isReturningGeneratedKeys() {
     return returningGeneratedKeys;
   }
 
-  /** @param returningGeneratedKeys The returningGeneratedKeys to set. */
+  /**
+   * @param returningGeneratedKeys The returningGeneratedKeys to set.
+   */
   public void setReturningGeneratedKeys(boolean returningGeneratedKeys) {
     this.returningGeneratedKeys = returningGeneratedKeys;
   }
 
-  /** @return Returns the tableNameInTable. */
+  /**
+   * @return Returns the tableNameInTable.
+   */
   public boolean isTableNameInTable() {
     return tableNameInTable;
   }
 
-  /** @param tableNameInTable The tableNameInTable to set. */
+  /**
+   * @param tableNameInTable The tableNameInTable to set.
+   */
   public void setTableNameInTable(boolean tableNameInTable) {
     this.tableNameInTable = tableNameInTable;
   }
 
-  /** @return Returns the tableNameField. */
+  /**
+   * @return Returns the tableNameField.
+   */
   public String getTableNameField() {
     return tableNameField;
   }
 
-  /** @param tableNameField The tableNameField to set. */
+  /**
+   * @param tableNameField The tableNameField to set.
+   */
   public void setTableNameField(String tableNameField) {
     this.tableNameField = tableNameField;
   }
 
-  /** @return Returns the tableNameInField. */
+  /**
+   * @return Returns the tableNameInField.
+   */
   public boolean isTableNameInField() {
     return tableNameInField;
   }
 
-  /** @param tableNameInField The tableNameInField to set. */
+  /**
+   * @param tableNameInField The tableNameInField to set.
+   */
   public void setTableNameInField(boolean tableNameInField) {
     this.tableNameInField = tableNameInField;
   }
 
-  /** @return Returns the partitioningDaily. */
+  /**
+   * @return Returns the partitioningDaily.
+   */
   public boolean isPartitioningDaily() {
     return partitioningDaily;
   }
 
-  /** @param partitioningDaily The partitioningDaily to set. */
+  /**
+   * @param partitioningDaily The partitioningDaily to set.
+   */
   public void setPartitioningDaily(boolean partitioningDaily) {
     this.partitioningDaily = partitioningDaily;
   }
 
-  /** @return Returns the partitioningMontly. */
+  /**
+   * @return Returns the partitioningMontly.
+   */
   public boolean isPartitioningMonthly() {
     return partitioningMonthly;
   }
 
-  /** @param partitioningMontly The partitioningMontly to set. */
+  /**
+   * @param partitioningMontly The partitioningMontly to set.
+   */
   public void setPartitioningMonthly(boolean partitioningMontly) {
     this.partitioningMonthly = partitioningMontly;
   }
 
-  /** @return Returns the partitioningEnabled. */
+  /**
+   * @return Returns the partitioningEnabled.
+   */
   public boolean isPartitioningEnabled() {
     return partitioningEnabled;
   }
 
-  /** @param partitioningEnabled The partitioningEnabled to set. */
+  /**
+   * @param partitioningEnabled The partitioningEnabled to set.
+   */
   public void setPartitioningEnabled(boolean partitioningEnabled) {
     this.partitioningEnabled = partitioningEnabled;
   }
 
-  /** @return Returns the partitioningField. */
+  /**
+   * @return Returns the partitioningField.
+   */
   public String getPartitioningField() {
     return partitioningField;
   }
 
-  /** @param partitioningField The partitioningField to set. */
+  /**
+   * @param partitioningField The partitioningField to set.
+   */
   public void setPartitioningField(String partitioningField) {
     this.partitioningField = partitioningField;
   }
 
-  /** @return Returns the partitionDataPer value */
+  /**
+   * @return Returns the partitionDataPer value
+   */
   public String getPartitionDataPer() {
     return partitionDataPer;
   }
 
-  /** @param partitionDataPer The partitionDataPer to set */
+  /**
+   * @param partitionDataPer The partitionDataPer to set
+   */
   public void setPartitionDataPer(String partitionDataPer) {
     this.partitionDataPer = partitionDataPer;
 
@@ -306,22 +347,30 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
     this.connection = connection;
   }
 
-  /** @return Returns the commitSize. */
+  /**
+   * @return Returns the commitSize.
+   */
   public String getCommitSize() {
     return commitSize;
   }
 
-  /** @param commitSizeInt The commitSize to set. */
+  /**
+   * @param commitSizeInt The commitSize to set.
+   */
   public void setCommitSize(int commitSizeInt) {
     this.commitSize = Integer.toString(commitSizeInt);
   }
 
-  /** @param commitSize The commitSize to set. */
+  /**
+   * @param commitSize The commitSize to set.
+   */
   public void setCommitSize(String commitSize) {
     this.commitSize = commitSize;
   }
 
-  /** @return the table name */
+  /**
+   * @return the table name
+   */
   @Override
   public String getTableName() {
     return tableName;
@@ -336,12 +385,16 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
     this.tableName = tableName;
   }
 
-  /** @return Returns the truncate table flag. */
+  /**
+   * @return Returns the truncate table flag.
+   */
   public boolean isTruncateTable() {
     return truncateTable;
   }
 
-  /** @param truncateTable The truncate table flag to set. */
+  /**
+   * @param truncateTable The truncate table flag to set.
+   */
   public void setTruncateTable(boolean truncateTable) {
     this.truncateTable = truncateTable;
   }
@@ -360,32 +413,44 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
     this.onlyWhenHaveRows = onlyWhenHaveRows;
   }
 
-  /** @param ignoreErrors The ignore errors flag to set. */
+  /**
+   * @param ignoreErrors The ignore errors flag to set.
+   */
   public void setIgnoreErrors(boolean ignoreErrors) {
     this.ignoreErrors = ignoreErrors;
   }
 
-  /** @return Returns the ignore errors flag. */
+  /**
+   * @return Returns the ignore errors flag.
+   */
   public boolean isIgnoreErrors() {
     return ignoreErrors;
   }
 
-  /** @param specifyFields The specify fields flag to set. */
+  /**
+   * @param specifyFields The specify fields flag to set.
+   */
   public void setSpecifyFields(boolean specifyFields) {
     this.specifyFields = specifyFields;
   }
 
-  /** @return Returns the specify fields flag. */
+  /**
+   * @return Returns the specify fields flag.
+   */
   public boolean isSpecifyFields() {
     return specifyFields;
   }
 
-  /** @param useBatchUpdate The useBatchUpdate flag to set. */
+  /**
+   * @param useBatchUpdate The useBatchUpdate flag to set.
+   */
   public void setUseBatchUpdate(boolean useBatchUpdate) {
     this.useBatchUpdate = useBatchUpdate;
   }
 
-  /** @return Returns the useBatchUpdate flag. */
+  /**
+   * @return Returns the useBatchUpdate flag.
+   */
   public boolean isUseBatchUpdate() {
     return useBatchUpdate;
   }
@@ -821,7 +886,9 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
     return getTableFields(databaseMeta, realTableName, realSchemaName, variables);
   }
 
-  public IRowMeta getTableFields(DatabaseMeta databaseMeta, String tableName, String schemaName, IVariables variables) throws HopException {
+  public IRowMeta getTableFields(
+      DatabaseMeta databaseMeta, String tableName, String schemaName, IVariables variables)
+      throws HopException {
 
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
@@ -883,13 +950,17 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
     return items;
   }
 
-  /** @return the schemaName */
+  /**
+   * @return the schemaName
+   */
   @Override
   public String getSchemaName() {
     return schemaName;
   }
 
-  /** @param schemaName the schemaName to set */
+  /**
+   * @param schemaName the schemaName to set
+   */
   public void setSchemaName(String schemaName) {
     this.schemaName = schemaName;
   }

@@ -288,16 +288,18 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
           }
         };
     wTruncate.addSelectionListener(lsSelMod);
-    wTruncate.addSelectionListener(new SelectionAdapter() {
-      @Override
-      public void widgetSelected(SelectionEvent e) {
-        setFlags();
-      }
-    });
+    wTruncate.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            setFlags();
+          }
+        });
 
     // Truncate only when have rows
     Label wlOnlyWhenHaveRows = new Label(shell, SWT.RIGHT);
-    wlOnlyWhenHaveRows.setText(BaseMessages.getString(PKG, "TableOutputDialog.OnlyWhenHaveRows.Label"));
+    wlOnlyWhenHaveRows.setText(
+        BaseMessages.getString(PKG, "TableOutputDialog.OnlyWhenHaveRows.Label"));
     props.setLook(wlOnlyWhenHaveRows);
     FormData fdlOnlyWhenHaveRows = new FormData();
     fdlOnlyWhenHaveRows.left = new FormAttachment(0, 0);
@@ -305,7 +307,8 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     fdlOnlyWhenHaveRows.right = new FormAttachment(middle, -margin);
     wlOnlyWhenHaveRows.setLayoutData(fdlOnlyWhenHaveRows);
     wOnlyWhenHaveRows = new Button(shell, SWT.CHECK);
-    wOnlyWhenHaveRows.setToolTipText(BaseMessages.getString(PKG, "TableOutputDialog.OnlyWhenHaveRows.Tooltip"));
+    wOnlyWhenHaveRows.setToolTipText(
+        BaseMessages.getString(PKG, "TableOutputDialog.OnlyWhenHaveRows.Tooltip"));
     props.setLook(wOnlyWhenHaveRows);
     FormData fdTruncateWhenHaveRows = new FormData();
     fdTruncateWhenHaveRows.left = new FormAttachment(middle, 0);
@@ -1042,7 +1045,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
   }
 
   private void validateSelection() {
-    Runnable fieldLoader = () -> isConnectionSupported();
+    Runnable fieldLoader = this::isConnectionSupported;
 
     shell.getDisplay().asyncExec(fieldLoader);
   }

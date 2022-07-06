@@ -45,6 +45,7 @@ This is important for data sources that allow for table names with periods in th
 Commit the connection every N rows if N is larger than zero (0); otherwise, don't use transactions.
 (Slower)
 |Truncate table|Select if you want the table to be truncated before the first row is inserted into the table
+|Truncate on first row|Select if you want the table to be truncated when the transform receives it's first row
 |Ignore insert errors|Makes Hop ignore all insert errors such as violated primary keys.
 A maximum of 20 warnings will be logged however.
 This option is not available for batch inserts.
