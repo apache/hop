@@ -110,7 +110,8 @@ Specify which parameters will be passed to the sub-workflow:
 |Pass all parameter values down to the sub-workflow|Enable this option to pass all parameters of the workflow down to the sub-workflow.
 |Parameters|Specify the parameter names that will be passed to the workflow.
 |Stream column name|Allows you to capture fields of incoming records of a result set as a parameter.
-|Value|Allows you to specify the values for the sub-workflow's parameters.
+|Value
+a|Allows you to specify the values for the sub-workflow's parameters.
 You can do this by:
 
 * Manually typing some text (Ex: ETL workflow)
