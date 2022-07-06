@@ -53,8 +53,11 @@ When this option is cleared, the following fields are available:
 |Read source as URL|Select to indicate if the source should be accessed as a URL.
 |Do not pass field downstream|Select to remove the source field from the output stream.
 This action improves performance and memory utilization with large JSON fields.
-|File or directory|Specify the source location if the source is not defined in a field. |Click Browse to navigate to your source file or directory.
-Click Add to include the source in the Selected files table.
+|File or directory|Specify the source location if the source is not defined in a field. 
+
+* Click Browse to navigate to your source file or directory.
+* Click Add to include the source in the Selected files table.
+
 |Regular expression|Specify a regular expression to match filenames within a specified directory.
 |Exclude regular expression|Specify a regular expression to exclude filenames within a specified directory.
 |File/Directory|The source location indicated by clicking Add after specifying it in File or directory.
@@ -137,45 +140,45 @@ The Additional output fields tab contains the following options to specify addit
 |===
 
 == Considerations
-Normally, while processing input JSON files, if the field contains a null record then the output will not be shown.
+Normally, while processing input JSON files, if a field contains null then the whole record will be omitted from the output.
 
 For example if we have a JSON file like this
-```
+```json
 {
-	"id": "123456",
-	"testArray": [
-		{
-			"id": "1654879",
-			"Name": null,
-			"testArray_inner_one": [
-				{
-					"id": "15697",
-					"Name": "Robert"
-				}
-			]
-		},
-		{
-			"id": "888",
-			"Name": "Robert222",
-			"testArray_inner_two": [
-				{
-					"id": "4309",
-					"Name": null
-				}
-			]
-		}
-	]
+  "id": "123456",
+  "testArray": [
+    {
+      "id": "1654879",
+      "Name": null,
+      "testArray_inner_one": [
+        {
+          "id": "15697",
+          "Name": "Robert"
+        }
+      ]
+    },
+    {
+      "id": "888",
+      "Name": "Robert222",
+      "testArray_inner_two": [
+        {
+          "id": "4309",
+          "Name": null
+        }
+      ]
+    }
+  ]
 }
 ```
 
-looking at the default behavior the output will be
+given the default behavior, the output will be
 
 ```
 id;ResourceName
 123456;Robert222
 ```
 
-whereas it must be
+whereas you may prefer it to be
 
 ```
 id;ResourceName
@@ -183,13 +186,11 @@ id;ResourceName
 123456;Robert222
 ```
 
-To change Hop default behavior in considering Null values, we must add a new configuration variable HOP_JSON_INPUT_INCLUDE_NULLS with value Y
+To change Hop's behavior regarding Null values, add a new configuration variable:
 
 ```
 HOP_JSON_INPUT_INCLUDE_NULLS = Y
 ```
-
-By setting this variable, the behavior changes the way we want and the output will change accordingly.
 
 == Metadata Injection Support
 
