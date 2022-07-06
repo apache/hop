@@ -34,7 +34,7 @@ limitations under the License.
     <created_date>2021/12/21 14:38:28.717</created_date>
     <modified_user>-</modified_user>
     <modified_date>2021/12/21 14:38:28.717</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAA/wMAAAAAAAAAAAA=</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
@@ -97,7 +97,7 @@ limitations under the License.
     <rownum>N</rownum>
     <rownumByFile>N</rownumByFile>
     <rownum_field/>
-    <format>DOS</format>
+    <format>mixed</format>
     <encoding>UTF-8</encoding>
     <length>Characters</length>
     <add_to_result_filenames>Y</add_to_result_filenames>
