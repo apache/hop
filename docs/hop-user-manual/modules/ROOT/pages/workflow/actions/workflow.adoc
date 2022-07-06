@@ -113,8 +113,9 @@ Specify which parameters will be passed to the sub-workflow:
 |Value|Allows you to specify the values for the sub-workflow's parameters.
 You can do this by:
 
-- Manually typing some text (Ex: ETL workflow)
-- Using a parameter to set the value (Ex: {openvar}Internal.workflow.Name{closevar})
-- Using a combination of manually specified text and parameter values (Ex: {openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt)
+* Manually typing some text (Ex: ETL workflow)
+* Using a parameter to set the value (Ex: {openvar}Internal.workflow.Name{closevar})
+* Using a combination of manually specified text and parameter values (Ex: {openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt)
+
 |===
 
