@@ -37,6 +37,12 @@ For example, you should not write a data warehouse load using one workflow that 
 
 It is better to create smaller workflows and compose them.
 
+See also:
+
+* The xref:workflow/actions/pipeline.adoc[Pipeline action] that executes a pipeline from a workflow.
+* The xref:pipeline/transforms/workflowexecutor.adoc[Workflow Executor transform] that executes a workflow from a pipeline.
+* The xref:pipeline/transforms/pipelineexecutor.adoc[Pipeline Executor transform] that executes a sub-pipeline from a pipeline.
+
 == Options
 
 === workflow Specification Tab
