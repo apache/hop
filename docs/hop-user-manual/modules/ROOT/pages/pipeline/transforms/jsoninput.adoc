@@ -53,7 +53,8 @@ When this option is cleared, the following fields are available:
 |Read source as URL|Select to indicate if the source should be accessed as a URL.
 |Do not pass field downstream|Select to remove the source field from the output stream.
 This action improves performance and memory utilization with large JSON fields.
-|File or directory|Specify the source location if the source is not defined in a field. 
+|File or directory
+a|Specify the source location if the source is not defined in a field.
 
 * Click Browse to navigate to your source file or directory.
 * Click Add to include the source in the Selected files table.
