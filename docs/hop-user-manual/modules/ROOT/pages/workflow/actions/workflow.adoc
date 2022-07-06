@@ -25,7 +25,7 @@ under the License.
 
 == Description
 
-The Workflow action executes a previously defined workflow from the current workflow.
+The Workflow action executes a previously defined workflow as a **sub-worflow** of the current one.
 
 For ease of use, it is also possible to create a new workflow within the dialog, pressing the New Workflow button.
 
@@ -33,9 +33,9 @@ Use the Workflow action to execute a previously defined workflow.
 
 This allows you to perform "functional decomposition." That is, you use them to break out workflows into more manageable units.
 
-For example, you would not write a data warehouse load using one workflow that contains 500 actions.
+For example, you should not write a data warehouse load using one workflow that contains 500 actions.
 
-It is better to create smaller workflows and aggregate them.
+It is better to create smaller workflows and compose them.
 
 == Options
 
@@ -45,7 +45,7 @@ It is better to create smaller workflows and aggregate them.
 |===
 |Option|Description
 |Action name|Name of the action.
-|Workflow Filename|Specify the XML file name of the workflow to start.
+|Workflow Filename|Specify the XML file name of the workflow to execute.
 Click to browse through your local files.
 |===
 
@@ -97,12 +97,12 @@ See also the logging window in Logging
 [width="90%",options="header"]
 |===
 |Option|Description
-|Arguments|Specify which command-line arguments will be passed to the pipeline.
+|Arguments|Specify which command-line arguments will be passed to the sub-workflow.
 |===
 
 === Parameters Tab
 
-Specify which parameters will be passed to the pipeline:
+Specify which parameters will be passed to the sub-workflow:
 
 [width="90%",options="header"]
 |===
@@ -110,11 +110,13 @@ Specify which parameters will be passed to the pipeline:
 |Pass all parameter values down to the sub-workflow|Enable this option to pass all parameters of the workflow down to the sub-workflow.
 |Parameters|Specify the parameter names that will be passed to the workflow.
 |Stream column name|Allows you to capture fields of incoming records of a result set as a parameter.
-|Value|Allows you to specify the values for the pipeline's parameters.
+|Value
+a|Allows you to specify the values for the sub-workflow's parameters.
 You can do this by:
 
-- Manually typing some text (Ex: ETL workflow)
-- Using a parameter to set the value (Ex: {openvar}Internal.workflow.Name{closevar})
-- Using a combination of manually specified text and parameter values (Ex: {openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt)
+* Manually typing some text (Ex: ETL workflow)
+* Using a parameter to set the value (Ex: {openvar}Internal.workflow.Name{closevar})
+* Using a combination of manually specified text and parameter values (Ex: {openvar}FILE_PREFIX{closevar}_{openvar}FILE_DATE{closevar}.txt)
+
 |===
 
