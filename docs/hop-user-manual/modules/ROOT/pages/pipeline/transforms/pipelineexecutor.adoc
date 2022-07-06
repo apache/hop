@@ -35,9 +35,10 @@ In these cases, the first row in the group of rows is used to set parameters or 
 - You can launch multiple copies of this transform to assist in parallel pipeline processing.
 
 See also:
-* The xref:workflow/actions/workflow[Workflow action] that executes a sub-workflow from a workflow.
-* The xref:workflow/actions/pipeline[Pipeline action] that executes a pipeline from a workflow.
-* The xref:pipeline/transforms/workflowexecutor[Workflow Executor transform] that executes a workflow from a pipeline.
+
+* The xref:workflow/actions/workflow.adoc[Workflow action] that executes a sub-workflow from a workflow.
+* The xref:workflow/actions/pipeline.adoc[Pipeline action] that executes a pipeline from a workflow.
+* The xref:pipeline/transforms/workflowexecutor.adoc[Workflow Executor transform] that executes a workflow from a pipeline.
 
 == Options
 
