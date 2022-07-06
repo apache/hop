@@ -37,6 +37,11 @@ For example, you would not write a data warehouse load using one workflow that c
 
 It is better to create smaller workflows and aggregate them.
 
+See also:
+* The xref:workflow/actions/pipeline[Pipeline action] that executes a pipeline from a workflow.
+* The xref:pipeline/transforms/workflowexecutor[Workflow Executor transform] that executes a workflow from a pipeline.
+* The xref:pipeline/transforms/pipelineexecutor[Pipeline Executor transform] that executes a sub-pipeline from a pipeline.
+
 == Options
 
 === workflow Specification Tab
