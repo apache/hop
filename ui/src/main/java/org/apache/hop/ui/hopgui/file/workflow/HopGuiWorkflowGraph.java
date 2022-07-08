@@ -2533,7 +2533,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           .append(" ")
           .append(hi.getToAction().getName())
           .append(Const.CR);
-      tip.append(BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopInfo.Status")).append(" ");
+      tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo.Status")).append(" ");
       tip.append(
           (hi.isEnabled()
               ? BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo.Enable")
