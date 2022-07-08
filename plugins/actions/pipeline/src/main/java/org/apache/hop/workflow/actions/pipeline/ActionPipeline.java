@@ -691,7 +691,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
       String realFilename = tmpSpace.resolve(getFilename());
 
-      pipelineMeta = new PipelineMeta(realFilename, metadataProvider, true, this);
+      pipelineMeta = new PipelineMeta(realFilename, metadataProvider, this);
 
       if (pipelineMeta != null) {
         // Pass the metadata references

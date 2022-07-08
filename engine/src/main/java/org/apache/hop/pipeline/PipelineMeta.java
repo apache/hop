@@ -1696,8 +1696,6 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param fname The filename
    * @param metadataProvider the metadata store to reference (or null if there is none)
-   * @param setInternalVariables true if you want to set the internal variables based on this
-   *     pipeline information
    * @param parentVariableSpace the parent variable variables to use during PipelineMeta
    *     construction
    * @throws HopXmlException if any errors occur during parsing of the specified file
@@ -1705,10 +1703,9 @@ public class PipelineMeta extends AbstractMeta
    *     exception in that case)
    */
   public PipelineMeta(
-      String fname,
-      IHopMetadataProvider metadataProvider,
-      boolean setInternalVariables,
-      IVariables parentVariableSpace)
+          String fname,
+          IHopMetadataProvider metadataProvider,
+          IVariables parentVariableSpace)
       throws HopXmlException, HopMissingPluginsException {
     // if fname is not provided, there's not much we can do, throw an exception
     if (StringUtils.isBlank(fname)) {
@@ -1723,6 +1720,12 @@ public class PipelineMeta extends AbstractMeta
 
     this.metadataProvider = metadataProvider;
 
+    loadXml(fname, metadataProvider, parentVariableSpace);
+  }
+
+  public void loadXml(
+      String fname, IHopMetadataProvider metadataProvider, IVariables parentVariableSpace)
+      throws HopXmlException, HopMissingPluginsException {
     // OK, try to load using the VFS stuff...
     Document doc = null;
     try {
@@ -1752,7 +1755,7 @@ public class PipelineMeta extends AbstractMeta
       }
 
       // Load from this node...
-      loadXml(pipelineNode, fname, metadataProvider, setInternalVariables, parentVariableSpace);
+      loadXml(pipelineNode, fname, metadataProvider, parentVariableSpace);
 
     } else {
       throw new HopXmlException(
@@ -1765,7 +1768,6 @@ public class PipelineMeta extends AbstractMeta
    * Instantiates a new pipeline meta-data object.
    *
    * @param xmlStream the XML input stream from which to read the pipeline definition
-   * @param setInternalVariables whether to set internal variables as a result of the creation
    * @param parentVariableSpace the parent variable variables
    * @throws HopXmlException if any errors occur during parsing of the specified stream
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the
@@ -1774,12 +1776,11 @@ public class PipelineMeta extends AbstractMeta
   public PipelineMeta(
       InputStream xmlStream,
       IHopMetadataProvider metadataProvider,
-      boolean setInternalVariables,
       IVariables parentVariableSpace)
       throws HopXmlException, HopMissingPluginsException {
     Document doc = XmlHandler.loadXmlFile(xmlStream, null, false, false);
     Node pipelineNode = XmlHandler.getSubNode(doc, XML_TAG);
-    loadXml(pipelineNode, null, metadataProvider, setInternalVariables, parentVariableSpace);
+    loadXml(pipelineNode, null, metadataProvider, parentVariableSpace);
   }
 
   /**
@@ -1792,7 +1793,7 @@ public class PipelineMeta extends AbstractMeta
    */
   public PipelineMeta(Node pipelineNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException, HopMissingPluginsException {
-    loadXml(pipelineNode, null, metadataProvider, false, null);
+    loadXml(pipelineNode, null, metadataProvider, null);
   }
 
   /**
@@ -1800,8 +1801,6 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param pipelineNode The XML node to load from
    * @param filename The filename
-   * @param setInternalVariables true if you want to set the internal variables based on this
-   *     pipeline information
    * @param variables the parent variable variables to use during PipelineMeta construction
    * @throws HopXmlException if any errors occur during parsing of the specified file
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the
@@ -1811,7 +1810,6 @@ public class PipelineMeta extends AbstractMeta
       Node pipelineNode,
       String filename,
       IHopMetadataProvider metadataProvider,
-      boolean setInternalVariables,
       IVariables variables)
       throws HopXmlException, HopMissingPluginsException {
 

@@ -108,7 +108,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
       // OK, load the meta-data from file...
       // Don't set internal variables: they belong to the parent thread!
       if (mappingPipelineMeta == null) {
-        mappingPipelineMeta = new PipelineMeta(realFilename, metadataProvider, true, tmpSpace);
+        mappingPipelineMeta = new PipelineMeta(realFilename, metadataProvider, tmpSpace);
         LogChannel.GENERAL.logDetailed(
             "Loading pipeline", "Pipeline was loaded from XML file [" + realFilename + "]");
       }

@@ -207,7 +207,7 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
       throws HopException {
 
     PipelineMeta loggingPipelineMeta =
-        new PipelineMeta(loggingPipelineFilename, pipeline.getMetadataProvider(), true, variables);
+        new PipelineMeta(loggingPipelineFilename, pipeline.getMetadataProvider(), variables);
 
     // Create a local pipeline engine...
     //

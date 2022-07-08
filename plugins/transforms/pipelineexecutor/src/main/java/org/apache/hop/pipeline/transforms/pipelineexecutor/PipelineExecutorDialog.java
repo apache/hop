@@ -416,7 +416,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
   private void loadPipelineFile(String fname) throws HopException {
     String filename = variables.resolve(fname);
-    executorPipelineMeta = new PipelineMeta(filename, metadataProvider, true, variables);
+    executorPipelineMeta = new PipelineMeta(filename, metadataProvider, variables);
     executorPipelineMeta.clearChanged();
   }
 

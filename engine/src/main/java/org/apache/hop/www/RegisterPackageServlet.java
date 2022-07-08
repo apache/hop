@@ -121,7 +121,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
             new PipelineExecutionConfiguration(node);
 
         PipelineMeta pipelineMeta =
-            new PipelineMeta(fileUrl, metadataProvider, true, Variables.getADefaultVariableSpace());
+            new PipelineMeta(fileUrl, metadataProvider, Variables.getADefaultVariableSpace());
 
         PipelineConfiguration pipelineConfiguration =
             new PipelineConfiguration(

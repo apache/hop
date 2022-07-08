@@ -156,7 +156,7 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
       throws HopException {
 
     PipelineMeta loggingPipelineMeta =
-        new PipelineMeta(loggingPipelineFilename, workflow.getMetadataProvider(), true, variables);
+        new PipelineMeta(loggingPipelineFilename, workflow.getMetadataProvider(), variables);
 
     // Create a local pipeline engine...
     //

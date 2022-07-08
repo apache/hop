@@ -67,10 +67,7 @@ import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.metadata.MetadataContext;
-import org.apache.hop.ui.hopgui.delegates.HopGuiAuditDelegate;
-import org.apache.hop.ui.hopgui.delegates.HopGuiContextDelegate;
-import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
-import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
+import org.apache.hop.ui.hopgui.delegates.*;
 import org.apache.hop.ui.hopgui.dialog.AboutDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -207,6 +204,7 @@ public class HopGui
   public HopGuiUndoDelegate undoDelegate;
   public HopGuiContextDelegate contextDelegate;
   public HopGuiAuditDelegate auditDelegate;
+  public HopGuiFileRefreshDelegate fileRefreshDelegate;
 
   private boolean openingLastFiles;
 
@@ -230,6 +228,7 @@ public class HopGui
     undoDelegate = new HopGuiUndoDelegate(this);
     contextDelegate = new HopGuiContextDelegate(this);
     auditDelegate = new HopGuiAuditDelegate(this);
+    fileRefreshDelegate = new HopGuiFileRefreshDelegate(this);
 
     // TODO: create metadata plugin system
     //

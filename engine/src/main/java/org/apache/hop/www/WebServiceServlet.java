@@ -134,7 +134,7 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
       // Load and start the pipeline
       // Output the data to the response output stream...
       //
-      PipelineMeta pipelineMeta = new PipelineMeta(filename, metadataProvider, true, variables);
+      PipelineMeta pipelineMeta = new PipelineMeta(filename, metadataProvider, variables);
       LocalPipelineEngine pipeline =
           new LocalPipelineEngine(pipelineMeta, variables, servletLoggingObject);
       pipeline.setContainerId(serverObjectId);

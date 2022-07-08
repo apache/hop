@@ -806,7 +806,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   private void loadPipelineFile(String filename) throws HopException {
     String realFilename = variables.resolve(filename);
     try {
-      injectPipelineMeta = new PipelineMeta(realFilename, metadataProvider, true, variables);
+      injectPipelineMeta = new PipelineMeta(realFilename, metadataProvider, variables);
       injectPipelineMeta.clearChanged();
     } catch (HopXmlException e) {
       MessageBox box = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
