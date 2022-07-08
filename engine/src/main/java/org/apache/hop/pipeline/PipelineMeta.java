@@ -1723,7 +1723,9 @@ public class PipelineMeta extends AbstractMeta
     loadXml(fname, metadataProvider, parentVariableSpace);
   }
 
-  public void loadXml(String fname, IHopMetadataProvider metadataProvider, IVariables parentVariableSpace) throws HopXmlException, HopMissingPluginsException {
+  public void loadXml(
+      String fname, IHopMetadataProvider metadataProvider, IVariables parentVariableSpace)
+      throws HopXmlException, HopMissingPluginsException {
     // OK, try to load using the VFS stuff...
     Document doc = null;
     try {

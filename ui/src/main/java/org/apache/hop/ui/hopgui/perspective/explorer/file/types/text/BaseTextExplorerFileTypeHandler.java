@@ -103,13 +103,13 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   }
 
   @Override
-  public void reload(){
+  public void reload() {
     try {
       String contents = readTextFileContent("UTF-8");
       wText.setText(Const.NVL(contents, ""));
     } catch (Exception e) {
       LogChannel.UI.logError(
-              "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
+          "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
     }
   }
 }

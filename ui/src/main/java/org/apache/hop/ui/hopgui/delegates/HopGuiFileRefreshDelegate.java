@@ -17,7 +17,8 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
-import org.apache.commons.vfs2.*;
+import org.apache.commons.vfs2.FileChangeEvent;
+import org.apache.commons.vfs2.FileListener;
 import org.apache.commons.vfs2.impl.DefaultFileMonitor;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.vfs.HopVfs;
@@ -30,65 +31,67 @@ import java.util.Map;
 
 public class HopGuiFileRefreshDelegate {
 
-    private HopGui hopGui;
+  private HopGui hopGui;
 
-    private DefaultFileMonitor fileMonitor;
+  private DefaultFileMonitor fileMonitor;
 
-    //key: vfs file uri
-    //value: the corresponding fileTypeHandler
-    //
-    private Map<String, IHopFileTypeHandler> fileHandlerMap;
+  // key: vfs file uri
+  // value: the corresponding fileTypeHandler
+  //
+  private Map<String, IHopFileTypeHandler> fileHandlerMap;
 
-    //TODO: replace it with a config option
-    private static final long DELAY=1000l;
+  // TODO: replace it with a config option
+  private static final long DELAY = 1000l;
 
-    public HopGuiFileRefreshDelegate(HopGui hopGui){
-        this.hopGui=hopGui;
-        this.fileHandlerMap=new HashMap<>();
-        this.fileMonitor = new DefaultFileMonitor(new FileListener() {
+  public HopGuiFileRefreshDelegate(HopGui hopGui) {
+    this.hopGui = hopGui;
+    this.fileHandlerMap = new HashMap<>();
+    this.fileMonitor =
+        new DefaultFileMonitor(
+            new FileListener() {
 
-            @Override
-            public void fileChanged(FileChangeEvent arg0) throws Exception {
+              @Override
+              public void fileChanged(FileChangeEvent arg0) throws Exception {
                 String fileName = arg0.getFileObject().getName().getURI();
                 if (fileName != null) {
-                    IHopFileTypeHandler fileHandler = fileHandlerMap.get(fileName);
-                    Display.getDefault().asyncExec(fileHandler::reload);
+                  IHopFileTypeHandler fileHandler = fileHandlerMap.get(fileName);
+                  Display.getDefault().asyncExec(fileHandler::reload);
                 }
-            }
+              }
 
-            @Override
-            public void fileCreated(FileChangeEvent arg0) throws Exception {
-            }
+              @Override
+              public void fileCreated(FileChangeEvent arg0) throws Exception {}
 
-            @Override
-            public void fileDeleted(FileChangeEvent arg0) throws Exception {
-            }
-        });
-        fileMonitor.setDelay(DELAY);
-        fileMonitor.start();
+              @Override
+              public void fileDeleted(FileChangeEvent arg0) throws Exception {}
+            });
+    fileMonitor.setDelay(DELAY);
+    fileMonitor.start();
+  }
+
+  // A typeHandler was registered while
+  // 1. The tabItems in the MetadataPerspectives, HopDataOrchestrationPerspective and
+  // ExplorerPerspective were created
+  // 2. If the tabItem is for a new typeFile without any file name, it'll be registered when it's
+  // saved in the file system
+  //
+  public void register(String fileName, IHopFileTypeHandler fileTypeHandler) {
+    try {
+      fileMonitor.addFile(HopVfs.getFileObject(fileName));
+      System.out.println(fileName + " was added to file monitor");
+    } catch (HopFileException e) {
+      hopGui.getLog().logError("Error registering new FileObject", e);
     }
+    fileHandlerMap.put(fileName, fileTypeHandler);
+  }
 
-    //A typeHandler was registered while
-    // 1. The tabItems in the MetadataPerspectives, HopDataOrchestrationPerspective and ExplorerPerspective were created
-    // 2. If the tabItem is for a new typeFile without any file name, it'll be registered when it's saved in the file system
-    //
-    public void register(String fileName, IHopFileTypeHandler fileTypeHandler){
-        try {
-            fileMonitor.addFile(HopVfs.getFileObject(fileName));
-            System.out.println(fileName+" was added to file monitor");
-        } catch (HopFileException e) {
-            hopGui.getLog().logError("Error registering new FileObject", e);
-        }
-        fileHandlerMap.put(fileName, fileTypeHandler);
+  public void remove(String fileName) {
+    fileHandlerMap.remove(fileName);
+    try {
+      fileMonitor.removeFile(HopVfs.getFileObject(fileName));
+      System.out.println(fileName + " was removed from file monitor");
+    } catch (HopFileException e) {
+      hopGui.getLog().logError("Error removing FileObject from fileListener", e);
     }
-
-    public void remove(String fileName){
-        fileHandlerMap.remove(fileName);
-        try {
-            fileMonitor.removeFile(HopVfs.getFileObject(fileName));
-            System.out.println(fileName+" was removed from file monitor");
-        } catch (HopFileException e) {
-            hopGui.getLog().logError("Error removing FileObject from fileListener", e);
-        }
-    }
+  }
 }

@@ -267,9 +267,10 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     boolean isRemoved = remove(typeHandler);
 
     //
-    //Remove the file in refreshDelegate
+    // Remove the file in refreshDelegate
     try {
-      hopGui.fileRefreshDelegate.remove(HopVfs.getFileObject(typeHandler.getFilename()).getPublicURIString());
+      hopGui.fileRefreshDelegate.remove(
+          HopVfs.getFileObject(typeHandler.getFilename()).getPublicURIString());
     } catch (HopFileException e) {
       hopGui.getLog().logError("Error getting VFS fileObject", e);
     }
@@ -380,10 +381,11 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
         new HopGuiPipelineGraph(tabFolder, hopGui, tabItem, this, pipelineMeta, pipelineFile);
     tabItem.setControl(pipelineGraph);
 
-    //If it's a new pipeline, the file name will be null. So, ignore
+    // If it's a new pipeline, the file name will be null. So, ignore
     //
-    if(pipelineMeta.getFilename()!=null){
-      hopGui.fileRefreshDelegate.register(HopVfs.getFileObject(pipelineMeta.getFilename()).getPublicURIString(),pipelineGraph);
+    if (pipelineMeta.getFilename() != null) {
+      hopGui.fileRefreshDelegate.register(
+          HopVfs.getFileObject(pipelineMeta.getFilename()).getPublicURIString(), pipelineGraph);
     }
     // Set the tab name
     //
@@ -454,10 +456,11 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
         new HopGuiWorkflowGraph(tabFolder, hopGui, tabItem, this, workflowMeta, workflowFile);
     tabItem.setControl(workflowGraph);
 
-    //If it's a new workflow, the file name will be null
+    // If it's a new workflow, the file name will be null
     //
-    if(workflowMeta.getFilename()!=null){
-      hopGui.fileRefreshDelegate.register(HopVfs.getFileObject(workflowMeta.getFilename()).getPublicURIString(),workflowGraph);
+    if (workflowMeta.getFilename() != null) {
+      hopGui.fileRefreshDelegate.register(
+          HopVfs.getFileObject(workflowMeta.getFilename()).getPublicURIString(), workflowGraph);
     }
 
     // Update the internal variables (file specific) in the workflow graph variables
@@ -723,7 +726,9 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return items;
   }
 
-  /** @param items The items to set */
+  /**
+   * @param items The items to set
+   */
   public void setItems(List<TabItemHandler> items) {
     this.items = items;
   }
@@ -737,7 +742,9 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return activeItem;
   }
 
-  /** @param activeItem The activeItem to set */
+  /**
+   * @param activeItem The activeItem to set
+   */
   public void setActiveItem(TabItemHandler activeItem) {
     this.activeItem = activeItem;
   }
@@ -751,7 +758,9 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return hopGui;
   }
 
-  /** @param hopGui The hopGui to set */
+  /**
+   * @param hopGui The hopGui to set
+   */
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }
@@ -770,7 +779,9 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return tabFolder;
   }
 
-  /** @param tabFolder The tabFolder to set */
+  /**
+   * @param tabFolder The tabFolder to set
+   */
   public void setTabFolder(CTabFolder tabFolder) {
     this.tabFolder = tabFolder;
   }

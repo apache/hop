@@ -483,7 +483,6 @@ public class MetadataPerspective implements IHopPerspective {
     if (tabFolder.getItemCount() == 0) {
       HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
     }
-
   }
 
   public void onNewMetadata() {
