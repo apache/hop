@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "firstname",
+          "data_set_field": "firstname"
+        },
+        {
+          "transform_field": "lastname",
+          "data_set_field": "lastname"
+        }
+      ],
+      "field_order": [
+        "firstname",
+        "lastname"
+      ],
+      "transform_name": "test",
+      "data_set_name": "delete-3-customers"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "delete-3-customers-json-test",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./tests/mongo-delete/delete-3-customers-json-test.hpl",
+  "test_type": "UNIT_TEST"
+}
