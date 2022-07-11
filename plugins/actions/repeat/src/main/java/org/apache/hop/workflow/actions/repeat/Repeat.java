@@ -592,7 +592,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   private PipelineMeta loadPipeline(
       String realFilename, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopException {
-    PipelineMeta pipelineMeta = new PipelineMeta(realFilename, metadataProvider, true, variables);
+    PipelineMeta pipelineMeta = new PipelineMeta(realFilename, metadataProvider, variables);
     return pipelineMeta;
   }
 

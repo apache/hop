@@ -24,6 +24,7 @@ import org.apache.hop.core.*;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
@@ -2533,7 +2534,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           .append(" ")
           .append(hi.getToAction().getName())
           .append(Const.CR);
-      tip.append(BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopInfo.Status")).append(" ");
+      tip.append(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo.Status")).append(" ");
       tip.append(
           (hi.isEnabled()
               ? BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopInfo.Enable")
@@ -2696,7 +2697,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           gc.drawImage(svgFile, 200, 200, 32, 40, gc.getMagnification(), 0);
           gc.setBackground(IGc.EColor.BACKGROUND);
           gc.drawText(
-              BaseMessages.getString(PKG, "HopGuiWorkflowGraph.NewWorkflowBackgroundMessage"), 260, 220);
+              BaseMessages.getString(PKG, "HopGuiWorkflowGraph.NewWorkflowBackgroundMessage"),
+              260,
+              220);
         }
       } catch (HopException e) {
         throw new HopException("Error drawing workflow", e);
@@ -3247,17 +3250,22 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       workflowMeta.setFilename(filename);
       save();
+      hopGui.fileRefreshDelegate.register(fileObject.getPublicURIString(), this);
     } catch (Exception e) {
-      new HopException("Error validating file existence for '" + filename + "'", e);
+      throw new HopException("Error validating file existence for '" + filename + "'", e);
     }
   }
 
-  /** @return the lastMove */
+  /**
+   * @return the lastMove
+   */
   public Point getLastMove() {
     return lastMove;
   }
 
-  /** @param lastMove the lastMove to set */
+  /**
+   * @param lastMove the lastMove to set
+   */
   public void setLastMove(Point lastMove) {
     this.lastMove = lastMove;
   }
@@ -3916,7 +3924,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return log;
   }
 
-  /** @param log The log to set */
+  /**
+   * @param log The log to set
+   */
   public void setLog(ILogChannel log) {
     this.log = log;
   }
@@ -3930,12 +3940,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return props;
   }
 
-  /** @param props The props to set */
+  /**
+   * @param props The props to set
+   */
   public void setProps(PropsUi props) {
     this.props = props;
   }
 
-  /** @param hopGui The hopGui to set */
+  /**
+   * @param hopGui The hopGui to set
+   */
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }
@@ -3950,7 +3964,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return fileType;
   }
 
-  /** @param fileType The fileType to set */
+  /**
+   * @param fileType The fileType to set
+   */
   public void setFileType(HopWorkflowFileType<WorkflowMeta> fileType) {
     this.fileType = fileType;
   }
@@ -3967,5 +3983,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    */
   public Thread getWorkflowThread() {
     return workflowThread;
+  }
+
+  @Override
+  public void reload() {
+    try {
+      workflowMeta.loadXml(hopGui.getVariables(), getFilename(), hopGui.getMetadataProvider());
+    } catch (HopXmlException e) {
+      LogChannel.GENERAL.logError("Error reloading workflow xml file", e);
+    }
+    redraw();
+    updateGui();
   }
 }

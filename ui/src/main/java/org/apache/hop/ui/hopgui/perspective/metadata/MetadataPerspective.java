@@ -471,22 +471,17 @@ public class MetadataPerspective implements IHopPerspective {
     CTabItem tabItem = (CTabItem) event.item;
     MetadataEditor<?> editor = (MetadataEditor<?>) tabItem.getData();
 
-    if (editor.isCloseable()) {
-      editors.remove(editor);
-      tabItem.dispose();
+    boolean isRemoved = remove(editor);
 
-      // Refresh tree to remove bold
-      //
-      this.refresh();
-
-      // If all editor are closed
-      //
-      if (tabFolder.getItemCount() == 0) {
-        HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
-      }
-    } else {
-      // Ignore event if canceled
+    if (!isRemoved) {
       event.doit = false;
+      return;
+    }
+
+    // If all editor are closed
+    //
+    if (tabFolder.getItemCount() == 0) {
+      HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
     }
   }
 

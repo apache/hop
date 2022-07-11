@@ -194,7 +194,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
 
       // Run the pipeline with the given filename
       //
-      PipelineMeta pipelineMeta = new PipelineMeta(realFilename, metadataProvider, true, variables);
+      PipelineMeta pipelineMeta = new PipelineMeta(realFilename, metadataProvider, variables);
 
       // Configure the basic execution settings
       //

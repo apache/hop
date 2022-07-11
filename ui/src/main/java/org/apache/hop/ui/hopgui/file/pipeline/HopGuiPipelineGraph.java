@@ -24,9 +24,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.*;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.exception.*;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.*;
@@ -1713,7 +1711,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   protected void addHop(IStream stream) {
-    if(candidate == null) {
+    if (candidate == null) {
       return;
     }
     switch (stream.getStreamType()) {
@@ -3651,7 +3649,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     this.impactFinished = impactHasRun;
   }
 
-  /** @return the lastMove */
+  /**
+   * @return the lastMove
+   */
   public Point getLastMove() {
     return lastMove;
   }
@@ -3742,8 +3742,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       pipelineMeta.setFilename(filename);
       save();
+      hopGui.fileRefreshDelegate.register(fileObject.getPublicURIString(), this);
     } catch (Exception e) {
-      new HopException("Error validating file existence for '" + filename + "'", e);
+      throw new HopException("Error validating file existence for '" + filename + "'", e);
     }
   }
 
@@ -3953,12 +3954,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
-  /** @return the toolbar */
+  /**
+   * @return the toolbar
+   */
   public ToolBar getToolBar() {
     return toolBar;
   }
 
-  /** @param toolBar the toolbar to set */
+  /**
+   * @param toolBar the toolbar to set
+   */
   public void setToolBar(ToolBar toolBar) {
     this.toolBar = toolBar;
   }
@@ -4697,27 +4702,37 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return false;
   }
 
-  /** @return the lastPipelineDebugMeta */
+  /**
+   * @return the lastPipelineDebugMeta
+   */
   public PipelineDebugMeta getLastPipelineDebugMeta() {
     return lastPipelineDebugMeta;
   }
 
-  /** @return the halting */
+  /**
+   * @return the halting
+   */
   public boolean isHalting() {
     return halting;
   }
 
-  /** @param halting the halting to set */
+  /**
+   * @param halting the halting to set
+   */
   public void setHalting(boolean halting) {
     this.halting = halting;
   }
 
-  /** @return the transformLogMap */
+  /**
+   * @return the transformLogMap
+   */
   public Map<String, String> getTransformLogMap() {
     return transformLogMap;
   }
 
-  /** @param transformLogMap the transformLogMap to set */
+  /**
+   * @param transformLogMap the transformLogMap to set
+   */
   public void setTransformLogMap(Map<String, String> transformLogMap) {
     this.transformLogMap = transformLogMap;
   }
@@ -4974,7 +4989,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return fileType;
   }
 
-  /** @param fileType The fileType to set */
+  /**
+   * @param fileType The fileType to set
+   */
   public void setFileType(HopPipelineFileType<PipelineMeta> fileType) {
     this.fileType = fileType;
   }
@@ -5268,8 +5285,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return outputRowsMap;
   }
 
-  /** @param outputRowsMap The outputRowsMap to set */
+  /**
+   * @param outputRowsMap The outputRowsMap to set
+   */
   public void setOutputRowsMap(Map<String, RowBuffer> outputRowsMap) {
     this.outputRowsMap = outputRowsMap;
+  }
+
+  @Override
+  public void reload() {
+    try {
+      pipelineMeta.loadXml(getFilename(), hopGui.getMetadataProvider(), hopGui.getVariables());
+    } catch (HopXmlException | HopMissingPluginsException e) {
+      LogChannel.GENERAL.logError("Error reloading pipeline xml file", e);
+    }
+    redraw();
+    updateGui();
   }
 }

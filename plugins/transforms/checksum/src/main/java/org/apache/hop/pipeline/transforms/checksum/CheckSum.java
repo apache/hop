@@ -160,6 +160,7 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
   private byte[] createCheckSum(Object[] r) throws Exception {
 
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    boolean valueAdded = false;
 
     // Loop through fields
     for (int i = 0; i < data.fieldnr; i++) {
@@ -167,18 +168,20 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
       if (valueMeta.isBinary()) {
         byte[] bytes = getInputRowMeta().getBinary(r, data.fieldnrs[i]);
         if (bytes != null) {
+          valueAdded = true;
           baos.write(bytes);
         }
       } else {
         Object value = valueMeta.getNativeDataType(r[data.fieldnrs[i]]);
         if (value != null) {
+          valueAdded = true;
           baos.write(value.toString().getBytes());
         }    
       }
     }
 
     // Return null when all input values are null.
-    if (baos.size() == 0) {
+    if (!valueAdded) {
       return null;
     }
     
@@ -209,6 +212,7 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
     byte[] byteArray;
 
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    boolean valueAdded = false;
 
     // Loop through fields
     for (int i = 0; i < data.fieldnr; i++) {
@@ -217,18 +221,20 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
       if (valueMeta.isBinary()) {
         byte[] bytes = getInputRowMeta().getBinary(r, data.fieldnrs[i]);
         if (bytes != null) {
+          valueAdded = true;
           baos.write(bytes);
         }
       } else {
         Object value = valueMeta.getNativeDataType(r[data.fieldnrs[i]]);
         if (value != null) {
+          valueAdded= true;
           baos.write(value.toString().getBytes());
         }
       }
     }
 
     // Return null when all input values are null.
-    if (baos.size() == 0) {
+    if (!valueAdded) {
       return null;
     }
     

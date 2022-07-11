@@ -194,7 +194,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           //
           PipelineMeta pipelineMeta =
               new PipelineMeta(
-                  fileUrl, metadataProvider, true, Variables.getADefaultVariableSpace());
+                  fileUrl, metadataProvider, Variables.getADefaultVariableSpace());
 
           serverObjectId = UUID.randomUUID().toString();
           servletLoggingObject.setContainerObjectId(serverObjectId);

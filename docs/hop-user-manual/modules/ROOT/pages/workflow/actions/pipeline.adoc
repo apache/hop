@@ -32,6 +32,12 @@ This action is the access point from your workflow to your actual data processin
 An example of a common workflow includes getting FTP files, checking existence of a necessary target database table, running a pipeline that populates that table, and e-mailing an error log if a pipeline fails.
 For this example, the Pipeline action defines which pipeline to run to populate the table.
 
+See also:
+
+* The xref:workflow/actions/workflow.adoc[Workflow action] that executes a sub-workflow from a workflow.
+* The xref:pipeline/transforms/workflowexecutor.adoc[Workflow Executor transform] that executes a workflow from a pipeline.
+* The xref:pipeline/transforms/pipelineexecutor.adoc[Pipeline Executor transform] that executes a sub-pipeline from a pipeline.
+
 == Options
 
 === General

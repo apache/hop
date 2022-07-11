@@ -382,7 +382,7 @@ public class PipelineMetaTest {
     IVariables variables = Mockito.mock(IVariables.class);
     Mockito.when(variables.getVariableNames()).thenReturn(new String[0]);
 
-    meta.loadXml(workflowNode, null, metadataProvider, false, variables);
+    meta.loadXml(workflowNode, null, metadataProvider, variables);
     meta.setInternalHopVariables(variables);
   }
 

@@ -217,7 +217,7 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
       T fileTypeHandler = createFileTypeHandler(hopGui, perspective, explorerFile);
       explorerFile.setFileTypeHandler(fileTypeHandler);
 
-      perspective.addFile(explorerFile, fileTypeHandler);
+      perspective.addFile(explorerFile);
 
       return fileTypeHandler;
     } catch (Exception e) {

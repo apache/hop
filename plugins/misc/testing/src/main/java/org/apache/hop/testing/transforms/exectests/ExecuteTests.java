@@ -209,7 +209,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
     //
     String filename = test.calculateCompletePipelineFilename(this);
     if (StringUtils.isNotEmpty(filename)) {
-      unitTestPipelineMeta = new PipelineMeta(filename, metadataProvider, true, this);
+      unitTestPipelineMeta = new PipelineMeta(filename, metadataProvider, this);
     }
     if (unitTestPipelineMeta == null) {
       throw new HopException(
