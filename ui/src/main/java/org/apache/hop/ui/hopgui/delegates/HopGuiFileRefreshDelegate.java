@@ -78,7 +78,6 @@ public class HopGuiFileRefreshDelegate {
   public void register(String fileName, IHopFileTypeHandler fileTypeHandler) {
     try {
       fileMonitor.addFile(HopVfs.getFileObject(fileName));
-      System.out.println(fileName + " was added to file monitor");
     } catch (HopFileException e) {
       hopGui.getLog().logError("Error registering new FileObject", e);
     }
@@ -89,7 +88,6 @@ public class HopGuiFileRefreshDelegate {
     fileHandlerMap.remove(fileName);
     try {
       fileMonitor.removeFile(HopVfs.getFileObject(fileName));
-      System.out.println(fileName + " was removed from file monitor");
     } catch (HopFileException e) {
       hopGui.getLog().logError("Error removing FileObject from fileListener", e);
     }
