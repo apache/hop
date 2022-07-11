@@ -177,6 +177,7 @@ under the License.
 *** xref:pipeline/transforms/metadata-input.adoc[Metadata Input]
 *** xref:pipeline/transforms/metastructure.adoc[Metadata structure of stream]
 *** xref:pipeline/transforms/monetdbbulkloader.adoc[MonetDB Bulk Loader]
+*** xref:pipeline/transforms/mongodbdelete.adoc[MongoDB Delete]
 *** xref:pipeline/transforms/mongodbinput.adoc[MongoDB Input]
 *** xref:pipeline/transforms/mongodboutput.adoc[MongoDB Output]
 *** xref:pipeline/transforms/multimerge.adoc[Multiway Merge Join]
