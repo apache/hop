@@ -69,6 +69,10 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
 
   private static final String YES = "Y";
 
+  public static final String SPECIFY_FILENAME = "filename";
+  public static final String NO_NEED = "noneed";
+
+  private String xsdSource;
   private String xmlfilename;
   private String xsdfilename;
 
@@ -101,6 +105,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     StringBuffer xml = new StringBuffer(50);
 
     xml.append(super.getXml());
+    xml.append("      ").append(XmlHandler.addTagValue("xsdsource", xsdSource));
     xml.append("      ").append(XmlHandler.addTagValue("xmlfilename", xmlfilename));
     xml.append("      ").append(XmlHandler.addTagValue("xsdfilename", xsdfilename));
     xml.append("      ")
@@ -114,6 +119,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
       throws HopXmlException {
     try {
       super.loadXml(entrynode);
+      xsdSource = XmlHandler.getTagValue(entrynode, "xsdsource");
       xmlfilename = XmlHandler.getTagValue(entrynode, "xmlfilename");
       xsdfilename = XmlHandler.getTagValue(entrynode, "xsdfilename");
       allowExternalEntities =
@@ -268,6 +274,14 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
 
   public boolean isAllowExternalEntities() {
     return allowExternalEntities;
+  }
+
+  public String getXsdSource() {
+    return xsdSource;
+  }
+
+  public void setXsdSource(String xsdSource) {
+    this.xsdSource = xsdSource;
   }
 
   public void setAllowExternalEntities(boolean allowExternalEntities) {
