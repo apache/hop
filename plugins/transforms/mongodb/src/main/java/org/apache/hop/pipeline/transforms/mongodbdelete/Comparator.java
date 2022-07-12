@@ -17,42 +17,35 @@
 
 package org.apache.hop.pipeline.transforms.mongodbdelete;
 
-/**
- * Enumeration for supported comparator for MongoDbDelete step.
- *
- * @author Maas Dianto (maas.dianto@gmail.com)
- */
+/** Enumeration for supported comparator for MongoDbDelete step. */
 public enum Comparator {
+  EQUAL("="),
+  NOT_EQUAL("<>"),
+  LESS_THAN("<"),
+  LESS_THAN_EQUAL("<="),
+  GREATER_THAN(">"),
+  GREATER_THAN_EQUAL(">="),
+  BETWEEN("BETWEEN"),
+  IS_NULL("IS NULL"),
+  IS_NOT_NULL("IS NOT NULL");
 
-    EQUAL("=")
-    , NOT_EQUAL("<>")
-    , LESS_THAN("<")
-    , LESS_THAN_EQUAL("<=")
-    , GREATER_THAN(">")
-    , GREATER_THAN_EQUAL(">=")
-    , BETWEEN("BETWEEN")
-    , IS_NULL("IS NULL")
-    , IS_NOT_NULL("IS NOT NULL")
-    ;
+  private String value;
 
-    private String value;
+  private Comparator(String value) {
+    this.value = value;
+  }
 
-    private Comparator(String value) {
-        this.value = value;
+  public String getValue() {
+    return value;
+  }
+
+  public static String[] asLabel() {
+    String[] lables = new String[Comparator.values().length];
+    int index = 0;
+    for (Comparator mo : Comparator.values()) {
+      lables[index] = mo.value;
+      index++;
     }
-
-    public String getValue() {
-        return value;
-    }
-
-    public static String[] asLabel() {
-        String[] lables = new String[Comparator.values().length];
-        int index = 0;
-        for (Comparator mo : Comparator.values()) {
-            lables[index] = mo.value;
-            index++;
-        }
-        return lables;
-    }
-
+    return lables;
+  }
 }

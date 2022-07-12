@@ -40,313 +40,326 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Class MongoDbDelete, providing MongoDB delete functionality. User able to create criteria base on incoming fields.
- *
- * @author Maas Dianto (maas.dianto@gmail.com)
+ * Class MongoDbDelete, providing MongoDB delete functionality. User able to create criteria base on
+ * incoming fields.
  */
 public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDeleteData> {
 
-    private static Class<?> PKG = MongoDbDelete.class;
+  private static final Class<?> PKG = MongoDbDelete.class;
 
-    public int writeRetries;
-    protected int writeRetryDelay;
+  public int writeRetries;
+  protected int writeRetryDelay;
 
-    public MongoDbDelete(TransformMeta transformMeta, MongoDbDeleteMeta meta, MongoDbDeleteData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-        super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
-    }
+  public MongoDbDelete(
+      TransformMeta transformMeta,
+      MongoDbDeleteMeta meta,
+      MongoDbDeleteData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
+  }
 
-    @Override
-    public boolean processRow() throws HopException {
-        Object[] row = getRow();
+  @Override
+  public boolean processRow() throws HopException {
+    Object[] row = getRow();
 
-        if (meta.isUseJsonQuery()) {
-            if (first) {
-                first = false;
+    if (meta.isUseJsonQuery()) {
+      if (first) {
+        first = false;
 
-                if (getInputRowMeta() == null) {
-                    data.outputRowMeta = new RowMeta();
-                } else {
-                    data.setOutputRowMeta(getInputRowMeta());
-                }
-                data.init(MongoDbDelete.this);
-
-                DBObject query = getQueryFromJSON(meta.getJsonQuery(), row);
-                commitDelete(query, row);
-            } else if (meta.isExecuteForEachIncomingRow()) {
-
-                if (row == null) {
-                    disconnect();
-                    setOutputDone();
-                    return false;
-                }
-
-                if (!first) {
-                    DBObject query = getQueryFromJSON(meta.getJsonQuery(), row);
-                    commitDelete(query, row);
-                }
-            }
-
-            if (row == null) {
-                disconnect();
-                setOutputDone();
-                return false;
-            }
-
-            if (!isStopped()) {
-                putRow(data.getOutputRowMeta(), row);
-            }
-
-            return true;
+        if (getInputRowMeta() == null) {
+          data.outputRowMeta = new RowMeta();
         } else {
-
-            if (row == null) {
-                disconnect();
-                setOutputDone();
-                return false;
-            }
-
-            if (first) {
-                first = false;
-
-                data.setOutputRowMeta(getInputRowMeta());
-                // first check our incoming fields against our meta data for
-                // fields to delete
-                IRowMeta rmi = getInputRowMeta();
-                // this fields we are going to use for mongo output
-                List<MongoDbDeleteField> mongoFields = meta.getMongoFields();
-                checkInputFieldsMatch(rmi, mongoFields);
-
-                data.setMongoFields(meta.getMongoFields());
-                data.init(MongoDbDelete.this);
-            }
-
-            if (!isStopped()) {
-
-                putRow(data.getOutputRowMeta(), row);
-
-                DBObject query = MongoDbDeleteData.getQueryObject(data.m_userFields, getInputRowMeta(), row, MongoDbDelete.this);
-                if (log.isDebug()) {
-                    logDebug(BaseMessages.getString(PKG, "MongoDbDelete.Message.Debug.QueryForDelete", query));
-                }
-                // We have query delete
-                if (query != null) {
-                    commitDelete(query, row);
-                }
-            }
-
-            return true;
+          data.setOutputRowMeta(getInputRowMeta());
         }
-    }
+        data.init(MongoDbDelete.this);
 
-    @Override
-    public boolean init() {
-        if (super.init()) {
+        DBObject query = getQueryFromJSON(meta.getJsonQuery(), row);
+        commitDelete(query, row);
+      } else if (meta.isExecuteForEachIncomingRow()) {
 
-            String connectionName = resolve(meta.getConnectionName());
-
-            try {
-                try {
-                    data.connection =
-                            metadataProvider.getSerializer(MongoDbConnection.class).load(connectionName);
-                } catch (Exception e) {
-                    throw new Exception(
-                            BaseMessages.getString(
-                                    PKG, "MongoInput.ErrorMessage.ErrorLoadingMongoDbConnection", connectionName));
-                }
-                if (data.connection == null) {
-                    throw new Exception(
-                            BaseMessages.getString(
-                                    PKG, "MongoInput.ErrorMessage.MongoDbConnection.NotFound", connectionName));
-                }
-
-                String databaseName = resolve(data.connection.getDbName());
-                if (StringUtils.isEmpty(databaseName)) {
-                    throw new Exception(BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoDBSpecified"));
-                }
-
-                String collection = resolve(meta.getCollection());
-                if (StringUtils.isEmpty(collection)) {
-                    throw new Exception(
-                            BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoCollectionSpecified"));
-                }
-
-                if (!StringUtils.isEmpty(data.connection.getAuthenticationUser())) {
-                    String authInfo =
-                            (data.connection.isUsingKerberos()
-                                    ? BaseMessages.getString(
-                                    PKG,
-                                    "MongoDbInput.Message.KerberosAuthentication",
-                                    resolve(data.connection.getAuthenticationUser()))
-                                    : BaseMessages.getString(
-                                    PKG,
-                                    "MongoDbInput.Message.NormalAuthentication",
-                                    resolve(data.connection.getAuthenticationUser())));
-                    logBasic(authInfo);
-                }
-
-                // init connection constructs a MongoCredentials object if necessary
-                data.clientWrapper = data.connection.createWrapper(this, log);
-                data.collection = data.clientWrapper.getCollection(databaseName, collection);
-
-                if (!StringUtil.isEmpty(meta.getWriteRetries())) {
-                    try {
-                        writeRetries = Integer.parseInt(meta.getWriteRetries());
-                    } catch (NumberFormatException ex) {
-                        writeRetries = meta.nbRetries;
-                    }
-                }
-
-                if (!StringUtil.isEmpty(meta.getWriteRetryDelay())) {
-                    try {
-                        writeRetryDelay = Integer.parseInt(meta.getWriteRetryDelay());
-                    } catch (NumberFormatException ex) {
-                        writeRetryDelay = meta.retryDelay;
-                    }
-                }
-
-                return true;
-            } catch (Exception e) {
-                logError(
-                        BaseMessages.getString(
-                                PKG,
-                                "MongoDbInput.ErrorConnectingToMongoDb.Exception",
-                                data.connection.getHostname(),
-                                data.connection.getPort(),
-                                data.connection.getDbName(),
-                                meta.getCollection()),
-                        e);
-                return false;
-            }
+        if (row == null) {
+          disconnect();
+          setOutputDone();
+          return false;
         }
 
+        if (!first) {
+          DBObject query = getQueryFromJSON(meta.getJsonQuery(), row);
+          commitDelete(query, row);
+        }
+      }
+
+      if (row == null) {
+        disconnect();
+        setOutputDone();
         return false;
+      }
+
+      if (!isStopped()) {
+        putRow(data.getOutputRowMeta(), row);
+      }
+
+      return true;
+    } else {
+
+      if (row == null) {
+        disconnect();
+        setOutputDone();
+        return false;
+      }
+
+      if (first) {
+        first = false;
+
+        data.setOutputRowMeta(getInputRowMeta());
+        // first check our incoming fields against our meta data for
+        // fields to delete
+        IRowMeta rmi = getInputRowMeta();
+        // this fields we are going to use for mongo output
+        List<MongoDbDeleteField> mongoFields = meta.getMongoFields();
+        checkInputFieldsMatch(rmi, mongoFields);
+
+        data.setMongoFields(meta.getMongoFields());
+        data.init(MongoDbDelete.this);
+      }
+
+      if (!isStopped()) {
+
+        putRow(data.getOutputRowMeta(), row);
+
+        DBObject query =
+            MongoDbDeleteData.getQueryObject(
+                data.mUserFields, getInputRowMeta(), row, MongoDbDelete.this);
+        if (log.isDebug()) {
+          logDebug(
+              BaseMessages.getString(PKG, "MongoDbDelete.Message.Debug.QueryForDelete", query));
+        }
+        // We have query delete
+        if (query != null) {
+          commitDelete(query, row);
+        }
+      }
+
+      return true;
+    }
+  }
+
+  @Override
+  public boolean init() {
+    if (super.init()) {
+
+      String connectionName = resolve(meta.getConnectionName());
+
+      try {
+        try {
+          data.connection =
+              metadataProvider.getSerializer(MongoDbConnection.class).load(connectionName);
+        } catch (Exception e) {
+          throw new Exception(
+              BaseMessages.getString(
+                  PKG, "MongoInput.ErrorMessage.ErrorLoadingMongoDbConnection", connectionName));
+        }
+        if (data.connection == null) {
+          throw new Exception(
+              BaseMessages.getString(
+                  PKG, "MongoInput.ErrorMessage.MongoDbConnection.NotFound", connectionName));
+        }
+
+        String databaseName = resolve(data.connection.getDbName());
+        if (StringUtils.isEmpty(databaseName)) {
+          throw new Exception(BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoDBSpecified"));
+        }
+
+        String collection = resolve(meta.getCollection());
+        if (StringUtils.isEmpty(collection)) {
+          throw new Exception(
+              BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoCollectionSpecified"));
+        }
+
+        if (!StringUtils.isEmpty(data.connection.getAuthenticationUser())) {
+          String authInfo =
+              (data.connection.isUsingKerberos()
+                  ? BaseMessages.getString(
+                      PKG,
+                      "MongoDbInput.Message.KerberosAuthentication",
+                      resolve(data.connection.getAuthenticationUser()))
+                  : BaseMessages.getString(
+                      PKG,
+                      "MongoDbInput.Message.NormalAuthentication",
+                      resolve(data.connection.getAuthenticationUser())));
+          logBasic(authInfo);
+        }
+
+        // init connection constructs a MongoCredentials object if necessary
+        data.clientWrapper = data.connection.createWrapper(this, log);
+        data.collection = data.clientWrapper.getCollection(databaseName, collection);
+
+        if (!StringUtil.isEmpty(meta.getWriteRetries())) {
+          try {
+            writeRetries = Integer.parseInt(meta.getWriteRetries());
+          } catch (NumberFormatException ex) {
+            writeRetries = meta.nbRetries;
+          }
+        }
+
+        if (!StringUtil.isEmpty(meta.getWriteRetryDelay())) {
+          try {
+            writeRetryDelay = Integer.parseInt(meta.getWriteRetryDelay());
+          } catch (NumberFormatException ex) {
+            writeRetryDelay = meta.retryDelay;
+          }
+        }
+
+        return true;
+      } catch (Exception e) {
+        logError(
+            BaseMessages.getString(
+                PKG,
+                "MongoDbInput.ErrorConnectingToMongoDb.Exception",
+                data.connection.getHostname(),
+                data.connection.getPort(),
+                data.connection.getDbName(),
+                meta.getCollection()),
+            e);
+        return false;
+      }
     }
 
-    @Override
-    public void dispose() {
-        if (data.cursor != null) {
-            try {
-                data.cursor.close();
-            } catch (MongoDbException e) {
-                log.logError(e.getMessage());
-            }
-        }
-        if (data.clientWrapper != null) {
-            try {
-                data.clientWrapper.dispose();
-            } catch (MongoDbException e) {
-                log.logError(e.getMessage());
-            }
-        }
+    return false;
+  }
 
-        super.dispose();
+  @Override
+  public void dispose() {
+    if (data.cursor != null) {
+      try {
+        data.cursor.close();
+      } catch (MongoDbException e) {
+        log.logError(e.getMessage());
+      }
+    }
+    if (data.clientWrapper != null) {
+      try {
+        data.clientWrapper.dispose();
+      } catch (MongoDbException e) {
+        log.logError(e.getMessage());
+      }
     }
 
-    protected void disconnect() {
-        if (data != null) {
-            try {
-                data.getConnection().dispose();
-            } catch (MongoDbException e) {
-                log.logError(e.getMessage());
-            }
+    super.dispose();
+  }
+
+  protected void disconnect() {
+    if (data != null) {
+      try {
+        data.getConnection().dispose();
+      } catch (MongoDbException e) {
+        log.logError(e.getMessage());
+      }
+    }
+  }
+
+  protected void commitDelete(DBObject deleteQuery, Object[] row) throws HopException {
+    int retrys = 0;
+    MongoException lastEx = null;
+
+    while (retrys <= writeRetries && !isStopped()) {
+      WriteResult result = null;
+      try {
+        try {
+          logDetailed(
+              BaseMessages.getString(PKG, "MongoDbDelete.Message.ExecutingQuery", deleteQuery));
+          result = data.getCollection().remove(deleteQuery);
+        } catch (MongoDbException e) {
+          throw new MongoException(e.getMessage(), e);
         }
+      } catch (MongoException me) {
+        lastEx = me;
+        retrys++;
+        if (retrys <= writeRetries) {
+          logError(
+              BaseMessages.getString(
+                  PKG, "MongoDbDelete.ErrorMessage.ErrorWritingToMongo", me.toString()));
+          logBasic(BaseMessages.getString(PKG, "MongoDbDelete.Message.Retry", writeRetryDelay));
+          try {
+            Thread.sleep(writeRetryDelay * 1000);
+            // CHECKSTYLE:OFF
+          } catch (InterruptedException e) {
+            // CHECKSTYLE:ON
+          }
+        }
+      }
+      if (result != null) {
+        break;
+      }
     }
 
-    protected void commitDelete(DBObject deleteQuery, Object[] row) throws HopException {
-        int retrys = 0;
-        MongoException lastEx = null;
+    if ((retrys > writeRetries || isStopped()) && lastEx != null) {
 
-        while (retrys <= writeRetries && !isStopped()) {
-            WriteResult result = null;
-            try {
-                try {
-                    logDetailed(BaseMessages.getString(PKG, "MongoDbDelete.Message.ExecutingQuery", deleteQuery));
-                    result = data.getCollection().remove(deleteQuery);
-                } catch ( MongoDbException e ) {
-                    throw new MongoException(e.getMessage(), e);
-                }
-            } catch (MongoException me) {
-                lastEx = me;
-                retrys++;
-                if (retrys <= writeRetries) {
-                    logError(BaseMessages.getString(PKG, "MongoDbDelete.ErrorMessage.ErrorWritingToMongo",
-                            me.toString()));
-                    logBasic(BaseMessages.getString(PKG, "MongoDbDelete.Message.Retry", writeRetryDelay));
-                    try {
-                        Thread.sleep(writeRetryDelay * 1000);
-                        // CHECKSTYLE:OFF
-                    } catch (InterruptedException e) {
-                        // CHECKSTYLE:ON
-                    }
-                }
-            }
-            if ( result != null ) {
-                break;
-            }
-        }
+      // Send this one to the error stream if doing error handling
+      if (getTransformMeta().isDoingErrorHandling()) {
+        putError(getInputRowMeta(), row, 1, lastEx.getMessage(), "", "MongoDbDelete");
+      } else {
+        throw new HopException(lastEx);
+      }
+    }
+  }
 
-        if ((retrys > writeRetries || isStopped()) && lastEx != null) {
+  public DBObject getQueryFromJSON(String json, Object[] row) throws HopException {
+    DBObject query;
+    String jsonQuery = resolve(json);
+    if (StringUtil.isEmpty(jsonQuery)) {
+      query = new BasicDBObject();
+    } else {
+      if (meta.isExecuteForEachIncomingRow() && row != null) {
+        jsonQuery = resolve(jsonQuery, getInputRowMeta(), row);
+      }
 
-            // Send this one to the error stream if doing error handling
-            if (getTransformMeta().isDoingErrorHandling()) {
-                putError(getInputRowMeta(), row, 1, lastEx.getMessage(), "", "MongoDbDelete");
-            } else {
-                throw new HopException(lastEx);
-            }
-        }
+      query = (DBObject) JSON.parse(jsonQuery);
+    }
+    return query;
+  }
+
+  final void checkInputFieldsMatch(IRowMeta rmi, List<MongoDbDeleteField> mongoFields)
+      throws HopException {
+    if (mongoFields == null || mongoFields.isEmpty()) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "MongoDbDeleteDialog.ErrorMessage.NoFieldPathsDefined"));
     }
 
-    public DBObject getQueryFromJSON(String json, Object[] row) throws HopException {
-        DBObject query;
-        String jsonQuery = resolve(json);
-        if (StringUtil.isEmpty(jsonQuery)) {
-            query = new BasicDBObject();
-        } else {
-            if (meta.isExecuteForEachIncomingRow() && row != null) {
-                jsonQuery = resolve(jsonQuery, getInputRowMeta(), row);
-            }
-
-            query = (DBObject) JSON.parse(jsonQuery);
-        }
-        return query;
+    Set<String> expected = new HashSet<>(mongoFields.size(), 1);
+    Set<String> actual = new HashSet<>(rmi.getFieldNames().length, 1);
+    for (MongoDbDeleteField field : mongoFields) {
+      String field1 = resolve(field.incomingField1);
+      String field2 = resolve(field.incomingField2);
+      expected.add(field1);
+      if (!StringUtil.isEmpty(field2)) {
+        expected.add(field2);
+      }
+    }
+    for (int i = 0; i < rmi.size(); i++) {
+      String metaFieldName = rmi.getValueMeta(i).getName();
+      actual.add(metaFieldName);
     }
 
-    final void checkInputFieldsMatch(IRowMeta rmi, List<MongoDbDeleteField> mongoFields)
-            throws HopException {
-        if (mongoFields == null || mongoFields.isEmpty()) {
-            throw new HopException(BaseMessages.getString(PKG, "MongoDbDeleteDialog.ErrorMessage.NoFieldPathsDefined"));
-        }
-
-        Set<String> expected = new HashSet<String>(mongoFields.size(), 1);
-        Set<String> actual = new HashSet<String>(rmi.getFieldNames().length, 1);
-        for (MongoDbDeleteField field : mongoFields) {
-            String field1 = resolve(field.incomingField1);
-            String field2 = resolve(field.incomingField2);
-            expected.add(field1);
-            if (!StringUtil.isEmpty(field2)) {
-                expected.add(field2);
-            }
-        }
-        for (int i = 0; i < rmi.size(); i++) {
-            String metaFieldName = rmi.getValueMeta(i).getName();
-            actual.add(metaFieldName);
-        }
-
-        // check that all expected fields is available in step input meta
-        if (!actual.containsAll(expected)) {
-            // in this case some fields willn't be found in input step meta
-            expected.removeAll(actual);
-            StringBuffer b = new StringBuffer();
-            for (String name : expected) {
-                b.append("'").append(name).append("', ");
-            }
-            throw new HopException(BaseMessages.getString(PKG,
-                    "MongoDbDelete.MongoField.Error.FieldsNotFoundInMetadata", b.toString()));
-        }
-
-        boolean found = actual.removeAll(expected);
-        if (!found) {
-            throw new HopException(BaseMessages.getString(PKG, "MongoDbDelete.ErrorMessage.NotDeleteAnyFields"));
-        }
+    // check that all expected fields is available in step input meta
+    if (!actual.containsAll(expected)) {
+      // in this case some fields willn't be found in input step meta
+      expected.removeAll(actual);
+      StringBuffer b = new StringBuffer();
+      for (String name : expected) {
+        b.append("'").append(name).append("', ");
+      }
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "MongoDbDelete.MongoField.Error.FieldsNotFoundInMetadata", b.toString()));
     }
+
+    boolean found = actual.removeAll(expected);
+    if (!found) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "MongoDbDelete.ErrorMessage.NotDeleteAnyFields"));
+    }
+  }
 }
