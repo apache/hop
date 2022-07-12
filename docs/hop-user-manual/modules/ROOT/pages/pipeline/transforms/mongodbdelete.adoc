@@ -1,0 +1,71 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The MongoDB Delete transform enables you to delete documents or records from a collection within MongoDB.
+
+= MongoDB Delete
+
+== Description
+
+The MongoDB Delete transform enables you to delete http://docs.mongodb.org/manual/reference/glossary/[documents^] or http://docs.mongodb.org/manual/reference/glossary/[records] from a collection within MongoDB.
+
+For additional information about MongoDB, see the MongoDB http://www.mongodb.org/[documentation].
+
+== Options
+
+=== General
+
+Transform name : Specify the unique name of the MongoDB Input transform in the pipeline.
+
+=== Delete options tab
+
+|===
+|Field|Description
+|MongoDB connection|the MongoDB connection to delete from
+|Collection|the MongoDB collection to delete from
+|Write concern (w option)|the https://www.mongodb.com/docs/manual/reference/write-concern/[write concern^] to use when deleting documents
+|w Timeout|https://www.mongodb.com/docs/manual/reference/write-concern/#w-option[w timeout^]
+|Journaled Writes|whether or not to enable https://www.mongodb.com/docs/manual/core/journaling/[journaling^]
+|Read preferences|the https://www.mongodb.com/docs/manual/core/read-preference/[read preference^] to use when deleting documents
+|Number of retries for write operations|The number of retries for write operations
+|Delay (in seconds) between retry attempts|Delay (in seconds) between retry attempts
+|===
+
+=== Delete query
+
+* use JSON query:
+** when disabled (default), the transform deletes documents based on key/value pair comparisons. The table requires the following fields:
+*** Mongo document path: the document path to delete
+*** Comparator: `=`,`<>`,``,``,`<`,`<=`,`>`,`>=`,`BETWEEN`,`IS NULL`,`IS NOT NULL`
+*** Incoming field 1: a first comparison stream field
+*** Incoming fields 2: a second comparison stream field (for use with `BETWEEN`)
+** when enabled:
+*** a delete query is passed to MongoDB for deletion.
+*** execute for each row: pass the delete query to the database for each incoming row
+
+=== Delete query examples:
+
+Delete based on document paths and stream fields (`use JSON query` disabled):
+|===
+|Mongo document path|Comparator|Incoming field 1|Incoming field 2
+|name|=|lastname|
+|firstname|=|firstname|
+|===
+
+Delete based on JSON query (`use JSON query` enabled):
+`{$or: [{"name": "${NAME1}"},{"name": "${NAME2}"}, {"name": "${NAME3}"} ]}`
