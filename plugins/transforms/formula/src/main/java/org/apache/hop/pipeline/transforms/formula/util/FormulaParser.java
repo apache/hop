@@ -69,22 +69,24 @@ public class FormulaParser {
       int fieldPosition = rowMeta.indexOfValue(formulaField);
 
       IValueMeta fieldMeta = rowMeta.getValueMeta(fieldPosition);
-      if (fieldMeta.isBoolean()) {
-        cell.setCellValue((Boolean) dataRow[fieldPosition]);
-      } else if (fieldMeta.isBigNumber()) {
-        cell.setCellValue((RichTextString) dataRow[fieldPosition]);
-      } else if (fieldMeta.isDate()) {
-        cell.setCellValue((Date) dataRow[fieldPosition]);
-      } else if (fieldMeta.isInteger()) {
-        cell.setCellValue((Long) dataRow[fieldPosition]);
-      } else if (fieldMeta.isNumber()) {
-        cell.setCellValue((Double) dataRow[fieldPosition]);
-      } else if (fieldMeta.isString()) {
-        cell.setCellValue((String) dataRow[fieldPosition]);
-      } else if (fieldMeta.getType() == IValueMeta.TYPE_TIMESTAMP) {
-        cell.setCellValue((Timestamp) dataRow[fieldPosition]);
-      } else {
-        cell.setCellValue((String) dataRow[fieldPosition]);
+      if (dataRow[fieldPosition] != null) {
+        if (fieldMeta.isBoolean()) {
+          cell.setCellValue((Boolean) dataRow[fieldPosition]);
+        } else if (fieldMeta.isBigNumber()) {
+          cell.setCellValue((RichTextString) dataRow[fieldPosition]);
+        } else if (fieldMeta.isDate()) {
+          cell.setCellValue((Date) dataRow[fieldPosition]);
+        } else if (fieldMeta.isInteger()) {
+          cell.setCellValue((Long) dataRow[fieldPosition]);
+        } else if (fieldMeta.isNumber()) {
+          cell.setCellValue((Double) dataRow[fieldPosition]);
+        } else if (fieldMeta.isString()) {
+          cell.setCellValue((String) dataRow[fieldPosition]);
+        } else if (fieldMeta.getType() == IValueMeta.TYPE_TIMESTAMP) {
+          cell.setCellValue((Timestamp) dataRow[fieldPosition]);
+        } else {
+          cell.setCellValue((String) dataRow[fieldPosition]);
+        }
       }
 
       parsedFormula = parsedFormula.replaceAll("\\[" + formulaField + "\\]", s + "1");

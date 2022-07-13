@@ -72,12 +72,12 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
   public boolean processRow() throws HopException {
 
     Object[] r = getRow();
-    int tempIndex = getInputRowMeta().size();
-
     if (r == null) {
       setOutputDone();
       return false;
     }
+
+    int tempIndex = getInputRowMeta().size();
 
     if (first) {
       first = false;
