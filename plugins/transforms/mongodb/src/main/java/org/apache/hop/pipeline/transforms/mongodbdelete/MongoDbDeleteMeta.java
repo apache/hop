@@ -68,33 +68,8 @@ public class MongoDbDeleteMeta extends MongoDbMeta<MongoDbDelete, MongoDbDeleteD
   @HopMetadataProperty(key = "collection", injectionKey = "COLLECTION")
   private String collection;
 
-  /**
-   * default = 1 (standalone or primary acknowledges writes; -1 no acknowledgement and all errors
-   * suppressed; 0 no acknowledgement, but socket/network errors passed to client; "majority"
-   * returns after a majority of the replica set members have acknowledged; n (>1) returns after n
-   * replica set members have acknowledged; tags (string) specific replica set members with the tags
-   * need to acknowledge
-   */
-  @HopMetadataProperty(key = "write_concern", injectionKey = "WRITE_CONCERN")
-  private String writeConcern = ""; // $NON-NLS-1$
-
-  /**
-   * The time in milliseconds to wait for replication to succeed, as specified in the w option,
-   * before timing out
-   */
-  @HopMetadataProperty(key = "write_timeout", injectionKey = "WRITE_TIMEOUT")
-  private String wTimeout = ""; // $NON-NLS-1$
-
-  @HopMetadataProperty(key = "read_preference", injectionKey = "READ_PREFERENCE")
-  private String readPreference;
-
-  @HopMetadataProperty(key = "journaled_writes", injectionKey = "JOURNALED_WRITES")
-  private boolean useJournaledWrite;
-
   @Override
   public void setDefault() {
-    setWriteConcern("");
-    setWTimeout("");
   }
 
   @Override
@@ -189,72 +164,6 @@ public class MongoDbDeleteMeta extends MongoDbMeta<MongoDbDelete, MongoDbDeleteD
   @Override
   public void setCollection(String collection) {
     this.collection = collection;
-  }
-
-  /**
-   * Set the read preference to use - primary, primaryPreferred, secondary, secondaryPreferred or
-   * nearest.
-   *
-   * @param preference the read preference to use
-   */
-  public void setReadPreference(String preference) {
-    readPreference = preference;
-  }
-
-  /**
-   * Get the read preference to use - primary, primaryPreferred, secondary, secondaryPreferred or
-   * nearest.
-   *
-   * @return the read preference to use
-   */
-  public String getReadPreference() {
-    return readPreference;
-  }
-
-  /**
-   * Set the write concern to use
-   *
-   * @param concern the write concern to use
-   */
-  public void setWriteConcern(String concern) {
-    writeConcern = concern;
-  }
-
-  /**
-   * Get the write concern to use
-   *
-   * @param co the write concern to use
-   */
-  public String getWriteConcern() {
-    return writeConcern;
-  }
-
-  /**
-   * Set the time in milliseconds to wait for replication to succeed, as specified in the w option,
-   * before timing out
-   *
-   * @param w the timeout to use
-   */
-  public void setWTimeout(String w) {
-    wTimeout = w;
-  }
-
-  /**
-   * Get the time in milliseconds to wait for replication to succeed, as specified in the w option,
-   * before timing out
-   *
-   * @return the timeout to use
-   */
-  public String getWTimeout() {
-    return wTimeout;
-  }
-
-  public void setUseJournaledWrite(boolean isJournaledWrite) {
-    this.useJournaledWrite = isJournaledWrite;
-  }
-
-  public boolean isUseJournaledWrite() {
-    return useJournaledWrite;
   }
 
   public int getNbRetries() {

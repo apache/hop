@@ -31,7 +31,6 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.mongo.NamedReadPreference;
 import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -67,10 +66,10 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
   private Button wbGetFields;
   private Button wbPreviewDocStruct;
   private CCombo wCollection;
-  private CCombo wcbWriteConcern;
+//  private CCombo wcbWriteConcern;
   private TextVar wtvTimeout;
-  private Button wcbJournalWritesCheck;
-  private CCombo wcbReadPreference;
+//  private Button wcbJournalWritesCheck;
+//  private CCombo wcbReadPreference;
   private TextVar wtvWriteRetries;
   private TextVar wtvWriteRetryDelay;
   private TableView wtvMongoFieldsView;
@@ -216,123 +215,6 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     fd.right = new FormAttachment(wbGetCollections, -margin);
     wCollection.setLayoutData(fd);
 
-    // write concern
-    Label writeConcernLab = new Label(wOutputComp, SWT.RIGHT);
-    writeConcernLab.setText(
-        BaseMessages.getString(PKG, "MongoDbDeleteDialog.WriteConcern.Label")); // $NON-NLS-1$
-    writeConcernLab.setToolTipText(
-        BaseMessages.getString(PKG, "MongoDbDeleteDialog.WriteConcern.TipText")); // $NON-NLS-1$
-    props.setLook(writeConcernLab);
-    fd = new FormData();
-    fd.left = new FormAttachment(0, 0);
-    fd.top = new FormAttachment(wCollection, margin);
-    fd.right = new FormAttachment(middle, -margin);
-    writeConcernLab.setLayoutData(fd);
-
-    Button getCustomWCBut = new Button(wOutputComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(getCustomWCBut);
-    getCustomWCBut.setText(
-        BaseMessages.getString(
-            PKG, "MongoDbDeleteDialog.WriteConcern.CustomWriteConcerns")); // $NON-NLS-1$
-    fd = new FormData();
-    fd.right = new FormAttachment(100, 0);
-    fd.top = new FormAttachment(wCollection, 0);
-    getCustomWCBut.setLayoutData(fd);
-
-    getCustomWCBut.addListener(SWT.Selection, e -> setupCustomWriteConcernNames());
-
-    wcbWriteConcern = new CCombo(wOutputComp, SWT.BORDER);
-    props.setLook(wcbWriteConcern);
-    wcbWriteConcern.addModifyListener(lsMod);
-    fd = new FormData();
-    fd.right = new FormAttachment(getCustomWCBut, 0);
-    fd.top = new FormAttachment(wCollection, margin);
-    fd.left = new FormAttachment(middle, 0);
-    wcbWriteConcern.setLayoutData(fd);
-
-    // wTimeout
-    Label wTimeoutLab = new Label(wOutputComp, SWT.RIGHT);
-    wTimeoutLab.setText(
-        BaseMessages.getString(PKG, "MongoDbDeleteDialog.WTimeout.Label")); // $NON-NLS-1$
-    wTimeoutLab.setToolTipText(
-        BaseMessages.getString(PKG, "MongoDbDeleteDialog.WTimeout.TipText")); // $NON-NLS-1$
-    props.setLook(wTimeoutLab);
-    fd = new FormData();
-    fd.left = new FormAttachment(0, 0);
-    fd.top = new FormAttachment(wcbWriteConcern, margin);
-    fd.right = new FormAttachment(middle, -margin);
-    wTimeoutLab.setLayoutData(fd);
-
-    wtvTimeout = new TextVar(variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wtvTimeout);
-    wtvTimeout.addModifyListener(lsMod);
-    fd = new FormData();
-    fd.right = new FormAttachment(100, 0);
-    fd.top = new FormAttachment(wcbWriteConcern, margin);
-    fd.left = new FormAttachment(middle, 0);
-    wtvTimeout.setLayoutData(fd);
-    wtvTimeout.addModifyListener(
-        e -> wtvTimeout.setToolTipText(variables.resolve(wtvTimeout.getText())));
-
-    Label journalWritesLab = new Label(wOutputComp, SWT.RIGHT);
-    journalWritesLab.setText(
-        BaseMessages.getString(PKG, "MongoDbDeleteDialog.JournalWrites.Label")); // $NON-NLS-1$
-    journalWritesLab.setToolTipText(
-        BaseMessages.getString(PKG, "MongoDbDeleteDialog.JournalWrites.TipText")); // $NON-NLS-1$
-    props.setLook(journalWritesLab);
-    fd = new FormData();
-    fd.left = new FormAttachment(0, 0);
-    fd.top = new FormAttachment(wtvTimeout, margin);
-    fd.right = new FormAttachment(middle, -margin);
-    journalWritesLab.setLayoutData(fd);
-
-    wcbJournalWritesCheck = new Button(wOutputComp, SWT.CHECK);
-    props.setLook(wcbJournalWritesCheck);
-    wcbJournalWritesCheck.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            currentMeta.setChanged();
-          }
-        });
-    fd = new FormData();
-    fd.right = new FormAttachment(100, 0);
-    fd.top = new FormAttachment(journalWritesLab, 0, SWT.CENTER);
-    fd.left = new FormAttachment(middle, 0);
-    wcbJournalWritesCheck.setLayoutData(fd);
-
-    // read preference
-    Label readPrefL = new Label(wOutputComp, SWT.RIGHT);
-    readPrefL.setText(
-        BaseMessages.getString(PKG, "MongoDbDeleteDialog.ReadPreferenceLabel")); // $NON-NLS-1$
-    readPrefL.setToolTipText(
-        BaseMessages.getString(
-            PKG, "MongoDbDeleteDialog.ReadPreferenceLabel.TipText")); // $NON-NLS-1$
-    props.setLook(readPrefL);
-    fd = new FormData();
-    fd.left = new FormAttachment(0, -margin);
-    fd.top = new FormAttachment(wcbJournalWritesCheck, margin * 3);
-    fd.right = new FormAttachment(middle, -margin);
-    readPrefL.setLayoutData(fd);
-
-    wcbReadPreference = new CCombo(wOutputComp, SWT.BORDER);
-    props.setLook(wcbReadPreference);
-    fd = new FormData();
-    fd.left = new FormAttachment(middle, 0);
-    fd.top = new FormAttachment(wcbJournalWritesCheck, margin * 3);
-    fd.right = new FormAttachment(100, 0);
-    wcbReadPreference.setLayoutData(fd);
-    wcbReadPreference.addModifyListener(
-        e -> {
-          currentMeta.setChanged();
-          wcbReadPreference.setToolTipText(variables.resolve(wcbReadPreference.getText()));
-        });
-    wcbReadPreference.add(NamedReadPreference.PRIMARY.getName());
-    wcbReadPreference.add(NamedReadPreference.PRIMARY_PREFERRED.getName());
-    wcbReadPreference.add(NamedReadPreference.SECONDARY.getName());
-    wcbReadPreference.add(NamedReadPreference.SECONDARY_PREFERRED.getName());
-    wcbReadPreference.add(NamedReadPreference.NEAREST.getName());
-
     // retries stuff
     Label retriesLab = new Label(wOutputComp, SWT.RIGHT);
     props.setLook(retriesLab);
@@ -342,7 +224,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
         BaseMessages.getString(PKG, "MongoDbDeleteDialog.WriteRetries.TipText")); // $NON-NLS-1$
     fd = new FormData();
     fd.left = new FormAttachment(0, -margin);
-    fd.top = new FormAttachment(wcbReadPreference, margin);
+    fd.top = new FormAttachment(wCollection, margin);
     fd.right = new FormAttachment(middle, -margin);
     retriesLab.setLayoutData(fd);
 
@@ -350,7 +232,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     props.setLook(wtvWriteRetries);
     fd = new FormData();
     fd.left = new FormAttachment(middle, 0);
-    fd.top = new FormAttachment(wcbReadPreference, margin);
+    fd.top = new FormAttachment(wCollection, margin);
     fd.right = new FormAttachment(100, 0);
     wtvWriteRetries.setLayoutData(fd);
     wtvWriteRetries.addModifyListener(
@@ -669,19 +551,6 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
           } finally {
             wrapper.dispose();
           }
-
-          if (!custom.isEmpty()) {
-            String current = wcbWriteConcern.getText();
-            wcbWriteConcern.removeAll();
-
-            for (String s : custom) {
-              wcbWriteConcern.add(s);
-            }
-
-            if (!StringUtil.isEmpty(current)) {
-              wcbWriteConcern.setText(current);
-            }
-          }
         } catch (Exception e) {
           logError(
               BaseMessages.getString(PKG, "MongoDbDeleteDialog.ErrorMessage.UnableToConnect"), e);
@@ -729,10 +598,6 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
   private void getInfo(MongoDbDeleteMeta meta) {
     meta.setConnectionName(wConnection.getText());
     meta.setCollection(wCollection.getText());
-    meta.setWriteConcern(wcbWriteConcern.getText());
-    meta.setWTimeout(wtvTimeout.getText());
-    meta.setUseJournaledWrite(wcbJournalWritesCheck.getSelection());
-    meta.setReadPreference(wcbReadPreference.getText());
     meta.setWriteRetries(wtvWriteRetries.getText());
     meta.setWriteRetryDelay(wtvWriteRetryDelay.getText());
     meta.setUseJsonQuery(wbUseJsonQuery.getSelection());
@@ -774,10 +639,6 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     wConnection.setText(Const.NVL(currentMeta.getConnectionName(), ""));
     wCollection.setText(Const.NVL(currentMeta.getCollection(), "")); // $NON-NLS-1$
 
-    wcbWriteConcern.setText(Const.NVL(currentMeta.getWriteConcern(), "")); // $NON-NLS-1$
-    wtvTimeout.setText(Const.NVL(currentMeta.getWTimeout(), "")); // $NON-NLS-1$
-    wcbJournalWritesCheck.setSelection(currentMeta.isUseJournaledWrite());
-    wcbReadPreference.setText(Const.NVL(currentMeta.getReadPreference(), "")); // $NON-NLS-1$
     wtvWriteRetries.setText(
         Const.NVL(
             currentMeta.getWriteRetries(),
