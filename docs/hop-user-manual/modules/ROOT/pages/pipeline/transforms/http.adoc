@@ -42,7 +42,7 @@ Enabling this will also allow you to specify the name of the input field.
 |URL field name|The name of the incoming field that contains the URL
 |Connection timeout|
 |Socket timeout|The number of seconds to wait if no data is returned from the server.
-|Connection close wait time
+|Connection close wait time |
 |Result fieldname|The name of the field to store results
 |HTTP status code field name|The name of the field to store the HTTP response code (e.g. 200, 404)
 |Response time (milliseconds) field name|The name of the field to store the response time
