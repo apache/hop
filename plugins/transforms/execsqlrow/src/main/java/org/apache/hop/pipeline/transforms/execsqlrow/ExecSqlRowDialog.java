@@ -363,7 +363,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
       wReadField.setText(input.getReadField());
     }
     wSqlFromFile.setSelection(input.isSqlFromfile());
-    wSendOneStatement.setSelection(input.IsSendOneStatement());
+    wSendOneStatement.setSelection(input.isSendOneStatement());
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -390,7 +390,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     input.setDeleteField(wDeleteField.getText());
     input.setReadField(wReadField.getText());
     input.setSqlFromfile(wSqlFromFile.getSelection());
-    input.SetSendOneStatement(wSendOneStatement.getSelection());
+    input.setSendOneStatement(wSendOneStatement.getSelection());
 
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
     if (databaseMeta == null) {

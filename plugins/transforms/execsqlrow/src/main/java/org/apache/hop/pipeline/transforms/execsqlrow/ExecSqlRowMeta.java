@@ -84,18 +84,26 @@ public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData
   @HopMetadataProperty(key = "commit", injectionKey = "COMMIT_SIZE")
   private int commitSize;
 
-  @HopMetadataProperty(injectionKey = "READ_SQL_FROM_FILE")
+  @HopMetadataProperty(injectionKey = "READ_SQL_FROM_FILE", defaultBoolean = false)
   private boolean sqlFromfile;
 
   /** Send SQL as single statement */
-  @Injection(name = "SEND_SINGLE_STATEMENT")
-  @HopMetadataProperty(injectionKey = "SEND_SINGLE_STATEMENT")
+  @HopMetadataProperty(injectionKey = "SEND_SINGLE_STATEMENT", defaultBoolean = false)
   private boolean sendOneStatement;
 
   @HopMetadataProperty() private String connection;
 
   public ExecSqlRowMeta() {
     super();
+  }
+
+
+  public String getSqlField() {
+    return sqlField;
+  }
+
+  public void setSqlField(String sqlField) {
+    this.sqlField = sqlField;
   }
 
   public String getConnection() {
@@ -109,14 +117,14 @@ public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData
   /**
    * @return Returns the sqlFromfile.
    */
-  public boolean IsSendOneStatement() {
+  public boolean isSendOneStatement() {
     return sendOneStatement;
   }
 
   /**
    * @param sendOneStatement The sendOneStatement to set.
    */
-  public void SetSendOneStatement(boolean sendOneStatement) {
+  public void setSendOneStatement(boolean sendOneStatement) {
     this.sendOneStatement = sendOneStatement;
   }
 

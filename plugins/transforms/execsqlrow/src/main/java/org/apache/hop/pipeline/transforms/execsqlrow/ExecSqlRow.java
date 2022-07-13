@@ -130,13 +130,13 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
         if (log.isDebug()) {
           logDebug(BaseMessages.getString(PKG, "ExecSqlRow.Log.ExecutingSQLFromFile", sql));
         }
-        data.result = data.db.execStatementsFromFile(sql, meta.IsSendOneStatement());
+        data.result = data.db.execStatementsFromFile(sql, meta.isSendOneStatement());
       } else {
         if (log.isDebug()) {
           logDebug(
               BaseMessages.getString(PKG, "ExecSqlRow.Log.ExecutingSQLScript") + Const.CR + sql);
         }
-        if (meta.IsSendOneStatement()) {
+        if (meta.isSendOneStatement()) {
           data.result = data.db.execStatement(sql);
         } else {
           data.result = data.db.execStatements(sql);

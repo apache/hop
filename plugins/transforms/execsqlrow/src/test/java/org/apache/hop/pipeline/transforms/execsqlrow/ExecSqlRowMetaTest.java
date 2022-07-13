@@ -49,20 +49,10 @@ public class ExecSqlRowMetaTest {
             "commitSize",
             "sqlFromfile",
             "sendOneStatement",
-            "databaseMeta");
+            "connection");
 
-    Map<String, String> getterMap =
-        new HashMap<String, String>() {
-          {
-            put("sendOneStatement", "IsSendOneStatement");
-          }
-        };
-    Map<String, String> setterMap =
-        new HashMap<String, String>() {
-          {
-            put("sendOneStatement", "SetSendOneStatement");
-          }
-        };
+    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<String, String>();
 
     loadSaveTester = new LoadSaveTester(testMetaClass, attributes, getterMap, setterMap);
   }
