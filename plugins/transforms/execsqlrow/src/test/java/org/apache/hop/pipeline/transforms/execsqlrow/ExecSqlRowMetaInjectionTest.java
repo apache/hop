@@ -54,6 +54,6 @@ public class ExecSqlRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecS
 
     IValueMeta valueMeta = new ValueMetaString("DBMETA");
     injector.setProperty(meta, "CONNECTION_NAME", setValue(valueMeta, "testDBMeta"), "DBMETA");
-    assertEquals("testDBMeta", meta.getDatabaseMeta().getName());
+    assertEquals("testDBMeta", meta.getConnection());
   }
 }

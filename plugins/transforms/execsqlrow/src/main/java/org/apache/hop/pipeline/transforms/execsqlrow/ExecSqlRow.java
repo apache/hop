@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
@@ -227,12 +228,13 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
   @Override
   public boolean init() {
     if (super.init()) {
-      if (meta.getDatabaseMeta() == null) {
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+      if (databaseMeta == null) {
         logError(
             BaseMessages.getString(PKG, "ExecSqlRow.Init.ConnectionMissing", getTransformName()));
         return false;
       }
-      data.db = new Database(this, this, meta.getDatabaseMeta());
+      data.db = new Database(this, this, databaseMeta);
 
       // Connect to the database
       try {
