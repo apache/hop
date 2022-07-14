@@ -1,0 +1,4 @@
+sql,update,insert,delete,read
+"insert into public.table_output (""key"",value) values('1','2')",0,1,0,0
+"insert into public.table_output (""key"",value) values('2','3')",0,1,0,0
+"insert into public.table_output (""key"",value) values('3','4')",0,1,0,0

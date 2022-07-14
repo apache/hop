@@ -26,8 +26,6 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -47,56 +45,69 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     keywords = "i18n::ExecSqlRowMeta.keyword",
     documentationUrl = "/pipeline/transforms/execsqlrow.html")
-@InjectionSupported(localizationPrefix = "ExecSqlRowMeta.Injection.", groups = "OUTPUT_FIELDS")
 public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData> {
   private static final Class<?> PKG = ExecSqlRowMeta.class; // For Translator
 
   private IHopMetadataProvider metadataProvider;
 
-  @HopMetadataProperty(key = "sql_field", injectionKey = "SQL_FIELD_NAME")
+  @HopMetadataProperty(
+      key = "sql_field",
+      injectionKey = "SQL_FIELD_NAME",
+      injectionKeyDescription = "ExecSqlRowMeta.Injection.SQL_FIELD_NAME")
   private String sqlField;
 
   @HopMetadataProperty(
       key = "update_field",
       injectionKey = "UPDATE_STATS",
-      injectionGroupDescription = "OUTPUT_FIELDS")
+      injectionKeyDescription = "ExecSqlRowMeta.Injection.UPDATE_STATS")
   private String updateField;
 
   @HopMetadataProperty(
       key = "insert_field",
       injectionKey = "INSERT_STATS",
-      injectionGroupDescription = "OUTPUT_FIELDS")
+      injectionKeyDescription = "ExecSqlRowMeta.Injection.INSERT_STATS")
   private String insertField;
 
   @HopMetadataProperty(
       key = "delete_field",
       injectionKey = "DELETE_STATS",
-      injectionGroupDescription = "OUTPUT_FIELDS")
+      injectionKeyDescription = "ExecSqlRowMeta.Injection.DELETE_STATS")
   private String deleteField;
 
   @HopMetadataProperty(
       key = "read_field",
       injectionKey = "READ_STATS",
-      injectionGroupDescription = "OUTPUT_FIELDS")
+      injectionKeyDescription = "ExecSqlRowMeta.Injection.READ_STATS")
   private String readField;
 
   /** Commit size for inserts/updates */
-  @HopMetadataProperty(key = "commit", injectionKey = "COMMIT_SIZE")
+  @HopMetadataProperty(
+      key = "commit",
+      injectionKey = "COMMIT_SIZE",
+      injectionKeyDescription = "ExecSqlRowMeta.Injection.COMMIT_SIZE")
   private int commitSize;
 
-  @HopMetadataProperty(injectionKey = "READ_SQL_FROM_FILE", defaultBoolean = false)
+  @HopMetadataProperty(
+      injectionKey = "READ_SQL_FROM_FILE",
+      injectionKeyDescription = "ExecSqlRowMeta.Injection.READ_SQL_FROM_FILE",
+      defaultBoolean = false)
   private boolean sqlFromfile;
 
   /** Send SQL as single statement */
-  @HopMetadataProperty(injectionKey = "SEND_SINGLE_STATEMENT", defaultBoolean = false)
+  @HopMetadataProperty(
+      injectionKey = "SEND_SINGLE_STATEMENT",
+      injectionKeyDescription = "ExecSqlRowMeta.Injection.SEND_SINGLE_STATEMENT",
+      defaultBoolean = false)
   private boolean sendOneStatement;
 
-  @HopMetadataProperty() private String connection;
+  @HopMetadataProperty(
+      injectionKey = "CONNECTION_NAME",
+      injectionKeyDescription = "ExecSqlRowMeta.Injection.CONNECTION_NAME")
+  private String connection;
 
   public ExecSqlRowMeta() {
     super();
   }
-
 
   public String getSqlField() {
     return sqlField;
@@ -228,8 +239,7 @@ public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData
 
   @Override
   public Object clone() {
-    ExecSqlRowMeta retval = (ExecSqlRowMeta) super.clone();
-    return retval;
+    return super.clone();
   }
 
   @Override

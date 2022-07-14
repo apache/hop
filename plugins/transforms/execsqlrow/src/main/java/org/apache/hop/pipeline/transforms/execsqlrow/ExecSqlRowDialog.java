@@ -80,12 +80,12 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
 
     ModifyListener lsMod = e -> input.setChanged();
     SelectionListener lsSelection =
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                input.setChanged();
-              }
-            };
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        };
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -187,7 +187,9 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     wSqlFieldName.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            //Ignore focusLost
+          }
 
           @Override
           public void focusGained(FocusEvent e) {

@@ -1,0 +1,48 @@
+{
+  "base_filename": "data-set-filename.csv",
+  "name": "golden-execSqlRow",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "sql"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "update"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "insert"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "delete"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "read"
+    }
+  ],
+  "folder_name": "${HOP_DATASETS_FOLDER}"
+}
