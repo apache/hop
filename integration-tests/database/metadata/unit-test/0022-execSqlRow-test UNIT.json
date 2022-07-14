@@ -1,0 +1,48 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "sql",
+          "data_set_field": "sql"
+        },
+        {
+          "transform_field": "update",
+          "data_set_field": "update"
+        },
+        {
+          "transform_field": "insert",
+          "data_set_field": "insert"
+        },
+        {
+          "transform_field": "delete",
+          "data_set_field": "delete"
+        },
+        {
+          "transform_field": "read",
+          "data_set_field": "read"
+        }
+      ],
+      "field_order": [
+        "sql",
+        "update",
+        "insert",
+        "delete",
+        "read"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-execSqlRow"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0022-execSqlRow-test UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0022-execSqlRow-test.hpl",
+  "test_type": "UNIT_TEST"
+}

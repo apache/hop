@@ -79,6 +79,13 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
+    SelectionListener lsSelection =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        };
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -111,11 +118,9 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), lsMod);
-    if (input.getDatabaseMeta() == null && pipelineMeta.nrDatabases() == 1) {
-      wConnection.select(0);
-    }
-    wConnection.addModifyListener(lsMod);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
+    wConnection.addSelectionListener(lsSelection);
 
     // Commit line
     Label wlCommit = new Label(shell, SWT.RIGHT);
@@ -182,7 +187,9 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     wSqlFieldName.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            //Ignore focusLost
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -341,8 +348,8 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     if (input.getSqlFieldName() != null) {
       wSqlFieldName.setText(input.getSqlFieldName());
     }
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
 
     if (input.getUpdateField() != null) {
@@ -358,7 +365,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
       wReadField.setText(input.getReadField());
     }
     wSqlFromFile.setSelection(input.isSqlFromfile());
-    wSendOneStatement.setSelection(input.IsSendOneStatement());
+    wSendOneStatement.setSelection(input.isSendOneStatement());
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -378,15 +385,17 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     transformName = wTransformName.getText(); // return value
     input.setSqlFieldName(wSqlFieldName.getText());
     // copy info to TextFileInputMeta class (input)
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setConnection(wConnection.getText());
 
     input.setInsertField(wInsertField.getText());
     input.setUpdateField(wUpdateField.getText());
     input.setDeleteField(wDeleteField.getText());
     input.setReadField(wReadField.getText());
     input.setSqlFromfile(wSqlFromFile.getSelection());
-    input.SetSendOneStatement(wSendOneStatement.getSelection());
-    if (input.getDatabaseMeta() == null) {
+    input.setSendOneStatement(wSendOneStatement.getSelection());
+
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    if (databaseMeta == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "ExecSqlRowDialog.InvalidConnection.DialogMessage"));
