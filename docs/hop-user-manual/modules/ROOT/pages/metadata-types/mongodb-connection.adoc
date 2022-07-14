@@ -40,7 +40,7 @@ The MongoDB connection, specified on a project level, can be reused across multi
 |Option|Default|Description
 |MongoDB Connection name||The name to use for this connection
 |Hostname|localhost|cluster hostname
-|Port|27017|the port for the Cassandra cluster
+|Port|27017|the port for the MongoDB Database
 |Database name||
 |Authentication database||
 |Username||
