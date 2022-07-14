@@ -36,12 +36,10 @@ Transform name : Specify the unique name of the MongoDB Input transform in the p
 
 |===
 |Field|Description
-|MongoDB connection|the MongoDB connection to delete from
-|Collection|the MongoDB collection to delete from
-|Write concern (w option)|the https://www.mongodb.com/docs/manual/reference/write-concern/[write concern^] to use when deleting documents
-|w Timeout|https://www.mongodb.com/docs/manual/reference/write-concern/#w-option[w timeout^]
-|Journaled Writes|whether or not to enable https://www.mongodb.com/docs/manual/core/journaling/[journaling^]
-|Read preferences|the https://www.mongodb.com/docs/manual/core/read-preference/[read preference^] to use when deleting documents
+|MongoDB connection|the xref:metadata-types/mongodb-connection.adoc[ MongoDB connection] to use for the MongoDB Delete transform.
+|Collection
+|Name of the collection to delete data from.
+Click Get collections to populate the drop-down menu with a list of collections within the database.
 |Number of retries for write operations|The number of retries for write operations
 |Delay (in seconds) between retry attempts|Delay (in seconds) between retry attempts
 |===
