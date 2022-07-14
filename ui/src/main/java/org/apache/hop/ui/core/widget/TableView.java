@@ -315,8 +315,12 @@ public class TableView extends Composite {
       int allignment = columns[i].getAlignment();
       tableColumn[i + 1] = new TableColumn(table, allignment);
       tableColumn[i + 1].setResizable(true);
-      if (columns[i].getName() != null) {
-        tableColumn[i + 1].setText(columns[i].getName());
+      String columnName = columns[i].getName();
+      if (columnName != null) {
+        if (Const.isWindows() || Const.isLinux()) {
+          columnName = columnName.replaceAll("\\&", "&&");
+        }
+        tableColumn[i + 1].setText(columnName);
       }
       if (columns[i].getToolTip() != null) {
         tableColumn[i + 1].setToolTipText((columns[i].getToolTip()));
@@ -3309,22 +3313,30 @@ public class TableView extends Composite {
     item.setText(colNr, text);
   }
 
-  /** @return Returns the readonly. */
+  /**
+   * @return Returns the readonly.
+   */
   public boolean isReadonly() {
     return readonly;
   }
 
-  /** @param readonly The readonly to set. */
+  /**
+   * @param readonly The readonly to set.
+   */
   public void setReadonly(boolean readonly) {
     this.readonly = readonly;
   }
 
-  /** @return the sortable */
+  /**
+   * @return the sortable
+   */
   public boolean isSortable() {
     return sortable;
   }
 
-  /** @param sortable the sortable to set */
+  /**
+   * @param sortable the sortable to set
+   */
   public void setSortable(boolean sortable) {
     this.sortable = sortable;
 
@@ -3359,17 +3371,23 @@ public class TableView extends Composite {
     super.dispose();
   }
 
-  /** @return the getSortField */
+  /**
+   * @return the getSortField
+   */
   public int getSortField() {
     return sortField;
   }
 
-  /** @return the sortingDescending */
+  /**
+   * @return the sortingDescending
+   */
   public boolean isSortingDescending() {
     return sortingDescending;
   }
 
-  /** @param sortingDescending the sortingDescending to set */
+  /**
+   * @param sortingDescending the sortingDescending to set
+   */
   public void setSortingDescending(boolean sortingDescending) {
     this.sortingDescending = sortingDescending;
   }
@@ -3378,12 +3396,16 @@ public class TableView extends Composite {
     return table;
   }
 
-  /** @return the numberColumn */
+  /**
+   * @return the numberColumn
+   */
   public ColumnInfo getNumberColumn() {
     return numberColumn;
   }
 
-  /** @param numberColumn the numberColumn to set */
+  /**
+   * @param numberColumn the numberColumn to set
+   */
   public void setNumberColumn(ColumnInfo numberColumn) {
     this.numberColumn = numberColumn;
   }
@@ -3402,32 +3424,44 @@ public class TableView extends Composite {
     }
   }
 
-  /** @return the showingBlueNullValues */
+  /**
+   * @return the showingBlueNullValues
+   */
   public boolean isShowingBlueNullValues() {
     return showingBlueNullValues;
   }
 
-  /** @param showingBlueNullValues the showingBlueNullValues to set */
+  /**
+   * @param showingBlueNullValues the showingBlueNullValues to set
+   */
   public void setShowingBlueNullValues(boolean showingBlueNullValues) {
     this.showingBlueNullValues = showingBlueNullValues;
   }
 
-  /** @return the lsContent */
+  /**
+   * @return the lsContent
+   */
   public ModifyListener getContentListener() {
     return lsContent;
   }
 
-  /** @param lsContent the lsContent to set */
+  /**
+   * @param lsContent the lsContent to set
+   */
   public void setContentListener(ModifyListener lsContent) {
     this.lsContent = lsContent;
   }
 
-  /** @return the showingConversionErrorsInline */
+  /**
+   * @return the showingConversionErrorsInline
+   */
   public boolean isShowingConversionErrorsInline() {
     return showingConversionErrorsInline;
   }
 
-  /** @param showingConversionErrorsInline the showingConversionErrorsInline to set */
+  /**
+   * @param showingConversionErrorsInline the showingConversionErrorsInline to set
+   */
   public void setShowingConversionErrorsInline(boolean showingConversionErrorsInline) {
     this.showingConversionErrorsInline = showingConversionErrorsInline;
   }
@@ -3466,7 +3500,9 @@ public class TableView extends Composite {
     return undoEnabled;
   }
 
-  /** @param undoEnabled The undoEnabled to set */
+  /**
+   * @param undoEnabled The undoEnabled to set
+   */
   public void setUndoEnabled(boolean undoEnabled) {
     this.undoEnabled = undoEnabled;
   }
