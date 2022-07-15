@@ -33,10 +33,10 @@ For example, you can use this transform so that a pipeline can be aborted after 
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
-!Hop Engine! image:check_mark.svg[Supported]
-!Spark! image:question_mark.svg[Maybe Supported]
-!Flink! image:question_mark.svg[Maybe Supported]
-!Dataflow! image:question_mark.svg[Maybe Supported]
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
 !===
 |===
 
