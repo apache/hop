@@ -83,6 +83,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
       // Init a new JSON reader
       createReader();
     } catch (HopException e) {
+      incrementErrors();
       logError(e.getMessage());
       return false;
     }
