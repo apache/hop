@@ -172,7 +172,7 @@
         <jackson.databind.version>2.13.2.1</jackson.databind.version>
         <commons-compress.version>1.21</commons-compress.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
-        <aws-java-sdk.version>1.11.974</aws-java-sdk.version>
+        <aws-java-sdk.version>1.12.261</aws-java-sdk.version>
 
         <!-- spring-security version -->
         <spring-security.version>4.1.5.RELEASE</spring-security.version>
