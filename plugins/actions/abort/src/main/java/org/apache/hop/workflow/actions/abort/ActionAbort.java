@@ -46,6 +46,9 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
   @HopMetadataProperty(key = "message")
   private String messageAbort;
 
+  @HopMetadataProperty(key = "always_log_rows")
+  private boolean alwaysLogRows;
+
   public ActionAbort(String name, String description) {
     super(name, description);
     messageAbort = null;
@@ -58,6 +61,7 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
   public ActionAbort(ActionAbort other) {
     this(other.getName(), other.getDescription());
     this.messageAbort = other.messageAbort;
+    this.alwaysLogRows = other.alwaysLogRows;
   }
 
   @Override
@@ -81,9 +85,12 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
         msg = BaseMessages.getString(PKG, "ActionAbort.Meta.CheckResult.Label");
       }
 
-      result.setNrErrors(1);
-      result.setResult(false);
-      logError(msg);
+      if (isAlwaysLogRows()) {
+        logMinimal(BaseMessages.getString(PKG, "ActionAbort.Log.Wrote.Row", nr, msg));
+      } else {
+        result.setNrErrors(1);
+        result.setResult(false);
+      }
     } catch (Exception e) {
       result.setNrErrors(1);
       result.setResult(false);
@@ -130,6 +137,14 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
    */
   public String getMessageAbort() {
     return messageAbort;
+  }
+
+  public boolean isAlwaysLogRows() {
+    return alwaysLogRows;
+  }
+
+  public void setAlwaysLogRows(boolean alwaysLogRows) {
+    this.alwaysLogRows = alwaysLogRows;
   }
 
   @Override
