@@ -146,52 +146,64 @@ Normally, while processing input JSON files, if a field contains null then the w
 For example if we have a JSON file like this
 ```json
 {
-  "id": "123456",
-  "testArray": [
+  "persons" : [
     {
-      "id": "1654879",
-      "Name": null,
-      "testArray_inner_one": [
-        {
-          "id": "15697",
-          "Name": "Robert"
-        }
-      ]
+      "id": "1",
+      "name": "name 1"
     },
     {
-      "id": "888",
-      "Name": "Robert222",
-      "testArray_inner_two": [
-        {
-          "id": "4309",
-          "Name": null
-        }
-      ]
+      "id": "2",
+      "name": "name 2"
+    },
+    {
+      "id": "3",
+      "name": null
+    },
+    {
+      "id": "4",
+      "name": "name 4"
     }
   ]
 }
 ```
 
+When extracting the fields id and Name using the following field definition:
+[%header]
+|===
+|Field name|Json Path
+|id| `$.persons.*.id`
+|Name| `$.persons.*.name`
+|===
+
 given the default behavior, the output will be
 
 ```
-id;ResourceName
-123456;Robert222
+id;Name
+1;Name 1
+2;Name 2
+3;null
+4;Name 4
 ```
 
-whereas you may prefer it to be
+Now let's only select the `name` field and see what happens
 
 ```
-id;ResourceName
-123456;
-123456;Robert222
+Name
+Name 1
+Name 2
+Name 4
 ```
 
-To change Hop's behavior regarding Null values, add a new configuration variable:
+You will notice that you only have 3 rowst retuned in this case ( the null line is omited from the result)
+
+
+To change Hop's behavior regarding Null values in Json files, change the following configuration variable:
 
 ```
 HOP_JSON_INPUT_INCLUDE_NULLS = Y
 ```
+
+When restarting and re-running the pipeline you will have 4 result rows containing the null value.
 
 == Metadata Injection Support
 

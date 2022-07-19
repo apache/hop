@@ -36,28 +36,32 @@ For this we use the https://janino-compiler.github.io/janino/[Janino^] project l
 
 == Options
 
-[width="90%",options="header"]
+[width="90%",options="header",cols="1a,3a"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
 |Class code|The Java code.
 |Fields|List of output fields.
-|Fieldname|Output field name.
-|Type|Type of field.
-|Length|Length of the field.
-|Precision|Precision of the field.
+
+- Fieldname: Output field name.
+- Type: Type of field.
+- Length: Length of the field.
+- Precision: Precision of the field.
 |Parameters|You can use the Parameters table to avoid using hard-coded string values, such as field names (customer for example).
-|Tag|The parameter tag.
-|Value|The parameter value.
-|Description|Description of the parameter.
-|Info transforms|
-|Tag|
-|Transform|Which transform to read from.
-|Description|
-|Target transforms|
-|Tag|
-|Transform|Which transform to output to.
-|Description|
+
+- Tag: The parameter tag.
+- Value: The parameter value.
+- Description: Description of the parameter.
+|Info transforms|Additional transforms to read data from
+
+- Tag
+- Transform: Which transform to read from.
+- Description
+|Target transforms|Destination Transform
+
+- Tag
+- Transform: Which transform to output to.
+- Description
 |Test class|Tests the class.
 |===
 
