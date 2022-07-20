@@ -88,6 +88,7 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
       if (isAlwaysLogRows()) {
         logMinimal(BaseMessages.getString(PKG, "ActionAbort.Log.Wrote.Row", nr, msg));
       } else {
+        logError(BaseMessages.getString(PKG, "ActionAbort.Log.Wrote.Row", nr, msg));
         result.setNrErrors(1);
         result.setResult(false);
       }
