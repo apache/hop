@@ -18,11 +18,24 @@ under the License.
 :language: en_US
 :description: The Add Constant Values transform is a simple and high performance way to add constant values to a pipeline stream.
 
-= Add Constants
+= image:transforms/icons/constant.svg[Add Constants Icon ,role="image-doc-icon"] Add Constants
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Add Constant Values transform is a simple and high performance way to add constant values to a pipeline stream.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 

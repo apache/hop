@@ -18,13 +18,26 @@ under the License.
 :language: en_US
 :description: The Avro File Input transform simply reads Avro records from one or more files. Each record is encapsulated in an Avro field, each value has its own Schema and record.
 
-= Avro File Input
+= image:transforms/icons/avro_input.svg[Avro File Input Icon, role="image-doc-icon"] Avro File Input
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Avro File Input transform simply reads Avro records from one or more files.
 
 Each record is encapsulated in an Avro field, each value has its own Schema and record.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
