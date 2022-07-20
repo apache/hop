@@ -34,7 +34,7 @@ The table contains the following columns:
 To resolve the ID, Salesforce needs the object type, column name, and relationship name in the following syntax: +
 
 [source,shell]
-Object name.column name/relationship
+Object name:column name/relationship
 
 |===
 
