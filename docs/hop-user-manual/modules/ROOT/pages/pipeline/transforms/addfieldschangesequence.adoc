@@ -18,11 +18,25 @@ under the License.
 :language: en_US
 :description: The Add Fields Changing Sequence transform simply adds a sequence value which resets each time a value changes in the list of specified fields.
 
-= Add value fields changing sequence
+= image:transforms/icons/fieldschangesequence.svg[Add value fields changing sequence Icon, role="image-doc-icon"] Add value fields changing sequence
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Add Fields Changing Sequence transform simply adds a sequence value which resets each time a value changes in the list of specified fields.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 
 == Options
 

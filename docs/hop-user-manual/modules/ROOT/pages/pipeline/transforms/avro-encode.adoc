@@ -18,11 +18,25 @@ under the License.
 :language: en_US
 :description: The Avro Encode transform allows you to encode a new Avro field using a selection of Hop fields.
 
-= Avro Encode
+= image:transforms/icons/avro_encode.svg[Avro Encode Icon, role="image-doc-icon"] Avro Encode
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Avro Encode transform allows you to encode a new Avro Record field using a selection of Hop fields.   The Avro schema will be part of the value metadata for this Avro Record field.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 
 == Options
 

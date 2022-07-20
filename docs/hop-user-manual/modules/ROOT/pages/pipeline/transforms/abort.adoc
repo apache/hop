@@ -19,7 +19,7 @@ under the License.
 :description: The Abort tranform aborts a running pipeline as soon as it receives input data. The main use case for this transform is to throw an error when an unexpected or unwanted situation occurs.
 
 
-= Abort image:transforms/icons/abort.svg[Abort Icon ,role="image-bottom-align"]
+= image:transforms/icons/abort.svg[Abort Icon, role="image-doc-icon"] Abort
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===

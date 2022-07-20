@@ -18,12 +18,25 @@ under the License.
 :language: en_US
 :description: The Add XML transform allows you to encode the content of a number of fields in a row in XML. This XML is added to the row in the form of a String field.
 
-= Add XML
+= image:transforms/icons/add_xml.svg[Add XML Icon, role="image-doc-icon"] Add XML
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Add XML transform allows you to encode the content of a number of fields in a row in XML.
 This XML is added to the row in the form of a String field.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
