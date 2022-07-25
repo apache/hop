@@ -695,7 +695,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           }
 
           if (candidate != null) {
-            addCandidateAsHop(e.x, e.y);
+            /** Avoid duplicate pop-up for hop handling as candidate is never null? */
+            if (!OsHelper.isMac()) {
+              addCandidateAsHop(e.x, e.y);
+            }
             avoidContextDialog = true;
           }
           // ALT-Click: edit error handling
