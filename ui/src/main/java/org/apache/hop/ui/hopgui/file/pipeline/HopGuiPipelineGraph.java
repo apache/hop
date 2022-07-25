@@ -71,6 +71,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.core.widget.Tip;
 import org.apache.hop.ui.hopgui.*;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -438,7 +439,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           100,
         });
 
-    toolTip = new ToolTip(getShell(), SWT.BALLOON);
+    toolTip = new Tip(getShell(), SWT.BALLOON);
     toolTip.setAutoHide(true);
 
     iconSize = hopGui.getProps().getIconSize();
@@ -694,7 +695,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           }
 
           if (candidate != null) {
-            addCandidateAsHop(e.x, e.y);
+            /** Avoid duplicate pop-up for hop handling as candidate is never null? */
+            if (!OsHelper.isMac()) {
+              addCandidateAsHop(e.x, e.y);
+            }
             avoidContextDialog = true;
           }
           // ALT-Click: edit error handling

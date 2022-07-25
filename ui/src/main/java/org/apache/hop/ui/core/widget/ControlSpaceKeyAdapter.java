@@ -132,7 +132,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       final List list = new List(shell, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
       props.setLook(list);
       list.setItems(getVariableNames(variables));
-      final ToolTip toolTip = new ToolTip(list.getShell(), SWT.BALLOON);
+      final Tip toolTip = new Tip(list.getShell(), SWT.BALLOON);
       toolTip.setAutoHide(true);
 
       list.addSelectionListener(
