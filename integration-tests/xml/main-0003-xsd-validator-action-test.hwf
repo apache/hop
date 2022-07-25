@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0003-xsd-validator.action</name>
+  <name>main-0003-xsd-validator-action-test</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -72,8 +72,8 @@ limitations under the License.
       <xsdfilename/>
       <allowExternalEntities>Y</allowExternalEntities>
       <parallel>N</parallel>
-      <xloc>224</xloc>
-      <yloc>176</yloc>
+      <xloc>368</xloc>
+      <yloc>48</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -82,8 +82,8 @@ limitations under the License.
       <type>SUCCESS</type>
       <attributes/>
       <parallel>N</parallel>
-      <xloc>368</xloc>
-      <yloc>176</yloc>
+      <xloc>512</xloc>
+      <yloc>48</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -92,8 +92,8 @@ limitations under the License.
       <type>ABORT</type>
       <attributes/>
       <parallel>N</parallel>
-      <xloc>368</xloc>
-      <yloc>272</yloc>
+      <xloc>512</xloc>
+      <yloc>144</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -101,13 +101,6 @@ limitations under the License.
     <hop>
       <from>Start</from>
       <to>valid xml</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>Start</from>
-      <to>invalid xml</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
@@ -122,6 +115,13 @@ limitations under the License.
     <hop>
       <from>invalid xml</from>
       <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>valid xml</from>
+      <to>invalid xml</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
