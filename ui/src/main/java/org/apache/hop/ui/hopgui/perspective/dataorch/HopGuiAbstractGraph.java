@@ -24,7 +24,6 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.Tip;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.custom.CTabItem;
@@ -75,7 +74,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   protected final String id;
 
-  protected Tip toolTip;
+  protected ToolTip toolTip;
 
   /**
    * This is a state map which can be used by plugins to render extra states on top of pipelines and
@@ -195,7 +194,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
     zoomIn();
   }
 
-  @GuiKeyboardShortcut(control = true, key = '+')
+  @GuiKeyboardShortcut(control = true, key = '+')  
   public void zoomIn() {
     magnification += 0.1f;
     // Minimum 1000%
@@ -207,7 +206,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
     redraw();
   }
 
-  @GuiKeyboardShortcut(control = true, key = '-')
+  @GuiKeyboardShortcut(control = true, key = '-')  
   public void zoomOut() {
     magnification -= 0.1f;
     // Minimum 10%
@@ -269,9 +268,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return parentTabItem;
   }
 
-  /**
-   * @param parentTabItem The parentTabItem to set
-   */
+  /** @param parentTabItem The parentTabItem to set */
   public void setParentTabItem(CTabItem parentTabItem) {
     this.parentTabItem = parentTabItem;
   }
@@ -285,9 +282,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return parentComposite;
   }
 
-  /**
-   * @param parentComposite The parentComposite to set
-   */
+  /** @param parentComposite The parentComposite to set */
   public void setParentComposite(Composite parentComposite) {
     this.parentComposite = parentComposite;
   }
@@ -465,9 +460,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return variables;
   }
 
-  /**
-   * @param variables The variables to set
-   */
+  /** @param variables The variables to set */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }
@@ -481,9 +474,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return stateMap;
   }
 
-  /**
-   * @param stateMap The stateMap to set
-   */
+  /** @param stateMap The stateMap to set */
   public void setStateMap(Map<String, Object> stateMap) {
     this.stateMap = stateMap;
   }
@@ -497,9 +488,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return avoidScrollAdjusting;
   }
 
-  /**
-   * @param avoidScrollAdjusting The avoidScrollAdjusting to set
-   */
+  /** @param avoidScrollAdjusting The avoidScrollAdjusting to set */
   public void setAvoidScrollAdjusting(boolean avoidScrollAdjusting) {
     this.avoidScrollAdjusting = avoidScrollAdjusting;
   }
