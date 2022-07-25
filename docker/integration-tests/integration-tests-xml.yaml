@@ -28,6 +28,6 @@ services:
     image: "halverneus/static-file-server:latest"
     hostname: file-server
     ports:
-      - "81"
+      - "8080"
     volumes:
       - ./resource/xml/test.xsd:/web/test.xsd

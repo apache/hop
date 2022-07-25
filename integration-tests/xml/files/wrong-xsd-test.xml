@@ -20,7 +20,7 @@ limitations under the License.
 <employee  
 xmlns="http://www.javatpoint.com"  
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
-xsi:schemaLocation="http://www.javatpoint.com http://file-server:81/test.xsd">  
+xsi:schemaLocation="http://www.javatpoint.com http://file-server:8080/test.xsd">  
   
   <firstname>vimal</firstname>  
   <lastname>jaiswal</lastname> 
