@@ -483,7 +483,7 @@ public class PropsUi extends Props {
           control.addPaintListener(
               paintEvent -> {
                 paintEvent.gc.setForeground(gui.getColorBlack());
-                paintEvent.gc.setBackground(gui.getColorBackground());
+                paintEvent.gc.setBackground(gui.getColorWhite());
                 paintEvent.gc.fillRectangle(
                     2, 0, control.getBounds().width - 8, control.getBounds().height - 20);
               });
