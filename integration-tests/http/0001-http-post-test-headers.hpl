@@ -100,12 +100,28 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
         <length>-1</length>
         <name>header</name>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>String</type>
         <nullif>headervalue</nullif>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>header2</name>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+        <nullif>headervalue2</nullif>
       </field>
     </fields>
     <interval_in_ms>5000</interval_in_ms>
@@ -135,23 +151,29 @@ limitations under the License.
     <encoding>UTF-8</encoding>
     <httpLogin/>
     <httpPassword>Encrypted </httpPassword>
-    <result>
-      <code>result_field</code>
-      <name>result</name>
-      <response_header/>
-      <response_time/>
-    </result>
+    <ignoreSsl>N</ignoreSsl>
     <lookup>
       <arg>
         <header>Y</header>
         <name>header</name>
         <parameter>header_parameter</parameter>
       </arg>
+      <arg>
+        <header>Y</header>
+        <name>header2</name>
+        <parameter>header_parameter2</parameter>
+      </arg>
     </lookup>
     <postafile>N</postafile>
     <proxyHost/>
     <proxyPort/>
     <requestEntity/>
+    <result>
+      <code>result_field</code>
+      <name>result</name>
+      <response_header/>
+      <response_time/>
+    </result>
     <socketTimeout>10000</socketTimeout>
     <url>http://${HOSTNAME}/post</url>
     <urlField/>

@@ -171,11 +171,6 @@
       <artifactId>grpc-alts</artifactId>
       <version>${grpc.version}</version>
     </dependency>
-    <!--<dependency>
-      <groupId>com.google.api</groupId>
-      <artifactId>gax-grpc</artifactId>
-      <version>${gax-grpc.version}</version>
-    </dependency>-->
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-client</artifactId>

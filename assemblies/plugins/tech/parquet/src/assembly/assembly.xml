@@ -56,8 +56,6 @@
                 <include>com.google.protobuf:protobuf-java:jar</include>
                 <include>commons-collections:commons-collections:jar</include>
                 <include>commons-digester:commons-digester:jar</include>
-                <include>com.sun.jersey:jersey-client:jar</include>
-                <include>com.sun.jersey:jersey-core:jar</include>
                 <include>io.netty:netty:jar</include>
                 <include>jakarta.activation:jakarta.activation:jar</include>
                 <include>javax.xml.bind:jaxb-api:jar</include>

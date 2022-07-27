@@ -18,12 +18,6 @@
 package org.apache.hop.www;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.api.json.JSONConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -54,11 +48,16 @@ import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformStatus;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import picocli.CommandLine;
 import picocli.CommandLine.Parameters;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -551,22 +550,30 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
             + ": hop-server.sh 127.0.0.1 8080 --kill --userName cluster --password cluster");
   }
 
-  /** @return the webServer */
+  /**
+   * @return the webServer
+   */
   public WebServer getWebServer() {
     return webServer;
   }
 
-  /** @param webServer the webServer to set */
+  /**
+   * @param webServer the webServer to set
+   */
   public void setWebServer(WebServer webServer) {
     this.webServer = webServer;
   }
 
-  /** @return the hop server (HopServer) configuration */
+  /**
+   * @return the hop server (HopServer) configuration
+   */
   public HopServerConfig getConfig() {
     return config;
   }
 
-  /** @param config the hop server (HopServer) configuration */
+  /**
+   * @param config the hop server (HopServer) configuration
+   */
   public void setConfig(HopServerConfig config) {
     this.config = config;
   }
@@ -596,27 +603,29 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     try {
       HopClientEnvironment.init();
 
-      ClientConfig clientConfig = new DefaultClientConfig();
-      clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
-      Client client = Client.create(clientConfig);
+      HttpAuthenticationFeature authFeature =
+          HttpAuthenticationFeature.basicBuilder()
+              .credentials(username, Encr.decryptPasswordOptionallyEncrypted(password))
+              .build();
 
-      client.addFilter(
-          new HTTPBasicAuthFilter(username, Encr.decryptPasswordOptionallyEncrypted(password)));
+      ClientConfig clientConfig = new ClientConfig();
+      Client client = ClientBuilder.newClient(clientConfig);
+      client.register(authFeature);
 
       // check if the user can access the hop server. Don't really need this call but may want to
       // check it's output at
       // some point
       String contextURL = "http://" + hostname + ":" + port + "/hop";
-      WebResource resource = client.resource(contextURL + "/status/?xml=Y");
-      String response = resource.get(String.class);
+      WebTarget target = client.target(contextURL + "/status/?xml=Y");
+      String response = target.request().get(String.class);
       if (response == null || !response.contains("<serverstatus>")) {
         throw new HopServerCommandException(
             BaseMessages.getString(PKG, "HopServer.Error.NoServerFound", hostname, "" + port));
       }
 
       // This is the call that matters
-      resource = client.resource(contextURL + "/stopHopServer");
-      response = resource.get(String.class);
+      target = client.target(contextURL + "/stopHopServer");
+      response = target.request().get(String.class);
       if (response == null || !response.contains("Shutting Down")) {
         throw new HopServerCommandException(
             BaseMessages.getString(PKG, "HopServer.Error.NoShutdown", hostname, "" + port));
@@ -649,7 +658,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return parameters;
   }
 
-  /** @param parameters The parameters to set */
+  /**
+   * @param parameters The parameters to set
+   */
   public void setParameters(List<String> parameters) {
     this.parameters = parameters;
   }
@@ -663,7 +674,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return systemProperties;
   }
 
-  /** @param systemProperties The systemProperties to set */
+  /**
+   * @param systemProperties The systemProperties to set
+   */
   public void setSystemProperties(String[] systemProperties) {
     this.systemProperties = systemProperties;
   }
@@ -677,7 +690,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return killServer;
   }
 
-  /** @param killServer The stopServer to set */
+  /**
+   * @param killServer The stopServer to set
+   */
   public void setKillServer(boolean killServer) {
     this.killServer = killServer;
   }
@@ -691,7 +706,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return password;
   }
 
-  /** @param password The stopPassword to set */
+  /**
+   * @param password The stopPassword to set
+   */
   public void setPassword(String password) {
     this.password = password;
   }
@@ -705,7 +722,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return username;
   }
 
-  /** @param username The stopUsername to set */
+  /**
+   * @param username The stopUsername to set
+   */
   public void setUsername(String username) {
     this.username = username;
   }
@@ -719,7 +738,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return level;
   }
 
-  /** @param level The level to set */
+  /**
+   * @param level The level to set
+   */
   public void setLevel(String level) {
     this.level = level;
   }
@@ -733,7 +754,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return allOK;
   }
 
-  /** @param allOK The allOK to set */
+  /**
+   * @param allOK The allOK to set
+   */
   public void setAllOK(boolean allOK) {
     this.allOK = allOK;
   }
@@ -747,7 +770,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }
@@ -761,7 +786,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return cmd;
   }
 
-  /** @param cmd The cmd to set */
+  /**
+   * @param cmd The cmd to set
+   */
   public void setCmd(CommandLine cmd) {
     this.cmd = cmd;
   }
@@ -775,7 +802,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return log;
   }
 
-  /** @param log The log to set */
+  /**
+   * @param log The log to set
+   */
   public void setLog(ILogChannel log) {
     this.log = log;
   }
@@ -790,7 +819,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return metadataProvider;
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
@@ -804,7 +835,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return joinOverride;
   }
 
-  /** @param joinOverride The joinOverride to set */
+  /**
+   * @param joinOverride The joinOverride to set
+   */
   public void setJoinOverride(Boolean joinOverride) {
     this.joinOverride = joinOverride;
   }
@@ -818,7 +851,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     return realFilename;
   }
 
-  /** @param realFilename The realFilename to set */
+  /**
+   * @param realFilename The realFilename to set
+   */
   public void setRealFilename(String realFilename) {
     this.realFilename = realFilename;
   }

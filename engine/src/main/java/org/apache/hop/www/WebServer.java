@@ -17,7 +17,6 @@
 
 package org.apache.hop.www;
 
-import com.sun.jersey.spi.container.servlet.ServletContainer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.encryption.Encr;
@@ -47,6 +46,7 @@ import org.eclipse.jetty.util.resource.PathResource;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.glassfish.jersey.servlet.ServletContainer;
 
 import javax.servlet.Servlet;
 import java.io.File;
