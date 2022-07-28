@@ -42,7 +42,7 @@
         <!-- Third-party dependencies -->
         <commons-validator.version>1.3.1</commons-validator.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <jersey2.version>2.30</jersey2.version>
+        <jersey2.version>2.34</jersey2.version>
         <jaxrs.version>2.1.6</jaxrs.version>
         <olap4j.version>1.2.0</olap4j.version>
         <olap4j-xmla.version>1.2.0</olap4j-xmla.version>
