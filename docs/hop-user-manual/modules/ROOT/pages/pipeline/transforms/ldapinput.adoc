@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The LDAP Input transform allows you to read information like users, roles and other data from an LDAP server.
 
-= LDAP Input
+= image:transforms/icons/ldapinput.svg[LDAP Input transform Icon, role="image-doc-icon"] LDAP Input
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The LDAP Input transform allows you to read information like users, roles and other data from an LDAP server.
 
 The following sections describe the available options for the LDAP input transform.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == General Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform; this name has to be unique in a single pipeline.
@@ -46,7 +60,7 @@ The following sections describe the available options for the LDAP input transfo
 
 == Search Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Dynamic search base|Enables the search base field.
@@ -60,7 +74,7 @@ Example: mail=*
 
 == Advanced Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Include rownum in output?|Adds a row number to the output.
@@ -75,7 +89,7 @@ Example: mail=*
 
 == Fields Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Name|The name of the imported field.

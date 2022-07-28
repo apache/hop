@@ -18,15 +18,29 @@ under the License.
 :language: en_US
 :description: The Join Rows transform allows you to produce combinations (Cartesian product) of all rows in the input streams.
 
-= Join Rows
+= image:transforms/icons/joinrows.svg[Join Rows transform Icon, role="image-doc-icon"] Join Rows
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Join Rows transform allows you to produce combinations (https://en.wikipedia.org/wiki/Cartesian_product[Cartesian product^]) of all rows in the input streams.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.

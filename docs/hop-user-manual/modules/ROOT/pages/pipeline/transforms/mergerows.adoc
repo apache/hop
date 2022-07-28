@@ -18,11 +18,28 @@ under the License.
 :language: en_US
 :description: The Merge Rows (Diff) transform compares and merges data within two rows of data, adding a flag for each row.
 
-= Merge rows (diff)
+= image:transforms/icons/mergerows.svg[Merge rows (diff) transform Icon, role="image-doc-icon"] Merge rows (diff)
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Merge Rows (Diff) transform compares and merges rows between two data streams called **Reference** (previous data) and **Compare** (new data), adding a flag to each row.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Usage
+
 
 This transform is useful for comparing data collected at two different times.
 
