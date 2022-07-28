@@ -18,11 +18,28 @@ under the License.
 :language: en_US
 :description: The Database Join transform allows you to run a query against a database using data from your pipelines fields as parameters..
 
-= Database Join
+= image:transforms/icons/dbjoin.svg[Database Join transform Icon, role="image-doc-icon"] Database Join
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Database Join transform allows you to run a query against a database using data obtained from previous transforms.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Usage
+
 The parameters for this query are specified as follows:
 
 The data grid in the transform properties dialog.
@@ -45,14 +62,14 @@ ORDER BY    customer.date_of_birth
 
 The grid is then defined as follows:
 
-image::databasejoin-grid.png[]
+image::transforms/databasejoin/databasejoin-grid.png[]
 
 When the transform runs, the (?) placeholder defined in the SQL query will be replaced with the incoming productnr field value from the source hop.
 To define and use multiple parameters, list the fields in order you want them to be replaced in the SQL statement.
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform; This name has to be unique in a single pipeline

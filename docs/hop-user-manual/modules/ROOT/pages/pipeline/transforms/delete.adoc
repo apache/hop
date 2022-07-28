@@ -18,19 +18,33 @@ under the License.
 :language: en_US
 :description: The Delete transform deletes rows of data from a database. This transform is similar to the update family of transforms in that it takes one or more key fields to determine the rows to delete.
 
-= Delete
+= image:transforms/icons/delete.svg[Delete transform Icon, role="image-doc-icon"] Delete
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Delete transform deletes rows of data from a database.
 
 This transform is similar to the update family of transforms in that it takes one or more key fields to determine the rows to delete.
 
-image::delete.png[]
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+image::transforms/delete/delete.png[]
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

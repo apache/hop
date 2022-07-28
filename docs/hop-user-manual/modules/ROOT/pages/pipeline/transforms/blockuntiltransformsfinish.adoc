@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: This transform simply waits until all the transform copies that are specified in the dialog have finished.
 
-= Blocking until transforms finish
+= image:transforms/icons/blockinguntiltransformsfinish.svg[Blocking until finish Icon, role="image-doc-icon"] Blocking until transforms finish
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 This transform simply waits until all the transform copies that are specified in the dialog have finished.
 
 You can use it to avoid the natural concurrency (parallelism) that exists between pipeline transform copies.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -36,7 +50,7 @@ You can use it to avoid the natural concurrency (parallelism) that exists betwee
 |Get transforms|Push this button to auto-fill the "Watch the following transforms" grid with all transforms available in the pipeline.
 |===
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|The name of the transform to wait for.

@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The Dummy transform passes data without making any modifications. It functions as a placeholder for testing purposes or a way to combine multiple streams with the same field layout.
 
-= Dummy (do nothing)
+= image:transforms/icons/dummy.svg[Dummy transform Icon, role="image-doc-icon"] Dummy (do nothing)
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Dummy transform passes data without making any modifications.
 
 It functions as a placeholder for testing purposes or a way to combine multiple streams with the same field layout.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:check_mark.svg[Supported, 24]
+!Dataflow! image:check_mark.svg[Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

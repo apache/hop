@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Calculator transform provides you with predefined functions that can be executed on input field values.
 
-= Calculator
+= image:transforms/icons/calculator.svg[Calculator transform Icon, role="image-doc-icon"] Calculator
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Calculator transform provides you with predefined functions that can be executed on input field values.
@@ -29,9 +32,20 @@ The Calculator transform provides you with predefined functions that can be exec
 In addition to the arguments (Field A, Field B and Field C) you must also specify the return type of the function.
 You can also choose to remove the field from the result (output) after all values are calculated; this is useful in cases where you use temporary values that don't need to end up in your pipeline fields.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options=header]
+[options=header]
 |===
 |Function|Description
 |Set field to constant A|
@@ -168,7 +182,7 @@ The required conversion would take place there and then.
 
 In short: we convert to the required metadata type when we land the data somewhere, NOT BEFORE.
 
-*Q*: How do the data types work internally?
+*Q*: How do the data types work internally? +
 *A*: You might notice that if you multiply an Integer and Number, the result is always rounded.
 That is because Calculator takes data type of the left hand size of the multiplication (A) as the driver for the calculation.
 As such, if you want more precision, you should put field B on the left hand side or change the data type to Number and all will be well.

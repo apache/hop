@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Blocking transform blocks all output until the very last row is received from the previous transform.
 
-= Blocking transform
+= image:transforms/icons/blockingtransform.svg[Blocking transform Icon, role="image-doc-icon"] Blocking transform
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Blocking transform blocks all output until the very last row is received from the previous transform.
@@ -29,9 +32,20 @@ NOTE: the transform blocks until it gets the last row. It does *not* block until
 At that point, the last row is sent to the next transform or the complete input is sent off to the next transform.
 Use the Blocking transform for triggering plugins, stored procedures, Java scripts, ... or for synchronization purposes.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform; this name has to be unique in a single pipeline.

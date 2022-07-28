@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Combination Lookup-Update transform allows you to store information in a junk-dimension table. The transform can possibly also be used to maintain Kimball pure Type 1 dimensions.
 
-= Combination lookup/update
+= image:transforms/icons/combinationlookup.svg[Combination lookup/update transform Icon, role="image-doc-icon"] Combination lookup/update
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Combination Lookup-Update transform allows you to store information in a junk-dimension table. The transform can possibly also be used to maintain Kimball pure Type 1 dimensions.
@@ -41,9 +44,21 @@ Apache Hop will store the information in a table where the primary key is the co
 Because this process can be slow if you have a large number of fields, a "hash code" field is supported that is representing all fields in the dimension.
 This can speed up lookup performance dramatically while limiting the fields to index to one field only.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
