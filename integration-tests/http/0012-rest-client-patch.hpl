@@ -88,7 +88,55 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <fields>
-</fields>
+      <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>body</name>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+        <nullif>this is a body</nullif>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>header1</name>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+        <nullif>header1</nullif>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>header2</name>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+        <nullif>header2</nullif>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>header3</name>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+        <nullif>header3</nullif>
+      </field>
+    </fields>
     <interval_in_ms>5000</interval_in_ms>
     <last_time_field>FiveSecondsAgo</last_time_field>
     <never_ending>N</never_ending>
@@ -118,7 +166,7 @@ limitations under the License.
     <dynamicMethod>N</dynamicMethod>
     <methodFieldName/>
     <urlField/>
-    <bodyField/>
+    <bodyField>body</bodyField>
     <httpLogin/>
     <httpPassword>Encrypted </httpPassword>
     <proxyHost/>
@@ -128,7 +176,19 @@ limitations under the License.
     <trustStorePassword>Encrypted </trustStorePassword>
     <ignoreSsl>N</ignoreSsl>
     <headers>
-      </headers>
+      <header>
+        <field>header1</field>
+        <name>header1</name>
+      </header>
+      <header>
+        <field>header2</field>
+        <name>header2</name>
+      </header>
+      <header>
+        <field>header3</field>
+        <name>header3</name>
+      </header>
+    </headers>
     <parameters>
       </parameters>
     <matrixParameters>
@@ -137,7 +197,7 @@ limitations under the License.
       <name>result</name>
       <code>result_status</code>
       <response_time/>
-      <response_header/>
+      <response_header>headers</response_header>
     </result>
     <attributes/>
     <GUI>

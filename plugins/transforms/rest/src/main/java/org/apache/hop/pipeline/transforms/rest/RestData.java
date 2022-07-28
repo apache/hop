@@ -17,12 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.client.apache4.config.DefaultApacheHttpClient4Config;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.MediaType;
 
 public class RestData extends BaseTransformData implements ITransformData {
@@ -90,11 +91,13 @@ public class RestData extends BaseTransformData implements ITransformData {
 
   public String trustStorePassword;
 
-  public DefaultApacheHttpClient4Config config;
+  public ClientConfig config;
 
-  public HTTPBasicAuthFilter basicAuthentication;
+  public HttpAuthenticationFeature basicAuthentication;
 
   public MediaType mediaType;
+
+  public SSLContext sslContext;
 
   public RestData() {
     super();
@@ -118,5 +121,6 @@ public class RestData extends BaseTransformData implements ITransformData {
     this.trustStoreFile = null;
     this.trustStorePassword = null;
     this.basicAuthentication = null;
+    this.sslContext = null;
   }
 }
