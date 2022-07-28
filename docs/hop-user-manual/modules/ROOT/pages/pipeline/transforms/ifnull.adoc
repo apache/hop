@@ -18,15 +18,30 @@ under the License.
 :language: en_US
 :description: The If Null transform replaces nulls by a given value either by processing the complete row with all fields, by processing the complete row but only for specific field types (Number, String, Date etc.) or by processing the complete row but only for specific fields by name
 
-= If Null
+= image:transforms/icons/ifnull.svg[If Null transform Icon, role="image-doc-icon"] If Null
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
+
 
 The If Null transform replaces nulls by a given value either by:
 
 1. Processing the complete row with all fields
 2. Processing the complete row but only for specific field types (Number, String, Date etc.)
 3. Processing the complete row but only for specific fields by name
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Metadata Injection Support
 

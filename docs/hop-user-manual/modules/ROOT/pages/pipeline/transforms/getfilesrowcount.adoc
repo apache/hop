@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The Get Files Row Count transform counts the number of rows in a file or set of files.
 
-= Get files Row Count
+= image:transforms/icons/getfilesrowcount.svg[Get files Row Count transform Icon, role="image-doc-icon"] Get files Row Count
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Get Files Row Count transform counts the number of rows in a file or set of files.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
 === File tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |directory|
@@ -46,7 +60,7 @@ The Get Files Row Count transform counts the number of rows in a file or set of 
 
 === Content tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Rows Count|

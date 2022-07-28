@@ -18,13 +18,27 @@ under the License.
 :language: en_US
 :description: The Get Data From XML transform provides the ability to read data from any type of XML file using XPath specifications.
 
-= Get Data From XML
+= image:transforms/icons/GXD.svg[Get Data From XML transform Icon, role="image-doc-icon"] Get Data From XML
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Get Data From XML transform provides the ability to read data from any type of XML file using XPath specifications.
 
 Get Data From XML can read data from 3 kind of sources (files, stream and url) in 2 modes (user can define files and urls at static mode or in a dynamic way).
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
@@ -33,7 +47,7 @@ Get Data From XML can read data from 3 kind of sources (files, stream and url) i
 The files tab is where you define the location of the XML files from which you want to read.
 The table below contains options associated with the Files tab.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -54,7 +68,7 @@ If a file is required and it is not found, an error is generated;otherwise, the 
 
 === Content Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Settings a|
@@ -91,7 +105,7 @@ A unique list is being kept in memory that can be used in the next workflow acti
 
 === Fields Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Name|The name of the output field
