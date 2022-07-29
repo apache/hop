@@ -18,13 +18,26 @@ under the License.
 :language: en_US
 :description: The Data Grid transform allows you to enter a static list of rows in a grid, similar to an in-pipeline spreadsheet. This is usually done for testing, reference or demo purposes.
 
+= image:transforms/icons/datagrid.svg[Data Grid transform Icon, role="image-doc-icon"] Data Grid
 
-= Data Grid
-
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Data Grid transform allows you to enter a static list of rows in a grid, similar to an in-pipeline spreadsheet.
 This is usually done for testing, reference or demo purposes.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 

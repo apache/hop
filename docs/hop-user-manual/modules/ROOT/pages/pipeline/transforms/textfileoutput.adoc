@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Text File Output transform is used to export data to text file format.
 
-= Text File Output
+= image:transforms/icons/textfileoutput.svg[Text File Output transform Icon, role="image-doc-icon"] Text File Output
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Text File Output transform is used to export data to text file format.
@@ -28,13 +31,24 @@ This is commonly used to generate Comma Separated Values (CSV files) that can be
 
 It is also possible to generate fixed width files by setting lengths on the fields in the fields tab.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
 === File Tab
 
 The File tab is where you define basic properties about the file being created, such as:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform Name|Name of the transform this name has to be unique in a single pipeline.
@@ -62,7 +76,7 @@ In this case set the filename to the script or binary to execute.
 
 The content tab contains the following options for describing the content being read:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Append|Check this to append lines to the end of the specified file.
@@ -103,7 +117,7 @@ Note: Only one file is placed in a single archive.
 The fields tab is where you define properties for the fields being exported.
 The table below describes each of the options for configuring the field properties:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Name|The name of the field.

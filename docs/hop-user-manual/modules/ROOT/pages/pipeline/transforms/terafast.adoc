@@ -21,15 +21,29 @@ under the License.
 :openvar: ${
 :closevar: }
 
-= Teradata Bulk Loader
+= image:transforms/icons/terafast.svg[Teradata Bulk Loader transform Icon, role="image-doc-icon"] Teradata Bulk Loader
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Teradata Bulkloader transform supports fastloading data into a Teradata database using the fastload command line tool.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.

@@ -18,13 +18,27 @@ under the License.
 :language: en_US
 :description: The Metadata Input transform gives you access to the Hop Metadata items in the current project.
 
-= Metadata Input
+= image:transforms/icons/metadata.svg[Metadata Input transform Icon, role="image-doc-icon"] Metadata Input
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Metadata Input transform gives you access to the Hop Metadata items in the current project.
 
 It outputs all the metadata objects of all types unless one or more types are filtered.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 

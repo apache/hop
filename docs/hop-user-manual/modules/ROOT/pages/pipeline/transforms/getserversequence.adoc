@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Get ID From Slave Server transform gets a unique ID from the hop server of your choice. The transform works by asking a hop server for a range of values.
 
-= Get ID from slave server
+= image:transforms/icons/get-server-sequence.svg[Get ID from slave server transform Icon, role="image-doc-icon"] Get ID from slave server
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Get ID From Slave Server transform gets a unique ID from the hop server of your choice.
@@ -35,6 +38,17 @@ This means that the returned IDs can be sequential, however this is not guarante
 The only thing you know is that after each execution for each input row you get a unique ID that has a higher value than the last one returned.
 
 The last value returned + the size of the range (increment) are stored in a database table to persist the value over several runs of a pipeline.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Context
 
@@ -134,7 +148,7 @@ Continuing with this example, the following row will be present in the SEQ_TABLE
 mysql> select * from SEQ_TABLE where SEQ_NAME='test';
 ====
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |SEQ_NAME|SEQ_VALUE
 |test|580000

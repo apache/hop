@@ -18,11 +18,25 @@ under the License.
 :language: en_US
 :description: The Check If A File Is Locked transform tries to determine if a file is locked by another process by trying to move the file to itself.
 
-= Check if file is locked
+= image:transforms/icons/filelocked.svg[Check if file is locked transform Icon, role="image-doc-icon"] Check if file is locked
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Check If A File Is Locked transform tries to determine if a file is locked by another process by trying to move the file to itself.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 

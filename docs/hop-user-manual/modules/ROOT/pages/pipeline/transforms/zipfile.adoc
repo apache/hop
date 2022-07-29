@@ -18,15 +18,29 @@ under the License.
 :language: en_US
 :description: The Zip File transform creates a standard ZIP archive using the options you specify in the dialog.
 
-= Zip file
+= image:transforms/icons/zipfile.svg[Zip file transform Icon, role="image-doc-icon"] Zip file
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Zip File transform creates a standard ZIP archive using the options you specify in the dialog.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

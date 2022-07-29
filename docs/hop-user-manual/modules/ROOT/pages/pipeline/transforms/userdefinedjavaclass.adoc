@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The User Defined Java Class transform allows you to enter User Defined Java Class to drive the functionality of a complete transform.
 
-= User Defined Java Class
+= image:transforms/icons/userdefinedjavaclass.svg[User Defined Java Class transform Icon, role="image-doc-icon"] User Defined Java Class
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The User Defined Java Class transform allows you to enter User Defined Java Class to drive the functionality of a complete transform.
@@ -34,9 +37,20 @@ The goal is to allow users to define methods and logic with as little as code as
 
 For this we use the https://janino-compiler.github.io/janino/[Janino^] project libraries that compile Java code in the form of classes at runtime.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header",cols="1a,3a"]
+[options="header",cols="1a,3a"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

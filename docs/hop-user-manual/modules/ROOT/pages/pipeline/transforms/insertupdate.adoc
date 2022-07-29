@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Insert/Update transform first looks up a row in a table using one or more lookup keys. If a table row for the specified keys can't be found, a new row is inserted.
 
-= Insert / Update
+= image:transforms/icons/insertupdate.svg[Insert / Update transform Icon, role="image-doc-icon"] Insert / Update
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Insert/Update transform first looks up a row in a table using one or more lookup keys. If a table row for the specified keys can't be found, a new row is inserted.
@@ -28,9 +31,20 @@ If it can be found and the fields to update are the same, nothing is done.
 
 If they are not all the same, the row in the table is updated.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Commit size|The number of rows to change (insert / update) before running a commit.

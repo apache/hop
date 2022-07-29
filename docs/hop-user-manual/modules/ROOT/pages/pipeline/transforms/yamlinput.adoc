@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The YAML Input transform reads data from YAML structures, files or incoming fields.
 
-= YAML Input
+= image:transforms/icons/yamlinput.svg[YAML Input transform Icon, role="image-doc-icon"] YAML Input
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The YAML Input transform reads data from YAML structures, files or incoming fields.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
 === File Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -47,7 +61,7 @@ The YAML Input transform reads data from YAML structures, files or incoming fiel
 
 === Content Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Ignore empty file|Whether or not to ignore empty files.
@@ -62,7 +76,7 @@ The YAML Input transform reads data from YAML structures, files or incoming fiel
 
 === Fields Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Name|The name of the output field.

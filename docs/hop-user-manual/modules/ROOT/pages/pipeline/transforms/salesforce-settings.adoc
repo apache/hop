@@ -22,7 +22,7 @@ under the License.
 
 Enter the insert process settings in the following transform options:
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Option|Description
 |Time out|Specify the timeout interval in milliseconds before the transform times out.

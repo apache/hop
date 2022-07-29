@@ -18,11 +18,25 @@ under the License.
 :language: en_US
 :description: The Email Messages Input transform allows you to retrieve messages and their attachments from a mail server using the POP3, IMAP or MBOX standard protocols.
 
-= Email Messages Input
+= image:transforms/icons/mailinput.svg[Email Messages Input transform Icon, role="image-doc-icon"] Email Messages Input
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Email Messages Input transform allows you to retrieve messages and their attachments from a mail server using the POP3, IMAP or MBOX standard protocols.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
@@ -30,7 +44,7 @@ The Email Messages Input transform allows you to retrieve messages and their att
 
 On this tab you will find the general mail server connection settings:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -53,7 +67,7 @@ This button does not retrieve mails.
 
 **POP3 settings**
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Retrieve|Specify either "All emails" or "Retrieve first... emails"
@@ -62,7 +76,7 @@ This button does not retrieve mails.
 
 **IMAP settings**
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Get folder from field|Enable this option to allow the IMAP folder name to be present in an input field of this transform.
@@ -77,7 +91,7 @@ This button does not retrieve mails.
 
 **Batch settings**
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Batch size|Number of emails to retrieve at once in one batch
@@ -90,7 +104,7 @@ This button does not retrieve mails.
 These are the filters you can set on the header of the mail message.
 Mail for which the header matches your filter will be retrieved, the rest is ignored.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Sender (FROM)|Only retrieve

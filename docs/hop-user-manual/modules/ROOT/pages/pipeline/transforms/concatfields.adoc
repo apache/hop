@@ -18,19 +18,32 @@ under the License.
 :language: en_US
 :description: The Concat Fields transform concatenates multiple fields into one target field. The fields can be separated by a separator and an enclosure.
 
+= image:transforms/icons/concatfields.svg[Concat Fields transform Icon, role="image-doc-icon"] Concat Fields
 
-= Concat Fields
-
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Concat Fields transform concatenates multiple fields into one target field.
 The fields can be separated by a separator and an enclosure.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
 === General
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -47,7 +60,7 @@ The enclosure string is optional.
 
 This is identical to the fields tab option of the Text File Output transform and has the same functionality.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Name|The name of the field.
@@ -82,7 +95,7 @@ String fields will no longer be padded to their specified length.
 
 === Advanced Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Remove selected fields|Check this to remove all selected fields from the output stream.
 |Force the enclosure around fields?|This option forces all field names to be enclosed with the character specified in the Enclosure property above.

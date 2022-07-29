@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The Splunk Input transform runs a Splunk search query and returns the result as a set of Hop fields
 
-= Splunk input
+= image:transforms/icons/splunk.svg[Splunk input transform Icon, role="image-doc-icon"] Splunk input
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Splunk Input transform runs a Splunk search query and returns the result as a set of Hop fields
 
 Check the xref:metadata-types/splunk-connection.adoc[Splunk Connection docs] for more information about creating a Splunk connection.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Copy Rows To Result transform allows you to transfer rows of data (in memory) to the next pipeline (or workflow action) in a workflow via an internal result row set.
 
-= Copy rows to result
+= image:transforms/icons/rowstoresult.svg[Copy rows to result transform Icon, role="image-doc-icon"] Copy rows to result
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Copy Rows To Result transform allows you to transfer rows of data (in memory) to the next pipeline (or workflow action) in a workflow via an internal result row set.
@@ -28,9 +31,20 @@ This transform can be used by the Get Rows from Result transform and some workfl
 
 NOTE: this transform is mainly available for historical reasons. There are newer and better ways to create loops in Hop, check the xref:best-practices/index.adoc[Best Practices] for more information.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.

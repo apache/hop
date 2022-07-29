@@ -18,15 +18,29 @@ under the License.
 :language: en_US
 :description: The Strings Cut transform cuts a portion of a (sub)string. If the designated field is out of range, it returns blank.
 
-= Strings cut
+= image:transforms/icons/stringcut.svg[Strings cut transform Icon, role="image-doc-icon"] Strings cut
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Strings Cut transform cuts a portion of a (sub)string. If the designated field is out of range, it returns blank.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

@@ -18,13 +18,27 @@ under the License.
 :language: en_US
 :description: The MongoDB Input transform enables you to retrieve documents or records from a collection within MongoDB.
 
-= MongoDB Input
+= image:transforms/icons/mongodb-input.svg[MongoDB Input transform Icon, role="image-doc-icon"] MongoDB Input
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The MongoDB Input transform enables you to retrieve http://docs.mongodb.org/manual/reference/glossary/[documents] or http://docs.mongodb.org/manual/reference/glossary/[records] from a collection within MongoDB.
 
 For additional information about MongoDB, see the MongoDB http://www.mongodb.org/[documentation].
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 

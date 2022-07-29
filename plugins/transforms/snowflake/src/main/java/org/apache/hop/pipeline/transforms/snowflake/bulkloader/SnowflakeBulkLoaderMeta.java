@@ -47,14 +47,14 @@ import java.util.Date;
 import java.util.List;
 
 @Transform(
-        id="SnowflakeBulkLoader",
-        image="snowflake.svg",
-        name="i18n::BaseTransform.TypeLongDesc.SnowflakeBulkLoaderMessage",
-        description="i18n::BaseTransform.TypeTooltipDesc.SnowflakeBulkLoaderMessage",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-        documentationUrl = ""
-)
-public class SnowflakeBulkLoaderMeta extends BaseTransformMeta<SnowflakeBulkLoader, SnowflakeBulkLoaderData> {
+    id = "SnowflakeBulkLoader",
+    image = "snowflake.svg",
+    name = "i18n::BaseTransform.TypeLongDesc.SnowflakeBulkLoaderMessage",
+    description = "i18n::BaseTransform.TypeTooltipDesc.SnowflakeBulkLoaderMessage",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+    documentationUrl = "/pipeline/transforms/snowflakebulkloader.html")
+public class SnowflakeBulkLoaderMeta
+    extends BaseTransformMeta<SnowflakeBulkLoader, SnowflakeBulkLoaderData> {
 
     private static final Class<?> PKG = SnowflakeBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 

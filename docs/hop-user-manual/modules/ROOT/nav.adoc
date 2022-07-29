@@ -44,7 +44,6 @@ under the License.
 ** xref:pipeline/errorhandling.adoc[Error Handling]
 ** xref:pipeline/beam/getting-started-with-beam.adoc[Getting started with Apache Beam]
 *** xref:pipeline/beam/running-the-beam-samples.adoc[Running the Beam samples]
-
 **** xref:pipeline/beam/beam-samples-direct-runner.adoc[Direct Runner]
 **** xref:pipeline/beam/beam-samples-flink.adoc[Apache Flink]
 **** xref:pipeline/beam/beam-samples-spark.adoc[Apache Spark]
@@ -168,7 +167,6 @@ under the License.
 *** xref:pipeline/transforms/ldapoutput.adoc[LDAP Output]
 *** xref:pipeline/transforms/loadfileinput.adoc[Load file content in memory]
 *** xref:pipeline/transforms/mail.adoc[Mail]
-*** xref:pipeline/transforms/mailvalidator.adoc[Mail Validator]
 *** xref:pipeline/transforms/mapping-input.adoc[Mapping Input]
 *** xref:pipeline/transforms/mapping-output.adoc[Mapping Output]
 *** xref:pipeline/transforms/memgroupby.adoc[Memory Group By]
@@ -261,7 +259,6 @@ under the License.
 *** xref:pipeline/transforms/xslt.adoc[XSL Transformation]
 *** xref:pipeline/transforms/yamlinput.adoc[Yaml Input]
 *** xref:pipeline/transforms/zipfile.adoc[Zip file]
-
 * xref:workflow/workflows.adoc[Workflows]
 ** xref:workflow/create-workflow.adoc[Create a Workflow]
 ** xref:workflow/run-debug-workflow.adoc[Run and Debug a Workflow]

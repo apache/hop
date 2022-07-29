@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Simple Mapping transform allows you to re-use a series of transforms in the form of a "re-usable pipeline" also known as a "Mapping".
 
-= Simple Mapping
+= image:transforms/icons/MAP.svg[Simple Mapping transform Icon, role="image-doc-icon"] Simple Mapping
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Simple Mapping transform allows you to re-use a series of transforms in the form of a "re-usable pipeline" also known as a "Mapping".
@@ -27,6 +30,17 @@ The Simple Mapping transform allows you to re-use a series of transforms in the 
 In the Simple Mapping transform you can specify one xref:pipeline/transforms/mapping-input.adoc[Mapping Input] transform to pass data to and one xref:pipeline/transforms/mapping-output.adoc[Mapping Output] transform to retrieve rows of data from.
 
 Use this transform if you find yourself repeating the same logic multiple times over several different pipelines.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 

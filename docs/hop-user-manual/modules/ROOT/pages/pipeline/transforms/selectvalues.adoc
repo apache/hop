@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Select Values transform is useful for selecting, removing, renaming, changing data types and configuring the length and precision of the fields on the stream.
 
-= Select Values
+= image:transforms/icons/selectvalues.svg[Select Values transform Icon, role="image-doc-icon"] Select Values
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Select Values transform is useful for selecting, removing, renaming, changing data types and configuring the length and precision of the fields on the stream.
@@ -30,6 +33,17 @@ These operations are organized into different categories:
 * **Remove** — Specify the fields that have to be removed from the output rows
 * **Meta-data** - Change the name, type, length and precision (the metadata) of one or more fields
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
 === Select & Alter tab
@@ -37,7 +51,7 @@ These operations are organized into different categories:
 This tab contains options for selecting and changing data types and fields.
 The Get Fields to Select button will retrieve available fields based on the existing input transforms and populate the entries in this tab.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform Name|Name of the transform this name has to be unique in a single pipeline
@@ -53,7 +67,7 @@ Leave blank if you do not wish to rename the field
 
 The Edit Mapping dialog allows you to easily define multiple mappings between source and target fields.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Source fields|A list of input fields available to map.
@@ -74,7 +88,7 @@ Click Get fields to remove to import fields from previous transforms.
 Options under this tab allow you to rename input fields, convert them to different data types, and alter their length, and precision.
 Click Get fields to change to import fields from previous transforms.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Fieldname|The name of the imported field.

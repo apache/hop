@@ -18,13 +18,27 @@ under the License.
 :language: en_US
 :description: The REST Client transform enables you to consume RESTfull services.
 
-= REST Client
+= image:transforms/icons/rest.svg[REST Client transform Icon, role="image-doc-icon"] REST Client
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The REST Client transform enables you to consume RESTfull services.
 
 Representational State Transfer (REST) is a key design idiom that embraces a stateless client-server architecture in which the web services are viewed as resources and can be identified by their URLs.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
@@ -32,7 +46,7 @@ Representational State Transfer (REST) is a key design idiom that embraces a sta
 
 The General tab is where you enter basic connection information for accessing a resource.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of this transform as it appears in the pipeline workspace
@@ -53,7 +67,7 @@ The General tab is where you enter basic connection information for accessing a 
 
 If necessary, enter authentication details for a resource in the Authentication tab.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |HTTP Login|Indicates the username required to access a resource
@@ -67,7 +81,7 @@ If necessary, enter authentication details for a resource in the Authentication 
 
 The SSL tab is where you provide authentication details for accessing a resource that requires SSL certificate authentication.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Truststore file|Indicates the location of a truststore file
@@ -79,7 +93,7 @@ The SSL tab is where you provide authentication details for accessing a resource
 The Headers tab enables you to define the content of any HTTP headers using an existing field.
 Populate the list of fields by clicking the Get fields button.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Field|The field from incoming Hop stream that contains the header information
@@ -91,7 +105,7 @@ Populate the list of fields by clicking the Get fields button.
 The Parameters tab enables you to define parameter values for POST, PUT, and DELETE requests.
 GET parameters should be part of the URL directly.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Parameter|The field from incoming Hop stream that contains the parameter information
@@ -102,7 +116,7 @@ GET parameters should be part of the URL directly.
 
 Use the Matrix Parameters tab to define matrix parameter values for POST, PUT, DELETE, and PATCH requests.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Parameter|The field from the incoming Hop stream that contains the matrix parameter information

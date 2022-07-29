@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The Execute A Process transform executes a shell script (on the host that runs the pipeline). This transform is similar to the Shell workflow action, but can be used in a pipeline to execute for every row.
 
-= Execute a process
+= image:transforms/icons/execprocess.svg[Execute a process transform Icon, role="image-doc-icon"] Execute a process
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Execute A Process transform executes a shell script (on the host that runs the pipeline).
 
 The transform is similar to the xref:workflow/actions/shell.adoc[Shell] workflow action, but can be used in a pipeline to execute for every row.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform; this name has to be unique in a single pipeline

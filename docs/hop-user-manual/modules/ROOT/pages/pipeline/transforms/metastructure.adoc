@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The Metadata Structure Of Stream transform produces the metadata structure of the input fields of this transform as output.
 
-= Metadata structure of stream
+= image:transforms/icons/metastructure.svg[Metadata structure of stream transform Icon, role="image-doc-icon"] Metadata structure of stream
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Metadata Structure Of Stream transform produces the metadata structure of the input fields of this transform as output.
 
 Before producing this output the transform reads and discards (or eats) all input rows.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

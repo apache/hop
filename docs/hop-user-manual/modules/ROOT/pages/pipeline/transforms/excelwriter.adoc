@@ -18,13 +18,27 @@ under the License.
 :language: en_US
 :description: The Microsoft Excel Writer transform writes incoming rows from Hop out to an MS Excel file. It supports both the .xls and .xlsx file formats.
 
-= Excel writer
+= image:transforms/icons/excelwriter.svg[Excel writer transform Icon, role="image-doc-icon"] Excel writer
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Microsoft Excel Writer transform writes incoming rows from Hop out to an MS Excel file. It supports both the .xls and .xlsx file formats.
 
 The .xls files use a binary format which is better suited for simple content, while the .xlsx files use the Open XML format which works well with templates since it can better preserve charts and miscellaneous objects.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
@@ -32,7 +46,7 @@ The .xls files use a binary format which is better suited for simple content, wh
 
 *File section*
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Stream XLSX data|Check this option when writing large XLSX files.
@@ -47,7 +61,7 @@ If this is disabled the output file is always created, regardless of whether row
 
 *Sheet section*
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Sheet Name|The sheet name the transform will write rows to.
@@ -70,7 +84,7 @@ A new sheet is created if the target sheet is not present, or the existing one s
 
 *Content options section*
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Start writing at cell|This is the cell to start writing to in Excel notation (letter column, number row)
@@ -92,7 +106,7 @@ This is useful when writing to pre-styled template sheets.
 
 *When writing to existing sheet section*
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Start writing at end of sheet|The transform will try to find the last line of the sheet, and start writing from there.
@@ -105,7 +119,7 @@ Negative numbers may be useful if you need to append to a sheet, but still prese
 
 *Fields section*
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Name|The field to write

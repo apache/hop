@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The Kafka Producer transform allows you to publish messages in near-real-time across worker nodes where multiple, subscribed members have access.
 
-= Kafka Producer
+= image:transforms/icons/KafkaProducerOutput.svg[Kafka Producer transform Icon, role="image-doc-icon"] Kafka Producer
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Kafka Producer transform allows you to publish messages in near-real-time across worker nodes where multiple, subscribed members have access.
 
 A Kafka Producer transform publishes a stream of records to one Kafka topic.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 
@@ -62,7 +76,7 @@ For further information on these input names, see the Apache Kafka documentation
 
 The options that are included by default are:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Value
 |auto.offset.reset|latest
@@ -79,7 +93,7 @@ Here are some options you need to send Avro Record values to a Kafka server.
 The schema of Avro values are not sent to Kafka but to a schema registry.  As such you need to have one available.
 Here are some options you need to set to make this work on a Confluent Cloud Kafka instance.  There are various parts of the software stack that need authentication, hence the bit of redundancy.   We recommend that you put these options in variables in your environment configuration file.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Example
 

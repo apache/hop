@@ -18,19 +18,33 @@ under the License.
 :language: en_US
 :description: The Property Input transform reads key/values pairs from a Java properties files.
 
-= Read data (key, value) from properties files.
+= image:transforms/icons/propertyinput.svg[Read data (key, value) from properties files transform Icon, role="image-doc-icon"] Read data (key, value) from properties files
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Property Input transform reads key/values pairs from a Java properties files.
 
 TIP: More information on this file format is available on https://en.wikipedia.org/wiki/.properties[Wikipedia^]
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
 === Files Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.
@@ -48,7 +62,7 @@ If a file is required and it is not found, an error is generated;otherwise, the 
 
 === Content Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Include filename in output?|Allows you to specify a field name to include the file name (String) in the output of this transform.
@@ -62,7 +76,7 @@ A unique list is being kept in memory that can be used in the next workflow acti
 
 === Fields
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Name|The name of the output field

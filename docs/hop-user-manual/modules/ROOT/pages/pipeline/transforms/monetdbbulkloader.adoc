@@ -18,18 +18,36 @@ under the License.
 :language: en_US
 :description: The MonetDB Bulk Loader transform bulk loads data to MonetDB. This significantly speeds up data loading to MonetDB.
 
-= MonetDB Bulk Loader
+= image:transforms/icons/monetdbbulkloader.svg[MonetDB Bulk Loader transform Icon, role="image-doc-icon"] MonetDB Bulk Loader
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The MonetDB Bulk Loader transform bulk loads data to MonetDB. This significantly speeds up data loading to MonetDB.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
 === General
 
-Transform name : Specify the unique name of the MongoDB Output transform in the pipeline.
-Connection : Select your MonetDB database connection
+|===
+|Field|Description
+
+|Transform name | Specify the unique name of the MongoDB Output transform in the pipeline.
+|Connection | Select your MonetDB database connection
+|===
 
 === General Settings tab
 

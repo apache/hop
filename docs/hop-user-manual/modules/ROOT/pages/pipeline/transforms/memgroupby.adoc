@@ -16,10 +16,13 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description:
+:description: This transform allows you to do aggregations in memory such as sum,max,min,...
 
-= Memory Group By
+= image:transforms/icons/memorygroupby.svg[Memory Group By transform Icon, role="image-doc-icon"] Memory Group By
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Memory Group By transform builds aggregates in a group by fashion.
@@ -29,9 +32,20 @@ However, it **does** require all data to fit into memory.
 
 TIP: When the number of rows is too large to fit into memory, use a combination of xref:pipeline/transforms/sort.adoc[Sort Rows] and xref:pipeline/transforms/groupby.adoc[Group By] transforms.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:check_mark.svg[Supported, 24]
+!Dataflow! image:check_mark.svg[Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline,

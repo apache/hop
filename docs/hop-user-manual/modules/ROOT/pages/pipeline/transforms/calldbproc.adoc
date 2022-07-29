@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The Call DB Procedure transform allows you to execute a database procedure (or function) and get the result(s) back.
 
-= Call DB procedure
+= image:transforms/icons/dbproc.svg[Call DB procedure transform Icon, role="image-doc-icon"] Call DB procedure
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Call DB Procedure transform allows you to execute a database procedure (or function) and get the result(s) back.
 With MySQL and JDBC, it is not possible to retrieve the result set of a stored procedure.
 Stored procedures and functions can only return values through their function arguments and those arguments must be defined in the Parameters section of the DB Procedure Call configuration.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform; this name has to be unique in a single pipeline

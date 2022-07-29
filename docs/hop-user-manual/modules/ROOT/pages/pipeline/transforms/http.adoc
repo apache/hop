@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The HTTP Client transform performs a simple call to a base URL with additional options.
 
-= HTTP client
+= image:transforms/icons/http.svg[HTTP client transform Icon, role="image-doc-icon"] HTTP client
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The HTTP Client transform performs a simple call to a base URL with additional options.
@@ -30,9 +33,20 @@ http://<URL>?param1=value1&amp;param2=value2&amp;param3..
 
 The result is stored in a String field with the specified name.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform; this name has to be unique in a single pipeline

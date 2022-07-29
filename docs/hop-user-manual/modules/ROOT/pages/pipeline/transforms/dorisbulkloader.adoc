@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Doris Bulk loader transform allows you to bulk insert data to DorisDB
 
-= Doris Bulk Loader
+= image:transforms/icons/dorisbulkloader.svg[Doris Bulk Loader transform Icon, role="image-doc-icon"] Doris Bulk Loader
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 Apache Doris is a modern MPP analytical database product. It can provide sub-second queries and efficient real-time data analysis. With it's distributed architecture, up to 10PB level datasets will be well supported and easy to operate.
@@ -28,13 +31,22 @@ Apache Doris can meet various data analysis demands, including history data repo
 
 The Doris Bulk Loader allows you to insert data into Apache Doris at high speed and volume, making it a faster way to load data than using the traditional database insert statements.
 
-
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
 === General
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name
@@ -67,7 +79,7 @@ The Doris Bulk Loader allows you to insert data into Apache Doris at high speed 
 
 === Headers
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Header/value

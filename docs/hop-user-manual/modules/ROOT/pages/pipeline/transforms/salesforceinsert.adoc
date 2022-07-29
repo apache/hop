@@ -18,7 +18,12 @@ under the License.
 :language: en_US
 :description: The Salesforce Insert transform inserts records directly into your Salesforce database using the Salesforce Web Service.
 
-= Salesforce Insert
+= image:transforms/icons/SFO.svg[Salesforce Insert transform Icon, role="image-doc-icon"] Salesforce Insert
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
 
 The Salesforce Insert transform inserts records directly into your Salesforce database using the Salesforce Web Service.
 
@@ -28,6 +33,17 @@ You can also use the following other transforms to modify your Salesforce databa
 * xref:pipeline/transforms/salesforceupdate.adoc[Salesforce Update]: Updates records directly into your Salesforce database.
 * xref:pipeline/transforms/salesforceupsert.adoc[Salesforce Upsert]: Updates existing records and inserts new records into your Salesforce database.
 * xref:pipeline/transforms/salesforcedelete.adoc[Salesforce Delete]: Deletes records directly from your Salesforce database.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == General
 

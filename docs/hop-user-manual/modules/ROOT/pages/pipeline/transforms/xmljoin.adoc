@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The XML Join transform adds xml tags from one stream into a leading XML structure from a second stream.
 
-= XML Join
+= image:transforms/icons/XJN.svg[XML Join transform Icon, role="image-doc-icon"] XML Join
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The XML Join transform adds xml tags from one stream into a leading XML structure from a second stream.
@@ -28,9 +31,20 @@ The target stream must have only one row, since it represents a XML document. Th
 
 Only one row will be produced after the join. This single row contains the fields of the target transform plus the result field of the join.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

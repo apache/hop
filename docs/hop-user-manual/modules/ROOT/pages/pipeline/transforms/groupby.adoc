@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Group By transform groups rows from a source, based on a specified field or collection of fields. A new row is generated for each group.
 
-= Group By
+= image:transforms/icons/groupby.svg[Group By transform Icon, role="image-doc-icon"] Group By
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Group By transform groups rows from a source, based on a specified field or collection of fields. A new row is generated for each group.
@@ -36,9 +39,20 @@ If you sort the data outside of Hop, the case sensitivity of the data in the fie
 
 You can use the Memory Group By transform to handle non-sorted input.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:check_mark.svg[Supported, 24]
+!Dataflow! image:check_mark.svg[Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
