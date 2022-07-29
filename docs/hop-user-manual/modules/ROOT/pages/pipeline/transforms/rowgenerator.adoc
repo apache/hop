@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Row Generator transform outputs a specified number of rows that are empty or have a set of hard-coded fields.
 
-= Row Generator
+= image:transforms/icons/rowgenerator.svg[Row Generator transform Icon, role="image-doc-icon"] Row Generator
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Row Generator transform outputs a specified number of rows that are empty or have a set of hard-coded fields.
@@ -34,9 +37,20 @@ Sometimes you may use Generate Rows to generate one row that is an initiating po
 
 For example, you might generate one row that contains two or three field values that you might use to parameterize your SQL and then generate the real rows.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform Name|Name of the transform this name has to be unique in a single pipeline

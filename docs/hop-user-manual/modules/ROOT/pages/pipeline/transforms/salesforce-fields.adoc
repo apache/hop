@@ -25,7 +25,7 @@ Click Get fields to populate the table with input from the Hop data stream.
 
 The table contains the following columns:
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Option|Description
 |Module field|The name of the field within the Module

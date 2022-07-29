@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Serialize To File transform stores rows of data in a binary format in a file.
 
-= Serialize To File
+= image:transforms/icons/cubeoutput.svg[Serialize To File From File transform Icon, role="image-doc-icon"] Serialize To File
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Serialize To File transform stores rows of data in a binary format in a file.
@@ -27,3 +30,14 @@ The binary format has an advantage over a text (flat) file because the content d
 The metadata is stored in the file as well.
 
 The Serialize to file transform supports a write-once access pattern, and does not support appending to existing files.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===

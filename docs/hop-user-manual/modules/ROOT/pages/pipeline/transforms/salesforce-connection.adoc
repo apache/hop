@@ -22,7 +22,7 @@ under the License.
 
 Enter the connection information in the following transform options:
 
-[option="header",width="90%"]
+[option="header"]
 |===
 |Option|Description
 |Salesforce Webservice URL a| Specify the URL to the Salesforce Webservice. +

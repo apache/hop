@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The De-normalizer transform allows you de-normalize data by looking up key-value pairs, with the option to convert data types in the process.
 
-= Row Denormaliser
+= image:transforms/icons/denormaliser.svg[Row Denormaliser transform Icon, role="image-doc-icon"] Row Denormaliser
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The De-normalizer transform allows you de-normalize data by looking up key-value pairs, with the option to convert data types in the process.
 
 Note: make sure to check the notes on this transform in the xref:pipeline/beam/getting-started-with-beam.adoc#_unsupported_transforms[Getting started with Beam] documentation.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Transform name|Name of the transform.
 This name has to be unique in a single pipeline.
@@ -58,7 +72,7 @@ All fields can be injected, the values used for the aggregation field are the fo
 
 == Example
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |CustomerId|Key|Value
 |101|COUSINS_FIRST_NAME|Mary
@@ -68,5 +82,3 @@ All fields can be injected, the values used for the aggregation field are the fo
 |101|COUSINS_INCOME|1723.86
 |101|...45 more keys...|...
 |===
-
-image::denormaliser.png[]

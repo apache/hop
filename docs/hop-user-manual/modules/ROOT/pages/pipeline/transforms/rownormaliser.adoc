@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The Row Normaliser transform converts the columns of an input stream into rows.
 
-= Row Normaliser
+= image:transforms/icons/normaliser.svg[Row Normaliser transform Icon, role="image-doc-icon"] Row Normaliser
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Row Normaliser transform converts the columns of an input stream into rows.
 
 You can use this transform to normalize repeating groups of columns.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.

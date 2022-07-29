@@ -18,14 +18,28 @@ under the License.
 :language: en_US
 :description: The Get Server Status transform contacts the Hop servers for which the names are read from an input field.
 
-= Get Server Status
+= image:transforms/icons/server.svg[Get Server Status transform Icon, role="image-doc-icon"] Get Server Status
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Get Server Status transform contacts the Hop servers for which the names are read from an input field.
 
 It returns high level information about the server.
 Every output field for which you specify a name will be added to the list of output fields.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 

@@ -18,11 +18,25 @@ under the License.
 :language: en_US
 :description: The XML Output transform allows you to write rows from any source to one or more XML files.
 
-= XML Output
+= image:transforms/icons/XOU.svg[XML Output transform Icon, role="image-doc-icon"] XML Output
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The XML Output transform allows you to write rows from any source to one or more XML files.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
@@ -30,7 +44,7 @@ The XML Output transform allows you to write rows from any source to one or more
 
 The file tab is where you set general properties for the XML output file format.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -45,7 +59,7 @@ The file tab is where you set general properties for the XML output file format.
 
 === Content Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Zipped|Check this if you want the XML file to be stored in a ZIP archive.
@@ -58,7 +72,7 @@ This encoding is specified in the header of the XML file.
 
 === Fields Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Fieldname|The name of the field.

@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Snowflake Bulk Loader transform utilizes the Snowflake Copy command to load data as opposed to sending individual insert statements through the Table Output transform
 
-= Snowflake Bulk Loader
+= image:transforms/icons/snowflake.svg[Snowflake Bulk Loader transform Icon, role="image-doc-icon"] Snowflake Bulk Loader
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Snowflake Bulk Loader transform utilizes the Snowflake Copy command to load data as opposed to sending individual insert statements through the Table Output transform. It performs this bulk load as a 3 step process:
@@ -27,6 +30,17 @@ The Snowflake Bulk Loader transform utilizes the Snowflake Copy command to load 
 * Write the data to local temp files.
 * Run a put statement to copy the local files to a Snowflake stage.
 * Run a copy command to bulk load the data from the Snowflake stage to a table.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 

@@ -16,15 +16,29 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The REST Client transform enables you to consume RESTfull services.
+:description: The rules executor uses Drools to check rows against a rule set
 
-= Rules executor
+= image:transforms/icons/rules_exec.svg[Rules executor transform Icon, role="image-doc-icon"] Rules executor
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Rules Executor allows fields of incoming rows to be executed against a rule set. This may be useful to determine additional information or route rows onto another transform.
 
 https://www.drools.org/[Drools] is the present rule engine implementation and its https://docs.drools.org/7.68.0.Final/drools-docs/html_single/index.html#_droolslanguagereferencechapter[rule language] can be referenced for use by this transform. https://docs.drools.org/7.68.0.Final/drools-docs/html_single/index.html#_welcome[Drools documentation]
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Details
 For each row processed by the Rules Executor transform each column is converted to a _Rules.Column_ then injected into the rule engine and executed against the rules set. _Rules.Column_ contains four properties:

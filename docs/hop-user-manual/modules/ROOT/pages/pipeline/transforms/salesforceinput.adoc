@@ -17,7 +17,12 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 
-= Salesforce Input
+= image:transforms/icons/SFI.svg[Salesforce Input transform Icon, role="image-doc-icon"] Salesforce Input
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
 
 The Salesforce Input transform reads data directly from Salesforce using the Salesforce Web Service.
 
@@ -27,6 +32,17 @@ You can also use the following transforms for various ways to modify your Salesf
 * xref:pipeline/transforms/salesforceupdate.adoc[Salesforce Update]: Updates records directly into your Salesforce database.
 * xref:pipeline/transforms/salesforceupsert.adoc[Salesforce Upsert]: Updates existing records and inserts new records into your Salesforce database.
 * xref:pipeline/transforms/salesforcedelete.adoc[Salesforce Delete]: Deletes records directly from your Salesforce database.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == General
 
@@ -43,7 +59,7 @@ include::salesforce-connection.adoc[]
 
 In this panel, you can set the module to query from as well as the query conditions.
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Option|Description
 |Specify query|Select this check box to manually execute a query based on your own SOQL statements.
@@ -69,7 +85,7 @@ Use these options to further refine the data returned from the queries specified
 For example, you may want to only query deleted records within a specified date range.
 The Advanced panel includes the following fields:
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Option|Description
 |Retrieve|Select which records you want to retrieve to further define your pool of data.
@@ -86,7 +102,7 @@ The format is 'yyyy-MM-dd HH:mm:ss'.
 
 This panel includes the following fields:
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Option|Description
 |Include URL in output?
@@ -110,7 +126,7 @@ NOTE: This set of fields is only enabled when the Advanced> Retrieve option is s
 
 Enter information for the remaining fields on the Content tab.
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Option|Description
 |Time out |Specify the timeout interval in milliseconds before the transform times out.
@@ -128,7 +144,7 @@ You will need to go to the Fields tab and press the Get Fields button to populat
 
 The following are the properties display in the Fields tab:
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Option|Description
 |Name|The name of the input field.

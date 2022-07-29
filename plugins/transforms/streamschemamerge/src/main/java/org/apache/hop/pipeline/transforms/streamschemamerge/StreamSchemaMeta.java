@@ -44,7 +44,7 @@ import java.util.List;
 
 @Transform(
     id = "StreamSchema",
-    image = "GenericTransform.svg",
+    image = "streamschemamerge.svg",
     name = "i18n::StreamSchemaTransform.Name",
     description = "i18n::StreamSchemaTransform.TooltipDesc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
