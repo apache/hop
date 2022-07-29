@@ -1458,7 +1458,12 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
         if (dotIndex > 0) {
           String name = path.substring(dotIndex + 1);
           TableItem item = new TableItem(wFields.table, SWT.NONE);
-          item.setText(1, name);
+          // Remove bracket syntax in case attribute name contains spaces
+          item.setText(
+              1,
+              name.contains(" ")
+                  ? name.replace("['", "").replace("']", "")
+                  : name);
           item.setText(2, path);
           item.setText(3, "String");
         }
@@ -1494,7 +1499,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
           currentPath.pop(); // name
           break;
         case FIELD_NAME:
-          currentPath.push(name);
+          currentPath.push(name.contains(" ") ? "['" + name + "']" : name);
           addToPaths(paths, currentPath);
           currentPath.pop();
           break;

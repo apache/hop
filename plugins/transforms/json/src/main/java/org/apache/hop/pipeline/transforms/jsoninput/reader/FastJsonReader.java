@@ -126,11 +126,16 @@ public class FastJsonReader implements IJsonReader {
     return jsonReadContext;
   }
 
-  private static JsonPath[] compilePaths(JsonInputField[] fields) {
+  private static JsonPath[] compilePaths(JsonInputField[] fields) throws HopException {
     JsonPath[] paths = new JsonPath[fields.length];
     int i = 0;
-    for (JsonInputField field : fields) {
-      paths[i++] = JsonPath.compile(field.getPath());
+    try {
+      for (JsonInputField field : fields) {
+        paths[i++] = JsonPath.compile(field.getPath());
+      }
+    } catch (Exception e) {
+      throw new HopException(BaseMessages.getString(
+              PKG, "JsonParser.JsonPath.Compile.Error", e.getMessage()));
     }
     return paths;
   }
@@ -157,7 +162,7 @@ public class FastJsonReader implements IJsonReader {
   public IRowSet parse(InputStream in) throws HopException {
     readInput(in);
     List<List<?>> results = evalCombinedResult();
-    int len = results.isEmpty() ? 0 : getMaxRowSize( results );
+    int len = results.isEmpty() ? 0 : getMaxRowSize(results);
     if (log.isDetailed()) {
       log.logDetailed(BaseMessages.getString(PKG, "JsonInput.Log.NrRecords", len));
     }
@@ -169,11 +174,12 @@ public class FastJsonReader implements IJsonReader {
 
   /**
    * Gets the max size of the result rows.
+   *
    * @param results A list of lists representing the result rows
    * @return the size of the largest row in the results
    */
-  protected static int getMaxRowSize( List<List<?>> results ) {
-    return results.stream().mapToInt( List::size ).max().getAsInt();
+  protected static int getMaxRowSize(List<List<?>> results) {
+    return results.stream().mapToInt(List::size).max().getAsInt();
   }
 
   private IRowSet getEmptyResponse() {
@@ -188,17 +194,21 @@ public class FastJsonReader implements IJsonReader {
     private final int rowCount;
     private int rowNbr;
     /**
-     * if should skip null-only rows; size won't be exact if set
-     * If HOP_JSON_INPUT_INCLUDE_NULLS is "Y" then nulls will be included otherwise they will not (default behavior)
+     * if should skip null-only rows; size won't be exact if set If HOP_JSON_INPUT_INCLUDE_NULLS is
+     * "Y" then nulls will be included otherwise they will not (default behavior)
      */
     private boolean cullNulls = true;
+
     private boolean includeNulls =
-            "Y".equalsIgnoreCase( System.getProperty( Const.HOP_JSON_INPUT_INCLUDE_NULLS, Const.JSON_INPUT_INCLUDE_NULLS ) );
+        "Y"
+            .equalsIgnoreCase(
+                System.getProperty(
+                    Const.HOP_JSON_INPUT_INCLUDE_NULLS, Const.JSON_INPUT_INCLUDE_NULLS));
 
     public TransposedRowSet(List<List<?>> results) {
       super();
       this.results = results;
-      this.rowCount = results.isEmpty() ? 0 : FastJsonReader.getMaxRowSize( results );
+      this.rowCount = results.isEmpty() ? 0 : FastJsonReader.getMaxRowSize(results);
     }
 
     @Override
@@ -218,7 +228,7 @@ public class FastJsonReader implements IJsonReader {
           }
           Object val = results.get(col).get(rowNbr);
           rowData[col] = val;
-          allNulls &= ( val == null && !includeNulls );
+          allNulls &= (val == null && !includeNulls);
         }
         rowNbr++;
       } while (allNulls);
