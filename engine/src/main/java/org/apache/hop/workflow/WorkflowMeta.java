@@ -125,6 +125,7 @@ public class WorkflowMeta extends AbstractMeta
 
     workflowActions = new ArrayList<>();
     workflowHops = new ArrayList<>();
+    namedParams = new NamedParameters();
 
     arguments = null;
 

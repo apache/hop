@@ -3,5 +3,9 @@
     "name" : "HOSTNAME",
     "value" : "http",
     "description" : "hostname of http container"
+  }, {
+    "name" : "CASTLEMOCK_HOSTNAME",
+    "value" : "castlemock",
+    "description" : "hostname for the CastleMock service"
   } ]
 }

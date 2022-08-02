@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<soapExportContainer>
+    <mockResponses>
+        <mockResponse>
+            <body>&lt;soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://www.cleverbuilder.com/BookService/"&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;web:AddBookResponse&gt;?&lt;/web:AddBookResponse&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</body>
+            <contentEncodings/>
+            <httpHeaders/>
+            <httpStatusCode>200</httpStatusCode>
+            <id>RkvbDw</id>
+            <name>Auto-generated mocked response</name>
+            <operationId>30sXSR</operationId>
+            <status>ENABLED</status>
+            <usingExpressions>false</usingExpressions>
+            <xpathExpressions/>
+        </mockResponse>
+        <mockResponse>
+            <body>&lt;soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://www.cleverbuilder.com/BookService/"&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;web:GetBookResponse&gt;?&lt;/web:GetBookResponse&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</body>
+            <contentEncodings/>
+            <httpHeaders/>
+            <httpStatusCode>200</httpStatusCode>
+            <id>gPgL55</id>
+            <name>Auto-generated mocked response</name>
+            <operationId>XUQXKa</operationId>
+            <status>ENABLED</status>
+            <usingExpressions>false</usingExpressions>
+            <xpathExpressions/>
+        </mockResponse>
+        <mockResponse>
+            <body>&lt;soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://www.cleverbuilder.com/BookService/"&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;web:GetAllBooksResponse&gt;?&lt;/web:GetAllBooksResponse&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</body>
+            <contentEncodings/>
+            <httpHeaders/>
+            <httpStatusCode>200</httpStatusCode>
+            <id>aR5boW</id>
+            <name>Auto-generated mocked response</name>
+            <operationId>88Zcpg</operationId>
+            <status>ENABLED</status>
+            <usingExpressions>false</usingExpressions>
+            <xpathExpressions/>
+        </mockResponse>
+    </mockResponses>
+    <operations>
+        <operation>
+            <currentResponseSequenceIndex>0</currentResponseSequenceIndex>
+            <defaultBody>&lt;soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://www.cleverbuilder.com/BookService/"&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;web:AddBookResponse&gt;?&lt;/web:AddBookResponse&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</defaultBody>
+            <forwardedEndpoint>http://www.example.org/BookService</forwardedEndpoint>
+            <httpMethod>POST</httpMethod>
+            <id>30sXSR</id>
+            <identifyStrategy>ELEMENT_NAMESPACE</identifyStrategy>
+            <mockOnFailure>false</mockOnFailure>
+            <mockResponses/>
+            <name>AddBook</name>
+            <networkDelay>0</networkDelay>
+            <operationIdentifier>
+                <name>AddBook</name>
+                <namespace>http://www.cleverbuilder.com/BookService/</namespace>
+            </operationIdentifier>
+            <originalEndpoint>http://www.example.org/BookService</originalEndpoint>
+            <portId>76UPau</portId>
+            <responseStrategy>RANDOM</responseStrategy>
+            <simulateNetworkDelay>false</simulateNetworkDelay>
+            <soapVersion>SOAP11</soapVersion>
+            <status>MOCKED</status>
+        </operation>
+        <operation>
+            <currentResponseSequenceIndex>0</currentResponseSequenceIndex>
+            <defaultBody>&lt;soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://www.cleverbuilder.com/BookService/"&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;web:GetBookResponse&gt;?&lt;/web:GetBookResponse&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</defaultBody>
+            <forwardedEndpoint>http://www.example.org/BookService</forwardedEndpoint>
+            <httpMethod>POST</httpMethod>
+            <id>XUQXKa</id>
+            <identifyStrategy>ELEMENT_NAMESPACE</identifyStrategy>
+            <mockOnFailure>false</mockOnFailure>
+            <mockResponses/>
+            <name>GetBook</name>
+            <networkDelay>0</networkDelay>
+            <operationIdentifier>
+                <name>GetBook</name>
+                <namespace>http://www.cleverbuilder.com/BookService/</namespace>
+            </operationIdentifier>
+            <originalEndpoint>http://www.example.org/BookService</originalEndpoint>
+            <portId>76UPau</portId>
+            <responseStrategy>RANDOM</responseStrategy>
+            <simulateNetworkDelay>false</simulateNetworkDelay>
+            <soapVersion>SOAP11</soapVersion>
+            <status>MOCKED</status>
+        </operation>
+        <operation>
+            <currentResponseSequenceIndex>0</currentResponseSequenceIndex>
+            <defaultBody>&lt;soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://www.cleverbuilder.com/BookService/"&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;web:GetAllBooksResponse&gt;?&lt;/web:GetAllBooksResponse&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</defaultBody>
+            <forwardedEndpoint>http://www.example.org/BookService</forwardedEndpoint>
+            <httpMethod>POST</httpMethod>
+            <id>88Zcpg</id>
+            <identifyStrategy>ELEMENT_NAMESPACE</identifyStrategy>
+            <mockOnFailure>false</mockOnFailure>
+            <mockResponses/>
+            <name>GetAllBooks</name>
+            <networkDelay>0</networkDelay>
+            <operationIdentifier>
+                <name>GetAllBooks</name>
+                <namespace>http://www.cleverbuilder.com/BookService/</namespace>
+            </operationIdentifier>
+            <originalEndpoint>http://www.example.org/BookService</originalEndpoint>
+            <portId>76UPau</portId>
+            <responseStrategy>RANDOM</responseStrategy>
+            <simulateNetworkDelay>false</simulateNetworkDelay>
+            <soapVersion>SOAP11</soapVersion>
+            <status>MOCKED</status>
+        </operation>
+    </operations>
+    <ports>
+        <port>
+            <id>76UPau</id>
+            <name>BookServiceSOAP</name>
+            <operations/>
+            <projectId>17hLFE</projectId>
+            <uri>BookServiceSOAP</uri>
+        </port>
+    </ports>
+    <project>
+        <created>2022-08-01T14:11:02.059Z</created>
+        <description></description>
+        <id>17hLFE</id>
+        <name>books</name>
+        <updated>2022-08-01T14:11:02.059Z</updated>
+        <ports/>
+        <resources/>
+    </project>
+    <resources>
+        <resource>
+            <content>&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.cleverbuilder.com/BookService/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="BookService" targetNamespace="http://www.cleverbuilder.com/BookService/"&gt;
+      
+    &lt;wsdl:documentation&gt;Definition for a web service called BookService,
+    which can be used to add or retrieve books from a collection.
+  &lt;/wsdl:documentation&gt;
+      
+    &lt;!--
+      The `types` element defines the data types (XML elements)
+      that are used by the web service.
+   --&gt;
+      
+    &lt;wsdl:types&gt;
+            
+        &lt;xsd:schema targetNamespace="http://www.cleverbuilder.com/BookService/"&gt;
+                  
+            &lt;xsd:element name="Book"&gt;
+                        
+                &lt;xsd:complexType&gt;
+                              
+                    &lt;xsd:sequence&gt;
+                                    
+                        &lt;xsd:element minOccurs="0" name="ID" type="xsd:string"/&gt;
+                                    
+                        &lt;xsd:element name="Title" type="xsd:string"/&gt;
+                                    
+                        &lt;xsd:element name="Author" type="xsd:string"/&gt;
+                                  
+                    &lt;/xsd:sequence&gt;
+                            
+                &lt;/xsd:complexType&gt;
+                      
+            &lt;/xsd:element&gt;
+                  
+            &lt;xsd:element name="Books"&gt;
+                        
+                &lt;xsd:complexType&gt;
+                              
+                    &lt;xsd:sequence&gt;
+                                    
+                        &lt;xsd:element maxOccurs="unbounded" minOccurs="0" ref="tns:Book"/&gt;
+                                  
+                    &lt;/xsd:sequence&gt;
+                            
+                &lt;/xsd:complexType&gt;
+                      
+            &lt;/xsd:element&gt;
+                  
+            &lt;xsd:element name="GetBook"&gt;
+                        
+                &lt;xsd:complexType&gt;
+                              
+                    &lt;xsd:sequence&gt;
+                                    
+                        &lt;xsd:element name="ID" type="xsd:string"/&gt;
+                                  
+                    &lt;/xsd:sequence&gt;
+                            
+                &lt;/xsd:complexType&gt;
+                      
+            &lt;/xsd:element&gt;
+                  
+            &lt;xsd:element name="GetBookResponse"&gt;
+                        
+                &lt;xsd:complexType&gt;
+                              
+                    &lt;xsd:sequence&gt;
+                                    
+                        &lt;xsd:element maxOccurs="1" minOccurs="0" ref="tns:Book"/&gt;
+                                  
+                    &lt;/xsd:sequence&gt;
+                            
+                &lt;/xsd:complexType&gt;
+                      
+            &lt;/xsd:element&gt;
+                  
+            &lt;xsd:element name="AddBook"&gt;
+                        
+                &lt;xsd:complexType&gt;
+                              
+                    &lt;xsd:sequence&gt;
+                                    
+                        &lt;xsd:element maxOccurs="1" minOccurs="1" ref="tns:Book"/&gt;
+                                  
+                    &lt;/xsd:sequence&gt;
+                            
+                &lt;/xsd:complexType&gt;
+                      
+            &lt;/xsd:element&gt;
+                  
+            &lt;xsd:element name="AddBookResponse"&gt;
+                        
+                &lt;xsd:complexType&gt;
+                              
+                    &lt;xsd:sequence&gt;
+                                    
+                        &lt;xsd:element maxOccurs="1" minOccurs="0" ref="tns:Book"/&gt;
+                                  
+                    &lt;/xsd:sequence&gt;
+                            
+                &lt;/xsd:complexType&gt;
+                      
+            &lt;/xsd:element&gt;
+                  
+            &lt;xsd:element name="GetAllBooks"&gt;
+                        
+                &lt;xsd:complexType/&gt;
+                      
+            &lt;/xsd:element&gt;
+                  
+            &lt;xsd:element name="GetAllBooksResponse"&gt;
+                        
+                &lt;xsd:complexType&gt;
+                              
+                    &lt;xsd:sequence&gt;
+                                    
+                        &lt;xsd:element maxOccurs="unbounded" minOccurs="0" ref="tns:Book"/&gt;
+                                  
+                    &lt;/xsd:sequence&gt;
+                            
+                &lt;/xsd:complexType&gt;
+                      
+            &lt;/xsd:element&gt;
+                
+        &lt;/xsd:schema&gt;
+          
+    &lt;/wsdl:types&gt;
+      
+    &lt;!--
+      A wsdl `message` element is used to define a message
+      exchanged between a web service, consisting of zero
+      or more `part`s.
+   --&gt;
+      
+    &lt;wsdl:message name="GetBookRequest"&gt;
+            
+        &lt;wsdl:part element="tns:GetBook" name="parameters"/&gt;
+          
+    &lt;/wsdl:message&gt;
+      
+    &lt;wsdl:message name="GetBookResponse"&gt;
+            
+        &lt;wsdl:part element="tns:GetBookResponse" name="parameters"/&gt;
+          
+    &lt;/wsdl:message&gt;
+      
+    &lt;wsdl:message name="AddBookRequest"&gt;
+            
+        &lt;wsdl:part element="tns:AddBook" name="parameters"/&gt;
+          
+    &lt;/wsdl:message&gt;
+      
+    &lt;wsdl:message name="AddBookResponse"&gt;
+            
+        &lt;wsdl:part element="tns:AddBookResponse" name="parameters"/&gt;
+          
+    &lt;/wsdl:message&gt;
+      
+    &lt;wsdl:message name="GetAllBooksRequest"&gt;
+            
+        &lt;wsdl:part element="tns:GetAllBooks" name="parameters"/&gt;
+          
+    &lt;/wsdl:message&gt;
+      
+    &lt;wsdl:message name="GetAllBooksResponse"&gt;
+            
+        &lt;wsdl:part element="tns:GetAllBooksResponse" name="parameters"/&gt;
+          
+    &lt;/wsdl:message&gt;
+      
+    &lt;!--
+      A WSDL `portType` is used to combine multiple `message`s
+      (e.g. input, output) into a single operation.
+
+      Here we define three synchronous (input/output) operations
+      and the `message`s that must be used for each.
+   --&gt;
+      
+    &lt;wsdl:portType name="BookService"&gt;
+            
+        &lt;wsdl:operation name="GetBook"&gt;
+                  
+            &lt;wsdl:input message="tns:GetBookRequest"/&gt;
+                  
+            &lt;wsdl:output message="tns:GetBookResponse"/&gt;
+                
+        &lt;/wsdl:operation&gt;
+            
+        &lt;wsdl:operation name="AddBook"&gt;
+                  
+            &lt;wsdl:input message="tns:AddBookRequest"/&gt;
+                  
+            &lt;wsdl:output message="tns:AddBookResponse"/&gt;
+                
+        &lt;/wsdl:operation&gt;
+            
+        &lt;wsdl:operation name="GetAllBooks"&gt;
+                  
+            &lt;wsdl:input message="tns:GetAllBooksRequest"/&gt;
+                  
+            &lt;wsdl:output message="tns:GetAllBooksResponse"/&gt;
+                
+        &lt;/wsdl:operation&gt;
+          
+    &lt;/wsdl:portType&gt;
+      
+    &lt;!--
+      The `binding` element defines exactly how each
+      `operation` will take place over the network.
+      In this case, we are using SOAP.
+   --&gt;
+      
+    &lt;wsdl:binding name="BookServiceSOAP" type="tns:BookService"&gt;
+            
+        &lt;soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/&gt;
+            
+        &lt;wsdl:operation name="GetBook"&gt;
+                  
+            &lt;soap:operation soapAction="http://www.cleverbuilder.com/BookService/GetBook"/&gt;
+                  
+            &lt;wsdl:input&gt;
+                        
+                &lt;soap:body use="literal"/&gt;
+                      
+            &lt;/wsdl:input&gt;
+                  
+            &lt;wsdl:output&gt;
+                        
+                &lt;soap:body use="literal"/&gt;
+                      
+            &lt;/wsdl:output&gt;
+                
+        &lt;/wsdl:operation&gt;
+            
+        &lt;wsdl:operation name="AddBook"&gt;
+                  
+            &lt;soap:operation soapAction="http://www.cleverbuilder.com/BookService/AddBook"/&gt;
+                  
+            &lt;wsdl:input&gt;
+                        
+                &lt;soap:body use="literal"/&gt;
+                      
+            &lt;/wsdl:input&gt;
+                  
+            &lt;wsdl:output&gt;
+                        
+                &lt;soap:body use="literal"/&gt;
+                      
+            &lt;/wsdl:output&gt;
+                
+        &lt;/wsdl:operation&gt;
+            
+        &lt;wsdl:operation name="GetAllBooks"&gt;
+                  
+            &lt;soap:operation soapAction="http://www.cleverbuilder.com/BookService/GetAllBooks"/&gt;
+                  
+            &lt;wsdl:input&gt;
+                        
+                &lt;soap:body use="literal"/&gt;
+                      
+            &lt;/wsdl:input&gt;
+                  
+            &lt;wsdl:output&gt;
+                        
+                &lt;soap:body use="literal"/&gt;
+                      
+            &lt;/wsdl:output&gt;
+                
+        &lt;/wsdl:operation&gt;
+          
+    &lt;/wsdl:binding&gt;
+      
+    &lt;!--
+      The `service` element finally says where the service
+      can be accessed from - in other words, its endpoint.
+   --&gt;
+      
+    &lt;wsdl:service name="BookService"&gt;
+            
+        &lt;wsdl:port binding="tns:BookServiceSOAP" name="BookServiceSOAP"&gt;
+                  
+            &lt;soap:address location="http://www.example.org/BookService"/&gt;
+                
+        &lt;/wsdl:port&gt;
+          
+    &lt;/wsdl:service&gt;
+    
+&lt;/wsdl:definitions&gt;
+</content>
+            <id>DhS4Nu</id>
+            <name>Upload-2022-08-01-02-11-20</name>
+            <projectId>17hLFE</projectId>
+            <type>WSDL</type>
+        </resource>
+    </resources>
+</soapExportContainer>
