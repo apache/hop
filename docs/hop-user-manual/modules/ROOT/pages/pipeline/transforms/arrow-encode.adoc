@@ -1,0 +1,75 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Arrow Encode transform allows you to encode a new Arrow field using a selection of Hop fields.
+
+= image:transforms/icons/arrow_encode.svg[Arrow Encode Icon, role="image-doc-icon"] Arrow Encode
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Arrow Encode transform allows you to encode a new Arrow Record field using a selection of Hop fields.   The Arrow schema will be part of the value metadata for this Arrow Record field.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+
+== Options
+
+[width="90%",options="header"]
+|===
+
+|Option|Description
+
+|Transform name
+|Name of the transform.
+Note: This name has to be unique in a single pipeline.
+
+|Output field name
+|Choose a name for the Arrow Record output field.
+
+|Schema name
+|The name of the schema included in the output Arrow record
+
+|Namespace
+|An optional schema namespace
+
+|Documentation
+|An optional schema documentation (doc) element
+
+|The fields to encode in a generic Arrow record:
+|You can specify the names of the Hop input fields to be included in the output Arrow record field.
+Optionally you can store the values under a different name (key) in the Arrow record.
+
+|Get fields button
+|You can use the "Get fields" button to retrieve the fields to be included in the Arrow record.
+
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection.

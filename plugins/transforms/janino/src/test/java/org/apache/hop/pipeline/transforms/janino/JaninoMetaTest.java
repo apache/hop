@@ -28,10 +28,12 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValida
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
 
+@Ignore
 public class JaninoMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 

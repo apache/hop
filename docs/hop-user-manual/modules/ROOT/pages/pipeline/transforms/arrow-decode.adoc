@@ -1,0 +1,68 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Arrow Decode transform allows you to decode an Arrow field and convert it to Hop fields.
+
+= image:transforms/icons/arrow_decode.svg[Arrow Decode Icon, role="image-doc-icon"] Arrow Decode
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Arrow Decode transform allows you to decode an Arrow field and convert it to Hop fields.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Options
+
+[width="90%",options="header"]
+|===
+
+|Option|Description
+
+|Transform name
+|Name of the transform.
+Note: This name has to be unique in a single pipeline.
+
+|Source field
+|Select the name of the field (of type: Arrow) to convert
+
+|Source fields
+|You can specify the names of the Arrow fields to select from the Arrow records.
+You can also specify to which Hop data type you want to convert to.
+TKTKTKT Please note that complex data types like Map and Record are converted into JSON which you can then parse further in subsequent transforms.
+Note: The "Arrow type" column is informational only.
+It's not used at runtime.
+
+|Get fields button
+|You can use the "Get fields" button to retrieve the fields from the schema present in the metadata of the specified Arrow Record source field.
+
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection.

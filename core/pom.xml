@@ -40,6 +40,7 @@
         <maven-surefire-plugin.argLine>-Duser.timezone=UTC -Dfile.encoding=UTF-8 -Duser.language=en -Duser.country=US --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED
         </maven-surefire-plugin.argLine>
         <!-- Third-party dependencies -->
+        <arrow.version>8.0.0</arrow.version>
         <avro.version>1.11.0</avro.version>
         <slf4j-api.version>1.7.32</slf4j-api.version>
         <slf4j-nop.version>1.7.32</slf4j-nop.version>
@@ -66,6 +67,11 @@
     <dependencies>
 
         <!-- Third-party dependencies -->
+        <dependency>
+            <groupId>org.apache.arrow</groupId>
+            <artifactId>arrow-vector</artifactId>
+            <version>${arrow.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
