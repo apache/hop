@@ -65,7 +65,7 @@ The content tab contains the following options for describing the content being 
 [width="90%",options="header"]
 |===
 |Option|Description
-|Append|Check this to append lines to the end of the specified file.
+|Append|Check this to append lines to the end of the specified file. If you want to include the header, make sure the "Do not create file at start" setting on the File tab is selected.
 |Separator|Specify the character that separates the fields in a single line of text.
 Typically this is ; or a tab.
 |Enclosure|A pair of strings can enclose some fields.
