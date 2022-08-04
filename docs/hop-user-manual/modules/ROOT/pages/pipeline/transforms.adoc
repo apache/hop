@@ -121,7 +121,6 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/ldapoutput.adoc[LDAP Output]
 * xref:pipeline/transforms/loadfileinput.adoc[Load file content in memory]
 * xref:pipeline/transforms/mail.adoc[Mail]
-* xref:pipeline/transforms/mailvalidator.adoc[Mail Validator]
 * xref:pipeline/transforms/mapping-input.adoc[Mapping Input]
 * xref:pipeline/transforms/mapping-output.adoc[Mapping Output]
 * xref:pipeline/transforms/memgroupby.adoc[Memory Group By]

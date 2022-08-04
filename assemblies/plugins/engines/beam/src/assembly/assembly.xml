@@ -163,8 +163,6 @@
         <include>io.dropwizard.metrics:metrics-json</include>
         <include>io.dropwizard.metrics:metrics-jvm</include>
         <include>io.github.classgraph:classgraph</include>
-
-
         <include>io.grpc:grpc-alts</include>
         <include>io.grpc:grpc-api</include>
         <include>io.grpc:grpc-auth</include>
@@ -195,7 +193,6 @@
         <include>javax.annotation:javax.annotation-api</include>
         <include>javax.servlet:javax.servlet-api</include>
         <include>javax.xml.bind:jaxb-api</include>
-        <include>javax.xml.stream:stax-api</include>
         <include>joda-time:joda-time</include>
         <include>net.razorvine:pyrolite</include>
         <include>net.sf.py4j:py4j</include>
@@ -279,7 +276,7 @@
         <include>org.codehaus.jackson:jackson-mapper-asl</include>
         <include>org.codehaus.jackson:jackson-xc</include>
         <include>org.codehaus.mojo:animal-sniffer-annotations</include>
-        <include>org.codehaus.woodstox:woodstox-core-asl</include>
+        <include>com.fasterxml.woodstox:woodstox-core</include>
         <include>org.conscrypt:conscrypt-openjdk-uber</include>
         <include>org.fusesource.leveldbjni:leveldbjni-all</include>
         <include>org.glassfish.hk2.external:aopalliance-repackaged</include>
@@ -287,6 +284,11 @@
         <include>org.glassfish.hk2:hk2-locator</include>
         <include>org.glassfish.hk2:hk2-utils</include>
         <include>org.glassfish.hk2:osgi-resource-locator</include>
+        <include>org.glassfish.jersey.containers:jersey-container-servlet</include>
+        <include>org.glassfish.jersey.containers:jersey-container-servlet-core</include>
+        <include>org.glassfish.jersey.core:jersey-client</include>
+        <include>org.glassfish.jersey.core:jersey-common</include>
+        <include>org.glassfish.jersey.core:jersey-server</include>
         <include>org.glassfish.jersey.media:jersey-media-jaxb</include>
         <include>org.lz4:lz4-java</include>
         <include>org.mortbay.jetty:jetty-util</include>
