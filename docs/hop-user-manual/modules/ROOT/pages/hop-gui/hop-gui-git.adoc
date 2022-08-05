@@ -34,7 +34,7 @@ image::hop-gui/hop-gui-git-toolbar.png[Git toolbar,width="50%"]
 
 The available options to work with files and the available git operations in this toolbar are briefly discussed below.
 
-[options="header", width="90%", cols="1,2,5,1"]
+[options="header", cols="1,2,5,1"]
 |===
 |icon|action|description|shortcut
 |image:icons/arrow-right.svg[width="24px"]|Open selected file|Opens the selected file in the appropriate editor (pipeline or workflow editor for workflows and pipelines, text editor for other files|double-click

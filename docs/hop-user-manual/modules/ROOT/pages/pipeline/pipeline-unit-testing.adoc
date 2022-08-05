@@ -104,7 +104,7 @@ image::pipeline-unit-testing-create-unit-test.png[Unit Test - create test,width=
 
 The options in this dialog are:
 
-[options=header,width="90%",cols="2,3"]
+[options=header,cols="2,3"]
 |===
 |Name|name to use for this unit test
 |Description|a description for this unit test

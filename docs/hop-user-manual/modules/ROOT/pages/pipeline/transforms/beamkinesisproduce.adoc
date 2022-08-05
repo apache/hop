@@ -43,7 +43,7 @@ The main limitation of the Kinesis produce transform is that it currently only s
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 
 |Option|Description

@@ -39,7 +39,7 @@ The Add Constant Values transform is a simple and high performance way to add co
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

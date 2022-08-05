@@ -37,7 +37,7 @@ Hop will then be able to make the distinction between regular plain text passwor
 
 == Options
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Option|Description
 |<password>|The password to obfuscate

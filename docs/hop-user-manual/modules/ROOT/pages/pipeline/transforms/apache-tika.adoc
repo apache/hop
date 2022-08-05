@@ -43,7 +43,7 @@ If you need specific pieces of information from this metadata, you can extract t
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 

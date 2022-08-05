@@ -31,7 +31,7 @@ The condition is either:
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 

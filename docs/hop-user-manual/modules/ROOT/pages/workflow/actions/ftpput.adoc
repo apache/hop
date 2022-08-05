@@ -28,7 +28,7 @@ The Put A File With FTP action uploads a file to an FTP server.
 
 === General
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -53,7 +53,7 @@ Select encoding that is valid for your server.
 
 === Files
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Local directory|The local directory from which to upload.
@@ -67,7 +67,7 @@ Select encoding that is valid for your server.
 
 === Socks Proxy
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Host|Socks Proxy host name.

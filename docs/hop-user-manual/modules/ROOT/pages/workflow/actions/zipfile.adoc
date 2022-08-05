@@ -28,7 +28,7 @@ The Zip File action creates a standard ZIP archive using the options you specify
 
 === General Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -55,7 +55,7 @@ This is what will be taken from the rows.
 
 === Advanced Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Compression|The compression level to be used (Default, Best Compression, Best speed)

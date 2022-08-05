@@ -43,7 +43,7 @@ Check the xref:hop-gui/perspective-neo4j.adoc[Neo4j perspective] for more detail
 
 == Options
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|the name for this transform in your pipeline

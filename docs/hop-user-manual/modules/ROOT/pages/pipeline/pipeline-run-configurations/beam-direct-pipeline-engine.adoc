@@ -39,7 +39,7 @@ Unit testing your pipeline locally also allows you to use your preferred local d
 
 === Options
 
-[width="90%",options="header",cols="1,3"]
+[options="header",cols="1,3"]
 |===
 |Option|Description
 |Number of workers|The Number of threads or subprocesses is used to configure parallelism.

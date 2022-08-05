@@ -48,7 +48,7 @@ General tab allows to specify type of transform operation, output json structure
 This file will be used to dump all generated json.
 
 ==== Settings Section
-[width="90%",options="header", cols="1a,3a"]
+[options="header", cols="1a,3a"]
 |===
 |Option|Description
 |Transform name|Name of the transform; this name has to be unique in a single pipeline.
@@ -70,7 +70,7 @@ NOTE: A new file will be generated for each block
 
 ==== Output File Section
 
-[width="90%",options="header", cols="1a,3a"]
+[options="header", cols="1a,3a"]
 |===
 |Option|Description
 |Filename|full path to output file
@@ -96,7 +96,7 @@ Same as for 'Include date in filename' option
 
 This tab is used to map input transform fields to output json values
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Element name|Json element name as a key.

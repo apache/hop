@@ -43,7 +43,7 @@ As always, the row layout for the input data coming from both transforms has to 
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

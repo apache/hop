@@ -28,7 +28,7 @@ When the contents of the files are the same the success outgoing hop will be fol
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

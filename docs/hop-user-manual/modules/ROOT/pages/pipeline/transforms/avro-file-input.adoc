@@ -41,7 +41,7 @@ Each record is encapsulated in an Avro field, each value has its own Schema and 
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 
 |Option|Description

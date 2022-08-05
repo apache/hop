@@ -99,7 +99,7 @@ This also means that's important to know where variables can be set and used and
 == Hierarchy
 
 .Variables Hierarchy
-[width="90%",cols="2*",options="header"]
+[cols="2*",options="header"]
 |===
 |Place|Inheritance
 |System properties|Inherited by the JVM and all other places in Hop
@@ -165,7 +165,7 @@ Parameters are variables which have a description and can have a default value.
 
 The following variables are available in Hop through `Tools -> Edit config variables`
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Variable name|Default Value|Description
 |HOP_AGGREGATION_ALL_NULLS_ARE_ZERO|N|Set this variable to Y to return 0 when all values within an aggregate are NULL.

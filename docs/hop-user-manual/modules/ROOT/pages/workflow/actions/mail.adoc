@@ -44,7 +44,7 @@ In addition, logs can be zipped into a single archive for convenience.
 
 === Addresses Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -61,7 +61,7 @@ To enter more than one address in the Cc: field, separate them with a space.
 
 === Server Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |SMTP Server|The SMTP server address
@@ -76,7 +76,7 @@ To enter more than one address in the Cc: field, separate them with a space.
 
 === Email Message Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Include date in message?|Enable to include date in message
@@ -96,7 +96,7 @@ Note: The support of this flag is depending on the mail server.
 
 === Attached Files Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Attach files to message?|Enable to attach a file to your email message

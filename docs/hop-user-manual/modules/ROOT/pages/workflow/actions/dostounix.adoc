@@ -30,7 +30,7 @@ When the format is unknown, this action also has a guess function and converts t
 
 === General
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -50,7 +50,7 @@ This can be:
 
 === Advanced
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Success Condition|This action will follow the success path if the selected condition is true.

@@ -54,7 +54,7 @@ If the value type/format of the new row is not specified, the new field will use
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

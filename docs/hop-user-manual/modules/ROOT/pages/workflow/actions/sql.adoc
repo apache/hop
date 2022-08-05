@@ -32,7 +32,7 @@ Common uses associated with the SQL workflow action include truncating tables, d
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

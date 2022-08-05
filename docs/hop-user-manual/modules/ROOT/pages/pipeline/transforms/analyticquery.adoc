@@ -44,7 +44,7 @@ Examples of common use cases are:
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name| The name of this transform as it appears in the pipeline workspace.

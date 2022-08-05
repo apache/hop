@@ -28,7 +28,7 @@ This list of filenames can then be used in the various workflow actions all arou
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

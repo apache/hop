@@ -35,7 +35,7 @@ See also the xref:pipeline/transforms/xsdvalidator.adoc[XSD Validator pipeline t
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

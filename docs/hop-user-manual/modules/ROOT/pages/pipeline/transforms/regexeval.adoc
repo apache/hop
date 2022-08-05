@@ -68,7 +68,7 @@ The resulting field values are: Ann and 53.
 
 === General
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -76,7 +76,7 @@ The resulting field values are: Ann and 53.
 
 === Capture Group Fields
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |New field|Name of the new field generated from the regular expression.
@@ -97,7 +97,7 @@ See Common Formats for |information on common valid date and numeric formats you
 
 The Settings tab contains the following options:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Field to evaluate|Specify the name of the field from the incoming Hop stream to be matched against the regular expression.
@@ -121,7 +121,7 @@ Click Test regEx to open the Regular expression evaluation window.
 You can test your regular expression against three different input strings using the following Regular expression evaluation window.
 If your expression contains a group field, type a string in the Compare section and the option below the string will be split according to your group(s).
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Please enter a new regular expression or modify|Specify your regular expression.
@@ -135,7 +135,7 @@ The background will turn green if that value is a match against your expression 
 
 The Content tab contains the following options:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Ignore differences in Unicode encodings |Select to ignore different Unicode character encodings.

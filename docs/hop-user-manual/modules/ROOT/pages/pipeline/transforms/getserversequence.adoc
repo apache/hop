@@ -71,7 +71,7 @@ The last value returned plus the size of the range (increment) are stored in a d
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|The name of this transform as it appears in the pipeline workspace.

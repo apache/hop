@@ -26,7 +26,7 @@ The Copy Files action copies one of more files or folders.
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow Action Name|Indicates the name of the action.

@@ -40,7 +40,7 @@ The Neo4j Split Graph transforms splits the nodes and relationships of a graph d
 
 == Options
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Option|Default|Description
 |Transform name|Neo4j Split Graph|the name to use for this transform in the pipeline

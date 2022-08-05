@@ -167,7 +167,7 @@ Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
 The available options are listed below:
 
 .Hop-conf Options
-[id="hop-conf",cols="10%, 40%,50%" width="90%",options="header"]
+[id="hop-conf",cols="10%, 40%,50%",options="header"]
 |===
 |Short Option|Extended Option|Description
 |-h|--help|Displays this help message and quits.

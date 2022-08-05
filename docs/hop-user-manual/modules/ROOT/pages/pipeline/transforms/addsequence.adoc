@@ -45,7 +45,7 @@ Also, they are not stored, so the values start back at the same value every time
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|The name of this transform as it appears in the pipeline workspace.

@@ -44,7 +44,7 @@ image:error-handling-dialog.png[Error handling dialog, width="75%"]
 
 The available options are:
 
-[options="header", width="90%"]
+[options="header"]
 |===
 |option|description
 |target transform|the transform that will receive the error information
