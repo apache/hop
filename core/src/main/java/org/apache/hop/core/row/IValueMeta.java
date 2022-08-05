@@ -170,7 +170,7 @@ public interface IValueMeta extends Cloneable {
   /** Value type indicating that the value contains an Avro Record */
   int TYPE_AVRO = 20;
 
-  /** Value type indicating that the value contains an Arrow RecordBatch */
+  /** Value type indicating that the value contains an Arrow Vector */
   int TYPE_ARROW = 21;
 
   /** The Constant typeCodes. */

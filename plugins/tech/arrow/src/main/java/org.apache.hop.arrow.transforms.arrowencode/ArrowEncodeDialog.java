@@ -21,16 +21,20 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ArrowEncodeDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ArrowEncodeMeta.class; // For Translator
+  private static final Class<?> PKG = ArrowEncodeMeta.class;
 
-  private ArrowEncodeMeta input;
+  private final ArrowEncodeMeta input;
 
   private TextVar wOutputField;
-  private TextVar wSchemaName;
   private TableView wFields;
 
-  public ArrowEncodeDialog(Shell parent, IVariables variables, BaseTransformMeta<?, ?> baseTransformMeta, PipelineMeta pipelineMeta, String transformName) {
-    super(parent, variables, baseTransformMeta, pipelineMeta, transformName);
+  public ArrowEncodeDialog(Shell parent,
+                           IVariables variables,
+                           Object baseTransformMeta,
+                           PipelineMeta pipelineMeta,
+                           String transformName) {
+    super(parent, variables, (BaseTransformMeta) baseTransformMeta, pipelineMeta, transformName);
+
     input = (ArrowEncodeMeta) baseTransformMeta;
   }
 
@@ -102,24 +106,6 @@ public class ArrowEncodeDialog extends BaseTransformDialog implements ITransform
     wOutputField.setLayoutData(fdOutputField);
     lastControl = wOutputField;
 
-    Label wlSchemaName = new Label(shell, SWT.RIGHT);
-    wlSchemaName.setText(BaseMessages.getString(PKG, "ArrowEncodeDialog.SchemaName.Label"));
-    props.setLook(wlSchemaName);
-    FormData fdlSchemaName = new FormData();
-    fdlSchemaName.left = new FormAttachment(0, 0);
-    fdlSchemaName.right = new FormAttachment(middle, -margin);
-    fdlSchemaName.top = new FormAttachment(lastControl, margin);
-    wlSchemaName.setLayoutData(fdlSchemaName);
-    wSchemaName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wSchemaName.setText(transformName);
-    props.setLook(wSchemaName);
-    FormData fdSchemaName = new FormData();
-    fdSchemaName.left = new FormAttachment(middle, 0);
-    fdSchemaName.top = new FormAttachment(wlSchemaName, 0, SWT.CENTER);
-    fdSchemaName.right = new FormAttachment(100, 0);
-    wSchemaName.setLayoutData(fdSchemaName);
-    lastControl = wSchemaName;
-
     Label wlFields = new Label(shell, SWT.RIGHT);
     wlFields.setText(BaseMessages.getString(PKG, "ArrowEncodeDialog.Fields.Label"));
     props.setLook(wlFields);
@@ -171,8 +157,7 @@ public class ArrowEncodeDialog extends BaseTransformDialog implements ITransform
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
 
-    wOutputField.setText(Const.NVL(input.getOutputFieldName(), ""));
-    wSchemaName.setText(Const.NVL(input.getSchemaName(), ""));
+    wOutputField.setText(Const.NVL(input.getOutputFieldName(), "arrow"));
 
     int rowNr = 0;
     for (SourceField sourceField : input.getSourceFields()) {
@@ -197,7 +182,6 @@ public class ArrowEncodeDialog extends BaseTransformDialog implements ITransform
     }
 
     input.setOutputFieldName(wOutputField.getText());
-    input.setSchemaName(wSchemaName.getText());
 
     input.getSourceFields().clear();
     for (TableItem item : wFields.getNonEmptyItems()) {

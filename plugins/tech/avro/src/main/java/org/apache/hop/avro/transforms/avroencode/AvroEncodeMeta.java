@@ -46,7 +46,7 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/avro-encode.html",
     keywords = "i18n::AvroEncodeMeta.keyword")
 public class AvroEncodeMeta extends BaseTransformMeta<AvroEncode, AvroEncodeData> {
-  private static final Class<?> PKG = AvroEncodeMeta.class; // For Translator
+  private static final Class<?> PKG = AvroEncodeMeta.class;
 
   @HopMetadataProperty(key = "output_field")
   private String outputFieldName;

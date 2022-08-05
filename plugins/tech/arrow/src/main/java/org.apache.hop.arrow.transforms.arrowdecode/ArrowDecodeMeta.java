@@ -18,7 +18,7 @@ import java.util.List;
     name = "Arrow Decode",
     description = "Decodes Arrow data types into Hop fields",
     image = "arrow_decode.svg",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/arrow-decode.html",
     keywords = "i18n::ArrowDecodeMeta.keyword")
 public class ArrowDecodeMeta extends BaseTransformMeta<ArrowDecode, ArrowDecodeData> {

@@ -52,6 +52,7 @@
             <scope>runtime</scope>
             <includes>
                 <include>org.apache.arrow:arrow-vector:jar</include>
+                <include>org.apache.arrow:arrow-memory-netty:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

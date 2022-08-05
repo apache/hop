@@ -1,15 +1,14 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.arrow.memory.BufferAllocator;
-import org.apache.arrow.vector.VectorLoader;
+import org.apache.arrow.vector.FieldVector;
+import org.apache.arrow.vector.ValueVector;
 import org.apache.arrow.vector.VectorSchemaRoot;
-import org.apache.arrow.vector.VectorUnloader;
 import org.apache.arrow.vector.ipc.ArrowStreamReader;
 import org.apache.arrow.vector.ipc.ArrowStreamWriter;
 import org.apache.arrow.vector.ipc.message.ArrowRecordBatch;
 import org.apache.arrow.vector.types.pojo.Schema;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.exception.HopEofException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
@@ -22,53 +21,48 @@ import org.json.simple.parser.JSONParser;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
-import java.net.SocketTimeoutException;
+import java.util.Arrays;
+import java.util.List;
 
 @ValueMetaPlugin(
     id = "21",
-    name = "Arrow RecordBatch Record",
-    description = "This type wraps an Arrow RecordBatch",
+    name = "Arrow Vector",
+    description = "A single Arrow Vector",
     image = "images/arrow.svg")
-public class ValueMetaArrowRecordBatch extends ValueMetaBase implements IValueMeta {
+public class ValueMetaArrowVector extends ValueMetaBase implements IValueMeta {
 
   private Schema schema;
 
-  public ValueMetaArrowRecordBatch() {
+  public ValueMetaArrowVector() {
     super(null, IValueMeta.TYPE_ARROW);
   }
 
-  public ValueMetaArrowRecordBatch(String name) {
+  public ValueMetaArrowVector(String name) {
     super(name, IValueMeta.TYPE_ARROW);
   }
 
-  public ValueMetaArrowRecordBatch(String name, Schema schema) {
-    super(name, IValueMeta.TYPE_ARROW);
+  public ValueMetaArrowVector(String name, Schema schema) {
+    this(name);
     this.schema = schema;
-  }
-
-  public ValueMetaArrowRecordBatch(ValueMetaArrowRecordBatch meta) {
-    this(meta.name, meta.schema);
   }
 
   @Override
   public String toStringMeta() {
-    if (this.schema == null) {
-      return "Arrow Record";
-    } else {
-      return "Arrow Record " + this.schema;
+    if (schema == null) {
+      return "Arrow Vector";
     }
+    return "Arrow Vector [" + schema + "]";
   }
 
   @Override
   public void writeMeta(DataOutputStream outputStream) throws HopFileException {
     try {
-      // First write the basic metadata
+      // First write the basic metadata.
       //
       super.writeMeta(outputStream);
 
-      // Also output the schema metadata in JSON format...
+      // Serialize the Schema as JSON.
       //
       if (schema == null) {
         outputStream.writeUTF("");
@@ -83,11 +77,11 @@ public class ValueMetaArrowRecordBatch extends ValueMetaBase implements IValueMe
   @Override
   public void readMetaData(DataInputStream inputStream) throws HopFileException {
     try {
-      // First read the basic type metadata
+      // First read the basic type metadata.
       //
       super.readMetaData(inputStream);
 
-      // Now read the schema JSON
+      // Now read the schema JSON.
       //
       String schemaJson = inputStream.readUTF();
       if (StringUtils.isEmpty(schemaJson)) {
@@ -126,13 +120,12 @@ public class ValueMetaArrowRecordBatch extends ValueMetaBase implements IValueMe
     // Store the absolute basics (name, type, ...)
     super.storeMetaInJson(jValue);
 
-    // And the schema JSON (if any)
+    // And the schema JSON (if any).
     //
     try {
       if (schema != null) {
-        String schemaJson = schema.toJson();
-        Object jSchema = new JSONParser().parse(schemaJson);
-        jValue.put("schema", jSchema);
+        Object jSchema = new JSONParser().parse(schema.toJson());
+        jValue.put("field", jSchema);
       }
     } catch (Exception e) {
       throw new HopException(
@@ -165,22 +158,18 @@ public class ValueMetaArrowRecordBatch extends ValueMetaBase implements IValueMe
   @Override
   public void writeData(DataOutputStream outputStream, Object object) throws HopFileException {
     try {
-      // Is the value NULL?
-      outputStream.writeBoolean(object == null);
+      boolean isNull = object == null;
+      outputStream.writeBoolean(isNull);
+      if (isNull) {
+        return;
+      }
 
-      if (object != null) {
-        ArrowRecordBatch batch = (ArrowRecordBatch) object;
-        BufferAllocator allocator = ArrowBufferAllocator.rootAllocator();
-
-        try (
-            VectorSchemaRoot root = VectorSchemaRoot.create(schema, allocator);
-            ArrowStreamWriter writer = new ArrowStreamWriter(root, null, outputStream)) {
-          VectorLoader loader = new VectorLoader(root);
-          loader.load(batch);
-
-          writer.start();
-          writer.writeBatch();
-        }
+      if (!(object instanceof FieldVector[])) {
+        throw new HopFileException(this + " : expected FieldVector[], got " + object.getClass().getCanonicalName());
+      }
+      try (VectorSchemaRoot root = new VectorSchemaRoot(Arrays.asList((FieldVector[]) object));
+           ArrowStreamWriter writer = new ArrowStreamWriter(root, null, outputStream)) {
+        writer.writeBatch();
       }
     } catch (IOException e) {
       throw new HopFileException(this + " : Unable to write value data to output stream", e);
@@ -189,7 +178,7 @@ public class ValueMetaArrowRecordBatch extends ValueMetaBase implements IValueMe
 
   @Override
   public Object readData(DataInputStream inputStream)
-      throws HopFileException, SocketTimeoutException {
+      throws HopFileException {
     try {
       // Is the value NULL?
       if (inputStream.readBoolean()) {
@@ -204,18 +193,18 @@ public class ValueMetaArrowRecordBatch extends ValueMetaBase implements IValueMe
       }
 
       BufferAllocator allocator = ArrowBufferAllocator.rootAllocator();
-      try (ArrowStreamReader reader = new ArrowStreamReader(inputStream, allocator)) {
-        VectorSchemaRoot root = reader.getVectorSchemaRoot();
-        VectorUnloader unloader = new VectorUnloader(root);
-        return unloader.getRecordBatch();
+      try (ArrowStreamReader reader = new ArrowStreamReader(inputStream, allocator);
+           VectorSchemaRoot root = reader.getVectorSchemaRoot()) {
+
+        // XXX need to think about how we'd handle multiple batches
+        if (reader.loadNextBatch()) {
+          return root.getFieldVectors().toArray(FieldVector[]::new);
+        }
       }
-    } catch (EOFException e) {
-      throw new HopEofException(e);
-    } catch (SocketTimeoutException e) {
-      throw e;
     } catch (IOException e) {
-      throw new HopFileException(toString() + " : Unable to read value data from input stream", e);
+      throw new HopFileException(this + " : Unable to read value data from input stream", e);
     }
+    throw new HopFileException(this + " : Unexpected failure reading value data from input stream");
   }
 
   @Override
@@ -229,5 +218,10 @@ public class ValueMetaArrowRecordBatch extends ValueMetaBase implements IValueMe
 
   public void setSchema(Schema schema) {
     this.schema = schema;
+  }
+
+  public List<ValueVector> getValueVectors(Object o) {
+    // TODO: validate o? what should we do here?
+    return (List<ValueVector>) o;
   }
 }

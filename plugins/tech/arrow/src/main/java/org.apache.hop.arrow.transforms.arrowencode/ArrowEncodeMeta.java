@@ -9,7 +9,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaArrowRecordBatch;
+import org.apache.hop.core.row.value.ValueMetaArrowVector;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -22,7 +22,7 @@ import java.util.List;
 @Transform(
     id = "ArrowEncode",
     name = "Arrow Encode",
-    description = "Encodes Hop fields into an Arrow RecordBatch typed field",
+    description = "Encodes Hop fields into an Arrow Vector typed field",
     image = "arrow_encode.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/arrow-encode.html",
@@ -33,9 +33,6 @@ public class ArrowEncodeMeta extends BaseTransformMeta<ArrowEncode, ArrowEncodeD
 
   @HopMetadataProperty(key = "output_field")
   private String outputFieldName = "arrow";
-
-  @HopMetadataProperty(key = "schema_name")
-  private String schemaName = "hop-schema";
 
   @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<SourceField> sourceFields = List.of();
@@ -50,9 +47,8 @@ public class ArrowEncodeMeta extends BaseTransformMeta<ArrowEncode, ArrowEncodeD
       IHopMetadataProvider metadataProvider) throws HopTransformException {
 
     try {
-      Schema schema = new Schema(List.of());
-      // TODO populate Schema based on IRowMeta
-      ValueMetaArrowRecordBatch valueMeta = new ValueMetaArrowRecordBatch(variables.resolve(outputFieldName), schema);
+      Schema schema = createArrowSchema(rowMeta, sourceFields);
+      ValueMetaArrowVector valueMeta = new ValueMetaArrowVector(variables.resolve(outputFieldName), schema);
       rowMeta.addValueMeta(valueMeta);
     } catch (Exception e) {
       throw new HopTransformException(
@@ -83,7 +79,7 @@ public class ArrowEncodeMeta extends BaseTransformMeta<ArrowEncode, ArrowEncodeD
 
       // Nested types (i.e. with children) are not currently supported.
       //
-      arrowFields.set(i, new Field(name, FieldType.nullable(type), null));
+      arrowFields.add(new Field(name, FieldType.nullable(type), null));
     }
 
     return new Schema(arrowFields);
@@ -95,14 +91,6 @@ public class ArrowEncodeMeta extends BaseTransformMeta<ArrowEncode, ArrowEncodeD
 
   public void setOutputFieldName(String outputFieldName) {
     this.outputFieldName = outputFieldName;
-  }
-
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
   }
 
   public List<SourceField> getSourceFields() {

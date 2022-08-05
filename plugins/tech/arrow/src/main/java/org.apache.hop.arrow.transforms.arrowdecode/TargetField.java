@@ -11,19 +11,49 @@ public class TargetField {
   @HopMetadataProperty(key = "source_field")
   private String sourceField;
 
-  @HopMetadataProperty(key = "source_arrow_type")
-  private String sourceAvroType;
-
   @HopMetadataProperty(key = "target_field_name")
   private String targetFieldName;
 
   @HopMetadataProperty(key = "target_type")
   private String targetType;
 
+  @HopMetadataProperty(key = "target_format")
+  private String targetFormat;
+
+  @HopMetadataProperty(key = "target_length")
+  private String targetLength;
+
+  @HopMetadataProperty(key = "target_precision")
+  private String targetPrecision;
+
+
+  public TargetField(String sourceField, String targetFieldName, String targetType, String targetFormat,
+                     String targetLength, String targetPrecision) {
+    this.sourceField = sourceField;
+    this.targetFieldName = targetFieldName;
+    this.targetType = targetType;
+    this.targetFormat = targetFormat;
+    this.targetLength = targetLength;
+    this.targetPrecision = targetPrecision;
+  }
+
+  public TargetField(TargetField f) {
+    this.sourceField = f.sourceField;
+    this.targetFieldName = f.targetFieldName;
+    this.targetType = f.targetType;
+    this.targetFormat = f.targetFormat;
+    this.targetLength = f.targetLength;
+    this.targetPrecision = f.targetPrecision;
+  }
+
   public IValueMeta createTargetValueMeta(IVariables variables) throws HopException {
     String name = variables.resolve(Const.NVL(targetFieldName, sourceField));
     int type = ValueMetaFactory.getIdForValueMeta(variables.resolve(targetType));
-    return ValueMetaFactory.createValueMeta(name, type);
+    int length = Const.toInt(variables.resolve(targetLength), -1);
+    int precision = Const.toInt(variables.resolve(targetPrecision), -1);
+    IValueMeta valueMeta = ValueMetaFactory.createValueMeta(name, type, length, precision);
+    valueMeta.setConversionMask(variables.resolve(targetFormat));
+    return valueMeta;
   }
 
   /**
@@ -38,20 +68,6 @@ public class TargetField {
   /** @param sourceField The sourcePath to set */
   public void setSourceField(String sourceField) {
     this.sourceField = sourceField;
-  }
-
-  /**
-   * Gets sourceAvroType
-   *
-   * @return value of sourceAvroType
-   */
-  public String getSourceAvroType() {
-    return sourceAvroType;
-  }
-
-  /** @param sourceAvroType The sourceAvroType to set */
-  public void setSourceAvroType(String sourceAvroType) {
-    this.sourceAvroType = sourceAvroType;
   }
 
   /**
@@ -82,4 +98,27 @@ public class TargetField {
     this.targetType = targetType;
   }
 
+  public String getTargetFormat() {
+    return targetFormat;
+  }
+
+  public void setTargetFormat(String targetFormat) {
+    this.targetFormat = targetFormat;
+  }
+
+  public String getTargetLength() {
+    return targetLength;
+  }
+
+  public void setTargetLength(String targetLength) {
+    this.targetLength = targetLength;
+  }
+
+  public String getTargetPrecision() {
+    return targetPrecision;
+  }
+
+  public void setTargetPrecision(String targetPrecision) {
+    this.targetPrecision = targetPrecision;
+  }
 }

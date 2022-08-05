@@ -1,8 +1,10 @@
 package org.apache.hop.arrow.transforms.arrowencode;
 
 import org.apache.arrow.vector.FieldVector;
+import org.apache.arrow.vector.ValueVector;
 import org.apache.arrow.vector.types.pojo.Schema;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -17,5 +19,11 @@ public class ArrowEncodeData extends BaseTransformData implements ITransformData
 
   public Schema arrowSchema;
 
-  public List<FieldVector> fieldVectors = new ArrayList<>();
+  /** Current batch size. */
+  public int count = 0;
+
+  /** Number of batches processed. */
+  public int batches = 0;
+
+  public List<ValueVector> vectors = List.of();
 }
