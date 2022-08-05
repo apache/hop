@@ -51,7 +51,7 @@ Notes:
 This happens when all rows are written.
 To not run out of memory make sure to specify a split size.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 

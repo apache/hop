@@ -61,7 +61,7 @@ Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
 
 The available options are listed in more detail in the table below:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Short|Extended|Description
 |e|environment|The name of the environment to use.

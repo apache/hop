@@ -39,7 +39,7 @@ The Avro File Output transform can write Apache Avro messages to a file or field
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 
 |Option|Description
@@ -106,7 +106,7 @@ Note: This name has to be unique in a single pipeline.
 
 Fields tab:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 

@@ -55,7 +55,7 @@ Because the processing logic of some XML files can be complex, you should have a
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

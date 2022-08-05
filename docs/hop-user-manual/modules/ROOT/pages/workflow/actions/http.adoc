@@ -40,7 +40,7 @@ If HTTP traffic is too heavy in your corporate environment, you may choose to us
 
 === General Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -68,7 +68,7 @@ This may be useful when working on an intranet or VPN
 
 === Headers Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |#|Order that the header should be processed

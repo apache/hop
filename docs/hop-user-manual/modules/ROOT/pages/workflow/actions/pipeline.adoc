@@ -42,7 +42,7 @@ See also:
 
 === General
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Action name|Name of the action.
@@ -56,7 +56,7 @@ Pipelines previously specified by reference are automatically converted to be sp
 
 === Options Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Run Configuration|The pipeline can run in different types of environment configurations.
@@ -80,7 +80,7 @@ For example, if you have load dimensions, you want logs for your load dimension 
 If there are errors in the pipelines, they will be displayed in the workflow logs.
 However, you want all your log information kept in one place, you must then set up logging.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Specify logfile|Specifies a separate logging file for running this pipeline.
@@ -96,7 +96,7 @@ See Logging for more details.
 
 === Arguments Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Copy results to arguments|Copies the results from a previous pipeline as arguments of the pipeline using the Copy rows to result transform.
@@ -106,7 +106,7 @@ If the 'Execute for every result row' option is selected then each row is a set 
 
 === Parameters Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Copy results to parameters|Copies the results from a previous pipeline as parameters of the pipeline using the Copy rows to result transform.

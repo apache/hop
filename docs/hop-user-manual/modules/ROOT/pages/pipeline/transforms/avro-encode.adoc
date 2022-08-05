@@ -40,7 +40,7 @@ The Avro Encode transform allows you to encode a new Avro Record field using a s
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 
 |Option|Description

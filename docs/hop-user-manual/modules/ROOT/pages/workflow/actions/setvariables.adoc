@@ -26,7 +26,7 @@ The Set Variables action sets variables at various scopes.
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

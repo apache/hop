@@ -49,7 +49,7 @@ You may need to enable additional APIs (such as BigQuery, Cloud Pub/Sub, or Clou
 
 == Options
 
-[width="90%",options="header",cols="1, 3"]
+[options="header",cols="1, 3"]
 |===
 |Option|Description
 

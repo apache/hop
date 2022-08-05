@@ -51,7 +51,7 @@ Make sure to allocate enough memory to allow this.
 * All input values are passed to the output
 * INT96 is converted to the Hop Binary data type.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 

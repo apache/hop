@@ -40,7 +40,7 @@ The Add a Checksum transform calculates checksums for one or more fields in the 
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

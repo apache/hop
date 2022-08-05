@@ -30,7 +30,7 @@ The action can either wait indefinitely for the file or it can time out after a 
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

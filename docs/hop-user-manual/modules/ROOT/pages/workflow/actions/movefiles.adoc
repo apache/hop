@@ -38,7 +38,7 @@ Example for a move (rename) of a file on a FTP server (username/password must be
 
 In this tab you can specify the files and/or folders to move.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -56,7 +56,7 @@ You can add a different source/destination on each line.
 
 In this tab you can specify the destination of the files and/or folders and their new filenames.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Destination file a|
@@ -94,7 +94,7 @@ The default is yyyyMMdd'_'HHmmss
 
 === Advanced Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Success on a|

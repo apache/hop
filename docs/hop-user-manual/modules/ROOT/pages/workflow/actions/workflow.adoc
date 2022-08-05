@@ -47,7 +47,7 @@ See also:
 
 === workflow Specification Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Action name|Name of the action.
@@ -57,7 +57,7 @@ Click to browse through your local files.
 
 === Advanced Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Copy previous results to args?|The results from a previous workflow can copied as arguments of the workflow using the "Copy rows to result" transform.
@@ -84,7 +84,7 @@ For example, if you have load dimensions, you want logs for your load dimension 
 If there are errors in the pipelines, they will be displayed in the workflow logs.
 If, however, you want all your log information kept in one place, you must set up logging.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Specify logfile?|Enable to specify a separate logging file for the execution of this workflow
@@ -100,7 +100,7 @@ See also the logging window in Logging
 
 === Arguments Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Arguments|Specify which command-line arguments will be passed to the sub-workflow.
@@ -110,7 +110,7 @@ See also the logging window in Logging
 
 Specify which parameters will be passed to the sub-workflow:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Pass all parameter values down to the sub-workflow|Enable this option to pass all parameters of the workflow down to the sub-workflow.

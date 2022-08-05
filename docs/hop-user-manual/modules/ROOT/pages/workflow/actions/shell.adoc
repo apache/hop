@@ -42,7 +42,7 @@ You can pass command line arguments and set up logging for the Shell workflow ac
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

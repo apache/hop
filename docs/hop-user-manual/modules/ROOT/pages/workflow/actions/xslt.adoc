@@ -28,7 +28,7 @@ The original document is not changed; rather, a new document is created based on
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

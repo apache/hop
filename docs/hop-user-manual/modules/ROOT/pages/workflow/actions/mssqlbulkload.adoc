@@ -28,7 +28,7 @@ The MS SQL Server Bulk Loader action bulk loads data from a file into MSSQL.
 
 === General Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -48,7 +48,7 @@ The MS SQL Server Bulk Loader action bulk loads data from a file into MSSQL.
 
 === Advanced Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Codepage|OEM, ACP, RAW, specific

@@ -32,7 +32,7 @@ The Javascript workflow action evaluates and returns a true or false.
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -63,7 +63,7 @@ parent_workflow.getVariable("INPUT_DIRECTORY").equals("/tmp");
 
 The following variables are available for the expression:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Variable|Description
 |```errors```|Number of errors in the previous workflow action (long).
@@ -111,7 +111,7 @@ true;
 
 When a workflow action finishes, the result of the execution will be a Result object exposed as "previous_result" to the JavaScript engine:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Expression|Alternative|Data type|Meaning
 |```previous_result.getResult()```||boolean|true if the previous workflow action was executed successfully, false if there was some error.

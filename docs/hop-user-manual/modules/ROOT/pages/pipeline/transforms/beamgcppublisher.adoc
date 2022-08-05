@@ -40,7 +40,7 @@ The Beam GCP Pub/Sub : Publish transform publishes messages to a link:https://cl
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.

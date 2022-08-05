@@ -77,7 +77,7 @@ Example: hop-server.sh 127.0.0.1 8080 --kill --userName cluster --password clust
 
 The available Hop Server options are:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 
 |Short|Extended|Description
@@ -458,7 +458,7 @@ For each of the options in the pipeline and workflow dialogs described below, se
 
 The header bar for workflows and pipelines is almost identical (from left to right).
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Run|
 |Stop the running pipeline/workflow|

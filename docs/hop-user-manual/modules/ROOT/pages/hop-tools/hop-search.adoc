@@ -40,7 +40,7 @@ Usage: <main class> [-hilx] [-e=<environmentOption>] [-j=<projectOption>]
 
 == Options
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Option|Description
 |<searchString>|The string to search for

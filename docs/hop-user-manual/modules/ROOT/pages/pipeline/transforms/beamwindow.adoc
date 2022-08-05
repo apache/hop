@@ -39,7 +39,7 @@ The Beam Window transform adds event-time-based window functions using the Beam 
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.

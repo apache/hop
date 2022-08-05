@@ -40,7 +40,7 @@ image:hop-gui/workflow/workflow-run-configuration.png[Workflow Run configuration
 
 The tab contains the name, description and the dropdown list for the workflow engine types.
 
-[width="90%",options="header",cols="1,4"]
+[options="header",cols="1,4"]
 |===
 |Option|Description
 |Name|The name you want to use for this workflow run configuration.

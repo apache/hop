@@ -26,7 +26,7 @@ The Wait For SQL action scans a database and checks if the database meets user-d
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

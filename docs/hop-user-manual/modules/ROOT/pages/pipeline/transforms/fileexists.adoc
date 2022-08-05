@@ -42,7 +42,7 @@ The transform outputs a boolean flag field, indicating whether a file exists or 
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform; This name has to be unique in a single pipeline
