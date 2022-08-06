@@ -1,9 +1,9 @@
 package org.apache.hop.arrow.transforms.arrowdecode;
 
+import org.apache.arrow.util.AutoCloseables;
 import org.apache.arrow.vector.ValueVector;
 import org.apache.arrow.vector.types.pojo.ArrowType;
 import org.apache.arrow.vector.types.pojo.Field;
-import org.apache.arrow.vector.types.pojo.Schema;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -14,15 +14,13 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ArrowDecode extends BaseTransform<ArrowDecodeMeta, ArrowDecodeData> {
   /**
    * Encode Arrow RecordBatch into Hop Rows.
    *
    * @param transformMeta The TransformMeta object to run.
-   * @param meta
+   * @param meta          the meta object
    * @param data          the data object to store temporary data, database connections, caches, result sets,
    *                      hashtables etc.
    * @param copyNr        The copynumber for this transform.
@@ -104,17 +102,15 @@ public class ArrowDecode extends BaseTransform<ArrowDecodeMeta, ArrowDecodeData>
     }
 
     // Build a mapping between the incoming vectors and the outgoing fields
-    // XXX Assumes Schema order is in line with data order
-    Schema schema = data.arrowValueMeta.getSchema();
     List<TargetField> targetFields = meta.getTargetFields();
     int[] vectorIndices = new int[targetFields.size()];
 
     for (int j = 0; j < vectorIndices.length; j++) {
       int index = -1;
 
-      for (int n = 0; n < schema.getFields().size(); n++) {
-        String name = schema.getFields().get(n).getName();
-        if (name.equals(targetFields.get(j).getTargetFieldName())) {
+      for (int n = 0; n < vectors.size(); n++) {
+        String name = vectors.get(n).getName();
+        if (name.equals(targetFields.get(j).getSourceField())) {
           index = n;
           break;
         }
@@ -126,6 +122,10 @@ public class ArrowDecode extends BaseTransform<ArrowDecodeMeta, ArrowDecodeData>
       Object[] outputRow = convertToRow(i, row, vectors, vectorIndices);
       putRow(data.outputRowMeta, outputRow);
     }
+
+    // Release vectors
+    //
+    vectors.forEach(AutoCloseables::closeNoChecked);
 
     return true;
   }
