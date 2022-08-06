@@ -233,21 +233,22 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
               try {
                 db = new Database(loggingObject, variables, databaseMeta);
                 db.connect();
-                ResultSet resultSet =
-                    db.openQuery("show warehouses;", null, null, ResultSet.FETCH_FORWARD, false);
-                IRowMeta rowMeta = db.getReturnRowMeta();
-                Object[] row = db.getRow(resultSet);
-                int nameField = rowMeta.indexOfValue("NAME");
-                if (nameField >= 0) {
-                  while (row != null) {
-                    String name = rowMeta.getString(row, nameField);
-                    wWarehouseName.add(name);
-                    row = db.getRow(resultSet);
+                try (ResultSet resultSet =
+                    db.openQuery("show warehouses;", null, null, ResultSet.FETCH_FORWARD, false)) {
+                  IRowMeta rowMeta = db.getReturnRowMeta();
+                  Object[] row = db.getRow(resultSet);
+                  int nameField = rowMeta.indexOfValue("NAME");
+                  if (nameField >= 0) {
+                    while (row != null) {
+                      String name = rowMeta.getString(row, nameField);
+                      wWarehouseName.add(name);
+                      row = db.getRow(resultSet);
+                    }
+                  } else {
+                    throw new HopException("Unable to find warehouse name field in result");
                   }
-                } else {
-                  throw new HopException("Unable to find warehouse name field in result");
+                  db.closeQuery(resultSet);
                 }
-                db.closeQuery(resultSet);
                 if (warehouseName != null) {
                   wWarehouseName.setText(warehouseName);
                 }
