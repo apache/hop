@@ -25,12 +25,15 @@ import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
+import org.apache.hop.reflection.pipeline.meta.PipelineToLogLocation;
 import org.apache.hop.reflection.workflow.transform.WorkflowLoggingMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
@@ -39,6 +42,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Editor that allows you to change Workflow Log metadata
@@ -57,6 +63,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
   private Button wPeriodic;
   private Label wlInterval;
   private TextVar wInterval;
+  private TableView wWorkflows;
 
   public WorkflowLogEditor(
       HopGui hopGui, MetadataManager<WorkflowLog> manager, WorkflowLog metadata) {
@@ -267,6 +274,40 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     wInterval.addListener(SWT.Selection, this::enableFields);
     lastControl = wlInterval;
 
+    // The locations in a table view:
+    //
+    Label wlSources = new Label(parent, SWT.LEFT);
+    props.setLook(wlSources);
+    wlSources.setText(BaseMessages.getString(PKG, "WorkflowLoggingEditor.Sources.Label"));
+    FormData fdlSources = new FormData();
+    fdlSources.left = new FormAttachment(0, 0);
+    fdlSources.right = new FormAttachment(100, 0);
+    fdlSources.top = new FormAttachment(lastControl, 2 * margin);
+    wlSources.setLayoutData(fdlSources);
+    lastControl = wlSources;
+    ColumnInfo[] columns = {
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "WorkflowLoggingEditor.SourcesTable.Column.Pipeline"),
+            ColumnInfo.COLUMN_TYPE_TEXT,
+            false,
+            false),
+    };
+    wWorkflows =
+        new TableView(
+            manager.getVariables(),
+            parent,
+            SWT.BORDER,
+            columns,
+            0,
+            e -> setChanged(),
+            props);
+    FormData fdSources = new FormData();
+    fdSources.left = new FormAttachment(0, 0);
+    fdSources.top = new FormAttachment(lastControl, margin);
+    fdSources.right = new FormAttachment(100, 0);
+    fdSources.bottom = new FormAttachment(100, 0);
+    wWorkflows.setLayoutData(fdSources);
+
     setWidgetsContent();
 
     // Add listener to detect change after loading data
@@ -382,16 +423,24 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
 
   @Override
   public void setWidgetsContent() {
-    WorkflowLog pl = getMetadata();
+    WorkflowLog wl = getMetadata();
 
-    wName.setText(Const.NVL(pl.getName(), ""));
-    wEnabled.setSelection(pl.isEnabled());
-    wLoggingParentsOnly.setSelection(pl.isLoggingParentsOnly());
-    wFilename.setText(Const.NVL(pl.getPipelineFilename(), ""));
-    wAtStart.setSelection(pl.isExecutingAtStart());
-    wAtEnd.setSelection(pl.isExecutingAtEnd());
-    wPeriodic.setSelection(pl.isExecutingPeriodically());
-    wInterval.setText(Const.NVL(pl.getIntervalInSeconds(), ""));
+    wName.setText(Const.NVL(wl.getName(), ""));
+    wEnabled.setSelection(wl.isEnabled());
+    wLoggingParentsOnly.setSelection(wl.isLoggingParentsOnly());
+    wFilename.setText(Const.NVL(wl.getPipelineFilename(), ""));
+    wAtStart.setSelection(wl.isExecutingAtStart());
+    wAtEnd.setSelection(wl.isExecutingAtEnd());
+    wPeriodic.setSelection(wl.isExecutingPeriodically());
+    wInterval.setText(Const.NVL(wl.getIntervalInSeconds(), ""));
+    wWorkflows.removeAll();
+    List<String> workflowsToLog = wl.getWorkflowToLog();
+    for(String workflowToLog : workflowsToLog){
+      TableItem item = new TableItem(wWorkflows.table, SWT.NONE);
+      item.setText(1, Const.NVL(workflowToLog, ""));
+    }
+    wWorkflows.setRowNums();
+    wWorkflows.optimizeTableView();
   }
 
   @Override
@@ -404,6 +453,12 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     pl.setExecutingAtEnd(wAtEnd.getSelection());
     pl.setExecutingPeriodically(wPeriodic.getSelection());
     pl.setIntervalInSeconds(wInterval.getText());
+    List<String> locations = new ArrayList<>();
+    List<TableItem> items = wWorkflows.getNonEmptyItems();
+    for (TableItem item : items) {
+      locations.add(item.getText(1));
+    }
+    pl.setWorkflowToLog(locations);
   }
 
   @Override
