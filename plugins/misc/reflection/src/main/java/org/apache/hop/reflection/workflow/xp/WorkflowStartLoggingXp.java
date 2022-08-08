@@ -18,6 +18,7 @@
 package org.apache.hop.reflection.workflow.xp;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -67,7 +68,7 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
       final IWorkflowEngine<WorkflowMeta> workflow,
       final IVariables variables)
       throws HopException {
-    try {
+
 
       // See if we need to do anything at all...
       //
@@ -83,12 +84,13 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
         }
       }
 
-      // Load the pipeline filename specified in the Workflow Log object...
-      //
-      final String loggingPipelineFilename = variables.resolve(workflowLog.getPipelineFilename());
+    // Load the pipeline filename specified in the Workflow Log object...
+    //
+    final String loggingPipelineFilename = variables.resolve(workflowLog.getPipelineFilename());
 
-      // See if the file exists...
-      FileObject loggingFileObject = HopVfs.getFileObject(loggingPipelineFilename);
+    // See if the file exists...
+    FileObject loggingFileObject = HopVfs.getFileObject(loggingPipelineFilename);
+    try {
       if (!loggingFileObject.exists()) {
         log.logBasic(
             "WARNING: The Workflow Log pipeline file '"
@@ -96,7 +98,31 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
                 + "' couldn't be found to execute.");
         return;
       }
+    } catch (Exception e) {
+      workflow.stopExecution();
+      throw new HopException(
+          "Error handling Workflow Log metadata object '"
+              + workflowLog.getName()
+              + "' at the start of pipeline: "
+              + workflow,
+          e);
+    }
 
+    if (workflowLog.getWorkflowToLog().isEmpty()) {
+      logWorkflow(workflowLog, workflow, variables, loggingPipelineFilename);
+    } else {
+      for (String workflowToLog : workflowLog.getWorkflowToLog()) {
+        String workflowUri = HopVfs.getFileObject(workflow.getFilename()).getPublicURIString();
+        String workflowToLogUri = HopVfs.getFileObject(variables.resolve(workflowToLog)).getPublicURIString();
+        if (workflowUri.equals(workflowToLogUri)) {
+          logWorkflow(workflowLog, workflow, variables, loggingPipelineFilename);
+        }
+      }
+    }
+  }
+
+  private void logWorkflow(WorkflowLog workflowLog, IWorkflowEngine<WorkflowMeta> workflow, IVariables variables, String loggingPipelineFilename) throws HopException {
+    try {
       final Timer timer = new Timer();
 
       if (workflowLog.isExecutingAtStart()) {
@@ -135,7 +161,6 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
           timer.schedule(timerTask, intervalInSeconds * 1000L, intervalInSeconds * 1000L);
         }
       }
-
     } catch (Exception e) {
       workflow.stopExecution();
       throw new HopException(
