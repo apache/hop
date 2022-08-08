@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.mongodbdelete;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.MongoException;
-import com.mongodb.WriteResult;
-import com.mongodb.util.JSON;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -35,9 +34,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.MongoException;
+import com.mongodb.WriteResult;
 
 /**
  * Class MongoDbDelete, providing MongoDB delete functionality. User able to create criteria base on
@@ -47,8 +47,9 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
 
   private static final Class<?> PKG = MongoDbDelete.class;
 
-  public int writeRetries;
-  protected int writeRetryDelay;
+  private int writeRetries;
+
+  protected long writeRetryDelay;
 
   public MongoDbDelete(
       TransformMeta transformMeta,
@@ -85,10 +86,8 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
           return false;
         }
 
-        if (!first) {
-          DBObject query = getQueryFromJSON(meta.getJsonQuery(), row);
-          commitDelete(query, row);
-        }
+        DBObject query = getQueryFromJSON(meta.getJsonQuery(), row);
+        commitDelete(query, row);
       }
 
       if (row == null) {
@@ -198,15 +197,15 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
 
         if (!StringUtil.isEmpty(meta.getWriteRetries())) {
           try {
-            writeRetries = Integer.parseInt(meta.getWriteRetries());
+            setWriteRetries(Integer.parseInt(meta.getWriteRetries()));
           } catch (NumberFormatException ex) {
-            writeRetries = meta.nbRetries;
+            setWriteRetries(meta.nbRetries);
           }
         }
 
         if (!StringUtil.isEmpty(meta.getWriteRetryDelay())) {
           try {
-            writeRetryDelay = Integer.parseInt(meta.getWriteRetryDelay());
+            writeRetryDelay = Long.parseLong(meta.getWriteRetryDelay());
           } catch (NumberFormatException ex) {
             writeRetryDelay = meta.retryDelay;
           }
@@ -287,6 +286,8 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
             // CHECKSTYLE:OFF
           } catch (InterruptedException e) {
             // CHECKSTYLE:ON
+            // Restore interrupted state...
+            Thread.currentThread().interrupt();
           }
         }
       }
@@ -316,7 +317,7 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
         jsonQuery = resolve(jsonQuery, getInputRowMeta(), row);
       }
 
-      query = (DBObject) JSON.parse(jsonQuery);
+      query = BasicDBObject.parse(jsonQuery);
     }
     return query;
   }
@@ -347,13 +348,13 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
     if (!actual.containsAll(expected)) {
       // in this case some fields willn't be found in input step meta
       expected.removeAll(actual);
-      StringBuffer b = new StringBuffer();
+      StringBuilder builder = new StringBuilder();
       for (String name : expected) {
-        b.append("'").append(name).append("', ");
+        builder.append("'").append(name).append("', ");
       }
       throw new HopException(
           BaseMessages.getString(
-              PKG, "MongoDbDelete.MongoField.Error.FieldsNotFoundInMetadata", b.toString()));
+              PKG, "MongoDbDelete.MongoField.Error.FieldsNotFoundInMetadata", builder.toString()));
     }
 
     boolean found = actual.removeAll(expected);
@@ -361,5 +362,9 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
       throw new HopException(
           BaseMessages.getString(PKG, "MongoDbDelete.ErrorMessage.NotDeleteAnyFields"));
     }
+  }
+
+  public void setWriteRetries(int writeRetries) {
+      this.writeRetries = writeRetries;
   }
 }
