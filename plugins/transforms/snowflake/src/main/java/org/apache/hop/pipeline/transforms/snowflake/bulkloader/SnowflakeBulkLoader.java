@@ -17,13 +17,26 @@
 
 package org.apache.hop.pipeline.transforms.snowflake.bulkloader;
 
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.exception.*;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
@@ -36,14 +49,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.BufferedOutputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /** Bulk loads data to Snowflake */
 @SuppressWarnings({"UnusedAssignment", "ConstantConditions"})
@@ -185,27 +190,28 @@ public class SnowflakeBulkLoader
     sql += resolve(meta.getTargetTable());
     logDetailed("Executing SQL " + sql);
     try {
-      ResultSet resultSet = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false);
+      try (ResultSet resultSet = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
 
-      IRowMeta rowMeta = data.db.getReturnRowMeta();
-      int nameField = rowMeta.indexOfValue("NAME");
-      int typeField = rowMeta.indexOfValue("TYPE");
-      if (nameField < 0 || typeField < 0) {
-        throw new HopException("Unable to get database fields");
-      }
+        IRowMeta rowMeta = data.db.getReturnRowMeta();
+        int nameField = rowMeta.indexOfValue("NAME");
+        int typeField = rowMeta.indexOfValue("TYPE");
+        if (nameField < 0 || typeField < 0) {
+          throw new HopException("Unable to get database fields");
+        }
 
-      Object[] row = data.db.getRow(resultSet);
-      if (row == null) {
-        throw new HopException("No fields found in table");
+        Object[] row = data.db.getRow(resultSet);
+        if (row == null) {
+          throw new HopException("No fields found in table");
+        }
+        while (row != null) {
+          String[] field = new String[2];
+          field[0] = rowMeta.getString(row, nameField).toUpperCase();
+          field[1] = rowMeta.getString(row, typeField);
+          data.dbFields.add(field);
+          row = data.db.getRow(resultSet);
+        }
+        data.db.closeQuery(resultSet);
       }
-      while (row != null) {
-        String[] field = new String[2];
-        field[0] = rowMeta.getString(row, nameField).toUpperCase();
-        field[1] = rowMeta.getString(row, typeField);
-        data.dbFields.add(field);
-        row = data.db.getRow(resultSet);
-      }
-      data.db.closeQuery(resultSet);
     } catch (Exception ex) {
       throw new HopException("Error getting database fields", ex);
     }
@@ -235,61 +241,65 @@ public class SnowflakeBulkLoader
             + ";";
 
     logDebug("Executing SQL " + sql);
-    ResultSet putResultSet = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false);
-    IRowMeta putRowMeta = data.db.getReturnRowMeta();
-    Object[] putRow = data.db.getRow(putResultSet);
-    logDebug("=========================Put File Results======================");
-    int fileNum = 0;
-    while (putRow != null) {
-      logDebug("------------------------ File " + fileNum + "--------------------------");
-      for (int i = 0; i < putRowMeta.getFieldNames().length; i++) {
-        logDebug(putRowMeta.getFieldNames()[i] + " = " + putRowMeta.getString(putRow, i));
-        if (putRowMeta.getFieldNames()[i].equalsIgnoreCase("status")
-            && putRowMeta.getString(putRow, i).equalsIgnoreCase("ERROR")) {
-          throw new HopDatabaseException(
-              "Error putting file to Snowflake stage \n"
-                  + putRowMeta.getString(putRow, "message", ""));
-        }
+    try (ResultSet putResultSet = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
+        IRowMeta putRowMeta = data.db.getReturnRowMeta();
+        Object[] putRow = data.db.getRow(putResultSet);
+        logDebug("=========================Put File Results======================");
+        int fileNum = 0;
+        while (putRow != null) {
+          logDebug("------------------------ File " + fileNum + "--------------------------");
+          for (int i = 0; i < putRowMeta.getFieldNames().length; i++) {
+            logDebug(putRowMeta.getFieldNames()[i] + " = " + putRowMeta.getString(putRow, i));
+            if (putRowMeta.getFieldNames()[i].equalsIgnoreCase("status")
+                && putRowMeta.getString(putRow, i).equalsIgnoreCase("ERROR")) {
+              throw new HopDatabaseException(
+                  "Error putting file to Snowflake stage \n"
+                      + putRowMeta.getString(putRow, "message", ""));
+            }
+          }
+          fileNum++;
+
+          putRow = data.db.getRow(putResultSet);
       }
-      fileNum++;
-
-      putRow = data.db.getRow(putResultSet);
+      data.db.closeQuery(putResultSet);
+    } catch(SQLException exception) {
+      throw new HopDatabaseException(exception);
     }
-    data.db.closeQuery(putResultSet);
-
     String copySQL = meta.getCopyStatement(this, data.getPreviouslyOpenedFiles());
     logDebug("Executing SQL " + copySQL);
-    ResultSet resultSet = data.db.openQuery(copySQL, null, null, ResultSet.FETCH_FORWARD, false);
-    IRowMeta rowMeta = data.db.getReturnRowMeta();
+    try (ResultSet resultSet = data.db.openQuery(copySQL, null, null, ResultSet.FETCH_FORWARD, false)) {
+      IRowMeta rowMeta = data.db.getReturnRowMeta();
 
-    Object[] row = data.db.getRow(resultSet);
-    int rowsLoaded = 0;
-    int rowsLoadedField = rowMeta.indexOfValue("rows_loaded");
-    int rowsError = 0;
-    int errorField = rowMeta.indexOfValue("errors_seen");
-    logBasic("====================== Bulk Load Results======================");
-    int rowNum = 1;
-    while (row != null) {
-      logBasic("---------------------- Row " + rowNum + " ----------------------");
-      for (int i = 0; i < rowMeta.getFieldNames().length; i++) {
-        logBasic(rowMeta.getFieldNames()[i] + " = " + rowMeta.getString(row, i));
+      Object[] row = data.db.getRow(resultSet);
+      int rowsLoaded = 0;
+      int rowsLoadedField = rowMeta.indexOfValue("rows_loaded");
+      int rowsError = 0;
+      int errorField = rowMeta.indexOfValue("errors_seen");
+      logBasic("====================== Bulk Load Results======================");
+      int rowNum = 1;
+      while (row != null) {
+        logBasic("---------------------- Row " + rowNum + " ----------------------");
+        for (int i = 0; i < rowMeta.getFieldNames().length; i++) {
+          logBasic(rowMeta.getFieldNames()[i] + " = " + rowMeta.getString(row, i));
+        }
+
+        if (rowsLoadedField >= 0) {
+          rowsLoaded += rowMeta.getInteger(row, rowsLoadedField);
+        }
+
+        if (errorField >= 0) {
+          rowsError += rowMeta.getInteger(row, errorField);
+        }
+
+        rowNum++;
+        row = data.db.getRow(resultSet);
       }
-
-      if (rowsLoadedField >= 0) {
-        rowsLoaded += rowMeta.getInteger(row, rowsLoadedField);
-      }
-
-      if (errorField >= 0) {
-        rowsError += rowMeta.getInteger(row, errorField);
-      }
-
-      rowNum++;
-      row = data.db.getRow(resultSet);
+      data.db.closeQuery(resultSet);
+      setLinesOutput(rowsLoaded);
+      setLinesRejected(rowsError);
+    } catch(SQLException exception) {
+      throw new HopDatabaseException(exception);
     }
-    data.db.closeQuery(resultSet);
-    setLinesOutput(rowsLoaded);
-    setLinesRejected(rowsError);
-
     data.db.execStatement("commit");
   }
 

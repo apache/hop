@@ -469,20 +469,21 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
                   sql += " in " + variables.resolve(wSchema.getText());
                 }
 
-                ResultSet resultSet = db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false);
-                IRowMeta rowMeta = db.getReturnRowMeta();
-                Object[] row = db.getRow(resultSet);
-                int nameField = rowMeta.indexOfValue("NAME");
-                if (nameField >= 0) {
-                  while (row != null) {
-                    String stageName = rowMeta.getString(row, nameField);
-                    wStageName.add(stageName);
-                    row = db.getRow(resultSet);
+                try (ResultSet resultSet = db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
+                  IRowMeta rowMeta = db.getReturnRowMeta();
+                  Object[] row = db.getRow(resultSet);
+                  int nameField = rowMeta.indexOfValue("NAME");
+                  if (nameField >= 0) {
+                    while (row != null) {
+                      String stageName = rowMeta.getString(row, nameField);
+                      wStageName.add(stageName);
+                      row = db.getRow(resultSet);
+                    }
+                  } else {
+                    throw new HopException("Unable to find stage name field in result");
                   }
-                } else {
-                  throw new HopException("Unable to find stage name field in result");
+                  db.closeQuery(resultSet);
                 }
-                db.closeQuery(resultSet);
                 if (stageNameText != null) {
                   wStageName.setText(stageNameText);
                 }
