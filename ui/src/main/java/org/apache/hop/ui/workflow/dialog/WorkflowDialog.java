@@ -146,7 +146,6 @@ public class WorkflowDialog extends Dialog {
 
     addWorkflowTab();
     addParamTab();
-    addSettingsTab();
 
     // See if there are any other tabs to be added...
     extraTabs = new ArrayList<>();
@@ -535,36 +534,6 @@ public class WorkflowDialog extends Dialog {
 
     // ///////////////////////////////////////////////////////////
     // / END OF PARAM TAB
-    // ///////////////////////////////////////////////////////////
-  }
-
-  private void addSettingsTab() {
-    // ////////////////////////
-    // START OF SETTINGS TAB///
-    // /
-    CTabItem wSettingsTab = new CTabItem(wTabFolder, SWT.NONE);
-    wSettingsTab.setText(BaseMessages.getString(PKG, "WorkflowDialog.SettingsTab.Label"));
-
-    FormLayout logLayout = new FormLayout();
-    logLayout.marginWidth = props.getMargin();
-    logLayout.marginHeight = props.getMargin();
-
-    Composite wSettingsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wSettingsComp);
-    wSettingsComp.setLayout(logLayout);
-
-    FormData fdLogComp = new FormData();
-    fdLogComp.left = new FormAttachment(0, 0);
-    fdLogComp.top = new FormAttachment(0, 0);
-    fdLogComp.right = new FormAttachment(100, 0);
-    fdLogComp.bottom = new FormAttachment(100, 0);
-    wSettingsComp.setLayoutData(fdLogComp);
-
-    wSettingsComp.layout();
-    wSettingsTab.setControl(wSettingsComp);
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF LOG TAB
     // ///////////////////////////////////////////////////////////
   }
 
