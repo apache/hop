@@ -84,7 +84,7 @@ The resulting field values are: Ann and 53.
 |Length|Length of the field.
 |Precision|Number of floating point digits for number-type fields.
 |Format|An optional mask for converting the format of the original field.
-See Common Formats for |information on common valid date and numeric formats you can use in this transform.
+See Common Formats for information on common valid date and numeric formats you can use in this transform.
 |Group|A grouping can be a "," (10,000.00 for example) or "." (5.000,00 for example)
 |Decimal|The character used as a decimal point.
 |Currency|Currency symbol ($ or € for example)
