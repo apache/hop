@@ -66,8 +66,7 @@
     <module>drools</module>
     <module>dynamicsqlrow</module>
     <module>edi2xml</module>
-    <module>excelinput</module>
-    <module>excelwriter</module>
+    <module>excel</module>
     <module>execprocess</module>
     <module>execsqlrow</module>
     <module>fake</module>
