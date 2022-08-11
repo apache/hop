@@ -385,7 +385,7 @@ public class ExcelWriterTransformMeta
 
   public String buildFilename(IRowMeta rowMeta, Object[] row, IVariables variables) {
     int filenameFieldIdx = rowMeta.indexOfValue(variables.resolve(getFile().getFileNameField()));
-    String retval = (String) row[filenameFieldIdx];
+    String retval = variables.resolve((String) row[filenameFieldIdx]);
     String realextension = variables.resolve(file.getExtension());
 
     if (realextension != null && realextension.length() != 0) {
