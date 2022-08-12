@@ -406,6 +406,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
           String[] split = parameter.split("=", 2);
           String key = split.length > 0 ? split[0] : null;
           String value = split.length > 1 ? split[1] : null;
+          if (value != null && value.startsWith("\"") && value.endsWith("\"")) {
+            value = value.substring(1, value.length() - 1);
+          }
 
           if (key != null) {
             // We can work with this.
@@ -738,7 +741,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       //
       CommandLine cmd = new CommandLine(hopRun);
 
-      if (args.length > 0){
+      if (args.length > 0) {
         hopRun.prepareInternalOptions(new CommandLine(hopRun), args);
       }
       // Apply the system properties to the JVM

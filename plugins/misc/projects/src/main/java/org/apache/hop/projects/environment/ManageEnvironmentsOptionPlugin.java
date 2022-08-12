@@ -139,7 +139,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     LifecycleEnvironment environment = config.findEnvironment(environmentName);
     if (environment == null) {
       throw new HopException(
-          "Lifecycle environment '" + environmentName + "' doesn't exists, it can't be deleted");
+          "Lifecycle environment '" + environmentName + "' doesn't exist, it can't be deleted");
     }
     config.removeEnvironment(environmentName);
     ProjectsConfigSingleton.saveConfig();
@@ -160,7 +160,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     LifecycleEnvironment environment = config.findEnvironment(environmentName);
     if (environment == null) {
       throw new HopException(
-          "Environment '" + environmentName + "' doesn't exists, it can't be modified");
+          "Environment '" + environmentName + "' doesn't exist, it can't be modified");
     }
 
     if (updateEnvironmentDetails(environment)) {

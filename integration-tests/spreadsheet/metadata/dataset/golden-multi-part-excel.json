@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-multi-part-excel.csv",
+  "name": "golden-multi-part-excel",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 100,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "short_filename"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "value"
+    }
+  ],
+  "folder_name": "${HOP_DATASETS_FOLDER}"
+}
