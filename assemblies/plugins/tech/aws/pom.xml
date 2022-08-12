@@ -37,8 +37,8 @@
     <properties>
         <!-- Third-party dependencies -->
         <guava.version>31.1-jre</guava.version>
-        <aws-java-sdk-s3.version>1.11.974</aws-java-sdk-s3.version>
-        <aws-java-sdk-core.version>1.11.974</aws-java-sdk-core.version>
+        <aws-java-sdk-s3.version>1.12.279</aws-java-sdk-s3.version>
+        <aws-java-sdk-core.version>1.12.279</aws-java-sdk-core.version>
 
         <!-- Test dependencies -->
         <mockito.version>1.10.19</mockito.version>
