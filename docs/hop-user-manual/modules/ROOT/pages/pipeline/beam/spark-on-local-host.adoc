@@ -65,6 +65,7 @@ Following files have to be added to the `/plugins/engines/beam/lib` folder, you 
 Due to version conflicts following file has to be fetched from maven central
 
 - jackson-module-scala* (https://repo1.maven.org/maven2/com/fasterxml/jackson/module/jackson-module-scala_2.12/2.13.3/jackson-module-scala_2.12-2.13.3.jar[Direct link])
+- commons-text* (https://repo1.maven.org/maven2/org/apache/commons/commons-text/1.9/commons-text-1.9.jar[Direct link])
 
 === Rebuild the fat jar
 
