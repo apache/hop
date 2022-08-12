@@ -63,7 +63,7 @@ The available options are listed in more detail in the table below:
 
 [options="header"]
 |===
-|Short|Extended|Description
+|Short|Extended a|Description
 |e|environment|The name of the environment to use.
 Check the xref:projects/projects-environments.adoc[documentation on environments] for more details.
 |f|file|The filename of the workflow or pipeline to run
@@ -71,7 +71,7 @@ Check the xref:projects/projects-environments.adoc[documentation on environments
 |j|project|The name of the project to use when running a pipeline or workflow
 |l|level|The debug level, one of NONE, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
 |o|printoptions|Print the used options
-|p|parameters|A comma separated list of PARAMETER=VALUE pairs
+|p|parameters a|A comma separated list of PARAMETER=VALUE pairs
 |r|runconfig|The name of the Run Configuration to use.
 Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[documentation on run configurations] for more details.
 |s|system-properties|A comma separated list of KEY=VALUE pairs
@@ -82,3 +82,50 @@ Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.
 ----
 ./hop-run.sh -j=transforms -r=local -f=/path/to/worklow/file.hwf
 ----
+
+=== Parameter Examples
+This is a list of examples on how the parameters on this command are parsed
+
+==== Normal Usage
+----
+--parameters=key1=value1,key2=value2
+----
+Result:
+[options="header"]
+|===
+|Key|value
+|key1|value1
+|key2|value2
+|===
+==== Spaces in value Usage
+----
+--parameters=key1="This value contains spaces",key2=value2
+----
+Result:
+[options="header"]
+|===
+|Key|value
+|key1|This value contains spaces
+|key2|value2
+|===
+
+==== Commas in value Usage
+----
+--parameters=key1=\"value1,value2\"
+----
+Result:
+[options="header"]
+|===
+|Key|value
+|key1|value1,value2
+|===
+==== Forcing commas in value
+----
+--parameters=key1="\"\"String with spaces\"\""
+----
+Result:
+[options="header"]
+|===
+|Key|value
+|key1|"String with spaces"
+|===
