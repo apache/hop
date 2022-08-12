@@ -136,7 +136,7 @@ public class ManageLifecyclesOptionPlugin implements IConfigOptions {
     ProjectLifecycle lifecycle = config.findLifecycle(lifecycleName);
     if (lifecycle == null) {
       throw new HopException(
-          "Project lifecycle '" + lifecycleName + "' doesn't exists, it can't be deleted");
+          "Project lifecycle '" + lifecycleName + "' doesn't exist, it can't be deleted");
     }
 
     config.removeLifecycle(lifecycleName);
@@ -151,7 +151,7 @@ public class ManageLifecyclesOptionPlugin implements IConfigOptions {
     ProjectLifecycle lifecycle = config.findLifecycle(lifecycleName);
     if (lifecycle == null) {
       throw new HopException(
-          "Project lifecycle '" + lifecycleName + "' doesn't exists, it can't be modified");
+          "Project lifecycle '" + lifecycleName + "' doesn't exist, it can't be modified");
     }
 
     if (lifecycleEnvironments != null) {

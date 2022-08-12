@@ -506,7 +506,7 @@ public class ProjectDialog extends Dialog {
         throw new HopException("Please specify a home folder for your project");
       }
 
-      // If the home folder doesn't exists and project is new aks if want it created
+      // If the home folder doesn't exist and project is new aks if want it created
       if (!HopVfs.getFileObject(variables.resolve(homeFolder)).exists() && !this.editMode) {
         MessageBox box =
             new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
