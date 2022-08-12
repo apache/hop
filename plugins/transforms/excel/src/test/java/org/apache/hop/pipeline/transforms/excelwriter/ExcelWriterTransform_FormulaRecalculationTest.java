@@ -52,6 +52,8 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
     doReturn(templateMock).when(meta).getTemplate();
 
     data = new ExcelWriterTransformData();
+    ExcelWriterWorkbookDefinition workbookDefinition = new ExcelWriterWorkbookDefinition(null,null,null,null,0,0);
+    data.currentWorkbookDefinition = workbookDefinition;
   }
 
   private void setupTransform() throws Exception {
@@ -85,32 +87,32 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
   }
 
   private void forcesToRecalculate_Sxssf(String property, boolean expectedFlag) throws Exception {
-    data.wb = spy(new SXSSFWorkbook());
+    data.currentWorkbookDefinition.setWorkbook(mock(SXSSFWorkbook.class));
 
     setupTransform();
 
     transform.setVariable(ExcelWriterTransform.STREAMER_FORCE_RECALC_PROP_NAME, property);
-    transform.recalculateAllWorkbookFormulas();
+    transform.recalculateAllWorkbookFormulas(data.currentWorkbookDefinition);
     if (expectedFlag) {
-      verify(data.wb).setForceFormulaRecalculation(true);
+      verify(data.currentWorkbookDefinition.getWorkbook()).setForceFormulaRecalculation(true);
     } else {
-      verify(data.wb, never()).setForceFormulaRecalculation(anyBoolean());
+      verify(data.currentWorkbookDefinition.getWorkbook(), never()).setForceFormulaRecalculation(anyBoolean());
     }
   }
 
   @Test
   public void forcesToRecalculate_Hssf() throws Exception {
-    data.wb = new HSSFWorkbook();
-    data.wb.createSheet("sheet1");
-    data.wb.createSheet("sheet2");
+    data.currentWorkbookDefinition.setWorkbook(new HSSFWorkbook());
+    data.currentWorkbookDefinition.getWorkbook().createSheet("sheet1");
+    data.currentWorkbookDefinition.getWorkbook().createSheet("sheet2");
 
     setupTransform();
-    transform.recalculateAllWorkbookFormulas();
+    transform.recalculateAllWorkbookFormulas(data.currentWorkbookDefinition);
 
-    if (!data.wb.getForceFormulaRecalculation()) {
-      int sheets = data.wb.getNumberOfSheets();
+    if (!data.currentWorkbookDefinition.getWorkbook().getForceFormulaRecalculation()) {
+      int sheets = data.currentWorkbookDefinition.getWorkbook().getNumberOfSheets();
       for (int i = 0; i < sheets; i++) {
-        Sheet sheet = data.wb.getSheetAt(i);
+        Sheet sheet = data.currentWorkbookDefinition.getWorkbook().getSheetAt(i);
         assertTrue(
             "Sheet #" + i + ": " + sheet.getSheetName(), sheet.getForceFormulaRecalculation());
       }

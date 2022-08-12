@@ -17,27 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+
+import java.util.ArrayList;
 
 public class ExcelWriterTransformData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;
-  public int splitnr;
-  public int datalines;
   public String realSheetname;
   public String realTemplateSheetName;
   public boolean firstFileOpened;
-  public FileObject file;
-  public int posX;
-  public int posY;
-  public Sheet sheet;
-  public Workbook wb;
+  public ArrayList<ExcelWriterWorkbookDefinition> usedFiles = new ArrayList<>();
+  public ExcelWriterWorkbookDefinition currentWorkbookDefinition;
   public int[] fieldnrs;
   public IRowMeta inputRowMeta;
   public int[] commentfieldnrs;
@@ -52,31 +45,8 @@ public class ExcelWriterTransformData extends BaseTransformData implements ITran
   public String realPassword;
   public String realProtectedBy;
   public int[] linkfieldnrs;
-  private CellStyle[] cellStyleCache;
-  private CellStyle[] cellLinkStyleCache;
 
   public ExcelWriterTransformData() {
     super();
-  }
-
-  public void clearStyleCache(int nrFields) {
-    cellStyleCache = new CellStyle[nrFields];
-    cellLinkStyleCache = new CellStyle[nrFields];
-  }
-
-  public void cacheStyle(int fieldNr, CellStyle style) {
-    cellStyleCache[fieldNr] = style;
-  }
-
-  public void cacheLinkStyle(int fieldNr, CellStyle style) {
-    cellLinkStyleCache[fieldNr] = style;
-  }
-
-  public CellStyle getCachedStyle(int fieldNr) {
-    return cellStyleCache[fieldNr];
-  }
-
-  public CellStyle getCachedLinkStyle(int fieldNr) {
-    return cellLinkStyleCache[fieldNr];
   }
 }

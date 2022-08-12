@@ -64,6 +64,7 @@ public class ExcelWriterTransformTest {
 
   private ExcelWriterTransformMeta metaMock;
   private ExcelWriterTransformData dataMock;
+  ExcelWriterFileField fieldMock;
 
   private File templateFile;
 
@@ -80,13 +81,17 @@ public class ExcelWriterTransformTest {
 
     metaMock = mock(ExcelWriterTransformMeta.class);
 
-    ExcelWriterFileField fieldMock = mock(ExcelWriterFileField.class);
+    fieldMock = mock(ExcelWriterFileField.class);
     doReturn(fieldMock).when(metaMock).getFile();
 
     ExcelWriterTemplateField templateMock = mock(ExcelWriterTemplateField.class);
     doReturn(templateMock).when(metaMock).getTemplate();
 
-    dataMock = mock(ExcelWriterTransformData.class);
+    dataMock = new ExcelWriterTransformData();
+    ExcelWriterWorkbookDefinition workbookDefinition =
+        new ExcelWriterWorkbookDefinition("string", null, null, null, 0, 0);
+    dataMock.currentWorkbookDefinition = workbookDefinition;
+    dataMock.usedFiles.add(workbookDefinition);
 
     transform =
         spy(
@@ -192,15 +197,15 @@ public class ExcelWriterTransformTest {
     when(dataMock.inputRowMeta.getValueMeta(anyInt())).thenReturn(vmi);
 
     when(transform.buildFilename(0)).thenReturn(path);
-
+    dataMock.usedFiles.add(dataMock.currentWorkbookDefinition);
     transform.prepareNextOutputFile(any(Object[].class));
 
-    dataMock.posY = 1;
-    dataMock.sheet = spy(dataMock.sheet);
-    transform.writeNextLine(new Object[] {12});
+    dataMock.currentWorkbookDefinition.setPosY(1);
+    dataMock.currentWorkbookDefinition.setSheet(spy(dataMock.currentWorkbookDefinition.getSheet()));
+    transform.writeNextLine(dataMock.currentWorkbookDefinition, new Object[] {12});
 
-    verify(dataMock.sheet, times(0)).createRow(1);
-    verify(dataMock.sheet).getRow(1);
+    verify(dataMock.currentWorkbookDefinition.getSheet(), times(0)).createRow(1);
+    verify(dataMock.currentWorkbookDefinition.getSheet()).getRow(1);
   }
 
   @Test
@@ -460,19 +465,23 @@ public class ExcelWriterTransformTest {
 
     transform.prepareNextOutputFile(any(Object[].class));
 
-    assertNull(dataMock.sheet.getRow(1));
+    assertNull(dataMock.currentWorkbookDefinition.getSheet().getRow(1));
 
     // Unfortunately HSSFSheet is final and cannot be mocked, so we'll skip some validations
-    dataMock.posY = 1;
-    if (null != dataMock.sheet && !(dataMock.sheet instanceof HSSFSheet)) {
-      dataMock.sheet = spy(dataMock.sheet);
+    dataMock.currentWorkbookDefinition.setPosY(1);
+    if (null != dataMock.currentWorkbookDefinition.getSheet()
+        && !(dataMock.currentWorkbookDefinition.getSheet() instanceof HSSFSheet)) {
+      dataMock.currentWorkbookDefinition.setSheet(
+          spy(dataMock.currentWorkbookDefinition.getSheet()));
     }
 
-    transform.writeNextLine(vObjArr);
+    transform.writeNextLine(dataMock.currentWorkbookDefinition, vObjArr);
 
-    if (null != dataMock.sheet && !(dataMock.sheet instanceof HSSFSheet)) {
+    if (null != dataMock.currentWorkbookDefinition.getSheet()
+        && !(dataMock.currentWorkbookDefinition.getSheet() instanceof HSSFSheet)) {
       verify(transform)
           .writeField(
+              eq(dataMock.currentWorkbookDefinition),
               eq(vObj),
               eq(vmi),
               eq(fields.get(0)),
@@ -482,11 +491,11 @@ public class ExcelWriterTransformTest {
               eq(0),
               eq(Boolean.FALSE));
 
-      verify(dataMock.sheet).createRow(anyInt());
-      verify(dataMock.sheet).getRow(1);
+      verify(dataMock.currentWorkbookDefinition.getSheet()).createRow(anyInt());
+      verify(dataMock.currentWorkbookDefinition.getSheet()).getRow(1);
     }
 
-    assertNotNull(dataMock.sheet.getRow(1));
+    assertNotNull(dataMock.currentWorkbookDefinition.getSheet().getRow(1));
   }
 
   /**

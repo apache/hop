@@ -21,6 +21,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -167,20 +168,37 @@ public class ExcelWriterTransform
     }
 
     if (r != null) {
+      // check if the filename has changed between rows
+      if (meta.getFile().isFileNameInField()
+          && !data.currentWorkbookDefinition.getFile().equals(getFileLocation(r))) {
+        // check if the file is already used and switch or create new file
+        boolean fileFound = false;
+        for (int i = 0; i < data.usedFiles.size(); i++) {
+          if (data.usedFiles.get(i).getFile().equals(getFileLocation(r))) {
+            fileFound = true;
+            data.currentWorkbookDefinition = data.usedFiles.get(i);
+            break;
+          }
+        }
+        if (!fileFound) {
+          prepareNextOutputFile(r);
+        }
+      }
+
       // File Splitting Feature, is it time to create a new file?
       if (!meta.isAppendLines()
           && !meta.getFile().isFileNameInField()
           && meta.getFile().getSplitEvery() > 0
-          && data.datalines > 0
-          && data.datalines % meta.getFile().getSplitEvery() == 0) {
-        closeOutputFile();
+          && data.currentWorkbookDefinition.getDatalines() > 0
+          && data.currentWorkbookDefinition.getDatalines() % meta.getFile().getSplitEvery() == 0) {
         prepareNextOutputFile(r);
       }
 
-      writeNextLine(r);
+      writeNextLine(data.currentWorkbookDefinition, r);
       incrementLinesOutput();
 
-      data.datalines++;
+      data.currentWorkbookDefinition.setDatalines(
+          data.currentWorkbookDefinition.getDatalines() + 1);
 
       // pass on the row unchanged
       putRow(data.outputRowMeta, r);
@@ -191,30 +209,22 @@ public class ExcelWriterTransform
       }
       return true;
     } else {
-      // after the last row, the (last) file is closed
-      if (data.wb != null) {
-        closeOutputFile();
+      // Close all files and dispose objects
+      for (ExcelWriterWorkbookDefinition workbookDefinition : data.usedFiles) {
+        closeOutputFile(workbookDefinition);
       }
+      data.usedFiles.clear();
       setOutputDone();
-      clearWorkbookMem();
       return false;
     }
   }
 
-  // clears all memory that POI may hold
-  private void clearWorkbookMem() {
-    data.file = null;
-    data.sheet = null;
-    data.wb = null;
-    data.clearStyleCache(0);
-  }
-
-  private void createParentFolder(String filename) throws Exception {
+  private void createParentFolder(FileObject filename) throws Exception {
     // Check for parent folder
     FileObject parentfolder = null;
     try {
       // Get parent folder
-      parentfolder = HopVfs.getFileObject(filename).getParent();
+      parentfolder = filename.getParent();
       if (parentfolder.exists()) {
         if (isDetailed()) {
           logDetailed(
@@ -258,37 +268,37 @@ public class ExcelWriterTransform
     }
   }
 
-  private void closeOutputFile() throws HopException {
+  private void closeOutputFile(ExcelWriterWorkbookDefinition file) throws HopException {
     try (BufferedOutputStreamWithCloseDetection out =
-        new BufferedOutputStreamWithCloseDetection(HopVfs.getOutputStream(data.file, false))) {
+        new BufferedOutputStreamWithCloseDetection(HopVfs.getOutputStream(file.getFile(), false))) {
       // may have to write a footer here
       if (meta.isFooterEnabled()) {
-        writeHeader();
+        writeHeader(file, file.getSheet(), file.getPosX(), file.getPosY());
       }
       // handle auto size for columns
       if (meta.getFile().isAutosizecolums()) {
 
         // track all columns for autosizing if using streaming worksheet
-        if (data.sheet instanceof SXSSFSheet) {
-          ((SXSSFSheet) data.sheet).trackAllColumnsForAutoSizing();
+        if (file.getSheet() instanceof SXSSFSheet) {
+          ((SXSSFSheet) file.getSheet()).trackAllColumnsForAutoSizing();
         }
 
         if (meta.getOutputFields() == null || meta.getOutputFields().isEmpty()) {
           for (int i = 0; i < data.inputRowMeta.size(); i++) {
-            data.sheet.autoSizeColumn(i + data.startingCol);
+            file.getSheet().autoSizeColumn(i + data.startingCol);
           }
         } else {
           for (int i = 0; i < meta.getOutputFields().size(); i++) {
-            data.sheet.autoSizeColumn(i + data.startingCol);
+            file.getSheet().autoSizeColumn(i + data.startingCol);
           }
         }
       }
       // force recalculation of formulas if requested
       if (meta.isForceFormulaRecalculation()) {
-        recalculateAllWorkbookFormulas();
+        recalculateAllWorkbookFormulas(data.currentWorkbookDefinition);
       }
 
-      data.wb.write(out);
+      file.getWorkbook().write(out);
     } catch (IOException e) {
       throw new HopException(e);
     }
@@ -296,12 +306,15 @@ public class ExcelWriterTransform
 
   // recalculates all formula fields for the entire workbook
   // package-local visibility for testing purposes
-  void recalculateAllWorkbookFormulas() {
-    if (data.wb instanceof XSSFWorkbook) {
+  void recalculateAllWorkbookFormulas(ExcelWriterWorkbookDefinition workbookDefinition) {
+    if (workbookDefinition.getWorkbook() instanceof XSSFWorkbook) {
       // XLSX needs full reevaluation
-      FormulaEvaluator evaluator = data.wb.getCreationHelper().createFormulaEvaluator();
-      for (int sheetNum = 0; sheetNum < data.wb.getNumberOfSheets(); sheetNum++) {
-        Sheet sheet = data.wb.getSheetAt(sheetNum);
+      FormulaEvaluator evaluator =
+          workbookDefinition.getWorkbook().getCreationHelper().createFormulaEvaluator();
+      for (int sheetNum = 0;
+          sheetNum < workbookDefinition.getWorkbook().getNumberOfSheets();
+          sheetNum++) {
+        Sheet sheet = workbookDefinition.getWorkbook().getSheetAt(sheetNum);
         for (Row r : sheet) {
           for (Cell c : r) {
             if (c.getCellType() == CellType.FORMULA) {
@@ -310,61 +323,76 @@ public class ExcelWriterTransform
           }
         }
       }
-    } else if (data.wb instanceof HSSFWorkbook) {
+    } else if (workbookDefinition.getWorkbook() instanceof HSSFWorkbook) {
       // XLS supports a "dirty" flag to have excel recalculate everything when a sheet is opened
-      for (int sheetNum = 0; sheetNum < data.wb.getNumberOfSheets(); sheetNum++) {
-        HSSFSheet sheet = ((HSSFWorkbook) data.wb).getSheetAt(sheetNum);
+      for (int sheetNum = 0;
+          sheetNum < workbookDefinition.getWorkbook().getNumberOfSheets();
+          sheetNum++) {
+        HSSFSheet sheet = ((HSSFWorkbook) workbookDefinition.getWorkbook()).getSheetAt(sheetNum);
         sheet.setForceFormulaRecalculation(true);
       }
     } else {
       String forceRecalc = getVariable(STREAMER_FORCE_RECALC_PROP_NAME, "N");
       if ("Y".equals(forceRecalc)) {
-        data.wb.setForceFormulaRecalculation(true);
+        workbookDefinition.getWorkbook().setForceFormulaRecalculation(true);
       }
     }
   }
 
-  public void writeNextLine(Object[] r) throws HopException {
+  public void writeNextLine(ExcelWriterWorkbookDefinition workbookDefinition, Object[] r)
+      throws HopException {
     try {
-      openLine();
-      Row xlsRow = data.sheet.getRow(data.posY);
+      openLine(workbookDefinition.getSheet(), workbookDefinition.getPosY());
+      Row xlsRow = workbookDefinition.getSheet().getRow(workbookDefinition.getPosY());
       if (xlsRow == null) {
-        xlsRow = data.sheet.createRow(data.posY);
+        xlsRow = workbookDefinition.getSheet().createRow(workbookDefinition.getPosY());
       }
       Object v = null;
       if (meta.getOutputFields() == null || meta.getOutputFields().isEmpty()) {
         //  Write all values in stream to text file.
         int nr = data.inputRowMeta.size();
-        data.clearStyleCache(nr);
+        workbookDefinition.clearStyleCache(nr);
         data.linkfieldnrs = new int[nr];
         data.commentfieldnrs = new int[nr];
+        int x = data.currentWorkbookDefinition.getPosX();
         for (int i = 0; i < nr; i++) {
           v = r[i];
-          writeField(v, data.inputRowMeta.getValueMeta(i), null, xlsRow, data.posX++, r, i, false);
-        }
-        // go to the next line
-        data.posX = data.startingCol;
-        data.posY++;
-      } else {
-        /*
-         * Only write the fields specified!
-         */
-        for (int i = 0; i < meta.getOutputFields().size(); i++) {
-          v = r[data.fieldnrs[i]];
-          ExcelWriterOutputField field = meta.getOutputFields().get(i);
           writeField(
+              workbookDefinition,
               v,
-              data.inputRowMeta.getValueMeta(data.fieldnrs[i]),
-              field,
+              data.inputRowMeta.getValueMeta(i),
+              null,
               xlsRow,
-              data.posX++,
+              x++,
               r,
               i,
               false);
         }
         // go to the next line
-        data.posX = data.startingCol;
-        data.posY++;
+        workbookDefinition.setPosX(data.startingCol);
+        workbookDefinition.incrementY();
+      } else {
+        /*
+         * Only write the fields specified!
+         */
+        int x = data.currentWorkbookDefinition.getPosX();
+        for (int i = 0; i < meta.getOutputFields().size(); i++) {
+          v = r[data.fieldnrs[i]];
+          ExcelWriterOutputField field = meta.getOutputFields().get(i);
+          writeField(
+              workbookDefinition,
+              v,
+              data.inputRowMeta.getValueMeta(data.fieldnrs[i]),
+              field,
+              xlsRow,
+              x++,
+              r,
+              i,
+              false);
+        }
+        // go to the next line
+        workbookDefinition.setPosX(data.startingCol);
+        workbookDefinition.incrementY();
       }
     } catch (Exception e) {
       logError("Error writing line :" + e.toString());
@@ -372,11 +400,12 @@ public class ExcelWriterTransform
     }
   }
 
-  private Comment createCellComment(String author, String comment) {
+  private Comment createCellComment(
+      ExcelWriterWorkbookDefinition workbookDefinition, String author, String comment) {
     // comments only supported for XLSX
-    if (data.sheet instanceof XSSFSheet) {
-      CreationHelper factory = data.wb.getCreationHelper();
-      Drawing drawing = data.sheet.createDrawingPatriarch();
+    if (workbookDefinition.getSheet() instanceof XSSFSheet) {
+      CreationHelper factory = workbookDefinition.getWorkbook().getCreationHelper();
+      Drawing drawing = workbookDefinition.getSheet().createDrawingPatriarch();
 
       ClientAnchor anchor = factory.createClientAnchor();
       Comment cmt = drawing.createCellComment(anchor);
@@ -392,14 +421,15 @@ public class ExcelWriterTransform
    * @param reference
    * @return the cell the reference points to
    */
-  private Cell getCellFromReference(String reference) {
+  private Cell getCellFromReference(
+      ExcelWriterWorkbookDefinition workbookDefinition, String reference) {
 
     CellReference cellRef = new CellReference(reference);
     String sheetName = cellRef.getSheetName();
 
-    Sheet sheet = data.sheet;
+    Sheet sheet = workbookDefinition.getSheet();
     if (!Utils.isEmpty(sheetName)) {
-      sheet = data.wb.getSheet(sheetName);
+      sheet = workbookDefinition.getWorkbook().getSheet(sheetName);
     }
     if (sheet == null) {
       return null;
@@ -414,6 +444,7 @@ public class ExcelWriterTransform
 
   // VisibleForTesting
   void writeField(
+      ExcelWriterWorkbookDefinition workbookDefinition,
       Object v,
       IValueMeta vMeta,
       ExcelWriterOutputField excelField,
@@ -436,8 +467,8 @@ public class ExcelWriterTransform
       if (!(cellExisted && meta.isLeaveExistingStylesUnchanged())) {
 
         // if the style of this field is cached, reuse it
-        if (!isTitle && data.getCachedStyle(fieldNr) != null) {
-          cell.setCellStyle(data.getCachedStyle(fieldNr));
+        if (!isTitle && workbookDefinition.getCachedStyle(fieldNr) != null) {
+          cell.setCellStyle(workbookDefinition.getCachedStyle(fieldNr));
         } else {
           // apply style if requested
           if (excelField != null) {
@@ -451,7 +482,7 @@ public class ExcelWriterTransform
             }
 
             if (styleRef != null) {
-              Cell styleCell = getCellFromReference(styleRef);
+              Cell styleCell = getCellFromReference(workbookDefinition, styleRef);
               if (styleCell != null && cell != styleCell) {
                 cell.setCellStyle(styleCell.getCellStyle());
               }
@@ -463,11 +494,11 @@ public class ExcelWriterTransform
               && excelField != null
               && !Utils.isEmpty(excelField.getFormat())
               && !excelField.getFormat().startsWith("Image")) {
-            setDataFormat(excelField.getFormat(), cell);
+            setDataFormat(workbookDefinition, excelField.getFormat(), cell);
           }
           // cache it for later runs
           if (!isTitle) {
-            data.cacheStyle(fieldNr, cell.getCellStyle());
+            workbookDefinition.cacheStyle(fieldNr, cell.getCellStyle());
           }
         }
       }
@@ -479,7 +510,7 @@ public class ExcelWriterTransform
                 .getValueMeta(data.linkfieldnrs[fieldNr])
                 .getString(row[data.linkfieldnrs[fieldNr]]);
         if (!Utils.isEmpty(link)) {
-          CreationHelper ch = data.wb.getCreationHelper();
+          CreationHelper ch = workbookDefinition.getWorkbook().getCreationHelper();
           // set the link on the cell depending on link type
           Hyperlink hyperLink = null;
           if (link.startsWith("http:") || link.startsWith("https:") || link.startsWith("ftp:")) {
@@ -502,11 +533,12 @@ public class ExcelWriterTransform
           // if cell existed and existing cell's styles should not be changed, don't
           if (!(cellExisted && meta.isLeaveExistingStylesUnchanged())) {
 
-            if (data.getCachedLinkStyle(fieldNr) != null) {
-              cell.setCellStyle(data.getCachedLinkStyle(fieldNr));
+            if (workbookDefinition.getCachedLinkStyle(fieldNr) != null) {
+              cell.setCellStyle(workbookDefinition.getCachedLinkStyle(fieldNr));
             } else {
-              Font origFont = data.wb.getFontAt(cell.getCellStyle().getFontIndex());
-              Font hlinkFont = data.wb.createFont();
+              Font origFont =
+                  workbookDefinition.getWorkbook().getFontAt(cell.getCellStyle().getFontIndex());
+              Font hlinkFont = workbookDefinition.getWorkbook().createFont();
               // reproduce original font characteristics
 
               hlinkFont.setBold(origFont.getBold());
@@ -522,7 +554,7 @@ public class ExcelWriterTransform
               CellStyle style = cell.getCellStyle();
               style.setFont(hlinkFont);
               cell.setCellStyle(style);
-              data.cacheLinkStyle(fieldNr, cell.getCellStyle());
+              workbookDefinition.cacheLinkStyle(fieldNr, cell.getCellStyle());
             }
           }
         }
@@ -532,7 +564,7 @@ public class ExcelWriterTransform
       if (!isTitle
           && excelField != null
           && data.commentfieldnrs[fieldNr] >= 0
-          && data.wb instanceof XSSFWorkbook) {
+          && workbookDefinition.getWorkbook() instanceof XSSFWorkbook) {
         String comment =
             data.inputRowMeta
                 .getValueMeta(data.commentfieldnrs[fieldNr])
@@ -544,7 +576,7 @@ public class ExcelWriterTransform
                       .getValueMeta(data.commentauthorfieldnrs[fieldNr])
                       .getString(row[data.commentauthorfieldnrs[fieldNr]])
                   : "Apache Hop";
-          cell.setCellComment(createCellComment(author, comment));
+          cell.setCellComment(createCellComment(workbookDefinition, author, comment));
         }
       }
       // cell is getting a formula value or static content
@@ -580,7 +612,13 @@ public class ExcelWriterTransform
         }
       }
     } catch (Exception e) {
-      logError("Error writing field (" + data.posX + "," + data.posY + ") : " + e.toString());
+      logError(
+          "Error writing field ("
+              + workbookDefinition.getPosX()
+              + ","
+              + workbookDefinition.getPosY()
+              + ") : "
+              + e.toString());
       logError(Const.getStackTracker(e));
       throw new HopException(e);
     }
@@ -592,7 +630,8 @@ public class ExcelWriterTransform
    * @param excelFieldFormat the specified format
    * @param cell the cell to set up format
    */
-  private void setDataFormat(String excelFieldFormat, Cell cell) {
+  private void setDataFormat(
+      ExcelWriterWorkbookDefinition workbookDefinition, String excelFieldFormat, Cell cell) {
     if (log.isDebug()) {
       logDebug(
           BaseMessages.getString(
@@ -603,9 +642,9 @@ public class ExcelWriterTransform
               cell.getRowIndex()));
     }
 
-    DataFormat format = data.wb.createDataFormat();
+    DataFormat format = workbookDefinition.getWorkbook().createDataFormat();
     short formatIndex = format.getFormat(excelFieldFormat);
-    CellStyle style = data.wb.createCellStyle();
+    CellStyle style = workbookDefinition.getWorkbook().createCellStyle();
     style.cloneStyleFrom(cell.getCellStyle());
     style.setDataFormat(formatIndex);
     cell.setCellStyle(style);
@@ -665,36 +704,39 @@ public class ExcelWriterTransform
       if (numOfFields == 0) {
         numOfFields = data.inputRowMeta != null ? data.inputRowMeta.size() : 0;
       }
-      data.clearStyleCache(numOfFields);
 
-      // build new filename
-      String buildFilename =
-          (!meta.getFile().isFileNameInField())
-              ? buildFilename(data.splitnr)
-              : buildFilename(data.inputRowMeta, row);
+      int splitNr = 0;
+      if (!meta.getFile().isFileNameInField()) {
+        splitNr = getNextSplitNr(meta.getFile().getFileName());
+      }
 
-      data.file = HopVfs.getFileObject(buildFilename);
+      FileObject file = getFileLocation(row);
 
-      if (!HopVfs.getFileObject(buildFilename).getParent().exists()
-          && meta.getFile().isCreateParentFolder()) {
-        logDebug("Create parent directory for " + buildFilename + " because it does not exist.");
-        createParentFolder(buildFilename);
+      if (!file.getParent().exists() && meta.getFile().isCreateParentFolder()) {
+        logDebug(
+            "Create parent directory for "
+                + file.getName().toString()
+                + " because it does not exist.");
+        createParentFolder(file);
       }
 
       if (log.isDebug()) {
         logDebug(
-            BaseMessages.getString(PKG, "ExcelWriterTransform.Log.OpeningFile", buildFilename));
+            BaseMessages.getString(
+                PKG, "ExcelWriterTransform.Log.OpeningFile", file.getName().toString()));
       }
 
       // determine whether existing file must be deleted
-      if (data.file.exists() && data.createNewFile && !data.file.delete()) {
+      if (file.exists() && data.createNewFile && !file.delete()) {
         if (log.isBasic()) {
           logBasic(
               BaseMessages.getString(
-                  PKG, "ExcelWriterTransform.Log.CouldNotDeleteStaleFile", buildFilename));
+                  PKG,
+                  "ExcelWriterTransform.Log.CouldNotDeleteStaleFile",
+                  file.getName().toString()));
         }
         setErrors(1);
-        throw new HopException("Could not delete stale file " + buildFilename);
+        throw new HopException("Could not delete stale file " + file.getName().toString());
       }
 
       // adding filename to result
@@ -703,7 +745,7 @@ public class ExcelWriterTransform
         ResultFile resultFile =
             new ResultFile(
                 ResultFile.FILE_TYPE_GENERAL,
-                data.file,
+                file,
                 getPipelineMeta().getName(),
                 getTransformName());
         resultFile.setComment(
@@ -712,7 +754,7 @@ public class ExcelWriterTransform
       }
       boolean appendingToSheet = true;
       // if now no file exists we must create it as indicated by user
-      if (!data.file.exists()) {
+      if (!file.exists()) {
         // if template file is enabled
         if (meta.getTemplate().isTemplateEnabled()) {
           // handle template case (must have same format)
@@ -730,7 +772,7 @@ public class ExcelWriterTransform
 
           if (HopVfs.getFileObject(data.realTemplateFileName).exists()) {
             // if the template exists just copy the template in place
-            copyFile(HopVfs.getFileObject(data.realTemplateFileName), data.file);
+            copyFile(HopVfs.getFileObject(data.realTemplateFileName), file);
           } else {
             // template is missing, log it and get out
             if (log.isBasic()) {
@@ -748,7 +790,7 @@ public class ExcelWriterTransform
                   ? new XSSFWorkbook()
                   : new HSSFWorkbook();
           BufferedOutputStreamWithCloseDetection out =
-              new BufferedOutputStreamWithCloseDetection(HopVfs.getOutputStream(data.file, false));
+              new BufferedOutputStreamWithCloseDetection(HopVfs.getOutputStream(file, false));
           wb.createSheet(data.realSheetname);
           wb.write(out);
           out.close();
@@ -757,34 +799,37 @@ public class ExcelWriterTransform
         appendingToSheet = false;
       }
 
+      // Start creating the workbook
+      Workbook wb;
+      Sheet sheet;
       // file is guaranteed to be in place now
       if (meta.getFile().getExtension().equalsIgnoreCase("xlsx")) {
-        XSSFWorkbook xssfWorkbook = new XSSFWorkbook(HopVfs.getInputStream(data.file));
+        XSSFWorkbook xssfWorkbook = new XSSFWorkbook(HopVfs.getInputStream(file));
         if (meta.getFile().isStreamingData() && !meta.getTemplate().isTemplateEnabled()) {
-          data.wb = new SXSSFWorkbook(xssfWorkbook, 100);
+          wb = new SXSSFWorkbook(xssfWorkbook, 100);
         } else {
           // Initialize it later after writing header/template because SXSSFWorkbook can't
           // read/rewrite existing data,
           // only append.
-          data.wb = xssfWorkbook;
+          wb = xssfWorkbook;
         }
       } else {
-        data.wb = new HSSFWorkbook(HopVfs.getInputStream(data.file));
+        wb = new HSSFWorkbook(HopVfs.getInputStream(file));
       }
 
-      int existingActiveSheetIndex = data.wb.getActiveSheetIndex();
+      int existingActiveSheetIndex = wb.getActiveSheetIndex();
       int replacingSheetAt = -1;
 
-      if (data.wb.getSheet(data.realSheetname) != null && data.createNewSheet) {
+      if (wb.getSheet(data.realSheetname) != null && data.createNewSheet) {
         // sheet exists, replace or reuse as indicated by user
-        replacingSheetAt = data.wb.getSheetIndex(data.wb.getSheet(data.realSheetname));
-        data.wb.removeSheetAt(replacingSheetAt);
+        replacingSheetAt = wb.getSheetIndex(wb.getSheet(data.realSheetname));
+        wb.removeSheetAt(replacingSheetAt);
       }
 
       // if sheet is now missing, we need to create a new one
-      if (data.wb.getSheet(data.realSheetname) == null) {
+      if (wb.getSheet(data.realSheetname) == null) {
         if (meta.getTemplate().isTemplateSheetEnabled()) {
-          Sheet ts = data.wb.getSheet(data.realTemplateSheetName);
+          Sheet ts = wb.getSheet(data.realTemplateSheetName);
           // if template sheet is missing, break
           if (ts == null) {
             throw new HopException(
@@ -793,37 +838,37 @@ public class ExcelWriterTransform
                     "ExcelWriterTransform.Exception.TemplateNotFound",
                     data.realTemplateSheetName));
           }
-          data.sheet = data.wb.cloneSheet(data.wb.getSheetIndex(ts));
-          data.wb.setSheetName(data.wb.getSheetIndex(data.sheet), data.realSheetname);
+          sheet = wb.cloneSheet(wb.getSheetIndex(ts));
+          wb.setSheetName(wb.getSheetIndex(sheet), data.realSheetname);
           // unhide sheet in case it was hidden
-          data.wb.setSheetHidden(data.wb.getSheetIndex(data.sheet), false);
+          wb.setSheetHidden(wb.getSheetIndex(sheet), false);
           if (meta.getTemplate().isTemplateSheetHidden()) {
-            data.wb.setSheetHidden(data.wb.getSheetIndex(ts), true);
+            wb.setSheetHidden(wb.getSheetIndex(ts), true);
           }
         } else {
           // no template to use, simply create a new sheet
-          data.sheet = data.wb.createSheet(data.realSheetname);
+          sheet = wb.createSheet(data.realSheetname);
         }
         if (replacingSheetAt > -1) {
-          data.wb.setSheetOrder(data.sheet.getSheetName(), replacingSheetAt);
+          wb.setSheetOrder(sheet.getSheetName(), replacingSheetAt);
         }
         // preserves active sheet selection in workbook
-        data.wb.setActiveSheet(existingActiveSheetIndex);
-        data.wb.setSelectedTab(existingActiveSheetIndex);
+        wb.setActiveSheet(existingActiveSheetIndex);
+        wb.setSelectedTab(existingActiveSheetIndex);
         appendingToSheet = false;
       } else {
         // sheet is there and should be reused
-        data.sheet = data.wb.getSheet(data.realSheetname);
+        sheet = wb.getSheet(data.realSheetname);
       }
       // if use chose to make the current sheet active, do so
       if (meta.isMakeSheetActive()) {
-        int sheetIndex = data.wb.getSheetIndex(data.sheet);
-        data.wb.setActiveSheet(sheetIndex);
-        data.wb.setSelectedTab(sheetIndex);
+        int sheetIndex = wb.getSheetIndex(sheet);
+        wb.setActiveSheet(sheetIndex);
+        wb.setSelectedTab(sheetIndex);
       }
       // handle write protection
       if (meta.getFile().isProtectsheet()) {
-        protectSheet(data.sheet, data.realPassword);
+        protectSheet(sheet, data.realPassword);
       }
 
       // starting cell support
@@ -836,44 +881,63 @@ public class ExcelWriterTransform
         data.startingCol = 0;
       }
 
-      data.posX = data.startingCol;
-      data.posY = data.startingRow;
+      // calculate starting positions
+      int posX;
+      int posY;
+      posX = data.startingCol;
+      posY = data.startingRow;
 
       // Find last row and append accordingly
       if (!data.createNewSheet && meta.isAppendLines() && appendingToSheet) {
-        if (data.sheet.getPhysicalNumberOfRows() > 0) {
-          data.posY = data.sheet.getLastRowNum() + 1;
+        if (sheet.getPhysicalNumberOfRows() > 0) {
+          posY = sheet.getLastRowNum() + 1;
         } else {
-          data.posY = 0;
+          posY = 0;
         }
       }
 
       // offset by configured value
       // Find last row and append accordingly
       if (!data.createNewSheet && meta.getAppendOffset() != 0 && appendingToSheet) {
-        data.posY += meta.getAppendOffset();
+        posY += meta.getAppendOffset();
       }
 
       // may have to write a few empty lines
       if (!data.createNewSheet && meta.getAppendEmpty() > 0 && appendingToSheet) {
         for (int i = 0; i < meta.getAppendEmpty(); i++) {
-          openLine();
+          sheet = openLine(sheet, posY);
           if (!data.shiftExistingCells || meta.isAppendLines()) {
-            data.posY++;
+            posY++;
           }
         }
       }
 
+      // save file for later usage
+      String baseFileName;
+      if (!meta.getFile().isFileNameInField()) {
+        baseFileName = meta.getFile().getFileName();
+      } else {
+        baseFileName = file.getName().toString();
+      }
+      ExcelWriterWorkbookDefinition workbookDefinition =
+          new ExcelWriterWorkbookDefinition(
+              baseFileName, file, wb, sheet, posX, Math.max(posY, sheet.getLastRowNum()));
+      workbookDefinition.setSplitNr(splitNr);
+      data.usedFiles.add(workbookDefinition);
+      data.currentWorkbookDefinition = workbookDefinition;
+      data.currentWorkbookDefinition.clearStyleCache(numOfFields);
+
       // may have to write a header here
       if (meta.isHeaderEnabled()
           && !(!data.createNewSheet && meta.isAppendOmitHeader() && appendingToSheet)) {
-        writeHeader();
+        data.currentWorkbookDefinition.setSheet(writeHeader(workbookDefinition, sheet, posX, posY));
       }
       if (log.isDebug()) {
-        logDebug(BaseMessages.getString(PKG, "ExcelWriterTransform.Log.FileOpened", buildFilename));
+        logDebug(
+            BaseMessages.getString(
+                PKG, "ExcelWriterTransform.Log.FileOpened", file.getName().toString()));
       }
-      // this is the number of the new output file
-      data.splitnr++;
+
     } catch (Exception e) {
       logError("Error opening new file", e);
       setErrors(1);
@@ -881,48 +945,49 @@ public class ExcelWriterTransform
     }
   }
 
-  private void openLine() {
+  private Sheet openLine(Sheet sheet, int posY) {
     if (data.shiftExistingCells) {
-      data.sheet.shiftRows(data.posY, Math.max(data.posY, data.sheet.getLastRowNum()), 1);
+      sheet.shiftRows(posY, Math.max(posY, sheet.getLastRowNum()), 1);
     }
+    return sheet;
   }
 
-  private void writeHeader() throws HopException {
+  private Sheet writeHeader(
+      ExcelWriterWorkbookDefinition workbookDefinition, Sheet sheet, int posX, int posY)
+      throws HopException {
     try {
-      openLine();
-      Row xlsRow = data.sheet.getRow(data.posY);
+      sheet = openLine(sheet, posY);
+      Row xlsRow = sheet.getRow(posY);
       if (xlsRow == null) {
-        xlsRow = data.sheet.createRow(data.posY);
+        xlsRow = sheet.createRow(posY);
       }
-      int posX = data.posX;
       // If we have fields specified: list them in this order!
       if (meta.getOutputFields() != null && !meta.getOutputFields().isEmpty()) {
         for (int i = 0; i < meta.getOutputFields().size(); i++) {
           ExcelWriterOutputField field = meta.getOutputFields().get(i);
           String fieldName = !Utils.isEmpty(field.getTitle()) ? field.getTitle() : field.getName();
           IValueMeta vMeta = new ValueMetaString(fieldName);
-          writeField(fieldName, vMeta, field, xlsRow, posX++, null, -1, true);
+          writeField(workbookDefinition, fieldName, vMeta, field, xlsRow, posX++, null, -1, true);
         }
         // Just put all field names in
       } else if (data.inputRowMeta != null) {
         for (int i = 0; i < data.inputRowMeta.size(); i++) {
           String fieldName = data.inputRowMeta.getFieldNames()[i];
           IValueMeta vMeta = new ValueMetaString(fieldName);
-          writeField(fieldName, vMeta, null, xlsRow, posX++, null, -1, true);
+          writeField(workbookDefinition, fieldName, vMeta, null, xlsRow, posX++, null, -1, true);
         }
       }
-      data.posY++;
+      workbookDefinition.setPosY(posY + 1);
       incrementLinesOutput();
     } catch (Exception e) {
       throw new HopException(e);
     }
+    return sheet;
   }
 
   @Override
   public boolean init() {
     if (super.init()) {
-      data.splitnr = 0;
-      data.datalines = 0;
       data.realSheetname = resolve(meta.getFile().getSheetname());
       data.realTemplateSheetName = resolve(meta.getTemplate().getTemplateSheetName());
       data.realTemplateFileName = resolve(meta.getTemplate().getTemplateFileName());
@@ -946,7 +1011,6 @@ public class ExcelWriterTransform
   /** pipeline run end */
   @Override
   public void dispose() {
-    clearWorkbookMem();
     super.dispose();
   }
 
@@ -957,5 +1021,45 @@ public class ExcelWriterTransform
       // works only for xls output at the moment
       sheet.protectSheet(password);
     }
+  }
+
+  /**
+   * This function will return the filepath
+   *
+   * @param row
+   * @return Filepath
+   */
+  private FileObject getFileLocation(Object[] row) throws HopFileException {
+    String buildFilename =
+        (!meta.getFile().isFileNameInField())
+            ? buildFilename(getNextSplitNr(meta.getFile().getFileName()))
+            : buildFilename(data.inputRowMeta, row);
+    return HopVfs.getFileObject(buildFilename);
+  }
+
+  /**
+   * This function returns the max splitnumber of the file
+   *
+   * @param fileName
+   * @return
+   */
+  private int getNextSplitNr(String fileName) {
+    int splitNr = 0;
+    boolean fileFound = false;
+    // Check if file exists and fetch max splitNr
+    for (ExcelWriterWorkbookDefinition workbookDefinition : data.usedFiles) {
+      if (workbookDefinition.getFileName().equals(fileName)) {
+        fileFound = true;
+        if (workbookDefinition.getSplitNr() > splitNr) {
+          splitNr = workbookDefinition.getSplitNr();
+        }
+      }
+    }
+    // if a file exists increase the splitNr
+
+    if (fileFound) {
+      splitNr++;
+    }
+    return splitNr;
   }
 }

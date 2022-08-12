@@ -72,15 +72,20 @@ public class ExcelWriterTransform_StyleFormatTest {
     verify(transformMockHelper.iLogChannel, never()).logError(anyString(), any(Object[].class));
     verify(transformMockHelper.iLogChannel, never()).logError(anyString(), (Throwable) anyObject());
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
+
+    data = mock(ExcelWriterTransformData.class);
   }
 
   @After
   /** Clean-up objects */
   public void tearDown() {
-    data.file = null;
-    data.sheet = null;
-    data.wb = null;
-    data.clearStyleCache(0);
+    ExcelWriterWorkbookDefinition workbookDefinition =
+        new ExcelWriterWorkbookDefinition(null, null, null, null, 0, 0);
+    data.currentWorkbookDefinition = workbookDefinition;
+    data.currentWorkbookDefinition.setFile(null);
+    data.currentWorkbookDefinition.setSheet(null);
+    data.currentWorkbookDefinition.setWorkbook(null);
+    data.currentWorkbookDefinition.clearStyleCache(0);
 
     transformMockHelper.cleanUp();
   }
@@ -116,17 +121,17 @@ public class ExcelWriterTransform_StyleFormatTest {
     // Values are written in A2:D2 and A3:D3 rows
     List<Object[]> rows = createRowData();
     for (int i = 0; i < rows.size(); i++) {
-      transform.writeNextLine(rows.get(i));
+      transform.writeNextLine(data.currentWorkbookDefinition, rows.get(i));
     }
 
     // Custom styles are loaded from G1 cell
-    Row xlsRow = data.sheet.getRow(0);
+    Row xlsRow = data.currentWorkbookDefinition.getSheet().getRow(0);
     Cell baseCell = xlsRow.getCell(6);
     CellStyle baseCellStyle = baseCell.getCellStyle();
-    DataFormat format = data.wb.createDataFormat();
+    DataFormat format = data.currentWorkbookDefinition.getWorkbook().createDataFormat();
 
     // Check style of the exported values in A3:D3
-    xlsRow = data.sheet.getRow(2);
+    xlsRow = data.currentWorkbookDefinition.getSheet().getRow(2);
     for (int i = 0; i < data.inputRowMeta.size(); i++) {
       Cell cell = xlsRow.getCell(i);
       CellStyle cellStyle = cell.getCellStyle();
@@ -197,14 +202,17 @@ public class ExcelWriterTransform_StyleFormatTest {
     data = new ExcelWriterTransformData();
     data.inputRowMeta = inputRowMeta.clone();
     data.outputRowMeta = inputRowMeta.clone();
+    ExcelWriterWorkbookDefinition workbookDefinition =
+        new ExcelWriterWorkbookDefinition(null, null, null, null, 0, 0);
+    data.currentWorkbookDefinition = workbookDefinition;
 
     // we don't run pipeline so ExcelWriterTransform.processRow() doesn't get executed
     // we populate the ExcelWriterTransformData with bare minimum required values
     CellReference cellRef = new CellReference(meta.getStartingCell());
     data.startingRow = cellRef.getRow();
     data.startingCol = cellRef.getCol();
-    data.posX = data.startingCol;
-    data.posY = data.startingRow;
+    data.currentWorkbookDefinition.setPosX(data.startingCol);
+    data.currentWorkbookDefinition.setPosY(data.startingRow);
 
     int numOfFields = data.inputRowMeta.size();
     data.fieldnrs = new int[numOfFields];
@@ -219,28 +227,29 @@ public class ExcelWriterTransform_StyleFormatTest {
     // we avoid reading/writing Excel files, so ExcelWriterTransform.prepareNextOutputFile() doesn't
     // get executed
     // create Excel workbook object
-    data.wb =
+    data.currentWorkbookDefinition.setWorkbook(
         meta.getFile().getExtension().equalsIgnoreCase("xlsx")
             ? new XSSFWorkbook()
-            : new HSSFWorkbook();
-    data.sheet = data.wb.createSheet();
-    data.file = null;
-    data.clearStyleCache(numOfFields);
+            : new HSSFWorkbook());
+    data.currentWorkbookDefinition.setSheet(
+        data.currentWorkbookDefinition.getWorkbook().createSheet());
+    data.currentWorkbookDefinition.setFile(null);
+    data.currentWorkbookDefinition.clearStyleCache(numOfFields);
 
     // we avoid reading template file from disk
     // so set beforehand cells with custom style and formatting
-    DataFormat format = data.wb.createDataFormat();
-    Row xlsRow = data.sheet.createRow(0);
+    DataFormat format = data.currentWorkbookDefinition.getWorkbook().createDataFormat();
+    Row xlsRow = data.currentWorkbookDefinition.getSheet().createRow(0);
 
     // Cell F1 has custom style applied, used as template
     Cell cell = xlsRow.createCell(5);
-    CellStyle cellStyle = data.wb.createCellStyle();
+    CellStyle cellStyle = data.currentWorkbookDefinition.getWorkbook().createCellStyle();
     cellStyle.setBorderRight(BorderStyle.THICK);
     cellStyle.setFillPattern(FillPatternType.FINE_DOTS);
     cell.setCellStyle(cellStyle);
 
     // Cell G1 has same style, but also a custom data format
-    cellStyle = data.wb.createCellStyle();
+    cellStyle = data.currentWorkbookDefinition.getWorkbook().createCellStyle();
     cellStyle.cloneStyleFrom(cell.getCellStyle());
     cell = xlsRow.createCell(6);
     cellStyle.setDataFormat(format.getFormat("##0,000.0"));
