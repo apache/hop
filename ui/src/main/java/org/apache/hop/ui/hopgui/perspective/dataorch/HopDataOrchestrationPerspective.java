@@ -269,8 +269,10 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     //
     // Remove the file in refreshDelegate
     try {
-      hopGui.fileRefreshDelegate.remove(
-          HopVfs.getFileObject(typeHandler.getFilename()).getPublicURIString());
+      if (isRemoved && typeHandler.getFilename() != null) {
+        hopGui.fileRefreshDelegate.remove(
+            HopVfs.getFileObject(typeHandler.getFilename()).getPublicURIString());
+      }
     } catch (HopFileException e) {
       hopGui.getLog().logError("Error getting VFS fileObject", e);
     }
