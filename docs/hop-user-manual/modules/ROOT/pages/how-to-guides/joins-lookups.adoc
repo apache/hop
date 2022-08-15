@@ -1,0 +1,160 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[JoinsLookups]]
+:imagesdir: ../../assets/images
+:description: This guide provides an overview of the various join and lookup transforms and helps you to choose which transform makes most sense for your use case.
+
+= Joins and lookups
+
+Hop offers a lot of options to enrich and combine data, among other things through joins and lookups. This guide explains the differences between the various joins and lookups, and will help you to choose the right transform for your pipelines.
+
+=== Joins
+
+Joins are a way to merge data from two or more different streams in your pipeline. Joins typically require you to select a set of fields (the join keys) to join the streams on. The data in all streams that are involved in the join needs to be sorted on the join keys.
+
+Depending on the transform you use and the configuration options you specify, joins can change the amount of data you're processing in both way. For example, an inner `Merge join` with a limited number of matches between the keys in both streams can significantly reduce the number of rows in your stream. A `Join Rows (Cartesian Product)` on the other hand can result in an explosion of the number of rows you started the pipeline with.
+
+TIP: Multiple streams in your pipeline that have the exact same layout (identical fields, identical data types, identical order) can be joined or merged without the need for a transform. Just create a hop from the last transform in two or more substreams to a target transform. Hop Gui will complain if there are differences in the layout of the streams you're combining.
+
+The available join transforms are:
+
+|===
+|Transform|When to use
+|xref:pipeline/transforms/joinrows.adoc[**Join Rows (Cartesian Product)**]
+
+produce combinations (Cartesian product) of all rows in the input streams
+|situations where you want to create a combination of _all_ data in one stream with _all_ data in another
+
+**example**: you want to create a copy of a data set for all members in a team, a list of available months or similar.
+
+WARN: Use with care on large volumes of data. The combination of all data in both streams easily become huge.
+
+|xref:pipeline/transforms/mergejoin.adoc[**Merge Join**]
+
+classic merge join between data sets with data coming from two different input transforms
+|You want to combine data from two different streams based on a matching key in both streams, and want to continue working with (a selection of) the combined data from both streams.
+
+**example**: a subset of your data is available in files, another subset is available in a database table. Both the file have a matching key (e.g an ID) that you can use to combine both sets.
+
+|xref:pipeline/transforms/mergerows.adoc[**Merge Rows (diff)**]
+
+compares and merges data within two rows of data, adding a field indicator for each row
+|You have two sets of data with the same layout. You want to compare both data sets and identify which lines in one set a new, identical, changed or deleted compared to the other data set.
+
+**example***: you receive a daily file that needs to be processed. Compare today's file with yesterday's file, so you can ignore the identical data and only process the changes.
+
+|xref:pipeline/transforms/multimerge.adoc[**Multiway merge join**]
+
+joins input data from multiple streams
+|Join data from multiple (typically more than two) streams, similar to merge join. This transform provides a shortcut to what you otherwise would do by chaining multiple merge joins after each other.
+
+**example**: you receive data from files, a database query and a REST api. All three streams have one or more corresponding keys to join data from the various streams.
+
+|xref:pipeline/transforms/xmljoin.adoc[**XML Join**]
+
+adds xml tags from one stream into a leading XML structure from a second stream
+|You need to build XML files from various data sources and with multiple nested elements. This transform is atypical in the sense that you're performing joins to build output instead of the other join transforms that combine incoming data for further processing.
+
+**example**: you're building complex XML output files.
+
+|xref:pipeline/transforms/databasejoin.adoc[**Database join**]
+
+allows you to run a query against a database using data obtained from previous transforms
+|The database join executes a (parameterized) SQL query for every row you execute. While this transform gives you unparallelled flexibility, it performs a database query for every single row, so it is a potential performance bottleneck.
+
+**example**: You need to fetch information that can't be retrieved from a single table and requires a query that fetches data from multiple tables.
+
+|===
+
+=== Lookups
+
+Lookups are a way to let you enrich your pipeline's stream with additional fields from external sources. The transforms allow you to choose which additional fields will be retrieved from the lookup source.
+
+Contrary to joins, lookups work on the current pipeline stream and your never change the number of rows you're processing.
+
+There are a number of transforms in the `Lookup` category that are considered self-explanatory in a lookup context and won't be included here. These transforms are:
+
+* xref:pipeline/transforms/calldbproc.adoc[Call DB Procedure]
+* xref:pipeline/transforms/checkfilelocked.adoc[Check if file is locked]
+* xref:pipeline/transforms/columnexists.adoc[Column exists]
+* xref:pipeline/transforms/dynamicsqlrow.adoc[Dynamic SQL row]
+* xref:pipeline/transforms/fileexists.adoc[File exists]
+* xref:pipeline/transforms/fuzzymatch.adoc[Fuzzy match]
+* xref:pipeline/transforms/serverstatus.adoc[Get server status]
+* xref:pipeline/transforms/http.adoc[HTTP client]
+* xref:pipeline/transforms/httppost.adoc[HTTP post]
+* xref:pipeline/transforms/rest.adoc[REST client]
+* xref:pipeline/transforms/tableexists.adoc[Table exists]
+* xref:pipeline/transforms/webservices.adoc[Web services lookup]
+
+|===
+|Transform|When to use
+|xref:pipeline/transforms/combinationlookup.adoc[**Combination lookup/update**]
+
+allows you to store information in a junk-dimension table. The transform can possibly also be used to maintain Kimball pure Type 1 dimensions.
+
+|in a lookup context, this transform gets data from a https://en.wikipedia.org/wiki/Slowly_changing_dimension#Type_1:_overwrite[type 1 slowly changing dimension^].
+
+|xref:pipeline/transforms/dimensionlookup.adoc[**Dimension lookup/update**]
+
+allows you to implement Ralph Kimball’s slowly changing dimension for both types: Type I (update) and Type II (insert) together with some additional functions.
+
+This transform can be used to populate a dimension table or to look up values in a slowly changing dimension without making any changes.
+
+|In a lookup context, this transform lets you perform lookups in a https://en.wikipedia.org/wiki/Slowly_changing_dimension#Type_2:_add_new_row[type 2 slowly changing dimension^].
+
+In a lookup context, you typically use the natural keys and date or timestamp for your data to retrieve the surrogate key for the correct version of the data in a dimension.
+
+Uncheck the `Update the dimension` checkbox to use the transform as a lookup and to prevent it from updating the dimension table.
+
+**example**: you want to retrieve the correct surrogate key for a dimension record in a slowly changing customer table in your data warehouse.
+
+|xref:pipeline/transforms/databaselookup.adoc[**Database lookup**]
+
+allows you to look up values in a database table. Lookup values are added as new fields onto the stream.
+
+|You need to retrieve additional information from a single database table, based on fields in your pipeline stream.
+
+**example**: you're processing data that contains a customer's id. You also need the customer's name and location, which is available in a database table.
+
+|xref:pipeline/transforms/streamlookup.adoc[**Stream lookup**]
+
+allows you to look up data using information coming from other transforms in the pipeline. The data coming from the Source transform is first read into memory and is then used to look up data from the main stream.
+
+|use the Stream lookup when you need to perform a lot of lookups on a fairly limited set of data.
+
+The performance benefit of performing lookups from memory comes with the limitation of the available memory.
+
+The stream lookup accepts data from any pipeline stream, but since the data needs to be loaded into memory before the pipeline starts, consider your available memory resources the memory footprint for your Stream lookup's input before adding it to your pipeline. In the default Hop configuration with 2 GB of memory, a couple of megabytes is fine, a 20GB CSV file as Stream lookup input isn't.
+
+**example** you need to process a large dataset that contains product prices in a number of different currencies. You received a list of historical conversion rates for the last month in a csv file. This lookup file is about 5000 lines, loading it into memory an picking up the right conversion rate with a `Stream lookup` transform allows you to perform lightning fast lookups.    
+
+|===
+
+
+=== Lookup Caching
+
+The xref:pipeline/transforms/combinationlookup.adoc[Combination lookup/update], xref:pipeline/transforms/dimensionlookup.adoc[Dimension lookup/update] and xref:pipeline/transforms/databaselookup.adoc[Database lookup] allow you to cache data. Cached data is stored in memory to speed up the lookup process.
+
+The dialog options vary slightly, but the caching options offered by these transforms are:
+
+* enable cache? (boolean): switches caching on or off
+* cache size: the size (number of rows) to cache in memory
+* pre-load cache: load data in the cache before the pipeline starts
+* load all data from table (database lookup only): load all the table's data to memory before the pipeline starts.
+
+Consider your available memory resources when configuring caching. Caching can significantly speed up the lookup process, but memory is a finite resource.
