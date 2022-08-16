@@ -172,6 +172,11 @@ In the example below, the number of rows for the year 1990 was changed from 486 
 
 image::pipeline-unit-testing-test-failed.png[Unit test - failed,width="90%"]
 
+While successful test show 'Test passed succesfully against golden data set' and 'Test passed succesfully against unit test', failed unit tests may show one of the error messages listed below:
+
+* `Incorrect number of rows received from transform, golden data set <GOLDEN_DATASET_NAME> has <GOLDEN_DATASET_ROWS> rows in it and we received <NB_ROWS_FOUND>`
+* `Validation against golden data failed for row number <ROW_NUMBER>, field <FIELD_NAME>: transform value [<FIELD_VALUE>] does not correspond to data set value [<GOLDEN_DATASET_VALUE>]`
+
 === Remove and bypass transforms in unit tests
 
 While developing pipelines, you'll often remove or disable transforms in a pipeline.
