@@ -269,8 +269,10 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     int type = v.getType();
     switch (type) {
       case IValueMeta.TYPE_TIMESTAMP:
-      case IValueMeta.TYPE_DATE:
         retval += "DATETIME";
+        break;
+      case IValueMeta.TYPE_DATE:
+        retval += "DATE";
         break;
       case IValueMeta.TYPE_BOOLEAN:
         if (isSupportsBooleanDataType()) {
