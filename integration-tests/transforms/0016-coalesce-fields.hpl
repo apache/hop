@@ -67,7 +67,13 @@ limitations under the License.
         <input>A, B, C</input>
         <name>result</name>
         <remove>N</remove>
-        <type>Boolean</type>
+        <type>String</type>
+      </field>
+      <field>
+        <input>A, B</input>
+        <name>result2</name>
+        <remove>N</remove>
+        <type>String</type>
       </field>
     </fields>
     <empty_is_null>Y</empty_is_null>
@@ -90,37 +96,25 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
         <name>A</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
         <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
+        <type>String</type>
       </field>
       <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
         <name>B</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
         <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
+        <type>String</type>
       </field>
       <field>
-        <name>C</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>C</name>
+        <precision>-1</precision>
+        <type>String</type>
       </field>
     </fields>
     <data>
