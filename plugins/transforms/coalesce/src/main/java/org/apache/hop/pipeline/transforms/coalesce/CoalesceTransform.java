@@ -193,14 +193,16 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
       boolean isTreatEmptyStringsAsNulls) {
 
     for (String fieldName : fields) {
-
       int index = inputRowMeta.indexOfValue(fieldName);
       if (index >= 0) {
-        if (!isTreatEmptyStringsAsNulls && row[index] != null) {
+        if (!isTreatEmptyStringsAsNulls && row[index] != null && ((byte[]) row[index]).length > 0) {
           return index;
         } else if (isTreatEmptyStringsAsNulls
-            && row[index] != null
-            && !Utils.isEmpty(row[index].toString())) return index;
+                && row[index] != null
+                && ((byte[]) row[index]).length > 0
+                && !Utils.isEmpty(row[index].toString())) {
+          return index;
+        }
       }
     }
 
