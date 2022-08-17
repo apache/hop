@@ -394,14 +394,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdSourceTransform.left = new FormAttachment(0, 0);
     fdSourceTransform.top = new FormAttachment(wlSourceTransform, 5);
     wSourceTransform.setLayoutData(fdSourceTransform);
-    wSourceTransform.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            setActive();
-          }
-        });
-
+    wSourceTransform.addListener(SWT.Selection, e -> updateWidgets());
+    
     final int fieldRows = metaInjectMeta.getSourceOutputFields().size();
 
     ColumnInfo[] colinf =
@@ -520,13 +514,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdStreamingSourceTransform.top = new FormAttachment(wlStreamingSourceTransform, 5);
     wStreamingSourceTransform.setLayoutData(fdStreamingSourceTransform);
     wStreamingSourceTransform.setItems(pipelineMeta.getTransformNames());
-    wStreamingSourceTransform.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            setActive();
-          }
-        });
+    wStreamingSourceTransform.addListener(SWT.Selection, e -> updateWidgets());
 
     wlStreamingTargetTransform = new Label(wOptionsComp, SWT.RIGHT);
     wlStreamingTargetTransform.setText(
@@ -834,7 +822,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     return true;
   }
 
-  public void setActive() {
+  public void updateWidgets() {
     boolean outputCapture = !Utils.isEmpty(wSourceTransform.getText());
     wSourceFields.setEnabled(outputCapture);
 
@@ -898,7 +886,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
             ""));
     wStreamingTargetTransform.setText(Const.NVL(metaInjectMeta.getStreamTargetTransformName(), ""));
 
-    setActive();
+    updateWidgets();
     refreshTree();
 
     wTabFolder.setSelection(0);

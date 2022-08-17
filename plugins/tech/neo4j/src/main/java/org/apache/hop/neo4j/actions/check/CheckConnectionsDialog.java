@@ -49,8 +49,6 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
 
   private static final Class<?> PKG = CheckConnectionsDialog.class; // For Translator
 
-  private Shell shell;
-
   private CheckConnections action;
 
   private boolean changed;
@@ -212,11 +210,6 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
     }
 
     dispose();
-  }
-
-  public void dispose() {
-    props.setScreen(new WindowProperty(shell));
-    shell.dispose();
   }
 
   public boolean evaluates() {

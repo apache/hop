@@ -22,7 +22,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -46,8 +45,6 @@ import org.eclipse.swt.widgets.*;
 /** This dialog allows you to edit the Delete Folders action settings. */
 public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionDeleteFolders.class; // For Translator
-
-  private Shell shell;
 
   private Text wName;
 
@@ -442,12 +439,6 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     wbeFilename.setEnabled(!wPrevious.getSelection());
     wbaFilename.setEnabled(!wPrevious.getSelection());
     wbDirectory.setEnabled(!wPrevious.getSelection());
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

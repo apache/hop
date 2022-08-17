@@ -22,7 +22,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -48,8 +47,6 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionDeleteFiles.Filetype.All")};
-
-  private Shell shell;
 
   private Text wName;
 
@@ -430,12 +427,6 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     wbeFilename.setEnabled(!wPrevious.getSelection());
     wbaFilename.setEnabled(!wPrevious.getSelection());
     wbDirectory.setEnabled(!wPrevious.getSelection());
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

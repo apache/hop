@@ -47,8 +47,6 @@ import java.util.List;
 public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = Neo4jIndexDialog.class; // For Translator
 
-  private Shell shell;
-
   private Neo4jIndex meta;
 
   private boolean changed;
@@ -265,10 +263,5 @@ public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
     }
 
     dispose();
-  }
-
-  public void dispose() {
-    props.setScreen(new WindowProperty(shell));
-    shell.dispose();
   }
 }

@@ -230,6 +230,12 @@ public class BaseTransformDialog extends Dialog {
       addDeprecation();
     }
   }
+  
+  public void setActive() {
+    if (shell != null && !shell.isDisposed() ) {
+      shell.setActive();      
+    }
+  }
 
   private void addDeprecation() {
 

@@ -46,7 +46,6 @@ import java.util.List;
 public class MissingActionDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = MissingActionDialog.class; // For Translator
 
-  private Shell shell;
   private List<MissingAction> missingActions;
   private int mode;
 

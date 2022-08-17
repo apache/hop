@@ -71,7 +71,6 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
   Button wbxsdFilename;
 
   private XsdValidator action;
-  private Shell shell;
 
   private boolean changed;
 
@@ -285,12 +284,6 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

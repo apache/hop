@@ -27,7 +27,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -55,8 +54,6 @@ import java.util.Arrays;
  */
 public class ActionTruncateTablesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionTruncateTables.class; // For Translator
-
-  private Shell shell;
 
   private Button wbTable;
 
@@ -268,11 +265,6 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     wFields.setEnabled(!wPrevious.getSelection());
     wbdTablename.setEnabled(!wPrevious.getSelection());
     wbTable.setEnabled(!wPrevious.getSelection());
-  }
-
-  public void dispose() {
-    props.setScreen(new WindowProperty(shell));
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

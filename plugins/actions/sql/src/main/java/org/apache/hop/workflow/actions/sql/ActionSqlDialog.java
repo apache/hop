@@ -24,7 +24,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -70,8 +69,6 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
   private Label wlPosition;
 
   private ActionSql action;
-
-  private Shell shell;
 
   private Button wSendOneStatement;
 
@@ -343,12 +340,6 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wlPosition.setText(
         BaseMessages.getString(
             PKG, "ActionSQL.Position.Label", "" + lineNumber, "" + columnNumber));
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

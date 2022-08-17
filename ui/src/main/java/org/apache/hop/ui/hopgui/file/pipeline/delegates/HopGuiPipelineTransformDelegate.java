@@ -56,7 +56,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HopGuiPipelineTransformDelegate {
 
@@ -65,7 +67,8 @@ public class HopGuiPipelineTransformDelegate {
 
   private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;
-
+  private Map<String, ITransformDialog> dialogs = new HashMap<>(); 
+  
   public HopGuiPipelineTransformDelegate(HopGui hopGui, HopGuiPipelineGraph pipelineGraph) {
     this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
@@ -146,18 +149,30 @@ public class HopGuiPipelineTransformDelegate {
     try {
       String name = transformMeta.getName();
 
+      // Check if transform dialog is already open
+      ITransformDialog dialog = dialogs.get(name);
+      if ( dialog!=null) {
+         dialog.setActive();
+         return null;
+      }
+      
       // Before we do anything, let's store the situation the way it
       // was...
       //
       TransformMeta before = (TransformMeta) transformMeta.clone();
-      ITransformDialog dialog =
-          getTransformDialog(transformMeta.getTransform(), pipelineMeta, name);
+      dialog = getTransformDialog(transformMeta.getTransform(), pipelineMeta, name);
       if (dialog != null) {
+        dialogs.put(name, dialog);
+        
         dialog.setMetadataProvider(hopGui.getMetadataProvider());
         transformMeta.getTransform().convertIOMetaToTransformNames();
         transformName = dialog.open();
+        
+        dialogs.remove(name);
       }
 
+
+      
       if (!Utils.isEmpty(transformName)) {
         // Force the recreation of the transform IO metadata object. (cached by default)
         //

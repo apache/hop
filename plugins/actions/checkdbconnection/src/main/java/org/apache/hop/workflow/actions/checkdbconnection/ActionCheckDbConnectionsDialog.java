@@ -23,7 +23,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -45,8 +44,6 @@ import java.util.List;
 /** This dialog allows you to edit the check database connection action settings. */
 public class ActionCheckDbConnectionsDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class; // For Translator
-
-  private Shell shell;
 
   private Text wName;
 
@@ -223,12 +220,6 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     wFields.removeEmptyRows();
     wFields.setRowNums();
     wFields.optWidth(true);
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

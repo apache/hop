@@ -47,8 +47,6 @@ import java.util.List;
 public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = Neo4jConstraintDialog.class; // For Translator
 
-  private Shell shell;
-
   private Neo4jConstraint meta;
 
   private boolean changed;
@@ -289,10 +287,5 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
     }
 
     dispose();
-  }
-
-  public void dispose() {
-    props.setScreen(new WindowProperty(shell));
-    shell.dispose();
   }
 }

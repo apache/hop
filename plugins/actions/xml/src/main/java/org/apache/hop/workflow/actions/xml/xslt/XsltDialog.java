@@ -81,7 +81,6 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
   private CCombo wIfFileExists;
 
   private Xslt action;
-  private Shell shell;
 
   private boolean changed;
 
@@ -643,12 +642,6 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wlOutputFilename.setEnabled(!wPrevious.getSelection());
     wOutputFilename.setEnabled(!wPrevious.getSelection());
     wbMovetoDirectory.setEnabled(!wPrevious.getSelection());
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

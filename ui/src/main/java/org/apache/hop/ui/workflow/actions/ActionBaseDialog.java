@@ -109,8 +109,6 @@ public abstract class ActionBaseDialog extends ActionDialog {
   protected Listener lsOk;
   protected Listener lsCancel;
 
-  protected Shell shell;
-
   protected boolean backupChanged;
 
   protected Button wAppendLogfile;
@@ -389,7 +387,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent selectionEvent) {
-            setActive();
+            setLogFileEnabled();
           }
         });
 
@@ -549,7 +547,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     }
   }
 
-  protected void setActive() {
+  protected void setLogFileEnabled() {
 
     gLogFile.setEnabled(wSetLogfile.getSelection());
 

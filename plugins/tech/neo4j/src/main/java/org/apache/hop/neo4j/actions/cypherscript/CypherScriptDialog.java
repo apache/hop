@@ -44,8 +44,6 @@ import org.eclipse.swt.widgets.*;
 public class CypherScriptDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = CypherScriptDialog.class; // For Translator
 
-  private Shell shell;
-
   private CypherScript cypherScript;
 
   private boolean changed;
@@ -217,10 +215,5 @@ public class CypherScriptDialog extends ActionDialog implements IActionDialog {
     cypherScript.setReplacingVariables(wReplaceVariables.getSelection());
 
     dispose();
-  }
-
-  public void dispose() {
-    props.setScreen(new WindowProperty(shell));
-    shell.dispose();
   }
 }
