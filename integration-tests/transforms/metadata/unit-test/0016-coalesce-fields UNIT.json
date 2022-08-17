@@ -21,13 +21,18 @@
         {
           "transform_field": "result",
           "data_set_field": "result"
+        },
+        {
+          "transform_field": "result2",
+          "data_set_field": "result2"
         }
       ],
       "field_order": [
         "A",
         "B",
         "C",
-        "result"
+        "result",
+        "result2"
       ],
       "transform_name": "Verify",
       "data_set_name": "golden-coalesce-fields"
