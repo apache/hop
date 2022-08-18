@@ -705,6 +705,8 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public void addDefaultOptions() {
     addExtraOption(getPluginId(), "defaultFetchSize", "500");
     addExtraOption(getPluginId(), "useCursorFetch", "true");
+    addExtraOption(getPluginId(), "zeroDateTimeBehaviorValue", "CONVERT_TO_NULL");
+
   }
 
   @Override
