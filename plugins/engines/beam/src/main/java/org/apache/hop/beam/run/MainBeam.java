@@ -43,18 +43,50 @@ public class MainBeam {
 
   public static void main(String[] args) {
     try {
-      System.out.println("Argument 1 : Pipeline filename (.hpl)   : " + args[0]);
-      System.out.println("Argument 2 : Metadata filename (.json)  : " + args[1]);
-      System.out.println("Argument 3 : Pipeline run configuration : " + args[2]);
-
-      System.out.println(">>>>>> Initializing Hop...");
       HopEnvironment.init();
 
       // Read the pipeline XML and metadata JSON (optionally from Hadoop FS)
       //
-      String pipelineMetaXml = readFileIntoString(args[0], "UTF-8");
-      String metadataJson = readFileIntoString(args[1], "UTF-8");
-      String runConfigName = args[2];
+      String pipelineMetaXml="";
+      String metadataJson="";
+      String runConfigName="";
+
+      if(args[0].startsWith("--")){
+        for(int i=0;i< args.length;i++){
+          String[] split = args[i].split("=", 2);
+          String key = split.length > 0 ? split[0] : null;
+          String value = split.length > 1 ? split[1] : null;
+          if(key!=null){
+            switch(key){
+              case("--HopPipelinePath"):
+                System.out.println("Argument 1 : Pipeline filename (.hpl)   : " + value);
+                pipelineMetaXml = readFileIntoString(value, "UTF-8");
+                break;
+              case("--HopMetadataPath"):
+                System.out.println("Argument 2 : Metadata filename (.json)  : " + value);
+                metadataJson = readFileIntoString(value, "UTF-8");
+                break;
+              case("--HopRunConfigurationName"):
+                System.out.println("Argument 3 : Pipeline run configuration : " + value);
+                runConfigName = value;
+                break;
+            }
+          }
+        }
+
+      }else{
+        System.out.println("Argument 1 : Pipeline filename (.hpl)   : " + args[0]);
+        pipelineMetaXml = readFileIntoString(args[0], "UTF-8");
+        System.out.println("Argument 2 : Metadata filename (.json)  : " + args[1]);
+        metadataJson = readFileIntoString(args[1], "UTF-8");
+        System.out.println("Argument 3 : Pipeline run configuration : " + args[2]);
+        runConfigName = args[2];
+
+        System.out.println(">>>>>> Initializing Hop...");
+      }
+
+
+
 
       // Inflate the metadata:
       //
