@@ -25,6 +25,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.ValueDataUtil;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -34,6 +35,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.CalculationType;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 /** Calculate new field values using pre-defined functions. */
@@ -613,6 +615,24 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
               metaB = targetMeta.clone();
             }
             calcData[index] = ValueDataUtil.remainder(metaA, dataA, metaB, dataB);
+            resultType = targetMeta.getType();
+            break;
+          case BASE64_ENCODE:
+            if(dataA != null){
+              calcData[index] = Base64.getEncoder().withoutPadding().encodeToString(dataA.toString().getBytes());
+            }else{
+              calcData[index] = null;
+            }
+            resultType = IValueMeta.TYPE_STRING;
+            break;
+          case BASE64_DECODE:
+            if(dataA != null){
+              byte[] tmpDecoded = Base64.getDecoder().decode(dataA.toString());
+              String tmpDecodedString = new String(tmpDecoded);
+              calcData[index] = targetMeta.convertData(metaA, tmpDecodedString);
+            }else{
+              calcData[index] = null;
+            }
             resultType = targetMeta.getType();
             break;
           default:

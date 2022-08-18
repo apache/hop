@@ -351,6 +351,14 @@ public class CalculatorMetaFunction implements Cloneable {
         "REMAINDER",
         BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.Remainder"),
         IValueMeta.TYPE_NUMBER),
+    BASE64_ENCODE(
+            "BASE64_ENCODE",
+            BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.Base64Encode"),
+            IValueMeta.TYPE_STRING),
+    BASE64_DECODE(
+            "BASE64_DECODE",
+            BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.Base64Decode"),
+            IValueMeta.TYPE_STRING)
     ;
 
     private String code;
