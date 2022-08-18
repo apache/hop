@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.formula.util;
 
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transforms.formula.FormulaMetaFunction;
 import org.apache.poi.ss.usermodel.*;
 
@@ -41,13 +42,13 @@ public class FormulaParser {
   private FormulaEvaluator evaluator;
 
   public FormulaParser(
-      FormulaMetaFunction formulaMetaFunction, IRowMeta rowMeta, Object[] dataRow, Row sheetRow) {
+      FormulaMetaFunction formulaMetaFunction, IRowMeta rowMeta, Object[] dataRow, Row sheetRow, IVariables variables) {
     this.formulaMetaFunction = formulaMetaFunction;
     this.rowMeta = rowMeta;
     this.dataRow = dataRow;
     this.sheetRow = sheetRow;
     fieldNames = rowMeta.getFieldNames();
-    formula = formulaMetaFunction.getFormula();
+    formula = variables.resolve(formulaMetaFunction.getFormula());
     evaluator = sheetRow.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
 
     formulaFieldList = new ArrayList<>();
