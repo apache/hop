@@ -1,0 +1,53 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "foo",
+          "data_set_field": "foo"
+        },
+        {
+          "transform_field": "bar",
+          "data_set_field": "bar"
+        },
+        {
+          "transform_field": "fooBar",
+          "data_set_field": "fooBar"
+        },
+        {
+          "transform_field": "foobarFn",
+          "data_set_field": "foobarFn"
+        },
+        {
+          "transform_field": "fooBarFull",
+          "data_set_field": "fooBarFull"
+        },
+        {
+          "transform_field": "fooBarFields",
+          "data_set_field": "fooBarFields"
+        }
+      ],
+      "field_order": [
+        "foo",
+        "bar",
+        "fooBar",
+        "foobarFn",
+        "fooBarFull",
+        "fooBarFields"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-formula-variables"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0042-formula-variables UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0042-formula-variables.hpl",
+  "test_type": "UNIT_TEST"
+}
