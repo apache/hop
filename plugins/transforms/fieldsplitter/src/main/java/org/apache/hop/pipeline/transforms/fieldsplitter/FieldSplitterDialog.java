@@ -395,6 +395,16 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
 
     input.allocate(nrFields);
 
+    //check if the new field is empty or not
+
+    if (input.getFieldName().length <= 0) {
+      new ErrorDialog(
+              shell,
+              BaseMessages.getString(PKG, "FieldSplitterDialog.FailedToGetFields.DialogTitle"),
+              BaseMessages.getString(PKG, "FieldSplitter.Log.SplitMetaNameNotValid"),null);
+      return;
+    }
+
     // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < input.getFieldName().length; i++) {
       final TableItem ti = wFields.getNonEmpty(i);
