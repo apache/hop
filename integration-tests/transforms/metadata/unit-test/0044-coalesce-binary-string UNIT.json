@@ -35,14 +35,14 @@
         "result2"
       ],
       "transform_name": "Verify",
-      "data_set_name": "golden-coalesce-fields"
+      "data_set_name": "golden-coalesce-binary-string"
     }
   ],
   "input_data_sets": [],
-  "name": "0016-coalesce-fields UNIT",
+  "name": "0044-coalesce-binary-string UNIT",
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "./0016-coalesce-fields.hpl",
+  "pipeline_filename": "./0044-coalesce-binary-string.hpl",
   "test_type": "UNIT_TEST"
 }

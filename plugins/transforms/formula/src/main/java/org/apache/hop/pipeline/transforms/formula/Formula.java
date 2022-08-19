@@ -119,7 +119,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     for (int i = 0; i < meta.getFormulas().size(); i++) {
 
       FormulaMetaFunction formula = meta.getFormulas().get(i);
-      FormulaParser parser = new FormulaParser(formula, getInputRowMeta(), r, sheetRow);
+      FormulaParser parser = new FormulaParser(formula, getInputRowMeta(), r, sheetRow, variables);
       CellValue cellValue = parser.getFormulaValue();
 
       CellType cellType = cellValue.getCellType();

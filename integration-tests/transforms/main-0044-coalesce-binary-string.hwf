@@ -18,16 +18,15 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0011-calculator</name>
+  <name>main-0044-coalesce-binary-string</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
   <workflow_version/>
-  <workflow_status>0</workflow_status>
   <created_user>-</created_user>
-  <created_date>2020/12/16 12:24:26.983</created_date>
+  <created_date>2021/05/18 11:22:48.369</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2020/12/16 12:24:26.983</modified_date>
+  <modified_date>2021/05/18 11:22:48.369</modified_date>
   <parameters>
     </parameters>
   <actions>
@@ -45,8 +44,8 @@ limitations under the License.
       <weekDay>1</weekDay>
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
-      <xloc>128</xloc>
-      <yloc>112</yloc>
+      <xloc>112</xloc>
+      <yloc>96</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -56,18 +55,12 @@ limitations under the License.
       <attributes/>
       <test_names>
         <test_name>
-          <name>0011-calculator-base64 UNIT</name>
-        </test_name>
-        <test_name>
-          <name>0011-calculator-basics UNIT</name>
-        </test_name>
-        <test_name>
-          <name>0011-calculator-basics UNIT</name>
+          <name>0044-coalesce-binary-string UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>320</xloc>
-      <yloc>112</yloc>
+      <xloc>288</xloc>
+      <yloc>96</yloc>
       <attributes_hac/>
     </action>
   </actions>
