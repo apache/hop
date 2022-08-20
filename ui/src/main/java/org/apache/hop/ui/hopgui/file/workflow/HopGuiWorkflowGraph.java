@@ -24,19 +24,25 @@ import org.apache.hop.core.*;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.*;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.*;
+import org.apache.hop.core.plugins.ActionPluginType;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -814,51 +820,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
               // Only split A-->--B by putting C in between IF...
               // C-->--A or B-->--C don't exists...
-              // A ==> hi.getFromEntry()
-              // B ==> hi.getToEntry()
+              // A ==> hi.getFromAction()
+              // B ==> hi.getToAction()
               // C ==> selectedTransform
               //
               if (workflowMeta.findWorkflowHop(selectedAction, hi.getFromAction()) == null
                   && workflowMeta.findWorkflowHop(hi.getToAction(), selectedAction) == null) {
-
-                if (workflowMeta.findWorkflowHop(hi.getFromAction(), selectedAction, true)
-                    == null) {
-                  WorkflowHopMeta newhop1 = new WorkflowHopMeta(hi.getFromAction(), selectedAction);
-                  if (hi.getFromAction().getAction().isUnconditional()) {
-                    newhop1.setUnconditional();
-                  }
-                  workflowMeta.addWorkflowHop(newhop1);
-                  hopGui.undoDelegate.addUndoNew(
-                      workflowMeta,
-                      new WorkflowHopMeta[] {
-                        newhop1,
-                      },
-                      new int[] {
-                        workflowMeta.indexOfWorkflowHop(newhop1),
-                      },
-                      true);
-                }
-                if (workflowMeta.findWorkflowHop(selectedAction, hi.getToAction(), true) == null) {
-                  WorkflowHopMeta newhop2 = new WorkflowHopMeta(selectedAction, hi.getToAction());
-                  if (selectedAction.getAction().isUnconditional()) {
-                    newhop2.setUnconditional();
-                  }
-                  workflowMeta.addWorkflowHop(newhop2);
-                  hopGui.undoDelegate.addUndoNew(
-                      workflowMeta,
-                      new WorkflowHopMeta[] {
-                        newhop2,
-                      },
-                      new int[] {
-                        workflowMeta.indexOfWorkflowHop(newhop2),
-                      },
-                      true);
-                }
-
-                int idx = workflowMeta.indexOfWorkflowHop(hi);
-                hopGui.undoDelegate.addUndoDelete(
-                    workflowMeta, new WorkflowHopMeta[] {hi}, new int[] {idx}, true);
-                workflowMeta.removeWorkflowHop(idx);
+                
+                workflowActionDelegate.insetAction(workflowMeta, hi, selectedAction);
               }
               // else: Silently discard this hop-split attempt.
             }
@@ -2283,6 +2252,69 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     enableDisableHopsDownstream(context.getHopMeta(), false);
   }
 
+  @GuiContextAction(
+      id = "workflow-graph-hop-10080-hop-insert-action",
+      parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.InsetAction.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.InsetAction.Tooltip",
+      image = "ui/images/add-item.svg",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
+      categoryOrder = "3")
+  public void insertAction(HopGuiWorkflowHopContext context) {
+    
+    // Build actions list
+    //
+    List<GuiAction> guiActions = new ArrayList<>();
+    PluginRegistry registry = PluginRegistry.getInstance();    
+    for (IPlugin plugin : registry.getPlugins(ActionPluginType.class)) {
+
+      GuiAction guiAction =
+          new GuiAction(
+              "workflow-graph-insert-action-" + plugin.getIds()[0],
+              GuiActionType.Create,
+              plugin.getName(),
+              plugin.getDescription(),
+              plugin.getImageFile(),
+              (shiftClicked, controlClicked, t) ->
+                  workflowActionDelegate.insetAction(
+                      workflowMeta,
+                      context.getHopMeta(),
+                      plugin.getIds()[0],
+                      plugin.getName(),
+                      context.getClick()));
+      guiAction.getKeywords().addAll(Arrays.asList(plugin.getKeywords()));
+      guiAction.getKeywords().add(plugin.getCategory());
+      guiAction.setCategory(plugin.getCategory());
+      guiAction.setCategoryOrder(plugin.getCategory());
+      
+      try {
+        guiAction.setClassLoader(registry.getClassLoader(plugin));
+      } catch (HopPluginException e) {
+        LogChannel.UI.logError(
+            "Unable to get classloader for action plugin " + plugin.getIds()[0], e);
+      }
+
+      guiActions.add(guiAction);
+    }
+    
+    String message =
+        BaseMessages.getString(
+            PKG,
+            "HopGuiWorkflowGraph.ContextualActionDialog.InsertAction.Header");
+    
+    ContextDialog contextDialog =
+        new ContextDialog(
+            hopShell(), message, context.getClick(), guiActions,HopGuiWorkflowContext.CONTEXT_ID);
+
+    GuiAction selectedAction = contextDialog.open();
+
+    if (selectedAction != null) {
+      IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
+      actionLambda.executeAction(contextDialog.isShiftClicked(), contextDialog.isCtrlClicked());
+    }
+  }
+  
   public void enableDisableHopsDownstream(WorkflowHopMeta hop, boolean enabled) {
     if (hop == null) {
       return;
