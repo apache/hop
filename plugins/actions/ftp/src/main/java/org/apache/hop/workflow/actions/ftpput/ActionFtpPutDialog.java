@@ -25,7 +25,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -68,8 +67,6 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
   private Button wRemove;
 
   private ActionFtpPut action;
-
-  private Shell shell;
 
   private boolean changed;
 
@@ -909,9 +906,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
 
   public void dispose() {
     closeFtpConnection();
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
+    super.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

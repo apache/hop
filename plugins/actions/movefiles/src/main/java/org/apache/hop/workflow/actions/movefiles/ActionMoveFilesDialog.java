@@ -23,7 +23,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -43,7 +42,14 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Move Files action settings. */
 public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog {
@@ -68,7 +74,6 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
   private Button wIncludeSubfolders;
 
   private ActionMoveFiles action;
-  private Shell shell;
 
   private boolean changed;
 
@@ -1465,12 +1470,6 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wWildcard.setEnabled(!wPrevious.getSelection());
     wbSourceDirectory.setEnabled(!wPrevious.getSelection());
     wbDestinationDirectory.setEnabled(!wPrevious.getSelection());
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   private void checkIncludeSubFolders() {

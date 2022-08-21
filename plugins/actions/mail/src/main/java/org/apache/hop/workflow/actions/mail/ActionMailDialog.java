@@ -24,7 +24,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -127,8 +126,6 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
   private Label wlSensitivity;
   private CCombo wSensitivity;
-
-  private Shell shell;
 
   private ActionMail action;
 
@@ -1375,12 +1372,6 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     } else {
       setSecureConnectiontype();
     }
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   public void getData() {

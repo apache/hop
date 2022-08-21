@@ -144,7 +144,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            setActive();
+            updateWidgets();
             input.setChanged();
           }
         });
@@ -313,7 +313,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     return transformName;
   }
 
-  protected void setActive() {
+  protected void updateWidgets() {
     boolean neverEnding = wNeverEnding.getSelection();
 
     wlLimit.setEnabled(!neverEnding);
@@ -375,7 +375,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     wFields.setRowNums();
     wFields.optWidth(true);
 
-    setActive();
+    updateWidgets();
 
     wTransformName.selectAll();
     wTransformName.setFocus();

@@ -66,7 +66,6 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
   private Button wIncludeSubfolders;
 
   private XmlWellFormed action;
-  private Shell shell;
 
   private boolean changed;
 
@@ -697,12 +696,6 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wlWildcard.setEnabled(!wPrevious.getSelection());
     wWildcard.setEnabled(!wPrevious.getSelection());
     wbSourceDirectory.setEnabled(!wPrevious.getSelection());
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

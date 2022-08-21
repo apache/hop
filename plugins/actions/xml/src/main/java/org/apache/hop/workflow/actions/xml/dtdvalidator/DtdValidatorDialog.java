@@ -67,8 +67,6 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
 
   private DtdValidator action;
 
-  private Shell shell;
-
   private boolean changed;
 
   public DtdValidatorDialog(
@@ -255,12 +253,6 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   private void activeDTDFilename() {

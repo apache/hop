@@ -24,7 +24,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
@@ -117,8 +116,6 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
   private Button wAddFilenameToResult;
 
   private ActionHttp action;
-
-  private Shell shell;
 
   private boolean changed;
 
@@ -839,12 +836,6 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wAppend.setEnabled(wRunEveryRow.getSelection() ? false : !wDateTimeAdded.getSelection());
     wlTargetExt.setEnabled(wRunEveryRow.getSelection() ? false : wDateTimeAdded.getSelection());
     wTargetExt.setEnabled(wRunEveryRow.getSelection() ? false : wDateTimeAdded.getSelection());
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

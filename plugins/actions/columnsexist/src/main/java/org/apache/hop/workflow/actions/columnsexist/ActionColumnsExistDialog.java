@@ -29,7 +29,6 @@ import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -64,8 +63,6 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
   private TextVar wTablename;
 
   private ActionColumnsExist action;
-
-  private Shell shell;
 
   private boolean changed;
 
@@ -290,12 +287,6 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   private void getTableName() {

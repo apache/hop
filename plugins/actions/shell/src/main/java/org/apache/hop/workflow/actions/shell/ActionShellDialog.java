@@ -24,7 +24,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -99,8 +98,6 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
   private Label wlFields;
 
   private TableView wFields;
-
-  private Shell shell;
 
   private ActionShell action;
 
@@ -653,12 +650,6 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
       wEveryRow.setEnabled(true);
       wlEveryRow.setEnabled(true);
     }
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   public void setActive() {

@@ -39,8 +39,6 @@ public class EndRepeatDialog extends ActionDialog implements IActionDialog {
 
   private static final Class<?> PKG = EndRepeatDialog.class; // For Translator
 
-  private Shell shell;
-
   private EndRepeat action;
 
   private Text wName;
@@ -129,10 +127,5 @@ public class EndRepeatDialog extends ActionDialog implements IActionDialog {
     }
 
     dispose();
-  }
-
-  public void dispose() {
-    props.setScreen(new WindowProperty(shell));
-    shell.dispose();
   }
 }
