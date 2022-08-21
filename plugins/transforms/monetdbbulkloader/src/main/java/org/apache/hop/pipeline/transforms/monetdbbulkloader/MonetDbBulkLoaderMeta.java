@@ -52,7 +52,7 @@ import java.util.List;
     description = "i18n::MonetDBBulkLoaderDialog.TypeTooltipDesc.MonetDBBulkLoader",
     documentationUrl = "/pipeline/transforms/monetdbbulkloader.html",
     keywords = "i18n::MonetDbBulkLoaderMeta.keyword",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk")
 @InjectionSupported(localizationPrefix = "MonetDBBulkLoaderDialog.Injection.")
 public class MonetDbBulkLoaderMeta extends BaseTransformMeta<MonetDbBulkLoader, MonetDbBulkLoaderData> {
   private static final Class<?> PKG =

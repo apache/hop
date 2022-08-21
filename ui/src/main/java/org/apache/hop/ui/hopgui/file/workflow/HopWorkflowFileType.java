@@ -95,6 +95,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     capabilities.setProperty(IHopFileType.CAPABILITY_PREVIEW, "false");
     capabilities.setProperty(IHopFileType.CAPABILITY_DEBUG, "false");
 
+    capabilities.setProperty(IHopFileType.CAPABILITY_SELECT, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_COPY, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_PASTE, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_CUT, "true");

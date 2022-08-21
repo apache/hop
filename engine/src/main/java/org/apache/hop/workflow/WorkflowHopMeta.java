@@ -150,6 +150,7 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
     return xml.toString();
   }
 
+  // TODO: Rename method isEvaluation()
   public boolean getEvaluation() {
     return evaluation;
   }

@@ -49,10 +49,11 @@ import java.util.List;
 @Transform(
     id = "SnowflakeBulkLoader",
     image = "snowflake.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.SnowflakeBulkLoaderMessage",
-    description = "i18n::BaseTransform.TypeTooltipDesc.SnowflakeBulkLoaderMessage",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    documentationUrl = "/pipeline/transforms/snowflakebulkloader.html")
+    name = "i18n::SnowflakeBulkLoader.Name",
+    description = "i18n::SnowflakeBulkLoader.Description",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",    
+    documentationUrl = "/pipeline/transforms/snowflakebulkloader.html",
+    keywords = "i18n::SnowflakeBulkLoader.Keyword")
 public class SnowflakeBulkLoaderMeta
     extends BaseTransformMeta<SnowflakeBulkLoader, SnowflakeBulkLoaderData> {
 
