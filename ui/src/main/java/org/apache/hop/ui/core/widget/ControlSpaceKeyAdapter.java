@@ -25,6 +25,7 @@ import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
@@ -32,7 +33,7 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.*;
 
@@ -128,9 +129,10 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       final Shell shell = new Shell(control.getShell(), SWT.NONE);
       shell.setSize(bounds.width > 300 ? bounds.width : 300, 200);
       shell.setLocation(location.x, location.y + bounds.height);
-      shell.setLayout(new FillLayout());
+      shell.setLayout(new FormLayout());
       final List list = new List(shell, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
       props.setLook(list);
+      list.setLayoutData(new FormDataBuilder().fullSize().result());
       list.setItems(getVariableNames(variables));
       final Tip toolTip = new Tip(list.getShell(), SWT.BALLOON);
       toolTip.setAutoHide(true);
