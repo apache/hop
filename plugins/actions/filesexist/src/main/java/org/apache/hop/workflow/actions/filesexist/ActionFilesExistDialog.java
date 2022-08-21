@@ -22,7 +22,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -57,8 +56,6 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
   private TextVar wFilename;
 
   private ActionFilesExist action;
-
-  private Shell shell;
 
   private boolean changed;
 
@@ -296,12 +293,6 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

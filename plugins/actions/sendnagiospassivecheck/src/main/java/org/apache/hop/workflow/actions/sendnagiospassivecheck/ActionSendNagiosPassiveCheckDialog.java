@@ -24,7 +24,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -63,8 +62,6 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
   private LabelTextVar wSenderServiceName;
 
   private ActionSendNagiosPassiveCheck action;
-
-  private Shell shell;
 
   private boolean changed;
 
@@ -472,12 +469,6 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
       mb.setText(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Connected.Title.Bad"));
       mb.open();
     }
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

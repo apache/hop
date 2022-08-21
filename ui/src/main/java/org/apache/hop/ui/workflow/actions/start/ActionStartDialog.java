@@ -21,7 +21,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
@@ -50,8 +49,6 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
   private static final String WEEKLY = BaseMessages.getString(PKG, "ActionStart.Type.Weekly");
 
   private static final String MONTHLY = BaseMessages.getString(PKG, "ActionStart.Type.Monthly");
-
-  private Shell shell;
 
   private ActionStart action;
 
@@ -226,11 +223,6 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
     BaseDialog.defaultShellHandling(shell, n -> ok(), n -> cancel());
 
     return action;
-  }
-
-  public void dispose() {
-    props.setScreen(new WindowProperty(shell));
-    shell.dispose();
   }
 
   public void getData() {

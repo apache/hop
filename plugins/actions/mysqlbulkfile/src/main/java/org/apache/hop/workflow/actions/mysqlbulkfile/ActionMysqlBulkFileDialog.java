@@ -30,7 +30,6 @@ import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -70,8 +69,6 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
   private TextVar wSchemaName;
 
   private ActionMysqlBulkFile action;
-
-  private Shell shell;
 
   private TextVar wFilename;
 
@@ -515,12 +512,6 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
       wEnclosed.setEnabled(false);
       wLineTerminated.setEnabled(false);
     }
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

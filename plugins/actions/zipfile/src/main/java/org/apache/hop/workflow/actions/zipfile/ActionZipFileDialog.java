@@ -24,7 +24,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -66,8 +65,6 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
   private TextVar wZipFilename;
 
   private ActionZipFile action;
-
-  private Shell shell;
 
   private Label wlSourceDirectory;
 
@@ -970,12 +967,6 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
       wlCreateMoveToDirectory.setEnabled(false);
       wCreateMoveToDirectory.setEnabled(true);
     }
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

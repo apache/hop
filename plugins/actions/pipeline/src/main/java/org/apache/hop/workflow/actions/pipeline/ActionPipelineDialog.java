@@ -31,7 +31,6 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -218,11 +217,6 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
 
   public String getEntryName(String name) {
     return "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}/" + name;
-  }
-
-  public void dispose() {
-    props.setScreen(new WindowProperty(shell));
-    shell.dispose();
   }
 
   public void getData() {

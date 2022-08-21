@@ -24,7 +24,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ITextVarButtonRenderCallback;
 import org.apache.hop.ui.core.widget.TableView;
@@ -70,7 +69,6 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
   protected Button wCreateDestinationFolder;
 
   protected ActionCopyFiles action;
-  protected Shell shell;
 
   protected boolean changed;
 
@@ -432,12 +430,6 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     wlFields.setEnabled(!wPrevious.getSelection());
     wFields.setEnabled(!wPrevious.getSelection());
     deleteToolItem.setEnabled(!wPrevious.getSelection());
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

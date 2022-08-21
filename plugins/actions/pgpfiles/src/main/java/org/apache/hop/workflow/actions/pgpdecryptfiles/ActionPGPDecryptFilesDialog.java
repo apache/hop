@@ -23,7 +23,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -65,7 +64,6 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
   private Button wIncludeSubfolders;
 
   private ActionPGPDecryptFiles action;
-  private Shell shell;
 
   private boolean changed;
 
@@ -1472,12 +1470,6 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wWildcard.setEnabled(!wPrevious.getSelection());
     wbSourceDirectory.setEnabled(!wPrevious.getSelection());
     wbDestinationDirectory.setEnabled(!wPrevious.getSelection());
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   private void checkIncludeSubFolders() {
