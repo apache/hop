@@ -14,9 +14,9 @@
     {
       "field_comment": "Base64 Decode",
       "field_length": -1,
-      "field_type": 2,
+      "field_type": 3,
       "field_precision": -1,
-      "field_format": "",
+      "field_format": "EEE MMM dd HH:mm:ss ZZZ yyyy",
       "field_name": "decodedDate"
     },
     {
