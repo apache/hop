@@ -41,8 +41,8 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>encode</from>
-      <to>decode</to>
+      <from>clean</from>
+      <to>verify</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -51,13 +51,13 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>decode</from>
-      <to>clean</to>
+      <from>encode</from>
+      <to>decode</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>clean</from>
-      <to>verify</to>
+      <from>decode</from>
+      <to>clean</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -92,10 +92,27 @@ limitations under the License.
         <name>decodedString</name>
       </field>
       <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>decodedDate</name>
+        <rename>decodedDate</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>EEE MMM dd HH:mm:ss ZZZ yyyy</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone>UTC</date_format_timezone>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>496</xloc>
+      <xloc>445</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
@@ -167,7 +184,7 @@ limitations under the License.
     </calculation>
     <attributes/>
     <GUI>
-      <xloc>368</xloc>
+      <xloc>334</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
@@ -235,7 +252,7 @@ limitations under the License.
     </calculation>
     <attributes/>
     <GUI>
-      <xloc>240</xloc>
+      <xloc>223</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
@@ -324,7 +341,7 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>608</xloc>
+      <xloc>556</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
