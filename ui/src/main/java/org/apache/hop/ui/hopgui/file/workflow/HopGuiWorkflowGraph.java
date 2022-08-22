@@ -82,6 +82,7 @@ import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.util.EnvironmentUtils;
+import org.apache.hop.ui.util.HelpUtils;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.*;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -1807,6 +1808,23 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     redraw();
   }
 
+  @GuiContextAction(
+      id = "workflow-graph-action-90000-help",
+      parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
+      type = GuiActionType.Info,
+      name = "i18n::System.Button.Help",
+      tooltip = "i18n::System.Tooltip.Help",
+      image = "ui/images/help.svg",
+      category = "Basic",
+      categoryOrder = "1")
+  public void openActionHelp(HopGuiWorkflowActionContext context) {
+    IPlugin plugin =
+        PluginRegistry.getInstance()
+            .getPlugin(ActionPluginType.class, context.getActionMeta().getAction());
+        
+    HelpUtils.openHelp(getShell(), plugin);
+  }
+  
   protected synchronized void setMenu(int x, int y) {
 
     currentMouseX = x;

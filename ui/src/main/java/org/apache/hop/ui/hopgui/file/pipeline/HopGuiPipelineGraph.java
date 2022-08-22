@@ -99,6 +99,7 @@ import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -2042,6 +2043,23 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return new int[] {x1, y1, x2, y2};
   }
 
+  @GuiContextAction(
+      id = "pipeline-graph-transform-90000-transform-help",
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Info,
+      name = "i18n::System.Button.Help",
+      tooltip = "i18n::System.Tooltip.Help",
+      image = "ui/images/help.svg",
+      category = "Basic",
+      categoryOrder = "1")
+  public void openTransformHelp(HopGuiPipelineTransformContext context) {
+    IPlugin plugin =
+        PluginRegistry.getInstance()
+            .getPlugin(TransformPluginType.class, context.getTransformMeta().getPluginId());
+        
+    HelpUtils.openHelp(getShell(), plugin);
+  }
+  
   @GuiContextAction(
       id = "pipeline-graph-transform-10100-transform-detach",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
