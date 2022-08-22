@@ -54,7 +54,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transforms-json</artifactId>
+            <artifactId>hop-transform-json</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -799,8 +799,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               MessageDialogWithToggle md =
                   new MessageDialogWithToggle(
                       hopShell(),
-                      BaseMessages.getString(PKG, "PipelineGraph.Dialog.SplitHop.Title"),
-                      BaseMessages.getString(PKG, "PipelineGraph.Dialog.SplitHop.Message")
+                      BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Title"),
+                      BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Message")
                           + Const.CR
                           + hi.toString(),
                       SWT.ICON_QUESTION,
@@ -809,7 +809,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                         BaseMessages.getString(PKG, "System.Button.No")
                       },
                       BaseMessages.getString(
-                          PKG, "PipelineGraph.Dialog.Option.SplitHop.DoNotAskAgain"),
+                          PKG, "HopGuiWorkflowGraph.Dialog.Option.SplitHop.DoNotAskAgain"),
                       hopGui.getProps().getAutoSplit());
               id = md.open();
               hopGui.getProps().setAutoSplit(md.getToggleState());

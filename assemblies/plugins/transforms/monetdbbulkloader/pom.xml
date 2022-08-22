@@ -42,7 +42,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transforms-monetdbbulkloader</artifactId>
+            <artifactId>hop-transform-monetdbbulkloader</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
