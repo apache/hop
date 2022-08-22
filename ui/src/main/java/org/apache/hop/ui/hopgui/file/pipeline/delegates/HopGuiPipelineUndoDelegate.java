@@ -70,7 +70,7 @@ public class HopGuiPipelineUndoDelegate {
         break;
 
         // We created a new hop : undo this...
-      case NewHop:
+      case NewPipelineHop:
         // Delete the hop at correct location:
         for (int i = changeAction.getCurrent().length - 1; i >= 0; i--) {
           int idx = changeAction.getCurrentIndex()[i];
@@ -103,7 +103,7 @@ public class HopGuiPipelineUndoDelegate {
         break;
 
         // We deleted a hop : undo this...
-      case DeleteHop:
+      case DeletePipelineHop:
         // re-insert the hop at correct location:
         for (int i = 0; i < changeAction.getCurrent().length; i++) {
           PipelineHopMeta hi = (PipelineHopMeta) changeAction.getCurrent()[i];
@@ -144,7 +144,7 @@ public class HopGuiPipelineUndoDelegate {
         break;
 
         // We changed a hop : undo this...
-      case ChangeHop:
+      case ChangePipelineHop:
         // Delete & re-insert
         for (int i = 0; i < changeAction.getCurrent().length; i++) {
           PipelineHopMeta prev = (PipelineHopMeta) changeAction.getPrevious()[i];
@@ -220,7 +220,7 @@ public class HopGuiPipelineUndoDelegate {
         }
         break;
 
-      case NewHop:
+      case NewPipelineHop:
         // re-insert the hop at correct location:
         for (int i = 0; i < changeAction.getCurrent().length; i++) {
           PipelineHopMeta hi = (PipelineHopMeta) changeAction.getCurrent()[i];
@@ -248,7 +248,7 @@ public class HopGuiPipelineUndoDelegate {
         }
         break;
 
-      case DeleteHop:
+      case DeletePipelineHop:
         // re-remove the hop at correct location:
         for (int i = changeAction.getCurrent().length - 1; i >= 0; i--) {
           int idx = changeAction.getCurrentIndex()[i];
@@ -283,7 +283,7 @@ public class HopGuiPipelineUndoDelegate {
         break;
 
         // We changed a hop : undo this...
-      case ChangeHop:
+      case ChangePipelineHop:
         // Delete & re-insert
         for (int i = 0; i < changeAction.getCurrent().length; i++) {
           PipelineHopMeta hi = (PipelineHopMeta) changeAction.getCurrent()[i];
