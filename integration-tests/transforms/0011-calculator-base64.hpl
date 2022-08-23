@@ -41,13 +41,8 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>clean</from>
+      <from>clean, cast</from>
       <to>verify</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>generate 1 row</from>
-      <to>encode</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -57,12 +52,22 @@ limitations under the License.
     </hop>
     <hop>
       <from>decode</from>
-      <to>clean</to>
+      <to>clean, cast</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>generate 1 row</from>
+      <to>set time zone</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>set time zone</from>
+      <to>encode</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>clean</name>
+    <name>clean, cast</name>
     <type>SelectValues</type>
     <description/>
     <distribute>Y</distribute>
@@ -75,21 +80,27 @@ limitations under the License.
     <fields>
       <field>
         <name>decodedBool</name>
+        <rename/>
       </field>
       <field>
         <name>decodedDate</name>
+        <rename/>
       </field>
       <field>
         <name>decodedInt</name>
+        <rename/>
       </field>
       <field>
         <name>decodedNull</name>
+        <rename/>
       </field>
       <field>
         <name>decodedNumber</name>
+        <rename/>
       </field>
       <field>
         <name>decodedString</name>
+        <rename/>
       </field>
       <select_unspecified>N</select_unspecified>
       <meta>
@@ -100,8 +111,8 @@ limitations under the License.
         <precision>-2</precision>
         <conversion_mask>EEE MMM dd HH:mm:ss ZZZ yyyy</conversion_mask>
         <date_format_lenient>false</date_format_lenient>
-        <date_format_locale/>
-        <date_format_timezone>UTC</date_format_timezone>
+        <date_format_locale>en_US</date_format_locale>
+        <date_format_timezone>CEST</date_format_timezone>
         <lenient_string_to_number>false</lenient_string_to_number>
         <encoding/>
         <decimal_symbol/>
@@ -112,7 +123,7 @@ limitations under the License.
     </fields>
     <attributes/>
     <GUI>
-      <xloc>445</xloc>
+      <xloc>544</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
@@ -184,7 +195,7 @@ limitations under the License.
     </calculation>
     <attributes/>
     <GUI>
-      <xloc>334</xloc>
+      <xloc>436</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
@@ -252,7 +263,7 @@ limitations under the License.
     </calculation>
     <attributes/>
     <GUI>
-      <xloc>223</xloc>
+      <xloc>328</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
@@ -329,6 +340,43 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
+    <name>set time zone</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>inputDate</name>
+        <rename>inputDate</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>EEE MMM dd HH:mm:ss ZZZ yyyy</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale>en_US</date_format_locale>
+        <date_format_timezone>CEST</date_format_timezone>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>220</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>verify</name>
     <type>Dummy</type>
     <description/>
@@ -341,7 +389,7 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>556</xloc>
+      <xloc>652</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
