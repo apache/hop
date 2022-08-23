@@ -41,7 +41,7 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>clean, cast</from>
+      <from>clean</from>
       <to>verify</to>
       <enabled>Y</enabled>
     </hop>
@@ -52,22 +52,17 @@ limitations under the License.
     </hop>
     <hop>
       <from>decode</from>
-      <to>clean, cast</to>
+      <to>clean</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>generate 1 row</from>
-      <to>set time zone</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>set time zone</from>
       <to>encode</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>clean, cast</name>
+    <name>clean</name>
     <type>SelectValues</type>
     <description/>
     <distribute>Y</distribute>
@@ -80,50 +75,24 @@ limitations under the License.
     <fields>
       <field>
         <name>decodedBool</name>
-        <rename/>
-      </field>
-      <field>
-        <name>decodedDate</name>
-        <rename/>
       </field>
       <field>
         <name>decodedInt</name>
-        <rename/>
       </field>
       <field>
         <name>decodedNull</name>
-        <rename/>
       </field>
       <field>
         <name>decodedNumber</name>
-        <rename/>
       </field>
       <field>
         <name>decodedString</name>
-        <rename/>
       </field>
       <select_unspecified>N</select_unspecified>
-      <meta>
-        <name>decodedDate</name>
-        <rename>decodedDate</rename>
-        <type>Date</type>
-        <length>-2</length>
-        <precision>-2</precision>
-        <conversion_mask>EEE MMM dd HH:mm:ss ZZZ yyyy</conversion_mask>
-        <date_format_lenient>false</date_format_lenient>
-        <date_format_locale>en_US</date_format_locale>
-        <date_format_timezone>CEST</date_format_timezone>
-        <lenient_string_to_number>false</lenient_string_to_number>
-        <encoding/>
-        <decimal_symbol/>
-        <grouping_symbol/>
-        <currency_symbol/>
-        <storage_type/>
-      </meta>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>544</xloc>
+      <xloc>436</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
@@ -141,8 +110,14 @@ limitations under the License.
     <failIfNoFile>Y</failIfNoFile>
     <calculation>
       <calc_type>BASE64_DECODE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>encodedBool</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>decodedBool</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -150,17 +125,14 @@ limitations under the License.
     </calculation>
     <calculation>
       <calc_type>BASE64_DECODE</calc_type>
-      <field_a>encodedDate</field_a>
-      <field_name>decodedDate</field_name>
-      <remove>N</remove>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <value_type>String</value_type>
-    </calculation>
-    <calculation>
-      <calc_type>BASE64_DECODE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>encodedInt</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>decodedInt</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -168,8 +140,14 @@ limitations under the License.
     </calculation>
     <calculation>
       <calc_type>BASE64_DECODE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>encodedNull</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>decodedNull</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -177,8 +155,14 @@ limitations under the License.
     </calculation>
     <calculation>
       <calc_type>BASE64_DECODE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>encodedNumber</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>decodedNumber</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -186,8 +170,29 @@ limitations under the License.
     </calculation>
     <calculation>
       <calc_type>BASE64_DECODE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>encodedString</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>decodedString</field_name>
+      <grouping_symbol/>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>BASE64_DECODE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>encodedDate</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>decodedDate</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -195,7 +200,7 @@ limitations under the License.
     </calculation>
     <attributes/>
     <GUI>
-      <xloc>436</xloc>
+      <xloc>328</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
@@ -213,24 +218,29 @@ limitations under the License.
     <failIfNoFile>Y</failIfNoFile>
     <calculation>
       <calc_type>BASE64_ENCODE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>inputBool</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>encodedBool</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
+      <value_type>String</value_type>
     </calculation>
     <calculation>
       <calc_type>BASE64_ENCODE</calc_type>
-      <field_a>inputDate</field_a>
-      <field_name>encodedDate</field_name>
-      <remove>N</remove>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-    </calculation>
-    <calculation>
-      <calc_type>BASE64_ENCODE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>inputInt</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>encodedInt</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -238,8 +248,14 @@ limitations under the License.
     </calculation>
     <calculation>
       <calc_type>BASE64_ENCODE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>inputNull</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>encodedNull</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -247,23 +263,52 @@ limitations under the License.
     </calculation>
     <calculation>
       <calc_type>BASE64_ENCODE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>inputNumber</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>encodedNumber</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
+      <value_type>String</value_type>
     </calculation>
     <calculation>
       <calc_type>BASE64_ENCODE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
       <field_a>inputString</field_a>
+      <field_b/>
+      <field_c/>
       <field_name>encodedString</field_name>
+      <grouping_symbol/>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>BASE64_ENCODE</calc_type>
+      <conversion_mask/>
+      <currency_symbol/>
+      <decimal_symbol/>
+      <field_a>inputDate</field_a>
+      <field_b/>
+      <field_c/>
+      <field_name>encodedDate</field_name>
+      <grouping_symbol/>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
     </calculation>
     <attributes/>
     <GUI>
-      <xloc>328</xloc>
+      <xloc>220</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
@@ -280,6 +325,10 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
         <length>-1</length>
         <name>inputBool</name>
         <precision>-1</precision>
@@ -288,15 +337,10 @@ limitations under the License.
         <nullif>false</nullif>
       </field>
       <field>
-        <format>yyyy-MM-dd</format>
-        <length>-1</length>
-        <name>inputDate</name>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-        <type>Date</type>
-        <nullif>2022-08-17</nullif>
-      </field>
-      <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
         <length>-1</length>
         <name>inputInt</name>
         <precision>-1</precision>
@@ -305,6 +349,10 @@ limitations under the License.
         <nullif>123456</nullif>
       </field>
       <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
         <length>-1</length>
         <name>inputNumber</name>
         <precision>-1</precision>
@@ -313,19 +361,40 @@ limitations under the License.
         <nullif>12.34</nullif>
       </field>
       <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
         <length>-1</length>
         <name>inputNull</name>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>String</type>
+        <nullif/>
       </field>
       <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
         <length>-1</length>
         <name>inputString</name>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>String</type>
         <nullif>abcd</nullif>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <format>yyyy-MM-dd</format>
+        <group/>
+        <length>-1</length>
+        <name>inputDate</name>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>Date</type>
+        <nullif>2022-08-23</nullif>
       </field>
     </fields>
     <interval_in_ms>5000</interval_in_ms>
@@ -336,43 +405,6 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>112</xloc>
-      <yloc>80</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>set time zone</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <select_unspecified>N</select_unspecified>
-      <meta>
-        <name>inputDate</name>
-        <rename>inputDate</rename>
-        <type>Date</type>
-        <length>-2</length>
-        <precision>-2</precision>
-        <conversion_mask>EEE MMM dd HH:mm:ss ZZZ yyyy</conversion_mask>
-        <date_format_lenient>false</date_format_lenient>
-        <date_format_locale>en_US</date_format_locale>
-        <date_format_timezone>CEST</date_format_timezone>
-        <lenient_string_to_number>false</lenient_string_to_number>
-        <encoding/>
-        <decimal_symbol/>
-        <grouping_symbol/>
-        <currency_symbol/>
-        <storage_type/>
-      </meta>
-    </fields>
-    <attributes/>
-    <GUI>
-      <xloc>220</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
@@ -389,7 +421,7 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>652</xloc>
+      <xloc>544</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
