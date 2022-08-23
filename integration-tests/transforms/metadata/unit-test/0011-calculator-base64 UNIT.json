@@ -11,10 +11,6 @@
           "data_set_field": "decodedBool"
         },
         {
-          "transform_field": "decodedDate",
-          "data_set_field": "decodedDate"
-        },
-        {
           "transform_field": "decodedInt",
           "data_set_field": "decodedInt"
         },
@@ -33,7 +29,6 @@
       ],
       "field_order": [
         "decodedBool",
-        "decodedDate",
         "decodedInt",
         "decodedNull",
         "decodedNumber",
