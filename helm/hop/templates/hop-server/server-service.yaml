@@ -15,18 +15,20 @@
 # specific language governing permissions and limitations
 # under the License.
 
+{{- if .Values.server.enabled }}
 apiVersion: v1
-kind: Pod
+kind: Service
 metadata:
-  name: "{{ include "hop.fullname" . }}-test-connection"
+  name: {{ include "server.fullname" . }}
   labels:
-    {{- include "hop.labels" . | nindent 4 }}
-  annotations:
-    "helm.sh/hook": test
+    {{- include "server.labels" . | nindent 4 }}
 spec:
-  containers:
-    - name: wget
-      image: busybox
-      command: [ 'wget' ]
-      args: [ '{{ include "hop.fullname" . }}:{{ .Values.service.port }}' ]
-  restartPolicy: Never
+  type: {{ .Values.server.service.http.type }}
+  ports:
+    - port: {{ .Values.server.service.http.port }}
+      targetPort: {{ .Values.server.service.http.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "server.selectorLabels" . | nindent 4 }}
+{{- end }}

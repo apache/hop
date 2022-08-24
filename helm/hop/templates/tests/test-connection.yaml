@@ -16,11 +16,17 @@
 # under the License.
 
 apiVersion: v1
-kind: ConfigMap
+kind: Pod
 metadata:
-  name: {{ include "hop.fullname" . }}
+  name: "{{ include "server.fullname" . }}-test-connection"
   labels:
-    {{- include "hop.labels" . | nindent 4 }}
-data:
-  port: {{ .Values.hop.port | quote }}
-  user: {{ .Values.hop.user | quote }}
+    {{- include "server.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: [ 'wget' ]
+      args: [ '{{ include "server.fullname" . }}:{{ .Values.server.service.port }}' ]
+  restartPolicy: Never
