@@ -231,6 +231,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private int lastButton;
 
+  // Keep track if a contextual dialog box is open, do not display the tooltip
+  private boolean openedContextDialog = false;
+  
   private PipelineHopMeta lastHopSplit;
 
   private org.apache.hop.core.gui.Rectangle selectionRegion;
@@ -1255,11 +1258,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           Shell parent = hopShell();
           org.eclipse.swt.graphics.Point p = parent.getDisplay().map(canvas, null, e.x, e.y);
 
+          this.openedContextDialog = true;
+          this.hideToolTips();
+          
           // Show the context dialog
           //
           avoidContextDialog =
               GuiContextUtil.getInstance()
                   .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
+          
+          this.openedContextDialog = false;
         }
       }
     }
@@ -2761,7 +2769,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private AreaOwner setToolTip(int x, int y, int screenX, int screenY) {
     AreaOwner subject = null;
 
-    if (!hopGui.getProps().showToolTips()) {
+    if (!hopGui.getProps().showToolTips() || openedContextDialog ) {
       return subject;
     }
 
@@ -2927,9 +2935,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           tip.append(BaseMessages.getString(PKG, "PipelineGraph.ShowMenu.Tooltip"));
           tipImage = GuiResource.getInstance().getImageContextMenu();
           break;
+          
+        case TRANSFORM_INFO_ICON:  
         case TRANSFORM_ICON:
           TransformMeta iconTransformMeta = (TransformMeta) areaOwner.getOwner();
-          if (iconTransformMeta.isDeprecated()) { // only need tooltip if transform is deprecated
+          
+          // If transform is deprecated, display first   
+          if (iconTransformMeta.isDeprecated()) { 
             tip.append(
                     BaseMessages.getString(PKG, "PipelineGraph.DeprecatedTransform.Tooltip.Title"))
                 .append(Const.CR);
@@ -2956,6 +2968,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                       iconTransformMeta.getSuggestion()));
             }
             tipImage = GuiResource.getInstance().getImageDeprecated();
+          }
+          else if ( !Utils.isEmpty(iconTransformMeta.getDescription()) ) {
+            tip.append(iconTransformMeta.getDescription());
           }
           break;
         case TRANSFORM_OUTPUT_DATA:
