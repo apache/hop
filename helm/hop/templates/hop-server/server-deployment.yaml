@@ -15,19 +15,20 @@
 # specific language governing permissions and limitations
 # under the License.
 
+{{- if .Values.server.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "hop.fullname" . }}
+  name: {{ include "server.fullname" . }}
   labels:
-    {{- include "hop.labels" . | nindent 4 }}
+    {{- include "server.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  {{- if not .Values.server.autoscaling.enabled }}
+  replicas: {{ .Values.server.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "hop.selectorLabels" . | nindent 6 }}
+      {{- include "server.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -35,45 +36,50 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "hop.selectorLabels" . | nindent 8 }}
+        {{- include "server.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.server.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.server.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+            {{- toYaml .Values.server.securityContext | nindent 12 }}
+          image: "{{ .Values.server.image.name }}:{{ .Values.server.image.tag }}"
+          imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+          ports:
+          - containerPort: {{ .Values.server.service.http.targetPort }}
+            name: {{ .Values.server.service.http.name }}
+            protocol: TCP
           env:
             - name: HOP_SERVER_USER
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "hop.fullname" . }}
+                  name: {{ include "server.fullname" . }}
                   key: user
             - name: HOP_SERVER_PASS
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "hop.fullname" . }}
+                  name: {{ include "server.fullname" . }}
                   key: pass
             - name: HOP_SERVER_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "hop.fullname" . }}
+                  name: {{ include "server.fullname" . }}
                   key: port
             {{- include "helpers.list-extra-env-variables" . | indent 12 }}
           volumeMounts:
-            - name: {{ template "hop.fullname" . }}-data
+            - name: {{ template "server.fullname" . }}-data
               mountPath: /files
       volumes:
-        - name: {{ template "hop.fullname" . }}-data
-          {{- if .Values.persistence.enabled }}
+        - name: {{ template "server.fullname" . }}-data
+          {{- if .Values.server.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim | default (printf "%s-%s" (include "hop.fullname" .) "data") }}
+            claimName: {{ .Values.server.persistence.existingClaim | default (printf "%s-%s" (include "server.fullname" .) "data") }}
           {{- else }}
           emptyDir: {}
           {{- end }}
+ {{- end }}

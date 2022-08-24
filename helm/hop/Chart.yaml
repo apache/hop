@@ -16,8 +16,8 @@
 # under the License.
 
 apiVersion: v2
-name: hop-server
-description: A Helm chart for Kubernetes
+name: hop
+description: A Helm chart for hop services
 
 # A chart can be either an 'application' or a 'library' chart.
 #
