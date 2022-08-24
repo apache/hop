@@ -134,7 +134,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       props.setLook(list);
       list.setLayoutData(new FormDataBuilder().fullSize().result());
       list.setItems(getVariableNames(variables));
-      final Tip toolTip = new Tip(list.getShell(), SWT.BALLOON);
+      final ToolTip toolTip = new ToolTip(list.getShell(), SWT.BALLOON);
       toolTip.setAutoHide(true);
 
       list.addSelectionListener(

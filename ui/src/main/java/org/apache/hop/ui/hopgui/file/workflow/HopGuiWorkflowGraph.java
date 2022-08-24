@@ -59,7 +59,6 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.OsHelper;
-import org.apache.hop.ui.core.widget.Tip;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -358,7 +357,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           100,
         });
 
-    toolTip = new Tip(getShell(), SWT.BALLOON);
+    toolTip = new ToolTip(getShell(), SWT.BALLOON);
     toolTip.setAutoHide(true);
 
     newProps();
