@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-value-mapper.csv",
+  "name": "golden-value-mapper",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 3,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "IATA_Code"
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "Airport_Name"
+    },
+    {
+      "field_comment": "",
+      "field_length": 2,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "Country_Code"
+    },
+    {
+      "field_comment": "",
+      "field_length": 16,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "Country_Name"
+    }
+  ],
+  "folder_name": ""
+}

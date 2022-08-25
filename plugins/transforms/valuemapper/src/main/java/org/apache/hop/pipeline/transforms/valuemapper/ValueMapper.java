@@ -26,8 +26,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /** Convert Values in a certain fields to other values */
 public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData> {
@@ -84,8 +83,8 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
       //
       for (int i = 0; i < meta.getSourceValue().length; i++) {
         if (Utils.isEmpty(meta.getSourceValue()[i])) {
-          if (data.emptyFieldIndex < 0) {
-            data.emptyFieldIndex = i;
+          if (data.emptyFieldValue==null) {
+            data.emptyFieldValue = resolve(meta.getTargetValue()[i]);
           } else {
             throw new HopException(
                 BaseMessages.getString(
@@ -110,14 +109,14 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
 
     // Null/Empty mapping to value...
     //
-    if (data.emptyFieldIndex >= 0 && (r[data.keynr] == null || Utils.isEmpty(source))) {
-      target = meta.getTargetValue()[data.emptyFieldIndex]; // that's all there is to it.
+    if (data.emptyFieldValue!=null && (r[data.keynr] == null || Utils.isEmpty(source))) {
+      target = data.emptyFieldValue; // that's all there is to it.
     } else {
       if (!Utils.isEmpty(source)) {
-        target = data.hashtable.get(source);
+        target = data.mapValues.get(source);
         if (nonMatchActivated && target == null) {
           // If we do non matching and we don't have a match
-          target = meta.getNonMatchDefault();
+          target = data.nonMatchDefault;
         }
       }
     }
@@ -172,24 +171,24 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
   public boolean init() {
 
     if (super.init()) {
-      data.hashtable = new Hashtable<>();
-      data.emptyFieldIndex = -1;
+      data.mapValues = new HashMap<>();
 
       if (!Utils.isEmpty(meta.getNonMatchDefault())) {
         nonMatchActivated = true;
+        data.nonMatchDefault = resolve(meta.getNonMatchDefault());
       }
 
       // Add all source to target mappings in here...
       for (int i = 0; i < meta.getSourceValue().length; i++) {
         String src = meta.getSourceValue()[i];
-        String tgt = meta.getTargetValue()[i];
+        String tgt = this.resolve(meta.getTargetValue()[i]);
 
         if (!Utils.isEmpty(src) && !Utils.isEmpty(tgt)) {
-          data.hashtable.put(src, tgt);
+          data.mapValues.put(src, tgt);
         } else {
           if (Utils.isEmpty(tgt)) {
             // allow target to be set to null since 3.0
-            data.hashtable.put(src, "");
+            data.mapValues.put(src, "");
           }
         }
       }

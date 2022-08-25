@@ -62,8 +62,10 @@ The following properties are used to define the mappings:
 |Fieldname to use|Field to use as the mapping source
 |Target field name|Field to use as the mapping Target
 |Default upon non-matching|Defines a default value for situations where the source value is not empty, but there is no match
-|Field values table|Contains the mapping of source value to converted target value
+|Field values table|Contains the mapping of source value to converted target value.
 |===
+
+TIP: If there is an empty source value defined, we map null or empty string to the target value. Only one empty mapping is allowed.
 
 == Metadata Injection Support
 
