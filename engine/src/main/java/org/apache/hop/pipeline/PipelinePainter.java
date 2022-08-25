@@ -24,6 +24,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.*;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
+import org.apache.hop.core.gui.IGc.EImage;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.svg.SvgFile;
@@ -783,6 +784,24 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     }
     gc.drawRoundRectangle(x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8);
 
+    // Show an information icon in the upper left corner of the transform...
+    //
+    if ( !Utils.isEmpty(transformMeta.getDescription()) ) {
+      int xInfo = x - (miniIconSize / 2) - 1;
+      int yInfo = y - (miniIconSize / 2) - 1;
+      gc.drawImage(EImage.INFO_DISABLED, xInfo, yInfo, magnification);
+      areaOwners.add(
+          new AreaOwner(
+              AreaType.TRANSFORM_INFO_ICON,
+              xInfo,
+              yInfo,
+              miniIconSize,
+              miniIconSize,
+              offset,
+              pipelineMeta,
+              transformMeta));
+    }
+    
     Point namePosition = getNamePosition(name, screen, iconSize);
 
     // Help out the user working in single-click mode by allowing the name to be clicked to edit
@@ -834,12 +853,12 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       String copies = "x" + transformMeta.getCopiesString();
       Point textExtent = gc.textExtent(copies);
 
-      gc.drawText(copies, x - textExtent.x + 1, y - textExtent.y + 1, false);
+      gc.drawText(copies, x - textExtent.x + 1, y - textExtent.y - 4, false);
       areaOwners.add(
           new AreaOwner(
               AreaType.TRANSFORM_COPIES_TEXT,
               x - textExtent.x + 1,
-              y - textExtent.y + 1,
+              y - textExtent.y - 4,
               textExtent.x,
               textExtent.y,
               offset,

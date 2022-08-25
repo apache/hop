@@ -206,6 +206,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   protected boolean splitHop;
 
+  // Keep track if a contextual dialog box is open, do not display the tooltip
+  private boolean openedContextDialog = false;
+  
   protected int lastButton;
 
   protected WorkflowHopMeta lastHopSplit;
@@ -469,7 +472,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         return;
       }
     } catch (Exception ex) {
-      LogChannel.GENERAL.logError("Error calling JobGraphMouseDoubleClick extension point", ex);
+      LogChannel.GENERAL.logError("Error calling WorkflowGraphMouseDoubleClick extension point", ex);
     }
 
     ActionMeta action = workflowMeta.getAction(real.x, real.y, iconSize);
@@ -537,7 +540,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         return;
       }
     } catch (Exception ex) {
-      LogChannel.GENERAL.logError("Error calling JobGraphMouseDown extension point", ex);
+      LogChannel.GENERAL.logError("Error calling WorkflowGraphMouseDown extension point", ex);
     }
 
     // A single left or middle click on one of the area owners...
@@ -1024,11 +1027,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           Shell parent = hopShell();
           org.eclipse.swt.graphics.Point p = parent.getDisplay().map(canvas, null, e.x, e.y);
 
+          this.openedContextDialog = true;
+          this.hideToolTips();
+          
           // Show the context dialog
           //
           ignoreNextClick =
               GuiContextUtil.getInstance()
                   .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
+          
+          this.openedContextDialog = false;
         }
       }
     }
@@ -2391,7 +2399,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   protected void setToolTip(int x, int y, int screenX, int screenY) {
-    if (!hopGui.getProps().showToolTips()) {
+    if (!hopGui.getProps().showToolTips() || openedContextDialog ) {
       return;
     }
 
@@ -2524,14 +2532,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   + "that was reached last time the pipeline was executed.");
           tipImage = GuiResource.getInstance().getImageCheckpoint();
           break;
+        case ACTION_INFO_ICON:
         case ACTION_ICON:
-          ActionMeta jec = (ActionMeta) areaOwner.getOwner();
-          if (jec.isDeprecated()) { // only need tooltip if action is deprecated
+          ActionMeta actionMetaInfo = (ActionMeta) areaOwner.getOwner();
+          
+          // If transform is deprecated, display first  
+          if (actionMetaInfo.isDeprecated()) { // only need tooltip if action is deprecated
             tip.append(BaseMessages.getString(PKG, "WorkflowGraph.DeprecatedEntry.Tooltip.Title"))
                 .append(Const.CR);
             String tipNext =
                 BaseMessages.getString(
-                    PKG, "WorkflowGraph.DeprecatedEntry.Tooltip.Message1", jec.getName());
+                    PKG, "WorkflowGraph.DeprecatedEntry.Tooltip.Message1", actionMetaInfo.getName());
             int length = tipNext.length() + 5;
             for (int i = 0; i < length; i++) {
               tip.append("-");
@@ -2539,15 +2550,18 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             tip.append(Const.CR).append(tipNext).append(Const.CR);
             tip.append(
                 BaseMessages.getString(PKG, "WorkflowGraph.DeprecatedEntry.Tooltip.Message2"));
-            if (!Utils.isEmpty(jec.getSuggestion())
-                && !(jec.getSuggestion().startsWith("!") && jec.getSuggestion().endsWith("!"))) {
+            if (!Utils.isEmpty(actionMetaInfo.getSuggestion())
+                && !(actionMetaInfo.getSuggestion().startsWith("!") && actionMetaInfo.getSuggestion().endsWith("!"))) {
               tip.append(" ");
               tip.append(
                   BaseMessages.getString(
-                      PKG, "WorkflowGraph.DeprecatedEntry.Tooltip.Message3", jec.getSuggestion()));
+                      PKG, "WorkflowGraph.DeprecatedEntry.Tooltip.Message3", actionMetaInfo.getSuggestion()));
             }
             tipImage = GuiResource.getInstance().getImageDeprecated();
           }
+          else if ( !Utils.isEmpty(actionMetaInfo.getDescription()) ) {
+            tip.append(actionMetaInfo.getDescription());
+          }      
           break;
         default:
           // For plugins...

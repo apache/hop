@@ -29,6 +29,7 @@ import org.apache.hop.core.gui.IGc.EFont;
 import org.apache.hop.core.gui.IGc.EImage;
 import org.apache.hop.core.gui.IGc.ELineStyle;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.workflow.action.ActionMeta;
 
@@ -308,8 +309,8 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
 
     if (activeActions != null && activeActions.contains(actionMeta)) {
       gc.setForeground(EColor.BLUE);
-      int iconX = (x + iconSize) - (miniIconSize / 2);
-      int iconY = y - (miniIconSize / 2);
+      int iconX = (x + iconSize) - (miniIconSize / 2) + 1;
+      int iconY = y - (miniIconSize / 2) - 1;
       gc.drawImage(EImage.BUSY, iconX, iconY, magnification);
       areaOwners.add(
           new AreaOwner(
@@ -324,12 +325,30 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     } else {
       gc.setForeground(EColor.BLACK);
     }
+    
+    // Show an information icon in the upper left corner of the action...
+    //
+    if ( !Utils.isEmpty(actionMeta.getDescription()) ) {
+      int xInfo = x - (miniIconSize / 2) - 1;
+      int yInfo = y - (miniIconSize / 2) - 1;
+      gc.drawImage(EImage.INFO_DISABLED, xInfo, yInfo, magnification);
+      areaOwners.add(
+          new AreaOwner(
+              AreaType.ACTION_INFO_ICON,
+              xInfo,
+              yInfo,
+              miniIconSize,
+              miniIconSize,
+              offset,
+              workflowMeta,
+              actionMeta));
+    }
 
     ActionResult actionResult = findActionResult(actionMeta);
     if (actionResult != null) {
       Result result = actionResult.getResult();
-      int iconX = (x + iconSize) - (miniIconSize / 2);
-      int iconY = y - (miniIconSize / 2);
+      int iconX = (x + iconSize) - (miniIconSize / 2) + 1;
+      int iconY = y - (miniIconSize / 2) - 1;
 
       // Draw an execution result on the top right corner...
       //
