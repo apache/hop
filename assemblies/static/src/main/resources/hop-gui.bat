@@ -101,5 +101,6 @@ echo.
 echo ===[Starting Hop]=========================================================
 
 %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Dswt.autoScale=false -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
+if ERRORLEVEL 1 (pause)
 @echo off
 :End

@@ -39,10 +39,10 @@
     }
   ],
   "input_data_sets": [],
-  "name": "0044-coalesce-binary-string UNIT",
+  "name": "0016-coalesce-binary-string UNIT",
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "./0044-coalesce-binary-string.hpl",
+  "pipeline_filename": "./0016-coalesce-binary-string.hpl",
   "test_type": "UNIT_TEST"
 }
