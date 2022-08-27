@@ -277,7 +277,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           String dateStr = XmlHandler.date2string(pipeline.getExecutionStartDate());
           out.print(
               "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">"
-                  + dateStr.substring(0, dateStr.indexOf(' '))
+                  + (dateStr != null ? dateStr.substring(0, dateStr.indexOf(' ')) : "-")
                   + "</td>");
           out.print("</tr>");
           out.print("</table>");
