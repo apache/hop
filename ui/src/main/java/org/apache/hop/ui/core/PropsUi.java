@@ -525,13 +525,13 @@ public class PropsUi extends Props {
         break;
       case WIDGET_STYLE_TAB:
         background = gui.getColorWhite();
-        foreground = gui.getColorBlack();
+        foreground = gui.getColorDarkGray();
         CTabFolder tabFolder = (CTabFolder) control;
         tabFolder.setBorderVisible(true);
         // need to make a copy of the tab selection background color to get around bug
-        Color c = gui.getColorTab();
-        Color tabColor = new Color(c.getDevice(), c.getRed(), c.getGreen(), c.getBlue());
+        Color tabColor = new Color(gui.getColorTab().getRGB());
         tabFolder.setSelectionBackground(tabColor);
+        tabFolder.setSelectionForeground(gui.getColorBlack());
         break;
       default:
         background = gui.getColorBackground();
