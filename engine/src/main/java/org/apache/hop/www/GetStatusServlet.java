@@ -399,9 +399,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + "\" class=\"cellTableCell "
                   + tdClass
                   + "\">"
-                  + (pipeline.getExecutionStartDate() == null
-                      ? "-"
-                      : dateStr.substring(0, dateStr.indexOf(' ')))
+                  + (dateStr != null ? dateStr.substring(0, dateStr.indexOf(' ')) : "-")
                   + "</td>");
           out.print(
               "<td onMouseEnter=\"mouseEnterFunction( this, '"
@@ -418,7 +416,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + "\" class=\"cellTableCell cellTableLastColumn "
                   + tdClass
                   + "\">"
-                  + dateStr.substring(dateStr.indexOf(' '))
+                  + (dateStr != null ? dateStr.substring(dateStr.indexOf(' ')) : "-")
                   + "</td>");
           out.print("</tr>");
         }
@@ -605,9 +603,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + "\" class=\"cellTableCell "
                   + tdClass
                   + "\">"
-                  + (workflow.getExecutionStartDate() == null
-                      ? "-"
-                      : dateStr.substring(0, dateStr.indexOf(' ')))
+                  + (dateStr != null ? dateStr.substring(0, dateStr.indexOf(' ')) : "-")
                   + "</td>");
           out.print(
               "<td onMouseEnter=\"mouseEnterFunction( this, '"
@@ -624,7 +620,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + "\" class=\"cellTableCell cellTableLastColumn "
                   + tdClass
                   + "\">"
-                  + (dateStr != null ? dateStr.substring(dateStr.indexOf(' ')) : "")
+                  + (dateStr != null ? dateStr.substring(dateStr.indexOf(' ')) : "-")
                   + "</td>");
           out.print("</tr>");
         }

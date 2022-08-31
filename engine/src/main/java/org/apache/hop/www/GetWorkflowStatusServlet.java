@@ -262,7 +262,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           String dateStr = XmlHandler.date2string(workflow.getExecutionStartDate());
           out.print(
               "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">"
-                  + (dateStr != null ? dateStr.substring(0, dateStr.indexOf(' ')) : "")
+                  + (dateStr != null ? dateStr.substring(0, dateStr.indexOf(' ')) : "-")
                   + "</td>");
           out.print("</tr>");
           out.print("</table>");
