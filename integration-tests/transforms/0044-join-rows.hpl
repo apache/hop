@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0044-join-rows</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2021/05/11 11:53:49.429</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2021/05/11 11:53:49.429</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>A</from>
+      <to>Join rows (id1=id2)</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>B</from>
+      <to>Join rows (id1=id2)</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Join rows (id1=id2)</from>
+      <to>Verify equal</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>A</from>
+      <to>Join rows (between range)</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>B</from>
+      <to>Join rows (between range)</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Join rows (between range)</from>
+      <to>Verify range</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>A</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>id1</name>
+        <precision>-1</precision>
+        <type>Integer</type>
+      </field>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>value1</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>1</item>
+        <item>a</item>
+      </line>
+      <line>
+        <item>2</item>
+        <item>b</item>
+      </line>
+      <line>
+        <item>3</item>
+        <item>c</item>
+      </line>
+      <line>
+        <item>5</item>
+        <item>e</item>
+      </line>
+      <line>
+        <item>8</item>
+        <item>h</item>
+      </line>
+      <line>
+        <item>10</item>
+        <item>j</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>48</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>B</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>id2</name>
+        <precision>-1</precision>
+        <type>Integer</type>
+      </field>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>value2</name>
+        <precision>-1</precision>
+        <type>String</type>
+      </field>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>rangeStart</name>
+        <precision>-1</precision>
+        <type>Number</type>
+      </field>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>rangeEnd</name>
+        <precision>-1</precision>
+        <type>Number</type>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>2</item>
+        <item>B</item>
+        <item>0</item>
+        <item>5</item>
+      </line>
+      <line>
+        <item>4</item>
+        <item>D</item>
+        <item>2.5</item>
+        <item>3.5</item>
+      </line>
+      <line>
+        <item>5</item>
+        <item>E</item>
+        <item>6</item>
+        <item>10</item>
+      </line>
+      <line>
+        <item>7</item>
+        <item>G</item>
+        <item>10</item>
+        <item>100</item>
+      </line>
+      <line>
+        <item>9</item>
+        <item>H</item>
+        <item>5</item>
+        <item>50</item>
+      </line>
+    </data>
+    <attributes/>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>224</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Join rows (between range)</name>
+    <type>JoinRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>%%java.io.tmpdir%%</directory>
+    <prefix>out</prefix>
+    <cache_size>500</cache_size>
+    <main/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <conditions>
+          <condition>
+            <negated>N</negated>
+            <leftvalue>id1</leftvalue>
+            <function>&gt;=</function>
+            <rightvalue>rangeStart</rightvalue>
+          </condition>
+          <condition>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <leftvalue>id1</leftvalue>
+            <function>&lt;=</function>
+            <rightvalue>rangeEnd</rightvalue>
+          </condition>
+        </conditions>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>224</xloc>
+      <yloc>224</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Join rows (id1=id2)</name>
+    <type>JoinRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>%%java.io.tmpdir%%</directory>
+    <prefix>out</prefix>
+    <cache_size>500</cache_size>
+    <main>A</main>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>id1</leftvalue>
+        <function>=</function>
+        <rightvalue>id2</rightvalue>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>224</xloc>
+      <yloc>48</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Verify equal</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>48</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Verify range</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>224</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

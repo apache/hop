@@ -1,0 +1,56 @@
+{
+  "base_filename": "golden-join-rows-range.csv",
+  "name": "golden-join-rows-range",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "id1"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "value1"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "id2"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "value2"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "rangeStart"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "rangeEnd"
+    }
+  ],
+  "folder_name": ""
+}

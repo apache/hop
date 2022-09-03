@@ -1,0 +1,91 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id1",
+          "data_set_field": "id1"
+        },
+        {
+          "transform_field": "value1",
+          "data_set_field": "value1"
+        },
+        {
+          "transform_field": "id2",
+          "data_set_field": "id2"
+        },
+        {
+          "transform_field": "value2",
+          "data_set_field": "value2"
+        },
+        {
+          "transform_field": "rangeStart",
+          "data_set_field": "rangeStart"
+        },
+        {
+          "transform_field": "rangeEnd",
+          "data_set_field": "rangeEnd"
+        }
+      ],
+      "field_order": [
+        "id1",
+        "value1",
+        "id2",
+        "value2",
+        "rangeStart",
+        "rangeEnd"
+      ],
+      "transform_name": "Verify equal",
+      "data_set_name": "golden-join-rows-equal"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id1",
+          "data_set_field": "id1"
+        },
+        {
+          "transform_field": "value1",
+          "data_set_field": "value1"
+        },
+        {
+          "transform_field": "id2",
+          "data_set_field": "id2"
+        },
+        {
+          "transform_field": "value2",
+          "data_set_field": "value2"
+        },
+        {
+          "transform_field": "rangeStart",
+          "data_set_field": "rangeStart"
+        },
+        {
+          "transform_field": "rangeEnd",
+          "data_set_field": "rangeEnd"
+        }
+      ],
+      "field_order": [
+        "id1",
+        "value1",
+        "id2",
+        "value2",
+        "rangeStart",
+        "rangeEnd"
+      ],
+      "transform_name": "Verify range",
+      "data_set_name": "golden-join-rows-range"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0044-join-rows UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0044-join-rows.hpl",
+  "test_type": "UNIT_TEST"
+}
