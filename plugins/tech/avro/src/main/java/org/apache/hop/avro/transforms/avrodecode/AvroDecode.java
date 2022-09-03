@@ -204,6 +204,8 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
               || avroValue instanceof Boolean
               || avroValue instanceof byte[]) {
             hopValue = avroValue;
+          } else if (avroValue instanceof Float) {
+            hopValue = Double.valueOf((float) avroValue).doubleValue();
           } else if (avroValue instanceof Integer) {
             hopValue = Integer.valueOf((int) avroValue).longValue();
           } else {
