@@ -53,6 +53,11 @@ public class NumberRange extends BaseTransform<NumberRangeMeta, NumberRangeData>
     if (first) {
       first = false;
 
+      // Prepare lower and upper bound 
+      for (NumberRangeRule rule : meta.getRules()) {
+        rule.init();
+      }
+      
       numberRange = new NumberRangeSet(meta.getRules(), meta.getFallBackValue());
       data.outputRowMeta = getInputRowMeta().clone();
       // Prepare output fields

@@ -66,7 +66,7 @@ public class NumberRangeMetaTest {
     @Override
     public NumberRangeRule getTestObject() {
       return new NumberRangeRule(
-          new Random().nextDouble(), new Random().nextDouble(), UUID.randomUUID().toString());
+          String.valueOf(new Random().nextDouble()), String.valueOf(new Random().nextDouble()), UUID.randomUUID().toString());
     }
 
     @Override

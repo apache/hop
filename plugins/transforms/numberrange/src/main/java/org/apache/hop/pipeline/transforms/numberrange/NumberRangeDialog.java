@@ -74,27 +74,27 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "NumberRange.TypeLongDesc"));
+    shell.setText(BaseMessages.getString(PKG, "NumberRangeDialog.Title"));
 
     // Some buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);
-    wOk.setText("OK");
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
     wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText("Cancel");
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
 
     // Create controls
     wTransformName =
-        createLine(lsMod, BaseMessages.getString(PKG, "NumberRange.TransformName"), null);
+        createLine(lsMod, BaseMessages.getString(PKG, "NumberRangeDialog.TransformName"), null);
     inputFieldControl =
         createLineCombo(
-            lsMod, BaseMessages.getString(PKG, "NumberRange.InputField"), wTransformName);
+            lsMod, BaseMessages.getString(PKG, "NumberRangeDialog.InputField"), wTransformName);
     outputFieldControl =
         createLine(
-            lsMod, BaseMessages.getString(PKG, "NumberRange.OutputField"), inputFieldControl);
+            lsMod, BaseMessages.getString(PKG, "NumberRangeDialog.OutputField"), inputFieldControl);
 
     inputFieldControl.addFocusListener(
         new FocusListener() {
@@ -112,7 +112,7 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
         });
     fallBackValueControl =
         createLine(
-            lsMod, BaseMessages.getString(PKG, "NumberRange.DefaultValue"), outputFieldControl);
+            lsMod, BaseMessages.getString(PKG, "NumberRangeDialog.DefaultValue"), outputFieldControl);
 
     createRulesTable(lsMod);
 
@@ -127,7 +127,7 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
   /** Creates the table of rules */
   private void createRulesTable(ModifyListener lsMod) {
     Label rulesLable = new Label(shell, SWT.NONE);
-    rulesLable.setText(BaseMessages.getString(PKG, "NumberRange.Ranges"));
+    rulesLable.setText(BaseMessages.getString(PKG, "NumberRangeDialog.Ranges"));
     props.setLook(rulesLable);
     FormData lableFormData = new FormData();
     lableFormData.left = new FormAttachment(0, 0);
@@ -140,17 +140,17 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     ColumnInfo[] colinf = new ColumnInfo[3];
     colinf[0] =
         new ColumnInfo(
-            BaseMessages.getString(PKG, "NumberRange.LowerBound"),
+            BaseMessages.getString(PKG, "NumberRangeDialog.LowerBound"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
     colinf[1] =
         new ColumnInfo(
-            BaseMessages.getString(PKG, "NumberRange.UpperBound"),
+            BaseMessages.getString(PKG, "NumberRangeDialog.UpperBound"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
     colinf[2] =
         new ColumnInfo(
-            BaseMessages.getString(PKG, "NumberRange.Value"), ColumnInfo.COLUMN_TYPE_TEXT, false);
+            BaseMessages.getString(PKG, "NumberRangeDialog.Value"), ColumnInfo.COLUMN_TYPE_TEXT, false);
 
     rulesControl =
         new TableView(
@@ -260,20 +260,9 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     for (int i = 0; i < input.getRules().size(); i++) {
       NumberRangeRule rule = input.getRules().get(i);
       TableItem item = rulesControl.table.getItem(i);
-
-      // Empty value is equal to minimal possible value
-      if (rule.getLowerBound() > -Double.MAX_VALUE) {
-        String lowerBoundStr = String.valueOf(rule.getLowerBound());
-        item.setText(1, lowerBoundStr);
-      }
-
-      // Empty value is equal to maximal possible value
-      if (rule.getUpperBound() < Double.MAX_VALUE) {
-        String upperBoundStr = String.valueOf(rule.getUpperBound());
-        item.setText(2, upperBoundStr);
-      }
-
-      item.setText(3, rule.getValue());
+      item.setText(1, Const.NVL(rule.getLowerBound(),""));
+      item.setText(2, Const.NVL(rule.getUpperBound(),""));
+      item.setText(3, Const.NVL(rule.getValue(),""));
     }
     rulesControl.setRowNums();
     rulesControl.optWidth(true);
@@ -292,40 +281,20 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
 
     transformName = wTransformName.getText(); // return value
 
-    String inputField = inputFieldControl.getText();
-    input.setInputField(inputField);
+    input.setInputField(inputFieldControl.getText());
+    input.setOutputField(outputFieldControl.getText());   
+    input.setFallBackValue(fallBackValueControl.getText());
 
     input.emptyRules();
-
-    String fallBackValue = fallBackValueControl.getText();
-    input.setFallBackValue(fallBackValue);
-
-    input.setOutputField(outputFieldControl.getText());
 
     int count = rulesControl.nrNonEmpty();
     for (int i = 0; i < count; i++) {
       TableItem item = rulesControl.getNonEmpty(i);
-      String lowerBoundStr =
-          Utils.isEmpty(item.getText(1)) ? String.valueOf(-Double.MAX_VALUE) : item.getText(1);
-      String upperBoundStr =
-          Utils.isEmpty(item.getText(2)) ? String.valueOf(Double.MAX_VALUE) : item.getText(2);
+      String lowerBoundStr = item.getText(1);
+      String upperBoundStr = item.getText(2);
       String value = item.getText(3);
-
-      try {
-        double lowerBound = Double.parseDouble(lowerBoundStr);
-        double upperBound = Double.parseDouble(upperBoundStr);
-
-        input.addRule(lowerBound, upperBound, value);
-      } catch (NumberFormatException e) {
-        throw new IllegalArgumentException(
-            "Bounds of this rule are not numeric: lowerBound="
-                + lowerBoundStr
-                + ", upperBound="
-                + upperBoundStr
-                + ", value="
-                + value,
-            e);
-      }
+      
+      input.addRule(lowerBoundStr, upperBoundStr, value);
     }
 
     dispose();
@@ -347,7 +316,11 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
 
     } catch (HopException ke) {
       new ErrorDialog(
-          shell, BaseMessages.getString(PKG, "NumberRange.TypeLongDesc"), "Can't get fields", ke);
+          shell, 
+          BaseMessages.getString(PKG, "NumberRangeDialog.Title"), 
+          BaseMessages.getString(PKG, "NumberRangeDialog.FailedToGetFields.DialogMessage"),
+          ke);
     }
   }
 }
+

@@ -17,33 +17,64 @@
 
 package org.apache.hop.pipeline.transforms.numberrange;
 
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import java.util.Objects;
 
 /** Contains one rule for a number range */
 public class NumberRangeRule {
 
   /** Lower bound for which the rule matches (lowerBound <= x) */
-  private double lowerBound;
+  @HopMetadataProperty(key ="lower_bound", injectionKey = "LOWER_BOUND", injectionKeyDescription = "NumberRangeMeta.Injection.LOWER_BOUND")
+  private String lowerBound;
 
   /** Upper bound for which the rule matches (x < upperBound) */
-  private double upperBound;
+  @HopMetadataProperty(key ="upper_bound", injectionKey = "UPPER_BOUND", injectionKeyDescription = "NumberRangeMeta.Injection.UPPER_BOUND")
+  private String upperBound;
 
   /** Value that is returned if the number to be tested is within the range */
+  @HopMetadataProperty(key ="value", injectionKey = "VALUE", injectionKeyDescription = "NumberRangeMeta.Injection.VALUE")
   private String value;
+  
+  private double lowerBoundValue;
+  private double upperBoundValue;
 
-  public NumberRangeRule(double lowerBound, double upperBound, String value) {
+  public NumberRangeRule() {
+
+  }
+  
+  public NumberRangeRule(String lowerBound, String upperBound, String value) {
     this.lowerBound = lowerBound;
     this.upperBound = upperBound;
     this.value = value;
   }
+  
+  public void init() {
+    try {
+      // Empty value is equal to minimal possible value
+      if (Utils.isEmpty(this.lowerBound))
+        this.lowerBoundValue = -Double.MAX_VALUE;
+      else
+        this.lowerBoundValue = Double.valueOf(lowerBound);
 
+      // Empty value is equal to maximal possible value
+      if (Utils.isEmpty(this.upperBound))
+        this.upperBoundValue = Double.MAX_VALUE;
+      else
+        this.upperBoundValue = Double.valueOf(upperBound);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Bounds of this rule are not numeric: lowerBound="
+          + lowerBound + ", upperBound=" + upperBound + ", value=" + value, e);
+    }
+  }
+  
   /**
    * Evaluates if the current value is within the range. If so, it returns the value. Otherwise it
    * returns null.
    */
   public String evaluate(double compareValue) {
     // Check if the value is within the range
-    if ((compareValue >= lowerBound) && (compareValue < upperBound)) {
+    if ((compareValue >= lowerBoundValue) && (compareValue < upperBoundValue)) {
       return value;
     }
 
@@ -51,14 +82,26 @@ public class NumberRangeRule {
     return null;
   }
 
-  public double getLowerBound() {
+  public void setLowerBound(String value) {
+    this.lowerBound = value;
+  }
+  
+  public String getLowerBound() {
     return lowerBound;
   }
 
-  public double getUpperBound() {
+  public void setUpperBound(String value) {
+    this.upperBound = value;;
+  }
+  
+  public String getUpperBound() {
     return upperBound;
   }
 
+  public void setValue(String value) {
+    this.value = value;
+  }
+  
   public String getValue() {
     return value;
   }
@@ -69,8 +112,8 @@ public class NumberRangeRule {
       return false;
     } else {
       NumberRangeRule target = (NumberRangeRule) obj;
-      return getLowerBound() == target.getLowerBound()
-          && getUpperBound() == target.getUpperBound()
+      return getLowerBound().equals(target.getLowerBound())
+          && getUpperBound().equals(target.getUpperBound())
           && getValue().equals(target.getValue());
     }
   }
