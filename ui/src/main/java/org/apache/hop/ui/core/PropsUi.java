@@ -529,7 +529,7 @@ public class PropsUi extends Props {
         CTabFolder tabFolder = (CTabFolder) control;
         tabFolder.setBorderVisible(true);
         // need to make a copy of the tab selection background color to get around bug
-        Color tabColor = new Color(gui.getColorTab().getRGB());
+        Color tabColor = new Color(gui.getColorTab().getDevice(), gui.getColorTab().getRGB());
         tabFolder.setSelectionBackground(tabColor);
         tabFolder.setSelectionForeground(gui.getColorBlack());
         break;
