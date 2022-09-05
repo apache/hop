@@ -288,6 +288,11 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
 
     data.filenr++;
 
+    // recurse until an output row has been created for each matched file
+    if (data.filenr < data.filessize) {
+      return processRow();
+    }
+
     if (checkFeedback(getLinesInput()) && log.isBasic()) {
       logBasic(BaseMessages.getString(PKG, "GetFileNames.Log.NrLine", "" + getLinesInput()));
     }
