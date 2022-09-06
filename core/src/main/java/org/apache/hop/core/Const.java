@@ -904,9 +904,9 @@ public class Const {
    */
   @Variable(value = "Y",
       description =
-          "Name of the variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is \"Y\" then nulls will be included otherwise they will not be included (default behavior)")
+          "Name of the variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is \"Y\" then nulls will be included (default behavior) otherwise they will not be included")
   public static final String HOP_JSON_INPUT_INCLUDE_NULLS = "HOP_JSON_INPUT_INCLUDE_NULLS";
-  /** By default, HOP do not consider NULLS while parsing input */
+  /** By default, HOP do consider NULLs while parsing input */
   public static final String JSON_INPUT_INCLUDE_NULLS = "Y";
 
   /** The i18n prefix to signal that this is a String in the format: i18n:package:key */

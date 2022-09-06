@@ -376,6 +376,9 @@ public class JsonInputTest {
 
   @Test
   public void testRemoveSourceField() throws Exception {
+
+    System.setProperty("HOP_JSON_INPUT_INCLUDE_NULLS", "N");
+
     final String inCol = "json";
     JsonInputField jpath = new JsonInputField("isbn");
     jpath.setPath("$..book[*].isbn");
@@ -441,6 +444,9 @@ public class JsonInputTest {
 
   @Test
   public void testDefaultLeafToNull() throws Exception {
+
+    System.setProperty("HOP_JSON_INPUT_INCLUDE_NULLS", "N");
+
     JsonInputField noPath = new JsonInputField("price");
     noPath.setPath("$..price");
     noPath.setType(IValueMeta.TYPE_STRING);
