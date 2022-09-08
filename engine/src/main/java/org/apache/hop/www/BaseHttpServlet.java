@@ -17,10 +17,12 @@
 
 package org.apache.hop.www;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.http.entity.ContentType;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -82,6 +84,15 @@ public class BaseHttpServlet extends HttpServlet {
     } else {
       this.variables = serverConfig.getVariables();
     }
+  }
+
+  @Override
+  protected void service(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    if (req.getContentLength() > 0 && req.getContentType() != null) {
+      req.setCharacterEncoding(getContentEncoding(req.getContentType()));
+    }
+    super.service(req, resp);
   }
 
   @Override
@@ -207,5 +218,16 @@ public class BaseHttpServlet extends HttpServlet {
   /** @param log The log to set */
   public void setLog(ILogChannel log) {
     this.log = log;
+  }
+
+  private String getContentEncoding(String contentTypeValue) {
+    ContentType contentType = ContentType.parse(contentTypeValue);
+    if ("text/xml".equals(contentType.getMimeType())) {
+      if (contentType.getCharset() != null) {
+        return contentType.getCharset().name();
+      }
+      return Const.XML_ENCODING;
+    }
+    return null;
   }
 }
