@@ -1,0 +1,246 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.apache.hop.execution;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Execution states are possible for pipelines and workflows but also for actions and transforms.
+ */
+public class ExecutionState {
+
+  /** The type of execution to update */
+  private ExecutionType executionType;
+  /**
+   * The unique ID of the parent executor. If this is an action or transform update, this is the ID
+   * of that executor.
+   */
+  private String parentId;
+
+  /** The unique ID of the executor. If this is an action or transform update, this can be null. */
+  private String id;
+
+  /** The name of the executor */
+  private String name;
+
+  /** The copy number of the transform update or null */
+  private Integer copyNr;
+
+  /** The log lines for this particular executor */
+  private String loggingText;
+
+  /** The last log line number to allow for incremental logging updates */
+  private Integer lastLogLineNr;
+
+  /** The metrics */
+  private Map<String, Long> metricsMap;
+
+  /** The status description */
+  private String statusDescription;
+
+  /** The time of update */
+  public Date updateTime;
+
+  public ExecutionState() {
+    this.metricsMap = new HashMap<>();
+    this.updateTime = new Date();
+  }
+
+  /**
+   * Gets executionType
+   *
+   * @return value of executionType
+   */
+  public ExecutionType getExecutionType() {
+    return executionType;
+  }
+
+  /**
+   * Sets executionType
+   *
+   * @param executionType value of executionType
+   */
+  public void setExecutionType(ExecutionType executionType) {
+    this.executionType = executionType;
+  }
+
+  /**
+   * Gets parentId
+   *
+   * @return value of parentId
+   */
+  public String getParentId() {
+    return parentId;
+  }
+
+  /**
+   * Sets parentId
+   *
+   * @param parentId value of parentId
+   */
+  public void setParentId(String parentId) {
+    this.parentId = parentId;
+  }
+
+  /**
+   * Gets id
+   *
+   * @return value of id
+   */
+  public String getId() {
+    return id;
+  }
+
+  /**
+   * Sets id
+   *
+   * @param id value of id
+   */
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  /**
+   * Gets name
+   *
+   * @return value of name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Sets name
+   *
+   * @param name value of name
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  /**
+   * Gets copyNr
+   *
+   * @return value of copyNr
+   */
+  public Integer getCopyNr() {
+    return copyNr;
+  }
+
+  /**
+   * Sets copyNr
+   *
+   * @param copyNr value of copyNr
+   */
+  public void setCopyNr(Integer copyNr) {
+    this.copyNr = copyNr;
+  }
+
+  /**
+   * Gets loggingText
+   *
+   * @return value of loggingText
+   */
+  public String getLoggingText() {
+    return loggingText;
+  }
+
+  /**
+   * Sets loggingText
+   *
+   * @param loggingText value of loggingText
+   */
+  public void setLoggingText(String loggingText) {
+    this.loggingText = loggingText;
+  }
+
+  /**
+   * Gets lastLogLineNr
+   *
+   * @return value of lastLogLineNr
+   */
+  public Integer getLastLogLineNr() {
+    return lastLogLineNr;
+  }
+
+  /**
+   * Sets lastLogLineNr
+   *
+   * @param lastLogLineNr value of lastLogLineNr
+   */
+  public void setLastLogLineNr(Integer lastLogLineNr) {
+    this.lastLogLineNr = lastLogLineNr;
+  }
+
+  /**
+   * Gets metricsMap
+   *
+   * @return value of metricsMap
+   */
+  public Map<String, Long> getMetricsMap() {
+    return metricsMap;
+  }
+
+  /**
+   * Sets metricsMap
+   *
+   * @param metricsMap value of metricsMap
+   */
+  public void setMetricsMap(Map<String, Long> metricsMap) {
+    this.metricsMap = metricsMap;
+  }
+
+  /**
+   * Gets statusDescription
+   *
+   * @return value of statusDescription
+   */
+  public String getStatusDescription() {
+    return statusDescription;
+  }
+
+  /**
+   * Sets statusDescription
+   *
+   * @param statusDescription value of statusDescription
+   */
+  public void setStatusDescription(String statusDescription) {
+    this.statusDescription = statusDescription;
+  }
+
+  /**
+   * Gets updateTime
+   *
+   * @return value of updateTime
+   */
+  public Date getUpdateTime() {
+    return updateTime;
+  }
+
+  /**
+   * Sets updateTime
+   *
+   * @param updateTime value of updateTime
+   */
+  public void setUpdateTime(Date updateTime) {
+    this.updateTime = updateTime;
+  }
+}

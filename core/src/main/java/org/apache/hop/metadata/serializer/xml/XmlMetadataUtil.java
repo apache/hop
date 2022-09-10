@@ -199,7 +199,7 @@ public class XmlMetadataUtil {
       throws HopXmlException {
     if (object == null) {
       try {
-        object = clazz.newInstance();
+        object = clazz.getDeclaredConstructor().newInstance();
       } catch (Exception e) {
         throw new HopXmlException(
             "Unable to create a new instance of class "

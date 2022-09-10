@@ -3264,13 +3264,14 @@ public class TableView extends Composite {
     }
   }
 
-  public void add(String... string) {
+  public TableItem add(String... string) {
     TableItem item = new TableItem(table, SWT.NONE);
     for (int i = 0; i < string.length && i + 1 < table.getColumnCount(); i++) {
       if (string[i] != null) {
         item.setText(i + 1, string[i]);
       }
     }
+    return item;
   }
 
   public String[] getItem(int rowNr) {

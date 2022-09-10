@@ -47,10 +47,14 @@ import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.lineage.PipelineDataLineage;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.*;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
@@ -93,6 +97,9 @@ import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExten
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
+import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
+import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
+import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
@@ -174,6 +181,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public static final String TOOLBAR_ITEM_EDIT_PIPELINE =
       "HopGuiPipelineGraph-ToolBar-10450-EditPipeline";
+
+  public static final String TOOLBAR_ITEM_TO_EXECUTION_INFO =
+      "HopGuiPipelineGraph-ToolBar-10475-ToExecutionInfo";
 
   public static final String ACTION_ID_PIPELINE_GRAPH_HOP_ENABLE =
       "pipeline-graph-hop-10010-hop-enable";
@@ -1713,7 +1723,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   protected void addHop(IStream stream) {
-    if(candidate == null) {
+    if (candidate == null) {
       return;
     }
     switch (stream.getStreamType()) {
@@ -3651,7 +3661,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     this.impactFinished = impactHasRun;
   }
 
-  /** @return the lastMove */
+  /**
+   * @return the lastMove
+   */
   public Point getLastMove() {
     return lastMove;
   }
@@ -3953,12 +3965,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
-  /** @return the toolbar */
+  /**
+   * @return the toolbar
+   */
   public ToolBar getToolBar() {
     return toolBar;
   }
 
-  /** @param toolBar the toolbar to set */
+  /**
+   * @param toolBar the toolbar to set
+   */
   public void setToolBar(ToolBar toolBar) {
     this.toolBar = toolBar;
   }
@@ -4697,27 +4713,37 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return false;
   }
 
-  /** @return the lastPipelineDebugMeta */
+  /**
+   * @return the lastPipelineDebugMeta
+   */
   public PipelineDebugMeta getLastPipelineDebugMeta() {
     return lastPipelineDebugMeta;
   }
 
-  /** @return the halting */
+  /**
+   * @return the halting
+   */
   public boolean isHalting() {
     return halting;
   }
 
-  /** @param halting the halting to set */
+  /**
+   * @param halting the halting to set
+   */
   public void setHalting(boolean halting) {
     this.halting = halting;
   }
 
-  /** @return the transformLogMap */
+  /**
+   * @return the transformLogMap
+   */
   public Map<String, String> getTransformLogMap() {
     return transformLogMap;
   }
 
-  /** @param transformLogMap the transformLogMap to set */
+  /**
+   * @param transformLogMap the transformLogMap to set
+   */
   public void setTransformLogMap(Map<String, String> transformLogMap) {
     this.transformLogMap = transformLogMap;
   }
@@ -4974,7 +5000,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return fileType;
   }
 
-  /** @param fileType The fileType to set */
+  /**
+   * @param fileType The fileType to set
+   */
   public void setFileType(HopPipelineFileType<PipelineMeta> fileType) {
     this.fileType = fileType;
   }
@@ -5250,6 +5278,61 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return handlers;
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_TO_EXECUTION_INFO,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.ToExecutionInfo",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/location.svg")
+  public void navigateToExecutionInfo() {
+    try {
+      // Is there an active IPipeline?
+      //
+      ExecutionPerspective ep = HopGui.getExecutionPerspective();
+
+      if (pipeline != null) {
+        IExecutionViewer viewer = ep.findViewer(pipeline.getLogChannelId(), pipelineMeta.getName());
+        if (viewer != null) {
+          ep.setActiveViewer(viewer);
+          ep.activate();
+          return;
+        }
+      }
+
+      // As a fallback, try to open the last execution info for this pipeline
+      //
+      IHopMetadataSerializer<ExecutionInfoLocation> serializer =
+          hopGui.getMetadataProvider().getSerializer(ExecutionInfoLocation.class);
+      List<String> locationNames = serializer.listObjectNames();
+      if (locationNames.isEmpty()) {
+        return;
+      }
+      ExecutionInfoLocation location;
+      if (locationNames.size()==1) {
+        // No need to ask which location, just pick this one
+        location = serializer.load(locationNames.get(0));
+      } else {
+        EnterSelectionDialog dialog = new EnterSelectionDialog(getShell(), locationNames.toArray(new String[0]),
+                "Select location", "Select the execution information location to query");
+        String locationName = dialog.open();
+        if (locationName!=null) {
+          location = serializer.load(locationName);
+        } else {
+          return;
+        }
+      }
+
+      ep.createLastExecutionView(location, ExecutionType.Pipeline, pipelineMeta.getName());
+      ep.activate();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          "Error",
+          "Error navigating to the latest execution information for this pipeline",
+          e);
+    }
+  }
+
   /**
    * Gets toolBarWidgets
    *
@@ -5268,7 +5351,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return outputRowsMap;
   }
 
-  /** @param outputRowsMap The outputRowsMap to set */
+  /**
+   * @param outputRowsMap The outputRowsMap to set
+   */
   public void setOutputRowsMap(Map<String, RowBuffer> outputRowsMap) {
     this.outputRowsMap = outputRowsMap;
   }

@@ -18,6 +18,8 @@
 
 package org.apache.hop.core.row.value;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeId;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
@@ -102,7 +104,7 @@ public class ValueMetaBase implements IValueMeta {
           "yyyy/MM/dd HH:mm:ss.SSSSSSSSS");
   // endregion
 
-  // region ValueMetaBase Attributes
+  // region ValueMetaBase Attributesequals(
   public static final Class<?> PKG = Const.class; // For Translator
 
   public static final String XML_META_TAG = "value-meta";
@@ -119,7 +121,11 @@ public class ValueMetaBase implements IValueMeta {
 
   protected String origin;
   protected String comments;
-  protected Object[] index;
+
+  /**
+   * Don't serialize the index to JSON for now
+   */
+  @JsonIgnore protected Object[] index;
   protected String conversionMask;
   protected String stringEncoding;
   protected String decimalSymbol;
@@ -132,40 +138,40 @@ public class ValueMetaBase implements IValueMeta {
   protected boolean outputPaddingEnabled;
   protected boolean largeTextField;
   protected Locale collatorLocale;
-  protected Collator collator;
+  @JsonIgnore protected Collator collator;
   protected Locale dateFormatLocale;
   protected TimeZone dateFormatTimeZone;
   protected boolean dateFormatLenient;
   protected boolean lenientStringToNumber;
   protected boolean emptyStringAndNullAreDifferent;
 
-  protected SimpleDateFormat dateFormat;
-  protected boolean dateFormatChanged;
+  @JsonIgnore protected SimpleDateFormat dateFormat;
+  @JsonIgnore protected boolean dateFormatChanged;
 
-  protected DecimalFormat decimalFormat;
-  protected boolean decimalFormatChanged;
+  @JsonIgnore protected DecimalFormat decimalFormat;
+  @JsonIgnore protected boolean decimalFormatChanged;
 
-  protected IValueMeta storageMetadata;
-  protected boolean identicalFormat;
+  @JsonIgnore protected IValueMeta storageMetadata;
+  @JsonIgnore protected boolean identicalFormat;
 
-  protected IValueMeta conversionMetadata;
+  @JsonIgnore protected IValueMeta conversionMetadata;
 
-  boolean singleByteEncoding;
+  @JsonIgnore boolean singleByteEncoding;
 
-  protected long numberOfBinaryStringConversions;
+  @JsonIgnore protected long numberOfBinaryStringConversions;
 
-  protected boolean bigNumberFormatting;
+  @JsonIgnore protected boolean bigNumberFormatting;
 
   // get & store original result set meta data for later use
   // @see java.sql.ResultSetMetaData
   //
-  protected int originalColumnType;
-  protected String originalColumnTypeName;
-  protected int originalPrecision;
-  protected int originalScale;
-  protected boolean originalAutoIncrement;
-  protected int originalNullable;
-  protected boolean originalSigned;
+  @JsonIgnore protected int originalColumnType;
+  @JsonIgnore protected String originalColumnTypeName;
+  @JsonIgnore protected int originalPrecision;
+  @JsonIgnore protected int originalScale;
+  @JsonIgnore protected boolean originalAutoIncrement;
+  @JsonIgnore protected int originalNullable;
+  @JsonIgnore protected boolean originalSigned;
 
   protected boolean ignoreWhitespace;
 
@@ -342,7 +348,7 @@ public class ValueMetaBase implements IValueMeta {
    * @deprecated in favor of a combination of {@link ValueMetaFactory}.createValueMeta() and the
    *     loadMetaData() method.
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   public ValueMetaBase(DataInputStream inputStream) throws HopFileException, HopEofException {
     this();
     try {
@@ -355,6 +361,70 @@ public class ValueMetaBase implements IValueMeta {
     }
 
     readMetaData(inputStream);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ValueMetaBase that = (ValueMetaBase) o;
+    return getLength() == that.getLength()
+        && getPrecision() == that.getPrecision()
+        && type == that.type
+        && trimType == that.trimType
+        && storageType == that.storageType
+        && collatorStrength == that.collatorStrength
+        && caseInsensitive == that.caseInsensitive
+        && collatorDisabled == that.collatorDisabled
+        && sortedDescending == that.sortedDescending
+        && outputPaddingEnabled == that.outputPaddingEnabled
+        && largeTextField == that.largeTextField
+        && dateFormatLenient == that.dateFormatLenient
+        && lenientStringToNumber == that.lenientStringToNumber
+        && emptyStringAndNullAreDifferent == that.emptyStringAndNullAreDifferent
+        && Objects.equals(name, that.name)
+        && Objects.equals(conversionMask, that.conversionMask)
+        && Objects.equals(stringEncoding, that.stringEncoding)
+        && Objects.equals(decimalSymbol, that.decimalSymbol)
+        && Objects.equals(groupingSymbol, that.groupingSymbol)
+        && Objects.equals(currencySymbol, that.currencySymbol)
+        && Objects.equals(collatorLocale, that.collatorLocale)
+        && Objects.equals(dateFormatLocale, that.dateFormatLocale)
+        && Objects.equals(dateFormatTimeZone, that.dateFormatTimeZone);
+  }
+
+  @Override
+  public int hashCode() {
+    int result =
+        Objects.hash(
+            name,
+            length,
+            precision,
+            type,
+            trimType,
+            storageType,
+            origin,
+            comments,
+            conversionMask,
+            stringEncoding,
+            decimalSymbol,
+            groupingSymbol,
+            currencySymbol,
+            collatorStrength,
+            caseInsensitive,
+            collatorDisabled,
+            sortedDescending,
+            outputPaddingEnabled,
+            largeTextField,
+            collatorLocale,
+            collator,
+            dateFormatLocale,
+            dateFormatTimeZone,
+            dateFormatLenient,
+            lenientStringToNumber,
+            emptyStringAndNullAreDifferent);
+    result = 31 * result + Arrays.hashCode(index);
+    return result;
   }
 
   public static final String[] SINGLE_BYTE_ENCODINGS =
@@ -503,79 +573,105 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
-  /** @return the comments */
+  /**
+   * @return the comments
+   */
   @Override
   public String getComments() {
     return comments;
   }
 
-  /** @param comments the comments to set */
+  /**
+   * @param comments the comments to set
+   */
   @Override
   public void setComments(String comments) {
     this.comments = comments;
   }
 
-  /** @return the index */
+  /**
+   * @return the index
+   */
   @Override
   public Object[] getIndex() {
     return index;
   }
 
-  /** @param index the index to set */
+  /**
+   * @param index the index to set
+   */
   @Override
   public void setIndex(Object[] index) {
     this.index = index;
   }
 
-  /** @return the length */
+  /**
+   * @return the length
+   */
   @Override
   public int getLength() {
     return length;
   }
 
-  /** @param length the length to set */
+  /**
+   * @param length the length to set
+   */
   @Override
   public void setLength(int length) {
     this.length = length;
   }
 
-  /** @param length the length to set */
+  /**
+   * @param length the length to set
+   */
   @Override
   public void setLength(int length, int precision) {
     this.length = length;
     this.precision = precision;
   }
 
-  /** @return */
+  /**
+   * @return
+   */
   boolean isLengthInvalidOrZero() {
     return this.length < 1;
   }
 
-  /** @return the name */
+  /**
+   * @return the name
+   */
   @Override
   public String getName() {
     return name;
   }
 
-  /** @param name the name to set */
+  /**
+   * @param name the name to set
+   */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
-  /** @return the origin */
+  /**
+   * @return the origin
+   */
   @Override
   public String getOrigin() {
     return origin;
   }
 
-  /** @param origin the origin to set */
+  /**
+   * @param origin the origin to set
+   */
   @Override
   public void setOrigin(String origin) {
     this.origin = origin;
   }
 
-  /** @return the precision */
+  /**
+   * @return the precision
+   */
   @Override
   public int getPrecision() {
     // For backward compatibility we need to tweak a bit...
@@ -590,52 +686,67 @@ public class ValueMetaBase implements IValueMeta {
     return precision;
   }
 
-  /** @param precision the precision to set */
+  /**
+   * @param precision the precision to set
+   */
   @Override
   public void setPrecision(int precision) {
     this.precision = precision;
   }
 
-  /** @return the storageType */
+  /**
+   * @return the storageType
+   */
   @Override
   public int getStorageType() {
     return storageType;
   }
 
-  /** @param storageType the storageType to set */
+  /**
+   * @param storageType the storageType to set
+   */
   @Override
   public void setStorageType(int storageType) {
     this.storageType = storageType;
   }
 
   @Override
+  @JsonIgnore
   public boolean isStorageNormal() {
     return storageType == STORAGE_TYPE_NORMAL;
   }
 
   @Override
+  @JsonIgnore
   public boolean isStorageIndexed() {
     return storageType == STORAGE_TYPE_INDEXED;
   }
 
   @Override
+  @JsonIgnore
   public boolean isStorageBinaryString() {
     return storageType == STORAGE_TYPE_BINARY_STRING;
   }
 
-  /** @return the type */
+  /**
+   * @return the type
+   */
   @Override
   public int getType() {
     return type;
   }
 
-  /** @return the conversionMask */
+  /**
+   * @return the conversionMask
+   */
   @Override
   public String getConversionMask() {
     return conversionMask;
   }
 
-  /** @param conversionMask the conversionMask to set */
+  /**
+   * @param conversionMask the conversionMask to set
+   */
   @Override
   public void setConversionMask(String conversionMask) {
     this.conversionMask = conversionMask;
@@ -644,13 +755,17 @@ public class ValueMetaBase implements IValueMeta {
     compareStorageAndActualFormat();
   }
 
-  /** @return the encoding */
+  /**
+   * @return the encoding
+   */
   @Override
   public String getStringEncoding() {
     return stringEncoding;
   }
 
-  /** @param encoding the encoding to set */
+  /**
+   * @param encoding the encoding to set
+   */
   @Override
   public void setStringEncoding(String encoding) {
     this.stringEncoding = encoding;
@@ -658,13 +773,17 @@ public class ValueMetaBase implements IValueMeta {
     compareStorageAndActualFormat();
   }
 
-  /** @return the decimalSymbol */
+  /**
+   * @return the decimalSymbol
+   */
   @Override
   public String getDecimalSymbol() {
     return decimalSymbol;
   }
 
-  /** @param decimalSymbol the decimalSymbol to set */
+  /**
+   * @param decimalSymbol the decimalSymbol to set
+   */
   @Override
   public void setDecimalSymbol(String decimalSymbol) {
     this.decimalSymbol = decimalSymbol;
@@ -672,13 +791,17 @@ public class ValueMetaBase implements IValueMeta {
     compareStorageAndActualFormat();
   }
 
-  /** @return the groupingSymbol */
+  /**
+   * @return the groupingSymbol
+   */
   @Override
   public String getGroupingSymbol() {
     return groupingSymbol;
   }
 
-  /** @param groupingSymbol the groupingSymbol to set */
+  /**
+   * @param groupingSymbol the groupingSymbol to set
+   */
   @Override
   public void setGroupingSymbol(String groupingSymbol) {
     this.groupingSymbol = groupingSymbol;
@@ -686,38 +809,50 @@ public class ValueMetaBase implements IValueMeta {
     compareStorageAndActualFormat();
   }
 
-  /** @return the currencySymbol */
+  /**
+   * @return the currencySymbol
+   */
   @Override
   public String getCurrencySymbol() {
     return currencySymbol;
   }
 
-  /** @param currencySymbol the currencySymbol to set */
+  /**
+   * @param currencySymbol the currencySymbol to set
+   */
   @Override
   public void setCurrencySymbol(String currencySymbol) {
     this.currencySymbol = currencySymbol;
     decimalFormatChanged = true;
   }
 
-  /** @return the caseInsensitive */
+  /**
+   * @return the caseInsensitive
+   */
   @Override
   public boolean isCaseInsensitive() {
     return caseInsensitive;
   }
 
-  /** @param caseInsensitive the caseInsensitive to set */
+  /**
+   * @param caseInsensitive the caseInsensitive to set
+   */
   @Override
   public void setCaseInsensitive(boolean caseInsensitive) {
     this.caseInsensitive = caseInsensitive;
   }
 
-  /** @return the collatorDisabled */
+  /**
+   * @return the collatorDisabled
+   */
   @Override
   public boolean isCollatorDisabled() {
     return collatorDisabled;
   }
 
-  /** @param collatorDisabled the collatorDisabled to set */
+  /**
+   * @param collatorDisabled the collatorDisabled to set
+   */
   @Override
   public void setCollatorDisabled(boolean collatorDisabled) {
     this.collatorDisabled = collatorDisabled;
@@ -728,7 +863,9 @@ public class ValueMetaBase implements IValueMeta {
     return this.collatorLocale;
   }
 
-  /** @ sets the collator Locale */
+  /**
+   * @ sets the collator Locale
+   */
   @Override
   public void setCollatorLocale(Locale locale) {
     // Update the collator only if required
@@ -738,13 +875,17 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
-  /** @get the collatorStrength */
+  /**
+   * @get the collatorStrength
+   */
   @Override
   public int getCollatorStrength() {
     return collatorStrength;
   }
 
-  /** @param collatorStrength the collatorStrength to set */
+  /**
+   * @param collatorStrength the collatorStrength to set
+   */
   @Override
   public void setCollatorStrength(int collatorStrength) throws IllegalArgumentException {
     try {
@@ -757,19 +898,25 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
-  /** @return the sortedDescending */
+  /**
+   * @return the sortedDescending
+   */
   @Override
   public boolean isSortedDescending() {
     return sortedDescending;
   }
 
-  /** @param sortedDescending the sortedDescending to set */
+  /**
+   * @param sortedDescending the sortedDescending to set
+   */
   @Override
   public void setSortedDescending(boolean sortedDescending) {
     this.sortedDescending = sortedDescending;
   }
 
-  /** @return true if output padding is enabled (padding to specified length) */
+  /**
+   * @return true if output padding is enabled (padding to specified length)
+   */
   @Override
   public boolean isOutputPaddingEnabled() {
     return outputPaddingEnabled;
@@ -784,7 +931,9 @@ public class ValueMetaBase implements IValueMeta {
     this.outputPaddingEnabled = outputPaddingEnabled;
   }
 
-  /** @return true if this is a large text field (CLOB, TEXT) with arbitrary length. */
+  /**
+   * @return true if this is a large text field (CLOB, TEXT) with arbitrary length.
+   */
   @Override
   public boolean isLargeTextField() {
     return largeTextField;
@@ -799,26 +948,34 @@ public class ValueMetaBase implements IValueMeta {
     this.largeTextField = largeTextField;
   }
 
-  /** @return the dateFormatLenient */
+  /**
+   * @return the dateFormatLenient
+   */
   @Override
   public boolean isDateFormatLenient() {
     return dateFormatLenient;
   }
 
-  /** @param dateFormatLenient the dateFormatLenient to set */
+  /**
+   * @param dateFormatLenient the dateFormatLenient to set
+   */
   @Override
   public void setDateFormatLenient(boolean dateFormatLenient) {
     this.dateFormatLenient = dateFormatLenient;
     dateFormatChanged = true;
   }
 
-  /** @return the dateFormatLocale */
+  /**
+   * @return the dateFormatLocale
+   */
   @Override
   public Locale getDateFormatLocale() {
     return dateFormatLocale;
   }
 
-  /** @param dateFormatLocale the dateFormatLocale to set */
+  /**
+   * @param dateFormatLocale the dateFormatLocale to set
+   */
   @Override
   public void setDateFormatLocale(Locale dateFormatLocale) {
     this.dateFormatLocale = dateFormatLocale;
@@ -1090,6 +1247,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   @Override
+  @JsonIgnore
   public String getFormatMask() {
     return getMask(getType());
   }
@@ -1450,7 +1608,7 @@ public class ValueMetaBase implements IValueMeta {
   /*
    * Do not use this method directly! It is for tests!
    */
-  @Deprecated(since="1.0")
+  @Deprecated(since = "1.0")
   String convertBinaryStringToString(byte[] binary, boolean emptyStringDiffersFromNull)
       throws HopValueException {
     // OK, so we have an internal representation of the original object, read
@@ -2647,6 +2805,7 @@ public class ValueMetaBase implements IValueMeta {
    * @return true if the value is a String.
    */
   @Override
+  @JsonIgnore
   public boolean isString() {
     return type == TYPE_STRING;
   }
@@ -2657,6 +2816,7 @@ public class ValueMetaBase implements IValueMeta {
    * @return true if the value is a Date
    */
   @Override
+  @JsonIgnore
   public boolean isDate() {
     return type == TYPE_DATE || type == TYPE_TIMESTAMP;
   }
@@ -2667,6 +2827,7 @@ public class ValueMetaBase implements IValueMeta {
    * @return true is this value is a big number
    */
   @Override
+  @JsonIgnore
   public boolean isBigNumber() {
     return type == TYPE_BIGNUMBER;
   }
@@ -2677,6 +2838,7 @@ public class ValueMetaBase implements IValueMeta {
    * @return true is this value is a number
    */
   @Override
+  @JsonIgnore
   public boolean isNumber() {
     return type == TYPE_NUMBER;
   }
@@ -2687,6 +2849,7 @@ public class ValueMetaBase implements IValueMeta {
    * @return true if this value has type boolean.
    */
   @Override
+  @JsonIgnore
   public boolean isBoolean() {
     return type == TYPE_BOOLEAN;
   }
@@ -2697,6 +2860,7 @@ public class ValueMetaBase implements IValueMeta {
    * @return true if this value has type Serializable
    */
   @Override
+  @JsonIgnore
   public boolean isSerializableType() {
     return type == TYPE_SERIALIZABLE;
   }
@@ -2707,6 +2871,7 @@ public class ValueMetaBase implements IValueMeta {
    * @return true if this value has type Binary
    */
   @Override
+  @JsonIgnore
   public boolean isBinary() {
     return type == TYPE_BINARY;
   }
@@ -2717,6 +2882,7 @@ public class ValueMetaBase implements IValueMeta {
    * @return true if this value is an integer
    */
   @Override
+  @JsonIgnore
   public boolean isInteger() {
     return type == TYPE_INTEGER;
   }
@@ -2728,6 +2894,7 @@ public class ValueMetaBase implements IValueMeta {
    * @return true if the value is either of type Number or Integer
    */
   @Override
+  @JsonIgnore
   public boolean isNumeric() {
     return isInteger() || isNumber() || isBigNumber();
   }
@@ -2738,10 +2905,12 @@ public class ValueMetaBase implements IValueMeta {
    * @param t the type to check
    * @return true if the type is Integer or Number
    */
+  @JsonIgnore
   public static final boolean isNumeric(int t) {
     return t == TYPE_INTEGER || t == TYPE_NUMBER || t == TYPE_BIGNUMBER;
   }
 
+  @JsonIgnore
   public boolean isSortedAscending() {
     return !isSortedDescending();
   }
@@ -2753,6 +2922,7 @@ public class ValueMetaBase implements IValueMeta {
    * @return A String describing the type of value.
    */
   @Override
+  @JsonIgnore
   public String getTypeDesc() {
     return getTypeDesc(type);
   }
@@ -2762,6 +2932,7 @@ public class ValueMetaBase implements IValueMeta {
    *
    * @return A String describing the storage type of the value metadata
    */
+  @JsonIgnore
   public String getStorageTypeDesc() {
     return storageTypeCodes[storageType];
   }
@@ -3333,6 +3504,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   @Override
+  @JsonIgnore
   public String getMetaXml() throws IOException {
     StringBuilder xml = new StringBuilder();
 
@@ -3687,7 +3859,7 @@ public class ValueMetaBase implements IValueMeta {
    * @deprecated
    * Do not use this method directly! It is for tests!
    */
-  @Deprecated(since="1.0")
+  @Deprecated(since = "1.0")
   boolean isNull(Object data, boolean emptyStringDiffersFromNull) throws HopValueException {
     try {
       Object value = data;
@@ -4271,13 +4443,18 @@ public class ValueMetaBase implements IValueMeta {
     return hash;
   }
 
-  /** @return the storageMetadata */
+  /**
+   * @return the storageMetadata
+   */
   @Override
+  @JsonIgnore
   public IValueMeta getStorageMetadata() {
     return storageMetadata;
   }
 
-  /** @param storageMetadata the storageMetadata to set */
+  /**
+   * @param storageMetadata the storageMetadata to set
+   */
   @Override
   public void setStorageMetadata(IValueMeta storageMetadata) {
     this.storageMetadata = storageMetadata;
@@ -4358,13 +4535,17 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
-  /** @return the trimType */
+  /**
+   * @return the trimType
+   */
   @Override
   public int getTrimType() {
     return trimType;
   }
 
-  /** @param trimType the trimType to set */
+  /**
+   * @param trimType the trimType to set
+   */
   @Override
   public void setTrimType(int trimType) {
     this.trimType = trimType;
@@ -4412,19 +4593,26 @@ public class ValueMetaBase implements IValueMeta {
     return trimTypeDesc[i];
   }
 
-  /** @return the conversionMetadata */
+  /**
+   * @return the conversionMetadata
+   */
   @Override
+  @JsonIgnore
   public IValueMeta getConversionMetadata() {
     return conversionMetadata;
   }
 
-  /** @param conversionMetadata the conversionMetadata to set */
+  /**
+   * @param conversionMetadata the conversionMetadata to set
+   */
   @Override
   public void setConversionMetadata(IValueMeta conversionMetadata) {
     this.conversionMetadata = conversionMetadata;
   }
 
-  /** @return true if the String encoding used (storage) is single byte encoded. */
+  /**
+   * @return true if the String encoding used (storage) is single byte encoded.
+   */
   @Override
   public boolean isSingleByteEncoding() {
     return singleByteEncoding;
@@ -4598,7 +4786,9 @@ public class ValueMetaBase implements IValueMeta {
     this.originalSigned = originalSigned;
   }
 
-  /** @return the bigNumberFormatting flag : true if BigNumbers of formatted as well */
+  /**
+   * @return the bigNumberFormatting flag : true if BigNumbers of formatted as well
+   */
   public boolean isBigNumberFormatting() {
     return bigNumberFormatting;
   }
@@ -4611,12 +4801,16 @@ public class ValueMetaBase implements IValueMeta {
     this.bigNumberFormatting = bigNumberFormatting;
   }
 
-  /** @return The available trim type codes (NOT localized, use for persistence) */
+  /**
+   * @return The available trim type codes (NOT localized, use for persistence)
+   */
   public static String[] getTrimTypeCodes() {
     return trimTypeCode;
   }
 
-  /** @return The available trim type descriptions (localized) */
+  /**
+   * @return The available trim type descriptions (localized)
+   */
   public static String[] getTrimTypeDescriptions() {
     return trimTypeDesc;
   }
@@ -4626,25 +4820,33 @@ public class ValueMetaBase implements IValueMeta {
     return type == TYPE_BINARY || type == TYPE_SERIALIZABLE;
   }
 
-  /** @return the lenientStringToNumber */
+  /**
+   * @return the lenientStringToNumber
+   */
   @Override
   public boolean isLenientStringToNumber() {
     return lenientStringToNumber;
   }
 
-  /** @param lenientStringToNumber the lenientStringToNumber to set */
+  /**
+   * @param lenientStringToNumber the lenientStringToNumber to set
+   */
   @Override
   public void setLenientStringToNumber(boolean lenientStringToNumber) {
     this.lenientStringToNumber = lenientStringToNumber;
   }
 
-  /** @return the date format time zone */
+  /**
+   * @return the date format time zone
+   */
   @Override
   public TimeZone getDateFormatTimeZone() {
     return dateFormatTimeZone;
   }
 
-  /** @param dateFormatTimeZone the date format time zone to set */
+  /**
+   * @param dateFormatTimeZone the date format time zone to set
+   */
   @Override
   public void setDateFormatTimeZone(TimeZone dateFormatTimeZone) {
     this.dateFormatTimeZone = dateFormatTimeZone;
@@ -5486,6 +5688,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   @Override
+  @JsonIgnore
   public Class<?> getNativeDataTypeClass() throws HopValueException {
     // Not implemented for base class
     throw new HopValueException(getTypeDesc() + " does not implement this method");

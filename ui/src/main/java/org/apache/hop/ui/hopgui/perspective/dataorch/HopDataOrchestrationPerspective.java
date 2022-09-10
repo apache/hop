@@ -29,6 +29,7 @@ import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
@@ -692,6 +693,23 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return searchables;
   }
 
+  public TabItemHandler findPipeline(String logChannelId) {
+    // Go over all the pipeline graphs and see if there's one that has a IPipeline with the given ID
+    //
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() instanceof HopGuiPipelineGraph) {
+        HopGuiPipelineGraph graph = (HopGuiPipelineGraph) item.getTypeHandler();
+        IPipelineEngine<PipelineMeta> pipeline = graph.getPipeline();
+        if (pipeline!=null) {
+          if (logChannelId.equals(pipeline.getLogChannelId())) {
+            return item;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   /**
    * Gets items
    *
@@ -771,4 +789,5 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   public HopWorkflowFileType<WorkflowMeta> getWorkflowFileType() {
     return workflowFileType;
   }
+
 }

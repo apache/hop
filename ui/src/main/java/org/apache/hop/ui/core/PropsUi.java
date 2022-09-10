@@ -524,8 +524,8 @@ public class PropsUi extends Props {
         }
         break;
       case WIDGET_STYLE_TAB:
-        background = gui.getColorWhite();
-        foreground = gui.getColorBlack();
+        background = gui.getColorBackground();
+        foreground = gui.getColorDarkGray();
         CTabFolder tabFolder = (CTabFolder) control;
         tabFolder.setBorderVisible(true);
         // need to make a copy of the tab selection background color to get around bug
@@ -762,6 +762,7 @@ public class PropsUi extends Props {
     contrastingColors.put(toRGB("#c9e8fb"), toRGB("#0f88d2"));
 
     contrastingColors.put(new RGB(254, 254, 254), new RGB(35, 35, 35));
+    contrastingColors.put(new RGB(245, 245, 245), new RGB(40, 40, 40));
     contrastingColors.put(new RGB(240, 240, 240), new RGB(15, 15, 15));
     contrastingColors.put(new RGB(225, 225, 225), new RGB(30, 30, 30));
     contrastingColors.put(new RGB(215, 215, 215), new RGB(40, 40, 40));

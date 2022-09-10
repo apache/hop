@@ -36,6 +36,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.execution.sampler.IExecutionDataSampler;
+import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.partition.PartitionSchema;
@@ -206,6 +208,11 @@ public abstract class Pipeline
   private final AtomicBoolean isAlreadyStopped = new AtomicBoolean(false);
 
   /**
+   * Plugins can use this to add additional data samplers to the pipeline.
+   */
+  protected List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers;
+
+  /**
    * This enum stores bit masks which are used to manipulate with statuses over field {@link
    * Pipeline#status}
    */
@@ -332,6 +339,8 @@ public abstract class Pipeline
     extensionDataMap = new HashMap<>();
 
     rowSetSize = Const.ROWS_IN_ROWSET;
+
+    dataSamplers = Collections.synchronizedList(new ArrayList<>());
   }
 
   /**
@@ -3520,5 +3529,29 @@ public abstract class Pipeline
   /** @param variables The variables to set */
   public void setVariables(IVariables variables) {
     this.variables = variables;
+  }
+
+  /**
+   * Gets dataSamplers
+   *
+   * @return value of dataSamplers
+   */
+  public List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> getDataSamplers() {
+    return dataSamplers;
+  }
+
+  /**
+   * Sets dataSamplers
+   *
+   * @param dataSamplers value of dataSamplers
+   */
+  public void setDataSamplers(List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers) {
+    this.dataSamplers = dataSamplers;
+  }
+
+  @Override
+  public <Store extends IExecutionDataSamplerStore, Sampler extends IExecutionDataSampler<Store>>
+  void addExecutionDataSampler(Sampler sampler) {
+    dataSamplers.add(sampler);
   }
 }

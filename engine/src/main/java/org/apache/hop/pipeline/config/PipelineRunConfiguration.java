@@ -41,6 +41,11 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
 
   @HopMetadataProperty private String description;
 
+  /**
+   * The name of the location to send execution information to
+   */
+  @HopMetadataProperty private String executionInfoLocationName;
+
   @HopMetadataProperty private List<DescribedVariable> configurationVariables;
 
   @HopMetadataProperty private IPipelineEngineRunConfiguration engineRunConfiguration;
@@ -52,10 +57,12 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
   public PipelineRunConfiguration(
       String name,
       String description,
+      String executionInfoLocationName,
       List<DescribedVariable> configurationVariables,
       IPipelineEngineRunConfiguration engineRunConfiguration) {
     this.name = name;
     this.description = description;
+    this.executionInfoLocationName = executionInfoLocationName;
     this.configurationVariables = configurationVariables;
     this.engineRunConfiguration = engineRunConfiguration;
   }
@@ -64,6 +71,7 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     this();
     this.name = runConfiguration.name;
     this.description = runConfiguration.description;
+    this.executionInfoLocationName = runConfiguration.executionInfoLocationName;
     this.configurationVariables.addAll(runConfiguration.getConfigurationVariables());
     if (runConfiguration.getEngineRunConfiguration() != null) {
       this.engineRunConfiguration = runConfiguration.engineRunConfiguration.clone();
@@ -82,6 +90,24 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
   /** @param description The description to set */
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  /**
+   * Gets executionInfoLocationName
+   *
+   * @return value of executionInfoLocationName
+   */
+  public String getExecutionInfoLocationName() {
+    return executionInfoLocationName;
+  }
+
+  /**
+   * Sets executionInfoLocationName
+   *
+   * @param executionInfoLocationName value of executionInfoLocationName
+   */
+  public void setExecutionInfoLocationName(String executionInfoLocationName) {
+    this.executionInfoLocationName = executionInfoLocationName;
   }
 
   /**

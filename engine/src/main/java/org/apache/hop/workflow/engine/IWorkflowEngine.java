@@ -110,6 +110,8 @@ public interface IWorkflowEngine<T extends WorkflowMeta>
 
   void setWorkflowRunConfiguration(WorkflowRunConfiguration workflowRunConfiguration);
 
+  WorkflowRunConfiguration getWorkflowRunConfiguration();
+
   IWorkflowEngineRunConfiguration createDefaultWorkflowEngineRunConfiguration();
 
   void setParentWorkflow(IWorkflowEngine<WorkflowMeta> workflow);

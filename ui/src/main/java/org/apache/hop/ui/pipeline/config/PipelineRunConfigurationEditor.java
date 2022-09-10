@@ -23,18 +23,23 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.DescribedVariable;
+import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -68,6 +73,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
   private Text wName;
   private Text wDescription;
+  private MetaSelectionLine<ExecutionInfoLocation> wExecutionInfoLocation;
   private ComboVar wPluginType;
 
   private Composite wPluginSpecificComp;
@@ -193,6 +199,28 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     fdDescription.right = new FormAttachment(100, 0);
     wDescription.setLayoutData(fdDescription);
     lastControl = wDescription;
+
+    // Which location should the execution information go to?
+    //
+    wExecutionInfoLocation =
+        new MetaSelectionLine<>(
+            getVariables(),
+            manager.getMetadataProvider(),
+            ExecutionInfoLocation.class,
+            wMainComp,
+            SWT.SINGLE | SWT.LEFT,
+            BaseMessages.getString(
+                PKG, "PipelineRunConfigurationDialog.label.ExecutionInfoLocation"),
+            BaseMessages.getString(
+                PKG, "PipelineRunConfigurationDialog.toolTip.ExecutionInfoLocation"));
+    props.setLook(wExecutionInfoLocation);
+    wExecutionInfoLocation.setItems(getExecutionInfoLocations());
+    FormData fdExecutionInfoLocation = new FormData();
+    fdExecutionInfoLocation.top = new FormAttachment(lastControl, margin);
+    fdExecutionInfoLocation.left = new FormAttachment(0, 0); // To the right of the label
+    fdExecutionInfoLocation.right = new FormAttachment(100, 0);
+    wExecutionInfoLocation.setLayoutData(fdExecutionInfoLocation);
+    lastControl = wExecutionInfoLocation;
 
     // What's the type of engine?
     //
@@ -411,6 +439,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     wName.setText(Const.NVL(workingConfiguration.getName(), ""));
     wDescription.setText(Const.NVL(workingConfiguration.getDescription(), ""));
+    wExecutionInfoLocation.setText(Const.NVL(workingConfiguration.getExecutionInfoLocationName(), ""));
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       wPluginType.setText(
           Const.NVL(workingConfiguration.getEngineRunConfiguration().getEnginePluginName(), ""));
@@ -439,6 +468,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     meta.setName(wName.getText());
     meta.setDescription(wDescription.getText());
+    meta.setExecutionInfoLocationName(wExecutionInfoLocation.getText());
 
     // Get the plugin specific information from the widgets on the screen
     //
@@ -482,5 +512,22 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     }
     Arrays.sort(types, String.CASE_INSENSITIVE_ORDER);
     return types;
+  }
+
+  private String[] getExecutionInfoLocations() {
+    try {
+      IHopMetadataProvider provider = getMetadataManager().getMetadataProvider();
+      IHopMetadataSerializer<ExecutionInfoLocation> serializer =
+          provider.getSerializer(ExecutionInfoLocation.class);
+      List<String> names = serializer.listObjectNames();
+      return names.toArray(new String[0]);
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          "Error",
+          "Error retrieving the list of execution information locations from metadata",
+          e);
+      return new String[] {};
+    }
   }
 }

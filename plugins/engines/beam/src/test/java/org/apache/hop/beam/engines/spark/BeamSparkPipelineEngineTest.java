@@ -44,6 +44,7 @@ public class BeamSparkPipelineEngineTest extends BeamBasePipelineEngineTest {
         new PipelineRunConfiguration(
             "spark",
             "description",
+            "",
             Arrays.asList(new DescribedVariable("VAR1", "spark1", "description1")),
             configuration);
 

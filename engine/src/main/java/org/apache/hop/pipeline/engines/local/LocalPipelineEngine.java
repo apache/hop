@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.engines.local;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.Result;
@@ -26,7 +27,13 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.execution.*;
+import org.apache.hop.execution.profiling.ExecutionDataProfile;
+import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
+import org.apache.hop.execution.sampler.IExecutionDataSampler;
+import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.Pipeline;
@@ -36,10 +43,11 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
+import org.apache.hop.pipeline.transform.IRowListener;
+import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @PipelineEnginePlugin(
     id = "Local",
@@ -48,6 +56,11 @@ import java.util.UUID;
 public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<PipelineMeta> {
 
   private PipelineEngineCapabilities engineCapabilities = new LocalPipelineEngineCapabilities();
+
+  private ExecutionInfoLocation executionInfoLocation;
+  private Timer transformExecutionInfoTimer;
+
+  private List<IExecutionDataSamplerStore> samplerStores;
 
   public LocalPipelineEngine() {
     super();
@@ -80,7 +93,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
   private void setDefaultRunConfiguration() {
     setPipelineRunConfiguration(
         new PipelineRunConfiguration(
-            "local", "", new ArrayList<>(), createDefaultPipelineEngineRunConfiguration()));
+            "local", "", "", new ArrayList<>(), createDefaultPipelineEngineRunConfiguration()));
   }
 
   @Override
@@ -187,7 +200,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                       pipeline.getLogChannel().logError(Const.getStackTracker(hde));
                     }
                   }
-                  //Definitely remove the connection reference the connections map
+                  // Definitely remove the connection reference the connections map
                   DatabaseConnectionMap.getInstance().removeConnection(group, null, database);
                 }
               });
@@ -204,6 +217,211 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     }
 
     super.prepareExecution();
+
+    // Do the lookup of the execution information only once
+    lookupExecutionInformationLocation();
+
+    // Register the pipeline
+    registerPipelineExecutionInformation();
+
+    // Attach samplers to the transforms if needed
+    //
+    addTransformExecutionSamplers();
+
+    //
+  }
+
+  /**
+   * If needed, register this pipeline at the specified execution information location. The name of
+   * the location is specified in the run configuration.
+   *
+   * @throws HopException In case something goes wrong
+   */
+  public void registerPipelineExecutionInformation() throws HopException {
+    if (executionInfoLocation != null) {
+      // Register the execution at this location
+      // This adds metadata, variables, parameters, ...
+      executionInfoLocation
+          .getExecutionInfoLocation()
+          .registerExecution(ExecutionBuilder.fromExecutor(this).build());
+    }
+  }
+
+  public void addTransformExecutionSamplers() throws HopException {
+    if (executionInfoLocation == null) {
+      return;
+    }
+    // No data profile to work with
+    //
+    ExecutionDataProfile profile = executionInfoLocation.getExecutionDataProfile();
+    if (profile == null) {
+      return;
+    }
+
+    // Nothing to sample
+    //
+    if (profile.getSamplers().isEmpty()) {
+      return;
+    }
+
+    samplerStores = new ArrayList<>();
+
+    // Attach the samplers to the transforms.
+    //
+    for (IExecutionDataSampler<?> sampler : profile.getSamplers()) {
+      for (TransformMetaDataCombi combi : getTransforms()) {
+        // Create a sampler store for the sampler
+        //
+        boolean firstTransform = pipelineMeta.findPreviousTransforms(combi.transformMeta).isEmpty();
+        boolean lastTransform = pipelineMeta.findNextTransforms(combi.transformMeta).isEmpty();
+
+        ExecutionDataSamplerMeta samplerMeta =
+            new ExecutionDataSamplerMeta(
+                combi.transformName,
+                combi.copy,
+                combi.transform.getLogChannelId(),
+                firstTransform,
+                lastTransform);
+
+        IExecutionDataSamplerStore samplerStore = sampler.createSamplerStore(samplerMeta);
+        IRowMeta inputRowMeta = getPipelineMeta().getPrevTransformFields(this, combi.transformMeta);
+        IRowMeta outputRowMeta = getPipelineMeta().getTransformFields(this, combi.transformMeta);
+        samplerStore.init(this, inputRowMeta, outputRowMeta);
+        IRowListener rowListener = samplerStore.createRowListener(sampler);
+
+        // Keep the stores and samplers safe. We'll need them later on.
+        //
+        samplerStores.add(samplerStore);
+
+        combi.transform.addRowListener(rowListener);
+      }
+    }
+
+    // The sampling buffers will fill up automatically now during execution
+    // We start the timer tasks which periodically send the data to the location in execute().
+  }
+
+  @Override
+  public void startThreads() throws HopException {
+    // Add a timer to send sampler information to the execution info location
+    //
+    startTransformExecutionInfoTimer();
+
+    // Start execution of the pipeline
+    //
+    super.startThreads();
+
+    // Make sure to kill the timer when this pipeline is finished.
+    //
+    super.addExecutionFinishedListener(engine -> stopTransformExecutionInfoTimer());
+  }
+
+  public void startTransformExecutionInfoTimer() throws HopException {
+    if (executionInfoLocation == null) {
+      return;
+    }
+    // No data profile to work with
+    //
+    ExecutionDataProfile profile = executionInfoLocation.getExecutionDataProfile();
+    if (profile == null) {
+      return;
+    }
+
+    // Nothing to sample
+    //
+    if (profile.getSamplers().isEmpty()) {
+      return;
+    }
+
+    long delay = Const.toLong(resolve(executionInfoLocation.getDataLoggingDelay()), 2000L);
+    long interval = Const.toLong(resolve(executionInfoLocation.getDataLoggingInterval()), 5000L);
+    final AtomicInteger lastLogLineNr = new AtomicInteger(0);
+
+    final IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+    //
+    TimerTask sampleTask =
+        new TimerTask() {
+          @Override
+          public void run() {
+            try {
+              // Collect data from all the sampler stores.
+              //
+              ExecutionDataBuilder dataBuilder =
+                  ExecutionDataBuilder.fromAllTransformData(
+                      LocalPipelineEngine.this, samplerStores);
+
+              // Send it to the location once
+              //
+              iLocation.registerData(dataBuilder.build());
+
+              // Also update the pipeline execution state regularly
+              //
+              ExecutionState executionState =
+                  ExecutionStateBuilder.fromExecutor(LocalPipelineEngine.this, lastLogLineNr.get())
+                      .build();
+              iLocation.updateExecutionState(executionState);
+              if (executionState.getLastLogLineNr() != null) {
+                lastLogLineNr.set(executionState.getLastLogLineNr());
+              }
+            } catch (Exception e) {
+              throw new RuntimeException(
+                  "Error registering execution info data from transforms at location "
+                      + executionInfoLocation.getName(),
+                  e);
+            }
+          }
+        };
+
+    // Schedule the task to run regularly
+    //
+    transformExecutionInfoTimer = new Timer();
+    transformExecutionInfoTimer.schedule(sampleTask, delay, interval);
+  }
+
+  public void stopTransformExecutionInfoTimer() throws HopException {
+    if (transformExecutionInfoTimer != null) {
+      transformExecutionInfoTimer.cancel();
+    }
+
+    if (executionInfoLocation == null) {
+      return;
+    }
+
+    IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+
+    // Register the collected transform data for the last time
+    //
+    ExecutionDataBuilder dataBuilder =
+        ExecutionDataBuilder.fromAllTransformData(LocalPipelineEngine.this, samplerStores);
+    iLocation.registerData(dataBuilder.build());
+
+    // Register one final last state of the pipeline
+    //
+    ExecutionState executionState =
+        ExecutionStateBuilder.fromExecutor(LocalPipelineEngine.this, -1).build();
+    iLocation.updateExecutionState(executionState);
+  }
+
+  /**
+   * This method looks up the execution information location specified in the run configuration.
+   *
+   * @return The location or null
+   * @throws HopException In case something fundamental went wrong.
+   */
+  public void lookupExecutionInformationLocation() throws HopException {
+    String locationName = resolve(pipelineRunConfiguration.getExecutionInfoLocationName());
+    if (StringUtils.isNotEmpty(locationName)) {
+      ExecutionInfoLocation location =
+          metadataProvider.getSerializer(ExecutionInfoLocation.class).load(locationName);
+      if (location != null) {
+        executionInfoLocation = location;
+      } else {
+        log.logError(
+            "Execution information location '"
+                + locationName
+                + "' could not be found in the metadata");
+      }
+    }
   }
 
   /**
@@ -216,7 +434,9 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     return engineCapabilities;
   }
 
-  /** @param engineCapabilities The engineCapabilities to set */
+  /**
+   * @param engineCapabilities The engineCapabilities to set
+   */
   public void setEngineCapabilities(PipelineEngineCapabilities engineCapabilities) {
     this.engineCapabilities = engineCapabilities;
   }

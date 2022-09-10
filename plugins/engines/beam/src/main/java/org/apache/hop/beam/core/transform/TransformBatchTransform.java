@@ -285,6 +285,14 @@ public class TransformBatchTransform extends TransformTransform {
       if (timer != null) {
         timer.cancel();
       }
+        try {
+          executor.dispose();
+        } catch (Exception e) {
+          throw new RuntimeException(
+                  "Error cleaning up single threaded pipeline executor in Beam transform "
+                          + transformName,
+                  e);
+        }
     }
 
     @ProcessElement

@@ -26,6 +26,9 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
+import org.apache.hop.execution.sampler.IExecutionDataSampler;
+import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
@@ -475,4 +478,14 @@ public interface IPipelineEngine<T extends PipelineMeta>
    */
   @Override
   Map<String, Object> getExtensionDataMap();
+
+  /**
+   * Plugins can add individual data samplers which will act upon the rows passing through the transforms
+   * in the pipeline.  The execution information collected at this level will be sent to the execution
+   * information location if any is defined in the run configuration used to execute this pipeline.
+   *
+   * @param sampler The sampler to use
+   */
+  <Store extends IExecutionDataSamplerStore, Sampler extends IExecutionDataSampler<Store>>
+    void addExecutionDataSampler(Sampler sampler) throws HopException;
 }

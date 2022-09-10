@@ -301,6 +301,15 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   @Override
   public void dispose() {
     if (data.ja != null) {
+      // Is there some left-over data to be written to disk?
+      //
+      if (data.ja.size() > 0) {
+        try {
+          outPutRow(null);
+        } catch (Exception e) {
+          log.logError("Error writing final rows to disk", e);
+        }
+      }
       data.ja = null;
     }
     if (data.jg != null) {

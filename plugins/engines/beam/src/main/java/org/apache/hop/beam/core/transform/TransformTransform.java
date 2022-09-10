@@ -291,7 +291,14 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
     @Teardown
     public void tearDown() {
-      // Nothing
+      try {
+        executor.dispose();
+      } catch (Exception e) {
+        throw new RuntimeException(
+            "Error cleaning up single threaded pipeline executor in Beam transform "
+                + transformName,
+            e);
+      }
     }
 
     @ProcessElement
@@ -421,7 +428,8 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           // Create the transformation...
           //
           pipeline = new LocalPipelineEngine(pipelineMeta);
-          pipeline.setLogLevel(context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
+          pipeline.setLogLevel(
+              context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
           pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
 
           // Give transforms variables from above
@@ -434,7 +442,8 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
           // Disable trying to run a unit test on the remote node.
           // It's pretty useless.
-          // We should figure out a way for the testing plugin to change this without hard-coding this line.
+          // We should figure out a way for the testing plugin to change this without hard-coding
+          // this line.
           //
           pipeline.setVariable("__UnitTest_Run__", "N");
 
@@ -547,8 +556,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
             }
 
             // By calling finished() transforms like Stream Lookup know no more rows are going to
-            // come
-            // and they can start to work with the info data set
+            // come, and they can start to work with the info data set
             //
             infoRowProducer.finished();
 
