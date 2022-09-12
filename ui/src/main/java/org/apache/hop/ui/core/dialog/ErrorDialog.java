@@ -31,7 +31,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.function.Function;
@@ -109,7 +108,7 @@ public class ErrorDialog extends Dialog {
             parent,
             SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.APPLICATION_MODAL | SWT.SHEET);
     props.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImageShowErrorLines());
+    shell.setImage(GuiResource.getInstance().getImageError());
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -159,6 +158,7 @@ public class ErrorDialog extends Dialog {
     wlDesc.setFont(largeFont);
 
     Text wDesc = new Text(shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    props.setLook(wDesc);
     wDesc.setText(exMsgFunction.apply(text.toString()));
 
     wDesc.setBackground(gray);
