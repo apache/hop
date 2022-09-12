@@ -233,6 +233,7 @@ public class WebServer {
               contexts, getContextPath(servlet), ServletContextHandler.SESSIONS);
       ServletHolder servletHolder = new ServletHolder((Servlet) servlet);
       servletContext.addServlet(servletHolder, "/*");
+      servletContext.setAttribute("GraphicsEnvironment", graphicsEnvironment);
     }
 
     // setup jersey (REST)

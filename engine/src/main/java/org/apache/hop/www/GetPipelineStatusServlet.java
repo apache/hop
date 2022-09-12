@@ -504,28 +504,30 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           out.println("</table>");
           out.println("</div>");
 
-          out.print("<div class=\"row\" style=\"padding: 0px 0px 75px 0px;\">");
-          out.print(
-              "<div class=\"workspaceHeading\" style=\"padding: 0px 0px 30px 0px;\">Canvas preview</div>");
-          // Get the pipeline image
-          Point max = pipeline.getPipelineMeta().getMaximum();
-          max.x = (int) (max.x * GetPipelineImageServlet.ZOOM_FACTOR) + 100;
-          max.y = (int) (max.y * GetPipelineImageServlet.ZOOM_FACTOR) + 50;
-          out.print(
-              "<iframe height=\""
-                  + (max.y + 100)
-                  + "px\" width=\""
-                  + (max.x + 100)
-                  + "px\" "
-                  + "src=\""
-                  + convertContextPath(GetPipelineImageServlet.CONTEXT_PATH)
-                  + "?name="
-                  + URLEncoder.encode(pipelineName, "UTF-8")
-                  + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
-                  + "\" frameborder=\"0\"></iframe>");
-          ;
-          out.print("</div>");
+          if (supportGraphicEnvironment) {
+            out.print("<div class=\"row\" style=\"padding: 0px 0px 75px 0px;\">");
+            out.print(
+                "<div class=\"workspaceHeading\" style=\"padding: 0px 0px 30px 0px;\">Canvas preview</div>");
+            // Get the pipeline image
+            Point max = pipeline.getPipelineMeta().getMaximum();
+            max.x = (int) (max.x * GetPipelineImageServlet.ZOOM_FACTOR) + 100;
+            max.y = (int) (max.y * GetPipelineImageServlet.ZOOM_FACTOR) + 50;
+            out.print(
+                "<iframe height=\""
+                    + (max.y + 100)
+                    + "px\" width=\""
+                    + (max.x + 100)
+                    + "px\" "
+                    + "src=\""
+                    + convertContextPath(GetPipelineImageServlet.CONTEXT_PATH)
+                    + "?name="
+                    + URLEncoder.encode(pipelineName, "UTF-8")
+                    + "&id="
+                    + URLEncoder.encode(id, "UTF-8")
+                    + "\" frameborder=\"0\"></iframe>");
+            ;
+            out.print("</div>");
+          }
 
           // Put the logging below that.
           out.print("<div class=\"row\" style=\"padding: 0px 0px 30px 0px;\">");
