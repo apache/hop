@@ -49,6 +49,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import javax.servlet.Servlet;
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -218,6 +219,7 @@ public class WebServer {
     rootServlet.setJettyMode(true);
     root.addServlet(new ServletHolder(rootServlet), "/*");
 
+    boolean graphicsEnvironment = supportGraphicEnvironment();
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
     List<IPlugin> plugins = pluginRegistry.getPlugins(HopServerPluginType.class);
     for (IPlugin plugin : plugins) {
@@ -510,5 +512,13 @@ public class WebServer {
     } else {
       return DEFAULT_DETECTION_TIMER;
     }
+  }
+
+  private boolean supportGraphicEnvironment() {
+    try {
+      return GraphicsEnvironment.getLocalGraphicsEnvironment() != null;
+    } catch (Error ignored) {
+    }
+    return false;
   }
 }
