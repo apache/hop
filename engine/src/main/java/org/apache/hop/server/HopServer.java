@@ -17,6 +17,8 @@
 
 package org.apache.hop.server;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
@@ -436,8 +438,14 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     return result;
   }
 
-  // Method is defined as package-protected in order to be accessible by unit tests
   HttpPost buildSendXmlMethod(IVariables variables, byte[] content, String service)
+      throws Exception {
+    String encoding = Const.getEnvironmentVariable("file.encoding", Const.XML_ENCODING);
+    return buildSendXmlMethod(variables, content, encoding, service);
+  }
+
+  // Method is defined as package-protected in order to be accessible by unit tests
+  HttpPost buildSendXmlMethod(IVariables variables, byte[] content, String encoding, String service)
       throws Exception {
     // Prepare HTTP put
     //
@@ -452,13 +460,14 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     HttpEntity entity = new ByteArrayEntity(content);
 
     postMethod.setEntity(entity);
-    postMethod.addHeader(new BasicHeader("Content-Type", "text/xml;charset=" + Const.XML_ENCODING));
+    postMethod.addHeader(new BasicHeader("Content-Type", "text/xml;charset=" + encoding));
 
     return postMethod;
   }
 
   public String sendXml(IVariables variables, String xml, String service) throws Exception {
-    HttpPost method = buildSendXmlMethod(variables, xml.getBytes(Const.XML_ENCODING), service);
+    String encoding = getXmlEncoding(xml);
+    HttpPost method = buildSendXmlMethod(variables, xml.getBytes(encoding), encoding, service);
     try {
       return executeAuth(variables, method);
     } finally {
@@ -470,6 +479,15 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
                 PKG, "HopServer.DETAILED_SentXmlToService", service, variables.resolve(hostname)));
       }
     }
+  }
+
+  private String getXmlEncoding(String xml) {
+    Pattern xmlHeadPattern = Pattern.compile("<\\?xml.* encoding=\"(.*)\"");
+    Matcher matcher = xmlHeadPattern.matcher(xml);
+    if (matcher.find()) {
+      return matcher.group();
+    }
+    return Const.getEnvironmentVariable("file.encoding", Const.XML_ENCODING);
   }
 
   /** Throws if not ok */

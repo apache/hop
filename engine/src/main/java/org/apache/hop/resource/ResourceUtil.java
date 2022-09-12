@@ -25,6 +25,7 @@ import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.IXml;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -123,8 +124,11 @@ public class ResourceUtil {
         // We add an extra file definition which gets picked up below and zipped up.
         //
         if (executionConfiguration != null) {
+          String encoding = Const.getEnvironmentVariable("file.encoding", Const.XML_ENCODING);
           ResourceDefinition resourceDefinition =
-              new ResourceDefinition(injectFilename, executionConfiguration.getXml(variables));
+              new ResourceDefinition(
+                  injectFilename,
+                  XmlHandler.getXmlHeader(encoding) + executionConfiguration.getXml(variables));
           definitions.put(injectFilename, resourceDefinition);
         }
 
