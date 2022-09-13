@@ -47,6 +47,10 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
+    if (!supportGraphicEnvironment){
+      response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+      return;
+    }
 
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "GetPipelineImageServlet.Log.PipelineImageRequested"));

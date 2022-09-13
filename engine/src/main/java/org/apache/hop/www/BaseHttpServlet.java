@@ -38,6 +38,7 @@ public class BaseHttpServlet extends HttpServlet {
   protected WorkflowMap workflowMap;
   protected HopServerConfig serverConfig;
   protected IVariables variables;
+  protected boolean supportGraphicEnvironment;
 
   private boolean jettyMode = false;
 
@@ -91,6 +92,10 @@ public class BaseHttpServlet extends HttpServlet {
       throws ServletException, IOException {
     if (req.getContentLength() > 0 && req.getContentType() != null) {
       req.setCharacterEncoding(getContentEncoding(req.getContentType()));
+    }
+    if ("GET".equals(req.getMethod())) {
+      supportGraphicEnvironment =
+          Boolean.TRUE.equals(req.getServletContext().getAttribute("GraphicsEnvironment"));
     }
     super.service(req, resp);
   }
