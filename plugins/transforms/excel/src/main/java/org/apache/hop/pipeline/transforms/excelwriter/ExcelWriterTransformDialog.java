@@ -982,7 +982,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdSheetTemplateComp.left = new FormAttachment(0, 0);
     fdSheetTemplateComp.top = new FormAttachment(0, 0);
     fdSheetTemplateComp.right = new FormAttachment(100, 0);
-    fdSheetTemplateComp.bottom = new FormAttachment(100, 0);
     wSheetTemplateComp.setLayoutData(fdSheetTemplateComp);
 
     wSheetTemplateComp.layout();
@@ -998,12 +997,12 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
     wContentTab.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.ContentTab.TabTitle"));
 
+    Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wContentComp);
+
     FormLayout contentLayout = new FormLayout();
     contentLayout.marginWidth = 3;
     contentLayout.marginHeight = 3;
-
-    Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wContentComp);
     wContentComp.setLayout(contentLayout);
 
     Group wContentGroup = new Group(wContentComp, SWT.SHADOW_NONE);
@@ -1175,7 +1174,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
     FormData fdContentGroup = new FormData();
     fdContentGroup.left = new FormAttachment(0, margin);
-    fdContentGroup.top = new FormAttachment(0, margin);
+    fdContentGroup.top = new FormAttachment(wTemplateGroup, margin);
     fdContentGroup.right = new FormAttachment(100, -margin);
     wContentGroup.setLayoutData(fdContentGroup);
 
@@ -1287,7 +1286,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdContentComp.left = new FormAttachment(0, 0);
     fdContentComp.top = new FormAttachment(0, 0);
     fdContentComp.right = new FormAttachment(100, 0);
-    fdContentComp.bottom = new FormAttachment(100, 0);
     wContentGroup.setLayoutData(fdContentComp);
 
     wContentComp.layout();
