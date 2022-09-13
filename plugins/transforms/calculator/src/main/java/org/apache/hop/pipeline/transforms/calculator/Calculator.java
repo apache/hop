@@ -36,7 +36,9 @@ import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.Calc
 import java.util.ArrayList;
 import java.util.List;
 
-/** Calculate new field values using pre-defined functions. */
+/**
+ * Calculate new field values using pre-defined functions.
+ */
 public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
 
   private static final Class<?> PKG = CalculatorMeta.class; // For Translator
@@ -49,12 +51,12 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
   }
 
   public Calculator(
-      TransformMeta transformMeta,
-      CalculatorMeta meta,
-      CalculatorData data,
-      int copyNr,
-      PipelineMeta pipelineMeta,
-      Pipeline pipeline) {
+          TransformMeta transformMeta,
+          CalculatorMeta meta,
+          CalculatorData data,
+          int copyNr,
+          PipelineMeta pipelineMeta,
+          Pipeline pipeline) {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
@@ -72,7 +74,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
       first = false;
       data.setOutputRowMeta(getInputRowMeta().clone());
       meta.getFields(
-          data.getOutputRowMeta(), getTransformName(), null, null, this, metadataProvider);
+              data.getOutputRowMeta(), getTransformName(), null, null, this, metadataProvider);
 
       // get all metadata, including source rows and temporary fields.
       data.setCalcRowMeta(meta.getAllFields(getInputRowMeta()));
@@ -90,64 +92,64 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
 
         if (!Utils.isEmpty(function.getFieldName())) {
           data.getFieldIndexes()[i].indexName =
-              data.getCalcRowMeta().indexOfValue(function.getFieldName());
+                  data.getCalcRowMeta().indexOfValue(function.getFieldName());
           if (data.getFieldIndexes()[i].indexName < 0) {
             // Nope: throw an exception
             throw new HopTransformException(
-                BaseMessages.getString(
-                    PKG,
-                    "Calculator.Error.UnableFindField",
-                    function.getFieldName(),
-                    "" + (i + 1)));
+                    BaseMessages.getString(
+                            PKG,
+                            "Calculator.Error.UnableFindField",
+                            function.getFieldName(),
+                            "" + (i + 1)));
           }
         } else {
           throw new HopTransformException(
-              BaseMessages.getString(PKG, "Calculator.Error.NoNameField", "" + (i + 1)));
+                  BaseMessages.getString(PKG, "Calculator.Error.NoNameField", "" + (i + 1)));
         }
 
         if (!Utils.isEmpty(function.getFieldA())) {
           if (function.getCalcType() != CalculationType.CONSTANT) {
             data.getFieldIndexes()[i].indexA =
-                data.getCalcRowMeta().indexOfValue(function.getFieldA());
+                    data.getCalcRowMeta().indexOfValue(function.getFieldA());
             if (data.getFieldIndexes()[i].indexA < 0) {
               // Nope: throw an exception
               throw new HopTransformException(
-                  "Unable to find the first argument field '"
-                      + function.getFieldName()
-                      + " for calculation #"
-                      + (i + 1));
+                      "Unable to find the first argument field '"
+                              + function.getFieldName()
+                              + " for calculation #"
+                              + (i + 1));
             }
           } else {
             data.getFieldIndexes()[i].indexA = -1;
           }
         } else {
           throw new HopTransformException(
-              "There is no first argument specified for calculated field #" + (i + 1));
+                  "There is no first argument specified for calculated field #" + (i + 1));
         }
 
         if (!Utils.isEmpty(function.getFieldB())) {
           data.getFieldIndexes()[i].indexB =
-              data.getCalcRowMeta().indexOfValue(function.getFieldB());
+                  data.getCalcRowMeta().indexOfValue(function.getFieldB());
           if (data.getFieldIndexes()[i].indexB < 0) {
             // Nope: throw an exception
             throw new HopTransformException(
-                "Unable to find the second argument field '"
-                    + function.getFieldName()
-                    + " for calculation #"
-                    + (i + 1));
+                    "Unable to find the second argument field '"
+                            + function.getFieldName()
+                            + " for calculation #"
+                            + (i + 1));
           }
         }
         data.getFieldIndexes()[i].indexC = -1;
         if (!Utils.isEmpty(function.getFieldC())) {
           data.getFieldIndexes()[i].indexC =
-              data.getCalcRowMeta().indexOfValue(function.getFieldC());
+                  data.getCalcRowMeta().indexOfValue(function.getFieldC());
           if (data.getFieldIndexes()[i].indexC < 0) {
             // Nope: throw an exception
             throw new HopTransformException(
-                "Unable to find the third argument field '"
-                    + function.getFieldName()
-                    + " for calculation #"
-                    + (i + 1));
+                    "Unable to find the third argument field '"
+                            + function.getFieldName()
+                            + " for calculation #"
+                            + (i + 1));
           }
         }
 
@@ -165,10 +167,10 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
 
     if (log.isRowLevel()) {
       logRowlevel(
-          BaseMessages.getString(PKG, "Calculator.Log.ReadRow")
-              + getLinesRead()
-              + " : "
-              + getInputRowMeta().getString(r));
+              BaseMessages.getString(PKG, "Calculator.Log.ReadRow")
+                      + getLinesRead()
+                      + " : "
+                      + getInputRowMeta().getString(r));
     }
 
     try {
@@ -191,22 +193,22 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
       }
     } catch (HopException e) {
       logError(
-          BaseMessages.getString(
-              PKG, "Calculator.ErrorInTransformRunning" + " : " + e.getMessage()));
+              BaseMessages.getString(
+                      PKG, "Calculator.ErrorInTransformRunning" + " : " + e.getMessage()));
       throw new HopTransformException(
-          BaseMessages.getString(PKG, "Calculator.ErrorInTransformRunning"), e);
+              BaseMessages.getString(PKG, "Calculator.ErrorInTransformRunning"), e);
     }
     return true;
   }
 
   /**
    * @param inputRowMeta the input row metadata
-   * @param r the input row (data)
+   * @param r            the input row (data)
    * @return A row including the calculations, excluding the temporary values
    * @throws HopValueException in case there is a calculation error.
    */
   private Object[] calcFields(IRowMeta inputRowMeta, Object[] r)
-      throws HopValueException, HopFileNotFoundException {
+          throws HopValueException, HopFileNotFoundException {
     // First copy the input data to the new result...
     Object[] calcData = RowDataUtil.resizeArray(r, data.getCalcRowMeta().size());
 
@@ -266,22 +268,29 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             calcData[index] = ValueDataUtil.plus(metaA, dataA, metaB, dataB);
             if (metaA.isString() || metaB.isString()) {
               resultType = IValueMeta.TYPE_STRING;
+            }else if (metaA.getType()==IValueMeta.TYPE_NUMBER || metaB.getType()==IValueMeta.TYPE_NUMBER){
+              resultType = IValueMeta.TYPE_NUMBER;
             }
             break;
           case SUBTRACT: // A - B
             calcData[index] = ValueDataUtil.minus(metaA, dataA, metaB, dataB);
             if (metaA.isDate()) {
               resultType = IValueMeta.TYPE_INTEGER;
+            }else if (metaA.getType()==IValueMeta.TYPE_NUMBER || metaB.getType()==IValueMeta.TYPE_NUMBER){
+              resultType = IValueMeta.TYPE_NUMBER;
             }
             break;
           case MULTIPLY: // A * B
             calcData[index] = ValueDataUtil.multiply(metaA, dataA, metaB, dataB);
-            if (metaA.isString() || metaB.isString()) {
-              resultType = IValueMeta.TYPE_STRING;
+            if (metaA.getType()==IValueMeta.TYPE_NUMBER || metaB.getType()==IValueMeta.TYPE_NUMBER) {
+              resultType = IValueMeta.TYPE_NUMBER;
             }
             break;
           case DIVIDE: // A / B
             calcData[index] = ValueDataUtil.divide(metaA, dataA, metaB, dataB);
+            if (metaA.getType()==IValueMeta.TYPE_NUMBER || metaB.getType()==IValueMeta.TYPE_NUMBER) {
+              resultType = IValueMeta.TYPE_NUMBER;
+            }
             break;
           case SQUARE: // A * A
             calcData[index] = ValueDataUtil.multiply(metaA, dataA, metaA, dataA);
@@ -291,12 +300,21 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             break;
           case PERCENT_1: // 100 * A / B
             calcData[index] = ValueDataUtil.percent1(metaA, dataA, metaB, dataB);
+            if (metaA.getType()==IValueMeta.TYPE_NUMBER || metaB.getType()==IValueMeta.TYPE_NUMBER) {
+              resultType = IValueMeta.TYPE_NUMBER;
+            }
             break;
           case PERCENT_2: // A - ( A * B / 100 )
             calcData[index] = ValueDataUtil.percent2(metaA, dataA, metaB, dataB);
+            if (metaA.getType()==IValueMeta.TYPE_NUMBER || metaB.getType()==IValueMeta.TYPE_NUMBER) {
+              resultType = IValueMeta.TYPE_NUMBER;
+            }
             break;
           case PERCENT_3: // A + ( A * B / 100 )
             calcData[index] = ValueDataUtil.percent3(metaA, dataA, metaB, dataB);
+            if (metaA.getType()==IValueMeta.TYPE_NUMBER || metaB.getType()==IValueMeta.TYPE_NUMBER) {
+              resultType = IValueMeta.TYPE_NUMBER;
+            }
             break;
           case COMBINATION_1: // A + B * C
             calcData[index] = ValueDataUtil.combination1(metaA, dataA, metaB, dataB, metaC, dataC);
@@ -309,20 +327,29 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             break;
           case ROUND_2: // ROUND( A , B )
             calcData[index] = ValueDataUtil.round(metaA, dataA, metaB, dataB);
+            if (metaA.getType()==IValueMeta.TYPE_NUMBER || metaB.getType()==IValueMeta.TYPE_NUMBER) {
+              resultType = IValueMeta.TYPE_NUMBER;
+            }
             break;
           case ROUND_CUSTOM_1: // ROUND( A , B )
             calcData[index] = ValueDataUtil.round(metaA, dataA, metaB.getNumber(dataB).intValue());
+            if (metaA.getType()==IValueMeta.TYPE_NUMBER || metaB.getType()==IValueMeta.TYPE_NUMBER) {
+              resultType = IValueMeta.TYPE_NUMBER;
+            }
             break;
           case ROUND_CUSTOM_2: // ROUND( A , B, C )
             calcData[index] =
-                ValueDataUtil.round(metaA, dataA, metaB, dataB, metaC.getNumber(dataC).intValue());
+                    ValueDataUtil.round(metaA, dataA, metaB, dataB, metaC.getNumber(dataC).intValue());
             break;
           case ROUND_STD_1: // ROUND( A )
             calcData[index] = ValueDataUtil.round(metaA, dataA, java.math.BigDecimal.ROUND_HALF_UP);
             break;
           case ROUND_STD_2: // ROUND( A , B )
             calcData[index] =
-                ValueDataUtil.round(metaA, dataA, metaB, dataB, java.math.BigDecimal.ROUND_HALF_UP);
+                    ValueDataUtil.round(metaA, dataA, metaB, dataB, java.math.BigDecimal.ROUND_HALF_UP);
+            if (metaA.getType()==IValueMeta.TYPE_NUMBER || metaB.getType()==IValueMeta.TYPE_NUMBER) {
+              resultType = IValueMeta.TYPE_NUMBER;
+            }
             break;
           case CEIL: // CEIL( A )
             calcData[index] = ValueDataUtil.ceil(metaA, dataA);
@@ -409,12 +436,12 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             break;
           case MD5: // MD5
             calcData[index] =
-                ValueDataUtil.createChecksum(metaA, dataA, "MD5", meta.isFailIfNoFile());
+                    ValueDataUtil.createChecksum(metaA, dataA, "MD5", meta.isFailIfNoFile());
             resultType = calcType.getDefaultResultType();
             break;
           case SHA1: // SHA-1
             calcData[index] =
-                ValueDataUtil.createChecksum(metaA, dataA, "SHA-1", meta.isFailIfNoFile());
+                    ValueDataUtil.createChecksum(metaA, dataA, "SHA-1", meta.isFailIfNoFile());
             resultType = calcType.getDefaultResultType();
             break;
           case LEVENSHTEIN_DISTANCE: // LEVENSHTEIN DISTANCE
@@ -495,7 +522,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             break;
           case LOAD_FILE_CONTENT_BINARY: // LOAD CONTENT OF A FILE A IN A BLOB
             calcData[index] =
-                ValueDataUtil.loadFileContentInBinary(metaA, dataA, meta.isFailIfNoFile());
+                    ValueDataUtil.loadFileContentInBinary(metaA, dataA, meta.isFailIfNoFile());
             resultType = calcType.getDefaultResultType();
             break;
           case ADD_TIME_TO_DATE: // Add time B to a date A
@@ -536,7 +563,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             break;
           case CHECK_XML_FILE_WELL_FORMED: // Check if file A is well formed
             calcData[index] =
-                ValueDataUtil.isXmlFileWellFormed(metaA, dataA, meta.isFailIfNoFile());
+                    ValueDataUtil.isXmlFileWellFormed(metaA, dataA, meta.isFailIfNoFile());
             resultType = calcType.getDefaultResultType();
             break;
           case CHECK_XML_WELL_FORMED: // Check if xml A is well formed
@@ -549,7 +576,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             break;
           case DAMERAU_LEVENSHTEIN: // DAMERAULEVENSHTEIN DISTANCE
             calcData[index] =
-                ValueDataUtil.getDamerauLevenshtein_Distance(metaA, dataA, metaB, dataB);
+                    ValueDataUtil.getDamerauLevenshtein_Distance(metaA, dataA, metaB, dataB);
             resultType = calcType.getDefaultResultType();
             break;
           case NEEDLEMAN_WUNSH: // NEEDLEMANWUNSH DISTANCE
@@ -606,7 +633,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             break;
           case REMAINDER:
             if (targetMeta.getType() != metaA.getType()
-                || targetMeta.getType() != metaB.getType()) {
+                    || targetMeta.getType() != metaB.getType()) {
               dataA = targetMeta.convertData(metaA, dataA);
               metaA = targetMeta.clone();
               dataB = targetMeta.convertData(metaB, dataB);
@@ -617,8 +644,8 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             break;
           default:
             throw new HopValueException(
-                BaseMessages.getString(PKG, "Calculator.Log.UnknownCalculationType")
-                    + fn.getCalcType());
+                    BaseMessages.getString(PKG, "Calculator.Log.UnknownCalculationType")
+                            + fn.getCalcType());
         }
 
         // If we don't have a target data type, throw an error.
@@ -626,14 +653,14 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
         //
         if (targetMeta.getType() == IValueMeta.TYPE_NONE) {
           throw new HopValueException(
-              BaseMessages.getString(PKG, "Calculator.Log.NoType")
-                  + (i + 1)
-                  + " : "
-                  + fn.getFieldName()
-                  + " = "
-                  + fn.getCalcType().getCode()
-                  + " / "
-                  + fn.getCalcType().getDescription());
+                  BaseMessages.getString(PKG, "Calculator.Log.NoType")
+                          + (i + 1)
+                          + " : "
+                          + fn.getFieldName()
+                          + " = "
+                          + fn.getCalcType().getCode()
+                          + " / "
+                          + fn.getCalcType().getDescription());
         }
 
         // Convert the data to the correct target data type.
@@ -642,6 +669,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
           if (targetMeta.getType() != resultType) {
             IValueMeta resultMeta;
             try {
+              System.out.println("target type:" + targetMeta.getType() + " resultType :" + resultType);
               // clone() is not necessary as one data instance belongs to one transform instance and
               // no race condition occurs
               resultMeta = data.getValueMetaFor(resultType, "result");
@@ -656,7 +684,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
               calcData[index] = targetMeta.convertData(resultMeta, calcData[index]);
             } catch (Exception ex) {
               throw new HopValueException(
-                  "resultType: " + resultType + "; targetMeta: " + targetMeta.getType(), ex);
+                      "resultType: " + resultType + "; targetMeta: " + targetMeta.getType(), ex);
             }
           }
         }
