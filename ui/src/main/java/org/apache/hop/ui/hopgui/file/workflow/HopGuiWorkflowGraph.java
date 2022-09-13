@@ -40,9 +40,13 @@ import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
@@ -71,6 +75,8 @@ import org.apache.hop.ui.hopgui.file.workflow.delegates.*;
 import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExtension;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
+import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
+import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -147,7 +153,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       "HopGuiWorkflowGraph-ToolBar-10530-Zoom-100Pct";
 
   public static final String TOOLBAR_ITEM_EDIT_WORKFLOW =
-      "HopGuiWorkflowGrpah-ToolBar-10450-EditWorkflow";
+      "HopGuiWorkflowGraph-ToolBar-10450-EditWorkflow";
+
+  public static final String TOOLBAR_ITEM_TO_EXECUTION_INFO =
+          "HopGuiWorkflowGraph-ToolBar-10475-ToExecutionInfo";
 
   private static final String STRING_PARALLEL_WARNING_PARAMETER = "ParallelActionsWarning";
 
@@ -3967,5 +3976,78 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    */
   public Thread getWorkflowThread() {
     return workflowThread;
+  }
+
+  @GuiContextAction(
+          id = "workflow-graph-navigate-to-execution-info",
+          parentId = HopGuiWorkflowContext.CONTEXT_ID,
+          type = GuiActionType.Info,
+          name = "i18n::HopGuiWorkflowGraph.ContextualAction.NavigateToExecutionInfo.Text",
+          tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.NavigateToExecutionInfo.Tooltip",
+          image = "ui/images/location.svg",
+          category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
+          categoryOrder = "1")
+  public void navigateToExecutionInfo(HopGuiWorkflowContext context) {
+    navigateToExecutionInfo();
+  }
+
+  @GuiToolbarElement(
+          root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+          id = TOOLBAR_ITEM_TO_EXECUTION_INFO,
+          toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.ToExecutionInfo",
+          type = GuiToolbarElementType.BUTTON,
+          image = "ui/images/location.svg")
+  public void navigateToExecutionInfo() {
+    try {
+      // Is there an active IPipeline?
+      //
+      ExecutionPerspective ep = HopGui.getExecutionPerspective();
+
+      if (workflow != null) {
+        IExecutionViewer viewer = ep.findViewer(workflow.getLogChannelId(), workflowMeta.getName());
+        if (viewer != null) {
+          ep.setActiveViewer(viewer);
+          ep.activate();
+          return;
+        }
+      }
+
+      MultiMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+
+      // As a fallback, try to open the last execution info for this workflow
+      //
+      IHopMetadataSerializer<ExecutionInfoLocation> serializer =
+              metadataProvider.getSerializer(ExecutionInfoLocation.class);
+      List<String> locationNames = serializer.listObjectNames();
+      if (locationNames.isEmpty()) {
+        return;
+      }
+      ExecutionInfoLocation location;
+      if (locationNames.size()==1) {
+        // No need to ask which location, just pick this one
+        location = serializer.load(locationNames.get(0));
+      } else {
+        EnterSelectionDialog dialog = new EnterSelectionDialog(getShell(), locationNames.toArray(new String[0]),
+                "Select location", "Select the execution information location to query");
+        String locationName = dialog.open();
+        if (locationName!=null) {
+          location = serializer.load(locationName);
+        } else {
+          return;
+        }
+      }
+
+      // Initialize the location
+      location.getExecutionInfoLocation().initialize(variables, metadataProvider);
+
+      ep.createLastExecutionView(location, ExecutionType.Workflow, workflowMeta.getName());
+      ep.activate();
+    } catch (Exception e) {
+      new ErrorDialog(
+              getShell(),
+              "Error",
+              "Error navigating to the latest execution information for this pipeline",
+              e);
+    }
   }
 }

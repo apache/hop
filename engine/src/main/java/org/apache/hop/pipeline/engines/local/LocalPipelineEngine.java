@@ -415,6 +415,9 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
           metadataProvider.getSerializer(ExecutionInfoLocation.class).load(locationName);
       if (location != null) {
         executionInfoLocation = location;
+
+        // Initialize the location.
+        executionInfoLocation.getExecutionInfoLocation().initialize(this, metadataProvider);
       } else {
         log.logError(
             "Execution information location '"

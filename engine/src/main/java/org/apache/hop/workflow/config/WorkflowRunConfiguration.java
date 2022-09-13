@@ -37,19 +37,23 @@ public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneab
 
   @HopMetadataProperty private IWorkflowEngineRunConfiguration engineRunConfiguration;
 
+  @HopMetadataProperty private String executionInfoLocationName;
+
   public WorkflowRunConfiguration() {}
 
   public WorkflowRunConfiguration(
-      String name, String description, IWorkflowEngineRunConfiguration engineRunConfiguration) {
+      String name, String description, String executionInfoLocationName, IWorkflowEngineRunConfiguration engineRunConfiguration) {
     this();
     this.name = name;
     this.description = description;
+    this.executionInfoLocationName = executionInfoLocationName;
     this.engineRunConfiguration = engineRunConfiguration;
   }
 
   public WorkflowRunConfiguration(WorkflowRunConfiguration c) {
     this.name = c.name;
     this.description = c.description;
+    this.executionInfoLocationName = c.executionInfoLocationName;
     if (c.engineRunConfiguration != null) {
       this.engineRunConfiguration = c.engineRunConfiguration.clone();
     }
@@ -86,5 +90,23 @@ public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneab
   /** @param engineRunConfiguration The engineRunConfiguration to set */
   public void setEngineRunConfiguration(IWorkflowEngineRunConfiguration engineRunConfiguration) {
     this.engineRunConfiguration = engineRunConfiguration;
+  }
+
+  /**
+   * Gets executionInfoLocationName
+   *
+   * @return value of executionInfoLocationName
+   */
+  public String getExecutionInfoLocationName() {
+    return executionInfoLocationName;
+  }
+
+  /**
+   * Sets executionInfoLocationName
+   *
+   * @param executionInfoLocationName value of executionInfoLocationName
+   */
+  public void setExecutionInfoLocationName(String executionInfoLocationName) {
+    this.executionInfoLocationName = executionInfoLocationName;
   }
 }

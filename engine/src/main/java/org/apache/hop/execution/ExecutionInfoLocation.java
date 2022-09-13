@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution;
 
+import org.apache.hop.core.gui.plugin.ITypeMetadata;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;

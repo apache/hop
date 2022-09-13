@@ -207,9 +207,7 @@ public abstract class Pipeline
   /** Boolean to check if pipeline is already stopped */
   private final AtomicBoolean isAlreadyStopped = new AtomicBoolean(false);
 
-  /**
-   * Plugins can use this to add additional data samplers to the pipeline.
-   */
+  /** Plugins can use this to add additional data samplers to the pipeline. */
   protected List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers;
 
   /**
@@ -491,8 +489,9 @@ public abstract class Pipeline
 
     // We create the log channel when we're ready to rock and roll
     // Before that it makes little sense. We default to GENERAL there.
+    // We force the creation of a new log channel ID every time we run this pipeline
     //
-    this.log = new LogChannel(this, parent);
+    this.log = new LogChannel(this, parent, isGatheringMetrics(), true);
     this.log.setLogLevel(logLevel);
 
     if (this.containerObjectId == null) {
@@ -1316,8 +1315,8 @@ public abstract class Pipeline
       // get the statistics from the transforms and keep them...
       //
       int seqNr = transformPerformanceSnapshotSeqNr.incrementAndGet();
-      for (TransformMetaDataCombi
-          iTransformITransformMetaITransformDataTransformMetaDataCombi : transforms) {
+      for (TransformMetaDataCombi iTransformITransformMetaITransformDataTransformMetaDataCombi :
+          transforms) {
         TransformMeta transformMeta =
             iTransformITransformMetaITransformDataTransformMetaDataCombi.transformMeta;
         ITransform transform =
@@ -1766,7 +1765,9 @@ public abstract class Pipeline
     return sortingTransformsTopologically;
   }
 
-  /** @param sortingTransformsTopologically The sortingTransformsTopologically to set */
+  /**
+   * @param sortingTransformsTopologically The sortingTransformsTopologically to set
+   */
   public void setSortingTransformsTopologically(boolean sortingTransformsTopologically) {
     this.sortingTransformsTopologically = sortingTransformsTopologically;
   }
@@ -3113,7 +3114,9 @@ public abstract class Pipeline
     return executionStartDate;
   }
 
-  /** @param executionStartDate The executionStartDate to set */
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
   public void setExecutionStartDate(Date executionStartDate) {
     this.executionStartDate = executionStartDate;
   }
@@ -3128,7 +3131,9 @@ public abstract class Pipeline
     return executionEndDate;
   }
 
-  /** @param executionEndDate The executionEndDate to set */
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
   public void setExecutionEndDate(Date executionEndDate) {
     this.executionEndDate = executionEndDate;
   }
@@ -3209,8 +3214,7 @@ public abstract class Pipeline
 
     if (transforms != null) {
       synchronized (transforms) {
-        for (TransformMetaDataCombi combi :
-            transforms) {
+        for (TransformMetaDataCombi combi : transforms) {
           ITransform transform = combi.transform;
 
           boolean collect = true;
@@ -3348,7 +3352,9 @@ public abstract class Pipeline
     return pluginId;
   }
 
-  /** @param pluginId The pluginId to set */
+  /**
+   * @param pluginId The pluginId to set
+   */
   @Override
   public void setPluginId(String pluginId) {
     this.pluginId = pluginId;
@@ -3415,7 +3421,9 @@ public abstract class Pipeline
     return rowSetSize;
   }
 
-  /** @param rowSetSize The rowSetSize to set */
+  /**
+   * @param rowSetSize The rowSetSize to set
+   */
   public void setRowSetSize(int rowSetSize) {
     this.rowSetSize = rowSetSize;
   }
@@ -3430,7 +3438,9 @@ public abstract class Pipeline
     return feedbackShown;
   }
 
-  /** @param feedbackShown The feedbackShown to set */
+  /**
+   * @param feedbackShown The feedbackShown to set
+   */
   public void setFeedbackShown(boolean feedbackShown) {
     this.feedbackShown = feedbackShown;
   }
@@ -3445,7 +3455,9 @@ public abstract class Pipeline
     return feedbackSize;
   }
 
-  /** @param feedbackSize The feedbackSize to set */
+  /**
+   * @param feedbackSize The feedbackSize to set
+   */
   public void setFeedbackSize(int feedbackSize) {
     this.feedbackSize = feedbackSize;
   }
@@ -3460,7 +3472,9 @@ public abstract class Pipeline
     return executionStartedListeners;
   }
 
-  /** @param executionStartedListeners The executionStartedListeners to set */
+  /**
+   * @param executionStartedListeners The executionStartedListeners to set
+   */
   public void setExecutionStartedListeners(
       List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners) {
     this.executionStartedListeners = executionStartedListeners;
@@ -3476,7 +3490,9 @@ public abstract class Pipeline
     return executionFinishedListeners;
   }
 
-  /** @param executionFinishedListeners The executionFinishedListeners to set */
+  /**
+   * @param executionFinishedListeners The executionFinishedListeners to set
+   */
   public void setExecutionFinishedListeners(
       List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners) {
     this.executionFinishedListeners = executionFinishedListeners;
@@ -3492,7 +3508,9 @@ public abstract class Pipeline
     return pipelineRunConfiguration;
   }
 
-  /** @param pipelineRunConfiguration The pipelineRunConfiguration to set */
+  /**
+   * @param pipelineRunConfiguration The pipelineRunConfiguration to set
+   */
   @Override
   public void setPipelineRunConfiguration(PipelineRunConfiguration pipelineRunConfiguration) {
     this.pipelineRunConfiguration = pipelineRunConfiguration;
@@ -3507,12 +3525,16 @@ public abstract class Pipeline
     return activeSubPipelines;
   }
 
-  /** @param activeSubPipelines The activeSubPipelines to set */
+  /**
+   * @param activeSubPipelines The activeSubPipelines to set
+   */
   public void setActiveSubPipelines(Map<String, IPipelineEngine> activeSubPipelines) {
     this.activeSubPipelines = activeSubPipelines;
   }
 
-  /** @param activeSubWorkflows The activeSubWorkflows to set */
+  /**
+   * @param activeSubWorkflows The activeSubWorkflows to set
+   */
   public void setActiveSubWorkflows(Map<String, IWorkflowEngine<WorkflowMeta>> activeSubWorkflows) {
     this.activeSubWorkflows = activeSubWorkflows;
   }
@@ -3526,7 +3548,9 @@ public abstract class Pipeline
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }
@@ -3545,13 +3569,14 @@ public abstract class Pipeline
    *
    * @param dataSamplers value of dataSamplers
    */
-  public void setDataSamplers(List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers) {
+  public void setDataSamplers(
+      List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers) {
     this.dataSamplers = dataSamplers;
   }
 
   @Override
   public <Store extends IExecutionDataSamplerStore, Sampler extends IExecutionDataSampler<Store>>
-  void addExecutionDataSampler(Sampler sampler) {
+      void addExecutionDataSampler(Sampler sampler) {
     dataSamplers.add(sampler);
   }
 }

@@ -124,7 +124,7 @@ public class RowBuffer {
     return buffer.isEmpty();
   }
 
-  public void addRow(Object[] row) {
+  public void addRow(Object...row) {
     buffer.add(row);
   }
 

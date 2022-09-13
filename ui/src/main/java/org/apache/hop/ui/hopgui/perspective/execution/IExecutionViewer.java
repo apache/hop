@@ -36,4 +36,6 @@ public interface IExecutionViewer {
   boolean setFocus();
 
   Control getControl();
+
+  void refresh();
 }

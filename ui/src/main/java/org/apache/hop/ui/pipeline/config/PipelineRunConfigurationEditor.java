@@ -214,7 +214,6 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
             BaseMessages.getString(
                 PKG, "PipelineRunConfigurationDialog.toolTip.ExecutionInfoLocation"));
     props.setLook(wExecutionInfoLocation);
-    wExecutionInfoLocation.setItems(getExecutionInfoLocations());
     FormData fdExecutionInfoLocation = new FormData();
     fdExecutionInfoLocation.top = new FormAttachment(lastControl, margin);
     fdExecutionInfoLocation.left = new FormAttachment(0, 0); // To the right of the label
@@ -439,6 +438,11 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     wName.setText(Const.NVL(workingConfiguration.getName(), ""));
     wDescription.setText(Const.NVL(workingConfiguration.getDescription(), ""));
+    try {
+      wExecutionInfoLocation.fillItems();
+    } catch(Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error getting the list of execution information locations", e);
+    }
     wExecutionInfoLocation.setText(Const.NVL(workingConfiguration.getExecutionInfoLocationName(), ""));
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       wPluginType.setText(
@@ -512,22 +516,5 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     }
     Arrays.sort(types, String.CASE_INSENSITIVE_ORDER);
     return types;
-  }
-
-  private String[] getExecutionInfoLocations() {
-    try {
-      IHopMetadataProvider provider = getMetadataManager().getMetadataProvider();
-      IHopMetadataSerializer<ExecutionInfoLocation> serializer =
-          provider.getSerializer(ExecutionInfoLocation.class);
-      List<String> names = serializer.listObjectNames();
-      return names.toArray(new String[0]);
-    } catch (Exception e) {
-      new ErrorDialog(
-          getShell(),
-          "Error",
-          "Error retrieving the list of execution information locations from metadata",
-          e);
-      return new String[] {};
-    }
   }
 }

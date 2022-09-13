@@ -18,9 +18,7 @@
 
 package org.apache.hop.execution;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Execution states are possible for pipelines and workflows but also for actions and transforms.
@@ -57,11 +55,15 @@ public class ExecutionState {
   private String statusDescription;
 
   /** The time of update */
-  public Date updateTime;
+  private Date updateTime;
+
+  /** The list of immediate child IDs for this execution */
+  private List<String> childIds;
 
   public ExecutionState() {
     this.metricsMap = new HashMap<>();
     this.updateTime = new Date();
+    this.childIds = new ArrayList<>();
   }
 
   /**
@@ -242,5 +244,23 @@ public class ExecutionState {
    */
   public void setUpdateTime(Date updateTime) {
     this.updateTime = updateTime;
+  }
+
+  /**
+   * Gets childIds
+   *
+   * @return value of childIds
+   */
+  public List<String> getChildIds() {
+    return childIds;
+  }
+
+  /**
+   * Sets childIds
+   *
+   * @param childIds value of childIds
+   */
+  public void setChildIds(List<String> childIds) {
+    this.childIds = childIds;
   }
 }

@@ -37,6 +37,15 @@ import java.util.zip.GZIPOutputStream;
  */
 public class ExecutionData {
 
+  /** The type of execution data captured: Transform or Action */
+  private ExecutionType executionType;
+
+  /** Metadata for the stored action */
+  private ExecutionDataSetMeta dataSetMeta;
+
+  /** Store the state of the individual executor (action): finished or not */
+  private boolean finished;
+
   /** The time this data was collected */
   private Date collectionDate;
 
@@ -58,7 +67,7 @@ public class ExecutionData {
   @JsonIgnore private Map<String, RowBuffer> dataSets;
 
   /** Each set key has a description which is contained in this map. */
-  @JsonDeserialize(using = ExecutionDataSetMetaDeserializer.class )
+  @JsonDeserialize(using = ExecutionDataSetMetaDeserializer.class)
   private Map<String, ExecutionDataSetMeta> setMetaData;
 
   public ExecutionData() {
@@ -132,40 +141,42 @@ public class ExecutionData {
 
     synchronized (dataSets) {
       synchronized (setMetaData) {
-
         // Write the number of data sets...
         //
         dataOutputStream.writeInt(dataSets.keySet().size());
         for (String setKey : dataSets.keySet()) {
           RowBuffer buffer = dataSets.get(setKey);
 
-          if (!buffer.isEmpty()) {
-            // Write the data set key
-            //
-            dataOutputStream.writeUTF(setKey);
+          // Write the data set key
+          //
+          dataOutputStream.writeUTF(setKey);
 
-            IRowMeta rowMeta = buffer.getRowMeta();
+          IRowMeta rowMeta = buffer.getRowMeta();
 
-            if (rowMeta==null) {
-              System.out.println("System error!");
+          if (rowMeta == null) {
+            // no information received yet, an empty buffer
+            rowMeta=new RowMeta();
+          }
+
+          // Write the metadata
+          //
+          rowMeta.writeMeta(dataOutputStream);
+
+          synchronized (buffer.getBuffer()) {
+            List<Object[]> rows = buffer.getBuffer();
+            if (rows==null) {
+              // Empty buffer
+              rows = Collections.emptyList();
             }
 
-            // Write the metadata
+            // The number of rows in the buffer
             //
-            rowMeta.writeMeta(dataOutputStream);
+            dataOutputStream.writeInt(rows.size());
 
-            synchronized (buffer.getBuffer()) {
-              List<Object[]> rows = buffer.getBuffer();
+            // Write the rows
 
-              // The number of rows in the buffer
-              //
-              dataOutputStream.writeInt(rows.size());
-
-              // Write the rows
-
-              for (Object[] row : rows) {
-                rowMeta.writeData(dataOutputStream, row);
-              }
+            for (Object[] row : rows) {
+              rowMeta.writeData(dataOutputStream, row);
             }
           }
         }
@@ -224,6 +235,60 @@ public class ExecutionData {
         }
       }
     }
+  }
+
+  /**
+   * Gets executionType
+   *
+   * @return value of executionType
+   */
+  public ExecutionType getExecutionType() {
+    return executionType;
+  }
+
+  /**
+   * Sets executionType
+   *
+   * @param executionType value of executionType
+   */
+  public void setExecutionType(ExecutionType executionType) {
+    this.executionType = executionType;
+  }
+
+  /**
+   * Gets dataSetMeta
+   *
+   * @return value of dataSetMeta
+   */
+  public ExecutionDataSetMeta getDataSetMeta() {
+    return dataSetMeta;
+  }
+
+  /**
+   * Sets dataSetMeta
+   *
+   * @param dataSetMeta value of dataSetMeta
+   */
+  public void setDataSetMeta(ExecutionDataSetMeta dataSetMeta) {
+    this.dataSetMeta = dataSetMeta;
+  }
+
+  /**
+   * Gets finished
+   *
+   * @return value of finished
+   */
+  public boolean isFinished() {
+    return finished;
+  }
+
+  /**
+   * Sets finished
+   *
+   * @param finished value of finished
+   */
+  public void setFinished(boolean finished) {
+    this.finished = finished;
   }
 
   /**

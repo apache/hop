@@ -48,6 +48,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -694,7 +695,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   }
 
   public TabItemHandler findPipeline(String logChannelId) {
-    // Go over all the pipeline graphs and see if there's one that has a IPipeline with the given ID
+    // Go over all the pipeline graphs and see if there's one that has a IPipelineEngine with the given ID
     //
     for (TabItemHandler item : items) {
       if (item.getTypeHandler() instanceof HopGuiPipelineGraph) {
@@ -702,6 +703,23 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
         IPipelineEngine<PipelineMeta> pipeline = graph.getPipeline();
         if (pipeline!=null) {
           if (logChannelId.equals(pipeline.getLogChannelId())) {
+            return item;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  public TabItemHandler findWorkflow(String logChannelId) {
+    // Go over all the workflow graphs and see if there's one that has a IWorkflow with the given ID
+    //
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() instanceof HopGuiWorkflowGraph) {
+        HopGuiWorkflowGraph graph = (HopGuiWorkflowGraph) item.getTypeHandler();
+        IWorkflowEngine<WorkflowMeta> workflow = graph.getWorkflow();
+        if (workflow!=null) {
+          if (logChannelId.equals(workflow.getLogChannelId())) {
             return item;
           }
         }

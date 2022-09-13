@@ -284,6 +284,8 @@ public class ExecutionPerspective implements IHopPerspective {
     tabFolder.setSelection(tabItem);
 
     viewer.setFocus();
+
+    viewer.refresh();
   }
 
   /**
@@ -373,7 +375,7 @@ public class ExecutionPerspective implements IHopPerspective {
     // See if the viewer is already active...
     //
     IExecutionViewer active = findViewer(execution.getId(), execution.getName());
-    if (active!=null) {
+    if (active != null) {
       setActiveViewer(active);
       return;
     }
@@ -400,7 +402,7 @@ public class ExecutionPerspective implements IHopPerspective {
               XmlHandler.loadXmlString(execution.getExecutorXml(), WorkflowMeta.XML_TAG);
           WorkflowMeta workflowMeta = new WorkflowMeta(workflowNode, provider, variables);
           WorkflowExecutionViewer viewer =
-              new WorkflowExecutionViewer(tabFolder, hopGui, workflowMeta, execution.getId());
+              new WorkflowExecutionViewer(tabFolder, hopGui, workflowMeta, location, execution);
           addViewer(viewer);
         }
         break;
@@ -423,7 +425,7 @@ public class ExecutionPerspective implements IHopPerspective {
       Execution execution = iLocation.findLastExecution(executionType, name);
       createExecutionViewer(location, execution);
 
-    } catch(Exception e) {
+    } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error opening view on last execution information", e);
     }
   }
@@ -463,6 +465,12 @@ public class ExecutionPerspective implements IHopPerspective {
       Collections.sort(locations, Comparator.comparing(HopMetadataBase::getName));
 
       for (ExecutionInfoLocation location : locations) {
+        // Initialize the location first...
+        //
+        location
+            .getExecutionInfoLocation()
+            .initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
+
         TreeItem locationItem = new TreeItem(tree, SWT.NONE);
         locationItem.setText(0, Const.NVL(location.getName(), ""));
         locationItem.setImage(GuiResource.getInstance().getImageLocation());
@@ -472,7 +480,7 @@ public class ExecutionPerspective implements IHopPerspective {
         // Get the data in the location
         //
         IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
-        List<String> ids = iLocation.getExecutionIds(true, true, 50);
+        List<String> ids = iLocation.getExecutionIds(false, 100);
 
         // Display the executions
         //

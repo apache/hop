@@ -157,6 +157,8 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       return prevResult;
     }
 
+    // Also check the variable in the workflow
+
     ExecutionResult executionResult = null;
 
     boolean repeat = true;
@@ -164,7 +166,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     while (repeat && !parentWorkflow.isStopped()) {
       repetitionNr++;
       executionResult =
-          executeTransformationOrWorkflow(realFilename, nr, executionResult, repetitionNr);
+          executePipelineOrWorkflow(realFilename, nr, executionResult, repetitionNr);
       Result result = executionResult.result;
       if (!result.getResult() || result.getNrErrors() > 0 || result.isStopped()) {
         log.logError(
@@ -181,7 +183,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
         if (executionResult.flagSet) {
           repeat = false;
         } else {
-          // Repeat as long as the variable is not set.
+          // Repeat as long as the variable is not set in the child workflow or pipeline
           //
           repeat = !isVariableValueSet(executionResult.variables);
         }
@@ -211,7 +213,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return prevResult;
   }
 
-  private ExecutionResult executeTransformationOrWorkflow(
+  private ExecutionResult executePipelineOrWorkflow(
       String realFilename, int nr, ExecutionResult previousResult, int repetitionNr)
       throws HopException {
     if (isPipeline(realFilename)) {
@@ -242,7 +244,10 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       pipeline.copyParametersFromDefinitions(pipelineMeta);
     }
     pipeline.getPipelineMeta().setInternalHopVariables(pipeline);
-    pipeline.setVariables(getVariablesMap(pipeline, previousResult));
+
+    // A pipeline can only change variables in the parent workflow
+    // So let's take the workflow variables to evaluate.
+    pipeline.setVariables(getVariablesMap(getParentWorkflow(), previousResult));
 
     // TODO: check this!
     INamedParameters previousParams =

@@ -1006,6 +1006,9 @@ public abstract class BeamPipelineEngine extends Variables
               metadataProvider.getSerializer(ExecutionInfoLocation.class).load(locationName);
       if (location != null) {
         executionInfoLocation = location.getExecutionInfoLocation();
+
+        // Initialize the location.
+        location.getExecutionInfoLocation().initialize(this, metadataProvider);
       } else {
         logChannel.logError(
                 "Execution information location '"

@@ -21,7 +21,7 @@ package org.apache.hop.execution;
 public class ExecutionDataSetMeta {
   private String setKey;
   private String logChannelId;
-  private String transformName;
+  private String name;
   private String fieldName;
   private String sampleDescription;
   private int copyNr;
@@ -30,10 +30,10 @@ public class ExecutionDataSetMeta {
   public ExecutionDataSetMeta() {}
 
   public ExecutionDataSetMeta(
-      String setKey, String logChannelId, String transformName, int copyNr, String description) {
+      String setKey, String logChannelId, String name, int copyNr, String description) {
     this.setKey = setKey;
     this.logChannelId = logChannelId;
-    this.transformName = transformName;
+    this.name = name;
     this.copyNr = copyNr;
     this.description = description;
   }
@@ -41,14 +41,14 @@ public class ExecutionDataSetMeta {
   public ExecutionDataSetMeta(
       String setKey,
       String logChannelId,
-      String transformName,
+      String name,
       int copyNr,
       String fieldName,
       String sampleDescription,
       String description) {
     this.setKey = setKey;
     this.logChannelId = logChannelId;
-    this.transformName = transformName;
+    this.name = name;
     this.copyNr = copyNr;
     this.fieldName = fieldName;
     this.sampleDescription = sampleDescription;
@@ -92,21 +92,21 @@ public class ExecutionDataSetMeta {
   }
 
   /**
-   * Gets transformName
+   * Gets name
    *
-   * @return value of transformName
+   * @return value of name
    */
-  public String getTransformName() {
-    return transformName;
+  public String getName() {
+    return name;
   }
 
   /**
-   * Sets transformName
+   * Sets name
    *
-   * @param transformName value of transformName
+   * @param name value of name
    */
-  public void setTransformName(String transformName) {
-    this.transformName = transformName;
+  public void setName(String name) {
+    this.name = name;
   }
 
   /**

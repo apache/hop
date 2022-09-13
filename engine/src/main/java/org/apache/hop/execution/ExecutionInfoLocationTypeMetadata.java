@@ -18,24 +18,12 @@
 
 package org.apache.hop.execution;
 
-public enum ExecutionType {
-  Pipeline("pipeline"),
-  Workflow("workflow"),
-  Transform("transform"),
-  Action("action");
+import org.apache.hop.core.gui.plugin.ITypeMetadata;
+import org.apache.hop.metadata.api.IHopMetadata;
 
-  private final String filePrefix;
-
-  ExecutionType(String filePrefix) {
-    this.filePrefix = filePrefix;
-  }
-
-  /**
-   * Gets filePrefix
-   *
-   * @return value of filePrefix
-   */
-  public String getFilePrefix() {
-    return filePrefix;
+public class ExecutionInfoLocationTypeMetadata implements ITypeMetadata {
+  @Override
+  public Class<? extends IHopMetadata> getMetadataClass() {
+    return ExecutionInfoLocation.class;
   }
 }

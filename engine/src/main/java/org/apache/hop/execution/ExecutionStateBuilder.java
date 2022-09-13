@@ -19,14 +19,14 @@
 package org.apache.hop.execution;
 
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.apache.hop.execution.ExecutionMetricsType.*;
 
@@ -41,10 +41,12 @@ public final class ExecutionStateBuilder {
   private String loggingText;
   private Integer lastLogLineNr;
   private Map<String, Long> metricsMap;
+  private List<String> childIds;
 
   private ExecutionStateBuilder() {
     this.updateTime = new Date();
     this.metricsMap = new HashMap<>();
+    this.childIds = new ArrayList<>();
   }
 
   public static ExecutionStateBuilder anExecutionUpdate() {
@@ -77,6 +79,9 @@ public final class ExecutionStateBuilder {
     builder.metricsMap.put(BufferSizeInput.name(), component.getInputBufferSize());
     builder.metricsMap.put(BufferSizeOutput.name(), component.getOutputBufferSize());
 
+    builder.withChildIds(
+        LoggingRegistry.getInstance().getChildrenMap().get(pipeline.getLogChannelId()));
+
     return builder;
   }
 
@@ -108,7 +113,34 @@ public final class ExecutionStateBuilder {
             .withName(pipeline.getPipelineMeta().getName())
             .withLoggingText(getLoggingText(pipeline.getLogChannelId(), lastLogLineNr))
             .withLastLogLineNr(lastNrInLogStore)
-            .withStatusDescription(pipeline.getStatusDescription());
+            .withStatusDescription(pipeline.getStatusDescription())
+            .withChildIds(
+                LoggingRegistry.getInstance().getChildrenMap().get(pipeline.getLogChannelId()));
+    return builder;
+  }
+
+  public static ExecutionStateBuilder fromExecutor(
+      IWorkflowEngine<WorkflowMeta> workflow, Integer lastLogLineNr) {
+    String parentLogChannelId =
+        workflow.getParent() == null ? null : workflow.getParent().getLogChannelId();
+
+    // The last log line nr for this workflow?
+    // Look it up before querying the store to avoid missing lines
+    //
+    int lastNrInLogStore = HopLogStore.getLastBufferLineNr();
+
+    ExecutionStateBuilder builder =
+        anExecutionUpdate()
+            .withExecutionType(ExecutionType.Workflow)
+            .withParentId(parentLogChannelId)
+            .withId(workflow.getLogChannelId())
+            .withName(workflow.getWorkflowMeta().getName())
+            .withLoggingText(getLoggingText(workflow.getLogChannelId(), lastLogLineNr))
+            .withLastLogLineNr(lastNrInLogStore)
+            .withStatusDescription(workflow.getStatusDescription())
+            .withChildIds(
+                LoggingRegistry.getInstance().getChildrenMap().get(workflow.getLogChannelId()));
+
     return builder;
   }
 
@@ -163,6 +195,11 @@ public final class ExecutionStateBuilder {
     return this;
   }
 
+  public ExecutionStateBuilder withChildIds(List<String> childIds) {
+    this.childIds = childIds;
+    return this;
+  }
+
   public ExecutionState build() {
     ExecutionState executionUpdate = new ExecutionState();
     executionUpdate.setExecutionType(executionType);
@@ -175,6 +212,7 @@ public final class ExecutionStateBuilder {
     executionUpdate.setMetricsMap(metricsMap);
     executionUpdate.setUpdateTime(updateTime);
     executionUpdate.setStatusDescription(statusDescription);
+    executionUpdate.setChildIds(childIds);
     return executionUpdate;
   }
 }

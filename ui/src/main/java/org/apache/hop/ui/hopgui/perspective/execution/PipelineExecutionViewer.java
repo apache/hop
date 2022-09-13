@@ -76,11 +76,16 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   public static final String TOOLBAR_ITEM_TO_EDITOR =
       "PipelineExecutionViewer-Toolbar-11100-GoToEditor";
 
+  public static final String TOOLBAR_ITEM_DRILL_DOWN =
+      "PipelineExecutionViewer-Toolbar-11200-DrillDown";
+  public static final String TOOLBAR_ITEM_GO_UP = "PipelineExecutionViewer-Toolbar-11300-GoUp";
+
   protected final PipelineMeta pipelineMeta;
   protected final ExecutionInfoLocation location;
   protected final Execution execution;
 
   protected TransformMeta selectedTransform;
+  private ExecutionData selectedTransformData;
 
   private CTabItem infoTab;
   private TableView infoView;
@@ -177,7 +182,15 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     // Let's simply add a table view with all the details on it.
     //
     infoView =
-        new TableView(hopGui.getVariables(), tabFolder, SWT.NONE, infoCols, 1, true, null, props);
+        new TableView(
+            hopGui.getVariables(),
+            tabFolder,
+            SWT.H_SCROLL | SWT.V_SCROLL,
+            infoCols,
+            1,
+            true,
+            null,
+            props);
     props.setLook(infoView);
 
     infoTab.setControl(infoView);
@@ -189,7 +202,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
-      ExecutionState state = iLocation.getExecutionState(ExecutionType.Pipeline, execution.getId());
+      ExecutionState state = iLocation.getExecutionState(execution.getId());
       if (state == null) {
         return;
       }
@@ -245,7 +258,15 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     //
     ColumnInfo[] dataColumns = new ColumnInfo[] {};
     dataView =
-        new TableView(hopGui.getVariables(), dataSash, SWT.NONE, dataColumns, 0, true, null, props);
+        new TableView(
+            hopGui.getVariables(),
+            dataSash,
+            SWT.H_SCROLL | SWT.V_SCROLL,
+            dataColumns,
+            0,
+            true,
+            null,
+            props);
     props.setLook(dataView);
 
     dataView.optimizeTableView();
@@ -267,7 +288,10 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       String setDescription = selection[0];
       // Look up the key in the metadata...
       //
-      ExecutionData data = location.getExecutionInfoLocation().getExecutionData(execution.getId());
+      ExecutionData data =
+          location
+              .getExecutionInfoLocation()
+              .getExecutionData(execution.getId(), ExecutionDataBuilder.ALL_TRANSFORMS);
 
       for (ExecutionDataSetMeta setMeta : data.getSetMetaData().values()) {
         if (setDescription.equals(setMeta.getDescription())) {
@@ -296,7 +320,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
               new TableView(
                   hopGui.getVariables(),
                   dataSash,
-                  SWT.NONE,
+                  SWT.H_SCROLL | SWT.V_SCROLL,
                   columns.toArray(new ColumnInfo[0]),
                   rowBuffer.size(),
                   true,
@@ -608,13 +632,16 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     try {
       // Get the transform data
       //
-      ExecutionData data = location.getExecutionInfoLocation().getExecutionData(execution.getId());
+      selectedTransformData =
+          location
+              .getExecutionInfoLocation()
+              .getExecutionData(execution.getId(), ExecutionDataBuilder.ALL_TRANSFORMS);
 
-      Map<String, ExecutionDataSetMeta> setMetaData = data.getSetMetaData();
+      Map<String, ExecutionDataSetMeta> setMetaData = selectedTransformData.getSetMetaData();
       List<String> items = new ArrayList<>();
       for (String key : setMetaData.keySet()) {
         ExecutionDataSetMeta setMeta = setMetaData.get(key);
-        if (transformMeta.getName().equals(setMeta.getTransformName())) {
+        if (transformMeta.getName().equals(setMeta.getName())) {
           // We're in the right place.  We can have different types of data though.
           // We list the types in the List on the left in the data tab.
           //
@@ -631,6 +658,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       }
       showDataRows();
     } catch (Exception e) {
+      // Ignore this error: there simply isn't any data to be found
       new ErrorDialog(getShell(), "Error", "Error showing transform data", e);
     }
   }
@@ -640,4 +668,68 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
   @Override
   public void mouseMove(MouseEvent e) {}
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_DRILL_DOWN,
+      toolTip = "i18n::PipelineExecutionViewer.ToolbarElement.DrillDown.Tooltip",
+      image = "ui/images/down.svg")
+  public void drillDown() {
+    if (selectedTransform == null) {
+      return;
+    }
+
+    // We need to look up a pipeline or workflow execution where the parent is the ID of the action
+    //
+    try {
+      // Find the ID of the transform.  That will be the parent of the executing workflow or
+      // pipeline
+      // Open all copies of the transform
+      //
+      for (ExecutionDataSetMeta setMeta : selectedTransformData.getSetMetaData().values()) {
+        if (setMeta.getName().equals(selectedTransform.getName())) {
+          String parentId = setMeta.getLogChannelId();
+          List<Execution> childExecutions =
+              location.getExecutionInfoLocation().findChildExecutions(parentId);
+          if (childExecutions.isEmpty()) {
+            return;
+          }
+          Execution child = childExecutions.get(0);
+          HopGui.getExecutionPerspective().createExecutionViewer(location, child);
+        }
+      }
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error drilling down into selected action", e);
+    }
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_GO_UP,
+      toolTip = "i18n::PipelineExecutionViewer.ToolbarElement.GoUp.Tooltip",
+      image = "ui/images/up.svg")
+  public void goUp() {
+    try {
+      String parentId = execution.getParentId();
+      if (parentId == null) {
+        return;
+      }
+
+      // This parent ID is the ID of the transform or action.
+      // We need to find the parent of this child
+      //
+      String grandParentId = location.getExecutionInfoLocation().findParentId(parentId);
+      if (grandParentId == null) {
+        return;
+      }
+
+      Execution grandParent = location.getExecutionInfoLocation().getExecution(grandParentId);
+
+      // Open this one
+      //
+      HopGui.getExecutionPerspective().createExecutionViewer(location, grandParent);
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error navigating up to parent execution", e);
+    }
+  }
 }

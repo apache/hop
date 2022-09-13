@@ -55,6 +55,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.lineage.PipelineDataLineage;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.*;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
@@ -95,6 +96,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.delegates.*;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
+import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
@@ -5278,6 +5280,19 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return handlers;
   }
 
+  @GuiContextAction(
+          id = "pipeline-graph-navigate-to-execution-info",
+          parentId = HopGuiPipelineContext.CONTEXT_ID,
+          type = GuiActionType.Info,
+          name = "i18n::HopGuiPipelineGraph.ContextualAction.NavigateToExecutionInfo.Text",
+          tooltip = "i18n::HopGuiPipelineGraph.ContextualAction.NavigateToExecutionInfo.Tooltip",
+          image = "ui/images/location.svg",
+          category = "Basic",
+          categoryOrder = "1")
+  public void navigateToExecutionInfo(HopGuiPipelineContext context) {
+    navigateToExecutionInfo();
+  }
+
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_TO_EXECUTION_INFO,
@@ -5299,10 +5314,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
       }
 
+      MultiMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+
       // As a fallback, try to open the last execution info for this pipeline
       //
       IHopMetadataSerializer<ExecutionInfoLocation> serializer =
-          hopGui.getMetadataProvider().getSerializer(ExecutionInfoLocation.class);
+          metadataProvider.getSerializer(ExecutionInfoLocation.class);
       List<String> locationNames = serializer.listObjectNames();
       if (locationNames.isEmpty()) {
         return;
@@ -5321,6 +5338,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           return;
         }
       }
+
+      // Initialize the location.
+      location.getExecutionInfoLocation().initialize(variables, metadataProvider);
 
       ep.createLastExecutionView(location, ExecutionType.Pipeline, pipelineMeta.getName());
       ep.activate();

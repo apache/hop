@@ -237,10 +237,13 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   }
 
   @Override
-  public Object clone() {
-    HopServer hopServer = new HopServer();
-    hopServer.replaceMeta(this);
-    return hopServer;
+  public HopServer clone() {
+    return new HopServer(this);
+  }
+
+  public HopServer(HopServer server) {
+    this();
+    replaceMeta(server);
   }
 
   public void replaceMeta(HopServer hopServer) {
@@ -439,6 +442,12 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   // Method is defined as package-protected in order to be accessible by unit tests
   HttpPost buildSendXmlMethod(IVariables variables, byte[] content, String service)
       throws Exception {
+    return buildSendMethod(variables, content, service, "text/xml");
+  }
+
+  // Method is defined as package-protected in order to be accessible by unit tests
+  HttpPost buildSendMethod(IVariables variables, byte[] content, String service, String contentType)
+      throws Exception {
     // Prepare HTTP put
     //
     String urlString = constructUrl(variables, service);
@@ -452,13 +461,30 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     HttpEntity entity = new ByteArrayEntity(content);
 
     postMethod.setEntity(entity);
-    postMethod.addHeader(new BasicHeader("Content-Type", "text/xml;charset=" + Const.XML_ENCODING));
+    postMethod.addHeader(
+        new BasicHeader("Content-Type", contentType + ";charset=" + Const.XML_ENCODING));
 
     return postMethod;
   }
 
   public String sendXml(IVariables variables, String xml, String service) throws Exception {
     HttpPost method = buildSendXmlMethod(variables, xml.getBytes(Const.XML_ENCODING), service);
+    try {
+      return executeAuth(variables, method);
+    } finally {
+      // Release current connection to the connection pool once you are done
+      method.releaseConnection();
+      if (log.isDetailed()) {
+        log.logDetailed(
+            BaseMessages.getString(
+                PKG, "HopServer.DETAILED_SentXmlToService", service, variables.resolve(hostname)));
+      }
+    }
+  }
+
+  public String sendJson(IVariables variables, String json, String service) throws Exception {
+    HttpPost method =
+        buildSendMethod(variables, json.getBytes(Const.XML_ENCODING), service, "application/json");
     try {
       return executeAuth(variables, method);
     } finally {
