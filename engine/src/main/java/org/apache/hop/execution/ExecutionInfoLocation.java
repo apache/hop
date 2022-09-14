@@ -43,10 +43,6 @@ public class ExecutionInfoLocation extends HopMetadataBase implements IHopMetada
 
   @HopMetadataProperty protected String dataLoggingSize;
 
-  /** These purposes are the names of enum {@link ExecutionDataProfile} */
-  @HopMetadataProperty(storeWithName = true)
-  protected ExecutionDataProfile executionDataProfile;
-
   @HopMetadataProperty private IExecutionInfoLocation executionInfoLocation;
 
   public ExecutionInfoLocation() {
@@ -68,7 +64,6 @@ public class ExecutionInfoLocation extends HopMetadataBase implements IHopMetada
     this.dataLoggingDelay = dataLoggingDelay;
     this.dataLoggingInterval = dataLoggingInterval;
     this.dataLoggingSize = dataLoggingSize;
-    this.executionDataProfile = executionDataProfile;
     this.executionInfoLocation = executionInfoLocation;
   }
 
@@ -79,9 +74,7 @@ public class ExecutionInfoLocation extends HopMetadataBase implements IHopMetada
     this.dataLoggingDelay = location.dataLoggingDelay;
     this.dataLoggingInterval = location.dataLoggingInterval;
     this.dataLoggingSize = location.dataLoggingSize;
-    if (location.executionDataProfile != null) {
-      this.executionDataProfile = new ExecutionDataProfile(location.executionDataProfile);
-    }
+
     if (location.executionInfoLocation != null) {
       this.executionInfoLocation = location.executionInfoLocation.clone();
     }
@@ -157,24 +150,6 @@ public class ExecutionInfoLocation extends HopMetadataBase implements IHopMetada
    */
   public void setDataLoggingSize(String dataLoggingSize) {
     this.dataLoggingSize = dataLoggingSize;
-  }
-
-  /**
-   * Gets executionDataProfile
-   *
-   * @return value of executionDataProfile
-   */
-  public ExecutionDataProfile getExecutionDataProfile() {
-    return executionDataProfile;
-  }
-
-  /**
-   * Sets executionDataProfile
-   *
-   * @param executionDataProfile value of executionDataProfile
-   */
-  public void setExecutionDataProfile(ExecutionDataProfile executionDataProfile) {
-    this.executionDataProfile = executionDataProfile;
   }
 
   /**

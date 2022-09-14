@@ -93,7 +93,12 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
   private void setDefaultRunConfiguration() {
     setPipelineRunConfiguration(
         new PipelineRunConfiguration(
-            "local", "", "", new ArrayList<>(), createDefaultPipelineEngineRunConfiguration()));
+            "local",
+            "",
+            "",
+            new ArrayList<>(),
+            createDefaultPipelineEngineRunConfiguration(),
+            null));
   }
 
   @Override
@@ -253,7 +258,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     }
     // No data profile to work with
     //
-    ExecutionDataProfile profile = executionInfoLocation.getExecutionDataProfile();
+    ExecutionDataProfile profile = pipelineRunConfiguration.getExecutionDataProfile();
     if (profile == null) {
       return;
     }
@@ -325,7 +330,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     }
     // No data profile to work with
     //
-    ExecutionDataProfile profile = executionInfoLocation.getExecutionDataProfile();
+    ExecutionDataProfile profile = pipelineRunConfiguration.getExecutionDataProfile();
     if (profile == null) {
       return;
     }

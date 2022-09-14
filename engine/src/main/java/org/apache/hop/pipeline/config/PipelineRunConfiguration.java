@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.config;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -50,6 +51,10 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
 
   @HopMetadataProperty private IPipelineEngineRunConfiguration engineRunConfiguration;
 
+  /** These purposes are the names of enum {@link ExecutionDataProfile} */
+  @HopMetadataProperty(storeWithName = true)
+  protected ExecutionDataProfile executionDataProfile;
+
   public PipelineRunConfiguration() {
     configurationVariables = new ArrayList<>();
   }
@@ -59,12 +64,14 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
       String description,
       String executionInfoLocationName,
       List<DescribedVariable> configurationVariables,
-      IPipelineEngineRunConfiguration engineRunConfiguration) {
+      IPipelineEngineRunConfiguration engineRunConfiguration,
+      ExecutionDataProfile executionDataProfile) {
     this.name = name;
     this.description = description;
     this.executionInfoLocationName = executionInfoLocationName;
     this.configurationVariables = configurationVariables;
     this.engineRunConfiguration = engineRunConfiguration;
+    this.executionDataProfile = executionDataProfile;
   }
 
   public PipelineRunConfiguration(PipelineRunConfiguration runConfiguration) {
@@ -75,6 +82,9 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     this.configurationVariables.addAll(runConfiguration.getConfigurationVariables());
     if (runConfiguration.getEngineRunConfiguration() != null) {
       this.engineRunConfiguration = runConfiguration.engineRunConfiguration.clone();
+    }
+    if (runConfiguration.executionDataProfile != null) {
+      this.executionDataProfile = new ExecutionDataProfile(runConfiguration.executionDataProfile);
     }
   }
 
@@ -136,6 +146,24 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
   /** @param engineRunConfiguration The engineRunConfiguration to set */
   public void setEngineRunConfiguration(IPipelineEngineRunConfiguration engineRunConfiguration) {
     this.engineRunConfiguration = engineRunConfiguration;
+  }
+
+  /**
+   * Gets executionDataProfile
+   *
+   * @return value of executionDataProfile
+   */
+  public ExecutionDataProfile getExecutionDataProfile() {
+    return executionDataProfile;
+  }
+
+  /**
+   * Sets executionDataProfile
+   *
+   * @param executionDataProfile value of executionDataProfile
+   */
+  public void setExecutionDataProfile(ExecutionDataProfile executionDataProfile) {
+    this.executionDataProfile = executionDataProfile;
   }
 
   public void applyToVariables(IVariables variables) {

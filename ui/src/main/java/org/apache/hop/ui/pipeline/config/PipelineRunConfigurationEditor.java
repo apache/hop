@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.pipeline.config;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -24,6 +25,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -74,6 +76,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   private Text wName;
   private Text wDescription;
   private MetaSelectionLine<ExecutionInfoLocation> wExecutionInfoLocation;
+  private MetaSelectionLine<ExecutionDataProfile> wProfile;
   private ComboVar wPluginType;
 
   private Composite wPluginSpecificComp;
@@ -221,6 +224,24 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wExecutionInfoLocation.setLayoutData(fdExecutionInfoLocation);
     lastControl = wExecutionInfoLocation;
 
+    wProfile =
+        new MetaSelectionLine<>(
+            getVariables(),
+            getMetadataManager().getMetadataProvider(),
+            ExecutionDataProfile.class,
+            wMainComp,
+            SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(
+                PKG, "PipelineRunConfigurationDialog.label.ExecutionDataProfile"),
+            BaseMessages.getString(
+                PKG, "PipelineRunConfigurationDialog.toolTip.ExecutionDataProfile"));
+    FormData fdProfile = new FormData();
+    fdProfile.top = new FormAttachment(lastControl, margin);
+    fdProfile.left = new FormAttachment(0, 0); // To the right of the label
+    fdProfile.right = new FormAttachment(100, 0);
+    wProfile.setLayoutData(fdProfile);
+    lastControl = wProfile;
+
     // What's the type of engine?
     //
     Label wlPluginType = new Label(wMainComp, SWT.RIGHT);
@@ -364,6 +385,8 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wDescription.addListener(SWT.Modify, modifyListener);
     wPluginType.addListener(SWT.Modify, modifyListener);
     wPluginType.addListener(SWT.Modify, e -> changeConnectionType());
+    wProfile.getComboWidget().addListener(SWT.Modify, modifyListener);
+    wProfile.getComboWidget().addListener(SWT.Selection, modifyListener);
   }
 
   private void addGuiCompositeWidgets() {
@@ -440,10 +463,12 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wDescription.setText(Const.NVL(workingConfiguration.getDescription(), ""));
     try {
       wExecutionInfoLocation.fillItems();
-    } catch(Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error getting the list of execution information locations", e);
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(), "Error", "Error getting the list of execution information locations", e);
     }
-    wExecutionInfoLocation.setText(Const.NVL(workingConfiguration.getExecutionInfoLocationName(), ""));
+    wExecutionInfoLocation.setText(
+        Const.NVL(workingConfiguration.getExecutionInfoLocationName(), ""));
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       wPluginType.setText(
           Const.NVL(workingConfiguration.getEngineRunConfiguration().getEnginePluginName(), ""));
@@ -453,6 +478,15 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
           PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
     } else {
       wPluginType.setText("");
+    }
+
+    try {
+      wProfile.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error retrieving execution info profile metadata", e);
+    }
+    if (runConfiguration.getExecutionDataProfile() != null) {
+      wProfile.setText(Const.NVL(runConfiguration.getExecutionDataProfile().getName(), ""));
     }
 
     for (int i = 0; i < workingConfiguration.getConfigurationVariables().size(); i++) {
@@ -481,6 +515,18 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
         && !guiCompositeWidgets.getWidgetsMap().isEmpty()) {
       guiCompositeWidgets.getWidgetsContents(
           meta.getEngineRunConfiguration(), PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    }
+
+    String profileName = wProfile.getText();
+    if (StringUtils.isNotEmpty(profileName)) {
+      try {
+        IHopMetadataSerializer<ExecutionDataProfile> profileSerializer =
+                manager.getMetadataProvider().getSerializer(ExecutionDataProfile.class);
+        ExecutionDataProfile dataProfile = profileSerializer.load(profileName);
+        meta.setExecutionDataProfile(dataProfile);
+      } catch (Exception e) {
+        new ErrorDialog(getShell(), "Error", "Error loading data profile metadata", e);
+      }
     }
 
     // The variables

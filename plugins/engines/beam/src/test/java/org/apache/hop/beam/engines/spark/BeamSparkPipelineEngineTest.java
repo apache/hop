@@ -46,7 +46,8 @@ public class BeamSparkPipelineEngineTest extends BeamBasePipelineEngineTest {
             "description",
             "",
             Arrays.asList(new DescribedVariable("VAR1", "spark1", "description1")),
-            configuration);
+            configuration,
+            null);
 
     metadataProvider.getSerializer(PipelineRunConfiguration.class).save(pipelineRunConfiguration);
 

@@ -70,7 +70,6 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
   private Text wDataLoggingDelay;
   private Text wDataLoggingInterval;
   private Text wDataLoggingSize;
-  private MetaSelectionLine<ExecutionDataProfile> wProfile;
   private ComboVar wPluginType;
 
   private Composite wPluginSpecificComp;
@@ -236,23 +235,6 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     wDataLoggingSize.setLayoutData(fdDataLoggingSize);
     lastControl = wDataLoggingSize;
 
-    wProfile =
-        new MetaSelectionLine<>(
-            getVariables(),
-            getMetadataManager().getMetadataProvider(),
-            ExecutionDataProfile.class,
-            wMainComp,
-            SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "ExecutionInfoLocationEditor.label.ExecutionDataProfile"),
-            BaseMessages.getString(
-                PKG, "ExecutionInfoLocationEditor.toolTip.ExecutionDataProfile"));
-    FormData fdProfile = new FormData();
-    fdProfile.top = new FormAttachment(lastControl, margin);
-    fdProfile.left = new FormAttachment(0, 0); // To the right of the label
-    fdProfile.right = new FormAttachment(100, 0);
-    wProfile.setLayoutData(fdProfile);
-    lastControl = wProfile;
-
     // What's the type of location plugin?
     //
     Label wlPluginType = new Label(wMainComp, SWT.RIGHT);
@@ -320,8 +302,6 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     wDataLoggingDelay.addListener(SWT.Modify, modifyListener);
     wDataLoggingInterval.addListener(SWT.Modify, modifyListener);
     wDataLoggingSize.addListener(SWT.Modify, modifyListener);
-    wProfile.getComboWidget().addListener(SWT.Modify, modifyListener);
-    wProfile.getComboWidget().addListener(SWT.Selection, modifyListener);
     wPluginType.addListener(SWT.Modify, modifyListener);
     wPluginType.addListener(SWT.Modify, e -> changeConnectionType());
   }
@@ -402,14 +382,6 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     wDataLoggingInterval.setText(Const.NVL(workingLocation.getDataLoggingInterval(), ""));
     wDataLoggingSize.setText(Const.NVL(workingLocation.getDataLoggingSize(), ""));
 
-    try {
-      wProfile.fillItems();
-    } catch (Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error retrieving execution info profile metadata", e);
-    }
-    if (workingLocation.getExecutionDataProfile() != null) {
-      wProfile.setText(Const.NVL(workingLocation.getExecutionDataProfile().getName(), ""));
-    }
     if (workingLocation.getExecutionInfoLocation() != null) {
       wPluginType.setText(
           Const.NVL(workingLocation.getExecutionInfoLocation().getPluginName(), ""));
@@ -430,18 +402,6 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     location.setDataLoggingDelay(wDataLoggingDelay.getText());
     location.setDataLoggingInterval(wDataLoggingInterval.getText());
     location.setDataLoggingSize(wDataLoggingSize.getText());
-
-    String profileName = wProfile.getText();
-    if (StringUtils.isNotEmpty(profileName)) {
-      try {
-        IHopMetadataSerializer<ExecutionDataProfile> profileSerializer =
-            manager.getMetadataProvider().getSerializer(ExecutionDataProfile.class);
-        ExecutionDataProfile dataProfile = profileSerializer.load(profileName);
-        location.setExecutionDataProfile(dataProfile);
-      } catch (Exception e) {
-        new ErrorDialog(getShell(), "Error", "Error loading data profile metadata", e);
-      }
-    }
 
     // Get the plugin specific information from the widgets on the screen
     //

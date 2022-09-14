@@ -296,12 +296,6 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
     if (executionInfoLocation == null) {
       return;
     }
-    // No data profile to work with
-    //
-    ExecutionDataProfile profile = executionInfoLocation.getExecutionDataProfile();
-    if (profile == null) {
-      return;
-    }
 
     long delay = Const.toLong(resolve(executionInfoLocation.getDataLoggingDelay()), 2000L);
     long interval = Const.toLong(resolve(executionInfoLocation.getDataLoggingInterval()), 5000L);
