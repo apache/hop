@@ -222,12 +222,14 @@ public class BasicDataProfilingDataSampler
           Object oldMin = store.getMinValues().get(name);
           if (oldMin == null) {
             store.getMinValues().put(name, valueData);
+            store.getMinMeta().put(name, valueMeta);
           } else {
             int compare = valueMeta.compare(valueData, oldMin);
             if (compare < 0) {
               // We have a new minimum
               //
               store.getMinValues().put(name, valueData);
+              store.getMinMeta().put(name, valueMeta);
 
               clearSampleRows(store, name, ProfilingType.MinValue);
 
@@ -247,12 +249,14 @@ public class BasicDataProfilingDataSampler
           Object oldMax = store.getMaxValues().get(name);
           if (oldMax == null) {
             store.getMaxValues().put(name, valueData);
+            store.getMaxMeta().put(name, valueMeta);
           } else {
             int compare = valueMeta.compare(valueData, oldMax);
             if (compare > 0) {
               // We have a new maximum
               //
               store.getMaxValues().put(name, valueData);
+              store.getMaxMeta().put(name, valueMeta);
 
               clearSampleRows(store, name, ProfilingType.MaxValue);
 

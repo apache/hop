@@ -24,6 +24,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.variables.IVariables;
@@ -360,10 +361,16 @@ public class ExecutionPerspective implements IHopPerspective {
 
       TreeItem treeItem = tree.getSelection()[0];
       if (treeItem != null) {
-        Execution execution = (Execution) treeItem.getData();
-        ExecutionInfoLocation location = (ExecutionInfoLocation) treeItem.getParentItem().getData();
+        if (treeItem.getData() instanceof Execution) {
+          Execution execution = (Execution) treeItem.getData();
+          ExecutionInfoLocation location =
+              (ExecutionInfoLocation) treeItem.getParentItem().getData();
 
-        createExecutionViewer(location, execution);
+          createExecutionViewer(location, execution);
+        } else if (treeItem.getData("error") instanceof Exception) {
+          Exception e = (Exception) treeItem.getData("error");
+          new ErrorDialog(getShell(), "Error", "Location error:", e);
+        }
       }
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error showing viewer for execution", e);
@@ -372,6 +379,10 @@ public class ExecutionPerspective implements IHopPerspective {
 
   public void createExecutionViewer(ExecutionInfoLocation location, Execution execution)
       throws Exception {
+    if (location==null || execution==null) {
+      return;
+    }
+
     // See if the viewer is already active...
     //
     IExecutionViewer active = findViewer(execution.getId(), execution.getName());
@@ -465,38 +476,48 @@ public class ExecutionPerspective implements IHopPerspective {
       Collections.sort(locations, Comparator.comparing(HopMetadataBase::getName));
 
       for (ExecutionInfoLocation location : locations) {
-        // Initialize the location first...
-        //
-        location
-            .getExecutionInfoLocation()
-            .initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
+          // Initialize the location first...
+          //
+          location
+              .getExecutionInfoLocation()
+              .initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
 
-        TreeItem locationItem = new TreeItem(tree, SWT.NONE);
-        locationItem.setText(0, Const.NVL(location.getName(), ""));
-        locationItem.setImage(GuiResource.getInstance().getImageLocation());
-        TreeMemory.getInstance().storeExpanded(EXECUTION_PERSPECTIVE_TREE, locationItem, true);
-        locationItem.setData(location);
+          TreeItem locationItem = new TreeItem(tree, SWT.NONE);
+          locationItem.setText(0, Const.NVL(location.getName(), ""));
+          locationItem.setImage(GuiResource.getInstance().getImageLocation());
+          TreeMemory.getInstance().storeExpanded(EXECUTION_PERSPECTIVE_TREE, locationItem, true);
+          locationItem.setData(location);
 
-        // Get the data in the location
-        //
-        IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
-        List<String> ids = iLocation.getExecutionIds(false, 100);
+        try {
 
-        // Display the executions
-        //
-        for (String id : ids) {
-          Execution execution = iLocation.getExecution(id);
-          if (execution != null) {
-            TreeItem executionItem = new TreeItem(locationItem, SWT.NONE);
-            switch (execution.getExecutionType()) {
-              case Pipeline:
-                decoratePipelineTreeItem(executionItem, execution);
-                break;
-              case Workflow:
-                decorateWorkflowTreeItem(executionItem, execution);
-                break;
+          // Get the data in the location
+          //
+          IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+          List<String> ids = iLocation.getExecutionIds(false, 100);
+
+          // Display the executions
+          //
+          for (String id : ids) {
+            Execution execution = iLocation.getExecution(id);
+            if (execution != null) {
+              TreeItem executionItem = new TreeItem(locationItem, SWT.NONE);
+              switch (execution.getExecutionType()) {
+                case Pipeline:
+                  decoratePipelineTreeItem(executionItem, execution);
+                  break;
+                case Workflow:
+                  decorateWorkflowTreeItem(executionItem, execution);
+                  break;
+              }
             }
           }
+        } catch (Exception e) {
+          // Error contacting location
+          //
+          TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
+          errorItem.setText("Not reachable (double click for details)");
+          errorItem.setForeground(GuiResource.getInstance().getColorRed());
+          errorItem.setData("error", e);
         }
       }
 

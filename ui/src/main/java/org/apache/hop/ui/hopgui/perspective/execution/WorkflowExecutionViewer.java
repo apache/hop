@@ -278,7 +278,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
     // The list of available data on the left-hand side.
     //
-    dataList = new org.eclipse.swt.widgets.List(dataSash, SWT.SINGLE | SWT.LEFT | SWT.V_SCROLL);
+    dataList = new org.eclipse.swt.widgets.List(dataSash, SWT.SINGLE | SWT.LEFT | SWT.V_SCROLL | SWT.H_SCROLL);
     dataList.addListener(SWT.Selection, e -> showDataRows());
 
     // An empty table view on the right.  This will be populated during a refresh.

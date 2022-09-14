@@ -251,7 +251,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
     // The list of available data on the left-hand side.
     //
-    dataList = new org.eclipse.swt.widgets.List(dataSash, SWT.SINGLE | SWT.LEFT);
+    dataList = new org.eclipse.swt.widgets.List(dataSash, SWT.SINGLE | SWT.LEFT | SWT.V_SCROLL | SWT.H_SCROLL);
     dataList.addListener(SWT.Selection, e -> showDataRows());
 
     // An empty table view on the right.  This will be populated during a refresh.
@@ -286,6 +286,11 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
         return;
       }
       String setDescription = selection[0];
+
+      // Clear the data grid to prevent us from showing "old" data.
+      //
+      dataView.clearAll(false);
+
       // Look up the key in the metadata...
       //
       ExecutionData data =
@@ -298,49 +303,51 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           // What's the data for this metadata?
           //
           RowBuffer rowBuffer = data.getDataSets().get(setMeta.getSetKey());
-          java.util.List<ColumnInfo> columns = new ArrayList<>();
-          IRowMeta rowMeta = rowBuffer.getRowMeta();
-          // Add a column for every
-          for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
-            ColumnInfo columnInfo =
-                new ColumnInfo(
-                    valueMeta.getName(), ColumnInfo.COLUMN_TYPE_TEXT, valueMeta.isNumeric());
-            columnInfo.setValueMeta(valueMeta);
-            columnInfo.setToolTip(valueMeta.toStringMeta());
-            columns.add(columnInfo);
-          }
-
-          // Dispose of the old table view
-          //
-          dataView.dispose();
-
-          // Create a new one
-          //
-          dataView =
-              new TableView(
-                  hopGui.getVariables(),
-                  dataSash,
-                  SWT.H_SCROLL | SWT.V_SCROLL,
-                  columns.toArray(new ColumnInfo[0]),
-                  rowBuffer.size(),
-                  true,
-                  null,
-                  props);
-
-          for (int r = 0; r < rowBuffer.size(); r++) {
-            Object[] row = rowBuffer.getBuffer().get(r);
-            TableItem item = dataView.table.getItem(r);
-            item.setText(0, Integer.toString(r + 1));
-            for (int c = 0; c < rowMeta.size(); c++) {
-              String value = rowMeta.getString(row, c);
-              if (value == null) {
-                value = "";
-              }
-              item.setText(c + 1, value);
+          if (rowBuffer != null) {
+            java.util.List<ColumnInfo> columns = new ArrayList<>();
+            IRowMeta rowMeta = rowBuffer.getRowMeta();
+            // Add a column for every
+            for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
+              ColumnInfo columnInfo =
+                  new ColumnInfo(
+                      valueMeta.getName(), ColumnInfo.COLUMN_TYPE_TEXT, valueMeta.isNumeric());
+              columnInfo.setValueMeta(valueMeta);
+              columnInfo.setToolTip(valueMeta.toStringMeta());
+              columns.add(columnInfo);
             }
+
+            // Dispose of the old table view
+            //
+            dataView.dispose();
+
+            // Create a new one
+            //
+            dataView =
+                new TableView(
+                    hopGui.getVariables(),
+                    dataSash,
+                    SWT.H_SCROLL | SWT.V_SCROLL,
+                    columns.toArray(new ColumnInfo[0]),
+                    rowBuffer.size(),
+                    true,
+                    null,
+                    props);
+
+            for (int r = 0; r < rowBuffer.size(); r++) {
+              Object[] row = rowBuffer.getBuffer().get(r);
+              TableItem item = dataView.table.getItem(r);
+              item.setText(0, Integer.toString(r + 1));
+              for (int c = 0; c < rowMeta.size(); c++) {
+                String value = rowMeta.getString(row, c);
+                if (value == null) {
+                  value = "";
+                }
+                item.setText(c + 1, value);
+              }
+            }
+            dataView.optWidth(true);
+            break;
           }
-          dataView.optWidth(true);
-          break;
         }
       }
 

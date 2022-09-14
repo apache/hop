@@ -60,7 +60,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
   private ExecutionInfoLocation executionInfoLocation;
   private Timer transformExecutionInfoTimer;
 
-  private List<IExecutionDataSamplerStore> samplerStores;
+  private Map<String, List<IExecutionDataSamplerStore>> samplerStoresMap;
 
   public LocalPipelineEngine() {
     super();
@@ -264,12 +264,15 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
       return;
     }
 
-    samplerStores = new ArrayList<>();
+    samplerStoresMap = new HashMap<>();
 
-    // Attach the samplers to the transforms.
+    // Attach all the samplers to all the transform copies.
     //
-    for (IExecutionDataSampler<?> sampler : profile.getSamplers()) {
-      for (TransformMetaDataCombi combi : getTransforms()) {
+    for (TransformMetaDataCombi combi : getTransforms()) {
+      List<IExecutionDataSamplerStore> samplerStores = new ArrayList<>();
+      samplerStoresMap.put(combi.transformName, samplerStores);
+
+      for (IExecutionDataSampler<?> sampler : profile.getSamplers()) {
         // Create a sampler store for the sampler
         //
         boolean firstTransform = pipelineMeta.findPreviousTransforms(combi.transformMeta).isEmpty();
@@ -348,7 +351,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
               //
               ExecutionDataBuilder dataBuilder =
                   ExecutionDataBuilder.fromAllTransformData(
-                      LocalPipelineEngine.this, samplerStores);
+                      LocalPipelineEngine.this, samplerStoresMap);
 
               // Send it to the location once
               //
@@ -392,7 +395,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     // Register the collected transform data for the last time
     //
     ExecutionDataBuilder dataBuilder =
-        ExecutionDataBuilder.fromAllTransformData(LocalPipelineEngine.this, samplerStores);
+        ExecutionDataBuilder.fromAllTransformData(LocalPipelineEngine.this, samplerStoresMap);
     iLocation.registerData(dataBuilder.build());
 
     // Register one final last state of the pipeline

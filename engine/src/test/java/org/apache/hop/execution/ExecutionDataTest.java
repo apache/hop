@@ -131,7 +131,5 @@ public class ExecutionDataTest {
     assertNotNull(copy);
 
     assertEquals(data, copy);
-
-    assertEquals("First rows of transform", copy.getSetMetaData().get("firstRows"));
   }
 }

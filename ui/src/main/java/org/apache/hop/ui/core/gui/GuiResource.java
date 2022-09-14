@@ -338,7 +338,7 @@ public class GuiResource {
 
     // It is recommended not to use the Device to create the color, but the RAP needs a screen (to be removed if the RAP evolves)!
     colorBackground = new Color(display, props.contrastColor(new RGB(240,240,240)));
-    colorGraph = new Color(display, props.contrastColor(new RGB(245,245,245)));
+    colorGraph = new Color(display, props.contrastColor(new RGB(235,235,235)));
     colorTab = new Color(display, props.contrastColor(new RGB(128,128,128)));
     colorSuccessGreen = new Color(display, props.contrastColor(0, 139, 0));
     colorRed = new Color(display, props.contrastColor(255, 0, 0));

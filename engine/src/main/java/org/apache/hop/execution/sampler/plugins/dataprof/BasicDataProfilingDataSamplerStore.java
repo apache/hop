@@ -29,7 +29,10 @@ import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.execution.sampler.plugins.dataprof.BasicDataProfilingDataSampler.ProfilingType;
 import org.apache.hop.i18n.BaseMessages;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BasicDataProfilingDataSamplerStore
     extends ExecutionDataSamplerStoreBase<BasicDataProfilingDataSamplerStore>
@@ -100,16 +103,6 @@ public class BasicDataProfilingDataSamplerStore
 
   @Override
   public void init(IVariables variables, IRowMeta inputRowMeta, IRowMeta outputRowMeta) {
-    // Initialize counters where needed.
-    //
-    for (IValueMeta valueMeta : outputRowMeta.getValueMetaList()) {
-      if (dataSampler.isProfilingNrNull()) {
-        getNullCounters().put(valueMeta.getName(), 0L);
-      }
-      if (dataSampler.isProfilingNrNonNull()) {
-        getNonNullCounters().put(valueMeta.getName(), 0L);
-      }
-    }
     setMaxRows(Const.toInt(variables.resolve(dataSampler.getSampleSize()), 0));
   }
 
@@ -117,13 +110,16 @@ public class BasicDataProfilingDataSamplerStore
   public Map<String, RowBuffer> getSamples() {
     Map<String, RowBuffer> samples = Collections.synchronizedMap(new HashMap<>());
 
+    String transformName = samplerMeta.getTransformName();
+    int copyNr = samplerMeta.getCopyNr();
+
     // Profiling values
     //
     getMinValues()
         .forEach(
             (fieldName, value) ->
                 samples.put(
-                    createValueKey(fieldName, ProfilingType.MinValue),
+                    createValueKey(transformName, copyNr, fieldName, ProfilingType.MinValue),
                     createRowBuffer(
                         fieldName, ProfilingType.MinValue, getMinMeta().get(fieldName), value)));
 
@@ -131,7 +127,7 @@ public class BasicDataProfilingDataSamplerStore
         .forEach(
             (fieldName, value) ->
                 samples.put(
-                    createValueKey(fieldName, ProfilingType.MaxValue),
+                    createValueKey(transformName, copyNr, fieldName, ProfilingType.MaxValue),
                     createRowBuffer(
                         fieldName, ProfilingType.MaxValue, getMaxMeta().get(fieldName), value)));
 
@@ -139,7 +135,7 @@ public class BasicDataProfilingDataSamplerStore
         .forEach(
             (fieldName, value) ->
                 samples.put(
-                    createValueKey(fieldName, ProfilingType.MinLength),
+                    createValueKey(transformName, copyNr, fieldName, ProfilingType.MinLength),
                     createRowBuffer(
                         fieldName,
                         ProfilingType.MinLength,
@@ -150,7 +146,7 @@ public class BasicDataProfilingDataSamplerStore
         .forEach(
             (fieldName, value) ->
                 samples.put(
-                    createValueKey(fieldName, ProfilingType.MaxLength),
+                    createValueKey(transformName, copyNr, fieldName, ProfilingType.MaxLength),
                     createRowBuffer(
                         fieldName,
                         ProfilingType.MaxLength,
@@ -161,7 +157,7 @@ public class BasicDataProfilingDataSamplerStore
           .forEach(
               (fieldName, value) ->
                   samples.put(
-                      createValueKey(fieldName, ProfilingType.NrNulls),
+                      createValueKey(transformName, copyNr, fieldName, ProfilingType.NrNulls),
                       createRowBuffer(
                           fieldName,
                           ProfilingType.NrNulls,
@@ -173,7 +169,7 @@ public class BasicDataProfilingDataSamplerStore
           .forEach(
               (fieldName, value) ->
                   samples.put(
-                      createValueKey(fieldName, ProfilingType.NrNonNulls),
+                      createValueKey(transformName, copyNr, fieldName, ProfilingType.NrNonNulls),
                       createRowBuffer(
                           fieldName,
                           ProfilingType.NrNonNulls,
@@ -188,7 +184,7 @@ public class BasicDataProfilingDataSamplerStore
       for (ProfilingType profilingType : ProfilingType.values()) {
         RowBuffer rowBuffer = dataMap.get(profilingType);
         if (rowBuffer != null && !rowBuffer.isEmpty()) {
-          String samplesKey = createSamplesKey(fieldName, profilingType);
+          String samplesKey = createSamplesKey(transformName, copyNr, fieldName, profilingType);
           samples.put(samplesKey, rowBuffer);
         }
       }
@@ -201,40 +197,43 @@ public class BasicDataProfilingDataSamplerStore
   public Map<String, ExecutionDataSetMeta> getSamplesMetadata() {
     Map<String, ExecutionDataSetMeta> map = Collections.synchronizedMap(new HashMap<>());
 
+    String transformName = samplerMeta.getTransformName();
+    int copyNr = samplerMeta.getCopyNr();
+
     // Profiling values
     //
     getMinValues()
         .forEach(
             (fieldName, value) ->
                 map.put(
-                    createValueKey(fieldName, ProfilingType.MinValue),
+                    createValueKey(transformName, copyNr, fieldName, ProfilingType.MinValue),
                     createValueMeta(fieldName, ProfilingType.MinValue)));
 
     getMaxValues()
         .forEach(
             (fieldName, value) ->
                 map.put(
-                    createValueKey(fieldName, ProfilingType.MaxValue),
+                    createValueKey(transformName, copyNr, fieldName, ProfilingType.MaxValue),
                     createValueMeta(fieldName, ProfilingType.MaxValue)));
 
     getMinLengths()
         .forEach(
             (fieldName, value) ->
                 map.put(
-                    createValueKey(fieldName, ProfilingType.MinLength),
+                    createValueKey(transformName, copyNr, fieldName, ProfilingType.MinLength),
                     createValueMeta(fieldName, ProfilingType.MinLength)));
     getMaxLengths()
         .forEach(
             (fieldName, value) ->
                 map.put(
-                    createValueKey(fieldName, ProfilingType.MaxLength),
+                    createValueKey(transformName, copyNr, fieldName, ProfilingType.MaxLength),
                     createValueMeta(fieldName, ProfilingType.MaxLength)));
     if (dataSampler.isProfilingNrNull()) {
       getNullCounters()
           .forEach(
               (fieldName, value) ->
                   map.put(
-                      createValueKey(fieldName, ProfilingType.NrNulls),
+                      createValueKey(transformName, copyNr, fieldName, ProfilingType.NrNulls),
                       createValueMeta(fieldName, ProfilingType.NrNulls)));
     }
     if (dataSampler.isProfilingNrNonNull()) {
@@ -242,7 +241,7 @@ public class BasicDataProfilingDataSamplerStore
           .forEach(
               (fieldName, value) ->
                   map.put(
-                      createValueKey(fieldName, ProfilingType.NrNonNulls),
+                      createValueKey(transformName, copyNr, fieldName, ProfilingType.NrNonNulls),
                       createValueMeta(fieldName, ProfilingType.NrNonNulls)));
     }
 
@@ -253,8 +252,18 @@ public class BasicDataProfilingDataSamplerStore
       synchronized (map) {
         synchronized (dataMap) {
           for (ProfilingType profilingType : ProfilingType.values()) {
-            String samplesKey = createSamplesKey(fieldName, profilingType);
-            String samplesDescription = createSamplesDescription(fieldName, profilingType);
+            String samplesKey =
+                createSamplesKey(
+                    samplerMeta.getTransformName(),
+                    samplerMeta.getCopyNr(),
+                    fieldName,
+                    profilingType);
+            String samplesDescription =
+                createSamplesDescription(
+                    samplerMeta.getTransformName(),
+                    samplerMeta.getCopyNr(),
+                    fieldName,
+                    profilingType);
             ExecutionDataSetMeta setMeta =
                 new ExecutionDataSetMeta(
                     samplesKey,
@@ -287,15 +296,19 @@ public class BasicDataProfilingDataSamplerStore
     IRowMeta bufferRowMeta = new RowMeta();
     bufferRowMeta.addValueMeta(valueMeta);
     Object[] bufferRow = RowDataUtil.allocateRowData(1);
+    bufferRow[0] = valueData;
     return new RowBuffer(bufferRowMeta, List.<Object[]>of(bufferRow));
   }
 
-  private String createValueKey(String fieldName, ProfilingType profilingType) {
-    return profilingType.name() + "-value-" + fieldName;
+  private String createValueKey(
+      String transformName, int copyNr, String fieldName, ProfilingType profilingType) {
+    return transformName + "." + copyNr + ": " + profilingType.name() + "-value-" + fieldName;
   }
 
   private ExecutionDataSetMeta createValueMeta(String fieldName, ProfilingType profilingType) {
-    String setKey = createValueKey(fieldName, profilingType);
+    String setKey =
+        createValueKey(
+            samplerMeta.getTransformName(), samplerMeta.getCopyNr(), fieldName, profilingType);
     String setDescription = profilingType.getDescription() + " : " + fieldName;
     return new ExecutionDataSetMeta(
         setKey,
@@ -307,14 +320,18 @@ public class BasicDataProfilingDataSamplerStore
         setDescription);
   }
 
-  private String createSamplesKey(String fieldName, ProfilingType profilingType) {
-    return profilingType.name() + "-samples-" + fieldName;
+  private String createSamplesKey(
+      String transformName, int copyNr, String fieldName, ProfilingType profilingType) {
+    return transformName + "." + copyNr + ": " + profilingType.name() + "-samples-" + fieldName;
   }
 
-  private String createSamplesDescription(String fieldName, ProfilingType profilingType) {
+  private String createSamplesDescription(
+      String transformName, int copyNr, String fieldName, ProfilingType profilingType) {
     return BaseMessages.getString(
         PKG,
         "BasicDataProfilingRowsExecutionDataSample.SamplesDescription",
+        transformName,
+        copyNr,
         profilingType.getDescription(),
         fieldName);
   }

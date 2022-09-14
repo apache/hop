@@ -67,18 +67,21 @@ public final class ExecutionDataBuilder {
   }
 
   public static ExecutionDataBuilder fromAllTransformData(
-      IPipelineEngine<PipelineMeta> pipeline, List<IExecutionDataSamplerStore> samplerStores) {
+          IPipelineEngine<PipelineMeta> pipeline, Map<String, List<IExecutionDataSamplerStore>> samplerStoresMap) {
     ExecutionDataBuilder dataBuilder =
         ExecutionDataBuilder.anExecutionData()
             .withExecutionType(ExecutionType.Transform)
             .withParentId(pipeline.getLogChannelId())
             .withOwnerId(ALL_TRANSFORMS);
 
-    for (IExecutionDataSamplerStore samplerStore : samplerStores) {
-      dataBuilder =
-          dataBuilder
-              .addDataSets(samplerStore.getSamples())
-              .addSetMeta(samplerStore.getSamplesMetadata());
+    for (String transformName : samplerStoresMap.keySet()) {
+      List<IExecutionDataSamplerStore> samplerStores = samplerStoresMap.get(transformName);
+      for (IExecutionDataSamplerStore samplerStore : samplerStores) {
+        dataBuilder =
+            dataBuilder
+                .addDataSets(samplerStore.getSamples())
+                .addSetMeta(samplerStore.getSamplesMetadata());
+      }
     }
     dataBuilder = dataBuilder.withCollectionDate(new Date());
     return dataBuilder;

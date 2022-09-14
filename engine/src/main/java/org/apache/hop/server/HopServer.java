@@ -64,6 +64,8 @@ import java.io.*;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @HopMetadata(
     key = "server",
@@ -439,14 +441,15 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     return result;
   }
 
-  // Method is defined as package-protected in order to be accessible by unit tests
   HttpPost buildSendXmlMethod(IVariables variables, byte[] content, String service)
       throws Exception {
-    return buildSendMethod(variables, content, service, "text/xml");
+    String encoding = Const.getEnvironmentVariable("file.encoding", Const.XML_ENCODING);
+    return buildSendMethod(variables, content, encoding, service, "text/xml");
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
-  HttpPost buildSendMethod(IVariables variables, byte[] content, String service, String contentType)
+  HttpPost buildSendMethod(
+      IVariables variables, byte[] content, String encoding, String service, String contentType)
       throws Exception {
     // Prepare HTTP put
     //
@@ -461,15 +464,15 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     HttpEntity entity = new ByteArrayEntity(content);
 
     postMethod.setEntity(entity);
-    postMethod.addHeader(
-        new BasicHeader("Content-Type", contentType + ";charset=" + Const.XML_ENCODING));
+    postMethod.addHeader(new BasicHeader("Content-Type", contentType + ";charset=" + encoding));
 
     return postMethod;
   }
 
   public String sendXml(IVariables variables, String xml, String service) throws Exception {
     String encoding = getXmlEncoding(xml);
-    HttpPost method = buildSendXmlMethod(variables, xml.getBytes(encoding), encoding, service);
+    HttpPost method =
+        buildSendMethod(variables, xml.getBytes(encoding), encoding, service, "text/xml");
     try {
       return executeAuth(variables, method);
     } finally {
@@ -484,8 +487,9 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   }
 
   public String sendJson(IVariables variables, String json, String service) throws Exception {
+    String encoding = Const.XML_ENCODING;
     HttpPost method =
-        buildSendMethod(variables, json.getBytes(Const.XML_ENCODING), service, "application/json");
+        buildSendMethod(variables, json.getBytes(encoding), encoding, service, "application/json");
     try {
       return executeAuth(variables, method);
     } finally {
