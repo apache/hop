@@ -91,6 +91,7 @@
                 <module>informix</module>
                 <module>interbase</module>
                 <module>kingbasees</module>
+                <module>access</module>
                 <module>mssqlnative</module>
                 <module>mssql</module>
                 <module>mysql</module>

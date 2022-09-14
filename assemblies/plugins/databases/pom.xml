@@ -60,6 +60,7 @@
     <module>informix-assemblies</module>
     <module>interbase-assemblies</module>
     <module>kingbasees-assemblies</module>
+    <module>access-assemblies</module>
     <module>mssqlnative-assemblies</module>
     <module>mssql-assemblies</module>
     <module>mysql-assemblies</module>
