@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "file-identifier",
+          "data_set_field": "file-identifier"
+        },
+        {
+          "transform_field": "result",
+          "data_set_field": "result"
+        }
+      ],
+      "field_order": [
+        "file-identifier",
+        "result"
+      ],
+      "transform_name": "Dummy (do nothing)",
+      "data_set_name": "golden-xsd-validator"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0002-xsd-validator-test UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0002-xsd-validator-test.hpl",
+  "test_type": "UNIT_TEST"
+}

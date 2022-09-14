@@ -22,6 +22,10 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.reflection.pipeline.meta.PipelineToLogLocation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @HopMetadata(
     key = "workflow-log",
@@ -39,6 +43,7 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty private boolean executingPeriodically;
   @HopMetadataProperty private String intervalInSeconds;
   @HopMetadataProperty private boolean executingAtEnd;
+  @HopMetadataProperty private List<String> workflowToLog;
 
   public WorkflowLog() {
     enabled = true;
@@ -47,10 +52,12 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
     executingPeriodically = false;
     intervalInSeconds = "30";
     executingAtEnd = true;
+    workflowToLog = new ArrayList<>();
   }
 
   public WorkflowLog(String name) {
     super(name);
+    workflowToLog = new ArrayList<>();
   }
 
   public WorkflowLog(
@@ -61,7 +68,8 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
       boolean executingAtStart,
       boolean executingPeriodically,
       String intervalInSeconds,
-      boolean executingAtEnd) {
+      boolean executingAtEnd,
+      List<String> workflowToLog) {
     super(name);
     this.enabled = enabled;
     this.loggingParentsOnly = loggingParentsOnly;
@@ -70,6 +78,7 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
     this.executingPeriodically = executingPeriodically;
     this.intervalInSeconds = intervalInSeconds;
     this.executingAtEnd = executingAtEnd;
+    this.workflowToLog = workflowToLog;
   }
 
   /**
@@ -168,5 +177,13 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
   /** @param executingAtEnd The executingAtEnd to set */
   public void setExecutingAtEnd(boolean executingAtEnd) {
     this.executingAtEnd = executingAtEnd;
+  }
+
+  public List<String> getWorkflowToLog(){
+    return workflowToLog;
+  }
+
+  public void setWorkflowToLog(List<String> workflowToLog){
+    this.workflowToLog = workflowToLog;
   }
 }

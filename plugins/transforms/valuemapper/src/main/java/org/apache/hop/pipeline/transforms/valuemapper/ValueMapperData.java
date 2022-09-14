@@ -22,8 +22,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.Hashtable;
+import java.util.HashMap;
 
 public class ValueMapperData extends BaseTransformData implements ITransformData {
   public IRowMeta previousMeta;
@@ -31,9 +30,9 @@ public class ValueMapperData extends BaseTransformData implements ITransformData
 
   public int keynr;
 
-  public Hashtable<String, String> hashtable;
-
-  public int emptyFieldIndex;
+  public HashMap<String, String> mapValues;
+  public String nonMatchDefault;
+  public String emptyFieldValue;
 
   public IValueMeta stringMeta;
   public IValueMeta outputValueMeta;
@@ -42,7 +41,7 @@ public class ValueMapperData extends BaseTransformData implements ITransformData
   public ValueMapperData() {
     super();
 
-    hashtable = null;
+    mapValues = null;
 
     stringMeta = new ValueMetaString("string");
   }

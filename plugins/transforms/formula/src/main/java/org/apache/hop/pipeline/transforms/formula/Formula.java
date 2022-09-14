@@ -72,12 +72,12 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
   public boolean processRow() throws HopException {
 
     Object[] r = getRow();
-    int tempIndex = getInputRowMeta().size();
-
     if (r == null) {
       setOutputDone();
       return false;
     }
+
+    int tempIndex = getInputRowMeta().size();
 
     if (first) {
       first = false;
@@ -119,7 +119,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     for (int i = 0; i < meta.getFormulas().size(); i++) {
 
       FormulaMetaFunction formula = meta.getFormulas().get(i);
-      FormulaParser parser = new FormulaParser(formula, getInputRowMeta(), r, sheetRow);
+      FormulaParser parser = new FormulaParser(formula, getInputRowMeta(), r, sheetRow, variables);
       CellValue cellValue = parser.getFormulaValue();
 
       CellType cellType = cellValue.getCellType();

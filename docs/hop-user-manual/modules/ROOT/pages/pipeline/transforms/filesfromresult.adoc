@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The Files From Result transform reads filenames and additional metadata that was added through the 'add filename to result' in other transforms.
 
-= Files from result
+= image:transforms/icons/filesfromresult.svg[Files from result transform Icon, role="image-doc-icon"] Files from result
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Files From Result transform reads filenames and additional metadata that were added through the 'add filename to result' in other transforms.
 
 Every time a file gets processed, used or created in a pipeline or a workflow, the details of the file, the workflow action, the transform, etc. is captured and added to an internal result set when the option 'Add file names to result' is set, e.g. in a Text File Output transform.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|The unique transform name within the pipeline
@@ -36,7 +50,7 @@ Every time a file gets processed, used or created in a pipeline or a workflow, t
 
 == Output fields
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Field name|Type|Example
 |type|String|Normal, Log, Error, Error-line, etc.

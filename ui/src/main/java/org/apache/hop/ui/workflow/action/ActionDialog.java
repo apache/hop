@@ -26,6 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
@@ -47,7 +48,7 @@ import org.eclipse.swt.widgets.Shell;
  * <p>method on the dialog. SWT is the native windowing environment of HopGui, and it is typically
  * the framework used for implementing action dialogs.
  */
-public class ActionDialog extends Dialog {
+public abstract class ActionDialog extends Dialog {
   private static final Class<?> PKG = ITransform.class; // For Translator
 
   /** The loggingObject for the dialog */
@@ -66,6 +67,9 @@ public class ActionDialog extends Dialog {
   /** A reference to the properties user interface */
   protected PropsUi props;
 
+  /** A reference to the shell */
+  protected Shell shell;
+  
   /**
    * Instantiates a new action dialog.
    *
@@ -80,6 +84,17 @@ public class ActionDialog extends Dialog {
     this.workflowMeta = workflowMeta;
   }
 
+  public void setActive() {
+    if (shell != null && !shell.isDisposed() ) {
+      shell.setActive();      
+    }
+  }
+
+  public void dispose() {
+    props.setScreen(new WindowProperty(shell));
+    shell.dispose();
+  }
+  
   /**
    * Adds the connection line for the given parent and previous control, and returns a meta
    * selection manager control

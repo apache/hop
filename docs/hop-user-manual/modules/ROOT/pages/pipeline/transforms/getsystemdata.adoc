@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Get System Info transform retrieves system information from the Hop project, or the environment or system Hop is running on.
 
-= Get System Info
+= image:transforms/icons/systeminfo.svg[Get System Info transform Icon, role="image-doc-icon"] Get System Info
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Get System Info transform retrieves system information from the Hop project, or the environment or system Hop is running on.
@@ -29,9 +32,20 @@ This transform generates a single row with the fields containing the requested i
 
 It can also accept any number of input streams, aggregate any fields defined by this transform, and send the combined results to the output stream.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.
@@ -41,7 +55,7 @@ It can also accept any number of input streams, aggregate any fields defined by 
 
 == Information Types
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Item|Description
 |system date (variable)|System time, changes every time you ask a date.

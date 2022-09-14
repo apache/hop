@@ -83,7 +83,7 @@ limitations under the License.
         </parameter>
       </parameters>
       <parallel>N</parallel>
-      <xloc>310</xloc>
+      <xloc>320</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>

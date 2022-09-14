@@ -18,11 +18,25 @@ under the License.
 :language: en_US
 :description: The HTTP Post transform uses an HTTP POST command to submit form data via a URL.
 
-= HTTP Post
+= image:transforms/icons/httppost.svg[HTTP Post transform Icon, role="image-doc-icon"] HTTP Post
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The HTTP Post transform uses an HTTP POST command to submit form data via a URL.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
@@ -30,7 +44,7 @@ The HTTP Post transform uses an HTTP POST command to submit form data via a URL.
 
 The General tab defines which RSS/Atom URLs you want to use, and optionally which fields contain the URLs.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |URL|The Web service URL to submit to.
@@ -63,7 +77,7 @@ The Fields tab defines parameters for the HTTP request header and body.
 If you've filled in the URL and other necessary details in the General tab, you can use the Get values buttons to pre-populate the fields here.
 Body parameters are used in POST and PUT operations.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |#|The order that this parameter will be passed to the Web application.
@@ -78,7 +92,7 @@ The Fields tab defines parameters for the HTTP request header and body.
 If you've filled in the URL and other necessary details in the General tab, you can use the Get values buttons to pre-populate the fields here.
 Query parameters are specified in the URL and can be used in any HTTP method.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |#|The order that this parameter will be passed to the Web application.

@@ -183,7 +183,7 @@ public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
       throws HopException {
 
     PipelineMeta probingPipelineMeta =
-        new PipelineMeta(loggingPipelineFilename, pipeline.getMetadataProvider(), true, variables);
+        new PipelineMeta(loggingPipelineFilename, pipeline.getMetadataProvider(), variables);
 
     // Create a local pipeline engine...
     //

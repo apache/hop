@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Token Replacement transform replaces tokens in an input string or file.
 
-= Token Replacement
+= image:transforms/icons/token.svg[Token Replacement transform Icon, role="image-doc-icon"] Token Replacement
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Token Replacement transform replaces tokens in an input string or file.
@@ -35,6 +38,17 @@ The start string, and end string are configurable and can be any series of chara
 When replacing tokens in a file, this transform reads the entire file.
 It does not operate on a single line at a time.
 When replacing tokens in a file it is a best practice to output to a file also to prevent Hop from having to read the entire file into memory.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 

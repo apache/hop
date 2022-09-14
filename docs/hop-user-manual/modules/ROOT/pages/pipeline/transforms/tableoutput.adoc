@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Table Output transform inserts data into a relational database table.
 
-= Table Output
+= image:transforms/icons/tableoutput.svg[Table Output transform Icon, role="image-doc-icon"] Table Output
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Table Output transform inserts data into a relational database table.
@@ -30,10 +33,20 @@ This transform provides configuration options for target table and a lot of hous
 
 If you have a database table that has identity columns and you are inserting a record, as part of the insert, the JDBC driver will typically return the auto-generated key it used when performing the insert.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.
@@ -45,6 +58,7 @@ This is important for data sources that allow for table names with periods in th
 Commit the connection every N rows if N is larger than zero (0); otherwise, don't use transactions.
 (Slower)
 |Truncate table|Select if you want the table to be truncated before the first row is inserted into the table
+|Truncate on first row|Select if you want the table to be truncated when the transform receives it's first row
 |Ignore insert errors|Makes Hop ignore all insert errors such as violated primary keys.
 A maximum of 20 warnings will be logged however.
 This option is not available for batch inserts.

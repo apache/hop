@@ -56,10 +56,13 @@ limitations under the License.
       <attributes/>
       <test_names>
         <test_name>
+          <name>0011-calculator-base64 UNIT</name>
+        </test_name>
+        <test_name>
           <name>0011-calculator-basics UNIT</name>
         </test_name>
         <test_name>
-          <name>0011-calculator-dates UNIT</name>
+          <name>0011-calculator-basics UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>

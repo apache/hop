@@ -28,7 +28,7 @@ The Evaluate File Metrics action can be used to evaluate the size or count of fi
 
 === General
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -61,7 +61,7 @@ A workflow action can be placed several times on the canvas, however it will be 
 
 === Advanced
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Scale a|

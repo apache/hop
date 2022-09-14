@@ -125,6 +125,7 @@ public class WorkflowMeta extends AbstractMeta
 
     workflowActions = new ArrayList<>();
     workflowHops = new ArrayList<>();
+    namedParams = new NamedParameters();
 
     arguments = null;
 
@@ -412,6 +413,11 @@ public class WorkflowMeta extends AbstractMeta
   public WorkflowMeta(IVariables variables, String fname, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     this.metadataProvider = metadataProvider;
+    loadXml(variables, fname, metadataProvider);
+  }
+
+  public void loadXml(IVariables variables, String fname, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     try {
       // OK, try to load using the VFS stuff...
       Document doc = XmlHandler.loadXmlFile(HopVfs.getFileObject(fname));

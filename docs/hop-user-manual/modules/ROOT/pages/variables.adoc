@@ -99,7 +99,7 @@ This also means that's important to know where variables can be set and used and
 == Hierarchy
 
 .Variables Hierarchy
-[width="90%",cols="2*",options="header"]
+[cols="2*",options="header"]
 |===
 |Place|Inheritance
 |System properties|Inherited by the JVM and all other places in Hop
@@ -165,7 +165,7 @@ Parameters are variables which have a description and can have a default value.
 
 The following variables are available in Hop through `Tools -> Edit config variables`
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Variable name|Default Value|Description
 |HOP_AGGREGATION_ALL_NULLS_ARE_ZERO|N|Set this variable to Y to return 0 when all values within an aggregate are NULL.
@@ -228,6 +228,7 @@ Hostname lookup is performed by Hop so that it is capable of logging the server 
 Set to 0 to keep all snapshots indefinitely (default)
 |HOP_USE_NATIVE_FILE_DIALOG|N|Set this value to Y if you want to use the system file open/save dialog when browsing files
 |NEO4J_LOGGING_CONNECTION||Set this variable to the name of an existing Neo4j connection to enable execution logging to a Neo4j database.
+|HOP_JSON_INPUT_INCLUDE_NULLS|N|Name of te variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is "Y" then nulls will be included otherwise they will not be included (default behavior)
 |===
 
 == Environment variables

@@ -163,8 +163,6 @@
         <include>io.dropwizard.metrics:metrics-json</include>
         <include>io.dropwizard.metrics:metrics-jvm</include>
         <include>io.github.classgraph:classgraph</include>
-
-
         <include>io.grpc:grpc-alts</include>
         <include>io.grpc:grpc-api</include>
         <include>io.grpc:grpc-auth</include>
@@ -195,7 +193,6 @@
         <include>javax.annotation:javax.annotation-api</include>
         <include>javax.servlet:javax.servlet-api</include>
         <include>javax.xml.bind:jaxb-api</include>
-        <include>javax.xml.stream:stax-api</include>
         <include>joda-time:joda-time</include>
         <include>net.razorvine:pyrolite</include>
         <include>net.sf.py4j:py4j</include>
@@ -279,7 +276,7 @@
         <include>org.codehaus.jackson:jackson-mapper-asl</include>
         <include>org.codehaus.jackson:jackson-xc</include>
         <include>org.codehaus.mojo:animal-sniffer-annotations</include>
-        <include>org.codehaus.woodstox:woodstox-core-asl</include>
+        <include>com.fasterxml.woodstox:woodstox-core</include>
         <include>org.conscrypt:conscrypt-openjdk-uber</include>
         <include>org.fusesource.leveldbjni:leveldbjni-all</include>
         <include>org.glassfish.hk2.external:aopalliance-repackaged</include>
@@ -303,7 +300,6 @@
         <include>org.scala-lang:scala-library</include>
         <include>org.slf4j:jcl-over-slf4j</include>
         <include>org.slf4j:jul-to-slf4j</include>
-<!--        <include>org.spark-project.spark:unused</include>-->
         <include>org.springframework:spring-core</include>
         <include>org.springframework:spring-expression</include>
         <include>org.threeten:threetenbp</include>

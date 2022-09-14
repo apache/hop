@@ -468,7 +468,8 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   }
 
   public String sendXml(IVariables variables, String xml, String service) throws Exception {
-    HttpPost method = buildSendXmlMethod(variables, xml.getBytes(Const.XML_ENCODING), service);
+    String encoding = getXmlEncoding(xml);
+    HttpPost method = buildSendXmlMethod(variables, xml.getBytes(encoding), encoding, service);
     try {
       return executeAuth(variables, method);
     } finally {
@@ -496,6 +497,15 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
                 PKG, "HopServer.DETAILED_SentXmlToService", service, variables.resolve(hostname)));
       }
     }
+  }
+
+  private String getXmlEncoding(String xml) {
+    Pattern xmlHeadPattern = Pattern.compile("<\\?xml.* encoding=\"(.*)\"");
+    Matcher matcher = xmlHeadPattern.matcher(xml);
+    if (matcher.find()) {
+      return matcher.group();
+    }
+    return Const.getEnvironmentVariable("file.encoding", Const.XML_ENCODING);
   }
 
   /** Throws if not ok */

@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "row",
+          "data_set_field": "row"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        },
+        {
+          "transform_field": "checksum",
+          "data_set_field": "checksum"
+        }
+      ],
+      "field_order": [
+        "row",
+        "value",
+        "checksum"
+      ],
+      "transform_name": "verify",
+      "data_set_name": "golden-checksum"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0043-checksum UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0043-checksum.hpl",
+  "test_type": "UNIT_TEST"
+}

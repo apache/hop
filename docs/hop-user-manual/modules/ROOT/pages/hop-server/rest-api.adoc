@@ -66,6 +66,7 @@ Add a pipeline for execution
 
 endPoint::
 GET `hop/addPipeline`
+* Content-Type: text/xml;charset=UTF-8
 
 parameters::
 * xml Request body should contain xml containing pipeline_configuration (pipeline and pipeline_execution_configuration wrapped in pipeline_configuration tag).
@@ -86,6 +87,7 @@ Add a workflow for execution
 
 endPoint::
 GET `hop/addWorkflow`
+* Content-Type: text/xml;charset=UTF-8
 
 parameters::
 * xml Request body should contain xml containing workflow_configuration (pipeline and workflow_execution_configuration wrapped in pipeline_configuration tag).
@@ -309,6 +311,7 @@ Register a pipeline for execution
 
 endPoint::
 GET `hop/registerPipeline`
+* Content-Type: text/xml;charset=UTF-8
 
 parameters::
 * xml Request body should contain xml containing pipeline_configuration (pipeline and pipeline_execution_configuration wrapped in pipeline_configuration tag).
@@ -507,6 +510,7 @@ Register a workflow on the server
 
 endPoint::
 GET `/hop/registerWorkflow`
+* Content-Type: text/xml;charset=UTF-8
 
 parameters::
 * xml:

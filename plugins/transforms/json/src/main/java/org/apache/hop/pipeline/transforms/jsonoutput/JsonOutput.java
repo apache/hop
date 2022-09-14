@@ -37,6 +37,7 @@ import org.json.simple.JSONObject;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Objects;
 
 /** Converts input rows to one or more Xml files. */
 public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
@@ -110,11 +111,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
       data.nrRow++;
 
-      if (data.nrRowsInBloc > 0) {
-        if (data.nrRow % data.nrRowsInBloc == 0) {
-          // We can now output an object
-          outPutRow(row);
-        }
+      if (data.nrRowsInBloc > 0 && data.nrRow % data.nrRowsInBloc == 0) {
+        // We can now output an object
+        outPutRow(row);
       }
     }
   }
@@ -164,11 +163,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
       data.nrRow++;
 
-      if (data.nrRowsInBloc > 0) {
-        if (data.nrRow % data.nrRowsInBloc == 0) {
-          // We can now output an object
-          outPutRow(row);
-        }
+      if (data.nrRowsInBloc > 0 && data.nrRow % data.nrRowsInBloc == 0) {
+        // We can now output an object
+        outPutRow(row);
       }
     }
   }
@@ -261,17 +258,17 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
     if (super.init()) {
 
-      data.writeToFile = (meta.getOperationType() != JsonOutputMeta.OPERATION_TYPE_OUTPUT_VALUE);
-      data.outputValue = (meta.getOperationType() != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE);
+      data.writeToFile =
+          (!Objects.equals(meta.getOperationType(), JsonOutputMeta.OPERATION_TYPE_OUTPUT_VALUE));
+      data.outputValue =
+          (!Objects.equals(meta.getOperationType(), JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE));
 
-      if (data.outputValue) {
+      if (data.outputValue && Utils.isEmpty(resolve(meta.getOutputValue()))) {
         // We need to have output field name
-        if (Utils.isEmpty(resolve(meta.getOutputValue()))) {
-          logError(BaseMessages.getString(PKG, "JsonOutput.Error.MissingOutputFieldName"));
-          stopAll();
-          setErrors(1);
-          return false;
-        }
+        logError(BaseMessages.getString(PKG, "JsonOutput.Error.MissingOutputFieldName"));
+        stopAll();
+        setErrors(1);
+        return false;
       }
       if (data.writeToFile) {
         // We need to have output field name
@@ -281,13 +278,11 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
           setErrors(1);
           return false;
         }
-        if (!meta.isDoNotOpenNewFileInit()) {
-          if (!openNewFile()) {
-            logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
-            stopAll();
-            setErrors(1);
-            return false;
-          }
+        if (!meta.isDoNotOpenNewFileInit() && !openNewFile()) {
+          logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
+          stopAll();
+          setErrors(1);
+          return false;
         }
       }
       data.realBlocName = Const.NVL(resolve(meta.getJsonBloc()), "");

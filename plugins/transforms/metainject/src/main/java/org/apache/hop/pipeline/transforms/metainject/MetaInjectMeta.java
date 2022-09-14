@@ -317,7 +317,7 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
       // Don't set internal variables: they belong to the parent thread!
       //
       if (mappingPipelineMeta == null) {
-        mappingPipelineMeta = new PipelineMeta(realFilename, metadataProvider, false, tmpSpace);
+        mappingPipelineMeta = new PipelineMeta(realFilename, metadataProvider, tmpSpace);
         LogChannel.GENERAL.logDetailed(
             "Loading Mapping from repository",
             "Mapping transformation was loaded from XML file [" + realFilename + "]");

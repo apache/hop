@@ -109,7 +109,7 @@ Example: docker pull apache/hop:1.1.0-SNAPSHOT
 
 To execute the containers afterwards, the following environment variables or parameters must be set as a minimum:
 
-[%header, width="90%"]
+[%header]
 |===
 |Variable/Docker Parameter|Example value|Description
 |HOP_SERVER_USER|admin|Admin user to log in to the UI of the Hop Server

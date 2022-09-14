@@ -23,6 +23,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -40,14 +41,17 @@ import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HopGuiWorkflowActionDelegate {
   private static final Class<?> PKG = HopGui.class; // For Translator
 
   private HopGui hopGui;
   private HopGuiWorkflowGraph workflowGraph;
-
+  private Map<String, IActionDialog> dialogs = new HashMap<>(); 
+  
   public HopGuiWorkflowActionDelegate(HopGui hopGui, HopGuiWorkflowGraph workflowGraph) {
     this.hopGui = hopGui;
     this.workflowGraph = workflowGraph;
@@ -153,6 +157,45 @@ public class HopGuiWorkflowActionDelegate {
     }
   }
 
+  
+  public ActionMeta insetAction(
+      WorkflowMeta workflowMeta,
+      WorkflowHopMeta hop,
+      String pluginId,
+      String pluginName,
+      Point location) {    
+    ActionMeta actionMeta = this.newAction(workflowMeta, pluginId, pluginName, false, location);    
+    return insetAction(workflowMeta, hop, actionMeta);
+  }
+  
+  public ActionMeta insetAction(
+      WorkflowMeta workflowMeta,
+      WorkflowHopMeta hop,
+      ActionMeta actionMeta) {
+
+    hopGui.undoDelegate.addUndoDelete(workflowMeta, new WorkflowHopMeta[] {hop}, new int[] { workflowMeta.indexOfWorkflowHop(hop)}, true);
+    workflowMeta.removeWorkflowHop(hop);
+    
+    WorkflowHopMeta newHop1 = new WorkflowHopMeta(hop.getFromAction(), actionMeta);
+    newHop1.setEnabled(hop.isEnabled());
+    newHop1.setEvaluation(hop.getEvaluation());
+    newHop1.setUnconditional(hop.isUnconditional());    
+    newHop1.setErrorHop(hop.isErrorHop());
+    workflowMeta.addWorkflowHop(newHop1);
+    
+    WorkflowHopMeta newHop2 = new WorkflowHopMeta(actionMeta, hop.getToAction());
+    newHop2.setEnabled(hop.isEnabled());
+    newHop2.setUnconditional(actionMeta.isUnconditional() || hop.isUnconditional() );
+    workflowMeta.addWorkflowHop(newHop2);
+    
+    hopGui.undoDelegate.addUndoNew(workflowMeta, 
+        new WorkflowHopMeta[] {newHop1, newHop2},
+        new int[] { workflowMeta.indexOfWorkflowHop(newHop1), workflowMeta.indexOfWorkflowHop(newHop2)}, 
+        true);
+    
+    return actionMeta;
+  }
+  
   public IActionDialog getActionDialog(IAction action, WorkflowMeta workflowMeta) {
     Class<?>[] paramClasses =
         new Class<?>[] {Shell.class, IAction.class, WorkflowMeta.class, IVariables.class};
@@ -224,13 +267,22 @@ public class HopGuiWorkflowActionDelegate {
           .getLog()
           .logDetailed(BaseMessages.getString(PKG, "HopGui.Log.EditAction", action.getName()));
 
+      
+      // Check if transform dialog is already open
+      IActionDialog dialog = dialogs.get(action.getName());
+      if ( dialog!=null) {
+         dialog.setActive();
+         return;
+      }
+      
       ActionMeta before = (ActionMeta) action.cloneDeep();
 
       IAction jei = action.getAction();
 
-      IActionDialog d = getActionDialog(jei, workflowMeta);
-      if (d != null) {
-        if (d.open() != null) {
+      dialog = getActionDialog(jei, workflowMeta);
+      if (dialog != null) {
+        dialogs.put(action.getName(), dialog);
+        if (dialog.open() != null) {
           // First see if the name changed.
           // If so, we need to verify that the name is not already used in the workflow.
           //
@@ -250,7 +302,7 @@ public class HopGuiWorkflowActionDelegate {
         mb.setText(BaseMessages.getString(PKG, "HopGui.Dialog.ActionCanNotBeChanged.Title"));
         mb.open();
       }
-
+      dialogs.remove(action.getName());
     } catch (Exception e) {
       if (!hopGui.getShell().isDisposed()) {
         new ErrorDialog(

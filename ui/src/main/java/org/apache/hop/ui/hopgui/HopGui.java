@@ -67,10 +67,7 @@ import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.metadata.MetadataContext;
-import org.apache.hop.ui.hopgui.delegates.HopGuiAuditDelegate;
-import org.apache.hop.ui.hopgui.delegates.HopGuiContextDelegate;
-import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
-import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
+import org.apache.hop.ui.hopgui.delegates.*;
 import org.apache.hop.ui.hopgui.dialog.AboutDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -90,6 +87,8 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -163,6 +162,8 @@ public class HopGui
 
   public static final String DEFAULT_HOP_GUI_NAMESPACE = "hop-gui";
 
+  public boolean firstShowing = true;
+
   private static final String UNDO_UNAVAILABLE =
       BaseMessages.getString(PKG, "HopGui.Menu.Undo.NotAvailable");
   private static final String REDO_UNAVAILABLE =
@@ -208,6 +209,7 @@ public class HopGui
   public HopGuiUndoDelegate undoDelegate;
   public HopGuiContextDelegate contextDelegate;
   public HopGuiAuditDelegate auditDelegate;
+  public HopGuiFileRefreshDelegate fileRefreshDelegate;
 
   private boolean openingLastFiles;
 
@@ -231,6 +233,7 @@ public class HopGui
     undoDelegate = new HopGuiUndoDelegate(this);
     contextDelegate = new HopGuiContextDelegate(this);
     auditDelegate = new HopGuiAuditDelegate(this);
+    fileRefreshDelegate = new HopGuiFileRefreshDelegate(this);
 
     // TODO: create metadata plugin system
     //
@@ -319,6 +322,25 @@ public class HopGui
   /** Build the shell */
   protected void open() {
     shell.setImage(GuiResource.getInstance().getImageHopUiTaskbar());
+
+    /**
+     * On macOs the image gets loaded too soon, add a listener to set the image when the shell is
+     * loaded
+     */
+    if (OsHelper.isMac()) {
+      shell
+          .getShell()
+          .addShellListener(
+              new ShellAdapter() {
+                @Override
+                public void shellActivated(ShellEvent shellevent) {
+                  if (firstShowing) {
+                    shell.setImage(GuiResource.getInstance().getImageHopUiTaskbar());
+                    firstShowing = false;
+                  }
+                }
+              });
+    }
 
     shell.setText(BaseMessages.getString(PKG, "HopGui.Application.Name"));
     addMainMenu();

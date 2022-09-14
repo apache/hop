@@ -42,17 +42,19 @@
         <!-- Third-party dependencies -->
         <commons-validator.version>1.3.1</commons-validator.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <jersey-apache-client.version>1.19.4</jersey-apache-client.version>
-        <jersey-bundle.version>1.19.4</jersey-bundle.version>
+        <jersey2.version>2.30</jersey2.version>
+        <jaxrs.version>2.1.6</jaxrs.version>
         <olap4j.version>1.2.0</olap4j.version>
         <olap4j-xmla.version>1.2.0</olap4j-xmla.version>
         <snappy-java.version>1.1.8.4</snappy-java.version>
         <commons-cli.version>1.2</commons-cli.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
+        <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
         <javax.websocket-api.version>1.1</javax.websocket-api.version>
         <picocli-version>4.6.3</picocli-version>
         <json-simple.version>1.1.1</json-simple.version>
         <commons-vfs2.version>2.9.0</commons-vfs2.version>
+        <osgi-core.version>6.0.0</osgi-core.version>
     </properties>
 
     <dependencies>
@@ -116,10 +118,24 @@
             <groupId>org.mozilla</groupId>
             <artifactId>rhino</artifactId>
         </dependency>
+        <!-- JAX-RS -->
         <dependency>
-            <groupId>com.sun.jersey.contribs</groupId>
-            <artifactId>jersey-apache-client4</artifactId>
-            <version>${jersey-apache-client.version}</version>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>${jaxrs.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Jersey 2.19 -->
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+            <version>${jersey2.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -128,15 +144,68 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-bundle</artifactId>
-            <version>${jersey-bundle.version}</version>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+            <version>${jersey2.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>${jersey2.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>${jersey2.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
+            <version>${jersey2.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.connectors</groupId>
+            <artifactId>jersey-jetty-connector</artifactId>
+            <version>${jersey2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>${javax.annotation-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>${jersey2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+            <version>${osgi-core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -263,6 +332,7 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet-api.version}</version>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

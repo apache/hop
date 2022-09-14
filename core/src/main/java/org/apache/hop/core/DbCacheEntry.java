@@ -83,7 +83,7 @@ public class DbCacheEntry {
    *
    * @param dis The DataInputStream to read this entry from.
    * @throws HopFileException if the cache can't be read from disk when it should be able to. If the
-   *     cache file doesn't exists, no exception is thrown
+   *     cache file doesn't exist, no exception is thrown
    */
   public DbCacheEntry(DataInputStream dis) throws HopFileException {
     try {

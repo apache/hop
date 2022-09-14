@@ -1,0 +1,48 @@
+{
+  "base_filename": "golden-calculator-base64.csv",
+  "name": "golden-calculator-base64",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "Base64 Decode",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "decodedBool"
+    },
+    {
+      "field_comment": "Base64 Decode",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "decodedInt"
+    },
+    {
+      "field_comment": "Base64 Decode",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "####0;-####0",
+      "field_name": "decodedNull"
+    },
+    {
+      "field_comment": "Base64 Decode",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_format": "####0.0#########;-####0.0#########",
+      "field_name": "decodedNumber"
+    },
+    {
+      "field_comment": "Base64 Decode",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "decodedString"
+    }
+  ],
+  "folder_name": ""
+}

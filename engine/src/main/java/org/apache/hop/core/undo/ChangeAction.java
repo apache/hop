@@ -57,15 +57,15 @@ public class ChangeAction {
     None(""),
 
     ChangeTransform(BaseMessages.getString(PKG, "TransAction.label.ChangeTransform")),
-    ChangeHop(BaseMessages.getString(PKG, "TransAction.label.ChangeHop")),
+    ChangePipelineHop(BaseMessages.getString(PKG, "TransAction.label.ChangePipelineHop")),
     ChangeNote(BaseMessages.getString(PKG, "TransAction.label.ChangeNote")),
 
     NewTransform(BaseMessages.getString(PKG, "TransAction.label.NewTransform")),
-    NewHop(BaseMessages.getString(PKG, "TransAction.label.NewHop")),
+    NewPipelineHop(BaseMessages.getString(PKG, "TransAction.label.NewPipelineHop")),
     NewNote(BaseMessages.getString(PKG, "TransAction.label.NewNote")),
     DeleteTransform(BaseMessages.getString(PKG, "TransAction.label.DeleteTransform")),
 
-    DeleteHop(BaseMessages.getString(PKG, "TransAction.label.DeleteHop")),
+    DeletePipelineHop(BaseMessages.getString(PKG, "TransAction.label.DeletePipelineHop")),
     DeleteNote(BaseMessages.getString(PKG, "TransAction.label.DeleteNote")),
 
     PositionTransform(BaseMessages.getString(PKG, "TransAction.label.PositionTransform")),
@@ -127,7 +127,7 @@ public class ChangeAction {
       type = ActionType.DeleteTransform;
     }
     if (prev[0] instanceof PipelineHopMeta) {
-      type = ActionType.DeleteHop;
+      type = ActionType.DeletePipelineHop;
     }
     if (prev[0] instanceof NotePadMeta) {
       type = ActionType.DeleteNote;
@@ -153,7 +153,7 @@ public class ChangeAction {
       type = ActionType.ChangeTransform;
     }
     if (prev[0] instanceof PipelineHopMeta) {
-      type = ActionType.ChangeHop;
+      type = ActionType.ChangePipelineHop;
     }
     if (prev[0] instanceof NotePadMeta) {
       type = ActionType.ChangeNote;
@@ -182,7 +182,7 @@ public class ChangeAction {
       type = ActionType.NewTransform;
     }
     if (prev[0] instanceof PipelineHopMeta) {
-      type = ActionType.NewHop;
+      type = ActionType.NewPipelineHop;
     }
     if (prev[0] instanceof NotePadMeta) {
       type = ActionType.NewNote;

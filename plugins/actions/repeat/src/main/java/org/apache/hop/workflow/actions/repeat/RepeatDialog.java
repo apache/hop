@@ -55,8 +55,6 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
   private static final String COLON_SEPARATOR = " : ";
 
-  private Shell shell;
-
   private Repeat action;
 
   private Text wName;
@@ -627,10 +625,5 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     action.setChanged();
 
     dispose();
-  }
-
-  public void dispose() {
-    props.setScreen(new WindowProperty(shell));
-    shell.dispose();
   }
 }

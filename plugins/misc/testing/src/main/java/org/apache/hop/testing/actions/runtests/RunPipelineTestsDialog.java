@@ -48,8 +48,6 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
 
   private static final String COLON_SEPARATOR = " : ";
 
-  private Shell shell;
-
   private RunPipelineTests action;
 
   private Text wName;
@@ -215,10 +213,5 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     action.setChanged();
 
     dispose();
-  }
-
-  public void dispose() {
-    props.setScreen(new WindowProperty(shell));
-    shell.dispose();
   }
 }

@@ -48,7 +48,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transforms-kafka</artifactId>
+            <artifactId>hop-transform-kafka</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

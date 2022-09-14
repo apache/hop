@@ -41,11 +41,6 @@
         <blueprints-core.version>2.6.0</blueprints-core.version>
         <commons-configuration.version>1.10</commons-configuration.version>
         <flexjson.version>2.1</flexjson.version>
-        <jersey-multipart.version>1.19.4</jersey-multipart.version>
-        <mimepull.version>1.9.3</mimepull.version>
-        <jsr311-api.version>1.1.1</jsr311-api.version>
-        <enunciate-jersey-rt.version>1.27</enunciate-jersey-rt.version>
-        <enunciate-core-annotations.version>1.27</enunciate-core-annotations.version>
         <tyrus-standalone-client.version>1.13.1</tyrus-standalone-client.version>
         <spark.version>2.1.0</spark.version>
         <kafka.spark.version>2.3.2</kafka.spark.version>
@@ -193,39 +188,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.sun.jersey.contribs</groupId>
-            <artifactId>jersey-multipart</artifactId>
-            <version>${jersey-multipart.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.jvnet.mimepull</groupId>
-            <artifactId>mimepull</artifactId>
-            <version>${mimepull.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>jsr311-api</artifactId>
-            <version>${jsr311-api.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
 
         <!--- XML Graphics commons -->
         <dependency>
@@ -240,30 +202,6 @@
             </exclusions>
         </dependency>
 
-
-        <!-- To support Enunciate Annotations in Resource classes -->
-        <dependency>
-            <groupId>org.codehaus.enunciate</groupId>
-            <artifactId>enunciate-jersey-rt</artifactId>
-            <version>${enunciate-jersey-rt.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.enunciate</groupId>
-            <artifactId>enunciate-core-annotations</artifactId>
-            <version>${enunciate-core-annotations.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>com.databricks</groupId>
             <artifactId>spark-avro_2.11</artifactId>

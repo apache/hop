@@ -18,19 +18,33 @@ under the License.
 :language: en_US
 :description: The Fuzzy Match transform finds strings that potentially match using duplicate-detecting algorithms that calculate the similarity of two streams of data.
 
-= Fuzzy match
+= image:transforms/icons/fuzzymatch.svg[Fuzzy match transform Icon, role="image-doc-icon"] Fuzzy match
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Fuzzy Match transform finds strings that potentially match using duplicate-detecting algorithms that calculate the similarity of two streams of data.
 
 This transform returns matching values as a separated list as specified by user-defined minimal or maximal values.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
 === General tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of this transform as it appears in the pipeline workspace
@@ -78,7 +92,7 @@ Using this algorithm, the name John returns the values 160000 and 460000, as doe
 
 The Fields tab enables you to define how to return the results of a comparison.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Match field|Defines the name of the column that contains the comparison value

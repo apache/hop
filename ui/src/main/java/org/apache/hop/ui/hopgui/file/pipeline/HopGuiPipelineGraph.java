@@ -24,15 +24,15 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.*;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.exception.*;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.*;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
@@ -41,6 +41,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.*;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.svg.SvgFile;
@@ -106,6 +107,7 @@ import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -240,6 +242,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private int lastButton;
 
+  // Keep track if a contextual dialog box is open, do not display the tooltip
+  private boolean openedContextDialog = false;
+  
   private PipelineHopMeta lastHopSplit;
 
   private org.apache.hop.core.gui.Rectangle selectionRegion;
@@ -708,7 +713,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           }
 
           if (candidate != null) {
-            addCandidateAsHop(e.x, e.y);
+            /** Avoid duplicate pop-up for hop handling as candidate is never null? */
+            if (!OsHelper.isMac()) {
+              addCandidateAsHop(e.x, e.y);
+            }
             avoidContextDialog = true;
           }
           // ALT-Click: edit error handling
@@ -1261,11 +1269,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           Shell parent = hopShell();
           org.eclipse.swt.graphics.Point p = parent.getDisplay().map(canvas, null, e.x, e.y);
 
+          this.openedContextDialog = true;
+          this.hideToolTips();
+          
           // Show the context dialog
           //
           avoidContextDialog =
               GuiContextUtil.getInstance()
                   .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
+          
+          this.openedContextDialog = false;
         }
       }
     }
@@ -1305,69 +1318,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       boolean bcExists =
           pipelineMeta.findPipelineHop(hi.getToTransform(), selectedTransform) != null;
       if (!caExists && !bcExists) {
-
-        TransformMeta fromTransform = hi.getFromTransform();
-        TransformMeta toTransform = hi.getToTransform();
-
-        // In case transform A targets B then we now need to target C
-        //
-        ITransformIOMeta fromIo = fromTransform.getTransform().getTransformIOMeta();
-        for (IStream stream : fromIo.getTargetStreams()) {
-          if (stream.getTransformMeta() != null && stream.getTransformMeta().equals(toTransform)) {
-            // This target stream was directed to B, now we need to direct it to C
-            stream.setTransformMeta(selectedTransform);
-            fromTransform.getTransform().handleStreamSelection(stream);
-          }
-        }
-
-        // In case transform B sources from A then we now need to source from C
-        //
-        ITransformIOMeta toIo = toTransform.getTransform().getTransformIOMeta();
-        for (IStream stream : toIo.getInfoStreams()) {
-          if (stream.getTransformMeta() != null
-              && stream.getTransformMeta().equals(fromTransform)) {
-            // This info stream was reading from B, now we need to direct it to C
-            stream.setTransformMeta(selectedTransform);
-            toTransform.getTransform().handleStreamSelection(stream);
-          }
-        }
-
-        // In case there is error handling on A, we want to make it point to C now
-        //
-        TransformErrorMeta errorMeta = fromTransform.getTransformErrorMeta();
-        if (fromTransform.isDoingErrorHandling()
-            && toTransform.equals(errorMeta.getTargetTransform())) {
-          errorMeta.setTargetTransform(selectedTransform);
-        }
-
-        PipelineHopMeta newhop1 = new PipelineHopMeta(hi.getFromTransform(), selectedTransform);
-        if (pipelineMeta.findPipelineHop(newhop1) == null) {
-          pipelineMeta.addPipelineHop(newhop1);
-          hopGui.undoDelegate.addUndoNew(
-              pipelineMeta,
-              new PipelineHopMeta[] {
-                newhop1,
-              },
-              new int[] {
-                pipelineMeta.indexOfPipelineHop(newhop1),
-              },
-              true);
-        }
-        PipelineHopMeta newhop2 = new PipelineHopMeta(selectedTransform, hi.getToTransform());
-        if (pipelineMeta.findPipelineHop(newhop2) == null) {
-          pipelineMeta.addPipelineHop(newhop2);
-          hopGui.undoDelegate.addUndoNew(
-              pipelineMeta,
-              new PipelineHopMeta[] {newhop2},
-              new int[] {pipelineMeta.indexOfPipelineHop(newhop2)},
-              true);
-        }
-        int idx = pipelineMeta.indexOfPipelineHop(hi);
-
-        hopGui.undoDelegate.addUndoDelete(
-            pipelineMeta, new PipelineHopMeta[] {hi}, new int[] {idx}, true);
-        pipelineMeta.removePipelineHop(idx);
-
+        pipelineTransformDelegate.insertTransform(pipelineMeta, hi, currentTransform);
         redraw();
       }
 
@@ -2112,6 +2063,23 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
+      id = "pipeline-graph-transform-90000-transform-help",
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Info,
+      name = "i18n::System.Button.Help",
+      tooltip = "i18n::System.Tooltip.Help",
+      image = "ui/images/help.svg",
+      category = "Basic",
+      categoryOrder = "1")
+  public void openTransformHelp(HopGuiPipelineTransformContext context) {
+    IPlugin plugin =
+        PluginRegistry.getInstance()
+            .getPlugin(TransformPluginType.class, context.getTransformMeta().getPluginId());
+        
+    HelpUtils.openHelp(getShell(), plugin);
+  }
+  
+  @GuiContextAction(
       id = "pipeline-graph-transform-10100-transform-detach",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
@@ -2610,6 +2578,66 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             });
     return checkedEntries;
   }
+  
+  @GuiContextAction(
+      id = "pipeline-graph-hop-10080-hop-insert-transform",
+      parentId = HopGuiPipelineHopContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiPipelineGraph.HopAction.InsetTransform.Text",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.InsetTransform.Tooltip",
+      image = "ui/images/add-item.svg",
+      category = "Basic",
+      categoryOrder = "13")
+  public void insertTransform(HopGuiPipelineHopContext context) {
+    // Build actions list
+    //
+    List<GuiAction> guiActions = new ArrayList<>();
+    PluginRegistry registry = PluginRegistry.getInstance();
+    for (IPlugin plugin : registry.getPlugins(TransformPluginType.class)) {
+
+      GuiAction guiAction =
+          new GuiAction(
+              "pipeline-graph-insert-transform-" + plugin.getIds()[0],
+              GuiActionType.Create,
+              plugin.getName(),
+              plugin.getDescription(),
+              plugin.getImageFile(),
+              (shiftClicked, controlClicked, t) ->
+                  pipelineTransformDelegate.insertTransform(
+                      pipelineMeta,
+                      context.getHopMeta(),
+                      plugin.getIds()[0],
+                      plugin.getName(),
+                      context.getClick()));
+      guiAction.getKeywords().addAll(Arrays.asList(plugin.getKeywords()));
+      guiAction.getKeywords().add(plugin.getCategory());
+      guiAction.setCategory(plugin.getCategory());
+      guiAction.setCategoryOrder(plugin.getCategory());
+      try {
+        guiAction.setClassLoader(registry.getClassLoader(plugin));
+      } catch (HopPluginException e) {
+        LogChannel.UI.logError(
+            "Unable to get classloader for transform plugin " + plugin.getIds()[0], e);
+      }
+      guiActions.add(guiAction);
+    }
+    
+    String message =
+        BaseMessages.getString(
+            PKG,
+            "HopGuiPipelineGraph.ContextualActionDialog.InsertTransform.Header");
+    
+    ContextDialog contextDialog =
+        new ContextDialog(
+            hopShell(), message, context.getClick(), guiActions,HopGuiPipelineContext.CONTEXT_ID);
+
+    GuiAction selectedAction = contextDialog.open();
+
+    if (selectedAction != null) {
+      IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
+      actionLambda.executeAction(contextDialog.isShiftClicked(), contextDialog.isCtrlClicked());
+    }
+  }
 
   @GuiContextAction(
       id = "pipeline-graph-10-edit-note",
@@ -2752,7 +2780,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private AreaOwner setToolTip(int x, int y, int screenX, int screenY) {
     AreaOwner subject = null;
 
-    if (!hopGui.getProps().showToolTips()) {
+    if (!hopGui.getProps().showToolTips() || openedContextDialog ) {
       return subject;
     }
 
@@ -2918,9 +2946,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           tip.append(BaseMessages.getString(PKG, "PipelineGraph.ShowMenu.Tooltip"));
           tipImage = GuiResource.getInstance().getImageContextMenu();
           break;
+          
+        case TRANSFORM_INFO_ICON:  
         case TRANSFORM_ICON:
           TransformMeta iconTransformMeta = (TransformMeta) areaOwner.getOwner();
-          if (iconTransformMeta.isDeprecated()) { // only need tooltip if transform is deprecated
+          
+          // If transform is deprecated, display first   
+          if (iconTransformMeta.isDeprecated()) { 
             tip.append(
                     BaseMessages.getString(PKG, "PipelineGraph.DeprecatedTransform.Tooltip.Title"))
                 .append(Const.CR);
@@ -2947,6 +2979,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                       iconTransformMeta.getSuggestion()));
             }
             tipImage = GuiResource.getInstance().getImageDeprecated();
+          }
+          else if ( !Utils.isEmpty(iconTransformMeta.getDescription()) ) {
+            tip.append(iconTransformMeta.getDescription());
           }
           break;
         case TRANSFORM_OUTPUT_DATA:
@@ -3756,8 +3791,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       pipelineMeta.setFilename(filename);
       save();
+      hopGui.fileRefreshDelegate.register(fileObject.getPublicURIString(), this);
     } catch (Exception e) {
-      new HopException("Error validating file existence for '" + filename + "'", e);
+      throw new HopException("Error validating file existence for '" + filename + "'", e);
     }
   }
 
@@ -5376,5 +5412,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    */
   public void setOutputRowsMap(Map<String, RowBuffer> outputRowsMap) {
     this.outputRowsMap = outputRowsMap;
+  }
+
+  @Override
+  public void reload() {
+    try {
+      pipelineMeta.loadXml(getFilename(), hopGui.getMetadataProvider(), hopGui.getVariables());
+    } catch (HopXmlException | HopMissingPluginsException e) {
+      LogChannel.GENERAL.logError("Error reloading pipeline xml file", e);
+    }
+    redraw();
+    updateGui();
   }
 }

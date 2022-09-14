@@ -1,0 +1,43 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "IATA_Code",
+          "data_set_field": "IATA_Code"
+        },
+        {
+          "transform_field": "Airport_Name",
+          "data_set_field": "Airport_Name"
+        },
+        {
+          "transform_field": "Country_Code",
+          "data_set_field": "Country_Code"
+        },
+        {
+          "transform_field": "Country_Name",
+          "data_set_field": "Country_Name"
+        }
+      ],
+      "field_order": [
+        "IATA_Code",
+        "Airport_Name",
+        "Country_Code",
+        "Country_Name"
+      ],
+      "transform_name": "Dummy",
+      "data_set_name": "golden-value-mapper"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0045-value-mapper UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0045-value-mapper.hpl",
+  "test_type": "UNIT_TEST"
+}

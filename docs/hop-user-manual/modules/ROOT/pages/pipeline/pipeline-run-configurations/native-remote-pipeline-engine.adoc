@@ -31,7 +31,7 @@ This run configuration requires little configuration, but has two prerequisites:
 
 === Options
 
-[width="90%",options="header",cols="1,3"]
+[options="header",cols="1,3"]
 |===
 |Option|Description
 

@@ -18,15 +18,28 @@ under the License.
 :language: en_US
 :description: The Avro Decode transform allows you to decode an Avro field and convert it to Hop fields.
 
-= Avro Decode
+= image:transforms/icons/avro_decode.svg[Avro Decode Icon, role="image-doc-icon"] Avro Decode
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Avro Decode transform allows you to decode an Avro field and convert it to Hop fields.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 
 |Option|Description

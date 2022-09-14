@@ -1,0 +1,48 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "decodedBool",
+          "data_set_field": "decodedBool"
+        },
+        {
+          "transform_field": "decodedInt",
+          "data_set_field": "decodedInt"
+        },
+        {
+          "transform_field": "decodedNull",
+          "data_set_field": "decodedNull"
+        },
+        {
+          "transform_field": "decodedNumber",
+          "data_set_field": "decodedNumber"
+        },
+        {
+          "transform_field": "decodedString",
+          "data_set_field": "decodedString"
+        }
+      ],
+      "field_order": [
+        "decodedBool",
+        "decodedInt",
+        "decodedNull",
+        "decodedNumber",
+        "decodedString"
+      ],
+      "transform_name": "verify",
+      "data_set_name": "golden-calculator-base64"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0011-calculator-base64 UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0011-calculator-base64.hpl",
+  "test_type": "UNIT_TEST"
+}

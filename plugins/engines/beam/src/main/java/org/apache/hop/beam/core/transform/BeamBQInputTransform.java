@@ -100,9 +100,9 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
       BigQueryIO.TypedRead<HopRow> bqTypedRead;
 
       if (StringUtils.isEmpty(query)) {
-        bqTypedRead = BigQueryIO.read(toHopFn).from(tableReference);
+        bqTypedRead = BigQueryIO.read(toHopFn).from(tableReference).usingStandardSql();
       } else {
-        bqTypedRead = BigQueryIO.read(toHopFn).fromQuery(query);
+        bqTypedRead = BigQueryIO.read(toHopFn).fromQuery(query).usingStandardSql();
       }
 
       // Apply the function

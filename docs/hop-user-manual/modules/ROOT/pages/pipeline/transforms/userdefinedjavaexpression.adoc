@@ -18,11 +18,27 @@ under the License.
 :language: en_US
 :description: This transform allows you to enter User Defined Java Expressions as a basis for the calculation of new values.
 
-= User Defined Java Expression
+= image:transforms/icons/janino.svg[User Defined Java Expression transform Icon, role="image-doc-icon"] User Defined Java Expression
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 This transform allows you to enter User Defined Java Expressions as a basis for the calculation of new values.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Usage
 
 If you have a Java expression like :
 
@@ -40,7 +56,7 @@ A+B
 
 The values are exposed to the expressions as the Java objects they are :
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Data type|Java Class
 |BigNumber|BigDecimal
@@ -53,7 +69,7 @@ The values are exposed to the expressions as the Java objects they are :
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |New Field|The new field in the data stream.
@@ -118,7 +134,8 @@ even with OR and AND and other operators and functions
 
 **Using Constants**
 
-If you use a constant, you may need to define the right type in some expressions otherwise it could throw:
+If you use a constant, you may need to define the right type in some expressions otherwise it could throw an error. 
+Eg if you use "0" that is "int" but Apache Hop "Integer" is "java.lang.Long", so you'll get an exception:
 
 Incompatible expression types "int" and "java.lang.Long"
 
@@ -129,17 +146,17 @@ To solve this, use:
 test == null ? new Long(0) : test
 ----
 
-In this case, it checks if test is null and replaces with zero.
-If it is not null, it will return test.
+The above expression checks if "test" is null and replaces it with a zero Long.
+Otherwise, it return "test" unchanged.
 
 **Cut a string from end and test for null and minimal length**
 
-Imagine you have input strings with
+Imagine you have input strings "location" like
 
     Orlando FL
     New York NY
 
-and you want to separate the state and city, you could use the following expressions:
+and you want to separate the state and city. You could use the following expressions:
 
 For state (get the last 2 characters):
 
@@ -155,12 +172,12 @@ For city (get the beginning without the last 2 characters and trim):
 location != null && location.length()>2 ? location.substring(0, location.length()-2).trim() : location
 ----
 
-**Functionality of a LIKE operator (contains string) and replacing values**
+**Functionality of a LIKE operator (contains string)**
 
 The following example returns 1 when abc is within the source string, otherwise 2. It returns also 2 when the source string is null.
-The return values could be of value type Integer.
+If you prefer the return values to be of value type Integer, use "new Long(1)" and "new Long(2)".
 
 [source,java]
 ----
-samplestr !=null && samplestr.indexOf("abc")>-1 ? 1 : 2
+samplestr != null && samplestr.indexOf("abc")>-1 ? 1 : 2
 ----

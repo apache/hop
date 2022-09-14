@@ -18,9 +18,11 @@ under the License.
 :language: en_US
 :description: The File Metadata transform scans a file to determine its metadata structure or layout. Use this transforms in situations where you need to read a structured text file (e.g. CSV, TSV) when you don't know the exact layout in advance.
 
+= image:transforms/icons/filemetadata.svg[File Metadata transform Icon, role="image-doc-icon"] File Metadata
 
-= File Metadata
-
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The File Metadata transform scans a file to determine its metadata structure or layout.
@@ -34,9 +36,20 @@ The layout detected depends on the number of rows scanned.
 For example, if the first 100 rows of a file are scanned and the first field is detected as an integer, there is a possibility this field contains alphanumerical characters in later rows.
 Using 0 rows for 'limit scanned rows' is a way to make sure the entire file is scanned and the layout is detected correctly, even though this may be time consuming or even impossible for large files.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|the name for this transform

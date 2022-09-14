@@ -77,7 +77,7 @@ Example: hop-server.sh 127.0.0.1 8080 --kill --userName cluster --password clust
 
 The available Hop Server options are:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 
 |Short|Extended|Description
@@ -276,6 +276,43 @@ Here is an example of the information to include in your server XML:
 </hop-server-config>
 ----
 
+=== Enable detailed server logging
+
+Hop Server provides the `-l` or `--level` option to set a logging level for workflows and pipelines that run on the server.
+
+There are scenarios where you may want to see more detailed logging about the server itself. Since Hop Server runs on a Jetty server, you can increase the Jetty server logging by extending the `HOP_OPTIONS` variable near the end of `hop-server.sh` or `hop-server.bat`.
+
+Original:
+[source,bash]
+----
+"$_HOP_JAVA" ${HOP_OPTIONS} -Djava.library.path=$LIBPATH -classpath "${CLASSPATH}" org.apache.hop.www.HopServer "$@"
+EXITCODE=$?
+----
+
+With DEBUG logging:
+[source,bash]
+----
+"$_HOP_JAVA" ${HOP_OPTIONS} -Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StdErrLog -Dorg.eclipse.jetty.LEVEL=DEBUG -Djava.library.path=$LIBPATH -classpath "${CLASSPATH}" org.apache.hop.www.HopServer "$@"
+EXITCODE=$?
+----
+
+If applied correctly, your Hop Server starts producing _a lot_ of logging information similar to the lines below:
+
+[source,text]
+----
+2022/07/15 14:18:00 - HopServer - Installing timer to purge stale objects after 1440 minutes.
+2022-07-15 14:18:00.267:INFO::main: Logging initialized @3732ms to org.eclipse.jetty.util.log.StdErrLog
+2022-07-15 14:18:00.276:DBUG:oejuc.ContainerLifeCycle:main: Server@3749c6ac{STOPPED}[9.4.35.v20201120] added {QueuedThreadPool[qtp1195781551]@47462daf{STOPPED,8<=0<=200,i=0,r=-1,q=0}[NO_TRY],AUTO}
+2022-07-15 14:18:00.283:DBUG:oejuc.ContainerLifeCycle:main: ConstraintSecurityHandler@3f473daf{STOPPED} added {org.eclipse.jetty.util.component.DumpableCollection@390e814c,POJO}
+2022-07-15 14:18:00.286:DBUG:oejuc.ContainerLifeCycle:main: HashLoginService@7bfedfb7[null] added {org.eclipse.jetty.security.DefaultIdentityService@6d3194ff,POJO}
+2022-07-15 14:18:00.290:DBUG:oejuc.ContainerLifeCycle:main: HashLoginService@7bfedfb7[Hop] added {PropertyUserStore@213c812a[users.count=0,identityService=org.eclipse.jetty.security.DefaultIdentityService@25814d3c],AUTO}
+2022-07-15 14:18:00.290:DBUG:oejuc.ContainerLifeCycle:main: ConstraintSecurityHandler@3f473daf{STOPPED} added {HashLoginService@7bfedfb7[Hop],AUTO}
+2022-07-15 14:18:00.302:DBUG:oejsh.ContextHandlerCollection:main: ->[{o.e.j.s.ServletContextHandler@1a6df932{/,null,STOPPED},[o.e.j.s.ServletContextHandler@1a6df932{/,null,STOPPED}]}]
+2022-07-15 14:18:00.303:DBUG:oejuc.ContainerLifeCycle:main: ContextHandlerCollection@74120029{STOPPED} added {o.e.j.s.ServletContextHandler@1a6df932{/,null,STOPPED},AUTO}
+2022-07-15 14:18:00.304:DBUG:oeju.DecoratedObjectFactory:main: Adding Decorator: org.eclipse.jetty.util.DeprecationWarning@48cbb4c5
+----
+
+
 === Start Hop Server with docker
 
 It's often very convenient to run a Hop docker container since it has all the required software automatically delivered.
@@ -421,7 +458,7 @@ For each of the options in the pipeline and workflow dialogs described below, se
 
 The header bar for workflows and pipelines is almost identical (from left to right).
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Run|
 |Stop the running pipeline/workflow|

@@ -18,14 +18,27 @@ under the License.
 :language: en_US
 :description: The Dimension Lookup/Update transform allows you to implement Ralph Kimball's slowly changing dimension for both types: Type I (update) and Type II (insert) together with some additional functions.
 
-= Dimension lookup/update
+= image:transforms/icons/dimensionlookup.svg[Dimension lookup/update transform Icon, role="image-doc-icon"] Dimension lookup/update
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Dimension Lookup/Update transform allows you to implement Ralph Kimball's https://en.wikipedia.org/wiki/Slowly_changing_dimension[slowly changing dimension] for both types: Type I (update) and Type II (insert) together with some additional functions.
 
 This transform can be used to populate a dimension table or to look up values in a slowly changing dimension without making any changes.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
@@ -53,7 +66,7 @@ Performance is increased by the elimination of the round trips to the database a
 === Keys tab
 Specify the names of the keys in the stream and in the dimension table.
 This will enable the transform to perform the lookup.
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Dimension field|Key field used in the source system. For example: customer numbers, product id, etc.
@@ -63,7 +76,8 @@ This will enable the transform to perform the lookup.
 === Fields tab
 For each of the fields you must have in the dimension, you can specify whether you want the values to be updated (for all versions, this is a Type I operation) or you want to have the values inserted into the dimension as a new version.
 In the example we used in the screenshot the birth date is something that's not variable in time, so if the birth date changes, it means that it was wrong in previous versions.
-It's only logical then, that the previous values are corrected in all versions of the dimension entry.[width="90%",options="header"]
+It's only logical then, that the previous values are corrected in all versions of the dimension entry.
+[options="header"]
 |===
 |Option|Description
 |Dimension field|Fields containing the actual information of a dimension..
@@ -73,7 +87,7 @@ It's only logical then, that the previous values are corrected in all versions o
 
 === Technical key tab
 These tab contains the details related to the creation of the surrogate key of the dimension's record.
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Technical key field|The primary key of the dimension; also referred to as Surrogate Key.
@@ -89,7 +103,7 @@ Note that the new maximum is always cached, so that the maximum does not need to
 
 === Versioning tab
 These tabs defines the way the record's version is generated
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Version field|The name of the field in which to store the version (revision number).

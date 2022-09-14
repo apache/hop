@@ -64,6 +64,14 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
                 PKG, "FieldSplitter.Log.SplitFieldNotValid", meta.getSplitField())));
       }
 
+      //check if the new field is empty or not
+      int newFieldsCount = meta.getFieldsCount();
+
+      if (newFieldsCount <= 0) {
+        throw new HopValueException(
+                (BaseMessages.getString(
+                        PKG, "FieldSplitter.Log.SplitMetaNameNotValid")));
+      }
       // prepare the outputMeta
       //
       data.outputMeta = getInputRowMeta().clone();

@@ -115,7 +115,7 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
     wEmptyStrings = new Button(shell, SWT.CHECK);
     wEmptyStrings.setText(BaseMessages.getString(PKG, "CoalesceDialog.Shell.EmptyStringsAsNulls"));
     wEmptyStrings.setLayoutData(
-        new FormDataBuilder().left(wTransformName, 0).top(wTransformName, margin * 2).result());
+        new FormDataBuilder().left(0, 0).top(wTransformName, margin * 2).result());
     wEmptyStrings.addListener(SWT.Selection, e -> input.setChanged());
     props.setLook(wEmptyStrings);
 

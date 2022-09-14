@@ -18,13 +18,29 @@ under the License.
 :language: en_US
 :description: The Get File Names transform allows you to get information associated with file names on the file system. The information about the retrieved files is added as rows onto the stream.
 
-= Get filenames
+= image:transforms/icons/getfilenames.svg[Get filenames transform Icon, role="image-doc-icon"] Get filenames
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Get File Names transform allows you to get information associated with file names on the file system.
 
 The information about the retrieved files is added as rows onto the stream.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Usage
 
 The output fields for this transform are:
 

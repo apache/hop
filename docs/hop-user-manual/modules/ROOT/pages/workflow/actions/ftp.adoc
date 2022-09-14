@@ -34,7 +34,7 @@ This workflow retrieves files from one directory exclusively.
 
 === General
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -59,7 +59,7 @@ Select encoding that is valid for your server.
 
 === Files
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Remote directory|The remote directory on FTP server from which files are taken.
@@ -81,7 +81,7 @@ For example: .txt$ : get all text files A.ENG:0-9.txt : files starting with A, e
 
 === Advanced
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Success on|Sets conditions of success.
@@ -90,7 +90,7 @@ For example: .txt$ : get all text files A.ENG:0-9.txt : files starting with A, e
 
 === Socks Proxy
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Host|Socks Proxy host name.

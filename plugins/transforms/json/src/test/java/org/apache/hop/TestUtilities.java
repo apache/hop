@@ -386,7 +386,7 @@ public class TestUtilities {
   public static Pipeline loadAndRunPipeline(String path, Object... parameters) throws Exception {
     PipelineMeta pipelineMeta =
         new PipelineMeta(
-            path, new MemoryMetadataProvider(), true, Variables.getADefaultVariableSpace());
+            path, new MemoryMetadataProvider(), Variables.getADefaultVariableSpace());
 
     Pipeline trans = new LocalPipelineEngine(pipelineMeta);
     if (parameters != null) {

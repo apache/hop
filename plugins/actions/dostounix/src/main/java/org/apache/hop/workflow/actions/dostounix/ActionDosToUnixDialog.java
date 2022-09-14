@@ -23,7 +23,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -66,7 +65,6 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
   private Button wIncludeSubfolders;
 
   private ActionDosToUnix action;
-  private Shell shell;
 
   private boolean changed;
 
@@ -674,12 +672,6 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wlWildcard.setEnabled(!wPrevious.getSelection());
     wWildcard.setEnabled(!wPrevious.getSelection());
     wbSourceDirectory.setEnabled(!wPrevious.getSelection());
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

@@ -26,7 +26,7 @@ The Folders Compare action compares two folders to determine if the content is i
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

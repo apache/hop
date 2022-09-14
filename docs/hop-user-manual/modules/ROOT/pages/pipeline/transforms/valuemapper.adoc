@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Value Mapper transform maps string values from one value to another.
 
-= Value Mapper
+= image:transforms/icons/valuemapper.svg[Value Mapper transform Icon, role="image-doc-icon"] Value Mapper
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Value Mapper transform maps string values from one value to another.
@@ -37,19 +40,32 @@ Target fieldname: LanguageDesc
 Source/Target: EN/English, FR/French, NL/Dutch, ES/Spanish, DE/German, ...
 ----
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
 The following properties are used to define the mappings:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform Name|Name of the transform this name has to be unique in a single pipeline.
 |Fieldname to use|Field to use as the mapping source
 |Target field name|Field to use as the mapping Target
 |Default upon non-matching|Defines a default value for situations where the source value is not empty, but there is no match
-|Field values table|Contains the mapping of source value to converted target value
+|Field values table|Contains the mapping of source value to converted target value.
 |===
+
+TIP: If there is an empty source value defined, we map null or empty string to the target value. Only one empty mapping is allowed.
 
 == Metadata Injection Support
 

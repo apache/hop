@@ -156,4 +156,14 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
    * @return The variables associated with the loaded file
    */
   IVariables getVariables();
+
+  /**
+   * Reload the file */
+  default public void reload(){
+  }
+
+  /**
+   * mark the file as deleted*/
+  default public void markDeleted(){
+  }
 }

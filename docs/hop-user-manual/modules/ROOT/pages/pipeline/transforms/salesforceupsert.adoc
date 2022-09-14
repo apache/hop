@@ -18,7 +18,12 @@ under the License.
 :language: en_US
 :description: The Salesforce Upsert transform updates existing records and inserts new records into your Salesforce database using the Salesforce Web Service.
 
-= Salesforce Upsert
+= image:transforms/icons/SFU.svg[Salesforce Upsert transform Icon, role="image-doc-icon"] Salesforce Upsert
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
 
 The Salesforce Upsert transform updates existing records and inserts new records into your Salesforce database using the Salesforce Web Service.
 
@@ -28,6 +33,17 @@ You can also use the following other transforms to modify your Salesforce databa
 * xref:pipeline/transforms/salesforceinsert.adoc[Salesforce Insert]: Inserts records directly into your Salesforce database.
 * xref:pipeline/transforms/salesforceupdate.adoc[Salesforce Update]: Updates records directly into your Salesforce database.
 * xref:pipeline/transforms/salesforcedelete.adoc[Salesforce Delete]: Deletes records directly from your Salesforce database.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == General
 
@@ -40,7 +56,7 @@ include::salesforce-connection.adoc[]
 
 include::salesforce-settings.adoc[]
 
-[options="noheader",width="90%"]
+[options="noheader"]
 |===
 |Upsert Comparison Field|Specify the Salesforce ID of the field to use as a basis of comparison to determine if you are updating an existing record or inserting a new record.
 |===

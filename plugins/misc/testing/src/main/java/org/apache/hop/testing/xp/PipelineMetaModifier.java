@@ -70,7 +70,7 @@ public class PipelineMetaModifier {
     } catch (UnsupportedEncodingException e) {
       throw new HopException("Encoding error", e);
     }
-    PipelineMeta copyPipelineMeta = new PipelineMeta(stream, metadataProvider, true, variables);
+    PipelineMeta copyPipelineMeta = new PipelineMeta(stream, metadataProvider, variables);
 
     // Pass the metadata references...
     //

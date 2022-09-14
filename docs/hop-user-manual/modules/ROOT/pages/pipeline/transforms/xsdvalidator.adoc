@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The XSD Validator transform performs an XSD validation against data in a file or in an input field.
 
-= XSD Validator
+= image:transforms/icons/XOU.svg[XSD Validator transform Icon, role="image-doc-icon"] XSD Validator
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The XSD Validator transform performs an XSD validation against data in a file or in an input field.
@@ -33,9 +36,22 @@ As such, there are 2 entities at work here:
 
 To make matters more complex, it's possible to store the XSD inside the XML itself.
 
+See also the xref:workflow/actions/xsdvalidator.adoc[XSD Validator workflow action].
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

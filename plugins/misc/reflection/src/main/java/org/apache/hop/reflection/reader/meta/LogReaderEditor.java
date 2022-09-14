@@ -147,10 +147,4 @@ public class LogReaderEditor extends MetadataEditor<LogReader> {
     guiCompositeWidgets.getWidgetsContents(
         hopDocumentation, LogReader.GUI_PLUGIN_ELEMENT_PARENT_ID);
   }
-
-  @Override
-  public void setChanged() {
-    resetChanged();
-    super.setChanged();
-  }
 }

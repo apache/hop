@@ -28,7 +28,7 @@ The FTP delete action deletes files on an FTP server.
 
 === General
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -70,7 +70,7 @@ A workflow action can be placed several times on the canvas, however it will be 
 
 === Files
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Timeout|The timeout period.
@@ -91,7 +91,7 @@ The default is Passive mode.
 
 === Socks Proxy
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Host|Socks Proxy host name.

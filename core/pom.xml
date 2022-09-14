@@ -55,7 +55,7 @@
         <jsch.version>0.1.54</jsch.version>
         <jzlib.version>1.0.7</jzlib.version>
         <ognl.version>2.6.9</ognl.version>
-        <woodstox-core-asl.version>4.4.1</woodstox-core-asl.version>
+        <woodstox-core.version>5.0.3</woodstox-core.version>
         <xmlunit.version>1.5</xmlunit.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <json-simple.version>1.1.1</json-simple.version>
@@ -476,9 +476,9 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>woodstox-core-asl</artifactId>
-            <version>${woodstox-core-asl.version}</version>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+            <version>${woodstox-core.version}</version>
             <scope>test</scope>
             <exclusions>
                <exclusion>

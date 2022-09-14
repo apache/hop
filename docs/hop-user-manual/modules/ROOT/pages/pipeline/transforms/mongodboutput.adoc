@@ -18,13 +18,27 @@ under the License.
 :language: en_US
 :description: The MongoDB Output transform can output data to a MongoDB database collection.
 
-= MongoDB Output
+= image:transforms/icons/mongodb-output.svg[MongoDB Output transform Icon, role="image-doc-icon"] MongoDB Output
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The MongoDB Output transform can output data to a MongoDB database http://docs.mongodb.org/manual/reference/glossary/[collection].
 
 For additional information about MongoDB, see the MongoDB http://www.mongodb.org/[documentation].
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
@@ -32,69 +46,9 @@ For additional information about MongoDB, see the MongoDB http://www.mongodb.org
 
 Transform name : Specify the unique name of the MongoDB Output transform in the pipeline.
 
-=== Configure Connection tab
-
-image::mongodb-output-screenshot-connection-tab.png[]
-
-The *Configure connection* tab enables you to specify the database and collection for your output.
-
-Enter the following information in the transform fields:
-
-|===
-|Field|Description
-
-|Host name(s) or IP address(s)
-|Specify the network name or address of the MongoDB instance(s).
-You can also specify a different port number for each host name by separating the host name and port number with a colon.
-You can input multiple host names or IP addresses, separated by a comma.
-
-|Port
-|Specify the port number of the MongoDB instance or instances.
-Use this to specify a default port if no ports are given as part of the host name(s) or IP address(es) field.
-The default value is 27017.
-
-|Enable SSL connection
-|Specify to connect to a MongoDB Server that is configured with SSL.
-
-|Use all replica set members/mongos
-|Select to use all replica sets when multiple hosts are specified in the Host name(s) or IP address(s) field.
-
-If a replica set contains more than one host, the Java driver discovers all hosts automatically.
-The driver connects to the next replica set in the list if the set you try to connect to is down.
-
-|Authentication database
-|Specify the authentication database.
-
-|Username
-|Specify the username required to access the database.
-If you want to use Kerberos authentication, enter the Kerberos principal in this field.
-
-|Password
-|Specify the password associated with the username.
-If you are using Kerberos authentication, you do not need to enter the password.
-
-|Authenticate Mechanism
-|Select the method used to verify the identity of users.
-The values are SCRAM-SHA-1 and MONGODB-CR.
-
-|Authenticate using Kerberos
-|Select to specify authentication using Kerberos.
-
-|Connection timeout
-|Specify (in milliseconds) how long to wait for a connection to a database before terminating the connection attempt.
-Leave blank to never terminate the connection.
-
-|Socket timeout
-|Specify (in milliseconds) how long to wait for a write operation before terminating the operation.
-Leave blank to never terminate the operation.
-
-|===
-
 === Output options tab
 
-image::mongodb-output-screenshot-output-tab.png[]
-
-The Output options tab provides additional controls for inserting data into a MongoDB collection.
+The Output options tab provides controls for inserting data into a MongoDB collection.
 If the specified collection does not exist, it is created before a document is inserted.
 
 Enter the following information in the fields on this tab:
@@ -102,9 +56,9 @@ Enter the following information in the fields on this tab:
 |===
 |Option |Description
 
-|Database
-|Specify the target database for the output.
-When a valid hostname and port has been set, you can click Get DBs to retrieve the names of existing databases within a selected database.
+|MongoDB Connection
+|the xref:metadata-types/mongodb-connection.adoc[ MongoDB connection] to use for this MongoDB Output transform.
+
 
 |Collection
 |Specify the target collection for the output.
@@ -138,43 +92,6 @@ All matching documents are updated when the Multi-update option is selected.
 To update more than one matching document, select Modifier update and Upsert.
 Selecting Modifier update, Upsert, and Multi-update applies updates to all matching documents, instead of just the first.
 
-|Write concern (w option)
-|Specify the minimum number of servers that must succeed for a write operation.
-The values are:
-
--1 : Disables all acknowledgement of write operation errors
-
-0 (Zero) : Disables basic acknowledgment of write operations, but returns information about socket excepts and networking errors
-
-1 : Acknowledges write operations on the primary node
-
->1 : Wait for successful write operations to the specified number of slaves, including the primary.
-
-Click *Get custom write concerns* to retrieve custom write concerns that you have stored in the repository.
-
-|w Timeout
-|Specify time (in milliseconds) to wait for a response to write operations before terminating the operation.
-Leave blank to never terminate.
-
-|Journaled writes
-|Select to set write operations to wait until the mongod (the primary daemon process for the MongoDB system) acknowledges the write operation and commits the data to the journal.
-
-|Read preference
-|Specify which node to read first:
-
-- ```Primary```
-
-- ```Primary preferred```
-
-- ```Secondary```
-
-- ```Secondary preferred```
-
-- ```Nearest```
-
-The default is ```Primary```.
-The Read preference is available when Modifier update is selected.
-
 |Number of retries for write operations
 |Specify the number of times that a write operation is attempted.
 
@@ -184,8 +101,6 @@ The Read preference is available when Modifier update is selected.
 |===
 
 === Mongo document fields tab
-
-image::mongodb-output-screenshot-fields-tab.png[]
 
 Use the Mongo document fields tab to define how field values coming into the transform are written to a Mongo document.
 The Modifier policy column controls when the execution of a modifier operation affects a particular field.
@@ -331,8 +246,6 @@ Noddy,Puppet,"Noddy Land",5
 }
 
 === Create/drop indexes tab
-
-image::mongodb-output-screenshot-indexes-tab.png[]
 
 Use the Create/drop indexes tab to create and drop indexes on one or more fields.
 Unless unique indexes are being used, MongoDB allows duplicate records to be inserted.

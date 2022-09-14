@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Apache Tika transform parses files in all sorts of formats and extracts the text content as well as the available metadata.
 
-= Apache Tika
+= image:transforms/icons/tika.svg[Apache Tika Icon, role="image-doc-icon"] Apache Tika
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Apache Tika transform parses files in all sorts of formats and extracts the text content as well as available metadata it can extract.
@@ -27,10 +30,20 @@ This transform uses the http://tika.apache.org[Apache Tika] libraries to do the 
 
 The extracted metadata is given in JSON format.
 If you need specific pieces of information from this metadata, you can extract those with a xref:pipeline/transforms/jsoninput.adoc[JSON Input] transform.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 

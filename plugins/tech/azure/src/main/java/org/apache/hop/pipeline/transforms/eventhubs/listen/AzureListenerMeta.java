@@ -251,7 +251,7 @@ public class AzureListenerMeta extends BaseTransformMeta<AzureListener, AzureLis
       //
       // Don't set internal variables: they belong to the parent thread!
       //
-      batchPipelineMeta = new PipelineMeta(realFilename, metadataProvider, false, variables);
+      batchPipelineMeta = new PipelineMeta(realFilename, metadataProvider, variables);
     } catch (Exception e) {
       throw new HopException("Unable to load batch pipeline", e);
     }

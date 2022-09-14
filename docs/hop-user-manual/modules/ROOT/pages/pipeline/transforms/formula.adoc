@@ -23,15 +23,29 @@ under the License.
 
 :toc: macro
 
-= Formula
+= image:transforms/icons/formula.svg[Formula transform Icon, role="image-doc-icon"] Formula
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Formula transform allows you to apply Excel-like formulas and functions on fields in a pipeline.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |transform name|Change the name of this transform to explain the purpose of the formula fields you're adding.
@@ -69,7 +83,6 @@ toc::[]
 
 ==== %
 
-[width="90%"]
 |===
 |*description*|Percentage calculation, for example 12% resolves to 0.12
 |*syntax*|
@@ -81,7 +94,6 @@ toc::[]
 
 ==== (
 
-[width="90%"]
 |===
 |*description*|Opening bracket to influence calculation order in an expression
 |*syntax*|
@@ -93,7 +105,6 @@ toc::[]
 
 ==== )
 
-[width="90%"]
 |===
 |*description*|Closing bracket to influence calculation order in an expression
 |*syntax*|
@@ -105,7 +116,6 @@ toc::[]
 
 ==== *
 
-[width="90%"]
 |===
 |*description*|Multiply 2 numeric values
 |*syntax*|
@@ -117,7 +127,6 @@ toc::[]
 
 ==== +
 
-[width="90%"]
 |===
 |*description*|Sum of 2 numeric values
 |*syntax*|
@@ -129,7 +138,6 @@ toc::[]
 
 ==== -
 
-[width="90%"]
 |===
 |*description*|Subtract 2 numeric values
 |*syntax*|
@@ -141,7 +149,6 @@ toc::[]
 
 ==== /
 
-[width="90%"]
 |===
 |*description*|Divide 2 numeric values
 |*syntax*|
@@ -153,7 +160,6 @@ toc::[]
 
 ==== ^
 
-[width="90%"]
 |===
 |*description*|Calculates a number to the nth power, for example 2^6 resolves to 64
 |*syntax*|
@@ -167,7 +173,6 @@ toc::[]
 
 ==== <
 
-[width="90%"]
 |===
 |*description*|See if one value is less than the other
 |*syntax*|
@@ -179,7 +184,6 @@ toc::[]
 
 ==== <=
 
-[width="90%"]
 |===
 |*description*|See if one value is less than or equal to the other
 |*syntax*|
@@ -191,7 +195,6 @@ toc::[]
 
 ==== <>
 
-[width="90%"]
 |===
 |*description*|See if 2 values are different
 |*syntax*|
@@ -203,7 +206,7 @@ toc::[]
 
 ==== =
 
-[width="90%"]
+
 |===
 |*description*|Verify that 2 values are equal
 |*syntax*|
@@ -215,7 +218,6 @@ toc::[]
 
 ==== >
 
-[width="90%"]
 |===
 |*description*|See if one value is larger than the other
 |*syntax*|
@@ -227,7 +229,6 @@ toc::[]
 
 ==== >=
 
-[width="90%"]
 |===
 |*description*|See if one value is larger than or equal to the other
 |*syntax*|
@@ -241,7 +242,6 @@ toc::[]
 
 ==== DATE
 
-[width="90%"]
 |===
 |*description*|Construct date from year, month, and day of month.
 |*syntax*|DATE( Integer Year ; Integer Month ; Integer Day )
@@ -272,7 +272,6 @@ toc::[]
 
 ==== DATEDIF
 
-[width="90%"]
 |===
 |*description*|Return the number of years, months, or days between two date numbers.
 |*syntax*|DATEDIF( DateParam StartDate ; DateParam EndDate ; Text Format )
@@ -302,7 +301,6 @@ yd : Days, ignoring years
 
 ==== DATETIMEVALUE
 
-[width="90%"]
 |===
 |*description*|Returns an internal number for a text having a datetime format.
 |*syntax*|DATETIMEVALUE( Text D )
@@ -319,7 +317,6 @@ yd : Days, ignoring years
 
 ==== DATEVALUE
 
-[width="90%"]
 |===
 |*description*|Return date serial number from given text
 |*syntax*|DATEVALUE( Text D )
@@ -339,7 +336,6 @@ In an OpenDocument file, the calculation settings table:null-year and table:null
 
 ==== DAY
 
-[width="90%"]
 |===
 |*description*|Returns the day of a date, represented by a serial number. The day is given as an integer ranging from 1 to 31.
 |*syntax*|DAY( DateParam Date )
@@ -357,7 +353,6 @@ In an OpenDocument file, the calculation settings table:null-year and table:null
 
 ==== DAYS
 
-[width="90%"]
 |===
 |*description*|Calculates the number of days between two dates.
 |*syntax*|DAYS( Date endDate; Date startDate )
@@ -375,7 +370,6 @@ In an OpenDocument file, the calculation settings table:null-year and table:null
 
 ==== DAYS360
 
-[width="90%"]
 |===
 |*description*|The DAYS360 function returns the number of days between two dates based on a 360-day year (twelve 30-day months), which is used in some accounting calculations. Use this function to help compute payments if your accounting system is based on twelve 30-day months.
 |*syntax*|DAYS360(start_date,end_date,[method])
@@ -393,7 +387,6 @@ In an OpenDocument file, the calculation settings table:null-year and table:null
 
 ==== EDATE
 
-[width="90%"]
 |===
 |*description*|Returns the serial number that represents the date that is the indicated number of months before or after a specified date (the start_date). Use EDATE to calculate maturity dates or due dates that fall on the same day of the month as the date of issue.
 |*syntax*|EDATE(start_date, months)
@@ -411,7 +404,6 @@ In an OpenDocument file, the calculation settings table:null-year and table:null
 
 ==== EOMONTH
 
-[width="90%"]
 |===
 |*description*|Returns the serial number for the last day of the month that is the indicated number of months before or after start_date. Use EOMONTH to calculate maturity dates or due dates that fall on the last day of the month.
 |*syntax*|EOMONTH(start_date, months)
@@ -428,7 +420,6 @@ In an OpenDocument file, the calculation settings table:null-year and table:null
 
 ==== HOUR
 
-[width="90%"]
 |===
 |*description*|Extract the hour (0 through 23) from a time.
 |*syntax*|HOUR( TimeParam T )
@@ -449,7 +440,6 @@ Hour=INT(DayFraction*24)
 
 ==== MINUTE
 
-[width="90%"]
 |===
 |*description*|Determines the sequential number for the minute of the hour (0-59) for the time value.
 |*syntax*|MINUTE( DateTime )
@@ -466,7 +456,6 @@ Hour=INT(DayFraction*24)
 
 ==== MONTH
 
-[width="90%"]
 |===
 |*description*|Extract the month from a date
 |*syntax*|MONTH( DateParam Date )
@@ -484,7 +473,6 @@ Hour=INT(DayFraction*24)
 
 ==== MONTHEND
 
-[width="90%"]
 |===
 |*description*|Return the last day of the month.
 |*syntax*|MONTHEND( Date )
@@ -501,7 +489,6 @@ Hour=INT(DayFraction*24)
 
 ==== NETWORKDAYS
 
-[width="90%"]
 |===
 |*description*|Returns the number of whole working days between start_date and end_date. Working days exclude weekends and any dates identified in holidays. Use NETWORKDAYS to calculate employee benefits that accrue based on the number of days worked during a specific term.
 |*syntax*|NETWORKDAYS(start_date, end_date, [holidays])
@@ -519,7 +506,6 @@ Hour=INT(DayFraction*24)
 
 ==== NOW
 
-[width="90%"]
 |===
 |*description*|Return the serial number of the current date and time.
 |*syntax*|NOW()
@@ -537,7 +523,6 @@ Hour=INT(DayFraction*24)
 
 ==== NPER
 
-[width="90%"]
 |===
 |*description*|Returns the number of periods for an investment based on periodic, constant payments and a constant interest rate.
 |*syntax*|NPER(rate,pmt,pv,[fv],[type])
@@ -554,7 +539,6 @@ Hour=INT(DayFraction*24)
 
 ==== PARSEDATE
 
-[width="90%"]
 |===
 |*description*|Parses a date using a SimpleDateFormat format string
 |*syntax*|PARSEDATE( Text date; Text format; Text locale; Text timezone )
@@ -572,7 +556,6 @@ Hour=INT(DayFraction*24)
 
 ==== PREVWEEKDAY
 
-[width="90%"]
 |===
 |*description*|Return the date of the previous weekday from the current date.
 |*syntax*|PREVWEEKDAY( Integer weekdayDefinition )
@@ -591,7 +574,6 @@ Hour=INT(DayFraction*24)
 
 ==== SECOND
 
-[width="90%"]
 |===
 |*description*|Determines the sequential number for the second of the minute (0-59) for the time value.
 |*syntax*|SECOND( DateTime )
@@ -608,7 +590,6 @@ Hour=INT(DayFraction*24)
 
 ==== TIME
 
-[width="90%"]
 |===
 |*description*|Construct time from hours, minutes, and seconds.
 |*syntax*|TIME( Number hours ; Number minutes ; Number seconds )
@@ -634,7 +615,6 @@ Hour=INT(DayFraction*24)
 
 ==== TIMEVALUE
 
-[width="90%"]
 |===
 |*description*|Returns an internal number for a text having a time format.
 |*syntax*|TIMEVALUE( Text D )
@@ -652,7 +632,6 @@ Hour=INT(DayFraction*24)
 
 ==== TODAY
 
-[width="90%"]
 |===
 |*description*|Return the serial number of today
 |*syntax*|TODAY()
@@ -670,7 +649,6 @@ Hour=INT(DayFraction*24)
 
 ==== WEEKDAY
 
-[width="90%"]
 |===
 |*description*|Extract the day of the week from a date; if text, uses current locale to convert to a date.
 |*syntax*|WEEKDAY( DateParam Date [ ; Integer Type = 1 ] )
@@ -695,7 +673,6 @@ Hour=INT(DayFraction*24)
 
 ==== WEEKNUM
 
-[width="90%"]
 |===
 |*description*|Returns the week number of a specific date. For example, the week containing January 1 is the first week of the year, and is numbered week 1. There are two systems used for this function:
 
@@ -717,7 +694,6 @@ System 2    The week containing the first Thursday of the year is the first week
 
 ==== WORKDAY
 
-[width="90%"]
 |===
 |*description*|Returns a number that represents a date that is the indicated number of working days before or after a date (the starting date). Working days exclude weekends and any dates identified as holidays. Use WORKDAY to exclude weekends or holidays when you calculate invoice due dates, expected delivery times, or the number of days of work performed.
 |*syntax*|WORKDAY(start_date, days, [holidays])
@@ -734,7 +710,6 @@ System 2    The week containing the first Thursday of the year is the first week
 
 ==== YEAR
 
-[width="90%"]
 |===
 |*description*|Extract the year from a date given in the current locale of the application.
 |*syntax*|YEAR( DateParam D )
@@ -753,7 +728,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 ==== YEARFRAC
 
-[width="90%"]
 |===
 |*description*|YEARFRAC calculates the fraction of the year represented by the number of whole days between two dates (the start_date and the end_date). For instance, you can use YEARFRAC to identify the proportion of a whole year's benefits, or obligations to assign to a specific term.
 |*syntax*|YEARFRAC(start_date, end_date, [basis])
@@ -772,7 +746,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 ==== YESTERDAY
 
-[width="90%"]
 |===
 |*description*|Return the serial number of the previous day
 |*syntax*|YESTERDAY()
@@ -792,7 +765,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 ==== PMT
 
-[width="90%"]
 |===
 |*description*|PMT, one of the financial functions, calculates the payment for a loan based on constant payments and a constant interest rate.
 |*syntax*|PMT(rate, nper, pv, [fv], [type])
@@ -809,7 +781,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 ==== PV
 
-[width="90%"]
 |===
 |*description*|PV, one of the financial functions, calculates the present value of a loan or an investment, based on a constant interest rate. You can use PV with either periodic, constant payments (such as a mortgage or other loan), or a future value that's your investment goal.
 |*syntax*|PV(rate, nper, pmt, [fv], [type])
@@ -828,7 +799,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 ==== CHOOSE
 
-[width="90%"]
 |===
 |*description*|Uses an index to return a value from a list of values. Uses index_num to return a value from the list of value arguments. Use CHOOSE to select one of up to 254 values based on the index number. For example, if value1 through value7 are the days of the week, CHOOSE returns one of the days when a number between 1 and 7 is used as index_num.
 |*syntax*|CHOOSE( Integer Index ; { Any Value }+ )
@@ -849,7 +819,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 ==== COUNT
 
-[width="90%"]
 |===
 |*description*|The COUNT function counts the number of cells that contain numbers, and counts numbers within the list of arguments. Use the COUNT function to get the number of entries in a number field that is in a range or array of numbers.
 |*syntax*|COUNT( { Any Value }+ )
@@ -867,7 +836,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 ==== COUNTA
 
-[width="90%"]
 |===
 |*description*|The COUNTA function counts the number of cells that are not empty in a range.
 |*syntax*|COUNTA( { Any Value }+ )
@@ -886,7 +854,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 ==== COUNTBLANK
 
-[width="90%"]
 |===
 |*description*|Use the COUNTBLANK function, one of the Statistical functions, to count the number of empty cells in a range of cells.
 |*syntax*|COUNTBLANK( { Any Value }+ )
@@ -906,7 +873,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 ==== DELTA
 
-[width="90%"]
 |===
 |*description*|Tests whether two values are equal. Returns 1 if number1 = number2; returns 0 otherwise. Use this function to filter a set of values. For example, by summing several DELTA functions you calculate the count of equal pairs. This function is also known as the Kronecker Delta function.
 |*syntax*|DELTA(number1, [number2])
@@ -925,7 +891,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 ==== ERROR
 
-[width="90%"]
 |===
 |*description*|Raises an evaluation error with the given message.
 |*syntax*|ERROR( Text errorMessage; Text errorCode )
@@ -942,7 +907,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 ==== ISBLANK
 
-[width="90%"]
 |===
 |*description*|Return TRUE if the referenced cell is blank, else return FALSE
 |*syntax*|ISBLANK( Scalar X )
@@ -962,7 +926,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 
 ==== ISERR
 
-[width="90%"]
 |===
 |*description*|Return True if the parameter has type Error and is not NA, else return False.
 |*syntax*|ISERR( Scalar X )
@@ -984,7 +947,6 @@ IF(ISNA(X),FALSE(),ISERROR(X))
 
 ==== ISERROR
 
-[width="90%"]
 |===
 |*description*|Return TRUE if the parameter has type Error, else return FALSE
 |*syntax*|ISERROR( Scalar X )
@@ -1005,7 +967,6 @@ IF(ISNA(X),FALSE(),ISERROR(X))
 
 ==== ISEVEN
 
-[width="90%"]
 |===
 |*description*|Return TRUE if the value is even, else return FALSE
 |*syntax*|ISEVEN( Number X )
@@ -1035,7 +996,6 @@ IF(ISNA(X),FALSE(),ISERROR(X))
 
 ==== ISLOGICAL
 
-[width="90%"]
 |===
 |*description*|Return TRUE if the parameter has type Logical, else return FALSE
 |*syntax*|ISLOGICAL( Scalar X )
@@ -1054,7 +1014,6 @@ IF(ISNA(X),FALSE(),ISERROR(X))
 
 ==== ISNA
 
-[width="90%"]
 |===
 |*description*|Return True if the parameter is of type NA, else return False.
 |*syntax*|ISERR( Scalar X )
@@ -1075,7 +1034,6 @@ IF(ISNA(X),FALSE(),ISERROR(X))
 
 ==== ISNONTEXT
 
-[width="90%"]
 |===
 |*description*|Return TRUE if the parameter does not have type Text, else return FALSE
 |*syntax*|ISNONTEXT( Scalar X )
@@ -1099,7 +1057,6 @@ NOT(ISTEXT(X))
 
 ==== ISNUMBER
 
-[width="90%"]
 |===
 |*description*|Return TRUE if the parameter has type Number, else return FALSE
 |*syntax*|ISNUMBER( Scalar X )
@@ -1117,7 +1074,6 @@ NOT(ISTEXT(X))
 
 ==== ISODD
 
-[width="90%"]
 |===
 |*description*|Return TRUE if the value is even, else return FALSE
 |*syntax*|ISODD( Number X )
@@ -1150,7 +1106,7 @@ NOT(ISTEXT(X))
 
 ==== ISREF
 
-[width="90%"]
+
 |===
 |*description*|Return True if the parameter is of type reference, else return False.
 |*syntax*|ISREF( Any X )
@@ -1171,7 +1127,7 @@ NOT(ISTEXT(X))
 
 ==== ISTEXT
 
-[width="90%"]
+
 |===
 |*description*|Return TRUE if the parameter has type Text, else return FALSE
 |*syntax*|ISTEXT( Scalar X )
@@ -1189,7 +1145,7 @@ NOT(ISTEXT(X))
 
 ==== NA
 
-[width="90%"]
+
 |===
 |*description*|Return the constant error value #N/A.
 |*syntax*|NA()
@@ -1208,7 +1164,7 @@ NOT(ISTEXT(X))
 
 ==== VALUE
 
-[width="90%"]
+
 |===
 |*description*|Returns the number value of a String.
 |*syntax*|VALUE( Text number )
@@ -1227,7 +1183,7 @@ NOT(ISTEXT(X))
 
 ==== AND
 
-[width="90%"]
+
 |===
 |*description*|Use the AND function, one of the logical functions, to determine if all conditions in a test are TRUE.
 |*syntax*|AND( { Logical|NumberSequenceList L }+ )
@@ -1253,7 +1209,7 @@ Also in array context a logical AND of all arguments is computed, range or array
 
 ==== FALSE
 
-[width="90%"]
+
 |===
 |*description*|Returns constant FALSE
 |*syntax*|FALSE()
@@ -1272,7 +1228,7 @@ Also in array context a logical AND of all arguments is computed, range or array
 
 ==== IF
 
-[width="90%"]
+
 |===
 |*description*|Return one of two values, depending on a condition
 |*syntax*|IF( Logical Condition [ ; [ Any IfTrue ] [ ; [ Any IfFalse ] ] ] )
@@ -1305,7 +1261,7 @@ Also in array context a logical AND of all arguments is computed, range or array
 
 ==== IFNA
 
-[width="90%"]
+
 |===
 |*description*|Returns the value unless it is null, then return an alternate value
 |*syntax*|IFNA( Text string; Text alternateValue )
@@ -1323,7 +1279,7 @@ Also in array context a logical AND of all arguments is computed, range or array
 
 ==== IFS
 
-[width="90%"]
+
 |===
 |*description*|The IFS function checks whether one or more conditions are met, and returns a value that corresponds to the first TRUE condition. IFS can take the place of multiple nested IF statements, and is much easier to read with multiple conditions.
 |*syntax*|IFS([Something is True1, Value if True1,Something is True2,Value if True2,Something is True3,Value if True3)
@@ -1340,7 +1296,7 @@ Also in array context a logical AND of all arguments is computed, range or array
 
 ==== NOT
 
-[width="90%"]
+
 |===
 |*description*|Compute logical NOT
 |*syntax*|NOT( Logical L )
@@ -1359,7 +1315,7 @@ Also in array context a logical AND of all arguments is computed, range or array
 
 ==== OR
 
-[width="90%"]
+
 |===
 |*description*|Compute logical OR of all parameters.
 |*syntax*|OR( { Logical|NumberSequenceList L }+ )
@@ -1383,7 +1339,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== TRUE
 
-[width="90%"]
+
 |===
 |*description*|Returns constant TRUE
 |*syntax*|TRUE()
@@ -1404,7 +1360,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== ABS
 
-[width="90%"]
+
 |===
 |*description*|Returns the absolute value of a number. The absolute value of a number is the number without its sign.
 |*syntax*|ABS( NUMBER N )
@@ -1423,7 +1379,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== ACOS
 
-[width="90%"]
+
 |===
 |*description*|Returns the arccosine, or inverse cosine, of a number. The arccosine is the angle whose cosine is number. The returned angle is given in radians in the range 0 (zero) to pi.
 |*syntax*|ACOS( NUMBER N )
@@ -1440,7 +1396,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== ACOSH
 
-[width="90%"]
+
 |===
 |*description*|Returns the inverse hyperbolic cosine of a number. The number must be greater than or equal to 1. The inverse hyperbolic cosine is the value whose hyperbolic cosine is number, so ACOSH(COSH(number)) equals number.
 |*syntax*|ACOSH( NUMBER N )
@@ -1457,7 +1413,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== ASIN
 
-[width="90%"]
+
 |===
 |*description*|Returns the arcsine, or inverse sine, of a number. The arcsine is the angle whose sine is number. The returned angle is given in radians in the range -pi/2 to pi/2.
 |*syntax*|ASIN( Number N )
@@ -1474,7 +1430,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== ASINH
 
-[width="90%"]
+
 |===
 |*description*|Returns the inverse hyperbolic sine of a number. The inverse hyperbolic sine is the value whose hyperbolic sine is number, so ASINH(SINH(number)) equals number.
 |*syntax*|ASIN( Number N )
@@ -1491,7 +1447,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== ATAN
 
-[width="90%"]
+
 |===
 |*description*|Returns the arctangent, or inverse tangent, of a number. The arctangent is the angle whose tangent is number. The returned angle is given in radians in the range -pi/2 to pi/2.
 |*syntax*|ATAN( Number N )
@@ -1508,7 +1464,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== ATAN2
 
-[width="90%"]
+
 |===
 |*description*|Returns the arctangent, or inverse tangent, of the specified x- and y-coordinates. The arctangent is the angle from the x-axis to a line containing the origin (0, 0) and a point with coordinates (x_num, y_num). The angle is given in radians between -pi and pi, excluding -pi.
 |*syntax*|ATAN2( Number X; Number Y )
@@ -1526,7 +1482,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== ATANH
 
-[width="90%"]
+
 |===
 |*description*|Returns the inverse hyperbolic tangent of a number. Number must be between -1 and 1 (excluding -1 and 1). The inverse hyperbolic tangent is the value whose hyperbolic tangent is number, so ATANH(TANH(number)) equals number.
 |*syntax*|ATANH( Number N )
@@ -1544,7 +1500,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== AVEDEV
 
-[width="90%"]
+
 |===
 |*description*|Returns the average of the absolute deviations of data points from their mean. AVEDEV is a measure of the variability in a data set.
 |*syntax*|AVEDEV( Number X, Number Y, ...)
@@ -1561,7 +1517,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== AVERAGE
 
-[width="90%"]
+
 |===
 |*description*|Returns the average (arithmetic mean) of the arguments. For example, if the range A1:A20 contains numbers, the formula =AVERAGE(A1:A20) returns the average of those numbers.
 |*syntax*|AVERAGE( { NumberSequence N }+ )
@@ -1578,7 +1534,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== CEILING
 
-[width="90%"]
+
 |===
 |*description*|Returns number rounded up, away from zero, to the nearest multiple of significance. For example, if you want to avoid using pennies in your prices and your product is priced at $4.42, use the formula =CEILING(4.42,0.05) to round prices up to the nearest nickel.
 |*syntax*|CEILING( Number N, significance)
@@ -1597,7 +1553,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== COMBIN
 
-[width="90%"]
+
 |===
 |*description*|Returns the number of combinations for a given number of items. Use COMBIN to determine the total possible number of groups for a given number of items.
 |*syntax*|COMBIN(Number N, number_chosen)
@@ -1614,7 +1570,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== COMPLEX
 
-[width="90%"]
+
 |===
 |*description*|Converts real and imaginary coefficients into a complex number of the form x + yi or x + yj.
 |*syntax*|COMPLEX(real_num, i_num, [suffix])
@@ -1633,7 +1589,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== COS
 
-[width="90%"]
+
 |===
 |*description*|Returns the cosine for the specified number.
 |*syntax*|COS( Number )
@@ -1650,7 +1606,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== COSH
 
-[width="90%"]
+
 |===
 |*description*|Returns the hyperbolic cosine of a number.
 |*syntax*|COSH( Number )
@@ -1667,7 +1623,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== DEGREES
 
-[width="90%"]
+
 |===
 |*description*|Converts radians into degrees.
 |*syntax*|DEGREES(angle)
@@ -1684,7 +1640,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== EVEN
 
-[width="90%"]
+
 |===
 |*description*|Rounds a number up to the nearest even integer. Rounding is away from zero.
 |*syntax*|EVEN( Number N )
@@ -1707,7 +1663,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== EXP
 
-[width="90%"]
+
 |===
 |*description*|Calculates the exponent for basis e.
 |*syntax*|EXP( Number )
@@ -1724,7 +1680,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== FACT
 
-[width="90%"]
+
 |===
 |*description*|Returns the factorial of a number. The factorial of a number is equal to 1*2*3*...* number.
 |*syntax*|FACT(number)
@@ -1742,7 +1698,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 
 ==== FACTDOUBLE
 
-[width="90%"]
+
 |===
 |*description*|Returns the double factorial of a number.
 |*syntax*|FACTDOUBLE(number)
@@ -1762,7 +1718,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== FIXED
 
-[width="90%"]
+
 |===
 |*description*|Rounds a number to the specified number of decimals, formats the number in decimal format using a period and commas, and returns the result as text.
 |*syntax*|FIXED(number, [decimals], [no_commas])
@@ -1784,7 +1740,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== FLOOR
 
-[width="90%"]
+
 |===
 |*description*|Rounds number down, toward zero, to the nearest multiple of significance.
 |*syntax*|FLOOR(number, significance)
@@ -1803,7 +1759,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== HEX2DEC
 
-[width="90%"]
+
 |===
 |*description*|Converts a hexadecimal number to decimal.
 |*syntax*|HEX2DEC(number)
@@ -1820,7 +1776,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== HYPERLINK
 
-[width="90%"]
+
 |===
 |*description*|The HYPERLINK function creates a shortcut that opens a document stored on a network server or opens a link on an intranet or the Internet
 |*syntax*|HYPERLINK(link_location, [friendly_name])
@@ -1837,7 +1793,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== IMAGINARY
 
-[width="90%"]
+
 |===
 |*description*|Returns the imaginary coefficient of a complex number in x + yi or x + yj text format.
 |*syntax*|
@@ -1856,7 +1812,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== IMREAL
 
-[width="90%"]
+
 |===
 |*description*|Returns the real coefficient of a complex number in x + yi or x + yj text format.
 |*syntax*|
@@ -1873,7 +1829,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== INT
 
-[width="90%"]
+
 |===
 |*description*|Rounds a number down to the nearest integer.
 |*syntax*|
@@ -1897,7 +1853,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== INT
 
-[width="90%"]
+
 |===
 |*description*|Rounds a number down to the nearest integer.
 |*syntax*|INT( Number N )
@@ -1921,7 +1877,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== LN
 
-[width="90%"]
+
 |===
 |*description*|Calculates the natural logarithm of a number.
 |*syntax*|LN( Number )
@@ -1938,7 +1894,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== LOG
 
-[width="90%"]
+
 |===
 |*description*|Returns the logarithm of a number to the base you specify.
 |*syntax*|LOG(number, [base])
@@ -1957,7 +1913,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== LOG10
 
-[width="90%"]
+
 |===
 |*description*|Calculates the base-10 logarithm of a number.
 |*syntax*|LOG10( Number )
@@ -1974,7 +1930,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== MAX
 
-[width="90%"]
+
 |===
 |*description*|Return the maximum from a set of numbers.
 |*syntax*|MAX( { NumberSequenceList N } )
@@ -1992,7 +1948,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== MIN
 
-[width="90%"]
+
 |===
 |*description*|Return the minimum from a set of numbers.
 |*syntax*|MIN( { NumberSequenceList N } )
@@ -2013,7 +1969,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== MOD
 
-[width="90%"]
+
 |===
 |*description*|Calculates the remainder of a division.
 |*syntax*|MOD( Number divisor, Number dividend )
@@ -2030,7 +1986,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== N
 
-[width="90%"]
+
 |===
 |*description*|Returns the number of a value.
 |*syntax*|N( String )
@@ -2049,7 +2005,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== NPV
 
-[width="90%"]
+
 |===
 |*description*|Calculates the net present value of an investment by using a discount rate and a series of future payments (negative values) and income (positive values).
 |*syntax*|NPV(rate,value1,[value2],...)
@@ -2066,7 +2022,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== OCT2DEC
 
-[width="90%"]
+
 |===
 |*description*|Converts an octal number to decimal.
 |*syntax*|OCT2DEC(number)
@@ -2083,7 +2039,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== ODD
 
-[width="90%"]
+
 |===
 |*description*|Rounds a number up to the nearest odd integer, where "up" means "away from 0".
 |*syntax*|ODD( Number N )
@@ -2106,7 +2062,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== PI
 
-[width="90%"]
+
 |===
 |*description*|Returns the value of PI.
 |*syntax*|PI()
@@ -2123,7 +2079,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== POISSON
 
-[width="90%"]
+
 |===
 |*description*|Returns the Poisson distribution. A common application of the Poisson distribution is predicting the number of events over a specific time, such as the number of cars arriving at a toll plaza in 1 minute.
 |*syntax*|POISSON(x,mean,cumulative)
@@ -2141,7 +2097,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== POWER
 
-[width="90%"]
+
 |===
 |*description*|Computes a number raised to the power by another number.
 |*syntax*|POWER( Number number, Number power )
@@ -2158,7 +2114,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== QUOTIENT
 
-[width="90%"]
+
 |===
 |*description*|Returns the integer portion of a division. Use this function when you want to discard the remainder of a division.
 |*syntax*|QUOTIENT(numerator, denominator)
@@ -2177,7 +2133,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== RADIANS
 
-[width="90%"]
+
 |===
 |*description*|Converts degrees to radians.
 |*syntax*|RADIANS(angle)
@@ -2194,7 +2150,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== RAND
 
-[width="90%"]
+
 |===
 |*description*|RAND returns an evenly distributed random real number greater than or equal to 0 and less than 1. A new random real number is returned every time the worksheet is calculated.
 |*syntax*|RAND()
@@ -2211,7 +2167,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== RANDBETWEEN
 
-[width="90%"]
+
 |===
 |*description*|Returns a random integer number between the numbers you specify. A new random integer number is returned every time the worksheet is calculated.
 |*syntax*|RANDBETWEEN(bottom, top)
@@ -2229,7 +2185,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== ROUND
 
-[width="90%"]
+
 |===
 |*description*|The ROUND function rounds a number to a specified number of digits. For example, if field [FIELD1] contains 23.7825, and you want to round that value to two decimal places, you can use the following formula:
 |*syntax*|ROUND(number, num_digits)
@@ -2248,7 +2204,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== ROUNDDOWN
 
-[width="90%"]
+
 |===
 |*description*|Rounds a number down, toward zero.
 |*syntax*|ROUNDDOWN(number, num_digits)
@@ -2266,7 +2222,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== ROUNDUP
 
-[width="90%"]
+
 |===
 |*description*|Rounds a number up, away from 0 (zero).
 |*syntax*|ROUNDUP(number, num_digits)
@@ -2284,7 +2240,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== SIGN
 
-[width="90%"]
+
 |===
 |*description*|Determines the sign of a number. Returns 1 if the number is positive, zero (0) if the number is 0, and -1 if the number is negative.
 |*syntax*|SIGN(number)
@@ -2303,7 +2259,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== SIN
 
-[width="90%"]
+
 |===
 |*description*|Returns the sine of a number.
 |*syntax*|SIN( Number )
@@ -2320,7 +2276,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== SINH
 
-[width="90%"]
+
 |===
 |*description*|Returns the hyperbolic sine of a number.
 |*syntax*|SINH(number)
@@ -2337,7 +2293,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== SQRT
 
-[width="90%"]
+
 |===
 |*description*|Returns the square root of a number.
 |*syntax*|SQRT( Number )
@@ -2354,7 +2310,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== SUM
 
-[width="90%"]
+
 |===
 |*description*|Sum (add) the set of numbers, including all numbers in ranges
 |*syntax*|SUM( { NumberSequenceList N }+ )
@@ -2373,7 +2329,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== SUMSQ
 
-[width="90%"]
+
 |===
 |*description*|Returns the sum of the squares of the arguments.
 |*syntax*|SUMSQ(number1, [number2], ...)
@@ -2390,7 +2346,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== SWITCH
 
-[width="90%"]
+
 |===
 |*description*|The SWITCH function evaluates one value (called the expression) against a list of values, and returns the result corresponding to the first matching value. If there is no match, an optional default value may be returned.
 |*syntax*|
@@ -2408,7 +2364,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== T.DIST
 
-[width="90%"]
+
 |===
 |*description*|Returns the Student's left-tailed t-distribution. The t-distribution is used in the hypothesis testing of small sample data sets. Use this function in place of a table of critical values for the t-distribution.
 |*syntax*|T.DIST(x,deg_freedom, cumulative)
@@ -2426,7 +2382,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== T.DIST.2T
 
-[width="90%"]
+
 |===
 |*description*|Returns the two-tailed Student's t-distribution. The Student's t-distribution is used in the hypothesis testing of small sample data sets. Use this function in place of a table of critical values for the t-distribution.
 |*syntax*|T.DIST.2T(x,deg_freedom)
@@ -2443,7 +2399,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== T.DIST.RT
 
-[width="90%"]
+
 |===
 |*description*|Returns the right-tailed Student's t-distribution. The t-distribution is used in the hypothesis testing of small sample data sets. Use this function in place of a table of critical values for the t-distribution.
 |*syntax*|T.DIST.RT(x,deg_freedom)
@@ -2460,7 +2416,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== TAN
 
-[width="90%"]
+
 |===
 |*description*|Returns the tangent of the given angle.
 |*syntax*|TAN(number)
@@ -2479,7 +2435,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== TANH
 
-[width="90%"]
+
 |===
 |*description*|Returns the hyperbolic tangent of a number.
 |*syntax*|TANH(number)
@@ -2498,7 +2454,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== TDIST
 
-[width="90%"]
+
 |===
 |*description*|Returns the Percentage Points (probability) for the Student t-distribution where a numeric value (x) is a calculated value of t for which the Percentage Points are to be computed. The t-distribution is used in the hypothesis testing of small sample data sets. Use this function in place of a table of critical values for the t-distribution.
 |*syntax*|TDIST(x,deg_freedom,tails)
@@ -2516,7 +2472,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== TRUNC
 
-[width="90%"]
+
 |===
 |*description*|Truncates a number to an integer by removing the fractional part of the number.
 |*syntax*|TRUNC(number, [num_digits])
@@ -2535,7 +2491,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== VAR
 
-[width="90%"]
+
 |===
 |*description*|Calculates the variance based on a sample.
 |*syntax*|VAR( { NumberSequence N }+ )
@@ -2554,7 +2510,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== &
 
-[width="90%"]
+
 |===
 |*description*|Concatenate two strings.
 |*syntax*|Text Left & Text Right
@@ -2574,7 +2530,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== ASC
 
-[width="90%"]
+
 |===
 |*description*|Converts full-width to half-width ASCII and katakana characters.
 |*syntax*|ASC( Text t1 )
@@ -2586,7 +2542,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== CHAR
 
-[width="90%"]
+
 |===
 |*description*|Converts a code number into a ASCII character or letter. Returns the character specified by a number. Use CHAR to translate code page numbers you might get from files on other types of computers into characters.
 |*syntax*|CHAR( Integer )
@@ -2605,7 +2561,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== CLEAN
 
-[width="90%"]
+
 |===
 |*description*|Removes all nonprintable characters from text. Use CLEAN on text imported from other applications that contains characters that may not print with your operating system. For example, you can use CLEAN to remove some low-level computer code that is frequently at the beginning and end of data files and cannot be printed.
 |*syntax*|CLEAN( Text )
@@ -2617,7 +2573,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== CODE
 
-[width="90%"]
+
 |===
 |*description*|Returns the numeric code for the first character character in a text string. The returned code corresponds to the character set used by your computer.
 |*syntax*|CODE( Text )
@@ -2634,7 +2590,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== CONCAT
 
-[width="90%"]
+
 |===
 |*description*|The CONCAT function combines the text from multiple ranges and/or strings, but it doesn't provide delimiter or IgnoreEmpty arguments.
 |*syntax*|CONCAT( Text t1 ; Text t2; Text tN )
@@ -2652,7 +2608,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== CONCATENATE
 
-[width="90%"]
+
 |===
 |*description*|The CONCAT function combines the text from multiple ranges and/or strings, but it doesn't provide delimiter or IgnoreEmpty arguments.
 |*syntax*|CONCAT( Text t1 ; Text t2; Text tN )
@@ -2670,7 +2626,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== DOLLAR
 
-[width="90%"]
+
 |===
 |*description*|Convert the parameters to Text formatted as currency.
 |*syntax*|DOLLAR( Text text, Integer decimalPlaces )
@@ -2688,7 +2644,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== EXACT
 
-[width="90%"]
+
 |===
 |*description*|Report if two text values are exactly equal using a case-sensitive comparison
 |*syntax*|EXACT( Text t1 ; Text t2 )
@@ -2713,7 +2669,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== FIND
 
-[width="90%"]
+
 |===
 |*description*|Return the starting position of a given text.
 |*syntax*|FIND( Text Search ; Text T [ ; Integer Start = 1 ] )
@@ -2737,7 +2693,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== FIXED
 
-[width="90%"]
+
 |===
 |*description*|Round the number to a specified number of decimals and format the result as a text.
 |*syntax*|FIXED( Text text, Integer decimalPlaces, Boolean omitGroupChar )
@@ -2759,7 +2715,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== LEFT
 
-[width="90%"]
+
 |===
 |*description*|Return a selected number of text characters from the left.
 |*syntax*|LEFT( Text T [ ; Integer Length ] )
@@ -2784,7 +2740,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== LEN
 
-[width="90%"]
+
 |===
 |*description*|Return the length, in characters, of given text
 |*syntax*|LEN( Text T )
@@ -2803,7 +2759,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== LOWER
 
-[width="90%"]
+
 |===
 |*description*|Return input string, but with all uppercase letters converted to lowercase letters.
 |*syntax*|LOWER( Text T )
@@ -2820,7 +2776,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== MID
 
-[width="90%"]
+
 |===
 |*description*|MID returns a specific number of characters from a text string, starting at the position you specify, based on the number of characters you specify.
 |*syntax*|MID(text, start_num, num_chars)
@@ -2849,7 +2805,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== MID
 
-[width="90%"]
+
 |===
 |*description*|Returns extracted text, given an original text, starting position, and length.
 |*syntax*|MID( Text T ; Integer Start ; Integer Length )
@@ -2878,7 +2834,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== PROPER
 
-[width="90%"]
+
 |===
 |*description*|Return the input string with the first letter of each word converted to an uppercase letter.
 |*syntax*|PROPER(Text T)
@@ -2895,7 +2851,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== REPLACE
 
-[width="90%"]
+
 |===
 |*description*|Returns text where an old text is substituted with a new text.
 |*syntax*|REPLACE( Text T ; Number Start ; Number Len ; Text New )
@@ -2913,7 +2869,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== REPT
 
-[width="90%"]
+
 |===
 |*description*|Return text repeated Count times.
 |*syntax*|REPT( Text T ; Integer Count )
@@ -2934,7 +2890,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== RIGHT
 
-[width="90%"]
+
 |===
 |*description*|Return a selected number of text characters from the right.
 |*syntax*|RIGHT( Text T [ ; Integer Length ] )
@@ -2958,7 +2914,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== ROMAN
 
-[width="90%"]
+
 |===
 |*description*|Converts an arabic numeral to roman, as text.
 |*syntax*|ROMAN(number, [form])
@@ -2979,7 +2935,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== SEARCH
 
-[width="90%"]
+
 |===
 |*description*|Looks for a string of text within another (NOT case sensitive)
 |*syntax*|SEARCH( Text findText, Text text, Integer startPosition )
@@ -2997,7 +2953,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== STRINGCOUNT
 
-[width="90%"]
+
 |===
 |*description*|Counts the occurrences of text in a string.
 |*syntax*|SEARCH( Text text, Text findText )
@@ -3015,7 +2971,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== SUBSTITUTE
 
-[width="90%"]
+
 |===
 |*description*|Returns text where an old text is substituted with a new text.
 |*syntax*|SUBSTITUTE( Text T ; Text Old ; Text New [ ; Number Which ] )
@@ -3037,7 +2993,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== T
 
-[width="90%"]
+
 |===
 |*description*|Return the text (if text), else return 0-length Text value
 |*syntax*|T( Any X )
@@ -3056,7 +3012,7 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 
 ==== TEXT
 
-[width="90%"]
+
 |===
 |*description*|Return the value converted to a text.
 |*syntax*|TEXT( Scalar X ; Text FormatCode )
@@ -3075,7 +3031,7 @@ Portable Contraints: The result of this function may change across locales. If s
 
 ==== TRIM
 
-[width="90%"]
+
 |===
 |*description*|Remove leading and trailing spaces, and replace all internal multiple spaces with a single space.
 |*syntax*|TRIM( Text T )
@@ -3092,7 +3048,7 @@ Portable Contraints: The result of this function may change across locales. If s
 
 ==== UNICHAR
 
-[width="90%"]
+
 |===
 |*description*|Converts a code number into a Unicode character or letter.
 |*syntax*|UNICHAR( Integer )
@@ -3109,7 +3065,7 @@ Portable Contraints: The result of this function may change across locales. If s
 
 ==== UNICODE
 
-[width="90%"]
+
 |===
 |*description*|Returns the numeric Unicode code for the first character character in a text string.
 |*syntax*|UNICODE( Text )
@@ -3126,7 +3082,7 @@ Portable Contraints: The result of this function may change across locales. If s
 
 ==== UPPER
 
-[width="90%"]
+
 |===
 |*description*|Return input string, but with all lowercase letters converted to uppercase letters.
 |*syntax*|UPPER( Text T )
@@ -3143,7 +3099,7 @@ Portable Contraints: The result of this function may change across locales. If s
 
 ==== URLENCODE
 
-[width="90%"]
+
 |===
 |*description*|Applies URL-Encoding to a text given in the first parameter using the encoding specified in the second parameter. If no encoding is given, UTF-8 is assumed.
 |*syntax*|URLENCODE( Text text, Text encoding )

@@ -18,11 +18,24 @@ under the License.
 :language: en_US
 :description: The Beam Kafka Produce transform publishes records to a Kafka cluster using the Beam execution engine.
 
-= Beam Kafka Produce
+= image:transforms/icons/beam-kafka-output.svg[Beam Kafka Produce Icon, role="image-doc-icon"] Beam Kafka Produce
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Beam Kafka Produce transform link:https://kafka.apache.org/25/javadoc/index.html?org/apache/kafka/clients/producer/KafkaProducer.html[publishes] records to a Kafka cluster using the Beam execution engine.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:cross.svg[Not Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:check_mark.svg[Supported, 24]
+!Dataflow! image:check_mark.svg[Supported, 24]
+!===
+|===
 
 == Limitations
 
@@ -30,7 +43,7 @@ The main limitation of the Kafka Producer is that it currently only supports wri
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.
@@ -46,7 +59,7 @@ Here are some options you need to send Avro Record values to a Kafka server.
 The schema of Avro values are not sent to Kafka but to a schema registry.  As such you need to have one available.
 Here are some options you need to set to make this work on a Confluent Cloud Kafka instance.  There are various parts of the software stack that need authentication, hence the bit of redundancy.   We recommend that you put these options in variables in your environment configuration file.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Example
 

@@ -211,7 +211,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
 
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig == null) {
-      throw new HopException("Project '" + projectName + "' doesn't exists, it can't be deleted");
+      throw new HopException("Project '" + projectName + "' doesn't exist, it can't be deleted");
     }
     config.removeProjectConfig(projectName);
     ProjectsConfigSingleton.saveConfig();
@@ -225,7 +225,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
 
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig == null) {
-      throw new HopException("Project '" + projectName + "' doesn't exists, it can't be modified");
+      throw new HopException("Project '" + projectName + "' doesn't exist, it can't be modified");
     }
 
     if (StringUtils.isNotEmpty(projectHome)) {

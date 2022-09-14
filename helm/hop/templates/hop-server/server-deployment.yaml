@@ -1,0 +1,85 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+{{- if .Values.server.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "server.fullname" . }}
+  labels:
+    {{- include "server.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.server.autoscaling.enabled }}
+  replicas: {{ .Values.server.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "server.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "server.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.server.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.server.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.server.securityContext | nindent 12 }}
+          image: "{{ .Values.server.image.name }}:{{ .Values.server.image.tag }}"
+          imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+          ports:
+          - containerPort: {{ .Values.server.service.http.targetPort }}
+            name: {{ .Values.server.service.http.name }}
+            protocol: TCP
+          env:
+            - name: HOP_SERVER_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "server.fullname" . }}
+                  key: user
+            - name: HOP_SERVER_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "server.fullname" . }}
+                  key: pass
+            - name: HOP_SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "server.fullname" . }}
+                  key: port
+            {{- include "helpers.list-extra-env-variables" . | indent 12 }}
+          volumeMounts:
+            - name: {{ template "server.fullname" . }}-data
+              mountPath: /files
+      volumes:
+        - name: {{ template "server.fullname" . }}-data
+          {{- if .Values.server.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.server.persistence.existingClaim | default (printf "%s-%s" (include "server.fullname" .) "data") }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+ {{- end }}

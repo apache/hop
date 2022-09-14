@@ -18,11 +18,25 @@ under the License.
 :language: en_US
 :description: The Mail transform uses an SMTP server to send an email using data from the pipeline fields.
 
-= Mail
+= image:transforms/icons/mail.svg[Mail transform Icon, role="image-doc-icon"] Mail
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Mail transform uses an SMTP server to send an email using data from the pipeline fields.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
@@ -30,7 +44,7 @@ The Mail transform uses an SMTP server to send an email using data from the pipe
 
 This tab defines the sender, contact person, and recipients of a Hop-generated email.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -49,7 +63,7 @@ This can be a single address, a space-separated list of addresses , or an email 
 
 This tab contains details for your SMTP server, including authentication and encryption.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |SMTP server|URL, hostname, or IP address of your SMTP server.
@@ -66,7 +80,7 @@ This tab contains details for your SMTP server, including authentication and enc
 
 This tab determines the text content of the email.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Include date in message?|If checked, the date will be printed in the email body.
@@ -86,7 +100,7 @@ See also the option "Attach content file".
 
 This tab contains options for file attachments.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Attach content file?|If checked, you will use the next two fields to define which stream fields you want to use to create dynamic content of the mail message.
@@ -111,7 +125,7 @@ This can also be a folder name, in which case you would use the Wildcard field t
 
 This tab contains options for embedded images in HTML emails.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Filename|The name and location of the file you want to embed in the email.

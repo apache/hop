@@ -262,7 +262,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           String dateStr = XmlHandler.date2string(workflow.getExecutionStartDate());
           out.print(
               "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">"
-                  + (dateStr != null ? dateStr.substring(0, dateStr.indexOf(' ')) : "")
+                  + (dateStr != null ? dateStr.substring(0, dateStr.indexOf(' ')) : "-")
                   + "</td>");
           out.print("</tr>");
           out.print("</table>");
@@ -348,26 +348,28 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           out.print("</div>");
           out.print("</div>");
 
-          out.print("<div class=\"row\" style=\"padding: 0px 0px 75px 0px;\">");
-          out.print("<div class=\"workspaceHeading\">Canvas preview</div>");
-          // Show workflow image?
-          //
-          Point max = workflow.getWorkflowMeta().getMaximum();
-          max.x += (int) (max.x * GetWorkflowImageServlet.ZOOM_FACTOR) + 100;
-          max.y += (int) (max.y + GetWorkflowImageServlet.ZOOM_FACTOR) + 50;
-          out.print(
-              "<iframe height=\""
-                  + (max.y + 100)
-                  + "px\" width=\""
-                  + (max.x + 100)
-                  + "px\" src=\""
-                  + convertContextPath(GetWorkflowImageServlet.CONTEXT_PATH)
-                  + "?name="
-                  + URLEncoder.encode(workflowName, "UTF-8")
-                  + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
-                  + "\"></iframe>");
-          out.print("</div>");
+          if (supportGraphicEnvironment) {
+            out.print("<div class=\"row\" style=\"padding: 0px 0px 75px 0px;\">");
+            out.print("<div class=\"workspaceHeading\">Canvas preview</div>");
+            // Show workflow image?
+            //
+            Point max = workflow.getWorkflowMeta().getMaximum();
+            max.x += (int) (max.x * GetWorkflowImageServlet.ZOOM_FACTOR) + 100;
+            max.y += (int) (max.y + GetWorkflowImageServlet.ZOOM_FACTOR) + 50;
+            out.print(
+                "<iframe height=\""
+                    + (max.y + 100)
+                    + "px\" width=\""
+                    + (max.x + 100)
+                    + "px\" src=\""
+                    + convertContextPath(GetWorkflowImageServlet.CONTEXT_PATH)
+                    + "?name="
+                    + URLEncoder.encode(workflowName, "UTF-8")
+                    + "&id="
+                    + URLEncoder.encode(id, "UTF-8")
+                    + "\"></iframe>");
+            out.print("</div>");
+          }
 
           // Put the logging below that.
 

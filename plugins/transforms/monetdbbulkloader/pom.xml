@@ -28,7 +28,7 @@
         <version>2.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hop-transforms-monetdbbulkloader</artifactId>
+    <artifactId>hop-transform-monetdbbulkloader</artifactId>
     <name>Hop Plugins Transforms MonetDB Bulk Loader</name>
     <packaging>jar</packaging>
 

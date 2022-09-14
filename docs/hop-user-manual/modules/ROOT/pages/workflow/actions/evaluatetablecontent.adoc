@@ -37,7 +37,7 @@ For the success condition you can check the number of rows if they are:
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Property|Description
 |Custom SQL|Check this option when you want to specify a custom SQL statement in the below field

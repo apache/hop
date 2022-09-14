@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Kafka Consumer transform continuously pulls data from Kafka. It runs a sub-pipeline that executes according to message batch size or duration.
 
-= Kafka Consumer
+= image:transforms/icons/KafkaConsumerInput.svg[Kafka Consumer transform Icon, role="image-doc-icon"] Kafka Consumer
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Kafka Consumer transform pulls streaming data from Kafka. It runs a sub-pipeline that executes according to message batch size or duration, letting you process a continuous stream of records in near-real-time.
@@ -41,11 +44,22 @@ Since the Kafka Consumer transform continuously ingests streaming data, you may 
 
 For example, you can run the parent pipeline on a timed schedule, or abort the sub-pipeline if sensor data exceeds a preset range.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
 === General
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|The name for this transform
@@ -57,7 +71,7 @@ For example, you can run the parent pipeline on a timed schedule, or abort the s
 
 === Setup
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Bootstrap servers|Comma separated list of bootstrap servers in a Kafka cluster
@@ -76,7 +90,7 @@ You can specify message count and/or a specific amount of time.
 
 NOTE: While either option will trigger consumption, the first satisfied option will start the pipeline for the batch.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Duration (ms)|Specify a time in milliseconds.
@@ -94,7 +108,7 @@ If set to a value of ‘0’ then Duration triggers consumption.
 
 === Fields
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Input name a|The input name is received from the Kafka streams.
@@ -138,7 +152,7 @@ For further information on these input names, see the Apache Kafka documentation
 
 The options that are included by default are:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |NName|Value
 |auto.offset.reset|latest
@@ -160,7 +174,7 @@ Here are some options you need to consume Avro Record values from a Kafka server
 The schema of Avro values are not sent to Kafka but to a schema registry.  As such you need to have one available.
 Here are some options you need to set to make this work on a Confluent Cloud Kafka instance.  There are various parts of the software stack that need authentication, hence the bit of redundancy.   We recommend that you put these options in variables in your environment configuration file.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Example
 

@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "short_filename",
+          "data_set_field": "short_filename"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        }
+      ],
+      "field_order": [
+        "short_filename"
+      ],
+      "transform_name": "Dummy (do nothing)",
+      "data_set_name": "golden-multi-part-excel"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0006-multi-part-fixed-name-check UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0006-multi-part-fixed-name-check.hpl",
+  "test_type": "UNIT_TEST"
+}

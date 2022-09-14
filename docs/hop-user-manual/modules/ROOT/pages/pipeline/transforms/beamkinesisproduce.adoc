@@ -18,11 +18,24 @@ under the License.
 :language: en_US
 :description: The Beam Kinesis Produce transform sends data to a Kinesis stream using the Beam pipeline execution engine.
 
-= Beam Kinesis Produce
+= image:transforms/icons/beam-kinesis-produce.svg[Beam Kinesis Produce Icon, role="image-doc-icon"] Beam Kinesis Produce
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Beam link:https://aws.amazon.com/kinesis/[Kinesis] Produce transform sends data (messages) to an Amazon Kinesis stream using a Beam pipeline execution engine.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:cross.svg[Not Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:check_mark.svg[Supported, 24]
+!Dataflow! image:check_mark.svg[Supported, 24]
+!===
+|===
 
 == Limitations
 
@@ -30,7 +43,7 @@ The main limitation of the Kinesis produce transform is that it currently only s
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 
 |Option|Description

@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Regex Evaluation transform matches the strings of an input field against a text pattern you define with a regular expression (regex).
 
-= Regex Evaluation
+= image:transforms/icons/regexeval.svg[Regex Evaluation transform Icon, role="image-doc-icon"] Regex Evaluation
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Regex Evaluation transform matches the strings of an input field against a text pattern you define with a regular expression (regex).
@@ -29,6 +32,19 @@ This transform uses the java.util.regex package.
 The syntax for creating the regular expressions used by this transform is defined in the java.util.regex.Pattern javadoc.
 
 You can use this transform to parse a complex string of text and create new fields out of the input field with capture groups (defined by parentheses).
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Usage
 
 For example, if you have an input field containing an author's name in quotes and the number of posts made by them, you can create two new fields in your pipeline - one for the name, and one for the number of posts as shown below:
 
@@ -52,7 +68,7 @@ The resulting field values are: Ann and 53.
 
 === General
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -60,7 +76,7 @@ The resulting field values are: Ann and 53.
 
 === Capture Group Fields
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |New field|Name of the new field generated from the regular expression.
@@ -68,7 +84,7 @@ The resulting field values are: Ann and 53.
 |Length|Length of the field.
 |Precision|Number of floating point digits for number-type fields.
 |Format|An optional mask for converting the format of the original field.
-See Common Formats for |information on common valid date and numeric formats you can use in this transform.
+See Common Formats for information on common valid date and numeric formats you can use in this transform.
 |Group|A grouping can be a "," (10,000.00 for example) or "." (5.000,00 for example)
 |Decimal|The character used as a decimal point.
 |Currency|Currency symbol ($ or € for example)
@@ -81,7 +97,7 @@ See Common Formats for |information on common valid date and numeric formats you
 
 The Settings tab contains the following options:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Field to evaluate|Specify the name of the field from the incoming Hop stream to be matched against the regular expression.
@@ -105,7 +121,7 @@ Click Test regEx to open the Regular expression evaluation window.
 You can test your regular expression against three different input strings using the following Regular expression evaluation window.
 If your expression contains a group field, type a string in the Compare section and the option below the string will be split according to your group(s).
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Please enter a new regular expression or modify|Specify your regular expression.
@@ -119,7 +135,7 @@ The background will turn green if that value is a match against your expression 
 
 The Content tab contains the following options:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Ignore differences in Unicode encodings |Select to ignore different Unicode character encodings.

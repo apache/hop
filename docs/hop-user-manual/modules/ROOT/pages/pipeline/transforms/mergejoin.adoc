@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Merge Join transform performs a classic merge join between data sets with data coming from two different input transforms.
 
-= Merge Join
+= image:transforms/icons/mergejoin.svg[Merge Join transform Icon, role="image-doc-icon"] Merge Join
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Merge Join transform performs a classic merge join between data sets with data coming from two different input transforms.
@@ -28,9 +31,20 @@ This transform assumes your data is sorted on the join keys. Use xref:pipeline/t
 
 Join options include INNER, LEFT OUTER, RIGHT OUTER, and FULL OUTER.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:check_mark.svg[Supported, 24]
+!Dataflow! image:check_mark.svg[Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |First Transform | The first transform to read data from (left hand side of the join)

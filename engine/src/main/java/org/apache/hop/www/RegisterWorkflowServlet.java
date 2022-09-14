@@ -48,7 +48,7 @@ public class RegisterWorkflowServlet extends BaseWorkflowServlet {
       IVariables variables)
       throws IOException, HopException, HopException, ParseException {
 
-    final String xml = IOUtils.toString(request.getInputStream());
+    final String xml = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
 
     // Parse the XML, create a workflow configuration
     WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXml(xml, variables);

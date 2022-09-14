@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        },
+        {
+          "transform_field": "filename",
+          "data_set_field": "filename"
+        }
+      ],
+      "field_order": [
+        "value"
+      ],
+      "transform_name": "Dummy (do nothing)",
+      "data_set_name": "golden-multi-file-excel"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0005-check-multiple-files UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0005-check-multiple-files.hpl",
+  "test_type": "UNIT_TEST"
+}

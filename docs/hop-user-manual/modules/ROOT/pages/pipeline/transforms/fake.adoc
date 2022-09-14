@@ -18,9 +18,11 @@ under the License.
 :language: en_US
 :description: The Fake Data tranform allows you to generate fake data using the Java Faker library. It can be used to generate pretty data for development, testing or showcasing a project.
 
+= image:transforms/icons/fake.svg[Fake data transform Icon, role="image-doc-icon"] Fake data
 
-= Fake data
-
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Fake Data tranform allows you to generate fake data using the Java Faker library (link:https://github.com/DiUS/java-faker[documentation]).
@@ -29,7 +31,18 @@ It can be used to generate pretty data for development, testing or showcasing a 
 
 For instance, we could generate some random Pokémon data.
 
-[width="90%",options="header"]
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+[options="header"]
 |===
 |name|location
 |Krabby|Snowpoint City
@@ -41,7 +54,7 @@ For instance, we could generate some random Pokémon data.
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -53,7 +66,7 @@ For instance, we could generate some random Pokémon data.
 
 == Types of categories
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Type|Topics
 |Address a|
@@ -395,8 +408,6 @@ For instance, we could generate some random Pokémon data.
 - de-AT
 - de-CH
 - en
-- ...
 - en-US
-- ...
 - nl
 - ...

@@ -31,6 +31,7 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -59,12 +60,17 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
 
   private Button wAllowExternalEntities;
 
+  private CCombo wXSDSource;
+
   private TextVar wxmlFilename;
+
+  Label wlxsdFilename;
 
   private TextVar wxsdFilename;
 
+  Button wbxsdFilename;
+
   private XsdValidator action;
-  private Shell shell;
 
   private boolean changed;
 
@@ -141,13 +147,41 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
           }
         });
 
+    // XSD Source?
+    Label wlXSDSource = new Label(shell, SWT.RIGHT);
+    wlXSDSource.setText(BaseMessages.getString(PKG, "ActionXSDValidator.XSDSource.Label"));
+    props.setLook(wlXSDSource);
+    FormData fdlXSDSource = new FormData();
+    fdlXSDSource.left = new FormAttachment(0, 0);
+    fdlXSDSource.top = new FormAttachment(wAllowExternalEntities, margin);
+    fdlXSDSource.right = new FormAttachment(middle, -margin);
+    wlXSDSource.setLayoutData(fdlXSDSource);
+    wXSDSource = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
+    wXSDSource.setEditable(true);
+    props.setLook(wXSDSource);
+    wXSDSource.addModifyListener(lsMod);
+    FormData fdXSDSource = new FormData();
+    fdXSDSource.left = new FormAttachment(middle, 0);
+    fdXSDSource.top = new FormAttachment(wAllowExternalEntities, margin);
+    fdXSDSource.right = new FormAttachment(100, -margin);
+    wXSDSource.setLayoutData(fdXSDSource);
+    wXSDSource.add(BaseMessages.getString(PKG, "ActionXSDValidator.XSDSource.IS_A_FILE"));
+    wXSDSource.add(BaseMessages.getString(PKG, "ActionXSDValidator.XSDSource.NO_NEED"));
+    wXSDSource.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            setXSDSource();
+          }
+        });
+
     // Filename 1 line
     Label wlxmlFilename = new Label(shell, SWT.RIGHT);
     wlxmlFilename.setText(BaseMessages.getString(PKG, "ActionXSDValidator.xmlFilename.Label"));
     props.setLook(wlxmlFilename);
     FormData fdlxmlFilename = new FormData();
     fdlxmlFilename.left = new FormAttachment(0, 0);
-    fdlxmlFilename.top = new FormAttachment(wlAllowExternalEntities, 2 * margin);
+    fdlxmlFilename.top = new FormAttachment(wXSDSource, 2 * margin);
     fdlxmlFilename.right = new FormAttachment(middle, -margin);
     wlxmlFilename.setLayoutData(fdlxmlFilename);
     Button wbxmlFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -155,14 +189,14 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     wbxmlFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbxmlFilename = new FormData();
     fdbxmlFilename.right = new FormAttachment(100, 0);
-    fdbxmlFilename.top = new FormAttachment(wlAllowExternalEntities, 2 * margin);
+    fdbxmlFilename.top = new FormAttachment(wXSDSource, 2 * margin);
     wbxmlFilename.setLayoutData(fdbxmlFilename);
     wxmlFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wxmlFilename);
     wxmlFilename.addModifyListener(lsMod);
     FormData fdxmlFilename = new FormData();
     fdxmlFilename.left = new FormAttachment(middle, 0);
-    fdxmlFilename.top = new FormAttachment(wlAllowExternalEntities, 2 * margin);
+    fdxmlFilename.top = new FormAttachment(wXSDSource, 2 * margin);
     fdxmlFilename.right = new FormAttachment(wbxmlFilename, -margin);
     wxmlFilename.setLayoutData(fdxmlFilename);
 
@@ -188,7 +222,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
         });
 
     // Filename 2 line
-    Label wlxsdFilename = new Label(shell, SWT.RIGHT);
+    wlxsdFilename = new Label(shell, SWT.RIGHT);
     wlxsdFilename.setText(BaseMessages.getString(PKG, "ActionXSDValidator.xsdFilename.Label"));
     props.setLook(wlxsdFilename);
     FormData fdlxsdFilename = new FormData();
@@ -196,7 +230,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     fdlxsdFilename.top = new FormAttachment(wxmlFilename, margin);
     fdlxsdFilename.right = new FormAttachment(middle, -margin);
     wlxsdFilename.setLayoutData(fdlxsdFilename);
-    Button wbxsdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
+    wbxsdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbxsdFilename);
     wbxsdFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbxsdFilename = new FormData();
@@ -245,22 +279,26 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
         shell, new Button[] {wOk, wCancel}, margin, wxsdFilename);
 
     getData();
+    setXSDSource();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
   }
 
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
-  }
-
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wName.setText(Const.nullToEmpty(action.getName()));
     wAllowExternalEntities.setSelection(action.isAllowExternalEntities());
+
+    if (action.getXsdSource() != null) {
+      if (action.getXsdSource().equals(XsdValidator.SPECIFY_FILENAME)) {
+        wXSDSource.select(0);
+      } else if (action.getXsdSource().equals(XsdValidator.NO_NEED)) {
+        wXSDSource.select(1);
+      }
+    }
+
     wxmlFilename.setText(Const.nullToEmpty(action.getxmlFilename()));
     wxsdFilename.setText(Const.nullToEmpty(action.getxsdFilename()));
 
@@ -287,6 +325,24 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     action.setxmlFilename(wxmlFilename.getText());
     action.setxsdFilename(wxsdFilename.getText());
 
+    if (wXSDSource.getSelectionIndex() == 0) {
+      action.setXsdSource(XsdValidator.SPECIFY_FILENAME);
+    } else if (wXSDSource.getSelectionIndex() == 1) {
+      action.setXsdSource(XsdValidator.NO_NEED);
+    }
+
     dispose();
+  }
+
+  private void setXSDSource() {
+    if (wXSDSource.getSelectionIndex() == 0) {
+      wlxsdFilename.setEnabled(true);
+      wxsdFilename.setEnabled(true);
+      wbxsdFilename.setEnabled(true);
+    } else if (wXSDSource.getSelectionIndex() == 1) {
+      wlxsdFilename.setEnabled(false);
+      wxsdFilename.setEnabled(false);
+      wbxsdFilename.setEnabled(false);
+    }
   }
 }

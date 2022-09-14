@@ -63,6 +63,15 @@ Then you need to choose to import the project from external model "Maven":
 
 image::idea-new-project-maven.png[width="75%"]
 
+
+Alternatively, you can develop remotely with IDEA and http://gitpod.io[gitpod.io]. You'll need JetBrains Gateway with the Gitpod plugin as explained https://www.gitpod.io/docs/ides-and-editors/jetbrains-gateway[here^]. Gitpod will open your project in a web-based VS Code by default. After you change your proferences to IntelliJ, your browser will launch the remote development environment.
+
+Once you've started a gitpod workspace for your Apache Hop fork, all build operations etc work just like they would in your local development environment.
+
+The Hop gitpod configuration comes with a desktop that can be used to run Hop Gui and test your work. Your desktop can be accessed by prefixing your workspace's url with `6080`, e.g. `https://6080-your-gitpod-url.gitpod.io`.
+
+The default permissions in the Github-Githop integration are quite restrictive. You'll need to allow yourself to write to your (public) repository before you will be able to push your changes.
+
 == Building the project
 
 To build your fork you can use Maven.

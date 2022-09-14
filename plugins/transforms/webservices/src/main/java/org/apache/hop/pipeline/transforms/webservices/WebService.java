@@ -395,6 +395,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
       } else if (responseCode == HttpStatus.SC_NOT_FOUND) {
         throw new HopTransformException(
             BaseMessages.getString(PKG, "WebServices.ERROR0012.NotFound", cachedURLService));
+      } else if (responseCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+        throw new HopTransformException("Internal Server Error 500: " + cachedURLService);
       } else {
         throw new HopTransformException(
             BaseMessages.getString(
@@ -581,8 +583,9 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
       DocumentBuilderFactory documentBuilderFactory =
           XmlParserFactoryProducer.createSecureDocBuilderFactory();
       documentBuilderFactory.setNamespaceAware(true);
-      documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-      documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+      // Overwrite security feature
+      documentBuilderFactory.setFeature(
+          "http://apache.org/xml/features/disallow-doctype-decl", false);
 
       DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 

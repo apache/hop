@@ -93,6 +93,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
     capabilities.setProperty(IHopFileType.CAPABILITY_PREVIEW, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_DEBUG, "true");
 
+    capabilities.setProperty(IHopFileType.CAPABILITY_SELECT, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_COPY, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_PASTE, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_CUT, "true");
@@ -128,7 +129,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       // Load the pipeline
       //
       PipelineMeta pipelineMeta =
-          new PipelineMeta(filename, hopGui.getMetadataProvider(), true, parentVariableSpace);
+          new PipelineMeta(filename, hopGui.getMetadataProvider(), parentVariableSpace);
 
       // Pass the MetaStore for reference lookups
       //

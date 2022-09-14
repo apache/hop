@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The Get Subfolder Names transform gets subfolder names from a directory.
 
-= Get SubFolder names
+= image:transforms/icons/getsubfolders.svg[Get SubFolder names transform Icon, role="image-doc-icon"] Get SubFolder names
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Get Subfolder Names transform gets subfolder names from a directory.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
 === Folder tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of this transform as it appears in the pipeline workspace
@@ -43,7 +57,7 @@ The Get Subfolder Names transform gets subfolder names from a directory.
 
 === Settings tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Include rownum in output?|Allows the row number to be added to the output.

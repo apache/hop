@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Synchronize After Merge transform can be used in conjunction with the Merge Rows (Diff) pipeline transform to insert/update/delete database fields based on the Merge Rows (Diff) output.
 
-= Synchronize after merge 
+= image:transforms/icons/synchronizeaftermerge.svg[Synchronize after merge transform Icon, role="image-doc-icon"] Synchronize after merge
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Synchronize After Merge transform can be used in conjunction with the Merge Rows (Diff) pipeline transform to insert/update/delete database fields based on the Merge Rows (Diff) output.
@@ -28,11 +31,22 @@ The Merge Rows (diff) pipeline transform appends a Flag column to each row, with
 
 This flag column is then used by the Synchronize After Merge pipeline transform to carry out updates/inserts/deletes on a connection table.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
 === General Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -52,7 +66,7 @@ Avoid updates on certain fields (e.g. primary keys or non-null constrained field
 
 === Advanced Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description|Default value from the Merge Rows (diff) transform
 |Operation fieldname|This is a required field.

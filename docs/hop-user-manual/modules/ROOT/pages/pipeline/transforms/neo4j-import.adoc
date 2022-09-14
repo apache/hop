@@ -18,13 +18,29 @@ under the License.
 :language: en_US
 :description: The Neo4j Import transform runs an import command using the provided CSV files.
 
-= Neo4j Import
+= image:transforms/icons/neo4j_import.svg[Neo4j Import transform Icon, role="image-doc-icon"] Neo4j Import
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
 
 The Neo4j Import transform runs an import command using the provided CSV files.
 
 Check the https://neo4j.com/docs/operations-manual/current/tools/neo4j-admin-import/[neo4j-admin-import] docs for full details.
 
-[options="header",width="90%"]
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+[options="header"]
 |===
 |Option|Default|Header
 |Transform name||the name to use for this transform in the pipeline

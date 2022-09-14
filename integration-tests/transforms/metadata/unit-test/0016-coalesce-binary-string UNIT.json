@@ -1,0 +1,48 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "A",
+          "data_set_field": "A"
+        },
+        {
+          "transform_field": "B",
+          "data_set_field": "B"
+        },
+        {
+          "transform_field": "C",
+          "data_set_field": "C"
+        },
+        {
+          "transform_field": "result",
+          "data_set_field": "result"
+        },
+        {
+          "transform_field": "result2",
+          "data_set_field": "result2"
+        }
+      ],
+      "field_order": [
+        "A",
+        "B",
+        "C",
+        "result",
+        "result2"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-coalesce-binary-string"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0016-coalesce-binary-string UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0016-coalesce-binary-string.hpl",
+  "test_type": "UNIT_TEST"
+}

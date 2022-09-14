@@ -27,7 +27,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -176,8 +175,6 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
   private Button wDelete;
 
   private ActionGetPOP action;
-
-  private Shell shell;
 
   private boolean changed;
 
@@ -1857,9 +1854,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
   public void dispose() {
     closeMailConnection();
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
+    super.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

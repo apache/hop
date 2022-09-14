@@ -18,16 +18,32 @@ under the License.
 :language: en_US
 :description: The Neo4j Get Logging Info transform queries the Neo4j logging graph and retrieves logging information.
 
-= Neo4j Get Logging Info
+= image:transforms/icons/systeminfo.svg[Neo4j Get Logging Info transform Icon, role="image-doc-icon"] Neo4j Get Logging Info
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
 
 The Neo4j Get Logging Info transform queries the Neo4j logging graph and retrieves logging information.
 
 This transform uses the `NEO4J_LOGGING_CONNECTION`.
 Check the xref:hop-gui/perspective-neo4j.adoc[Neo4j perspective] for more details.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[options="header",width="90%"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|the name for this transform in your pipeline

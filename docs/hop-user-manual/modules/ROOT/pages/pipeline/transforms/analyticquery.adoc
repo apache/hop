@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Analytic Query transform allows you to peek forward and backwards across rows in a pipeline.
 
-= Analytic Query
+= image:transforms/icons/analyticquery.svg[Analytic Query Icon, role="image-doc-icon"] Analytic Query
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Analytic Query transform allows you to peek forward and backwards across rows in a pipeline.
@@ -28,10 +31,20 @@ Examples of common use cases are:
 
 * Calculate the "time between orders" by ordering rows by order date, and LAGing 1 row back to get previous order time.
 * Calculate the "duration" of a web page view by LEADing 1 row ahead and determining how many seconds the user was on this page.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name| The name of this transform as it appears in the pipeline workspace.
@@ -94,8 +107,6 @@ But if you don't want to mix the values for aaa and bbb, you can group by the X 
 ====
 [source,bash]
 ----
-X   , Y , Z
-------------
 X   , Y , Z
 ------------
 aaa , 1 , <null>

@@ -483,7 +483,7 @@ public class PropsUi extends Props {
           control.addPaintListener(
               paintEvent -> {
                 paintEvent.gc.setForeground(gui.getColorBlack());
-                paintEvent.gc.setBackground(gui.getColorBackground());
+                paintEvent.gc.setBackground(gui.getColorWhite());
                 paintEvent.gc.fillRectangle(
                     2, 0, control.getBounds().width - 8, control.getBounds().height - 20);
               });
@@ -524,14 +524,14 @@ public class PropsUi extends Props {
         }
         break;
       case WIDGET_STYLE_TAB:
-        background = gui.getColorBackground();
+        background = gui.getColorWhite();
         foreground = gui.getColorDarkGray();
         CTabFolder tabFolder = (CTabFolder) control;
         tabFolder.setBorderVisible(true);
         // need to make a copy of the tab selection background color to get around bug
-        Color c = gui.getColorTab();
-        Color tabColor = new Color(c.getDevice(), c.getRed(), c.getGreen(), c.getBlue());
+        Color tabColor = new Color(gui.getColorTab().getDevice(), gui.getColorTab().getRGB());
         tabFolder.setSelectionBackground(tabColor);
+        tabFolder.setSelectionForeground(gui.getColorBlack());
         break;
       default:
         background = gui.getColorBackground();
@@ -762,7 +762,6 @@ public class PropsUi extends Props {
     contrastingColors.put(toRGB("#c9e8fb"), toRGB("#0f88d2"));
 
     contrastingColors.put(new RGB(254, 254, 254), new RGB(35, 35, 35));
-    contrastingColors.put(new RGB(245, 245, 245), new RGB(40, 40, 40));
     contrastingColors.put(new RGB(240, 240, 240), new RGB(15, 15, 15));
     contrastingColors.put(new RGB(225, 225, 225), new RGB(30, 30, 30));
     contrastingColors.put(new RGB(215, 215, 215), new RGB(40, 40, 40));

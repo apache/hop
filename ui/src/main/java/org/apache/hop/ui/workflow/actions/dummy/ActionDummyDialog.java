@@ -21,7 +21,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
@@ -40,8 +39,6 @@ import org.eclipse.swt.widgets.Text;
 
 public class ActionDummyDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionDummy.class; // For Translator
-
-  private Shell shell;
 
   private ActionDummy action;
 
@@ -108,12 +105,6 @@ public class ActionDummyDialog extends ActionDialog implements IActionDialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   public void getData() {

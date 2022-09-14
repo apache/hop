@@ -20,7 +20,7 @@ under the License.
 
 = MS SqlServer (Native)
 
-[width="90%",cols="2*",options="header"]
+[cols="2*",options="header"]
 |===
 | Option | Info
 |Type | Relational
@@ -31,3 +31,26 @@ under the License.
 |JDBC Url | jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
 |Driver folder | Hop Installation/plugins/databases/mssqlnative/lib
 |===
+
+= Integrated Authentication / Windows Based Authentication
+
+The native Microsoft SQL JDBC driver ships with extra files that enables authentication using your current MS Windows credentials.
+When you download the JDBC drivers from Microsoft's site and unzip them, there will be a directory structure like the following:
+
+*sqljdbc_10.2.1.0_enu\sqljdbc_10.2_enu\auth\x64*  <- 64bit authentication support files.
+
+*sqljdbc_10.2.1.0_enu\sqljdbc_10.2_enu\auth\x86*  <- 32bit authentication support files.
+
+You would copy the file:
+
+*sqljdbc_10.2.1.0_enu\sqljdbc_10.2_enu\auth\x64\mssql-jdbc_auth-10.2.1.x64.dll*
+
+to
+
+*hop\lib\mssql-jdbc_auth-10.2.1.x64.dll*
+
+The JDBC driver itself *sqljdbc_10.2_enu\mssql-jdbc-10.2.1.jre11.jar* should be copied into
+*\hop\plugins\databases\mssqlnative\lib*
+
+
+There is no need to rename the DLL to sqljdbc_auth.dll or place it in other locations.

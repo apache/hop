@@ -18,19 +18,33 @@ under the License.
 :language: en_US
 :description: The JSON Input transform reads data from JSON structures, files, or incoming fields using a JSONPath expression to extract data and output rows.
 
-= JSON Input
+= image:transforms/icons/JSI.svg[JSON Input transform Icon, role="image-doc-icon"] JSON Input
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The JSON Input transform reads data from JSON structures, files, or incoming fields using a JSONPath expression to extract data and output rows.
 
 JSONPath expressions can use either dot notation or square bracket notation.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
 === General Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Source is from a previous transform a|Select to retrieve the source from a previously defined field.
@@ -53,8 +67,12 @@ When this option is cleared, the following fields are available:
 |Read source as URL|Select to indicate if the source should be accessed as a URL.
 |Do not pass field downstream|Select to remove the source field from the output stream.
 This action improves performance and memory utilization with large JSON fields.
-|File or directory|Specify the source location if the source is not defined in a field. |Click Browse to navigate to your source file or directory.
-Click Add to include the source in the Selected files table.
+|File or directory
+a|Specify the source location if the source is not defined in a field.
+
+* Click Browse to navigate to your source file or directory.
+* Click Add to include the source in the Selected files table.
+
 |Regular expression|Specify a regular expression to match filenames within a specified directory.
 |Exclude regular expression|Specify a regular expression to exclude filenames within a specified directory.
 |File/Directory|The source location indicated by clicking Add after specifying it in File or directory.
@@ -71,7 +89,7 @@ Click Add to include the source in the Selected files table.
 
 The Content tab contains the following options for configuring which data to retrieve:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Ignore empty file|Select to skip empty files.
@@ -92,7 +110,7 @@ Results are not limited when set to zero.
 The Fields tab displays field definitions to extract values from the JSON structure.
 The table in this tab contain the following columns:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Name|Name of field that maps to the corresponding field in the JSON input stream.
@@ -123,7 +141,7 @@ You can search for a field name by entering the field name in the Search box.
 
 The Additional output fields tab contains the following options to specify additional information about the file to process:
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Short filename field|Specify the field that contains the filename without path information but with an extension.
@@ -137,59 +155,69 @@ The Additional output fields tab contains the following options to specify addit
 |===
 
 == Considerations
-Normally, while processing input JSON files, if the field contains a null record then the output will not be shown.
+Normally, while processing input JSON files, if a field contains null then the whole record will be omitted from the output.
 
 For example if we have a JSON file like this
-```
+```json
 {
-	"id": "123456",
-	"testArray": [
-		{
-			"id": "1654879",
-			"Name": null,
-			"testArray_inner_one": [
-				{
-					"id": "15697",
-					"Name": "Robert"
-				}
-			]
-		},
-		{
-			"id": "888",
-			"Name": "Robert222",
-			"testArray_inner_two": [
-				{
-					"id": "4309",
-					"Name": null
-				}
-			]
-		}
-	]
+  "persons" : [
+    {
+      "id": "1",
+      "name": "name 1"
+    },
+    {
+      "id": "2",
+      "name": "name 2"
+    },
+    {
+      "id": "3",
+      "name": null
+    },
+    {
+      "id": "4",
+      "name": "name 4"
+    }
+  ]
 }
 ```
 
-looking at the default behavior the output will be
+When extracting the fields id and Name using the following field definition:
+[%header]
+|===
+|Field name|Json Path
+|id| `$.persons.*.id`
+|Name| `$.persons.*.name`
+|===
+
+given the default behavior, the output will be
 
 ```
-id;ResourceName
-123456;Robert222
+id;Name
+1;Name 1
+2;Name 2
+3;null
+4;Name 4
 ```
 
-whereas it must be
+Now let's only select the `name` field and see what happens
 
 ```
-id;ResourceName
-123456;
-123456;Robert222
+Name
+Name 1
+Name 2
+Name 4
 ```
 
-To change Hop default behavior in considering Null values, we must add a new configuration variable HOP_JSON_INPUT_INCLUDE_NULLS with value Y
+You will notice that you only have 3 rowst retuned in this case ( the null line is omited from the result)
+
+
+To change Hop's behavior regarding Null values in Json files, change the following configuration variable:
 
 ```
 HOP_JSON_INPUT_INCLUDE_NULLS = Y
 ```
 
-By setting this variable, the behavior changes the way we want and the output will change accordingly.
+When restarting and re-running the pipeline you will have 4 result rows containing the null value.
 
 == Metadata Injection Support
 

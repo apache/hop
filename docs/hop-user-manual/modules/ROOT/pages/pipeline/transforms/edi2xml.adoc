@@ -18,13 +18,27 @@ under the License.
 :language: en_US
 :description: The Edi To XML transform converts EDI message text (conforming to the ISO 9735 standard) to generic XML.
 
-= Edi to XML
+= image:transforms/icons/edi2xml.svg[Edi to XML transform Icon, role="image-doc-icon"] Edi to XML
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Edi To XML transform converts EDI message text (conforming to the ISO 9735 standard, https://en.wikipedia.org/wiki/EDIFACT[read more]) to generic XML.
 
 The XML text is more accessible and allows for selective data extraction using XPath and the xref:pipeline/transforms/getdatafromxml.adoc[Get Data From XML] transform.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 

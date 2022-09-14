@@ -21,7 +21,6 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -36,6 +35,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /** This class knows how to handle the MetaData for the Json output transform */
 @Transform(
@@ -51,26 +51,22 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
 
   /** Operations type */
   @HopMetadataProperty(
-          key = "operation_type",
-          injectionKeyDescription = "JsonOutput.Injection.OPERATION"
-  )
+      key = "operation_type",
+      injectionKeyDescription = "JsonOutput.Injection.OPERATION")
   private String operationType;
 
   /** The operations description */
-  public static final Map<String, String> operationTypeDesc = Map.of(
+  public static final Map<String, String> operationTypeDesc =
+      Map.of(
           "outputvalue", BaseMessages.getString(PKG, "JsonOutputMeta.operationType.OutputValue"),
           "writetofile", BaseMessages.getString(PKG, "JsonOutputMeta.operationType.WriteToFile"),
-          "both",BaseMessages.getString(PKG, "JsonOutputMeta.operationType.Both")
-  );
+          "both", BaseMessages.getString(PKG, "JsonOutputMeta.operationType.Both"));
 
-  public static final Map<String, String> operationDescType = Map.of(
-          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.OutputValue"),"outputvalue",
-          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.WriteToFile"),"writetofile",
-          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.Both"), "both"
-  );
-
-  /** The operations type codes */
-  public static final String[] operationTypeCode = {"outputvalue", "writetofile", "both"};
+  public static final Map<String, String> operationDescType =
+      Map.of(
+          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.OutputValue"), "outputvalue",
+          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.WriteToFile"), "writetofile",
+          BaseMessages.getString(PKG, "JsonOutputMeta.operationType.Both"), "both");
 
   public static final String OPERATION_TYPE_OUTPUT_VALUE = "outputvalue";
 
@@ -79,59 +75,44 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   public static final String OPERATION_TYPE_BOTH = "both";
 
   /** The encoding to use for reading: null or empty string means system default encoding */
-  @HopMetadataProperty(
-          injectionKeyDescription = "JsonOutput.Injection.ENCODING"
-  )
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.ENCODING")
   private String encoding;
 
   /** The name value containing the resulting Json fragment */
-  @HopMetadataProperty(
-          injectionKeyDescription = "JsonOutput.Injection.OUTPUT_VALUE"
-  )
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.OUTPUT_VALUE")
   private String outputValue;
 
   /** The name of the json bloc */
-  @HopMetadataProperty(
-          injectionKeyDescription = "JsonOutput.Injection.JSON_BLOC_NAME"
-  )
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.JSON_BLOC_NAME")
   private String jsonBloc;
 
-  @HopMetadataProperty(
-          injectionKeyDescription = "JsonOutput.Injection.NR_ROWS_IN_BLOC"
-  )
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.NR_ROWS_IN_BLOC")
   private String nrRowsInBloc;
 
   /* THE FIELD SPECIFICATIONS ... */
 
   /** The output fields */
   @HopMetadataProperty(
-          groupKey = "fields",
-          key = "field",
-          injectionKey = "FIELD",
-          injectionGroupKey = "FIELDS",
-          injectionKeyDescription = "JsonOutput.Injection.FIELD",
-          injectionGroupDescription = "JsonOutput.Injection.FIELDS"
-  )
+      groupKey = "fields",
+      key = "field",
+      injectionKey = "FIELD",
+      injectionGroupKey = "FIELDS",
+      injectionKeyDescription = "JsonOutput.Injection.FIELD",
+      injectionGroupDescription = "JsonOutput.Injection.FIELDS")
   private List<JsonOutputField> outputFields;
 
-  @HopMetadataProperty(
-          injectionKeyDescription = "JsonOutput.Injection.ADD_TO_RESULT"
-  )
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.ADD_TO_RESULT")
   private boolean addToResult;
 
   /** Flag to indicate the we want to append to the end of an existing file (if it exists) */
-  @HopMetadataProperty(
-          injectionKeyDescription = "JsonOutput.Injection.APPEND"
-  )
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.APPEND")
   private boolean fileAppended;
 
   /** Flag to indicate whether or not to create JSON structures compatible with pre v4.3.0 */
   private boolean compatibilityMode;
 
   /** Flag: create parent folder if needed */
-  @HopMetadataProperty(
-          injectionKeyDescription = "JsonOutput.Injection.CREATE_PARENT_FOLDER"
-  )
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.CREATE_PARENT_FOLDER")
   private boolean createParentFolder;
 
   private boolean doNotOpenNewFileInit;
@@ -150,37 +131,51 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     this.doNotOpenNewFileInit = doNotOpenNewFileInit;
   }
 
-  /** @return Returns the create parent folder flag. */
+  /**
+   * @return Returns the create parent folder flag.
+   */
   public boolean isCreateParentFolder() {
     return createParentFolder;
   }
 
-  /** @param createparentfolder The create parent folder flag to set. */
+  /**
+   * @param createparentfolder The create parent folder flag to set.
+   */
   public void setCreateParentFolder(boolean createparentfolder) {
     this.createParentFolder = createparentfolder;
   }
 
-  /** @return Returns the fileAppended. */
+  /**
+   * @return Returns the fileAppended.
+   */
   public boolean isFileAppended() {
     return fileAppended;
   }
 
-  /** @param fileAppended The fileAppended to set. */
+  /**
+   * @param fileAppended The fileAppended to set.
+   */
   public void setFileAppended(boolean fileAppended) {
     this.fileAppended = fileAppended;
   }
 
-  /** @param dateInFilename The dateInFilename to set. */
+  /**
+   * @param dateInFilename The dateInFilename to set.
+   */
   public void setDateInFilename(boolean dateInFilename) {
     this.dateInFilename = dateInFilename;
   }
 
-  /** @param timeInFilename The timeInFilename to set. */
+  /**
+   * @param timeInFilename The timeInFilename to set.
+   */
   public void setTimeInFilename(boolean timeInFilename) {
     this.timeInFilename = timeInFilename;
   }
 
-  /** @return Returns the Add to result filesname flag. */
+  /**
+   * @return Returns the Add to result filesname flag.
+   */
   public boolean isAddToResult() {
     return addToResult;
   }
@@ -193,25 +188,16 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     this.operationType = operationType;
   }
 
-  private static String getOperationTypeByCode(String tt) {
-    if (tt == null) {
-      return "";
-    }
-
-    for (int i = 0; i < operationTypeCode.length; i++) {
-      if (operationTypeCode[i].equalsIgnoreCase(tt)) {
-        return operationTypeCode[i];
-      }
-    }
-    return "";
-  }
-
-  /** @return Returns the outputFields. */
+  /**
+   * @return Returns the outputFields.
+   */
   public List<JsonOutputField> getOutputFields() {
     return outputFields;
   }
 
-  /** @param outputFields The outputFields to set. */
+  /**
+   * @param outputFields The outputFields to set.
+   */
   public void setOutputFields(List<JsonOutputField> outputFields) {
     this.outputFields = outputFields;
   }
@@ -221,7 +207,9 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     return super.clone();
   }
 
-  /** @param addToResult The Add file to result to set. */
+  /**
+   * @param addToResult The Add file to result to set.
+   */
   public void setAddToResult(boolean addToResult) {
     this.addToResult = addToResult;
   }
@@ -235,7 +223,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     operationType = OPERATION_TYPE_WRITE_TO_FILE;
     extension = "json";
     int nrFields = 0;
-
 
     for (int i = 0; i < nrFields; i++) {
       JsonOutputField outputField = new JsonOutputField();
@@ -252,21 +239,13 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
+      IHopMetadataProvider metadataProvider) {
 
-    if (getOperationType() != OPERATION_TYPE_WRITE_TO_FILE) {
+    if (!Objects.equals(getOperationType(), OPERATION_TYPE_WRITE_TO_FILE)) {
       IValueMeta v = new ValueMetaString(variables.resolve(this.getOutputValue()));
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-  }
-
-  private static String getOperationTypeCode(int i) {
-    if (i < 0 || i >= operationTypeCode.length) {
-      return operationTypeCode[0];
-    }
-    return operationTypeCode[i];
   }
 
   @Override
@@ -282,16 +261,15 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
       IHopMetadataProvider metadataProvider) {
 
     CheckResult cr;
-    if (getOperationType() != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE) {
+    if (!Objects.equals(getOperationType(), JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE)
+        && Utils.isEmpty(variables.resolve(getOutputValue()))) {
       // We need to have output field name
-      if (Utils.isEmpty(variables.resolve(getOutputValue()))) {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "JsonOutput.Error.MissingOutputFieldName"),
-                transformMeta);
-        remarks.add(cr);
-      }
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "JsonOutput.Error.MissingOutputFieldName"),
+              transformMeta);
+      remarks.add(cr);
     }
     if (Utils.isEmpty(variables.resolve(getFileName()))) {
       cr =
@@ -370,22 +348,30 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     this.encoding = encoding;
   }
 
-  /** @return Returns the jsonBloc. */
+  /**
+   * @return Returns the jsonBloc.
+   */
   public String getJsonBloc() {
     return jsonBloc;
   }
 
-  /** @param jsonBloc The root node to set. */
+  /**
+   * @param jsonBloc The root node to set.
+   */
   public void setJsonBloc(String jsonBloc) {
     this.jsonBloc = jsonBloc;
   }
 
-  /** @return Returns the jsonBloc. */
+  /**
+   * @return Returns the jsonBloc.
+   */
   public String getNrRowsInBloc() {
     return nrRowsInBloc;
   }
 
-  /** @param nrRowsInBloc The nrRowsInBloc. */
+  /**
+   * @param nrRowsInBloc The nrRowsInBloc.
+   */
   public void setNrRowsInBloc(String nrRowsInBloc) {
     this.nrRowsInBloc = nrRowsInBloc;
   }
@@ -418,10 +404,5 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
 
   public void setCompatibilityMode(boolean compatibilityMode) {
     this.compatibilityMode = compatibilityMode;
-  }
-
-  public boolean writesToFile() {
-    return getOperationType() == JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE
-        || getOperationType() == JsonOutputMeta.OPERATION_TYPE_BOTH;
   }
 }

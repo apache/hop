@@ -171,11 +171,6 @@
       <artifactId>grpc-alts</artifactId>
       <version>${grpc.version}</version>
     </dependency>
-    <!--<dependency>
-      <groupId>com.google.api</groupId>
-      <artifactId>gax-grpc</artifactId>
-      <version>${gax-grpc.version}</version>
-    </dependency>-->
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-client</artifactId>
@@ -192,9 +187,9 @@
       <version>2.10.1</version>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.woodstox</groupId>
-      <artifactId>woodstox-core-asl</artifactId>
-      <version>4.4.1</version>
+      <groupId>com.fasterxml.woodstox</groupId>
+      <artifactId>woodstox-core</artifactId>
+      <version>5.0.3</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>

@@ -18,14 +18,28 @@ under the License.
 :language: en_US
 :description: The Credit Card Validator transform will help you check the validity of a credit card number and the credit card vendor.
 
-= Credit card validator
+= image:transforms/icons/creditcardvalidator.svg[Credit card validator transform Icon, role="image-doc-icon"] Credit card validator
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Credit Card Validator transform will help you check the following:
 
 * The validity of a credit card number. This uses a LUHN10 (MOD-10) algorithm.
 * The credit card vendor that handles the number: VISA, MasterCard, Diners Club, EnRoute, American Express (AMEX),...
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 

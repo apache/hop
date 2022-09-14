@@ -18,9 +18,27 @@ under the License.
 :language: en_US
 :description: The Salesforce Delete transform deletes records directly from your Salesforce database using the Salesforce Web Service.
 
-= Salesforce Delete
+= image:transforms/icons/SFD.svg[Salesforce Delete transform Icon, role="image-doc-icon"] Salesforce Delete
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
 
 The Salesforce Delete transform deletes records directly from your Salesforce database using the Salesforce Web Service.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Usage
 
 You can delete a batch of records by indicating a starting point (Fieldname id) and the amount of records (Batch Size) to delete.
 
@@ -42,7 +60,7 @@ include::salesforce-connection.adoc[]
 
 include::salesforce-settings.adoc[]
 
-[options="noheader",width="90%"]
+[options="noheader"]
 |===
 |Fieldname id a| Select the name of the field containing the Salesforce ID of the first record in the set of records (batch) you want to delete. +
 

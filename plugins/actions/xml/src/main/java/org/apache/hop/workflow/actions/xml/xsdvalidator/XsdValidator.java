@@ -17,10 +17,13 @@
 
 package org.apache.hop.workflow.actions.xml.xsdvalidator;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -69,6 +72,10 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
 
   private static final String YES = "Y";
 
+  public static final String SPECIFY_FILENAME = "filename";
+  public static final String NO_NEED = "noneed";
+
+  private String xsdSource;
   private String xmlfilename;
   private String xsdfilename;
 
@@ -101,6 +108,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     StringBuffer xml = new StringBuffer(50);
 
     xml.append(super.getXml());
+    xml.append("      ").append(XmlHandler.addTagValue("xsdsource", xsdSource));
     xml.append("      ").append(XmlHandler.addTagValue("xmlfilename", xmlfilename));
     xml.append("      ").append(XmlHandler.addTagValue("xsdfilename", xsdfilename));
     xml.append("      ")
@@ -114,6 +122,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
       throws HopXmlException {
     try {
       super.loadXml(entrynode);
+      xsdSource = XmlHandler.getTagValue(entrynode, "xsdsource");
       xmlfilename = XmlHandler.getTagValue(entrynode, "xmlfilename");
       xsdfilename = XmlHandler.getTagValue(entrynode, "xsdfilename");
       allowExternalEntities =
@@ -138,95 +147,65 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     Result result = previousResult;
     result.setResult(false);
 
-    String realxmlfilename = getRealxmlfilename();
-    String realxsdfilename = getRealxsdfilename();
-
     FileObject xmlfile = null;
     FileObject xsdfile = null;
+    Schema schemaXSD;
+
+    validateNonNullFileName(xmlfilename, "ActionXSDValidator.XmlFileNotNull.Label", result);
 
     try {
 
-      if (xmlfilename != null && xsdfilename != null) {
-        xmlfile = HopVfs.getFileObject(realxmlfilename);
-        xsdfile = HopVfs.getFileObject(realxsdfilename);
+      String realxmlfilename = getRealxmlfilename();
+      xmlfile = getFile(realxmlfilename);
 
-        if (xmlfile.exists() && xsdfile.exists()) {
+      SchemaFactory factorytXSDValidator1 =
+          SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
 
-          SchemaFactory factorytXSDValidator1 =
-              SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+      if (xsdSource.equals(SPECIFY_FILENAME)) {
+        validateNonNullFileName(xsdfilename, "ActionXSDValidator.XsdFileNotNull.Label", result);
+        String realXsdFileName = getRealxsdfilename();
+        xsdfile = getFile(realXsdFileName);
+        File xsdFile = new File(HopVfs.getFilename(xsdfile));
+        schemaXSD = factorytXSDValidator1.newSchema(xsdFile);
 
-          // Get XSD File
-          File xsdFile = new File(HopVfs.getFilename(xsdfile));
-          Schema schematXSD = factorytXSDValidator1.newSchema(xsdFile);
-
-          Validator xsdValidator = schematXSD.newValidator();
-
-          // Prevent against XML Entity Expansion (XEE) attacks.
-          // https://www.owasp.org/index.php/XML_Security_Cheat_Sheet#XML_Entity_Expansion
-          if (!isAllowExternalEntities()) {
-            xsdValidator.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            xsdValidator.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            xsdValidator.setFeature(
-                "http://xml.org/sax/features/external-parameter-entities", false);
-            xsdValidator.setProperty(
-                "http://apache.org/xml/properties/internal/entity-resolver",
-                (XMLEntityResolver)
-                    xmlResourceIdentifier -> {
-                      String message =
-                          BaseMessages.getString(PKG, "ActionXSDValidator.Error.DisallowedDocType");
-                      throw new IOException(message);
-                    });
-          }
-
-          // Get XML File
-          File xmlfiletXSDValidator1 = new File(HopVfs.getFilename(xmlfile));
-
-          Source sourcetXSDValidator1 = new StreamSource(xmlfiletXSDValidator1);
-
-          xsdValidator.validate(sourcetXSDValidator1);
-
-          // Everything is OK
-          result.setResult(true);
-
-        } else {
-
-          if (!xmlfile.exists()) {
-            logError(
-                BaseMessages.getString(PKG, "ActionXSDValidator.FileDoesNotExist1.Label")
-                    + realxmlfilename
-                    + BaseMessages.getString(PKG, "ActionXSDValidator.FileDoesNotExist2.Label"));
-          }
-          if (!xsdfile.exists()) {
-            logError(
-                BaseMessages.getString(PKG, "ActionXSDValidator.FileDoesNotExist1.Label")
-                    + realxsdfilename
-                    + BaseMessages.getString(PKG, "ActionXSDValidator.FileDoesNotExist2.Label"));
-          }
-          result.setResult(false);
-          result.setNrErrors(1);
-        }
-
-      } else {
-        logError(BaseMessages.getString(PKG, "ActionXSDValidator.AllFilesNotNull.Label"));
-        result.setResult(false);
-        result.setNrErrors(1);
+      } else {//not specifying filename
+        schemaXSD = factorytXSDValidator1.newSchema();
       }
+
+      Validator xsdValidator = schemaXSD.newValidator();
+
+      if (!isAllowExternalEntities()) {
+        xsdValidator.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        xsdValidator.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        xsdValidator.setFeature(
+            "http://xml.org/sax/features/external-parameter-entities", false);
+        xsdValidator.setProperty(
+            "http://apache.org/xml/properties/internal/entity-resolver",
+            (XMLEntityResolver)
+                xmlResourceIdentifier -> {
+                  String message =
+                      BaseMessages.getString(PKG, "ActionXSDValidator.Error.DisallowedDocType");
+                  throw new IOException(message);
+                });
+      }
+
+      File xmlfiletXSDValidator1 = new File(HopVfs.getFilename(xmlfile));
+
+      Source sourcetXSDValidator1 = new StreamSource(xmlfiletXSDValidator1);
+
+      xsdValidator.validate(sourcetXSDValidator1);
+
+      // Everything is OK
+      result.setResult(true);
 
     } catch (SAXException ex) {
       logError("Error :" + ex.getMessage());
-    } catch (Exception e) {
-
-      logError(
-          BaseMessages.getString(PKG, "ActionXSDValidator.ErrorXSDValidator.Label")
-              + BaseMessages.getString(PKG, "ActionXSDValidator.ErrorXML1.Label")
-              + realxmlfilename
-              + BaseMessages.getString(PKG, "ActionXSDValidator.ErrorXML2.Label")
-              + BaseMessages.getString(PKG, "ActionXSDValidator.ErrorXSD1.Label")
-              + realxsdfilename
-              + BaseMessages.getString(PKG, "ActionXSDValidator.ErrorXSD2.Label")
-              + e.getMessage());
-      result.setResult(false);
       result.setNrErrors(1);
+
+    } catch (HopFileException | IOException e) {
+      logError(BaseMessages.getString(PKG, "ActionXSDValidator.ErrorXSD2.Label") + e.getMessage());
+      result.setNrErrors(1);
+
     } finally {
       try {
         if (xmlfile != null) {
@@ -238,11 +217,30 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
         }
 
       } catch (IOException e) {
-        // Ignore errors
+        logError(BaseMessages.getString(PKG, "ActionXSDValidator.ErrorCloseFile.Label") + e.getMessage());
+        result.setNrErrors(1);
       }
     }
 
     return result;
+  }
+
+  private void validateNonNullFileName(String filename, String key, Result result) {
+    if(StringUtils.isEmpty(filename)){
+      logError(BaseMessages.getString(PKG, key));
+      result.setNrErrors(1);
+    }
+  }
+
+  private FileObject getFile(String filename) throws HopFileException, FileSystemException {
+    FileObject fileObject = HopVfs.getFileObject(filename);
+    if (!fileObject.exists()) {
+      logError(
+          BaseMessages.getString(PKG, "ActionXSDValidator.FileDoesNotExist1.Label")
+              + filename
+              + BaseMessages.getString(PKG, "ActionXSDValidator.FileDoesNotExist2.Label"));
+    }
+    return fileObject;
   }
 
   @Override
@@ -268,6 +266,14 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
 
   public boolean isAllowExternalEntities() {
     return allowExternalEntities;
+  }
+
+  public String getXsdSource() {
+    return xsdSource;
+  }
+
+  public void setXsdSource(String xsdSource) {
+    this.xsdSource = xsdSource;
   }
 
   public void setAllowExternalEntities(boolean allowExternalEntities) {

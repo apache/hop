@@ -22,7 +22,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -57,7 +56,6 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
   private CCombo wAction;
 
   private ActionCopyMoveResultFilenames action;
-  private Shell shell;
 
   private boolean changed;
 
@@ -678,12 +676,6 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
   private void activeSuccessCondition() {
     wlNrErrorsLessThan.setEnabled(wSuccessCondition.getSelectionIndex() != 0);
     wNrErrorsLessThan.setEnabled(wSuccessCondition.getSelectionIndex() != 0);
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   private void CheckLimit() {

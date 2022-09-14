@@ -28,7 +28,7 @@ The Check If XML File Is Well-Formed action verifies if one or more files contai
 
 === General Tab
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.
@@ -45,7 +45,7 @@ Note: You can use the Add button to add a line to the Files/Folders list.
 
 In this tab you can specify the files and/or folders to move.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Success on|Allows you to set specific success conditions: Success if all files are well formed, Success if at least x files are well formed, or Success when number of bad formed files less than.

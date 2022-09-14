@@ -30,6 +30,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -51,7 +52,7 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
 
   private Text wTargetFieldName;
 
-  private Text wNonMatchDefault;
+  private TextVar wNonMatchDefault;
 
   private TableView wFields;
 
@@ -174,7 +175,7 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
     fdlNonMatchDefault.right = new FormAttachment(middle, -margin);
     fdlNonMatchDefault.top = new FormAttachment(wTargetFieldName, margin);
     wlNonMatchDefault.setLayoutData(fdlNonMatchDefault);
-    wNonMatchDefault = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wNonMatchDefault = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wNonMatchDefault);
     wNonMatchDefault.addModifyListener(lsMod);
     FormData fdNonMatchDefault = new FormData();
@@ -205,7 +206,8 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
             BaseMessages.getString(PKG, "ValueMapperDialog.Fields.Column.TargetValue"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
-
+    colinf[1].setUsingVariables(true);
+    
     wFields =
         new TableView(
             variables,

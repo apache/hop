@@ -58,6 +58,11 @@ public class DataSetCsvUtil {
             break;
         }
       }
+      
+      // Force decimal separator for non English system (HOP-4190).
+      if ( valueMeta.isNumber() || valueMeta.isBigNumber() ) {
+        valueMeta.setDecimalSymbol(".");
+      }       
     }
   }
 

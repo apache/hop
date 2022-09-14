@@ -37,7 +37,7 @@ import java.util.ArrayList;
 @Transform(
     id = "FileMetadataPlugin",
     name = "i18n::FileMetadata.Name.Default",
-    image = "icon.svg",
+    image = "filemetadata.svg",
     description = "i18n::FileMetadata.Name.Desc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::FileMetadataMeta.keyword",

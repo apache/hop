@@ -509,7 +509,7 @@ public class GitGuiPlugin
         fileType.createFileTypeHandler(HopGui.getInstance(), explorerPerspective, activeFile);
     activeFile.setFileTypeHandler(fileTypeHandler);
 
-    explorerPerspective.addFile(activeFile, fileTypeHandler);
+    explorerPerspective.addFile(activeFile);
   }
 
   public UIGit getGit() {

@@ -115,7 +115,7 @@
         <!-- Third-party dependencies -->
         <asm.version>9.3</asm.version>
         <jetty.version>9.4.35.v20201120</jetty.version>
-        <org.eclipse.platform.version>3.119.0</org.eclipse.platform.version>
+        <org.eclipse.platform.version>3.120.0</org.eclipse.platform.version>
         <org.eclipse.commands.version>3.9.600</org.eclipse.commands.version>
         <org.eclipse.equinox.version>3.10.600</org.eclipse.equinox.version>
         <rhino.version>1.7.12</rhino.version>
@@ -172,7 +172,7 @@
         <jackson.databind.version>2.13.2.1</jackson.databind.version>
         <commons-compress.version>1.21</commons-compress.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
-        <aws-java-sdk.version>1.11.974</aws-java-sdk.version>
+        <aws-java-sdk.version>1.12.279</aws-java-sdk.version>
 
         <!-- spring-security version -->
         <spring-security.version>4.1.5.RELEASE</spring-security.version>

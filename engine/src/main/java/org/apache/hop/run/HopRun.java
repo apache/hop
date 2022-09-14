@@ -159,7 +159,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     //
     if (systemProperties != null) {
       for (String parameter : systemProperties) {
-        String[] split = parameter.split("=");
+        String[] split = parameter.split("=", 2);
         String key = split.length > 0 ? split[0] : null;
         String value = split.length > 1 ? split[1] : null;
         if (StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value)) {
@@ -194,7 +194,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
 
       // Run the pipeline with the given filename
       //
-      PipelineMeta pipelineMeta = new PipelineMeta(realFilename, metadataProvider, true, variables);
+      PipelineMeta pipelineMeta = new PipelineMeta(realFilename, metadataProvider, variables);
 
       // Configure the basic execution settings
       //
@@ -403,9 +403,12 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       String[] availableParameters = namedParams.listParameters();
       if (parameters != null) {
         for (String parameter : parameters) {
-          String[] split = parameter.split("=");
+          String[] split = parameter.split("=", 2);
           String key = split.length > 0 ? split[0] : null;
           String value = split.length > 1 ? split[1] : null;
+          if (value != null && value.startsWith("\"") && value.endsWith("\"")) {
+            value = value.substring(1, value.length() - 1);
+          }
 
           if (key != null) {
             // We can work with this.
@@ -738,7 +741,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       //
       CommandLine cmd = new CommandLine(hopRun);
 
-      if (args.length > 0){
+      if (args.length > 0) {
         hopRun.prepareInternalOptions(new CommandLine(hopRun), args);
       }
       // Apply the system properties to the JVM

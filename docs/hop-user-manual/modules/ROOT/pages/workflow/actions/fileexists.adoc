@@ -42,7 +42,7 @@ As soon as the task is complete, the file is placed in a well-known location so 
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

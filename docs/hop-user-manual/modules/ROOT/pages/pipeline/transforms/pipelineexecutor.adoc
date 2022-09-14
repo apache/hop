@@ -18,12 +18,30 @@ under the License.
 :language: en_US
 :description: The Pipeline Executor transform allows you to execute a Hop pipeline from within a pipeline. It is similar to the Workflow Executor transform, but works with pipelines.
 
-= Pipeline Executor
+= image:transforms/icons/pipelineexecutor.svg[Pipeline Executor transform Icon, role="image-doc-icon"] Pipeline Executor
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
+
 
 The Pipeline Executor transform allows you to execute a Hop pipeline from within a pipeline.
 It is similar to the Workflow Executor transform, but works with pipelines.
+
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:cross.svg[Not Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Usage
 
 Depending on your data transformation needs, the Pipeline Executor transform can be set up to function in any of the following ways:
 
@@ -34,11 +52,17 @@ The executor transform then passes this row to the pipeline in the form of a res
 In these cases, the first row in the group of rows is used to set parameters or variables in the pipeline.
 - You can launch multiple copies of this transform to assist in parallel pipeline processing.
 
+See also:
+
+* The xref:workflow/actions/workflow.adoc[Workflow action] that executes a sub-workflow from a workflow.
+* The xref:workflow/actions/pipeline.adoc[Pipeline action] that executes a pipeline from a workflow.
+* The xref:pipeline/transforms/workflowexecutor.adoc[Workflow Executor transform] that executes a workflow from a pipeline.
+
 == Options
 
 === General
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
@@ -59,7 +83,7 @@ The filename may contain variables (for example, you can use the built-in Intern
 In this tab you can specify which field to use to set a certain parameter or variable value.
 If multiple rows are passed to the workflow, the first row is taken to set the parameters or variables.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Variable / Parameter name|The Parameters tab allows you to define or pass Hop variables down to the pipeline.
@@ -78,7 +102,7 @@ For information the description of the parameter is inserted into the static inp
 On this tab you can specify the amount of input rows that are passed to the pipeline in the form of result rows.
 You can use the result rows in a Get rows from result transform in a pipeline.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |The number of rows to send to the pipeline|after every X rows the pipeline will be executed and these X rows will be passed to the pipeline

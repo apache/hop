@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Append Streams transform reads the data from two transforms, only processing the second stream after the first one is finished.
 
-= Append Streams
+= image:transforms/icons/append.svg[Append Streams Icon, role="image-doc-icon"] Append Streams
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Append Streams transform reads the data from two transforms, only processing the second stream after the first one is finished.
@@ -27,16 +30,26 @@ The Append Streams transform reads the data from two transforms, only processing
 As always, the row layout for the input data coming from both transforms has to be identical: the same row lengths, the same data types, the same fields at the same field indexes in the row.
 
 *Important*: If you don't care about the order in which the output rows occur, you can use any transform to create a union of 2 or more data streams.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
 Note: This name has to be unique in a single pipeline.
-|Head hop|The name of the transform from which will be read from first.
-|Tail hop|The name of the transform from which will be read from last.
+|Head hop|The name of the transform from which will be read the first stream.
+|Tail hop|The name of the transform from which will be read the second stream.
 |===
 
 == Metadata Injection Support

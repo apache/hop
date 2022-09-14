@@ -18,8 +18,11 @@ under the License.
 :language: en_US
 :description: The Files To Result transform allows you to set filenames in the internal result files of a pipeline, for use by subsequent workflow actions. Subsequent workflow actions can then use this information
 
-= Files to result
+= image:transforms/icons/filestoresult.svg[Files to result transform Icon, role="image-doc-icon"] Files to result
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Files To Result transform allows you to set filenames in the internal result files of a pipeline.
@@ -32,9 +35,20 @@ For this, you can create a pipeline that sets exactly those files you want to at
 
 WARNING: the Files To Result is available for historical reasons. Check the xref:best-practices/index.adoc[Best Practices] for better ways to build loops in your Hop pipelines.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|The name of this transform as it appears in the pipeline workspace.

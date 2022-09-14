@@ -34,7 +34,7 @@ More details and setup instructions for the Nagios NSCA addon can be found at th
 
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Workflow action name|The name of the workflow action.

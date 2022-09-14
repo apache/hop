@@ -88,7 +88,15 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <fields>
-</fields>
+      <field>
+        <length>-1</length>
+        <name>body</name>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+        <nullif>this is a body</nullif>
+      </field>
+    </fields>
     <interval_in_ms>5000</interval_in_ms>
     <last_time_field>FiveSecondsAgo</last_time_field>
     <never_ending>N</never_ending>
@@ -118,7 +126,7 @@ limitations under the License.
     <dynamicMethod>N</dynamicMethod>
     <methodFieldName/>
     <urlField/>
-    <bodyField/>
+    <bodyField>body</bodyField>
     <httpLogin/>
     <httpPassword>Encrypted </httpPassword>
     <proxyHost/>

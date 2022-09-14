@@ -18,15 +18,29 @@ under the License.
 :language: en_US
 :description: The Identify Last Row In A Stream pipeline transform generates a Boolean field filled with true for the last row, and false otherwise.
 
-= Identify last row in a stream
+= image:transforms/icons/detectlastrow.svg[Identify last row in a stream transform Icon, role="image-doc-icon"] Identify last row in a stream
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Identify Last Row In A Stream pipeline transform generates a Boolean field filled with true for the last row, and false otherwise.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of this transform as it appears in the pipeline workspace

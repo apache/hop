@@ -18,13 +18,27 @@ under the License.
 :language: en_US
 :description: The Parquet File Input transform reads (primitive) values from an Apache Parquet file.
 
-= Parquet File Input
+= image:transforms/icons/parquet_input.svg[Parquet File Input transform Icon, role="image-doc-icon"] Parquet File Input
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Parquet File Input transform reads (primitive) values from an Apache Parquet file.
 
 For more information on this see: http://parquet.apache.org/[Apache Parquet].
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Options
 
@@ -37,7 +51,7 @@ Make sure to allocate enough memory to allow this.
 * All input values are passed to the output
 * INT96 is converted to the Hop Binary data type.
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 

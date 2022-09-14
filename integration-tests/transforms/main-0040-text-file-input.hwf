@@ -49,13 +49,13 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>Run Apache Tika Tests</name>
+      <name>Run text-file-input test</name>
       <description/>
       <type>RunPipelineTests</type>
       <attributes/>
       <test_names>
         <test_name>
-          <name>0037-apache-tika UNIT</name>
+          <name>0040-text-file-input-utf-bom UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
@@ -67,7 +67,7 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>Run Apache Tika Tests</to>
+      <to>Run text-file-input test</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
@@ -78,7 +78,7 @@ limitations under the License.
       <note>Test reading CSV files with the CSV Input transform </note>
       <xloc>128</xloc>
       <yloc>208</yloc>
-      <width>279</width>
+      <width>284</width>
       <heigth>26</heigth>
       <fontname>Inter</fontname>
       <fontsize>11</fontsize>

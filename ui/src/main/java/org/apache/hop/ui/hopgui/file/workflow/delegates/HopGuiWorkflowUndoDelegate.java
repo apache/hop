@@ -70,7 +70,7 @@ public class HopGuiWorkflowUndoDelegate {
         break;
 
         // We created a new hop : undo this...
-      case NewHop:
+      case NewWorkflowHop:
         // Delete the hop at correct location:
         for (int i = changeAction.getCurrent().length - 1; i >= 0; i--) {
           int idx = changeAction.getCurrentIndex()[i];
@@ -103,7 +103,7 @@ public class HopGuiWorkflowUndoDelegate {
         break;
 
         // We deleted a hop : undo this...
-      case DeleteHop:
+      case DeleteWorkflowHop:
         // re-insert the hop at correct location:
         for (int i = 0; i < changeAction.getCurrent().length; i++) {
           WorkflowHopMeta hopMeta = (WorkflowHopMeta) changeAction.getCurrent()[i];
@@ -143,7 +143,7 @@ public class HopGuiWorkflowUndoDelegate {
         break;
 
         // We changed a hop : undo this...
-      case ChangeHop:
+      case ChangeWorkflowHop:
         // Delete & re-insert
         for (int i = 0; i < changeAction.getCurrent().length; i++) {
           WorkflowHopMeta prev = (WorkflowHopMeta) changeAction.getPrevious()[i];
@@ -218,7 +218,7 @@ public class HopGuiWorkflowUndoDelegate {
         }
         break;
 
-      case NewHop:
+      case NewWorkflowHop:
         // re-insert the hop at correct location:
         for (int i = 0; i < changeAction.getCurrent().length; i++) {
           WorkflowHopMeta hopMeta = (WorkflowHopMeta) changeAction.getCurrent()[i];
@@ -246,7 +246,7 @@ public class HopGuiWorkflowUndoDelegate {
         }
         break;
 
-      case DeleteHop:
+      case DeleteWorkflowHop:
         // re-remove the hop at correct location:
         for (int i = changeAction.getCurrent().length - 1; i >= 0; i--) {
           int idx = changeAction.getCurrentIndex()[i];
@@ -280,7 +280,7 @@ public class HopGuiWorkflowUndoDelegate {
         break;
 
         // We changed a hop : undo this...
-      case ChangeHop:
+      case ChangeWorkflowHop:
         // Delete & re-insert
         for (int i = 0; i < changeAction.getCurrent().length; i++) {
           WorkflowHopMeta hi = (WorkflowHopMeta) changeAction.getCurrent()[i];

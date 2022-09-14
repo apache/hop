@@ -18,17 +18,31 @@ under the License.
 :language: en_US
 :description: The Set Variables transform allows you to set variables in a workflow or in the virtual machine.
 
-= Set Variables
+= image:transforms/icons/setvariable.svg[Set Variables transform Icon, role="image-doc-icon"] Set Variables
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The Set Variables transform allows you to set variables in a workflow or in the virtual machine.
 
 TIP: This transform accepts one (and only one) row of data to set the value of a variable. If you want to set a variable from a pipeline that processes multiple lines of data, make sure you isolate a single row before setting a variable.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

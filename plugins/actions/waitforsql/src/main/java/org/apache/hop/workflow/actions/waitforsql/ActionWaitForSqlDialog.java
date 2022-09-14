@@ -30,7 +30,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -60,8 +59,6 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
   private ActionWaitForSql action;
-
-  private Shell shell;
 
   private boolean changed;
 
@@ -680,12 +677,6 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     wlTablename.setEnabled(!wCustomSql.getSelection());
     wlSchemaname.setEnabled(!wCustomSql.getSelection());
     wSchemaname.setEnabled(!wCustomSql.getSelection());
-  }
-
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty(shell);
-    props.setScreen(winprop);
-    shell.dispose();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

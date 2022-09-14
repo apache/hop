@@ -18,17 +18,35 @@ under the License.
 :language: en_US
 :description: The PostgreSQL Bulk Loader transform streams data from Hop to PostgreSQL, using COPY DATA FROM STDIN into the database.
 
-= PostgreSQL Bulk Loader
+= image:transforms/icons/PGBulkLoader.svg[PostgreSQL Bulk Loader transform Icon, role="image-doc-icon"] PostgreSQL Bulk Loader
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 The PostgreSQL Bulk Loader transform streams data from Hop to Postgresql using https://www.postgresql.org/docs/current/sql-copy.html["COPY DATA FROM STDIN"^] into the database.
 
 TIP: replace boolean fields in your pipeline stream by string fields with "Y" or "N" values to avoid errors.
 
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+IMPORTANT: The PostgreSQL Bulk Loader is linked to the database type. It will fetch the JDBC driver from the hop/plugins/databases/postgresql/lib folder. +
+ +
+Valid locations for the JDBC driver for this transform are the database plugin lib and the main hop/lib folder. It will not work in combination with the SHARED_JDBC_FOLDER variable.
+
 == Options
 
-[width="90%",options="header"]
+[options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.

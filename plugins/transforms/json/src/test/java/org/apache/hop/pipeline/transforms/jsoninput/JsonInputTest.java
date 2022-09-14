@@ -1126,24 +1126,20 @@ public class JsonInputTest {
     inputField.setType(IValueMeta.TYPE_STRING);
     final JsonInputMeta inputMeta = createSimpleMeta("json", inputField);
     IVariables variables = new Variables();
-    JsonInput jsonInput = null;
-    try {
-      jsonInput = createJsonInput("json", inputMeta, variables, new Object[] {getBasicTestJson()});
-      fail(
-          "Without the parameter, this call should fail with an InvalidPathException. If it does not, test fails.");
-    } catch (InvalidPathException pathException) {
-      assertNull(jsonInput);
-    }
+    JsonInput jsonInput =
+        createJsonInput("json", inputMeta, variables, new Object[] {getBasicTestJson()});
+    assertEquals(
+        "Without the parameter, this call should fail with an InvalidPathException. If it does not, test fails.",
+        1,
+        jsonInput.getErrors());
 
     variables.setVariable("PARAM_PATH", "$..book.[*]");
 
-    try {
-      jsonInput = createJsonInput("json", inputMeta, variables, new Object[] {getBasicTestJson()});
-      assertNotNull(jsonInput);
-    } catch (Exception ex) {
-      fail(
-          "Json Input should be able to resolve the paths with the parameter introduced in the variable space.");
-    }
+    jsonInput = createJsonInput("json", inputMeta, variables, new Object[] {getBasicTestJson()});
+    assertEquals(
+        "Json Input should be able to resolve the paths with the parameter introduced in the variable space",
+        0,
+        jsonInput.getErrors());
   }
 
   protected JsonInputMeta createSimpleMeta(String inputColumn, JsonInputField... jsonPathFields) {
@@ -1372,28 +1368,33 @@ public class JsonInputTest {
 
   @Test
   public void testParsingWithNullFinding() throws Exception {
-    JsonInputField a = new JsonInputField( "A" );
-    a.setPath( "$..A.F1" );
-    a.setType( IValueMeta.TYPE_STRING );
-    JsonInputField b = new JsonInputField( "B" );
-    b.setPath( "$..B.F2" );
-    b.setType( IValueMeta.TYPE_STRING );
-    //Create two meta inputs with two different orders a,b and b,a
+    JsonInputField a = new JsonInputField("A");
+    a.setPath("$..A.F1");
+    a.setType(IValueMeta.TYPE_STRING);
+    JsonInputField b = new JsonInputField("B");
+    b.setPath("$..B.F2");
+    b.setType(IValueMeta.TYPE_STRING);
+    // Create two meta inputs with two different orders a,b and b,a
     List results = new ArrayList<>();
-    List<JsonInputMeta> metas = Arrays.asList( createSimpleMeta( "json", a, b ), createSimpleMeta( "json", b, a ) );
-    for ( JsonInputMeta meta : metas ) {
-      JsonInputMeta metaAB = createSimpleMeta( "json", a, b );
-      JsonInput jsonInput = createJsonInput( "json", meta, new Object[] { "{'B':{'F2': one}, 'C':{'B': {'F2': three}}}" } );
-      jsonInput.addRowListener( new RowAdapter() {
-        @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) {
-          results.addAll( Arrays.asList( row ) );
-        }
-      } );
-      processRows( jsonInput, 3 );
-      Assert.assertEquals( "error", 0, jsonInput.getErrors() );
-      //Regardless of the order the result should contain the findings "one" and "three".
-      Assert.assertTrue( results.contains( "one" ) );
-      Assert.assertTrue( results.contains( "three" ) );
+    List<JsonInputMeta> metas =
+        Arrays.asList(createSimpleMeta("json", a, b), createSimpleMeta("json", b, a));
+    for (JsonInputMeta meta : metas) {
+      JsonInputMeta metaAB = createSimpleMeta("json", a, b);
+      JsonInput jsonInput =
+          createJsonInput(
+              "json", meta, new Object[] {"{'B':{'F2': one}, 'C':{'B': {'F2': three}}}"});
+      jsonInput.addRowListener(
+          new RowAdapter() {
+            @Override
+            public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
+              results.addAll(Arrays.asList(row));
+            }
+          });
+      processRows(jsonInput, 3);
+      Assert.assertEquals("error", 0, jsonInput.getErrors());
+      // Regardless of the order the result should contain the findings "one" and "three".
+      Assert.assertTrue(results.contains("one"));
+      Assert.assertTrue(results.contains("three"));
     }
   }
 }
