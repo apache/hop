@@ -18,75 +18,54 @@
 package org.apache.hop.pipeline.transforms.numberrange;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
-
 import java.util.LinkedList;
 import java.util.List;
 
 @Transform(
     id = "NumberRange",
     image = "numberrange.svg",
-    name = "i18n::BaseTransform.TypeLongDesc.NumberRange",
-    description = "i18n::BaseTransform.TypeTooltipDesc.NumberRange",
+    name = "i18n::NumberRange.Name",
+    description = "i18n::NumberRange.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    keywords = "i18n::NumberRangeMeta.keyword",
+    keywords = "i18n::NumberRange.Keyword",
     documentationUrl = "/pipeline/transforms/numberrange.html")
 public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeData> {
 
+  private static final Class<?> PKG = NumberRangeMeta.class; // For Translator
+  
+  @HopMetadataProperty(key ="inputField", injectionKey = "INPUT_FIELD", injectionKeyDescription = "NumberRangeMeta.Injection.INPUT_FIELD")
   private String inputField;
 
+  @HopMetadataProperty(key ="outputField", injectionKey = "OUTPUT_FIELD", injectionKeyDescription = "NumberRangeMeta.Injection.OUTPUT_FIELD")
   private String outputField;
 
+  @HopMetadataProperty(key ="fallBackValue", injectionKey = "FALL_BACK_VALUE", injectionKeyDescription = "NumberRangeMeta.Injection.FALL_BACK_VALUE")
   private String fallBackValue;
 
+  @HopMetadataProperty(groupKey = "rules", key = "rule", injectionGroupKey = "RULES", injectionGroupDescription = "NumberRangeMeta.Injection.RULES")
   private List<NumberRangeRule> rules;
 
   public NumberRangeMeta() {
     super();
+    rules = new LinkedList<>();
   }
 
   public void emptyRules() {
     rules = new LinkedList<>();
-  }
-
-  public NumberRangeMeta(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    loadXml(transformNode, metadataProvider);
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    ").append(XmlHandler.addTagValue("inputField", inputField));
-    retval.append("    ").append(XmlHandler.addTagValue("outputField", outputField));
-    retval.append("    ").append(XmlHandler.addTagValue("fallBackValue", getFallBackValue()));
-
-    retval.append("    <rules>").append(Const.CR);
-    for (NumberRangeRule rule : rules) {
-      retval.append("      <rule>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("lower_bound", rule.getLowerBound()));
-      retval.append("        ").append(XmlHandler.addTagValue("upper_bound", rule.getUpperBound()));
-      retval.append("        ").append(XmlHandler.addTagValue("value", rule.getValue()));
-      retval.append("      </rule>").append(Const.CR);
-    }
-    retval.append("    </rules>").append(Const.CR);
-
-    return retval.toString();
   }
 
   @Override
@@ -111,43 +90,12 @@ public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeD
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      inputField = XmlHandler.getTagValue(transformNode, "inputField");
-      outputField = XmlHandler.getTagValue(transformNode, "outputField");
-
-      emptyRules();
-      String fallBackValue = XmlHandler.getTagValue(transformNode, "fallBackValue");
-      setFallBackValue(fallBackValue);
-
-      Node fields = XmlHandler.getSubNode(transformNode, "rules");
-      int count = XmlHandler.countNodes(fields, "rule");
-      for (int i = 0; i < count; i++) {
-
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "rule", i);
-
-        String lowerBoundStr = XmlHandler.getTagValue(fnode, "lower_bound");
-        String upperBoundStr = XmlHandler.getTagValue(fnode, "upper_bound");
-        String value = XmlHandler.getTagValue(fnode, "value");
-
-        double lowerBound = Double.parseDouble(lowerBoundStr);
-        double upperBound = Double.parseDouble(upperBoundStr);
-        addRule(lowerBound, upperBound, value);
-      }
-
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to read transform info from XML node", e);
-    }
-  }
-
-  @Override
   public void setDefault() {
     emptyRules();
     setFallBackValue("unknown");
-    addRule(-Double.MAX_VALUE, 5, "Less than 5");
-    addRule(5, 10, "5-10");
-    addRule(10, Double.MAX_VALUE, "More than 10");
+    addRule("", "5", "Less than 5");
+    addRule("5", "10", "5-10");
+    addRule("10", "", "More than 10");
     inputField = "";
     outputField = "range";
   }
@@ -168,14 +116,16 @@ public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeD
       cr =
           new CheckResult(
               CheckResult.TYPE_RESULT_WARNING,
-              "Not receiving any fields from previous transforms!",
+              BaseMessages.getString(
+                  PKG, "NumberRangeMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform"),
               transforminfo);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
-              "Transform is connected to previous one, receiving " + prev.size() + " fields",
+              BaseMessages.getString(
+                  PKG, "NumberRangeMeta.CheckResult.TransformReceivingFieldsOK", prev.size() + ""),
               transforminfo);
       remarks.add(cr);
     }
@@ -185,16 +135,35 @@ public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeD
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
-              "Transform is receiving info from other transforms.",
+              BaseMessages.getString(PKG, "NumberRangeMeta.CheckResult.TransformReceivingInfoOK"),
               transforminfo);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              "No input received from other transforms!",
+              BaseMessages.getString(PKG, "NumberRangeMeta.CheckResult.NoInputReceivedError"),
               transforminfo);
       remarks.add(cr);
+    }
+    
+    // Check that the lower and upper bounds are numerics    
+    for (NumberRangeRule rule : this.rules) {
+      try {
+        if (!Utils.isEmpty(rule.getLowerBound())) {
+          Double.valueOf(rule.getLowerBound());
+        }
+        if (!Utils.isEmpty(rule.getUpperBound())) {
+          Double.valueOf(rule.getUpperBound());
+        }
+      } catch (NumberFormatException e) {
+        cr = new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,                
+                BaseMessages.getString(
+                    PKG, "NumberRangeMeta.CheckResult.NotNumericRule", rule.getLowerBound(), rule.getUpperBound(), rule.getValue()),
+                transforminfo);
+        remarks.add(cr);
+      }
     }
   }
 
@@ -226,9 +195,10 @@ public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeD
     this.fallBackValue = fallBackValue;
   }
 
-  public void addRule(double lowerBound, double upperBound, String value) {
+  public NumberRangeRule addRule(String lowerBound, String upperBound, String value) {
     NumberRangeRule rule = new NumberRangeRule(lowerBound, upperBound, value);
     rules.add(rule);
+    return rule;
   }
 
   public void setRules(List<NumberRangeRule> rules) {

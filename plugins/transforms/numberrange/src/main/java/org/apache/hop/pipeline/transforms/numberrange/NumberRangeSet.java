@@ -64,19 +64,6 @@ public class NumberRangeSet {
     return MULTI_VALUE_SEPARATOR;
   }
 
-  /** Evaluates a value against all rules. Return empty value if input is not numeric. */
-  public String evaluate(String strValue) throws HopException {
-    if (strValue != null) {
-      // Try to parse value to double
-      try {
-        double doubleValue = Double.parseDouble(strValue);
-        return evaluate(doubleValue);
-      } catch (Exception e) {
-        throw new HopException(e);
-      }
-    }
-    return fallBackValue;
-  }
 
   /** Evaluates a value against all rules. Return empty value if input is not numeric. */
   public String evaluate(Double value) throws HopException {
