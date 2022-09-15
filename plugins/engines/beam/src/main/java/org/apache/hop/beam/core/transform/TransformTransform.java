@@ -40,6 +40,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.*;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
@@ -69,6 +70,9 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
   protected List<String> infoRowMetaJsons;
   protected int flushIntervalMs;
 
+  // Execution information vectors
+  protected String runConfigName;
+
   // Used in the private TransformFn class below
   //
   protected List<PCollectionView<List<HopRow>>> infoCollectionViews;
@@ -96,7 +100,8 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
       List<String> targetTransforms,
       List<String> infoTransforms,
       List<String> infoRowMetaJsons,
-      List<PCollectionView<List<HopRow>>> infoCollectionViews) {
+      List<PCollectionView<List<HopRow>>> infoCollectionViews,
+      String runConfigName) {
     this.variableValues = variableValues;
     this.metastoreJson = metastoreJson;
     this.transformPluginClasses = transformPluginClasses;
@@ -112,6 +117,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     this.infoTransforms = infoTransforms;
     this.infoRowMetaJsons = infoRowMetaJsons;
     this.infoCollectionViews = infoCollectionViews;
+    this.runConfigName = runConfigName;
   }
 
   @Override
@@ -320,6 +326,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           // Single threaded...
           //
           pipelineMeta = new PipelineMeta();
+          pipelineMeta.setName(transformName);
           pipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
           pipelineMeta.setMetadataProvider(metadataProvider);
 
@@ -431,6 +438,27 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           pipeline.setLogLevel(
               context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
           pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
+
+          // What is the original run configuration?
+          // TODO: create a custom ExecutionData object for this Beam transform
+          // We can use the location and the data profile to capture the information right here.
+          //
+/*          PipelineRunConfiguration runConf =
+              metadataProvider.getSerializer(PipelineRunConfiguration.class).load(runConfigName);
+          if (runConf != null) {
+            PipelineRunConfiguration localRunConf = pipeline.getPipelineRunConfiguration();
+
+            // Copy execution information location and data profile information
+            //
+            localRunConf.setExecutionInfoLocationName(runConf.getExecutionInfoLocationName());
+            localRunConf.setExecutionDataProfile(runConf.getExecutionDataProfile());
+          }*/
+
+          // Change the name to make the logging less confusing.
+          //
+          pipeline
+              .getPipelineRunConfiguration()
+              .setName("beam-transform-local (" + transformName + ")");
 
           // Give transforms variables from above
           //

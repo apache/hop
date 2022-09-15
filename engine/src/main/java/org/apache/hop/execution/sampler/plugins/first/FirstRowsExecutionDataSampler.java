@@ -47,6 +47,10 @@ public class FirstRowsExecutionDataSampler
     super(sampler);
   }
 
+  public FirstRowsExecutionDataSampler(String sampleSize) {
+    super(sampleSize, "FirstRowsExecutionDataSampler", "First output rows");
+  }
+
   public FirstRowsExecutionDataSampler clone() {
     return new FirstRowsExecutionDataSampler(this);
   }

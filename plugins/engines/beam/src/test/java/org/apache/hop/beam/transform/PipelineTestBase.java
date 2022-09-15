@@ -47,11 +47,21 @@ import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.local.FileExecutionInfoLocation;
+import org.apache.hop.execution.plugin.ExecutionInfoLocationPlugin;
+import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
+import org.apache.hop.execution.profiling.ExecutionDataProfile;
+import org.apache.hop.execution.sampler.ExecutionDataSamplerPlugin;
+import org.apache.hop.execution.sampler.ExecutionDataSamplerPluginType;
+import org.apache.hop.execution.sampler.plugins.first.FirstRowsExecutionDataSampler;
+import org.apache.hop.execution.sampler.plugins.last.LastRowsExecutionDataSampler;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.pipeline.transforms.constant.ConstantMeta;
@@ -66,6 +76,7 @@ import org.junit.Ignore;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class PipelineTestBase {
@@ -74,6 +85,9 @@ public class PipelineTestBase {
       System.getProperty("java.io.tmpdir") + "/customers/io/customers-100.txt";
   public static final String INPUT_STATES_FILE =
       System.getProperty("java.io.tmpdir") + "/customers/io/state-data.txt";
+  public static final String NAME_LOCATION = "location";
+  public static final String NAME_DATA_PROFILE = "first-last-20";
+  public static final String NAME_RUN_CONFIG = "direct";
 
   protected IVariables variables;
   protected IHopMetadataProvider metadataProvider;
@@ -119,12 +133,63 @@ public class PipelineTestBase {
             BeamSparkPipelineEngine.class.getName(),
             PipelineEnginePluginType.class,
             PipelineEnginePlugin.class);
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            FirstRowsExecutionDataSampler.class.getName(),
+            ExecutionDataSamplerPluginType.class,
+            ExecutionDataSamplerPlugin.class);
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            LastRowsExecutionDataSampler.class.getName(),
+            ExecutionDataSamplerPluginType.class,
+            ExecutionDataSamplerPlugin.class);
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            FileExecutionInfoLocation.class.getName(),
+            ExecutionInfoLocationPluginType.class,
+            ExecutionInfoLocationPlugin.class);
 
     PluginRegistry.getInstance()
         .registerPluginClass(
             FileDefinition.class.getName(), MetadataPluginType.class, HopMetadata.class);
 
+    // Create a few items in the metadata...
+    //
     metadataProvider = new MemoryMetadataProvider();
+
+    // Data profile
+    //
+    ExecutionDataProfile dataProfile =
+        new ExecutionDataProfile(
+            NAME_DATA_PROFILE,
+            null,
+            Arrays.asList(
+                new FirstRowsExecutionDataSampler("20"), new LastRowsExecutionDataSampler("20")));
+    metadataProvider.getSerializer(ExecutionDataProfile.class).save(dataProfile);
+
+    // Execution information location
+    //
+    FileExecutionInfoLocation fileLocation = new FileExecutionInfoLocation("/tmp/exec-info/");
+    ExecutionInfoLocation location =
+        new ExecutionInfoLocation(
+            NAME_LOCATION, null, "2000", "2000", "100", dataProfile, fileLocation);
+    metadataProvider.getSerializer(ExecutionInfoLocation.class).save(location);
+
+    // Run config
+    //
+    BeamDirectPipelineRunConfiguration directRunConfiguration =
+        new BeamDirectPipelineRunConfiguration("1");
+    directRunConfiguration.setTempLocation(System.getProperty("java.io.tmpdir"));
+
+    PipelineRunConfiguration runConfiguration =
+        new PipelineRunConfiguration(
+            NAME_RUN_CONFIG,
+            "",
+            NAME_LOCATION,
+            Collections.emptyList(),
+            directRunConfiguration,
+            dataProfile);
+    metadataProvider.getSerializer(PipelineRunConfiguration.class).save(runConfiguration);
 
     File inputFolder = new File("/tmp/customers/io");
     inputFolder.mkdirs();
@@ -141,25 +206,15 @@ public class PipelineTestBase {
 
   @Ignore
   public void createRunPipeline(IVariables variables, PipelineMeta pipelineMeta) throws Exception {
-
-    /*
-    FileOutputStream fos = new FileOutputStream( "/tmp/"+pipelineMeta.getName()+".hpl" );
-    fos.write( pipelineMeta.getXml().getBytes() );
-    fos.close();
-    */
-
     PipelineOptions pipelineOptions = PipelineOptionsFactory.create();
 
     pipelineOptions.setJobName(pipelineMeta.getName());
     pipelineOptions.setUserAgent(BeamConst.STRING_HOP_BEAM);
 
-    BeamDirectPipelineRunConfiguration beamRunConfig = new BeamDirectPipelineRunConfiguration();
-    beamRunConfig.setTempLocation(System.getProperty("java.io.tmpdir"));
-
     // No extra plugins to load : null option
     HopPipelineMetaToBeamPipelineConverter converter =
         new HopPipelineMetaToBeamPipelineConverter(
-            variables, pipelineMeta, metadataProvider, beamRunConfig);
+            variables, pipelineMeta, metadataProvider, NAME_RUN_CONFIG);
     Pipeline pipeline = converter.createPipeline();
 
     PipelineResult pipelineResult = pipeline.run();

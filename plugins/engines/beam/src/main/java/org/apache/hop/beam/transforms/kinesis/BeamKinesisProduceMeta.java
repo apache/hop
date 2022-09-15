@@ -117,6 +117,7 @@ public class BeamKinesisProduceMeta extends BaseTransformMeta<BeamKinesisProduce
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,

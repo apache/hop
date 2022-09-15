@@ -63,6 +63,12 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
 
   public FileExecutionInfoLocation() {}
 
+  public FileExecutionInfoLocation(String rootFolder) {
+    this.pluginId = "local-folder";
+    this.pluginName = "File location";
+    this.rootFolder = rootFolder;
+  }
+
   public FileExecutionInfoLocation(FileExecutionInfoLocation location) {
     this.pluginId = location.pluginId;
     this.pluginName = location.pluginName;

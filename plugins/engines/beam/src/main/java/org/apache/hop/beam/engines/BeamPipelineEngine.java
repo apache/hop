@@ -213,7 +213,7 @@ public abstract class BeamPipelineEngine extends Variables
 
       converter =
           new HopPipelineMetaToBeamPipelineConverter(
-              this, pipelineMeta, metadataProvider, beamEngineRunConfiguration);
+              this, pipelineMeta, metadataProvider, pipelineRunConfiguration.getName());
 
       beamPipeline = converter.createPipeline();
 

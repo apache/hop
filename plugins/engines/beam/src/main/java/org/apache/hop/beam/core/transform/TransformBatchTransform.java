@@ -73,7 +73,8 @@ public class TransformBatchTransform extends TransformTransform {
       List<String> targetTransforms,
       List<String> infoTransforms,
       List<String> infoRowMetaJsons,
-      List<PCollectionView<List<HopRow>>> infoCollectionViews) {
+      List<PCollectionView<List<HopRow>>> infoCollectionViews,
+      String runConfigName) {
     super(
         variableValues,
         metastoreJson,
@@ -89,7 +90,8 @@ public class TransformBatchTransform extends TransformTransform {
         targetTransforms,
         infoTransforms,
         infoRowMetaJsons,
-        infoCollectionViews);
+        infoCollectionViews,
+        runConfigName);
   }
 
   @Override
@@ -99,10 +101,10 @@ public class TransformBatchTransform extends TransformTransform {
       //
       BeamHop.init(transformPluginClasses, xpPluginClasses);
 
-      // Similar for the output : treate a TupleTag list for the target transforms...
+      // Similar for the output : treat a TupleTag list for the target transforms...
       //
       TupleTag<HopRow> mainOutputTupleTag =
-          new TupleTag<HopRow>(HopBeamUtil.createMainOutputTupleId(transformName)) {};
+          new TupleTag<>(HopBeamUtil.createMainOutputTupleId(transformName)) {};
       List<TupleTag<HopRow>> targetTupleTags = new ArrayList<>();
       TupleTagList targetTupleTagList = null;
       for (String targetTransform : targetTransforms) {
@@ -285,14 +287,14 @@ public class TransformBatchTransform extends TransformTransform {
       if (timer != null) {
         timer.cancel();
       }
-        try {
-          executor.dispose();
-        } catch (Exception e) {
-          throw new RuntimeException(
-                  "Error cleaning up single threaded pipeline executor in Beam transform "
-                          + transformName,
-                  e);
-        }
+      try {
+        executor.dispose();
+      } catch (Exception e) {
+        throw new RuntimeException(
+            "Error cleaning up single threaded pipeline executor in Beam transform "
+                + transformName,
+            e);
+      }
     }
 
     @ProcessElement
@@ -315,6 +317,7 @@ public class TransformBatchTransform extends TransformTransform {
           // Single threaded...
           //
           pipelineMeta = new PipelineMeta();
+          pipelineMeta.setName(transformName);
           pipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
           pipelineMeta.setMetadataProvider(metadataProvider);
 
@@ -432,8 +435,12 @@ public class TransformBatchTransform extends TransformTransform {
                   pipelineMeta,
                   Variables.getADefaultVariableSpace(),
                   new LoggingObject("apache-beam-transform"));
-          pipeline.setLogLevel(context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
+          pipeline.setLogLevel(
+              context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
           pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
+          pipeline
+              .getPipelineRunConfiguration()
+              .setName("beam-batch-transform-local (" + transformName + ")");
 
           // Give transforms variables from above
           //

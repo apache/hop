@@ -233,6 +233,7 @@ public class BeamKinesisConsumeMeta extends BaseTransformMeta<BeamKinesisConsume
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,

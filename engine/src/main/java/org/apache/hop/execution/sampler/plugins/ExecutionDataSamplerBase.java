@@ -49,6 +49,12 @@ public abstract class ExecutionDataSamplerBase<Store extends IExecutionDataSampl
     this.sampleSize = "100";
   }
 
+  public ExecutionDataSamplerBase(String sampleSize, String pluginId, String pluginName) {
+    this.sampleSize = sampleSize;
+    this.pluginId = pluginId;
+    this.pluginName = pluginName;
+  }
+
   public ExecutionDataSamplerBase(ExecutionDataSamplerBase<Store> base) {
     this.sampleSize = base.sampleSize;
     this.pluginId = base.pluginId;

@@ -124,6 +124,7 @@ public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData> i
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,

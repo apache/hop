@@ -111,6 +111,7 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> i
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,

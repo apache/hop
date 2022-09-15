@@ -47,6 +47,10 @@ public class RandomRowsExecutionDataSampler
     super(sampler);
   }
 
+  public RandomRowsExecutionDataSampler(String sampleSize) {
+    super(sampleSize, "RandomRowsExecutionDataSampler", "Random output rows");
+  }
+
   public RandomRowsExecutionDataSampler clone() {
     return new RandomRowsExecutionDataSampler(this);
   }

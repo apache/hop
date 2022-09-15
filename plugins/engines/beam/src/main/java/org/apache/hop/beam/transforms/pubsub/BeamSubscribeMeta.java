@@ -119,6 +119,7 @@ public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubs
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,

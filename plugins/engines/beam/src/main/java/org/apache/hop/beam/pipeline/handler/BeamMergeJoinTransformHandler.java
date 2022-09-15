@@ -64,6 +64,7 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,

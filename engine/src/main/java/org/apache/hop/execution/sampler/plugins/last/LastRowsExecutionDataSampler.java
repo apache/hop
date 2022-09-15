@@ -50,6 +50,10 @@ implements IExecutionDataSampler<LastRowsExecutionDataSamplerStore> {
     super(sampler);
   }
 
+  public LastRowsExecutionDataSampler(String sampleSize) {
+    super(sampleSize, "LastRowsExecutionDataSampler", "Last output rows");
+  }
+
   public LastRowsExecutionDataSampler clone() {
     return new LastRowsExecutionDataSampler(this);
   }

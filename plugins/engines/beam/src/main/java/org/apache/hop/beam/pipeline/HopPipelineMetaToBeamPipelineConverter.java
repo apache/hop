@@ -50,8 +50,10 @@ import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
@@ -65,7 +67,10 @@ import org.jboss.jandex.IndexView;
 import java.io.File;
 import java.util.*;
 
-public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngineRunConfiguration> {
+public class HopPipelineMetaToBeamPipelineConverter {
+
+  protected final String runConfigName;
+  protected final PipelineRunConfiguration runConfiguration;
 
   protected IVariables variables;
   protected PipelineMeta pipelineMeta;
@@ -75,26 +80,33 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
   protected List<String> xpPluginClasses;
   protected Map<String, IBeamPipelineTransformHandler> transformHandlers;
   protected IBeamPipelineTransformHandler genericTransformHandler;
-  protected T pipelineRunConfiguration;
-
-  public HopPipelineMetaToBeamPipelineConverter() {
-    this.transformHandlers = new HashMap<>();
-    this.transformPluginClasses = new ArrayList<>();
-    this.xpPluginClasses = new ArrayList<>();
-  }
+  protected IBeamPipelineEngineRunConfiguration pipelineRunConfiguration;
 
   public HopPipelineMetaToBeamPipelineConverter(
       IVariables variables,
       PipelineMeta pipelineMeta,
       IHopMetadataProvider metadataProvider,
-      T pipelineRunConfiguration)
+      String runConfigName)
       throws HopException {
-    this();
+    this.transformPluginClasses = new ArrayList<>();
+    this.xpPluginClasses = new ArrayList<>();
+    this.transformHandlers = new HashMap<>();
+
     this.variables = variables;
     this.pipelineMeta = pipelineMeta;
     this.metadataProvider = new SerializableMetadataProvider(metadataProvider);
     this.metaStoreJson = this.metadataProvider.toJson();
-    this.pipelineRunConfiguration = pipelineRunConfiguration;
+    this.runConfigName = runConfigName;
+
+    this.runConfiguration =
+        metadataProvider.getSerializer(PipelineRunConfiguration.class).load(runConfigName);
+
+    if (!(runConfiguration.getEngineRunConfiguration()
+        instanceof IBeamPipelineEngineRunConfiguration)) {
+      throw new HopException("You need to provide a Beam run configuration");
+    }
+    this.pipelineRunConfiguration =
+        (IBeamPipelineEngineRunConfiguration) runConfiguration.getEngineRunConfiguration();
 
     addClassesFromPluginsToStage(pipelineRunConfiguration.getPluginsToStage());
     this.transformPluginClasses.addAll(
@@ -297,6 +309,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
       transformHandler.handleTransform(
           log,
           variables,
+          runConfigName,
           pipelineRunConfiguration,
           metadataProvider,
           pipelineMeta,
@@ -353,6 +366,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
       transformHandler.handleTransform(
           log,
           variables,
+          runConfigName,
           pipelineRunConfiguration,
           metadataProvider,
           pipelineMeta,
@@ -484,9 +498,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
 
             // Flatten all the collections.  It's business as usual behind this.
             //
-            input =
-                inputList.apply(
-                    transformMeta.getName() + " Flatten", Flatten.pCollections());
+            input = inputList.apply(transformMeta.getName() + " Flatten", Flatten.pCollections());
           }
         }
 
@@ -497,6 +509,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
         transformHandler.handleTransform(
             log,
             variables,
+            runConfigName,
             pipelineRunConfiguration,
             metadataProvider,
             pipelineMeta,
@@ -526,10 +539,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     }
   }
 
-  /**
-   * Find the Beam Input transforms, return them
-   *
-   */
+  /** Find the Beam Input transforms, return them */
   private List<TransformMeta> findBeamInputs() {
     List<TransformMeta> transforms = new ArrayList<>();
     for (TransformMeta transformMeta : pipelineMeta.getPipelineHopTransforms(false)) {
@@ -719,7 +729,9 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     return transformHandlers;
   }
 
-  /** @param transformHandlers The transformHandlers to set */
+  /**
+   * @param transformHandlers The transformHandlers to set
+   */
   public void setTransformHandlers(Map<String, IBeamPipelineTransformHandler> transformHandlers) {
     this.transformHandlers = transformHandlers;
   }
@@ -733,7 +745,9 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     return genericTransformHandler;
   }
 
-  /** @param genericTransformHandler The genericTransformHandler to set */
+  /**
+   * @param genericTransformHandler The genericTransformHandler to set
+   */
   public void setGenericTransformHandler(IBeamPipelineTransformHandler genericTransformHandler) {
     this.genericTransformHandler = genericTransformHandler;
   }

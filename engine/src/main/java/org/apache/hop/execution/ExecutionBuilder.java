@@ -70,7 +70,7 @@ public final class ExecutionBuilder {
         .withFilename(pipeline.getPipelineMeta().getFilename())
         .withName(pipeline.getPipelineMeta().getName())
         .withId(pipeline.getLogChannelId())
-        .withParentId(pipeline.getParent().getLogChannelId())
+        .withParentId(pipeline.getParent()==null ? null : pipeline.getParent().getLogChannelId())
         .withExecutorType(ExecutionType.Pipeline)
         .withExecutorXml(pipeline.getPipelineMeta().getXml(pipeline))
         .withMetadataJson(new SerializableMetadataProvider(pipeline.getMetadataProvider()).toJson())

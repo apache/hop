@@ -71,6 +71,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
@@ -149,7 +150,6 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     int sizeRowSet = 5000;
 
     // Serialize the whole metastore to JSON...
-    // TODO: push this method upstairs...
     //
     String metaStoreJson = new SerializableMetadataProvider(metadataProvider).toJson();
 
@@ -173,7 +173,8 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
               targetTransforms,
               infoTransforms,
               infoRowMetaJsons,
-              infoCollectionViews);
+              infoCollectionViews,
+              runConfigurationName);
     } else {
       transformTransform =
           new TransformTransform(
@@ -191,7 +192,8 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
               targetTransforms,
               infoTransforms,
               infoRowMetaJsons,
-              infoCollectionViews);
+              infoCollectionViews,
+              runConfigurationName);
     }
 
     if (input == null) {

@@ -131,6 +131,7 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
