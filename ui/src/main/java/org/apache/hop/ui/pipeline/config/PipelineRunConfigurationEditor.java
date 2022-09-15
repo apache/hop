@@ -387,6 +387,8 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wPluginType.addListener(SWT.Modify, e -> changeConnectionType());
     wProfile.getComboWidget().addListener(SWT.Modify, modifyListener);
     wProfile.getComboWidget().addListener(SWT.Selection, modifyListener);
+    wExecutionInfoLocation.getComboWidget().addListener(SWT.Modify, modifyListener);
+    wExecutionInfoLocation.getComboWidget().addListener(SWT.Selection, modifyListener);
   }
 
   private void addGuiCompositeWidgets() {

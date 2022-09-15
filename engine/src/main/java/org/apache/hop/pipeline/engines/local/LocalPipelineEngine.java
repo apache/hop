@@ -354,13 +354,15 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
             try {
               // Collect data from all the sampler stores.
               //
-              ExecutionDataBuilder dataBuilder =
-                  ExecutionDataBuilder.fromAllTransformData(
-                      LocalPipelineEngine.this, samplerStoresMap);
+              if (pipelineRunConfiguration.getExecutionDataProfile() != null) {
+                ExecutionDataBuilder dataBuilder =
+                    ExecutionDataBuilder.fromAllTransformData(
+                        LocalPipelineEngine.this, samplerStoresMap);
 
-              // Send it to the location once
-              //
-              iLocation.registerData(dataBuilder.build());
+                // Send it to the location once
+                //
+                iLocation.registerData(dataBuilder.build());
+              }
 
               // Also update the pipeline execution state regularly
               //
@@ -373,7 +375,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
               }
             } catch (Exception e) {
               throw new RuntimeException(
-                  "Error registering execution info data from transforms at location "
+                  "Error registering execution info (data and state) at location "
                       + executionInfoLocation.getName(),
                   e);
             }
@@ -396,12 +398,13 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     }
 
     IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
-
-    // Register the collected transform data for the last time
-    //
-    ExecutionDataBuilder dataBuilder =
-        ExecutionDataBuilder.fromAllTransformData(LocalPipelineEngine.this, samplerStoresMap);
-    iLocation.registerData(dataBuilder.build());
+    if (pipelineRunConfiguration.getExecutionDataProfile() != null) {
+      // Register the collected transform data for the last time
+      //
+      ExecutionDataBuilder dataBuilder =
+          ExecutionDataBuilder.fromAllTransformData(LocalPipelineEngine.this, samplerStoresMap);
+      iLocation.registerData(dataBuilder.build());
+    }
 
     // Register one final last state of the pipeline
     //

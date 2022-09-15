@@ -364,7 +364,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
         }
 
         FileObject dataFileObject = folder.getChild(executionId + "-data.json");
-        if (!dataFileObject.exists()) {
+        if (dataFileObject==null || !dataFileObject.exists()) {
           return null;
         }
         try (InputStream inputStream = HopVfs.getInputStream(dataFileObject)) {

@@ -643,6 +643,10 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           location
               .getExecutionInfoLocation()
               .getExecutionData(execution.getId(), ExecutionDataBuilder.ALL_TRANSFORMS);
+      if (selectedTransformData==null) {
+        // Nothing collected
+        return;
+      }
 
       Map<String, ExecutionDataSetMeta> setMetaData = selectedTransformData.getSetMetaData();
       List<String> items = new ArrayList<>();
