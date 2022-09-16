@@ -201,6 +201,11 @@ public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFolder
         // Send row
         putRow(data.outputRowMeta, outputRow);
 
+        // recurse until an output row has been created for each matched file
+        if (data.filenr < data.filessize) {
+          return processRow();
+        }
+
         if (meta.getRowLimit() > 0
             && data.rownr >= meta.getRowLimit()) { // limit has been reached: stop now.
           setOutputDone();
