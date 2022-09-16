@@ -43,6 +43,14 @@
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
                 <include>org.apache.hop:hop-transform-rest:jar</include>
+
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>org.glassfish.jersey.connectors:jersey-apache-connector:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

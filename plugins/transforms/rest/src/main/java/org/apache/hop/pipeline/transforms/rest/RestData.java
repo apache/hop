@@ -102,7 +102,6 @@ public class RestData extends BaseTransformData implements ITransformData {
   public RestData() {
     super();
     this.indexOfUrlField = -1;
-
     this.realProxyHost = null;
     this.realProxyPort = 8080;
     this.realHttpLogin = null;
