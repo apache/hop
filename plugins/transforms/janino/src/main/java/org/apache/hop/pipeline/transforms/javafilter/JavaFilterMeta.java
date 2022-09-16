@@ -20,12 +20,11 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -36,7 +35,6 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
-import org.w3c.dom.Node;
 
 import java.util.List;
 import java.util.Objects;
@@ -54,7 +52,36 @@ public class JavaFilterMeta extends BaseTransformMeta<JavaFilter, JavaFilterData
   private static final Class<?> PKG = JavaFilterMeta.class; // For Translator
 
   /** The formula calculations to be performed */
+  @HopMetadataProperty(
+      key = "condition",
+      injectionKeyDescription = "JavaFilterMeta.Injection.Condition")
   private String condition;
+
+  @HopMetadataProperty(
+      key = "send_true_to",
+      injectionKeyDescription = "JavaFilterMeta.Injection.TrueTransform")
+  private String trueTransform;
+
+  @HopMetadataProperty(
+      key = "send_false_to",
+      injectionKeyDescription = "JavaFilterMeta.Injection.FalseTransform")
+  private String falseTransform;
+
+  public String getTrueTransform() {
+    return trueTransform;
+  }
+
+  public void setTrueTransform(String trueTransform) {
+    this.trueTransform = trueTransform;
+  }
+
+  public String getFalseTransform() {
+    return falseTransform;
+  }
+
+  public void setFalseTransform(String falseTransform) {
+    this.falseTransform = falseTransform;
+  }
 
   public JavaFilterMeta() {
     super(); // allocate BaseTransformMeta
@@ -66,41 +93,6 @@ public class JavaFilterMeta extends BaseTransformMeta<JavaFilter, JavaFilterData
 
   public void setCondition(String condition) {
     this.condition = condition;
-  }
-
-  public void allocate(int nrCalcs) {}
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
-
-    targetStreams.get(0).setSubject(XmlHandler.getTagValue(transformNode, "send_true_to"));
-    targetStreams.get(1).setSubject(XmlHandler.getTagValue(transformNode, "send_false_to"));
-
-    condition = XmlHandler.getTagValue(transformNode, "condition");
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
-    retval.append(XmlHandler.addTagValue("send_true_to", targetStreams.get(0).getTransformName()));
-    retval.append(XmlHandler.addTagValue("send_false_to", targetStreams.get(1).getTransformName()));
-
-    retval.append(XmlHandler.addTagValue("condition", condition));
-
-    return retval.toString();
-  }
-
-  public boolean equals(Object obj) {
-    if (obj != null && (obj.getClass().equals(this.getClass()))) {
-      JavaFilterMeta m = (JavaFilterMeta) obj;
-      return (getXml() == m.getXml());
-    }
-
-    return false;
   }
 
   @Override
@@ -120,12 +112,17 @@ public class JavaFilterMeta extends BaseTransformMeta<JavaFilter, JavaFilterData
   }
 
   @Override
+  public void convertIOMetaToTransformNames() {
+    List<IStream> streams = getTransformIOMeta().getTargetStreams();
+    trueTransform = Const.NVL(streams.get(0).getTransformName(), "");
+    falseTransform = Const.NVL(streams.get(1).getTransformName(), "");
+  }
+
+  @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
-    List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
-    for (IStream stream : targetStreams) {
-      stream.setTransformMeta(
-          TransformMeta.findTransform(transforms, (String) stream.getSubject()));
-    }
+    List<IStream> streams = getTransformIOMeta().getTargetStreams();
+    streams.get(0).setTransformMeta(TransformMeta.findTransform(transforms, trueTransform));
+    streams.get(1).setTransformMeta(TransformMeta.findTransform(transforms, falseTransform));
   }
 
   @Override
@@ -290,7 +287,9 @@ public class JavaFilterMeta extends BaseTransformMeta<JavaFilter, JavaFilterData
   }
 
   @Override
-  public void resetTransformIoMeta() {}
+  public void resetTransformIoMeta() {
+    // ignore reset
+  }
 
   @Override
   public boolean excludeFromCopyDistributeVerification() {

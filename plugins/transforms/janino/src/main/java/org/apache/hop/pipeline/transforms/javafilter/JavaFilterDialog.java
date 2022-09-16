@@ -25,7 +25,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -250,10 +249,9 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
 
   /** Copy information from the meta-data currentMeta to the dialog fields. */
   public void getData() {
-    List<IStream> targetStreams = input.getTransformIOMeta().getTargetStreams();
 
-    wTrueTo.setText(Const.NVL(targetStreams.get(0).getTransformName(), ""));
-    wFalseTo.setText(Const.NVL(targetStreams.get(1).getTransformName(), ""));
+    wTrueTo.setText(Const.NVL(input.getTrueTransform(), ""));
+    wFalseTo.setText(Const.NVL(input.getFalseTransform(), ""));
     wCondition.setText(Const.NVL(input.getCondition(), ""));
 
     wTransformName.selectAll();
@@ -273,15 +271,9 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
 
     transformName = wTransformName.getText(); // return value
 
-    String trueTransformName = Const.NVL(wTrueTo.getText(), null);
-    String falseTransformName = Const.NVL(wFalseTo.getText(), null);
-
-    List<IStream> targetStreams = input.getTransformIOMeta().getTargetStreams();
-
-    targetStreams.get(0).setTransformMeta(pipelineMeta.findTransform(trueTransformName));
-    targetStreams.get(1).setTransformMeta(pipelineMeta.findTransform(falseTransformName));
-
     input.setCondition(wCondition.getText());
+    input.setTrueTransform(Const.NVL(wTrueTo.getText(), null));
+    input.setFalseTransform(Const.NVL(wFalseTo.getText(), null));
 
     dispose();
   }
