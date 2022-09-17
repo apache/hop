@@ -246,6 +246,7 @@ public class GuiResource {
   private Image imageNew;
   private Image imageDown;
   private Image imageUp;
+  private Image imageLocation;
 
   private Map<String, Image> imageMap;
 
@@ -337,7 +338,7 @@ public class GuiResource {
 
     // It is recommended not to use the Device to create the color, but the RAP needs a screen (to be removed if the RAP evolves)!
     colorBackground = new Color(display, props.contrastColor(new RGB(240,240,240)));
-    colorGraph = new Color(display, props.contrastColor(new RGB(255,255,255)));
+    colorGraph = new Color(display, props.contrastColor(new RGB(235,235,235)));
     colorTab = new Color(display, props.contrastColor(new RGB(128,128,128)));
     colorSuccessGreen = new Color(display, props.contrastColor(0, 139, 0));
     colorRed = new Color(display, props.contrastColor(255, 0, 0));
@@ -476,6 +477,7 @@ public class GuiResource {
       imageSearch.dispose();
       imageDown.dispose();
       imageUp.dispose();
+      imageLocation.dispose();
 
       imageArrowDefault.dispose();
       imageArrowTrue.dispose();
@@ -716,6 +718,7 @@ public class GuiResource {
     imageView = loadAsResource(display, "ui/images/view.svg", ConstUi.SMALL_ICON_SIZE);
     imageDown = loadAsResource(display, "ui/images/down.svg", ConstUi.SMALL_ICON_SIZE);
     imageUp = loadAsResource(display, "ui/images/up.svg", ConstUi.SMALL_ICON_SIZE);
+    imageLocation = loadAsResource(display, "ui/images/location.svg", ConstUi.SMALL_ICON_SIZE);
 
     // Svg image
     //
@@ -1764,6 +1767,10 @@ public class GuiResource {
 
   public Image getImageUp() {
     return imageUp;
+  }
+
+  public Image getImageLocation() {
+    return imageLocation;
   }
 
   public Image getImageAddAll() {

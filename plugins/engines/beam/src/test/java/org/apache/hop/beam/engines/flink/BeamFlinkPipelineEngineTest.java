@@ -42,8 +42,10 @@ public class BeamFlinkPipelineEngineTest extends BeamBasePipelineEngineTest {
         new PipelineRunConfiguration(
             "flink",
             "description",
+            "",
             Arrays.asList(new DescribedVariable("VAR1", "flink1", "description1")),
-            configuration);
+            configuration,
+            null);
     // Save the metadata
     metadataProvider.getSerializer(PipelineRunConfiguration.class).save(pipelineRunConfiguration);
 

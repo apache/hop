@@ -46,7 +46,7 @@ public class JsonMetadataParser<T extends IHopMetadata> {
     try {
       // Now we can load the annotated fields, the properties:
       //
-      T object = managedClass.newInstance();
+      T object = managedClass.getDeclaredConstructor().newInstance();
       loadProperties(object, jsonParser);
       return object;
     } catch (Exception e) {
@@ -227,12 +227,13 @@ public class JsonMetadataParser<T extends IHopMetadata> {
       Object fieldValue;
       HopMetadataObject hopMetadataObject = fieldType.getAnnotation(HopMetadataObject.class);
       if (hopMetadataObject == null) {
-        fieldValue = fieldType.newInstance();
+        fieldValue = fieldType.getDeclaredConstructor().newInstance();
         loadProperties(fieldValue, jsonParser);
       } else {
         jsonParser.nextToken(); // skip {
         String fieldValueId = jsonParser.getText();
-        IHopMetadataObjectFactory objectFactory = hopMetadataObject.objectFactory().newInstance();
+        IHopMetadataObjectFactory objectFactory =
+            hopMetadataObject.objectFactory().getDeclaredConstructor().newInstance();
         fieldValue = objectFactory.createObject(fieldValueId, null); // No parent object
         loadProperties(fieldValue, jsonParser);
         jsonParser.nextToken(); // skip }
@@ -369,7 +370,8 @@ public class JsonMetadataParser<T extends IHopMetadata> {
       if (hopMetadataObject == null) {
         return jPojoObject;
       } else {
-        IHopMetadataObjectFactory objectFactory = hopMetadataObject.objectFactory().newInstance();
+        IHopMetadataObjectFactory objectFactory =
+            hopMetadataObject.objectFactory().getDeclaredConstructor().newInstance();
         String fieldValueId = objectFactory.getObjectId(fieldValue);
 
         // We need to store the object ID (plugin ID, class name, ...)
@@ -401,7 +403,9 @@ public class JsonMetadataParser<T extends IHopMetadata> {
     return metadataProvider;
   }
 
-  /** @param metadataProvider The provider to set */
+  /**
+   * @param metadataProvider The provider to set
+   */
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }

@@ -72,7 +72,7 @@ public class LafDelegate<E extends IHandler> {
     E h = null;
     try {
       if (handlerClass.isAssignableFrom(c)) {
-        h = c.newInstance();
+        h = c.getDeclaredConstructor().newInstance();
       }
     } catch (Exception e) {
       e.printStackTrace();

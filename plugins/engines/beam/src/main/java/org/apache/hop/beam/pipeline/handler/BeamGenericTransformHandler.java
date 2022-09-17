@@ -71,7 +71,9 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
+      String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
       List<String> transformPluginClasses,
@@ -81,7 +83,8 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
       Pipeline pipeline,
       IRowMeta rowMeta,
       List<TransformMeta> previousTransforms,
-      PCollection<HopRow> input)
+      PCollection<HopRow> input,
+      String parentLogChannelId)
       throws HopException {
 
     // If we have no previous transform, it's an input transform.  We need to start from pipeline
@@ -149,7 +152,6 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     int sizeRowSet = 5000;
 
     // Serialize the whole metastore to JSON...
-    // TODO: push this method upstairs...
     //
     String metaStoreJson = new SerializableMetadataProvider(metadataProvider).toJson();
 
@@ -173,7 +175,10 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
               targetTransforms,
               infoTransforms,
               infoRowMetaJsons,
-              infoCollectionViews);
+              infoCollectionViews,
+              runConfigurationName,
+              dataSamplersJson,
+                  parentLogChannelId);
     } else {
       transformTransform =
           new TransformTransform(
@@ -191,7 +196,10 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
               targetTransforms,
               infoTransforms,
               infoRowMetaJsons,
-              infoCollectionViews);
+              infoCollectionViews,
+              runConfigurationName,
+              dataSamplersJson,
+              parentLogChannelId);
     }
 
     if (input == null) {

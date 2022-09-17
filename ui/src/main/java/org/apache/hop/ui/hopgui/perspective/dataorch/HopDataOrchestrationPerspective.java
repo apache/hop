@@ -31,6 +31,7 @@ import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
@@ -49,6 +50,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -718,6 +720,40 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return searchables;
   }
 
+  public TabItemHandler findPipeline(String logChannelId) {
+    // Go over all the pipeline graphs and see if there's one that has a IPipelineEngine with the given ID
+    //
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() instanceof HopGuiPipelineGraph) {
+        HopGuiPipelineGraph graph = (HopGuiPipelineGraph) item.getTypeHandler();
+        IPipelineEngine<PipelineMeta> pipeline = graph.getPipeline();
+        if (pipeline!=null) {
+          if (logChannelId.equals(pipeline.getLogChannelId())) {
+            return item;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  public TabItemHandler findWorkflow(String logChannelId) {
+    // Go over all the workflow graphs and see if there's one that has a IWorkflow with the given ID
+    //
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() instanceof HopGuiWorkflowGraph) {
+        HopGuiWorkflowGraph graph = (HopGuiWorkflowGraph) item.getTypeHandler();
+        IWorkflowEngine<WorkflowMeta> workflow = graph.getWorkflow();
+        if (workflow!=null) {
+          if (logChannelId.equals(workflow.getLogChannelId())) {
+            return item;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   /**
    * Gets items
    *
@@ -805,4 +841,5 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   public HopWorkflowFileType<WorkflowMeta> getWorkflowFileType() {
     return workflowFileType;
   }
+
 }

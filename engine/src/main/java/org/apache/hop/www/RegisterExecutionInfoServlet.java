@@ -1,0 +1,179 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.hop.www;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.HopServerServlet;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelFileWriter;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.util.FileUtil;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionData;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.pipeline.PipelineConfiguration;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.UUID;
+
+@HopServerServlet(id = "registerExecInfo", name = "Register execution information")
+public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHopServerPlugin {
+  private static final long serialVersionUID = -2817136625869923847L;
+
+  public static final String CONTEXT_PATH = "/hop/registerExecInfo";
+  public static final String TYPE_EXECUTION = "execution";
+  public static final String TYPE_STATE = "state";
+  public static final String TYPE_DATA = "data";
+  public static final String PARAMETER_TYPE = "type";
+  public static final String PARAMETER_LOCATION = "location";
+
+  public RegisterExecutionInfoServlet() {}
+
+  public RegisterExecutionInfoServlet(PipelineMap pipelineMap) {
+    super(pipelineMap);
+  }
+
+  @Override
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    if (isJettyMode() && !request.getRequestURI().startsWith(CONTEXT_PATH)) {
+      return;
+    }
+
+    if (log.isDebug()) {
+      logDebug("Register execution information");
+    }
+
+    // We receive some JSON as payload
+    // The type parameter shows what type of information we get
+    //
+    String type = request.getParameter(PARAMETER_TYPE);
+
+    // The name of the location is also in a parameter
+    //
+    String locationName = request.getParameter(PARAMETER_LOCATION);
+
+    PrintWriter out = response.getWriter();
+    BufferedReader in = request.getReader();
+
+    response.setContentType("text/xml");
+    out.print(XmlHandler.getXmlHeader());
+
+    response.setStatus(HttpServletResponse.SC_OK);
+
+    try {
+      // validate the parameters
+      //
+      if (StringUtils.isEmpty(type)) {
+        throw new HopException("Please specify the type of execution information to register.");
+      }
+      if (StringUtils.isEmpty(locationName)) {
+        throw new HopException(
+            "Please specify the name of the execution information location to register at.");
+      }
+
+      // Look up the location in the metadata.
+      //
+      MultiMetadataProvider provider = pipelineMap.getHopServerConfig().getMetadataProvider();
+      IHopMetadataSerializer<ExecutionInfoLocation> serializer =
+          provider.getSerializer(ExecutionInfoLocation.class);
+      ExecutionInfoLocation location = serializer.load(locationName);
+      if (location == null) {
+        throw new HopException("Unable to find execution information location " + locationName);
+      }
+
+
+
+      // First read the complete JSON document in memory from the request
+      //
+      StringBuilder json = new StringBuilder(request.getContentLength());
+      int c;
+      while ((c = in.read()) != -1) {
+        json.append((char) c);
+      }
+
+      // What type of information are we receiving?
+      //
+      switch (type) {
+        case TYPE_EXECUTION:
+          Execution execution = new ObjectMapper().readValue(json.toString(), Execution.class);
+          location.getExecutionInfoLocation().registerExecution(execution);
+          break;
+        case TYPE_STATE:
+          ExecutionState state =
+              new ObjectMapper().readValue(json.toString(), ExecutionState.class);
+          location.getExecutionInfoLocation().updateExecutionState(state);
+          break;
+        case TYPE_DATA:
+          ExecutionData data = new ObjectMapper().readValue(json.toString(), ExecutionData.class);
+          location.getExecutionInfoLocation().registerData(data);
+          break;
+        default:
+          throw new HopException(
+              "Unknown update type: "
+                  + type
+                  + " allowed are: "
+                  + TYPE_EXECUTION
+                  + ", "
+                  + TYPE_STATE
+                  + ", "
+                  + TYPE_DATA);
+      }
+
+      // Return the log channel id as well
+      //
+      out.println(new WebResult(WebResult.STRING_OK, "Registration successful at location "+locationName));
+
+    } catch (Exception ex) {
+
+      out.println(new WebResult(WebResult.STRING_ERROR, Const.getStackTracker(ex)));
+    }
+  }
+
+  public String toString() {
+    return "Add Pipeline";
+  }
+
+  @Override
+  public String getService() {
+    return CONTEXT_PATH + " (" + toString() + ")";
+  }
+
+  @Override
+  public String getContextPath() {
+    return CONTEXT_PATH;
+  }
+}

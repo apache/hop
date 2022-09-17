@@ -66,12 +66,12 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
   private String numberOfWorkers;
 
   public BeamDirectPipelineRunConfiguration(String numberOfWorkers) {
-    this();
+    super("BeamDirectPipelineEngine", "direct runner");
     this.numberOfWorkers = numberOfWorkers;
   }
 
   public BeamDirectPipelineRunConfiguration() {
-    super();
+    super("BeamDirectPipelineEngine", "direct runner");
     this.tempLocation = "file://" + System.getProperty("java.io.tmpdir");
     this.numberOfWorkers = "";
   }

@@ -68,19 +68,4 @@ public class WorkflowTest {
 
     assertEquals(workflow1.getLogChannelId(), workflow2.getLogChannelId());
   }
-
-  /** Two schedules -> two HopServer object Ids -> two log channel Ids */
-  @Test
-  public void testTwoWorkflowsGetDifferentLogChannelIdWithDifferentCarteId() {
-    WorkflowMeta meta1 = mock(WorkflowMeta.class);
-    doReturn("file1.hpl").when(meta1).getFilename();
-    WorkflowMeta meta2 = mock(WorkflowMeta.class);
-    doReturn("file2.hpl").when(meta2).getFilename();
-
-    IWorkflowEngine<WorkflowMeta> workflow1 = new LocalWorkflowEngine(meta1);
-    IWorkflowEngine<WorkflowMeta> workflow2 = new LocalWorkflowEngine(meta2);
-
-    assertNotEquals(workflow1.getContainerId(), workflow2.getContainerId());
-    assertNotEquals(workflow1.getLogChannelId(), workflow2.getLogChannelId());
-  }
 }

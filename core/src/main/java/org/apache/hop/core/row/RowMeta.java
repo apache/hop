@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.row;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.*;
@@ -70,6 +71,26 @@ public class RowMeta implements IRowMeta {
   }
 
   @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    RowMeta rowMeta = (RowMeta) o;
+    for (int i = 0; i < valueMetaList.size(); i++) {
+      IValueMeta thisValue = valueMetaList.get(i);
+      IValueMeta thatValue = rowMeta.getValueMeta(i);
+      if (!thisValue.equals(thatValue)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(valueMetaList);
+  }
+
+  @Override
   public RowMeta clone() {
     lock.readLock().lock();
     try {
@@ -120,7 +141,9 @@ public class RowMeta implements IRowMeta {
     }
   }
 
-  /** @return the list of value metadata */
+  /**
+   * @return the list of value metadata
+   */
   @Override
   public List<IValueMeta> getValueMetaList() {
     List<IValueMeta> copy;
@@ -135,7 +158,9 @@ public class RowMeta implements IRowMeta {
     return Collections.unmodifiableList(copy);
   }
 
-  /** @param valueMetaList the list of valueMeta to set */
+  /**
+   * @param valueMetaList the list of valueMeta to set
+   */
   @Override
   public void setValueMetaList(List<IValueMeta> valueMetaList) {
     lock.writeLock().lock();
@@ -152,7 +177,9 @@ public class RowMeta implements IRowMeta {
     }
   }
 
-  /** @return the number of values in the row */
+  /**
+   * @return the number of values in the row
+   */
   @Override
   public int size() {
     lock.readLock().lock();
@@ -163,8 +190,11 @@ public class RowMeta implements IRowMeta {
     }
   }
 
-  /** @return true if there are no elements in the row metadata */
+  /**
+   * @return true if there are no elements in the row metadata
+   */
   @Override
+  @JsonIgnore
   public boolean isEmpty() {
     lock.readLock().lock();
     try {
@@ -631,6 +661,7 @@ public class RowMeta implements IRowMeta {
    * @return an array of Strings: the names of all the Values in the Row.
    */
   @Override
+  @JsonIgnore
   public String[] getFieldNames() {
     lock.readLock().lock();
     try {
@@ -1115,6 +1146,7 @@ public class RowMeta implements IRowMeta {
    * @throws IOException Thrown in case there is an (Base64/GZip) encoding problem
    */
   @Override
+  @JsonIgnore
   public String getMetaXml() throws IOException {
     StringBuilder xml = new StringBuilder();
 

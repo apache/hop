@@ -19,6 +19,8 @@ package org.apache.hop.beam.engines.dataflow;
 
 import org.apache.hop.beam.engines.BeamPipelineEngine;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.execution.sampler.IExecutionDataSampler;
+import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;

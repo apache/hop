@@ -29,9 +29,11 @@ import org.apache.beam.sdk.metrics.MetricResult;
 import org.apache.beam.sdk.metrics.MetricResults;
 import org.apache.beam.sdk.metrics.MetricsFilter;
 import org.apache.beam.sdk.util.ThrowingSupplier;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
 import org.apache.hop.beam.util.BeamConst;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -39,6 +41,9 @@ import org.apache.hop.core.logging.*;
 import org.apache.hop.core.parameters.*;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.execution.*;
+import org.apache.hop.execution.sampler.IExecutionDataSampler;
+import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.*;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
@@ -51,6 +56,7 @@ import org.joda.time.Duration;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class BeamPipelineEngine extends Variables
     implements IPipelineEngine<PipelineMeta> {
@@ -127,6 +133,12 @@ public abstract class BeamPipelineEngine extends Variables
   private PipelineResult beamPipelineResults;
   private IBeamPipelineEngineRunConfiguration beamEngineRunConfiguration;
 
+  private ExecutionInfoLocation executionInfoLocation;
+  private Timer executionInfoTimer;
+
+  /** Plugins can use this to add additional data samplers to the pipeline. */
+  protected List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers;
+
   public BeamPipelineEngine() {
     super();
     logChannel = LogChannel.GENERAL;
@@ -139,6 +151,7 @@ public abstract class BeamPipelineEngine extends Variables
     engineCapabilities = new BeamPipelineEngineCapabilities();
     extensionDataMap = Collections.synchronizedMap(new HashMap<>());
     statusDescription = "IDLE";
+    dataSamplers = Collections.synchronizedList(new ArrayList<>());
   }
 
   public BeamPipelineEngine(
@@ -194,9 +207,22 @@ public abstract class BeamPipelineEngine extends Variables
         beamEngineRunConfiguration.setVariable(BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL, logLevel.getCode());
       }
 
+      // Do the lookup of the execution information, then register the pipeline,
+      // keep state updated regularly.  At the end of the pipeline, clean up shop
+      //
+      lookupExecutionInformationLocation();
+      registerPipelineExecutionInformation();
+      startExecutionInfoTimer();
+      addExecutionFinishedListener(engine -> stopExecutionInfoTimer());
+
       converter =
           new HopPipelineMetaToBeamPipelineConverter(
-              this, pipelineMeta, metadataProvider, beamEngineRunConfiguration);
+              this,
+              pipelineMeta,
+              metadataProvider,
+              pipelineRunConfiguration.getName(),
+              dataSamplers,
+              getLogChannelId());
 
       beamPipeline = converter.createPipeline();
 
@@ -965,6 +991,98 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /**
+   * If needed, register this pipeline at the specified execution information location. The name of
+   * the location is specified in the run configuration.
+   *
+   * @throws HopException In case something goes wrong
+   */
+  public void registerPipelineExecutionInformation() throws HopException {
+    if (executionInfoLocation != null) {
+      // Register the execution at this locationExecutionBuilder.fromExecutor(this).build() = {Execution@14702}
+      // This adds metadata, variables, parameters, ...
+      executionInfoLocation.getExecutionInfoLocation().registerExecution(
+              ExecutionBuilder.fromExecutor(this).build());
+    }
+  }
+
+  /**
+   * This method looks up the execution information location specified in the run configuration.
+   *
+   * @return The location or null
+   * @throws HopException In case something fundamental went wrong.
+   */
+  public void lookupExecutionInformationLocation() throws HopException {
+    String locationName = resolve(pipelineRunConfiguration.getExecutionInfoLocationName());
+    if (StringUtils.isNotEmpty(locationName)) {
+      ExecutionInfoLocation location =
+              metadataProvider.getSerializer(ExecutionInfoLocation.class).load(locationName);
+      if (location != null) {
+        executionInfoLocation = location;
+
+        // Initialize the location.
+        location.getExecutionInfoLocation().initialize(this, metadataProvider);
+      } else {
+        logChannel.logError(
+                "Execution information location '"
+                        + locationName
+                        + "' could not be found in the metadata");
+      }
+    }
+  }
+
+  public void startExecutionInfoTimer() throws HopException {
+    if (executionInfoLocation == null) {
+      return;
+    }
+
+    long delay = Const.toLong(resolve(executionInfoLocation.getDataLoggingDelay()), 2000L);
+    long interval = Const.toLong(resolve(executionInfoLocation.getDataLoggingInterval()), 5000L);
+    final AtomicInteger lastLogLineNr = new AtomicInteger(0);
+
+    final IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+    //
+    TimerTask sampleTask =
+            new TimerTask() {
+              @Override
+              public void run() {
+                try {
+                  // Also update the pipeline execution state regularly
+                  //
+                  ExecutionState executionState =
+                          ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, lastLogLineNr.get())
+                                  .build();
+                  iLocation.updateExecutionState(executionState);
+                  if (executionState.getLastLogLineNr() != null) {
+                    lastLogLineNr.set(executionState.getLastLogLineNr());
+                  }
+                } catch (Exception e) {
+                  throw new RuntimeException(
+                          "Error registering execution info (data and state) at location "
+                                  + executionInfoLocation.getName(),
+                          e);
+                }
+              }
+            };
+
+    // Schedule the task to run regularly
+    //
+    executionInfoTimer = new Timer();
+    executionInfoTimer.schedule(sampleTask, delay, interval);
+  }
+
+  public void stopExecutionInfoTimer() throws HopException {
+    if (executionInfoLocation == null) {
+      return;
+    }
+
+    // Register one final last state of the pipeline
+    //
+    ExecutionState executionState =
+            ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1).build();
+    executionInfoLocation.getExecutionInfoLocation().updateExecutionState(executionState);
+  }
+
+  /**
    * Gets executionStoppedListeners
    *
    * @return value of executionStoppedListeners
@@ -1445,6 +1563,22 @@ public abstract class BeamPipelineEngine extends Variables
   @Override
   public int getFeedbackSize() {
     return 0;
+  }
+
+  /**
+   * Add specific data samplers to all the transforms in a running pipeline.
+   * This will cause data to be sampled.
+   * We can't transfer classes to a remote location as a serialized function so we'll simply serialize the class to JSON.
+   * In the Beam transforms, on the nodes, we'll inflate the JSON to an object again.
+   *
+   * @param sampler The sampler to use
+   * @param <Store>
+   * @param <Sampler>
+   * @throws HopException
+   */
+  @Override
+  public <Store extends IExecutionDataSamplerStore, Sampler extends IExecutionDataSampler<Store>> void addExecutionDataSampler(Sampler sampler) throws HopException {
+    dataSamplers.add(sampler);
   }
 
   /**
