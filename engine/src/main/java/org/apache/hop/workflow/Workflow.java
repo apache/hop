@@ -1020,10 +1020,14 @@ public abstract class Workflow extends Variables
    */
   @Override
   public void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow) {
-    this.logLevel = parentWorkflow.getLogLevel();
-    this.log.setLogLevel(logLevel);
-    this.containerObjectId = log.getContainerObjectId();
     this.parentWorkflow = parentWorkflow;
+    if (parentWorkflow != null) {
+      this.logLevel = parentWorkflow.getLogLevel();
+    }
+    if (log != null) {
+      this.log.setLogLevel(logLevel);
+      this.containerObjectId = log.getContainerObjectId();
+    }
   }
 
   @Override
