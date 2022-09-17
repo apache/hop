@@ -85,7 +85,7 @@ public abstract class ExecutionDataSamplerStoreBase<Store extends IExecutionData
   }
 
   public String getKeyForStore(String prefix, ExecutionDataSamplerMeta meta) {
-    return prefix + "/" + meta.getTransformName() + "." + meta.getCopyNr();
+    return prefix + "/" + meta.toString();
   }
 
   /**

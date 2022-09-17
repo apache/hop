@@ -80,7 +80,8 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public void initialize(IVariables variables, IHopMetadataProvider metadataProvider) throws HopException {
+  public void initialize(IVariables variables, IHopMetadataProvider metadataProvider)
+      throws HopException {
     // Nothing to do here really.
   }
 
@@ -113,7 +114,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   @Override
   public Execution findLastExecution(ExecutionType executionType, String name) throws HopException {
     try {
-      List<String> ids = getExecutionIds(true,100);
+      List<String> ids = getExecutionIds(true, 100);
       for (String id : ids) {
         Execution execution = getExecution(id);
         if (execution.getExecutionType() == executionType && name.equals(execution.getName())) {
@@ -235,14 +236,15 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
           try (InputStream inputStream = HopVfs.getInputStream(executionFileObject)) {
             execution = objectMapper.readValue(inputStream, Execution.class);
           }
-          try (InputStream inputStream = HopVfs.getInputStream(subFolder.getChild(FILENAME_STATE_JSON))) {
+          try (InputStream inputStream =
+              HopVfs.getInputStream(subFolder.getChild(FILENAME_STATE_JSON))) {
             state = objectMapper.readValue(inputStream, ExecutionState.class);
-          } catch(Exception e) {
+          } catch (Exception e) {
             // Ignore
           }
           String id = execution.getId();
           Date startDate = execution.getExecutionStartDate();
-          Date updateDate = state==null ? null : state.getUpdateTime();
+          Date updateDate = state == null ? null : state.getUpdateTime();
 
           if (includeChildren || StringUtils.isEmpty(execution.getParentId())) {
             list.add(new ExecutionIdAndDate(id, startDate, updateDate));
@@ -275,22 +277,21 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       List<String> ids = new ArrayList<>();
 
-      // Meant for a workflow to find its children...
+      // For a workflow to find its children.
+      // For a Beam pipeline to find child transforms.
       //
-      if (parentExecutionType == ExecutionType.Workflow) {
-        String suffix = "-data.json";
-        FileObject folderObject = HopVfs.getFileObject(getSubFolder(executionId));
+      String suffix = "-data.json";
+      FileObject folderObject = HopVfs.getFileObject(getSubFolder(executionId));
 
-        // In this folder we have a number of files ending with "-data.json"
-        for (FileObject child : folderObject.getChildren()) {
-          if (child == null) {
-            continue;
-          }
-          String baseName = child.getName().getBaseName();
-          if (baseName.endsWith(suffix)) {
-            String id = baseName.substring(0, baseName.length() - suffix.length());
-            ids.add(id);
-          }
+      // In this folder we have a number of files ending with "-data.json"
+      for (FileObject child : folderObject.getChildren()) {
+        if (child == null) {
+          continue;
+        }
+        String baseName = child.getName().getBaseName();
+        if (baseName.endsWith(suffix)) {
+          String id = baseName.substring(0, baseName.length() - suffix.length());
+          ids.add(id);
         }
       }
 
@@ -332,7 +333,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       List<Execution> executions = new ArrayList<>();
 
-      for (String id : getExecutionIds(true,100)) {
+      for (String id : getExecutionIds(true, 100)) {
         Execution execution = getExecution(id);
         if (parentExecutionId.equals(execution.getParentId())) {
           executions.add(execution);
@@ -348,7 +349,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   @Override
   public String findParentId(String childId) throws HopException {
     try {
-      for (String id : getExecutionIds(true,100)) {
+      for (String id : getExecutionIds(true, 100)) {
         ExecutionState executionState = getExecutionState(id);
         if (executionState.getChildIds().contains(childId)) {
           return id;
@@ -370,7 +371,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
         }
 
         FileObject dataFileObject = folder.getChild(executionId + "-data.json");
-        if (dataFileObject==null || !dataFileObject.exists()) {
+        if (dataFileObject == null || !dataFileObject.exists()) {
           return null;
         }
         try (InputStream inputStream = HopVfs.getInputStream(dataFileObject)) {
@@ -462,7 +463,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
     }
 
     public int compareTo(ExecutionIdAndDate e) {
-      if (e.updateDate==null || updateDate==null) {
+      if (e.updateDate == null || updateDate == null) {
         return -startDate.compareTo(e.startDate);
       }
       return -updateDate.compareTo(e.updateDate);

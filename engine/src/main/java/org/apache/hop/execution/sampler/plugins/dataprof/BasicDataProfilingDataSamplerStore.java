@@ -111,7 +111,7 @@ public class BasicDataProfilingDataSamplerStore
     Map<String, RowBuffer> samples = Collections.synchronizedMap(new HashMap<>());
 
     String transformName = samplerMeta.getTransformName();
-    int copyNr = samplerMeta.getCopyNr();
+    String copyNr = samplerMeta.getCopyNr();
 
     // Profiling values
     //
@@ -198,7 +198,7 @@ public class BasicDataProfilingDataSamplerStore
     Map<String, ExecutionDataSetMeta> map = Collections.synchronizedMap(new HashMap<>());
 
     String transformName = samplerMeta.getTransformName();
-    int copyNr = samplerMeta.getCopyNr();
+    String copyNr = samplerMeta.getCopyNr();
 
     // Profiling values
     //
@@ -301,7 +301,7 @@ public class BasicDataProfilingDataSamplerStore
   }
 
   private String createValueKey(
-      String transformName, int copyNr, String fieldName, ProfilingType profilingType) {
+      String transformName, String copyNr, String fieldName, ProfilingType profilingType) {
     return transformName + "." + copyNr + ": " + profilingType.name() + "-value-" + fieldName;
   }
 
@@ -321,12 +321,12 @@ public class BasicDataProfilingDataSamplerStore
   }
 
   private String createSamplesKey(
-      String transformName, int copyNr, String fieldName, ProfilingType profilingType) {
+      String transformName, String copyNr, String fieldName, ProfilingType profilingType) {
     return transformName + "." + copyNr + ": " + profilingType.name() + "-samples-" + fieldName;
   }
 
   private String createSamplesDescription(
-      String transformName, int copyNr, String fieldName, ProfilingType profilingType) {
+      String transformName, String copyNr, String fieldName, ProfilingType profilingType) {
     return BaseMessages.getString(
         PKG,
         "BasicDataProfilingRowsExecutionDataSample.SamplesDescription",

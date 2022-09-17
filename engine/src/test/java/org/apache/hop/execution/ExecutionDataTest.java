@@ -108,7 +108,7 @@ public class ExecutionDataTest {
             "firstRows",
             "12345-logchannel-id",
             "transformName",
-            0,
+            "0",
             "First rows of transform"
     );
     ExecutionData data =

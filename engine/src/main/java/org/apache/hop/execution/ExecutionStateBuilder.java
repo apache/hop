@@ -20,8 +20,11 @@ package org.apache.hop.execution;
 
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IEngineMetric;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -40,49 +43,17 @@ public final class ExecutionStateBuilder {
   private Integer copyNr;
   private String loggingText;
   private Integer lastLogLineNr;
-  private Map<String, Long> metricsMap;
+  private List<ExecutionStateComponentMetrics> metrics;
   private List<String> childIds;
 
   private ExecutionStateBuilder() {
     this.updateTime = new Date();
-    this.metricsMap = new HashMap<>();
+    this.metrics = new ArrayList<>();
     this.childIds = new ArrayList<>();
   }
 
   public static ExecutionStateBuilder anExecutionUpdate() {
     return new ExecutionStateBuilder();
-  }
-
-  public static ExecutionStateBuilder fromExecutor(
-      IPipelineEngine<PipelineMeta> pipeline, IEngineComponent component, Integer lastLogLineNr) {
-
-    String loggingTextBuffer = getLoggingText(component.getLogChannelId(), lastLogLineNr);
-
-    ExecutionStateBuilder builder =
-        anExecutionUpdate()
-            .withExecutionType(ExecutionType.Transform)
-            .withParentId(pipeline.getLogChannelId())
-            .withId(component.getLogChannelId())
-            .withCopyNr(component.getCopyNr())
-            .withName(component.getName())
-            .withLastLogLineNr(lastLogLineNr)
-            .withLoggingText(loggingTextBuffer)
-            .withStatusDescription(pipeline.getStatusDescription());
-
-    builder.metricsMap.put(Errors.name(), component.getErrors());
-    builder.metricsMap.put(Input.name(), component.getLinesInput());
-    builder.metricsMap.put(Output.name(), component.getLinesOutput());
-    builder.metricsMap.put(Read.name(), component.getLinesRead());
-    builder.metricsMap.put(Written.name(), component.getLinesWritten());
-    builder.metricsMap.put(Updated.name(), component.getLinesUpdated());
-    builder.metricsMap.put(Rejected.name(), component.getLinesRejected());
-    builder.metricsMap.put(BufferSizeInput.name(), component.getInputBufferSize());
-    builder.metricsMap.put(BufferSizeOutput.name(), component.getOutputBufferSize());
-
-    builder.withChildIds(
-        LoggingRegistry.getInstance().getChildrenMap().get(pipeline.getLogChannelId()));
-
-    return builder;
   }
 
   private static String getLoggingText(String logChannelId, Integer lastLogLineNr) {
@@ -116,7 +87,44 @@ public final class ExecutionStateBuilder {
             .withStatusDescription(pipeline.getStatusDescription())
             .withChildIds(
                 LoggingRegistry.getInstance().getChildrenMap().get(pipeline.getLogChannelId()));
+
+    EngineMetrics engineMetrics = pipeline.getEngineMetrics();
+
+    if (engineMetrics != null) {
+      // See if we have any component metrics...
+      //
+      for (IEngineComponent component : pipeline.getComponents()) {
+        ExecutionStateComponentMetrics componentMetrics =
+            new ExecutionStateComponentMetrics(
+                component.getName(), Integer.toString(component.getCopyNr()));
+
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_INIT);
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_INPUT);
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_OUTPUT);
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_READ);
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_WRITTEN);
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_ERROR);
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_REJECTED);
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_UPDATED);
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_BUFFER_IN);
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_BUFFER_OUT);
+
+        builder.addMetrics(componentMetrics);
+      }
+    }
+
     return builder;
+  }
+
+  private static void addMetric(
+      ExecutionStateComponentMetrics componentMetrics,
+      EngineMetrics engineMetrics,
+      IEngineComponent component,
+      IEngineMetric metric) {
+    Long value = engineMetrics.getComponentMetric(component, metric);
+    if (value != null) {
+      componentMetrics.getMetrics().put(metric.getHeader(), value);
+    }
   }
 
   public static ExecutionStateBuilder fromExecutor(
@@ -185,8 +193,13 @@ public final class ExecutionStateBuilder {
     return this;
   }
 
-  public ExecutionStateBuilder withMetricsMap(Map<String, Long> metricsMap) {
-    this.metricsMap = metricsMap;
+  public ExecutionStateBuilder withMetrics(List<ExecutionStateComponentMetrics> metrics) {
+    this.metrics = metrics;
+    return this;
+  }
+
+  public ExecutionStateBuilder addMetrics(ExecutionStateComponentMetrics... metrics) {
+    this.metrics.addAll(Arrays.asList(metrics));
     return this;
   }
 
@@ -209,7 +222,7 @@ public final class ExecutionStateBuilder {
     executionUpdate.setCopyNr(copyNr);
     executionUpdate.setLoggingText(loggingText);
     executionUpdate.setLastLogLineNr(lastLogLineNr);
-    executionUpdate.setMetricsMap(metricsMap);
+    executionUpdate.setMetrics(metrics);
     executionUpdate.setUpdateTime(updateTime);
     executionUpdate.setStatusDescription(statusDescription);
     executionUpdate.setChildIds(childIds);

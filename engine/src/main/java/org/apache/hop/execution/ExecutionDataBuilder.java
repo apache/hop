@@ -67,7 +67,8 @@ public final class ExecutionDataBuilder {
   }
 
   public static ExecutionDataBuilder fromAllTransformData(
-          IPipelineEngine<PipelineMeta> pipeline, Map<String, List<IExecutionDataSamplerStore>> samplerStoresMap) {
+      IPipelineEngine<PipelineMeta> pipeline,
+      Map<String, List<IExecutionDataSamplerStore>> samplerStoresMap) {
     ExecutionDataBuilder dataBuilder =
         ExecutionDataBuilder.anExecutionData()
             .withExecutionType(ExecutionType.Transform)
@@ -101,7 +102,7 @@ public final class ExecutionDataBuilder {
             .withOwnerId(logChannelId)
             .withDataSetMeta(
                 new ExecutionDataSetMeta(
-                    logChannelId, logChannelId, actionMeta.getName(), -1, "action"))
+                    logChannelId, logChannelId, actionMeta.getName(), "", "action"))
             .withFinished(false);
 
     // Add the state of the variables before executing the action
@@ -141,7 +142,7 @@ public final class ExecutionDataBuilder {
       String resultKey = KEY_VARIABLES_BEFORE;
       ExecutionDataSetMeta dataSetMeta =
           new ExecutionDataSetMeta(
-              resultKey, logChannelId, actionName, -1, "Variables before execution");
+              resultKey, logChannelId, actionName, "", "Variables before execution");
       dataBuilder.addSetMeta(resultKey, dataSetMeta);
       dataBuilder.addDataSet(resultKey, rowBuffer);
     }
@@ -179,7 +180,7 @@ public final class ExecutionDataBuilder {
                     logChannelId,
                     logChannelId,
                     actionMeta.getName(),
-                    (int) result.getEntryNr(),
+                    Long.toString(result.getEntryNr()),
                     "action"))
             .withFinished(true);
 
@@ -200,7 +201,7 @@ public final class ExecutionDataBuilder {
               resultKey,
               action.getLogChannel().getLogChannelId(),
               actionMeta.getName(),
-              (int) result.getEntryNr(),
+              Long.toString(result.getEntryNr()),
               "Result details of action");
       dataBuilder.addSetMeta(resultKey, dataSetMeta);
       dataBuilder.addDataSet(resultKey, resultBuffer);
@@ -220,7 +221,7 @@ public final class ExecutionDataBuilder {
               resultKey,
               action.getLogChannel().getLogChannelId(),
               actionMeta.getName(),
-              (int) result.getEntryNr(),
+              Long.toString(result.getEntryNr()),
               "Result rows of action");
       dataBuilder.addSetMeta(resultKey, dataSetMeta);
       dataBuilder.addDataSet(resultKey, rowsBuffer);
@@ -242,7 +243,7 @@ public final class ExecutionDataBuilder {
               resultKey,
               action.getLogChannel().getLogChannelId(),
               actionMeta.getName(),
-              (int) result.getEntryNr(),
+              Long.toString(result.getEntryNr()),
               "Result files of action");
       dataBuilder.addSetMeta(resultKey, dataSetMeta);
       dataBuilder.addDataSet(resultKey, filesBuffer);
@@ -273,7 +274,7 @@ public final class ExecutionDataBuilder {
                 resultKey,
                 action.getLogChannel().getLogChannelId(),
                 actionMeta.getName(),
-                (int) result.getEntryNr(),
+                Long.toString(result.getEntryNr()),
                 "Variables after execution");
         dataBuilder.addSetMeta(resultKey, dataSetMeta);
         dataBuilder.addDataSet(resultKey, rowBuffer);

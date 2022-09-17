@@ -258,14 +258,25 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     }
     // No data profile to work with
     //
-    ExecutionDataProfile profile = pipelineRunConfiguration.getExecutionDataProfile();
-    if (profile == null) {
+    String profileName = resolve(pipelineRunConfiguration.getExecutionDataProfileName());
+    if (StringUtils.isEmpty(profileName)) {
       return;
     }
 
+    ExecutionDataProfile profile =
+        metadataProvider.getSerializer(ExecutionDataProfile.class).load(profileName);
+    if (profile == null) {
+      log.logError("Unable to find data profile '" + profileName + "' (non-fatal)");
+      return;
+    }
+
+    List<IExecutionDataSampler> samplers = new ArrayList<>();
+    samplers.addAll(profile.getSamplers());
+    samplers.addAll(dataSamplers);
+
     // Nothing to sample
     //
-    if (profile.getSamplers().isEmpty()) {
+    if (samplers.isEmpty()) {
       return;
     }
 
@@ -277,7 +288,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
       List<IExecutionDataSamplerStore> samplerStores = new ArrayList<>();
       samplerStoresMap.put(combi.transformName, samplerStores);
 
-      for (IExecutionDataSampler<?> sampler : profile.getSamplers()) {
+      for (IExecutionDataSampler<?> sampler : samplers) {
         // Create a sampler store for the sampler
         //
         boolean firstTransform = pipelineMeta.findPreviousTransforms(combi.transformMeta).isEmpty();
@@ -286,7 +297,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
         ExecutionDataSamplerMeta samplerMeta =
             new ExecutionDataSamplerMeta(
                 combi.transformName,
-                combi.copy,
+                Integer.toString(combi.copy),
                 combi.transform.getLogChannelId(),
                 firstTransform,
                 lastTransform);
@@ -328,17 +339,19 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     if (executionInfoLocation == null) {
       return;
     }
+
+    final ExecutionDataProfile dataProfile;
+
     // No data profile to work with
     //
-    ExecutionDataProfile profile = pipelineRunConfiguration.getExecutionDataProfile();
-    if (profile == null) {
-      return;
-    }
-
-    // Nothing to sample
-    //
-    if (profile.getSamplers().isEmpty()) {
-      return;
+    String profileName = resolve(pipelineRunConfiguration.getExecutionDataProfileName());
+    if (StringUtils.isNotEmpty(profileName)) {
+      dataProfile = metadataProvider.getSerializer(ExecutionDataProfile.class).load(profileName);
+      if (dataProfile == null) {
+        log.logError("Unable to find data profile '" + profileName + "' (non-fatal)");
+      }
+    } else {
+      dataProfile = null;
     }
 
     long delay = Const.toLong(resolve(executionInfoLocation.getDataLoggingDelay()), 2000L);
@@ -354,7 +367,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
             try {
               // Collect data from all the sampler stores.
               //
-              if (pipelineRunConfiguration.getExecutionDataProfile() != null) {
+              if (dataProfile != null) {
                 ExecutionDataBuilder dataBuilder =
                     ExecutionDataBuilder.fromAllTransformData(
                         LocalPipelineEngine.this, samplerStoresMap);
@@ -398,7 +411,8 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     }
 
     IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
-    if (pipelineRunConfiguration.getExecutionDataProfile() != null) {
+    String dataProfileName = resolve(pipelineRunConfiguration.getExecutionDataProfileName());
+    if (StringUtils.isNotEmpty(dataProfileName)) {
       // Register the collected transform data for the last time
       //
       ExecutionDataBuilder dataBuilder =

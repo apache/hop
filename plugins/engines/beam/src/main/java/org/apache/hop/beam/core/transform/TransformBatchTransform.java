@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.core.transform;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -30,6 +31,7 @@ import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObject;
@@ -38,11 +40,20 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.execution.ExecutionDataBuilder;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.profiling.ExecutionDataProfile;
+import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
+import org.apache.hop.execution.sampler.IExecutionDataSampler;
+import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.*;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
@@ -74,7 +85,9 @@ public class TransformBatchTransform extends TransformTransform {
       List<String> infoTransforms,
       List<String> infoRowMetaJsons,
       List<PCollectionView<List<HopRow>>> infoCollectionViews,
-      String runConfigName) {
+      String runConfigName,
+      String dataSamplersJson,
+      String parentLogChannelId) {
     super(
         variableValues,
         metastoreJson,
@@ -91,7 +104,9 @@ public class TransformBatchTransform extends TransformTransform {
         infoTransforms,
         infoRowMetaJsons,
         infoCollectionViews,
-        runConfigName);
+        runConfigName,
+        dataSamplersJson,
+        parentLogChannelId);
   }
 
   @Override
@@ -136,7 +151,10 @@ public class TransformBatchTransform extends TransformTransform {
               inputTransform,
               targetTransforms,
               infoTransforms,
-              infoRowMetaJsons);
+              infoRowMetaJsons,
+              parentLogChannelId,
+              runConfigName,
+              dataSamplersJson);
 
       // The actual transform functionality
       //
@@ -169,7 +187,7 @@ public class TransformBatchTransform extends TransformTransform {
     }
   }
 
-  private class TransformBatchFn extends DoFn<HopRow, HopRow> {
+  private class TransformBatchFn extends TransformBaseFn {
 
     private static final long serialVersionUID = 95700000000000002L;
 
@@ -224,7 +242,14 @@ public class TransformBatchTransform extends TransformTransform {
     private transient AtomicLong lastTimerCheck;
     private transient Timer timer;
 
-    public TransformBatchFn() {}
+    private transient ExecutionInfoLocation executionInfoLocation;
+    private transient List<IExecutionDataSampler> dataSamplers;
+    private transient List<IExecutionDataSamplerStore> dataSamplerStores;
+    private transient Timer executionInfoTimer;
+
+    public TransformBatchFn() {
+      super(null, null, null);
+    }
 
     // I created a private class because instances of this one need access to infoCollectionViews
     //
@@ -241,8 +266,11 @@ public class TransformBatchTransform extends TransformTransform {
         boolean inputTransform,
         List<String> targetTransforms,
         List<String> infoTransforms,
-        List<String> infoRowMetaJsons) {
-      this();
+        List<String> infoRowMetaJsons,
+        String parentLogChannelId,
+        String runConfigName,
+        String dataSamplersJson) {
+      super(parentLogChannelId, runConfigName, dataSamplersJson);
       this.variableValues = variableValues;
       this.metastoreJson = metastoreJson;
       this.transformPluginClasses = transformPluginClasses;
@@ -288,13 +316,36 @@ public class TransformBatchTransform extends TransformTransform {
         timer.cancel();
       }
       try {
-        executor.dispose();
+        if (executor != null) {
+          executor.dispose();
+
+          // Send last data from the data samplers over to the location (if any)
+          //
+          if (executionInfoLocation != null) {
+            if (executionInfoTimer != null) {
+              executionInfoTimer.cancel();
+            }
+            sendSamplesToLocation();
+          }
+        }
       } catch (Exception e) {
         throw new RuntimeException(
             "Error cleaning up single threaded pipeline executor in Beam transform "
                 + transformName,
             e);
       }
+    }
+
+    protected void sendSamplesToLocation() throws HopException {
+      ExecutionDataBuilder dataBuilder =
+          ExecutionDataBuilder.anExecutionData()
+              .withOwnerId(executor.getPipeline().getLogChannelId())
+              .withParentId(parentLogChannelId);
+      for (IExecutionDataSamplerStore store : dataSamplerStores) {
+        dataBuilder =
+            dataBuilder.addDataSets(store.getSamples()).addSetMeta(store.getSamplesMetadata());
+      }
+      executionInfoLocation.getExecutionInfoLocation().registerData(dataBuilder.build());
     }
 
     @ProcessElement
@@ -312,6 +363,12 @@ public class TransformBatchTransform extends TransformTransform {
           // The content of the metadata is JSON serialized and inflated below.
           //
           IHopMetadataProvider metadataProvider = new SerializableMetadataProvider(metastoreJson);
+          IVariables variables = new Variables();
+          for (VariableValue variableValue : variableValues) {
+            if (StringUtils.isNotEmpty(variableValue.getVariable())) {
+              variables.setVariable(variableValue.getVariable(), variableValue.getValue());
+            }
+          }
 
           // Create a very simple new transformation to run single threaded...
           // Single threaded...
@@ -426,29 +483,21 @@ public class TransformBatchTransform extends TransformTransform {
             pipelineMeta.addPipelineHop(new PipelineHopMeta(infoTransformMeta, transformMeta));
           }
 
+          lookupExecutionInformation(metadataProvider);
+
           iTransformMeta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
 
           // Create the transformation...
           //
           pipeline =
               new LocalPipelineEngine(
-                  pipelineMeta,
-                  Variables.getADefaultVariableSpace(),
-                  new LoggingObject("apache-beam-transform"));
+                  pipelineMeta, variables, new LoggingObject("apache-beam-transform"));
           pipeline.setLogLevel(
               context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
           pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
           pipeline
               .getPipelineRunConfiguration()
               .setName("beam-batch-transform-local (" + transformName + ")");
-
-          // Give transforms variables from above
-          //
-          for (VariableValue variableValue : variableValues) {
-            if (StringUtils.isNotEmpty(variableValue.getVariable())) {
-              pipeline.setVariable(variableValue.getVariable(), variableValue.getValue());
-            }
-          }
 
           pipeline.prepareExecution();
 
@@ -521,6 +570,18 @@ public class TransformBatchTransform extends TransformTransform {
                   }
                 });
           }
+
+          // If we're sending execution information to a location we should do it differently from a
+          // Beam node.
+          // We're only going to go through the effort if we actually have any rows to sample.
+          //
+          attachExecutionSamplersToOutput(
+                  variables,
+                  transformName,
+                  pipeline.getLogChannelId(),
+                  inputRowMeta,
+                  outputRowMeta,
+                  pipeline.getTransform(transformName, 0));
 
           executor = new SingleThreadedPipelineExecutor(pipeline);
 

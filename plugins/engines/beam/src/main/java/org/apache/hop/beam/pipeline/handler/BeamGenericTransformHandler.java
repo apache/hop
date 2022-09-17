@@ -73,6 +73,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
       IVariables variables,
       String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
+      String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
       List<String> transformPluginClasses,
@@ -82,7 +83,8 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
       Pipeline pipeline,
       IRowMeta rowMeta,
       List<TransformMeta> previousTransforms,
-      PCollection<HopRow> input)
+      PCollection<HopRow> input,
+      String parentLogChannelId)
       throws HopException {
 
     // If we have no previous transform, it's an input transform.  We need to start from pipeline
@@ -174,7 +176,9 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
               infoTransforms,
               infoRowMetaJsons,
               infoCollectionViews,
-              runConfigurationName);
+              runConfigurationName,
+              dataSamplersJson,
+                  parentLogChannelId);
     } else {
       transformTransform =
           new TransformTransform(
@@ -193,7 +197,9 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
               infoTransforms,
               infoRowMetaJsons,
               infoCollectionViews,
-              runConfigurationName);
+              runConfigurationName,
+              dataSamplersJson,
+              parentLogChannelId);
     }
 
     if (input == null) {

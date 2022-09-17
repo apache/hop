@@ -51,9 +51,9 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
 
   @HopMetadataProperty private IPipelineEngineRunConfiguration engineRunConfiguration;
 
-  /** These purposes are the names of enum {@link ExecutionDataProfile} */
-  @HopMetadataProperty(storeWithName = true)
-  protected ExecutionDataProfile executionDataProfile;
+  /** The name of an {@link ExecutionDataProfile} */
+  @HopMetadataProperty(key="dataProfile")
+  protected String executionDataProfileName;
 
   public PipelineRunConfiguration() {
     configurationVariables = new ArrayList<>();
@@ -65,13 +65,13 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
       String executionInfoLocationName,
       List<DescribedVariable> configurationVariables,
       IPipelineEngineRunConfiguration engineRunConfiguration,
-      ExecutionDataProfile executionDataProfile) {
+      String executionDataProfileName) {
     this.name = name;
     this.description = description;
     this.executionInfoLocationName = executionInfoLocationName;
     this.configurationVariables = configurationVariables;
     this.engineRunConfiguration = engineRunConfiguration;
-    this.executionDataProfile = executionDataProfile;
+    this.executionDataProfileName = executionDataProfileName;
   }
 
   public PipelineRunConfiguration(PipelineRunConfiguration runConfiguration) {
@@ -83,9 +83,7 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     if (runConfiguration.getEngineRunConfiguration() != null) {
       this.engineRunConfiguration = runConfiguration.engineRunConfiguration.clone();
     }
-    if (runConfiguration.executionDataProfile != null) {
-      this.executionDataProfile = new ExecutionDataProfile(runConfiguration.executionDataProfile);
-    }
+    this.executionDataProfileName = runConfiguration.executionDataProfileName;
   }
 
   /**
@@ -149,21 +147,21 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
   }
 
   /**
-   * Gets executionDataProfile
+   * Gets executionDataProfileName
    *
-   * @return value of executionDataProfile
+   * @return value of executionDataProfileName
    */
-  public ExecutionDataProfile getExecutionDataProfile() {
-    return executionDataProfile;
+  public String getExecutionDataProfileName() {
+    return executionDataProfileName;
   }
 
   /**
-   * Sets executionDataProfile
+   * Sets executionDataProfileName
    *
-   * @param executionDataProfile value of executionDataProfile
+   * @param executionDataProfileName value of executionDataProfileName
    */
-  public void setExecutionDataProfile(ExecutionDataProfile executionDataProfile) {
-    this.executionDataProfile = executionDataProfile;
+  public void setExecutionDataProfileName(String executionDataProfileName) {
+    this.executionDataProfileName = executionDataProfileName;
   }
 
   public void applyToVariables(IVariables variables) {

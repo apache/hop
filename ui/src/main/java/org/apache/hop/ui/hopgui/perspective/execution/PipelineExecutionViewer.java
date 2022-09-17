@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.perspective.execution;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
@@ -33,8 +34,10 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.execution.*;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
+import org.apache.hop.pipeline.engine.IEngineMetric;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -85,16 +88,19 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   protected final Execution execution;
 
   protected TransformMeta selectedTransform;
+  private ExecutionState executionState;
   private ExecutionData selectedTransformData;
 
   private CTabItem infoTab;
   private TableView infoView;
   private CTabItem logTab;
-  private CTabItem dataTab;
   private Text loggingText;
+  private CTabItem dataTab;
   private SashForm dataSash;
   private org.eclipse.swt.widgets.List dataList;
   private TableView dataView;
+  private CTabItem metricsTab;
+  private TableView metricsView;
 
   public PipelineExecutionViewer(
       Composite parent,
@@ -160,6 +166,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
     addInfoTab();
     addLogTab();
+    addMetricsTab();
     addDataTab();
 
     refresh();
@@ -202,20 +209,21 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
-      ExecutionState state = iLocation.getExecutionState(execution.getId());
-      if (state == null) {
+      executionState = iLocation.getExecutionState(execution.getId());
+      if (executionState == null) {
         return;
       }
 
       // Calculate information staleness
       //
-      String statusDescription = state.getStatusDescription();
+      String statusDescription = executionState.getStatusDescription();
       if ("Running".equals(statusDescription)) {
         long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
-        if (System.currentTimeMillis() - state.getUpdateTime().getTime() > loggingInterval) {
+        if (System.currentTimeMillis() - executionState.getUpdateTime().getTime()
+            > loggingInterval) {
           // The information is stale, not getting updates!
           //
-          TableItem item = infoView.add("Update state", "Stale");
+          TableItem item = infoView.add("Update executionState", "Stale");
           item.setBackground(GuiResource.getInstance().getColorLightBlue());
           item.setForeground(GuiResource.getInstance().getColorWhite());
         }
@@ -228,13 +236,13 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       infoView.add("Parent ID", execution.getParentId());
       infoView.add("Registration", formatDate(execution.getRegistrationDate()));
       infoView.add("Start", formatDate(execution.getExecutionStartDate()));
-      infoView.add("Type", state.getExecutionType().name());
+      infoView.add("Type", executionState.getExecutionType().name());
       infoView.add("Status", statusDescription);
-      infoView.add("Status Last updated", formatDate(state.getUpdateTime()));
+      infoView.add("Status Last updated", formatDate(executionState.getUpdateTime()));
 
       infoView.optimizeTableView();
 
-      loggingText.setText(Const.NVL(state.getLoggingText(), ""));
+      loggingText.setText(Const.NVL(executionState.getLoggingText(), ""));
       // Scroll to the bottom
       loggingText.setSelection(loggingText.getCharCount());
     } catch (Exception e) {
@@ -251,7 +259,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
     // The list of available data on the left-hand side.
     //
-    dataList = new org.eclipse.swt.widgets.List(dataSash, SWT.SINGLE | SWT.LEFT | SWT.V_SCROLL | SWT.H_SCROLL);
+    dataList =
+        new org.eclipse.swt.widgets.List(
+            dataSash, SWT.SINGLE | SWT.LEFT | SWT.V_SCROLL | SWT.H_SCROLL);
     dataList.addListener(SWT.Selection, e -> showDataRows());
 
     // An empty table view on the right.  This will be populated during a refresh.
@@ -276,6 +286,100 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     dataTab.setControl(dataSash);
   }
 
+  private void addMetricsTab() {
+    metricsTab = new CTabItem(tabFolder, SWT.NONE);
+    metricsTab.setImage(GuiResource.getInstance().getImageData());
+    metricsTab.setText(BaseMessages.getString(PKG, "PipelineExecutionViewer.MetricsTab.Title"));
+
+    // An empty table view on the right.  This will be populated during a refresh.
+    //
+    ColumnInfo[] dataColumns = new ColumnInfo[] {};
+    metricsView =
+        new TableView(
+            hopGui.getVariables(),
+            tabFolder,
+            SWT.H_SCROLL | SWT.V_SCROLL,
+            dataColumns,
+            0,
+            true,
+            null,
+            props);
+    props.setLook(metricsView);
+
+    metricsView.optimizeTableView();
+
+    metricsTab.setControl(metricsView);
+  }
+
+  private void refreshMetrics() {
+    metricsView.clearAll();
+    if (executionState != null) {
+      Set<String> metricNames = new HashSet<>();
+      // Get a unique list of metric names in the state
+      //
+      executionState.getMetrics().forEach(m -> metricNames.addAll(m.getMetrics().keySet()));
+      Map<String, Integer> indexMap = new HashMap<>();
+
+      // We display everything that makes sense:
+      // name, copy, inits, input, read, written, output, updated, rejected, errors, buffer in,
+      // buffer out
+      //
+      List<ColumnInfo> columns = new ArrayList<>();
+      columns.add(new ColumnInfo("Name", ColumnInfo.COLUMN_TYPE_TEXT, false, true));
+      columns.add(new ColumnInfo("Copy", ColumnInfo.COLUMN_TYPE_TEXT, false, true));
+
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_INIT);
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_INPUT);
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_READ);
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_WRITTEN);
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_OUTPUT);
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_UPDATED);
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_REJECTED);
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_ERROR);
+
+      metricsView =
+          new TableView(
+              hopGui.getVariables(),
+              tabFolder,
+              SWT.H_SCROLL | SWT.V_SCROLL,
+              columns.toArray(new ColumnInfo[0]),
+              executionState.getMetrics().size(),
+              true,
+              null,
+              props);
+
+      for (int i=0;i<executionState.getMetrics().size();i++) {
+        ExecutionStateComponentMetrics metrics = executionState.getMetrics().get(i);
+        TableItem item = metricsView.table.getItem(i);
+        item.setText(1, Const.NVL(metrics.getComponentName(), ""));
+        item.setText(2, Const.NVL(metrics.getComponentCopy(), ""));
+        for (String metricHeader : metrics.getMetrics().keySet()) {
+          Integer index = indexMap.get(metricHeader);
+          Long value = metrics.getMetrics().get(metricHeader);
+          if (value!=null && index!=null && index>1 && index<=columns.size()) {
+            item.setText(index, value.toString());
+          }
+        }
+      }
+
+      metricsTab.setControl(metricsView);
+      metricsView.layout(true, true);
+      metricsView.optimizeTableView();
+    }
+  }
+
+  private void addColumn(
+      List<ColumnInfo> columns,
+      Map<String, Integer> indexMap,
+      Set<String> metricNames,
+      IEngineMetric metric) {
+    if (metricNames.contains(metric.getHeader())) {
+      columns.add(new ColumnInfo(metric.getHeader(), ColumnInfo.COLUMN_TYPE_TEXT, true, true));
+      // Index +1 because of the left-hand row number
+      indexMap.put(metric.getHeader(), columns.size());
+    }
+  }
+
   /** An entry is selected in the data list. Show the corresponding rows. */
   private void showDataRows() {
     int[] weights = dataSash.getWeights();
@@ -293,10 +397,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
       // Look up the key in the metadata...
       //
-      ExecutionData data =
-          location
-              .getExecutionInfoLocation()
-              .getExecutionData(execution.getId(), ExecutionDataBuilder.ALL_TRANSFORMS);
+      ExecutionData data = loadSelectedTransformData();
 
       for (ExecutionDataSetMeta setMeta : data.getSetMetaData().values()) {
         if (setDescription.equals(setMeta.getDescription())) {
@@ -350,7 +451,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           }
         }
       }
-
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error showing transform data rows", e);
     } finally {
@@ -499,6 +599,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   @GuiOsxKeyboardShortcut(key = SWT.F5)
   public void refresh() {
     refreshStatus();
+    refreshMetrics();
     refreshTransformData();
   }
 
@@ -599,23 +700,24 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
   @Override
   public void mouseDown(MouseEvent e) {
+    pipelineMeta.unselectAll();
+
     Point real = screen2real(e.x, e.y);
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
     if (areaOwner == null) {
-      return;
+      // Clicked on background: clear selection
+      //
+      selectedTransform = null;
+    } else {
+      switch (areaOwner.getAreaType()) {
+        case TRANSFORM_ICON:
+          // Show the data for this transform
+          //
+          selectedTransform = (TransformMeta) areaOwner.getOwner();
+          break;
+      }
     }
-
-    pipelineMeta.unselectAll();
-
-    switch (areaOwner.getAreaType()) {
-      case TRANSFORM_ICON:
-        // Show the data for this transform
-        //
-        selectedTransform = (TransformMeta) areaOwner.getOwner();
-        refreshTransformData();
-        break;
-    }
-
+    refreshTransformData();
     canvas.redraw();
   }
 
@@ -635,15 +737,14 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       previousListSelection = dataList.getSelection()[0];
     }
     dataList.removeAll();
+    dataView.clearAll();
 
     try {
       // Get the transform data
       //
-      selectedTransformData =
-          location
-              .getExecutionInfoLocation()
-              .getExecutionData(execution.getId(), ExecutionDataBuilder.ALL_TRANSFORMS);
-      if (selectedTransformData==null) {
+      selectedTransformData = loadSelectedTransformData();
+
+      if (selectedTransformData == null) {
         // Nothing collected
         return;
       }
@@ -672,6 +773,34 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       // Ignore this error: there simply isn't any data to be found
       new ErrorDialog(getShell(), "Error", "Error showing transform data", e);
     }
+  }
+
+  private ExecutionData loadSelectedTransformData() throws HopException {
+    ExecutionData data =
+        location
+            .getExecutionInfoLocation()
+            .getExecutionData(execution.getId(), ExecutionDataBuilder.ALL_TRANSFORMS);
+
+    // If this is for a beam pipeline we won't have data for all transforms but for individual
+    // copies...
+    //
+    if (data == null) {
+      ExecutionDataBuilder builder =
+          ExecutionDataBuilder.anExecutionData().withParentId(execution.getId());
+      List<String> childIds =
+          location
+              .getExecutionInfoLocation()
+              .findChildIds(ExecutionType.Pipeline, execution.getId());
+      for (String childId : childIds) {
+        ExecutionData childData =
+            location.getExecutionInfoLocation().getExecutionData(execution.getId(), childId);
+
+        builder.addDataSets(childData.getDataSets()).addSetMeta(childData.getSetMetaData());
+      }
+      data = builder.build();
+    }
+
+    return data;
   }
 
   @Override

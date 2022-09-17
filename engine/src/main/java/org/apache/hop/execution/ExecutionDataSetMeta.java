@@ -24,13 +24,13 @@ public class ExecutionDataSetMeta {
   private String name;
   private String fieldName;
   private String sampleDescription;
-  private int copyNr;
+  private String copyNr;
   private String description;
 
   public ExecutionDataSetMeta() {}
 
   public ExecutionDataSetMeta(
-      String setKey, String logChannelId, String name, int copyNr, String description) {
+      String setKey, String logChannelId, String name, String copyNr, String description) {
     this.setKey = setKey;
     this.logChannelId = logChannelId;
     this.name = name;
@@ -42,7 +42,7 @@ public class ExecutionDataSetMeta {
       String setKey,
       String logChannelId,
       String name,
-      int copyNr,
+      String copyNr,
       String fieldName,
       String sampleDescription,
       String description) {
@@ -150,7 +150,7 @@ public class ExecutionDataSetMeta {
    *
    * @return value of copyNr
    */
-  public int getCopyNr() {
+  public String getCopyNr() {
     return copyNr;
   }
 
@@ -159,7 +159,7 @@ public class ExecutionDataSetMeta {
    *
    * @param copyNr value of copyNr
    */
-  public void setCopyNr(int copyNr) {
+  public void setCopyNr(String copyNr) {
     this.copyNr = copyNr;
   }
 

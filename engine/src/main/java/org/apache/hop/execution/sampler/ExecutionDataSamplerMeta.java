@@ -18,10 +18,12 @@
 
 package org.apache.hop.execution.sampler;
 
+import org.apache.commons.lang.StringUtils;
+
 /** Extra metadata about the data sampler being used */
 public class ExecutionDataSamplerMeta {
   private String transformName;
-  private int copyNr;
+  private String copyNr;
   private String logChannelId;
   private boolean firstTransform;
   private boolean lastTransform;
@@ -38,7 +40,7 @@ public class ExecutionDataSamplerMeta {
 
   public ExecutionDataSamplerMeta(
       String transformName,
-      int copyNr,
+      String copyNr,
       String logChannelId,
       boolean firstTransform,
       boolean lastTransform) {
@@ -47,6 +49,15 @@ public class ExecutionDataSamplerMeta {
     this.logChannelId = logChannelId;
     this.firstTransform = firstTransform;
     this.lastTransform = lastTransform;
+  }
+
+  @Override
+  public String toString() {
+    if (StringUtils.isEmpty(copyNr)) {
+      return transformName;
+    } else {
+      return transformName+"."+copyNr;
+    }
   }
 
   /**
@@ -72,7 +83,7 @@ public class ExecutionDataSamplerMeta {
    *
    * @return value of copyNr
    */
-  public int getCopyNr() {
+  public String getCopyNr() {
     return copyNr;
   }
 
@@ -81,7 +92,7 @@ public class ExecutionDataSamplerMeta {
    *
    * @param copyNr value of copyNr
    */
-  public void setCopyNr(int copyNr) {
+  public void setCopyNr(String copyNr) {
     this.copyNr = copyNr;
   }
 

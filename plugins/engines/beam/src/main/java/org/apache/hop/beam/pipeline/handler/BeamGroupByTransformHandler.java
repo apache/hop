@@ -56,6 +56,7 @@ public class BeamGroupByTransformHandler extends BeamBaseTransformHandler
       IVariables variables,
       String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
+      String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
       List<String> transformPluginClasses,
@@ -65,7 +66,8 @@ public class BeamGroupByTransformHandler extends BeamBaseTransformHandler
       Pipeline pipeline,
       IRowMeta rowMeta,
       List<TransformMeta> previousTransforms,
-      PCollection<HopRow> input)
+      PCollection<HopRow> input,
+      String parentLogChannelId)
       throws HopException {
 
     MemoryGroupByMeta meta = new MemoryGroupByMeta();

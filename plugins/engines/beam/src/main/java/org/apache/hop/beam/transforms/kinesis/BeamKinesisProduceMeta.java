@@ -119,6 +119,7 @@ public class BeamKinesisProduceMeta extends BaseTransformMeta<BeamKinesisProduce
       IVariables variables,
       String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
+      String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
       List<String> transformPluginClasses,
@@ -128,7 +129,8 @@ public class BeamKinesisProduceMeta extends BaseTransformMeta<BeamKinesisProduce
       org.apache.beam.sdk.Pipeline pipeline,
       IRowMeta rowMeta,
       List<TransformMeta> previousTransforms,
-      PCollection<HopRow> input)
+      PCollection<HopRow> input,
+      String parentLogChannelId)
       throws HopException {
 
     String[] parameters = new String[getConfigOptions().size()];

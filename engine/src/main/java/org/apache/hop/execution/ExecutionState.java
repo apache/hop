@@ -48,8 +48,8 @@ public class ExecutionState {
   /** The last log line number to allow for incremental logging updates */
   private Integer lastLogLineNr;
 
-  /** The metrics */
-  private Map<String, Long> metricsMap;
+  /** The metrics of components */
+  private List<ExecutionStateComponentMetrics> metrics;
 
   /** The status description */
   private String statusDescription;
@@ -61,7 +61,7 @@ public class ExecutionState {
   private List<String> childIds;
 
   public ExecutionState() {
-    this.metricsMap = new HashMap<>();
+    this.metrics = new ArrayList<>();
     this.updateTime = new Date();
     this.childIds = new ArrayList<>();
   }
@@ -193,21 +193,21 @@ public class ExecutionState {
   }
 
   /**
-   * Gets metricsMap
+   * Gets metrics
    *
-   * @return value of metricsMap
+   * @return value of metrics
    */
-  public Map<String, Long> getMetricsMap() {
-    return metricsMap;
+  public List<ExecutionStateComponentMetrics> getMetrics() {
+    return metrics;
   }
 
   /**
-   * Sets metricsMap
+   * Sets metrics
    *
-   * @param metricsMap value of metricsMap
+   * @param metrics value of metrics
    */
-  public void setMetricsMap(Map<String, Long> metricsMap) {
-    this.metricsMap = metricsMap;
+  public void setMetrics(List<ExecutionStateComponentMetrics> metrics) {
+    this.metrics = metrics;
   }
 
   /**

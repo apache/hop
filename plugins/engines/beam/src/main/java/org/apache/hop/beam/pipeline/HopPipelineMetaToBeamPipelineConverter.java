@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.pipeline;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.beam.runners.dataflow.DataflowRunner;
 import org.apache.beam.runners.direct.DirectRunner;
 import org.apache.beam.runners.flink.FlinkRunner;
@@ -50,7 +51,8 @@ import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.execution.profiling.ExecutionDataProfile;
+import org.apache.hop.execution.sampler.IExecutionDataSampler;
+import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -81,16 +83,24 @@ public class HopPipelineMetaToBeamPipelineConverter {
   protected Map<String, IBeamPipelineTransformHandler> transformHandlers;
   protected IBeamPipelineTransformHandler genericTransformHandler;
   protected IBeamPipelineEngineRunConfiguration pipelineRunConfiguration;
+  protected final String dataSamplersJson;
+  protected final String parentLogChannelId;
 
   public HopPipelineMetaToBeamPipelineConverter(
       IVariables variables,
       PipelineMeta pipelineMeta,
       IHopMetadataProvider metadataProvider,
-      String runConfigName)
+      String runConfigName,
+      List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers,
+      String parentLogChannelId)
       throws HopException {
     this.transformPluginClasses = new ArrayList<>();
     this.xpPluginClasses = new ArrayList<>();
     this.transformHandlers = new HashMap<>();
+
+    // Serialize the data samplers to JSON
+    this.dataSamplersJson = serializeDataSamplers(dataSamplers);
+    this.parentLogChannelId = parentLogChannelId;
 
     this.variables = variables;
     this.pipelineMeta = pipelineMeta;
@@ -114,6 +124,16 @@ public class HopPipelineMetaToBeamPipelineConverter {
     this.xpPluginClasses.addAll(splitPluginClasses(pipelineRunConfiguration.getXpPluginClasses()));
 
     addDefaultTransformHandlers();
+  }
+
+  private String serializeDataSamplers(
+      List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers)
+      throws HopException {
+    try {
+      return new ObjectMapper().writeValueAsString(dataSamplers);
+    } catch (Exception e) {
+      throw new HopException("Error serializing data samplers to JSON", e);
+    }
   }
 
   protected List<String> splitPluginClasses(String transformPluginClasses) {
@@ -311,6 +331,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
           variables,
           runConfigName,
           pipelineRunConfiguration,
+          dataSamplersJson,
           metadataProvider,
           pipelineMeta,
           transformPluginClasses,
@@ -320,7 +341,8 @@ public class HopPipelineMetaToBeamPipelineConverter {
           pipeline,
           pipelineMeta.getTransformFields(variables, transformMeta),
           null,
-          null);
+          null,
+          parentLogChannelId);
     }
   }
 
@@ -368,6 +390,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
           variables,
           runConfigName,
           pipelineRunConfiguration,
+          dataSamplersJson,
           metadataProvider,
           pipelineMeta,
           transformPluginClasses,
@@ -377,7 +400,8 @@ public class HopPipelineMetaToBeamPipelineConverter {
           pipeline,
           rowMeta,
           previousTransforms,
-          input);
+          input,
+          parentLogChannelId);
     }
   }
 
@@ -511,6 +535,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
             variables,
             runConfigName,
             pipelineRunConfiguration,
+            dataSamplersJson,
             metadataProvider,
             pipelineMeta,
             transformPluginClasses,
@@ -520,7 +545,8 @@ public class HopPipelineMetaToBeamPipelineConverter {
             pipeline,
             rowMeta,
             previousTransforms,
-            input);
+            input,
+            parentLogChannelId);
       }
     }
   }

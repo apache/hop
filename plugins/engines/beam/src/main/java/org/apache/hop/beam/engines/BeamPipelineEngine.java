@@ -136,6 +136,9 @@ public abstract class BeamPipelineEngine extends Variables
   private ExecutionInfoLocation executionInfoLocation;
   private Timer executionInfoTimer;
 
+  /** Plugins can use this to add additional data samplers to the pipeline. */
+  protected List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers;
+
   public BeamPipelineEngine() {
     super();
     logChannel = LogChannel.GENERAL;
@@ -148,6 +151,7 @@ public abstract class BeamPipelineEngine extends Variables
     engineCapabilities = new BeamPipelineEngineCapabilities();
     extensionDataMap = Collections.synchronizedMap(new HashMap<>());
     statusDescription = "IDLE";
+    dataSamplers = Collections.synchronizedList(new ArrayList<>());
   }
 
   public BeamPipelineEngine(
@@ -213,7 +217,12 @@ public abstract class BeamPipelineEngine extends Variables
 
       converter =
           new HopPipelineMetaToBeamPipelineConverter(
-              this, pipelineMeta, metadataProvider, pipelineRunConfiguration.getName());
+              this,
+              pipelineMeta,
+              metadataProvider,
+              pipelineRunConfiguration.getName(),
+              dataSamplers,
+              getLogChannelId());
 
       beamPipeline = converter.createPipeline();
 
@@ -1556,10 +1565,20 @@ public abstract class BeamPipelineEngine extends Variables
     return 0;
   }
 
-
+  /**
+   * Add specific data samplers to all the transforms in a running pipeline.
+   * This will cause data to be sampled.
+   * We can't transfer classes to a remote location as a serialized function so we'll simply serialize the class to JSON.
+   * In the Beam transforms, on the nodes, we'll inflate the JSON to an object again.
+   *
+   * @param sampler The sampler to use
+   * @param <Store>
+   * @param <Sampler>
+   * @throws HopException
+   */
   @Override
   public <Store extends IExecutionDataSamplerStore, Sampler extends IExecutionDataSampler<Store>> void addExecutionDataSampler(Sampler sampler) throws HopException {
-
+    dataSamplers.add(sampler);
   }
 
   /**

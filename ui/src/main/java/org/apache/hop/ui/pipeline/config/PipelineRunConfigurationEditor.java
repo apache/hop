@@ -80,6 +80,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   private ComboVar wPluginType;
 
   private Composite wPluginSpecificComp;
+  private ScrolledComposite wsPluginSpecificComp;
   private GuiCompositeWidgets guiCompositeWidgets;
 
   private Map<String, IPipelineEngineRunConfiguration> metaMap;
@@ -266,7 +267,16 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     // Add a composite area
     //
-    wPluginSpecificComp = new Composite(wMainComp, SWT.BACKGROUND);
+    wsPluginSpecificComp = new ScrolledComposite(wMainComp, SWT.V_SCROLL|SWT.H_SCROLL);
+    wsPluginSpecificComp.setLayout(new FormLayout());
+    FormData fdsPluginSpecificComp = new FormData();
+    fdsPluginSpecificComp.left = new FormAttachment(0, 0);
+    fdsPluginSpecificComp.top = new FormAttachment(lastControl, margin);
+    fdsPluginSpecificComp.right = new FormAttachment(100, 0);
+    fdsPluginSpecificComp.bottom = new FormAttachment(100, 0);
+    wsPluginSpecificComp.setLayoutData(fdsPluginSpecificComp);
+
+    wPluginSpecificComp = new Composite(wsPluginSpecificComp, SWT.BACKGROUND);
     props.setLook(wPluginSpecificComp);
     wPluginSpecificComp.setLayout(new FormLayout());
     FormData fdPluginSpecificComp = new FormData();
@@ -276,9 +286,18 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     fdPluginSpecificComp.bottom = new FormAttachment(100, 0);
     wPluginSpecificComp.setLayoutData(fdPluginSpecificComp);
 
+    wsPluginSpecificComp.setContent(wPluginSpecificComp);
+
     // Add the plugin specific widgets
     //
     addGuiCompositeWidgets();
+
+    wPluginSpecificComp.layout();
+    wsPluginSpecificComp.setExpandHorizontal(true);
+    wsPluginSpecificComp.setExpandVertical(true);
+    Rectangle bounds = wPluginSpecificComp.getBounds();
+    wsPluginSpecificComp.setMinWidth(bounds.width);
+    wsPluginSpecificComp.setMinHeight(bounds.height);
 
     FormData fdMainComp = new FormData();
     fdMainComp.left = new FormAttachment(0, 0);
@@ -487,9 +506,8 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error retrieving execution info profile metadata", e);
     }
-    if (runConfiguration.getExecutionDataProfile() != null) {
-      wProfile.setText(Const.NVL(runConfiguration.getExecutionDataProfile().getName(), ""));
-    }
+
+    wProfile.setText(Const.NVL(runConfiguration.getExecutionDataProfileName(), ""));
 
     for (int i = 0; i < workingConfiguration.getConfigurationVariables().size(); i++) {
       DescribedVariable vvd = workingConfiguration.getConfigurationVariables().get(i);
@@ -519,17 +537,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
           meta.getEngineRunConfiguration(), PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
     }
 
-    String profileName = wProfile.getText();
-    if (StringUtils.isNotEmpty(profileName)) {
-      try {
-        IHopMetadataSerializer<ExecutionDataProfile> profileSerializer =
-                manager.getMetadataProvider().getSerializer(ExecutionDataProfile.class);
-        ExecutionDataProfile dataProfile = profileSerializer.load(profileName);
-        meta.setExecutionDataProfile(dataProfile);
-      } catch (Exception e) {
-        new ErrorDialog(getShell(), "Error", "Error loading data profile metadata", e);
-      }
-    }
+    meta.setExecutionDataProfileName(wProfile.getText());
 
     // The variables
     //

@@ -17,7 +17,6 @@
 
 package org.apache.hop.beam.transform;
 
-import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.metrics.MetricQueryResults;
 import org.apache.beam.sdk.metrics.MetricResult;
@@ -44,6 +43,7 @@ import org.apache.hop.beam.transforms.pubsub.BeamSubscribeMeta;
 import org.apache.hop.beam.transforms.window.BeamTimestampMeta;
 import org.apache.hop.beam.transforms.window.BeamWindowMeta;
 import org.apache.hop.beam.util.BeamConst;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -60,10 +60,10 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
-import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
+import org.apache.hop.pipeline.engine.*;
 import org.apache.hop.pipeline.transforms.constant.ConstantMeta;
 import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta;
@@ -172,7 +172,7 @@ public class PipelineTestBase {
     FileExecutionInfoLocation fileLocation = new FileExecutionInfoLocation("/tmp/exec-info/");
     ExecutionInfoLocation location =
         new ExecutionInfoLocation(
-            NAME_LOCATION, null, "2000", "2000", "100", dataProfile, fileLocation);
+            NAME_LOCATION, null, "5000", "10000", "100", dataProfile, fileLocation);
     metadataProvider.getSerializer(ExecutionInfoLocation.class).save(location);
 
     // Run config
@@ -188,7 +188,7 @@ public class PipelineTestBase {
             NAME_LOCATION,
             Collections.emptyList(),
             directRunConfiguration,
-            dataProfile);
+            NAME_DATA_PROFILE);
     metadataProvider.getSerializer(PipelineRunConfiguration.class).save(runConfiguration);
 
     File inputFolder = new File("/tmp/customers/io");
@@ -206,25 +206,29 @@ public class PipelineTestBase {
 
   @Ignore
   public void createRunPipeline(IVariables variables, PipelineMeta pipelineMeta) throws Exception {
-    PipelineOptions pipelineOptions = PipelineOptionsFactory.create();
 
-    pipelineOptions.setJobName(pipelineMeta.getName());
-    pipelineOptions.setUserAgent(BeamConst.STRING_HOP_BEAM);
+    IPipelineEngine<PipelineMeta> hopPipeline =
+        PipelineEngineFactory.createPipelineEngine(
+            variables, NAME_RUN_CONFIG, metadataProvider, pipelineMeta);
+    hopPipeline.execute();
+    hopPipeline.waitUntilFinished();
 
-    // No extra plugins to load : null option
-    HopPipelineMetaToBeamPipelineConverter converter =
-        new HopPipelineMetaToBeamPipelineConverter(
-            variables, pipelineMeta, metadataProvider, NAME_RUN_CONFIG);
-    Pipeline pipeline = converter.createPipeline();
+    EngineMetrics engineMetrics = hopPipeline.getEngineMetrics();
+    for (IEngineComponent component : engineMetrics.getComponents()) {
+      System.out.println("Component: " + component.getName());
+      writeMetric(engineMetrics, component, "read", Pipeline.METRIC_READ);
+      writeMetric(engineMetrics, component, "written", Pipeline.METRIC_WRITTEN);
+      writeMetric(engineMetrics, component, "input", Pipeline.METRIC_INPUT);
+      writeMetric(engineMetrics, component, "output", Pipeline.METRIC_OUTPUT);
+      writeMetric(engineMetrics, component, "errors", Pipeline.METRIC_ERROR);
+    }
+  }
 
-    PipelineResult pipelineResult = pipeline.run();
-    pipelineResult.waitUntilFinish();
-
-    MetricResults metricResults = pipelineResult.metrics();
-
-    MetricQueryResults allResults = metricResults.queryMetrics(MetricsFilter.builder().build());
-    for (MetricResult<Long> result : allResults.getCounters()) {
-      System.out.println("Name: " + result.getName() + " Attempted: " + result.getAttempted());
+  private void writeMetric(
+      EngineMetrics engineMetrics, IEngineComponent component, String label, IEngineMetric metric) {
+    Long value = engineMetrics.getComponentMetric(component, metric);
+    if (value != null) {
+      System.out.println("  - " + Const.rightPad(label, 8) + " : " + value);
     }
   }
 }
