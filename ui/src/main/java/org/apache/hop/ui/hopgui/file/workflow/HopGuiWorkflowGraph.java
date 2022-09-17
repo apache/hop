@@ -3487,10 +3487,28 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public boolean isCloseable() {
     try {
+      // Check if the file is saved. If not, ask for it to be stopped before closing
+      //
+      if (workflow!=null && ( workflow.isActive())) {
+        MessageBox messageDialog =
+                new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+        messageDialog.setText(BaseMessages.getString(PKG, "HopGuiWorkflowGraph.RunningFile.Dialog.Header"));
+        messageDialog.setMessage(
+                BaseMessages.getString(PKG, "HopGuiWorkflowGraph.RunningFile.Dialog.Message", buildTabName()));
+        int answer = messageDialog.open();
+        // The NO answer means: ignore the state of the workflow and just let it run in the background
+        // It can be seen in the execution information perspective if a location was set up.
+        //
+        if ((answer & SWT.YES) != 0) {
+          // Stop the execution and close if the file hasn't been changed
+          workflow.stopExecution();
+        } else if ((answer & SWT.CANCEL) != 0) {
+          return false;
+        }
+      }
       // Check if the file is saved. If not, ask for it to be saved.
       //
       if (workflowMeta.hasChanged()) {
-
         MessageBox messageDialog =
             new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
         messageDialog.setText(

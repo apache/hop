@@ -3805,8 +3805,25 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public boolean isCloseable() {
     try {
-      // Check if the file is saved. If not, ask for it to be saved.
+      // Check if the file is saved. If not, ask for it to be stopped before closing
       //
+      if (pipeline!=null && ( pipeline.isRunning() || pipeline.isPaused())) {
+        MessageBox messageDialog =
+                new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+        messageDialog.setText(BaseMessages.getString(PKG, "PipelineGraph.RunningFile.Dialog.Header"));
+        messageDialog.setMessage(
+                BaseMessages.getString(PKG, "PipelineGraph.RunningFile.Dialog.Message", buildTabName()));
+        int answer = messageDialog.open();
+        // The NO answer means: ignore the state of the pipeline and just let it run in the background
+        // It can be seen in the execution information perspective if a location was set up.
+        //
+        if ((answer & SWT.YES) != 0) {
+          // Stop the execution and close if the file hasn't been changed
+          pipeline.stopAll();
+        } else if ((answer & SWT.CANCEL) != 0) {
+          return false;
+        }
+      }
       if (pipelineMeta.hasChanged()) {
 
         MessageBox messageDialog =
