@@ -65,7 +65,9 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
+      String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
       List<String> transformPluginClasses,
@@ -75,7 +77,8 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
       Pipeline pipeline,
       IRowMeta rowMeta,
       List<TransformMeta> previousTransforms,
-      PCollection<HopRow> input)
+      PCollection<HopRow> input,
+      String parentLogChannelId)
       throws HopException {
 
     // Don't simply case but serialize/de-serialize the metadata to prevent classloader exceptions

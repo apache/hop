@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -283,16 +284,13 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     if (data.config == null) {
       // Use ApacheHttpClient for supporting proxy authentication.
       data.config = new ClientConfig();
+      data.config.connectorProvider(new ApacheConnectorProvider());
       if (!Utils.isEmpty(data.realProxyHost)) {
         // PROXY CONFIGURATION
-        data.config
-            .getProperties()
-            .put(
-                ClientProperties.PROXY_URI,
-                "http://" + data.realProxyHost + ":" + data.realProxyPort);
+        data.config.property(ClientProperties.PROXY_URI,"http://"+ data.realProxyHost + ":" + data.realProxyPort);
         if (!Utils.isEmpty(data.realHttpLogin) && !Utils.isEmpty(data.realHttpPassword)) {
-          data.config.getProperties().put(ClientProperties.PROXY_USERNAME, data.realHttpLogin);
-          data.config.getProperties().put(ClientProperties.PROXY_PASSWORD, data.realHttpPassword);
+          data.config.property(ClientProperties.PROXY_USERNAME, data.realHttpLogin);
+          data.config.property(ClientProperties.PROXY_PASSWORD, data.realHttpPassword);
         }
       } else {
         if (!Utils.isEmpty(data.realHttpLogin)) {

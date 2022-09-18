@@ -27,6 +27,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -41,7 +42,9 @@ public interface IBeamPipelineTransformHandler {
   void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
+      String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
       List<String> transformPluginClasses,
@@ -51,6 +54,7 @@ public interface IBeamPipelineTransformHandler {
       Pipeline pipeline,
       IRowMeta rowMeta,
       List<TransformMeta> previousTransforms,
-      PCollection<HopRow> input)
+      PCollection<HopRow> input,
+      String parentLogChannelId)
       throws HopException;
 }

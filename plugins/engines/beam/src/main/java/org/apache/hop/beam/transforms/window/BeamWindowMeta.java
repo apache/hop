@@ -131,7 +131,9 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
+      String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
       List<String> transformPluginClasses,
@@ -141,7 +143,8 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
       org.apache.beam.sdk.Pipeline pipeline,
       IRowMeta rowMeta,
       List<TransformMeta> previousTransforms,
-      PCollection<HopRow> input)
+      PCollection<HopRow> input,
+      String parentLogChannelId)
       throws HopException {
     if (StringUtils.isEmpty(windowType)) {
       throw new HopException(

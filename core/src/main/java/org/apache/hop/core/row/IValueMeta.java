@@ -17,6 +17,11 @@
 
 package org.apache.hop.core.row;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeId;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.*;
@@ -130,6 +135,7 @@ import java.util.TimeZone;
  * the set of possible values in getIndex()/setIndex().
  * </Table>
  */
+@JsonDeserialize(using = ValueMetaDeserializer.class)
 public interface IValueMeta extends Cloneable {
   /** Value type indicating that the value has no type set */
   int TYPE_NONE = 0;
@@ -312,6 +318,7 @@ public interface IValueMeta extends Cloneable {
    *
    * @return the origin
    */
+  @JsonIgnore
   String getOrigin();
 
   /**
@@ -326,6 +333,7 @@ public interface IValueMeta extends Cloneable {
    *
    * @return the comments
    */
+  @JsonIgnore
   String getComments();
 
   /**
@@ -504,7 +512,9 @@ public interface IValueMeta extends Cloneable {
    */
   void setStringEncoding(String stringEncoding);
 
-  /** @return true if the String encoding used (storage) is single byte encoded. */
+  /**
+   * @return true if the String encoding used (storage) is single byte encoded.
+   */
   boolean isSingleByteEncoding();
 
   /**
@@ -650,10 +660,14 @@ public interface IValueMeta extends Cloneable {
    */
   void setDateFormatLocale(Locale dateFormatLocale);
 
-  /** @return the date format time zone */
+  /**
+   * @return the date format time zone
+   */
   TimeZone getDateFormatTimeZone();
 
-  /** @param dateFormatTimeZone the date format time zone to set */
+  /**
+   * @param dateFormatTimeZone the date format time zone to set
+   */
   void setDateFormatTimeZone(TimeZone dateFormatTimeZone);
 
   /**
@@ -806,7 +820,9 @@ public interface IValueMeta extends Cloneable {
   /** Convert the supplied data to binary data */
   byte[] getBinary(Object object) throws HopValueException;
 
-  /** @return a copy of this value meta object */
+  /**
+   * @return a copy of this value meta object
+   */
   IValueMeta clone();
 
   /**
@@ -1264,12 +1280,14 @@ public interface IValueMeta extends Cloneable {
 
   /**
    * Store the metadata of this value in the specified json object.
+   *
    * @param jValue The object to store the metadata in.
    */
   void storeMetaInJson(JSONObject jValue) throws HopException;
 
   /**
    * Load additional metadata from the de-serialized JSON object
+   *
    * @param jValue The json object to load value metadata from
    */
   void loadMetaFromJson(JSONObject jValue);

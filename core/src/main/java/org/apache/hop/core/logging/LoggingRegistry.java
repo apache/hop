@@ -49,10 +49,20 @@ public class LoggingRegistry {
   }
 
   public String registerLoggingSource(Object object) {
+    return registerLoggingSource(object, false);
+  }
+
+  public String registerLoggingSource(Object object, boolean forceNewEntry) {
     synchronized (this.syncObject) {
       LoggingObject loggingSource = new LoggingObject(object);
 
-      ILoggingObject found = findExistingLoggingSource(loggingSource);
+      ILoggingObject found;
+
+      if (forceNewEntry) {
+        found = null;
+      } else {
+        found = findExistingLoggingSource(loggingSource);
+      }
       if (found != null) {
         ILoggingObject foundParent = found.getParent();
         ILoggingObject loggingSourceParent = loggingSource.getParent();
@@ -61,9 +71,8 @@ public class LoggingRegistry {
           String foundParentLogChannelId = foundParent.getLogChannelId();
           String sourceParentLogChannelId = loggingSourceParent.getLogChannelId();
           if (foundParentLogChannelId != null
-              && sourceParentLogChannelId != null
-              && foundParentLogChannelId.equals(sourceParentLogChannelId)
-              && foundLogChannelId != null) {
+                  && foundParentLogChannelId.equals(sourceParentLogChannelId)
+                  && foundLogChannelId != null) {
             return foundLogChannelId;
           }
         }
@@ -283,5 +292,14 @@ public class LoggingRegistry {
       childrenMap.clear();
       fileWriterBuffers.clear();
     }
+  }
+
+  /**
+   * Gets childrenMap
+   *
+   * @return value of childrenMap
+   */
+  public Map<String, List<String>> getChildrenMap() {
+    return childrenMap;
   }
 }

@@ -95,6 +95,10 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     userAgent = "Hop";
   }
 
+  public BeamPipelineRunConfiguration(String pluginId, String pluginName) {
+    super(pluginId, pluginName);
+  }
+
   public BeamPipelineRunConfiguration(BeamPipelineRunConfiguration config) {
     super(config);
     this.userAgent = config.userAgent;

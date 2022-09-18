@@ -62,6 +62,15 @@ public class LogChannel implements ILogChannel {
   }
 
   public LogChannel(Object subject, ILoggingObject parentObject) {
+    this(subject, parentObject, false, false);
+  }
+
+
+  public LogChannel(Object subject, ILoggingObject parentObject, boolean gatheringMetrics) {
+    this(subject, parentObject, gatheringMetrics, false);
+  }
+
+  public LogChannel(Object subject, ILoggingObject parentObject, boolean gatheringMetrics, boolean forceNewLoggingEntry) {
     if (parentObject != null) {
       this.logLevel = parentObject.getLogLevel();
       this.containerObjectId = parentObject.getContainerId();
@@ -69,12 +78,9 @@ public class LogChannel implements ILogChannel {
       this.logLevel = DefaultLogLevel.getLogLevel();
       this.containerObjectId = null;
     }
-    logChannelId = LoggingRegistry.getInstance().registerLoggingSource(subject);
-  }
-
-  public LogChannel(Object subject, ILoggingObject parentObject, boolean gatheringMetrics) {
-    this(subject, parentObject);
     this.gatheringMetrics = gatheringMetrics;
+
+    logChannelId = LoggingRegistry.getInstance().registerLoggingSource(subject, forceNewLoggingEntry);
   }
 
   @Override

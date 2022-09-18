@@ -205,8 +205,7 @@ public abstract class Workflow extends Variables
 
     workflowTracker = new WorkflowTracker(workflowMeta);
 
-    this.log = new LogChannel(this, parentLogging);
-    this.logLevel = log.getLogLevel();
+    this.log = LogChannel.GENERAL;
     this.containerObjectId = UUID.randomUUID().toString();
   }
 
@@ -243,6 +242,12 @@ public abstract class Workflow extends Variables
   public Result startExecution() {
 
     try {
+      // Create a new log channel at every start of an execution
+      // This is important if the same workflow is being executed in a loop.
+      //
+      this.log = new LogChannel(this, parentLoggingObject, isGatheringMetrics(), true);
+      this.logLevel = log.getLogLevel();
+
       executionStartDate = new Date();
       setStopped(false);
       setFinished(false);
@@ -972,12 +977,6 @@ public abstract class Workflow extends Variables
   @Override
   public void setWorkflowMeta(WorkflowMeta workflowMeta) {
     this.workflowMeta = workflowMeta;
-
-    // We change the topic in other words.
-    // This means we need to create a new Logging Object
-    //
-    this.log = new LogChannel(this, parentLoggingObject);
-    this.logLevel = log.getLogLevel();
   }
 
   @Override
@@ -1021,10 +1020,14 @@ public abstract class Workflow extends Variables
    */
   @Override
   public void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow) {
-    this.logLevel = parentWorkflow.getLogLevel();
-    this.log.setLogLevel(logLevel);
-    this.containerObjectId = log.getContainerObjectId();
     this.parentWorkflow = parentWorkflow;
+    if (parentWorkflow != null) {
+      this.logLevel = parentWorkflow.getLogLevel();
+    }
+    if (log != null) {
+      this.log.setLogLevel(logLevel);
+      this.containerObjectId = log.getContainerObjectId();
+    }
   }
 
   @Override
@@ -1321,7 +1324,9 @@ public abstract class Workflow extends Variables
   @Override
   public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
-    log.setLogLevel(logLevel);
+    if (log != null) {
+      log.setLogLevel(logLevel);
+    }
   }
 
   /**

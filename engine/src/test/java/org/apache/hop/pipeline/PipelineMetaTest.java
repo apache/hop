@@ -131,27 +131,6 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void getThisTransformFieldsPassesClonedInfoRowMeta() throws Exception {
-    // given
-    ITransformMeta smi = mock(ITransformMeta.class);
-    TransformIOMeta ioMeta = mock(TransformIOMeta.class);
-    when(smi.getTransformIOMeta()).thenReturn(ioMeta);
-
-    TransformMeta thisTransform = mockTransformMeta("thisTransform");
-    TransformMeta nextTransform = mockTransformMeta("nextTransform");
-    when(thisTransform.getTransform()).thenReturn(smi);
-
-    RowMeta row = new RowMeta();
-    when(smi.getTableFields(variables)).thenReturn(row);
-
-    // when
-    pipelineMeta.getThisTransformFields(variables, thisTransform, nextTransform, row);
-
-    // then
-    verify(smi, never()).getFields(any(), any(), eq(new IRowMeta[] {row}), any(), any(), any());
-  }
-
-  @Test
   public void testContentChangeListener() throws Exception {
     IContentChangedListener listener = mock(IContentChangedListener.class);
     pipelineMeta.addContentChangedListener(listener);

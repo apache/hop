@@ -48,10 +48,15 @@ import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.lineage.PipelineDataLineage;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.*;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
@@ -92,8 +97,12 @@ import org.apache.hop.ui.hopgui.file.pipeline.delegates.*;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
+import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
+import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
+import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
+import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
@@ -176,6 +185,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public static final String TOOLBAR_ITEM_EDIT_PIPELINE =
       "HopGuiPipelineGraph-ToolBar-10450-EditPipeline";
+
+  public static final String TOOLBAR_ITEM_TO_EXECUTION_INFO =
+      "HopGuiPipelineGraph-ToolBar-10475-ToExecutionInfo";
 
   public static final String ACTION_ID_PIPELINE_GRAPH_HOP_ENABLE =
       "pipeline-graph-hop-10010-hop-enable";
@@ -3793,8 +3805,25 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public boolean isCloseable() {
     try {
-      // Check if the file is saved. If not, ask for it to be saved.
+      // Check if the file is saved. If not, ask for it to be stopped before closing
       //
+      if (pipeline!=null && ( pipeline.isRunning() || pipeline.isPaused())) {
+        MessageBox messageDialog =
+                new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+        messageDialog.setText(BaseMessages.getString(PKG, "PipelineGraph.RunningFile.Dialog.Header"));
+        messageDialog.setMessage(
+                BaseMessages.getString(PKG, "PipelineGraph.RunningFile.Dialog.Message", buildTabName()));
+        int answer = messageDialog.open();
+        // The NO answer means: ignore the state of the pipeline and just let it run in the background
+        // It can be seen in the execution information perspective if a location was set up.
+        //
+        if ((answer & SWT.YES) != 0) {
+          // Stop the execution and close if the file hasn't been changed
+          pipeline.stopAll();
+        } else if ((answer & SWT.CANCEL) != 0) {
+          return false;
+        }
+      }
       if (pipelineMeta.hasChanged()) {
 
         MessageBox messageDialog =
@@ -5302,6 +5331,79 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public List<IGuiContextHandler> getContextHandlers() {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     return handlers;
+  }
+
+  @GuiContextAction(
+          id = "pipeline-graph-navigate-to-execution-info",
+          parentId = HopGuiPipelineContext.CONTEXT_ID,
+          type = GuiActionType.Info,
+          name = "i18n::HopGuiPipelineGraph.ContextualAction.NavigateToExecutionInfo.Text",
+          tooltip = "i18n::HopGuiPipelineGraph.ContextualAction.NavigateToExecutionInfo.Tooltip",
+          image = "ui/images/location.svg",
+          category = "Basic",
+          categoryOrder = "1")
+  public void navigateToExecutionInfo(HopGuiPipelineContext context) {
+    navigateToExecutionInfo();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_TO_EXECUTION_INFO,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.ToExecutionInfo",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/location.svg")
+  public void navigateToExecutionInfo() {
+    try {
+      // Is there an active IPipeline?
+      //
+      ExecutionPerspective ep = HopGui.getExecutionPerspective();
+
+      if (pipeline != null) {
+        IExecutionViewer viewer = ep.findViewer(pipeline.getLogChannelId(), pipelineMeta.getName());
+        if (viewer != null) {
+          ep.setActiveViewer(viewer);
+          ep.activate();
+          return;
+        }
+      }
+
+      MultiMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+
+      // As a fallback, try to open the last execution info for this pipeline
+      //
+      IHopMetadataSerializer<ExecutionInfoLocation> serializer =
+          metadataProvider.getSerializer(ExecutionInfoLocation.class);
+      List<String> locationNames = serializer.listObjectNames();
+      if (locationNames.isEmpty()) {
+        return;
+      }
+      ExecutionInfoLocation location;
+      if (locationNames.size()==1) {
+        // No need to ask which location, just pick this one
+        location = serializer.load(locationNames.get(0));
+      } else {
+        EnterSelectionDialog dialog = new EnterSelectionDialog(getShell(), locationNames.toArray(new String[0]),
+                "Select location", "Select the execution information location to query");
+        String locationName = dialog.open();
+        if (locationName!=null) {
+          location = serializer.load(locationName);
+        } else {
+          return;
+        }
+      }
+
+      // Initialize the location.
+      location.getExecutionInfoLocation().initialize(variables, metadataProvider);
+
+      ep.createLastExecutionView(location, ExecutionType.Pipeline, pipelineMeta.getName());
+      ep.activate();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          "Error",
+          "Error navigating to the latest execution information for this pipeline",
+          e);
+    }
   }
 
   /**

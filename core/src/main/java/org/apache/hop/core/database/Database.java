@@ -352,7 +352,7 @@ public class Database implements IVariables, ILoggingObject {
           }
           // Prevent registering multiple delegating drivers for same class, plugin
           if (!registeredDriversFromPlugin.contains(driverClass.getCanonicalName())) {
-            DriverManager.registerDriver(new DelegatingDriver((Driver) driverClass.newInstance()));
+            DriverManager.registerDriver(new DelegatingDriver((Driver) driverClass.getDeclaredConstructor().newInstance()));
             registeredDriversFromPlugin.add(driverClass.getCanonicalName());
           }
         } else {

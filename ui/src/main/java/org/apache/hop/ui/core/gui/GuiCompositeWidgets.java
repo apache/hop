@@ -34,10 +34,12 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.*;
 
+import javax.ws.rs.core.Form;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -78,7 +80,6 @@ public class GuiCompositeWidgets {
       Composite parent,
       String parentGuiElementId,
       Control lastControl) {
-
     // Find the GUI Elements for the given class...
     //
     GuiRegistry registry = GuiRegistry.getInstance();

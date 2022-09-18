@@ -255,7 +255,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
       wLogLevel.select(Integer.parseInt(pipelineUsageMap.get(LOG_LEVEL)));
     } else {
       wLogLevel.select(configuration.getLogLevel().getLevel());
-}
+    }
     getParamsData();
     getVariablesData();
   }
@@ -350,10 +350,12 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
         PipelineRunConfiguration local =
             new PipelineRunConfiguration(
                 "local",
+                "",
                 BaseMessages.getString(
                     PKG, "PipelineExecutionConfigurationDialog.LocalRunConfiguration.Description"),
                 new ArrayList<>(),
-                localPipelineRunConfiguration);
+                localPipelineRunConfiguration,
+                null);
         prcSerializer.save(local);
 
         return local.getName();
@@ -370,7 +372,9 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     return null;
   }
 
-  /** @return the configuration */
+  /**
+   * @return the configuration
+   */
   public PipelineExecutionConfiguration getConfiguration() {
     return (PipelineExecutionConfiguration) configuration;
   }

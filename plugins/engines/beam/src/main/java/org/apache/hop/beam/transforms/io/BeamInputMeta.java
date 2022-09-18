@@ -124,7 +124,9 @@ public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData> i
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
+      String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
       List<String> transformPluginClasses,
@@ -134,7 +136,8 @@ public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData> i
       org.apache.beam.sdk.Pipeline pipeline,
       IRowMeta rowMeta,
       List<TransformMeta> previousTransforms,
-      PCollection<HopRow> input)
+      PCollection<HopRow> input,
+      String parentLogChannelId)
       throws HopException {
     // Input handling
     //

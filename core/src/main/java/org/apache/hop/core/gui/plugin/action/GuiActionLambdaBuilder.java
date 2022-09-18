@@ -72,7 +72,7 @@ public class GuiActionLambdaBuilder<T> {
         // This makes the plugins even simpler.
         //
         try {
-          guiPlugin = guiPluginClass.newInstance();
+          guiPlugin = guiPluginClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
           throw nsme;
         }

@@ -2076,7 +2076,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     ClassLoader loader = registry.getClassLoader(plugin);
 
     Class<?> clazz = Class.forName(iDatabase.getDatabaseFactoryName(), true, loader);
-    return (IDatabaseFactory) clazz.newInstance();
+    return (IDatabaseFactory) clazz.getDeclaredConstructor().newInstance();
   }
 
   public String getPreferredSchemaName() {

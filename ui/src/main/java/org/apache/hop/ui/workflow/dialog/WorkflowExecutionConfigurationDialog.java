@@ -396,6 +396,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
                 "local",
                 BaseMessages.getString(
                     PKG, "WorkflowExecutionConfigurationDialog.LocalRunConfiguration.Description"),
+                null,
                 localWorkflowRunConfiguration);
         prcSerializer.save(local);
 
