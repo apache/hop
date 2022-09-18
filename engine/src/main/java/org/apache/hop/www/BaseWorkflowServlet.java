@@ -70,7 +70,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
     // Create the workflow and store in the list...
     //
-    String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
+    String runConfigurationName = variables.resolve(workflowExecutionConfiguration.getRunConfiguration());
     final IWorkflowEngine<WorkflowMeta> workflow =
         WorkflowEngineFactory.createWorkflowEngine(
             variables, runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject);
@@ -124,7 +124,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
         pipelineConfiguration.getPipelineExecutionConfiguration().getRunConfiguration();
     final IPipelineEngine<PipelineMeta> pipeline =
         PipelineEngineFactory.createPipelineEngine(
-            variables, runConfigurationName, metadataProvider, pipelineMeta);
+            variables, variables.resolve(runConfigurationName), metadataProvider, pipelineMeta);
     pipeline.setParent(servletLoggingObject);
     pipeline.setMetadataProvider(metadataProvider);
 

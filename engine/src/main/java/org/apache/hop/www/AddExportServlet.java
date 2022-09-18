@@ -162,7 +162,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           final IWorkflowEngine<WorkflowMeta> workflow =
               WorkflowEngineFactory.createWorkflowEngine(
                   variables,
-                  runConfigurationName,
+                  variables.resolve(runConfigurationName),
                   metadataProvider,
                   workflowMeta,
                   servletLoggingObject);
@@ -203,7 +203,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           String runConfigurationName = executionConfiguration.getRunConfiguration();
           IPipelineEngine<PipelineMeta> pipeline =
               PipelineEngineFactory.createPipelineEngine(
-                  variables, runConfigurationName, metadataProvider, pipelineMeta);
+                  variables, variables.resolve(runConfigurationName), metadataProvider, pipelineMeta);
           pipeline.setParent(servletLoggingObject);
 
           // store it all in the map...

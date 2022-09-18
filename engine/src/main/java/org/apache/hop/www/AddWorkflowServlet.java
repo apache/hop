@@ -118,7 +118,7 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
       final IWorkflowEngine<WorkflowMeta> workflow =
           WorkflowEngineFactory.createWorkflowEngine(
               variables,
-              runConfigurationName,
+              variables.resolve(runConfigurationName),
               metadataProvider,
               workflowMeta,
               servletLoggingObject);
