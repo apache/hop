@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.row;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
@@ -65,6 +66,7 @@ import java.util.List;
  *
  * <p>
  */
+@JsonDeserialize(as=RowMeta.class)
 public interface IRowMeta extends Cloneable {
 
   /**

@@ -447,7 +447,7 @@ public class PluginRegistry {
           cl = (Class<? extends T>) ucl.loadClass(className);
         }
 
-        return cl.newInstance();
+        return cl.getDeclaredConstructor().newInstance();
       } catch (ClassNotFoundException e) {
         throw new HopPluginException(
             BaseMessages.getString(

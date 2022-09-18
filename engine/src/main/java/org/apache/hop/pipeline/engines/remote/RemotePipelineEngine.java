@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.engines.remote;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -34,6 +35,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.execution.sampler.IExecutionDataSampler;
+import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.*;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
@@ -257,7 +260,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     // Add parameters to the executionConfiguration
     Map<String, String> params = new HashMap<>();
     for (String param : listParameters()) {
-        params.put(param, getVariable(param));
+      params.put(param, getVariable(param));
     }
 
     executionConfiguration.getParametersMap().putAll(params);
@@ -386,7 +389,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     // These are used at startup and shouldn't have an effect at runtime.
     // e.g. to be configured on the server
     //
-    if (VariableRegistry.getInstance().getVariableNames(VariableScope.SYSTEM, VariableScope.APPLICATION).contains(variableName)) {
+    if (VariableRegistry.getInstance()
+        .getVariableNames(VariableScope.SYSTEM, VariableScope.APPLICATION)
+        .contains(variableName)) {
       return false;
     }
     if (variableName.equals("LOG_PATH")) {
@@ -883,7 +888,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return parentPipeline;
   }
 
-  /** @param parentPipeline The parentPipeline to set */
+  /**
+   * @param parentPipeline The parentPipeline to set
+   */
   @Override
   public void setParentPipeline(IPipelineEngine parentPipeline) {
     this.parentPipeline = parentPipeline;
@@ -899,7 +906,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return parentWorkflow;
   }
 
-  /** @param parentWorkflow The parentWorkflow to set */
+  /**
+   * @param parentWorkflow The parentWorkflow to set
+   */
   @Override
   public void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow) {
     this.parentWorkflow = parentWorkflow;
@@ -915,7 +924,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return executionStartedListeners;
   }
 
-  /** @param executionStartedListeners The executionStartedListeners to set */
+  /**
+   * @param executionStartedListeners The executionStartedListeners to set
+   */
   public void setExecutionStartedListeners(
       List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners) {
     this.executionStartedListeners = executionStartedListeners;
@@ -940,7 +951,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return executionFinishedListeners;
   }
 
-  /** @param executionFinishedListeners The executionFinishedListeners to set */
+  /**
+   * @param executionFinishedListeners The executionFinishedListeners to set
+   */
   public void setExecutionFinishedListeners(
       List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners) {
     this.executionFinishedListeners = executionFinishedListeners;
@@ -994,10 +1007,32 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return executionStoppedListeners;
   }
 
-  /** @param executionStoppedListeners The executionStoppedListeners to set */
+  /**
+   * @param executionStoppedListeners The executionStoppedListeners to set
+   */
   public void setExecutionStoppedListeners(
       List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> executionStoppedListeners) {
     this.executionStoppedListeners = executionStoppedListeners;
+  }
+
+  @Override
+  public <Store extends IExecutionDataSamplerStore, Sampler extends IExecutionDataSampler<Store>>
+      void addExecutionDataSampler(Sampler sampler) throws HopException {
+    try {
+      // We need to add this sampler to the remotely executing pipeline
+      // This means that the sampler needs to be present remotely before we can do this.
+      // We need to serialize the sampler metadata to JSON and then send it over
+      //
+      ObjectMapper mapper = new ObjectMapper();
+      String json = mapper.writeValueAsString(sampler);
+
+      // TODO: send this mapper over to the remote pipeline.
+      // TODO: create new servlet to accept a new data sampler
+
+      throw new HopException("Adding execution data sampler to remote pipeline is not yet implemented");
+    } catch (Exception e) {
+      throw new HopException("Error adding execution data sampler to remote pipeline", e);
+    }
   }
 
   /**
@@ -1010,7 +1045,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return errors;
   }
 
-  /** @param errors The errors to set */
+  /**
+   * @param errors The errors to set
+   */
   public void setErrors(int errors) {
     this.errors = errors;
   }
@@ -1025,7 +1062,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return pipelineRunConfiguration;
   }
 
-  /** @param pipelineRunConfiguration The pipelineRunConfiguration to set */
+  /**
+   * @param pipelineRunConfiguration The pipelineRunConfiguration to set
+   */
   @Override
   public void setPipelineRunConfiguration(PipelineRunConfiguration pipelineRunConfiguration) {
     this.pipelineRunConfiguration = pipelineRunConfiguration;
@@ -1041,7 +1080,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return subject;
   }
 
-  /** @param subject The subject to set */
+  /**
+   * @param subject The subject to set
+   */
   @Override
   public void setPipelineMeta(PipelineMeta subject) {
     this.subject = subject;
@@ -1057,7 +1098,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return pluginId;
   }
 
-  /** @param pluginId The pluginId to set */
+  /**
+   * @param pluginId The pluginId to set
+   */
   @Override
   public void setPluginId(String pluginId) {
     this.pluginId = pluginId;
@@ -1073,7 +1116,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return preparing;
   }
 
-  /** @param preparing The preparing to set */
+  /**
+   * @param preparing The preparing to set
+   */
   public void setPreparing(boolean preparing) {
     this.preparing = preparing;
   }
@@ -1088,7 +1133,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return readyToStart;
   }
 
-  /** @param readyToStart The readyToStart to set */
+  /**
+   * @param readyToStart The readyToStart to set
+   */
   public void setReadyToStart(boolean readyToStart) {
     this.readyToStart = readyToStart;
   }
@@ -1103,7 +1150,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return running;
   }
 
-  /** @param running The running to set */
+  /**
+   * @param running The running to set
+   */
   public void setRunning(boolean running) {
     this.running = running;
   }
@@ -1118,7 +1167,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return stopped;
   }
 
-  /** @param stopped The stopped to set */
+  /**
+   * @param stopped The stopped to set
+   */
   public void setStopped(boolean stopped) {
     this.stopped = stopped;
   }
@@ -1133,7 +1184,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return metadataProvider;
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   @Override
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
@@ -1149,7 +1202,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return logChannel;
   }
 
-  /** @param log The logChannel to set */
+  /**
+   * @param log The logChannel to set
+   */
   @Override
   public void setLogChannel(ILogChannel log) {
     this.logChannel = log;
@@ -1164,7 +1219,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return hopServer;
   }
 
-  /** @param hopServer The hopServer to set */
+  /**
+   * @param hopServer The hopServer to set
+   */
   public void setHopServer(HopServer hopServer) {
     this.hopServer = hopServer;
   }
@@ -1179,7 +1236,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return engineMetrics;
   }
 
-  /** @param engineMetrics The engineMetrics to set */
+  /**
+   * @param engineMetrics The engineMetrics to set
+   */
   public void setEngineMetrics(EngineMetrics engineMetrics) {
     this.engineMetrics = engineMetrics;
   }
@@ -1194,7 +1253,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return finished;
   }
 
-  /** @param finished The finished to set */
+  /**
+   * @param finished The finished to set
+   */
   public void setFinished(boolean finished) {
     this.finished = finished;
   }
@@ -1209,7 +1270,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return paused;
   }
 
-  /** @param paused The paused to set */
+  /**
+   * @param paused The paused to set
+   */
   public void setPaused(boolean paused) {
     this.paused = paused;
   }
@@ -1224,7 +1287,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return parent;
   }
 
-  /** @param parent The parent to set */
+  /**
+   * @param parent The parent to set
+   */
   @Override
   public void setParent(ILoggingObject parent) {
     this.parent = parent;
@@ -1243,7 +1308,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return logLevel;
   }
 
-  /** @param logLevel The logLevel to set */
+  /**
+   * @param logLevel The logLevel to set
+   */
   @Override
   public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
@@ -1259,7 +1326,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return preview;
   }
 
-  /** @param preview The preview to set */
+  /**
+   * @param preview The preview to set
+   */
   @Override
   public void setPreview(boolean preview) {
     this.preview = preview;
@@ -1274,7 +1343,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return hasHaltedComponents;
   }
 
-  /** @param hasHaltedComponents The hasHaltedComponents to set */
+  /**
+   * @param hasHaltedComponents The hasHaltedComponents to set
+   */
   public void setHasHaltedComponents(boolean hasHaltedComponents) {
     this.hasHaltedComponents = hasHaltedComponents;
   }
@@ -1289,7 +1360,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return feedbackShown;
   }
 
-  /** @param feedbackShown The feedbackShown to set */
+  /**
+   * @param feedbackShown The feedbackShown to set
+   */
   public void setFeedbackShown(boolean feedbackShown) {
     this.feedbackShown = feedbackShown;
   }
@@ -1304,7 +1377,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return feedbackSize;
   }
 
-  /** @param feedbackSize The feedbackSize to set */
+  /**
+   * @param feedbackSize The feedbackSize to set
+   */
   public void setFeedbackSize(int feedbackSize) {
     this.feedbackSize = feedbackSize;
   }
@@ -1318,7 +1393,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return lastLogLineNr;
   }
 
-  /** @param lastLogLineNr The lastLogLineNr to set */
+  /**
+   * @param lastLogLineNr The lastLogLineNr to set
+   */
   public void setLastLogLineNr(int lastLogLineNr) {
     this.lastLogLineNr = lastLogLineNr;
   }
@@ -1332,7 +1409,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return loggingObject;
   }
 
-  /** @param loggingObject The loggingObject to set */
+  /**
+   * @param loggingObject The loggingObject to set
+   */
   public void setLoggingObject(ILoggingObject loggingObject) {
     this.loggingObject = loggingObject;
   }
@@ -1347,7 +1426,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return previousResult;
   }
 
-  /** @param previousResult The previousResult to set */
+  /**
+   * @param previousResult The previousResult to set
+   */
   @Override
   public void setPreviousResult(Result previousResult) {
     this.previousResult = previousResult;
@@ -1362,7 +1443,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return activeSubPipelines;
   }
 
-  /** @param activeSubPipelines The activeSubPipelines to set */
+  /**
+   * @param activeSubPipelines The activeSubPipelines to set
+   */
   public void setActiveSubPipelines(Map<String, IPipelineEngine> activeSubPipelines) {
     this.activeSubPipelines = activeSubPipelines;
   }
@@ -1376,7 +1459,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return activeSubWorkflows;
   }
 
-  /** @param activeSubWorkflows The activeSubWorkflows to set */
+  /**
+   * @param activeSubWorkflows The activeSubWorkflows to set
+   */
   public void setActiveSubWorkflows(Map<String, IWorkflowEngine<WorkflowMeta>> activeSubWorkflows) {
     this.activeSubWorkflows = activeSubWorkflows;
   }
@@ -1497,7 +1582,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return namedParams;
   }
 
-  /** @param namedParams The namedParams to set */
+  /**
+   * @param namedParams The namedParams to set
+   */
   public void setNamedParams(INamedParameters namedParams) {
     this.namedParams = namedParams;
   }
@@ -1512,7 +1599,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return containerId;
   }
 
-  /** @param containerId The containerId to set */
+  /**
+   * @param containerId The containerId to set
+   */
   @Override
   public void setContainerId(String containerId) {
     this.containerId = containerId;
@@ -1537,12 +1626,16 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return extensionDataMap;
   }
 
-  /** @param statusDescription The statusDescription to set */
+  /**
+   * @param statusDescription The statusDescription to set
+   */
   public void setStatusDescription(String statusDescription) {
     this.statusDescription = statusDescription;
   }
 
-  /** @param status The status to set */
+  /**
+   * @param status The status to set
+   */
   public void setStatus(ComponentExecutionStatus status) {
     this.status = status;
   }
@@ -1556,7 +1649,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return serverPollDelay;
   }
 
-  /** @param serverPollDelay The serverPollDelay to set */
+  /**
+   * @param serverPollDelay The serverPollDelay to set
+   */
   public void setServerPollDelay(long serverPollDelay) {
     this.serverPollDelay = serverPollDelay;
   }
@@ -1570,12 +1665,16 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return serverPollInterval;
   }
 
-  /** @param serverPollInterval The serverPollInterval to set */
+  /**
+   * @param serverPollInterval The serverPollInterval to set
+   */
   public void setServerPollInterval(long serverPollInterval) {
     this.serverPollInterval = serverPollInterval;
   }
 
-  /** @param extensionDataMap The extensionDataMap to set */
+  /**
+   * @param extensionDataMap The extensionDataMap to set
+   */
   public void setExtensionDataMap(Map<String, Object> extensionDataMap) {
     this.extensionDataMap = extensionDataMap;
   }

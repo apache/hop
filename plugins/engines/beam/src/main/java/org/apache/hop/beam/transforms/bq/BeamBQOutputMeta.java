@@ -102,7 +102,9 @@ public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData> implem
   public void handleTransform(
       ILogChannel log,
       IVariables variables,
+      String runConfigurationName,
       IBeamPipelineEngineRunConfiguration runConfiguration,
+      String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
       List<String> transformPluginClasses,
@@ -112,7 +114,8 @@ public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData> implem
       org.apache.beam.sdk.Pipeline pipeline,
       IRowMeta rowMeta,
       List<TransformMeta> previousTransforms,
-      PCollection<HopRow> input)
+      PCollection<HopRow> input,
+      String parentLogChannelId)
       throws HopException {
 
     BeamBQOutputTransform beamOutputTransform =

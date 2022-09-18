@@ -62,6 +62,12 @@
             <version>${jaxrs.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.connectors</groupId>
+            <artifactId>jersey-apache-connector</artifactId>
+            <version>2.30</version>
+        </dependency>
+
     </dependencies>
 
 </project>

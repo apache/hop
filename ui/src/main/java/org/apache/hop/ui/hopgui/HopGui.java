@@ -80,6 +80,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectiveManager;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchLocation;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -1470,6 +1471,11 @@ public class HopGui
         HopGui.getInstance()
             .getPerspectiveManager()
             .findPerspective(HopDataOrchestrationPerspective.class);
+  }
+
+  public static ExecutionPerspective getExecutionPerspective() {
+    return (ExecutionPerspective)
+        HopGui.getInstance().getPerspectiveManager().findPerspective(ExecutionPerspective.class);
   }
 
   /**

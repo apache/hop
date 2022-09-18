@@ -72,7 +72,6 @@ limitations under the License.
       <loglevel>Basic</loglevel>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>
@@ -84,18 +83,8 @@ limitations under the License.
         </parameter>
       </parameters>
       <parallel>N</parallel>
-      <xloc>310</xloc>
+      <xloc>176</xloc>
       <yloc>48</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>Abort workflow</name>
-      <description/>
-      <type>ABORT</type>
-      <attributes/>
-      <parallel>N</parallel>
-      <xloc>570</xloc>
-      <yloc>208</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -116,7 +105,6 @@ limitations under the License.
       <loglevel>Basic</loglevel>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>
@@ -128,7 +116,7 @@ limitations under the License.
         </parameter>
       </parameters>
       <parallel>N</parallel>
-      <xloc>570</xloc>
+      <xloc>432</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -150,7 +138,6 @@ limitations under the License.
       <loglevel>Basic</loglevel>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>
@@ -162,7 +149,40 @@ limitations under the License.
         </parameter>
       </parameters>
       <parallel>N</parallel>
-      <xloc>830</xloc>
+      <xloc>688</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0003-rest-client-query-param-in-url.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0003-rest-client-query-param-in-url.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>HOSTNAME</name>
+          <stream_name/>
+          <value>${HOSTNAME}</value>
+        </parameter>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>944</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -174,13 +194,6 @@ limitations under the License.
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>0003-rest-client.hpl</from>
-      <to>Abort workflow</to>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>N</unconditional>
     </hop>
     <hop>
       <from>0003-rest-client.hpl</from>
@@ -197,17 +210,10 @@ limitations under the License.
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>0003-rest-client-test-headers.hpl</from>
-      <to>Abort workflow</to>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
       <from>0003-rest-client-test-parameters.hpl</from>
-      <to>Abort workflow</to>
+      <to>0003-rest-client-query-param-in-url.hpl</to>
       <enabled>Y</enabled>
-      <evaluation>N</evaluation>
+      <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
   </hops>

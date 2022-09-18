@@ -1,0 +1,41 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        }
+      ],
+      "field_order": [
+        "value"
+      ],
+      "transform_name": "false",
+      "data_set_name": "golden-java-filter-false"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        }
+      ],
+      "field_order": [
+        "value"
+      ],
+      "transform_name": "true",
+      "data_set_name": "golden-java-filter-true"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0046-java-filter UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0046-java-filter.hpl",
+  "test_type": "UNIT_TEST"
+}

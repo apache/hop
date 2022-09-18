@@ -17,25 +17,30 @@
 
 package org.apache.hop.core.row;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /** This class contains a list of data rows as well as the IRowMeta to describe it. */
 public class RowBuffer {
 
-  public static final String XML_TAG = "row-buffer";
+  @JsonIgnore public static final String XML_TAG = "row-buffer";
 
   private IRowMeta rowMeta;
   private List<Object[]> buffer;
 
   public RowBuffer() {
     rowMeta = new RowMeta();
-    buffer = new ArrayList<>();
+    buffer = Collections.synchronizedList(new ArrayList<>());
   }
 
   /**
@@ -47,11 +52,49 @@ public class RowBuffer {
     this.buffer = buffer;
   }
 
-  /** @param rowMeta */
+  /**
+   * @param rowMeta
+   */
   public RowBuffer(IRowMeta rowMeta) {
-    this(rowMeta, new ArrayList<>());
+    this(rowMeta, Collections.synchronizedList(new ArrayList<>()));
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    RowBuffer that = (RowBuffer) o;
+    if (!this.rowMeta.equals(that.rowMeta)) {
+      return false;
+    }
+    if (this.buffer.size() != that.buffer.size()) {
+      return false;
+    }
+    for (int i = 0; i < this.buffer.size(); i++) {
+      Object[] thisRow = this.buffer.get(i);
+      Object[] thatRow = that.buffer.get(i);
+
+      for (int v = 0; v < rowMeta.size(); v++) {
+        IValueMeta valueMeta = rowMeta.getValueMeta(v);
+        try {
+          if (valueMeta.compare(thisRow[v], thatRow[v]) != 0) {
+            return false;
+          }
+        } catch (HopValueException e) {
+          throw new RuntimeException(
+              "Error comparing 2 values in a row buffer row: " + valueMeta.getName(), e);
+        }
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(rowMeta, buffer);
+  }
+
+  @JsonIgnore
   public String getXml() throws IOException {
     String xml = XmlHandler.openTag(XML_TAG);
     xml += rowMeta.getMetaXml();
@@ -81,7 +124,7 @@ public class RowBuffer {
     return buffer.isEmpty();
   }
 
-  public void addRow(Object[] row) {
+  public void addRow(Object...row) {
     buffer.add(row);
   }
 
@@ -97,22 +140,30 @@ public class RowBuffer {
     buffer.set(index, row);
   }
 
-  /** @return the rowMeta */
+  /**
+   * @return the rowMeta
+   */
   public IRowMeta getRowMeta() {
     return rowMeta;
   }
 
-  /** @param rowMeta the rowMeta to set */
+  /**
+   * @param rowMeta the rowMeta to set
+   */
   public void setRowMeta(IRowMeta rowMeta) {
     this.rowMeta = rowMeta;
   }
 
-  /** @return the buffer */
+  /**
+   * @return the buffer
+   */
   public List<Object[]> getBuffer() {
     return buffer;
   }
 
-  /** @param buffer the buffer to set */
+  /**
+   * @param buffer the buffer to set
+   */
   public void setBuffer(List<Object[]> buffer) {
     this.buffer = buffer;
   }

@@ -47,9 +47,13 @@ import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
@@ -78,6 +82,8 @@ import org.apache.hop.ui.hopgui.file.workflow.delegates.*;
 import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExtension;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
+import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
+import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -155,7 +161,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       "HopGuiWorkflowGraph-ToolBar-10530-Zoom-100Pct";
 
   public static final String TOOLBAR_ITEM_EDIT_WORKFLOW =
-      "HopGuiWorkflowGrpah-ToolBar-10450-EditWorkflow";
+      "HopGuiWorkflowGraph-ToolBar-10450-EditWorkflow";
+
+  public static final String TOOLBAR_ITEM_TO_EXECUTION_INFO =
+          "HopGuiWorkflowGraph-ToolBar-10475-ToExecutionInfo";
 
   private static final String STRING_PARALLEL_WARNING_PARAMETER = "ParallelActionsWarning";
 
@@ -208,7 +217,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   // Keep track if a contextual dialog box is open, do not display the tooltip
   private boolean openedContextDialog = false;
-  
+
   protected int lastButton;
 
   protected WorkflowHopMeta lastHopSplit;
@@ -829,7 +838,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               //
               if (workflowMeta.findWorkflowHop(selectedAction, hi.getFromAction()) == null
                   && workflowMeta.findWorkflowHop(hi.getToAction(), selectedAction) == null) {
-                
+
                 workflowActionDelegate.insetAction(workflowMeta, hi, selectedAction);
               }
               // else: Silently discard this hop-split attempt.
@@ -1029,13 +1038,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
           this.openedContextDialog = true;
           this.hideToolTips();
-          
+
           // Show the context dialog
           //
           ignoreNextClick =
               GuiContextUtil.getInstance()
                   .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
-          
+
           this.openedContextDialog = false;
         }
       }
@@ -1828,10 +1837,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     IPlugin plugin =
         PluginRegistry.getInstance()
             .getPlugin(ActionPluginType.class, context.getActionMeta().getAction());
-        
+
     HelpUtils.openHelp(getShell(), plugin);
   }
-  
+
   protected synchronized void setMenu(int x, int y) {
 
     currentMouseX = x;
@@ -2287,11 +2296,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "3")
   public void insertAction(HopGuiWorkflowHopContext context) {
-    
+
     // Build actions list
     //
     List<GuiAction> guiActions = new ArrayList<>();
-    PluginRegistry registry = PluginRegistry.getInstance();    
+    PluginRegistry registry = PluginRegistry.getInstance();
     for (IPlugin plugin : registry.getPlugins(ActionPluginType.class)) {
 
       GuiAction guiAction =
@@ -2312,7 +2321,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       guiAction.getKeywords().add(plugin.getCategory());
       guiAction.setCategory(plugin.getCategory());
       guiAction.setCategoryOrder(plugin.getCategory());
-      
+
       try {
         guiAction.setClassLoader(registry.getClassLoader(plugin));
       } catch (HopPluginException e) {
@@ -2322,12 +2331,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       guiActions.add(guiAction);
     }
-    
+
     String message =
         BaseMessages.getString(
             PKG,
             "HopGuiWorkflowGraph.ContextualActionDialog.InsertAction.Header");
-    
+
     ContextDialog contextDialog =
         new ContextDialog(
             hopShell(), message, context.getClick(), guiActions,HopGuiWorkflowContext.CONTEXT_ID);
@@ -2339,7 +2348,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       actionLambda.executeAction(contextDialog.isShiftClicked(), contextDialog.isCtrlClicked());
     }
   }
-  
+
   public void enableDisableHopsDownstream(WorkflowHopMeta hop, boolean enabled) {
     if (hop == null) {
       return;
@@ -2535,8 +2544,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         case ACTION_INFO_ICON:
         case ACTION_ICON:
           ActionMeta actionMetaInfo = (ActionMeta) areaOwner.getOwner();
-          
-          // If transform is deprecated, display first  
+
+          // If transform is deprecated, display first
           if (actionMetaInfo.isDeprecated()) { // only need tooltip if action is deprecated
             tip.append(BaseMessages.getString(PKG, "WorkflowGraph.DeprecatedEntry.Tooltip.Title"))
                 .append(Const.CR);
@@ -2561,7 +2570,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           }
           else if ( !Utils.isEmpty(actionMetaInfo.getDescription()) ) {
             tip.append(actionMetaInfo.getDescription());
-          }      
+          }
           break;
         default:
           // For plugins...
@@ -3478,10 +3487,28 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public boolean isCloseable() {
     try {
+      // Check if the file is saved. If not, ask for it to be stopped before closing
+      //
+      if (workflow!=null && ( workflow.isActive())) {
+        MessageBox messageDialog =
+                new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+        messageDialog.setText(BaseMessages.getString(PKG, "HopGuiWorkflowGraph.RunningFile.Dialog.Header"));
+        messageDialog.setMessage(
+                BaseMessages.getString(PKG, "HopGuiWorkflowGraph.RunningFile.Dialog.Message", buildTabName()));
+        int answer = messageDialog.open();
+        // The NO answer means: ignore the state of the workflow and just let it run in the background
+        // It can be seen in the execution information perspective if a location was set up.
+        //
+        if ((answer & SWT.YES) != 0) {
+          // Stop the execution and close if the file hasn't been changed
+          workflow.stopExecution();
+        } else if ((answer & SWT.CANCEL) != 0) {
+          return false;
+        }
+      }
       // Check if the file is saved. If not, ask for it to be saved.
       //
       if (workflowMeta.hasChanged()) {
-
         MessageBox messageDialog =
             new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
         messageDialog.setText(
@@ -4047,6 +4074,79 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    */
   public Thread getWorkflowThread() {
     return workflowThread;
+  }
+
+  @GuiContextAction(
+          id = "workflow-graph-navigate-to-execution-info",
+          parentId = HopGuiWorkflowContext.CONTEXT_ID,
+          type = GuiActionType.Info,
+          name = "i18n::HopGuiWorkflowGraph.ContextualAction.NavigateToExecutionInfo.Text",
+          tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.NavigateToExecutionInfo.Tooltip",
+          image = "ui/images/location.svg",
+          category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
+          categoryOrder = "1")
+  public void navigateToExecutionInfo(HopGuiWorkflowContext context) {
+    navigateToExecutionInfo();
+  }
+
+  @GuiToolbarElement(
+          root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+          id = TOOLBAR_ITEM_TO_EXECUTION_INFO,
+          toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.ToExecutionInfo",
+          type = GuiToolbarElementType.BUTTON,
+          image = "ui/images/location.svg")
+  public void navigateToExecutionInfo() {
+    try {
+      // Is there an active IPipeline?
+      //
+      ExecutionPerspective ep = HopGui.getExecutionPerspective();
+
+      if (workflow != null) {
+        IExecutionViewer viewer = ep.findViewer(workflow.getLogChannelId(), workflowMeta.getName());
+        if (viewer != null) {
+          ep.setActiveViewer(viewer);
+          ep.activate();
+          return;
+        }
+      }
+
+      MultiMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+
+      // As a fallback, try to open the last execution info for this workflow
+      //
+      IHopMetadataSerializer<ExecutionInfoLocation> serializer =
+              metadataProvider.getSerializer(ExecutionInfoLocation.class);
+      List<String> locationNames = serializer.listObjectNames();
+      if (locationNames.isEmpty()) {
+        return;
+      }
+      ExecutionInfoLocation location;
+      if (locationNames.size()==1) {
+        // No need to ask which location, just pick this one
+        location = serializer.load(locationNames.get(0));
+      } else {
+        EnterSelectionDialog dialog = new EnterSelectionDialog(getShell(), locationNames.toArray(new String[0]),
+                "Select location", "Select the execution information location to query");
+        String locationName = dialog.open();
+        if (locationName!=null) {
+          location = serializer.load(locationName);
+        } else {
+          return;
+        }
+      }
+
+      // Initialize the location
+      location.getExecutionInfoLocation().initialize(variables, metadataProvider);
+
+      ep.createLastExecutionView(location, ExecutionType.Workflow, workflowMeta.getName());
+      ep.activate();
+    } catch (Exception e) {
+      new ErrorDialog(
+              getShell(),
+              "Error",
+              "Error navigating to the latest execution information for this pipeline",
+              e);
+    }
   }
 
   @Override

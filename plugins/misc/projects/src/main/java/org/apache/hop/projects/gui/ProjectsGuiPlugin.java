@@ -367,6 +367,7 @@ public class ProjectsGuiPlugin {
                     "local",
                     BaseMessages.getString(
                         PKG, "ProjectGuiPlugin.LocalWFRunConfigDescription.Text"),
+                    null,
                     localWorkflowRunConfiguration);
             wrcSerializer.save(local);
           }

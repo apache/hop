@@ -15,37 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.hop.ui.hopgui.file.pipeline.extension;
+package org.apache.hop.execution.plugin;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
+import java.lang.annotation.*;
 
-public class HopGuiPipelinePreviewExtension {
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface ExecutionInfoLocationPlugin {
+  String id();
 
-  private Composite previewTab;
-  private Control previewToolbar;
-  private Composite preview;
+  String name() default "";
 
-  /**
-   * @param previewTab
-   * @param previewToolbar
-   */
-  public HopGuiPipelinePreviewExtension(
-      Composite previewTab, Control previewToolbar, Composite preview) {
-    this.preview = preview;
-    this.previewTab = previewTab;
-    this.previewToolbar = previewToolbar;
-  }
-
-  public Composite getPreviewTab() {
-    return previewTab;
-  }
-
-  public Control getPreviewToolbar() {
-    return previewToolbar;
-  }
-
-  public Composite getPreview() {
-    return preview;
-  }
+  String description() default "";
 }

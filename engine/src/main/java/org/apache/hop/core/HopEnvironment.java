@@ -33,6 +33,8 @@ import org.apache.hop.core.plugins.*;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.VariableScope;
+import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
+import org.apache.hop.execution.sampler.ExecutionDataSamplerPluginType;
 import org.apache.hop.imp.ImportPluginType;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
@@ -85,7 +87,9 @@ public class HopEnvironment {
         WorkflowEnginePluginType.getInstance(),
         ConfigPluginType.getInstance(),
         MetadataPluginType.getInstance(),
-        ImportPluginType.getInstance());
+        ImportPluginType.getInstance(),
+        ExecutionDataSamplerPluginType.getInstance(),
+        ExecutionInfoLocationPluginType.getInstance());
   }
 
   public static void init(List<IPluginType> pluginTypes) throws HopException {
@@ -119,18 +123,19 @@ public class HopEnvironment {
         // or if new variables are added
         //
         HopConfig hopConfig = HopConfig.getInstance();
-        for(DescribedVariable describedVariable : VariableRegistry.getInstance().getDescribedVariables(VariableScope.APPLICATION, VariableScope.ENGINE) ) {          
+        for (DescribedVariable describedVariable :
+            VariableRegistry.getInstance()
+                .getDescribedVariables(VariableScope.APPLICATION, VariableScope.ENGINE)) {
           DescribedVariable variable = hopConfig.findDescribedVariable(describedVariable.getName());
-          if ( variable==null ) {
+          if (variable == null) {
             // Add the variable if it does not exist
             hopConfig.setDescribedVariable(new DescribedVariable(describedVariable));
-          }
-          else {
+          } else {
             // Update the variable description
-            variable.setDescription(describedVariable.getDescription());            
+            variable.setDescription(describedVariable.getDescription());
           }
-        }           
-        
+        }
+
         // Set the system configuration variables in System
         // Let's try very hard to not do this anywhere else!
         //
