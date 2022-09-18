@@ -32,9 +32,7 @@
     <name>Hop Plugins Transforms Formula</name>
 
     <properties>
-        <poi.version>4.1.2</poi.version>
-<!--        <poi.ooxml-schemas.version>4.1.2</poi.ooxml-schemas.version>-->
-        <xmlbeans.version>3.1.0</xmlbeans.version>
+        <poi.version>5.2.3</poi.version>
     </properties>
 
     <dependencies>
@@ -53,46 +51,9 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
             <version>${poi.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>${poi.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml-schemas</artifactId>
-            <version>${poi.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xmlbeans</groupId>
-            <artifactId>xmlbeans</artifactId>
-            <version>${xmlbeans.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
