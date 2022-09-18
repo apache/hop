@@ -219,7 +219,7 @@ public class PipelineResource {
       IVariables variables = Variables.getADefaultVariableSpace(); // TODO: configure
       final IPipelineEngine pipeline =
           PipelineEngineFactory.createPipelineEngine(
-              variables, runConfigurationName, metadataProvider, pipelineMeta);
+              variables, variables.resolve(runConfigurationName), metadataProvider, pipelineMeta);
       pipeline.setParent(servletLoggingObject);
 
       HopServerSingleton.getInstance()

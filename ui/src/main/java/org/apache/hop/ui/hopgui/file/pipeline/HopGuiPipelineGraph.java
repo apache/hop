@@ -4128,7 +4128,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           pipeline =
               PipelineEngineFactory.createPipelineEngine(
                   variables,
-                  pipelineRunConfigurationName,
+                  variables.resolve(pipelineRunConfigurationName),
                   hopGui.getMetadataProvider(),
                   pipelineMeta);
 
