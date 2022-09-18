@@ -231,7 +231,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     PipelineMeta pipelineMeta = loadPipeline(realFilename, getMetadataProvider(), this);
     IPipelineEngine<PipelineMeta> pipeline =
         PipelineEngineFactory.createPipelineEngine(
-            this, runConfigurationName, getMetadataProvider(), pipelineMeta);
+            this, resolve(runConfigurationName), getMetadataProvider(), pipelineMeta);
     pipeline.setParentWorkflow(getParentWorkflow());
     pipeline.setParent(this);
     if (keepingValues && previousResult != null) {
@@ -341,7 +341,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     WorkflowMeta workflowMeta = loadWorkflow(realFilename, getMetadataProvider(), this);
     IWorkflowEngine<WorkflowMeta> workflow =
         WorkflowEngineFactory.createWorkflowEngine(
-            this, runConfigurationName, getMetadataProvider(), workflowMeta, this);
+            this, resolve(runConfigurationName), getMetadataProvider(), workflowMeta, this);
     workflow.setParentWorkflow(getParentWorkflow());
     workflow.setParentVariables(this);
     if (keepingValues && previousResult != null) {
