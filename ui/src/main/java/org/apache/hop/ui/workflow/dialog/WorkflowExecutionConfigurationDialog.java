@@ -325,7 +325,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
       // See if the run configuration is available...
       //
 
-      if (!serializer.exists(runConfigurationName)) {
+      if (!serializer.exists(hopGui.getVariables().resolve(runConfigurationName))) {
         MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
         box.setText(
             BaseMessages.getString(
