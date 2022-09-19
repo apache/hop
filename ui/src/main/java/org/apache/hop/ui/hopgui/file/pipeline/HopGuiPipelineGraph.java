@@ -1038,6 +1038,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           selectedNote = null;
           startHopTransform = null;
           endHopLocation = null;
+          updateGui();          
         }
       }
     }
