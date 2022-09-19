@@ -119,7 +119,7 @@ limitations under the License.
     </partitioning>
     <applicationType>TEXT PLAIN</applicationType>
     <method>GET</method>
-    <url>http://www.google.com</url>
+    <url>https://example.org/</url>
     <urlInField>N</urlInField>
     <dynamicMethod>N</dynamicMethod>
     <methodFieldName/>
