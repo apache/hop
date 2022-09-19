@@ -787,6 +787,8 @@ public class MetadataPerspective implements IHopPerspective {
       TreeMemory.setExpandedFromMemory(tree, METADATA_PERSPECTIVE_TREE);
 
       tree.setRedraw(true);
+
+      updateGui();
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
