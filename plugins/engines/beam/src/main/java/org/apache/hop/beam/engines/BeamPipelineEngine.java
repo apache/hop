@@ -1037,7 +1037,6 @@ public abstract class BeamPipelineEngine extends Variables
 
     long delay = Const.toLong(resolve(executionInfoLocation.getDataLoggingDelay()), 2000L);
     long interval = Const.toLong(resolve(executionInfoLocation.getDataLoggingInterval()), 5000L);
-    final AtomicInteger lastLogLineNr = new AtomicInteger(0);
 
     final IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
     //
@@ -1049,12 +1048,9 @@ public abstract class BeamPipelineEngine extends Variables
                   // Also update the pipeline execution state regularly
                   //
                   ExecutionState executionState =
-                          ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, lastLogLineNr.get())
+                          ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1)
                                   .build();
                   iLocation.updateExecutionState(executionState);
-                  if (executionState.getLastLogLineNr() != null) {
-                    lastLogLineNr.set(executionState.getLastLogLineNr());
-                  }
                 } catch (Exception e) {
                   throw new RuntimeException(
                           "Error registering execution info (data and state) at location "
@@ -1074,6 +1070,8 @@ public abstract class BeamPipelineEngine extends Variables
     if (executionInfoLocation == null) {
       return;
     }
+
+    executionInfoTimer.cancel();
 
     // Register one final last state of the pipeline
     //

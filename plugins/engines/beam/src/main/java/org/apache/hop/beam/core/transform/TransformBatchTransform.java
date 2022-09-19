@@ -34,6 +34,7 @@ import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -596,10 +597,14 @@ public class TransformBatchTransform extends TransformTransform {
 
           initCounter.inc();
 
+          pipeline.setLogLevel(LogLevel.NOTHING);
+
           // Doesn't really start the threads in single threaded mode
           // Just sets some flags all over the place
           //
           pipeline.startThreads();
+
+          pipeline.setLogLevel(LogLevel.BASIC);
 
           resultRows = new ArrayList<>();
 
