@@ -41,14 +41,11 @@ public class ExecutionInfoLocation extends HopMetadataBase implements IHopMetada
 
   @HopMetadataProperty protected String dataLoggingInterval;
 
-  @HopMetadataProperty protected String dataLoggingSize;
-
   @HopMetadataProperty private IExecutionInfoLocation executionInfoLocation;
 
   public ExecutionInfoLocation() {
     dataLoggingDelay = "2000";
     dataLoggingInterval = "5000";
-    dataLoggingSize = "1000";
   }
 
   public ExecutionInfoLocation(
@@ -63,7 +60,6 @@ public class ExecutionInfoLocation extends HopMetadataBase implements IHopMetada
     this.description = description;
     this.dataLoggingDelay = dataLoggingDelay;
     this.dataLoggingInterval = dataLoggingInterval;
-    this.dataLoggingSize = dataLoggingSize;
     this.executionInfoLocation = executionInfoLocation;
   }
 
@@ -73,7 +69,6 @@ public class ExecutionInfoLocation extends HopMetadataBase implements IHopMetada
     this.description = location.description;
     this.dataLoggingDelay = location.dataLoggingDelay;
     this.dataLoggingInterval = location.dataLoggingInterval;
-    this.dataLoggingSize = location.dataLoggingSize;
 
     if (location.executionInfoLocation != null) {
       this.executionInfoLocation = location.executionInfoLocation.clone();
@@ -132,24 +127,6 @@ public class ExecutionInfoLocation extends HopMetadataBase implements IHopMetada
    */
   public void setDataLoggingInterval(String dataLoggingInterval) {
     this.dataLoggingInterval = dataLoggingInterval;
-  }
-
-  /**
-   * Gets dataLoggingSize
-   *
-   * @return value of dataLoggingSize
-   */
-  public String getDataLoggingSize() {
-    return dataLoggingSize;
-  }
-
-  /**
-   * Sets dataLoggingSize
-   *
-   * @param dataLoggingSize value of dataLoggingSize
-   */
-  public void setDataLoggingSize(String dataLoggingSize) {
-    this.dataLoggingSize = dataLoggingSize;
   }
 
   /**
