@@ -112,7 +112,7 @@ public class WorkflowResource {
           IWorkflowEngine<WorkflowMeta> newWorkflow =
               WorkflowEngineFactory.createWorkflowEngine(
                   variables,
-                  runConfigurationName,
+                  variables.resolve(runConfigurationName),
                   metadataProvider,
                   workflow.getWorkflowMeta(),
                   servletLoggingObject);
@@ -194,7 +194,7 @@ public class WorkflowResource {
       final IWorkflowEngine<WorkflowMeta> workflow =
           WorkflowEngineFactory.createWorkflowEngine(
               variables,
-              runConfigurationName,
+              variables.resolve(runConfigurationName),
               metadataProvider,
               workflowMeta,
               servletLoggingObject);

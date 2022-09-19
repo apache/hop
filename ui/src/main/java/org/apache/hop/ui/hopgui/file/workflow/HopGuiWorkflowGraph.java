@@ -3628,7 +3628,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           workflow =
               WorkflowEngineFactory.createWorkflowEngine(
                   variables,
-                  executionConfiguration.getRunConfiguration(),
+                  variables.resolve(executionConfiguration.getRunConfiguration()),
                   hopGui.getMetadataProvider(),
                   runWorkflowMeta,
                   hopGuiLoggingObject);

@@ -121,7 +121,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
       String runConfigurationName = pipelineExecutionConfiguration.getRunConfiguration();
       final IPipelineEngine<PipelineMeta> pipeline =
           PipelineEngineFactory.createPipelineEngine(
-              variables, runConfigurationName, metadataProvider, pipelineMeta);
+              variables, variables.resolve(runConfigurationName), metadataProvider, pipelineMeta);
       pipeline.setParent(servletLoggingObject);
 
       if (pipelineExecutionConfiguration.isSetLogfile()) {

@@ -131,7 +131,7 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
             IWorkflowEngine<WorkflowMeta> newWorkflow =
                 WorkflowEngineFactory.createWorkflowEngine(
                     variables,
-                    runConfigurationName,
+                    variables.resolve(runConfigurationName),
                     metadataProvider,
                     workflow.getWorkflowMeta(),
                     servletLoggingObject);
