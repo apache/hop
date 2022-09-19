@@ -73,6 +73,8 @@
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-yaml</include>
                 <include>com.fasterxml.jackson.datatype:jackson-datatype-joda</include>
                 <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</include>
+                <include>com.fasterxml.jackson.module:jackson-module-paranamer</include>
+                <include>com.fasterxml.jackson.module:jackson-module-scala_2.12</include>
                 <include>com.github.stephenc.findbugs:findbugs-annotations</include>
                 <include>com.github.luben:zstd-jni</include>
                 <include>com.google.android:annotations</include>
@@ -259,6 +261,7 @@
                 <include>org.apache.htrace:htrace-core</include>
                 <include>org.apache.ivy:ivy</include>
                 <include>org.apache.kafka:kafka-clients</include>
+                <include>org.apache.logging.log4j:log4j-core</include>
                 <include>org.apache.spark:spark-core_2.12</include>
                 <include>org.apache.spark:spark-kvstore_2.12</include>
                 <include>org.apache.spark:spark-launcher_2.12</include>
@@ -266,6 +269,8 @@
                 <include>org.apache.spark:spark-network-shuffle_2.12</include>
                 <include>org.apache.spark:spark-streaming_2.12</include>
                 <include>org.apache.spark:spark-tags_2.12</include>
+                <include>org.apache.spark:spark-unsafe_2.12</include>
+                <include>org.apache.xbean:xbean-asm9-shaded</include>
                 <include>org.apache.zookeeper:zookeeper</include>
                 <include>org.codehaus.jackson:jackson-core-asl</include>
                 <include>org.codehaus.jackson:jackson-jaxrs</include>
@@ -285,11 +290,20 @@
                 <include>org.glassfish.jersey.core:jersey-client</include>
                 <include>org.glassfish.jersey.core:jersey-common</include>
                 <include>org.glassfish.jersey.core:jersey-server</include>
+                <include>org.json4s:json4s-ast_2.12</include>
+                <include>org.json4s:json4s-core_2.12</include>
+                <include>org.json4s:json4s-jackson_2.12</include>
+                <include>org.json4s:json4s-scalap_2.12</include>
                 <include>org.lz4:lz4-java</include>
                 <include>org.reactivestreams:reactive-streams</include>
                 <include>org.roaringbitmap:RoaringBitmap</include>
                 <include>org.roaringbitmap:shims</include>
+                <include>org.scala-lang:scala-compiler</include>
                 <include>org.scala-lang:scala-library</include>
+                <include>org.scala-lang:scala-reflect</include>
+                <include>org.scala-lang.modules:scala-collection-compat_2.12</include>
+                <include>org.scala-lang.modules:scala-parser-combinators_2.12</include>
+                <include>org.scala-lang.modules:scala-xml_2.12</include>
                 <include>org.slf4j:jcl-over-slf4j</include>
                 <include>org.slf4j:jul-to-slf4j</include>
                 <include>org.springframework:spring-core</include>
@@ -319,6 +333,7 @@
                 <include>com.amazonaws:aws-java-sdk-kinesis:jar</include>
                 <include>com.amazonaws:amazon-kinesis-client:jar</include>
                 <include>com.amazonaws:amazon-kinesis-producer:jar</include>
+
 
             </includes>
         </dependencySet>
