@@ -218,7 +218,7 @@ public class ProjectsGuiPlugin {
           environment = config.findEnvironment(environmentName);
           // See that the project belongs to the environment
           //
-          if (projectName.equals(environment.getProjectName())) {
+          if (environment!=null && projectName.equals(environment.getProjectName())) {
             // We found what we've been looking for
             break;
           } else {
