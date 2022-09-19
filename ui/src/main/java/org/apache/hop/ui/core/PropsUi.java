@@ -27,9 +27,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -365,7 +365,7 @@ public class PropsUi extends Props {
   public void setScreen(WindowProperty windowProperty) {
     AuditManager.storeState(
         LogChannel.UI,
-        HopNamespace.getNamespace(),
+        HopGui.DEFAULT_HOP_GUI_NAMESPACE,
         "shells",
         windowProperty.getName(),
         windowProperty.getStateProperties());
@@ -377,7 +377,7 @@ public class PropsUi extends Props {
     }
     AuditState auditState =
         AuditManager.retrieveState(
-            LogChannel.UI, HopNamespace.getNamespace(), "shells", windowName);
+            LogChannel.UI, HopGui.DEFAULT_HOP_GUI_NAMESPACE, "shells", windowName);
     if (auditState == null) {
       return null;
     }
