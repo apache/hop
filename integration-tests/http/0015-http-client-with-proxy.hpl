@@ -117,7 +117,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <url>https://www.google.com</url>
+    <url>https://example.org/</url>
     <urlInField>N</urlInField>
     <ignoreSsl>N</ignoreSsl>
     <urlField/>
