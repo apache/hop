@@ -44,7 +44,7 @@ public class HopRow implements Serializable {
     if (thisRow == null && otherRow == null) {
       return true;
     }
-    if ((thisRow == null && otherRow != null) || (thisRow != null && otherRow == null)) {
+    if (thisRow == null || otherRow == null) {
       return false;
     }
     if (thisRow.length != otherRow.length) {
@@ -77,16 +77,19 @@ public class HopRow implements Serializable {
     return hashValue;
   }
 
-  public boolean allNull() {
+  public boolean isNotEmpty() {
     if (row == null) {
-      return true;
+      return false;
+    }
+    if (row.length==0) {
+      return false;
     }
     for (int i = 0; i < row.length; i++) {
       if (row[i] != null) {
-        return false;
+        return true;
       }
     }
-    return true;
+    return false;
   }
 
   /**

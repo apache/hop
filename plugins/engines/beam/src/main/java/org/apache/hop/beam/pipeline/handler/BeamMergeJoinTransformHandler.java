@@ -24,7 +24,7 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.core.fn.AssemblerFn;
+import org.apache.hop.beam.core.fn.MergeJoinAssemblerFn;
 import org.apache.hop.beam.core.fn.HopKeyValueFn;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
@@ -176,59 +176,65 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
 
     PCollection<KV<HopRow, KV<HopRow, HopRow>>> kvpCollection;
 
-    Object[] leftNull = RowDataUtil.allocateRowData(leftVRowMeta.size());
-    Object[] rightNull = RowDataUtil.allocateRowData(rightVRowMeta.size());
+    // For efficiency of detecting "all null value rows" we send an empty row as null value.
+    //
+    Object[] leftNull = RowDataUtil.allocateRowData(0);
+    Object[] rightNull = RowDataUtil.allocateRowData(0);
 
+    int assemblerJoinType;
     if (MergeJoinMeta.joinTypes[0].equals(joinType)) {
       // Inner Join
       //
       kvpCollection = Join.innerJoin(leftKVPCollection, rightKVPCollection);
+      assemblerJoinType = MergeJoinAssemblerFn.JOIN_TYPE_INNER;
     } else if (MergeJoinMeta.joinTypes[1].equals(joinType)) {
       // Left outer join
       //
       kvpCollection =
           Join.leftOuterJoin(leftKVPCollection, rightKVPCollection, new HopRow(rightNull));
+      assemblerJoinType = MergeJoinAssemblerFn.JOIN_TYPE_LEFT_OUTER;
     } else if (MergeJoinMeta.joinTypes[2].equals(joinType)) {
       // Right outer join
       //
       kvpCollection =
           Join.rightOuterJoin(leftKVPCollection, rightKVPCollection, new HopRow(leftNull));
+      assemblerJoinType = MergeJoinAssemblerFn.JOIN_TYPE_RIGHT_OUTER;
     } else if (MergeJoinMeta.joinTypes[3].equals(joinType)) {
       // Full outer join
       //
       kvpCollection =
           Join.fullOuterJoin(
               leftKVPCollection, rightKVPCollection, new HopRow(leftNull), new HopRow(rightNull));
+      assemblerJoinType = MergeJoinAssemblerFn.JOIN_TYPE_FULL_OUTER;
     } else {
       throw new HopException("Join type '" + joinType + "' is not recognized or supported");
     }
 
-    // This is the output of the transform, we'll try to mimic this
+    // The output of the Hop transform is all the left side fields combined with all the right hand
+    // side fields.
+    // We'll output the same row layout in the Beam engines to avoid confusion for the user.
     //
-    final IRowMeta outputRowMeta = leftVRowMeta.clone();
-    outputRowMeta.addRowMeta(leftKRowMeta.clone());
-    outputRowMeta.addRowMeta(rightKRowMeta.clone());
-    outputRowMeta.addRowMeta(rightVRowMeta.clone());
+    final IRowMeta outputRowMeta = leftRowMeta.clone();
+    outputRowMeta.addRowMeta(rightRowMeta.clone());
 
-    // Now we need to collapse the results where we have a Key-Value pair of
-    // The key (left or right depending but the same row metadata (leftKRowMeta == rightKRowMeta)
-    //    The key is simply a HopRow
-    // The value:
-    //    The value is the resulting combination of the Value parts of the left and right side.
-    //    These can be null depending on the join type
-    // So we want to grab all this information and put it back together on a single row.
+    // The actual output of the Join PCollections is KV(keys, KV(left values, right values))
+    // So we need to do some work to assemble the fields back in the right place.
+    //
     //
     DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> assemblerFn =
-        new AssemblerFn(
-            JsonRowMeta.toJson(outputRowMeta),
+        new MergeJoinAssemblerFn(
+            assemblerJoinType,
+            JsonRowMeta.toJson(leftRowMeta),
+            JsonRowMeta.toJson(rightRowMeta),
             JsonRowMeta.toJson(leftKRowMeta),
             JsonRowMeta.toJson(leftVRowMeta),
+            JsonRowMeta.toJson(rightKRowMeta),
             JsonRowMeta.toJson(rightVRowMeta),
             transformMeta.getName(),
             transformPluginClasses,
             xpPluginClasses);
 
-    // Apply the transform transform to the previous io transform PCollection(s)
+    // Apply the transform to the previous io transform PCollection(s)
     //
     PCollection<HopRow> transformPCollection = kvpCollection.apply(ParDo.of(assemblerFn));
 
