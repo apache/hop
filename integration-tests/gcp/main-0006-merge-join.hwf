@@ -72,7 +72,25 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>272</xloc>
+      <xloc>528</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>delete gs://apache-hop-it/output/0006-*</name>
+      <description/>
+      <type>DELETE_FILES</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <fields>
+        <field>
+          <name>gs://apache-hop-it/output/</name>
+          <filemask>0006-*</filemask>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>304</xloc>
       <yloc>112</yloc>
       <attributes_hac/>
     </action>
@@ -80,10 +98,17 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>0006-merge-join.hpl</to>
+      <to>delete gs://apache-hop-it/output/0006-*</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>delete gs://apache-hop-it/output/0006-*</from>
+      <to>0006-merge-join.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>

@@ -144,7 +144,7 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <file_description_name>customers</file_description_name>
-    <input_location>${DATA_INPUT}</input_location>
+    <input_location>gs://apache-hop-it/input/customers-noheader-1M.txt</input_location>
     <attributes/>
     <GUI>
       <xloc>160</xloc>
@@ -190,7 +190,7 @@ limitations under the License.
     </partitioning>
     <file_prefix>0006-full-outer-join</file_prefix>
     <file_suffix>.csv</file_suffix>
-    <output_location>${DATA_OUTPUT}</output_location>
+    <output_location>gs://apache-hop-it/output/</output_location>
     <windowed>N</windowed>
     <attributes/>
     <GUI>
@@ -237,7 +237,7 @@ limitations under the License.
     </partitioning>
     <file_prefix>0006-inner-join</file_prefix>
     <file_suffix>.csv</file_suffix>
-    <output_location>${DATA_OUTPUT}</output_location>
+    <output_location>gs://apache-hop-it/output/</output_location>
     <windowed>N</windowed>
     <attributes/>
     <GUI>
@@ -258,7 +258,7 @@ limitations under the License.
     </partitioning>
     <file_prefix>0006-left-outer-join</file_prefix>
     <file_suffix>.csv</file_suffix>
-    <output_location>${DATA_OUTPUT}</output_location>
+    <output_location>gs://apache-hop-it/output/</output_location>
     <windowed>N</windowed>
     <attributes/>
     <GUI>
@@ -305,7 +305,7 @@ limitations under the License.
     </partitioning>
     <file_prefix>0006-right-outer-join</file_prefix>
     <file_suffix>.csv</file_suffix>
-    <output_location>${DATA_OUTPUT}</output_location>
+    <output_location>gs://apache-hop-it/output/</output_location>
     <windowed>N</windowed>
     <attributes/>
     <GUI>
@@ -325,7 +325,7 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <file_description_name>state-population</file_description_name>
-    <input_location>${STATE_INPUT}</input_location>
+    <input_location>gs://apache-hop-it/input/state-data.txt</input_location>
     <attributes/>
     <GUI>
       <xloc>128</xloc>
