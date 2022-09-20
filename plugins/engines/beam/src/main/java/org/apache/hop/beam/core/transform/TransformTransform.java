@@ -239,7 +239,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     private transient List<TransformMetaDataCombi> transformCombis;
     private transient LocalPipelineEngine pipeline;
     private transient RowProducer rowProducer;
-    private transient List<Object[]> resultRows;
+    private transient List<HopRow> resultRows;
     private transient List<List<Object[]>> targetResultRowsList;
 
     private transient TupleTag<HopRow> mainTupleTag;
@@ -486,6 +486,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
               .getPipelineRunConfiguration()
               .setName("beam-transform-local (" + transformName + ")");
 
+          pipeline.setLogLevel(LogLevel.NOTHING);
           pipeline.prepareExecution();
 
           // Create producers so we can efficiently pass data
@@ -516,7 +517,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
                   @Override
                   public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
                       throws HopTransformException {
-                    resultRows.add(row);
+                    resultRows.add(new HopRow(row, rowMeta.size()));
                   }
                 };
             transformCombi.transform.addRowListener(rowListener);
@@ -574,14 +575,10 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
           initCounter.inc();
 
-          pipeline.setLogLevel(LogLevel.NOTHING);
-
           // Doesn't really start the threads in single threaded mode
           // Just sets some flags all over the place
           //
           pipeline.startThreads();
-
-          pipeline.setLogLevel(LogLevel.BASIC);
 
           resultRows = new ArrayList<>();
 
@@ -672,11 +669,11 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
       // Pass all rows in the output to the process context
       //
-      for (Object[] resultRow : resultRows) {
+      for (HopRow resultRow : resultRows) {
 
         // Pass the row to the process context
         //
-        context.output(mainTupleTag, new HopRow(resultRow));
+        context.output(mainTupleTag, resultRow);
         writtenCounter.inc();
       }
 
