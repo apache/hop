@@ -37,14 +37,14 @@
     <description></description>
 
     <properties>
-        <snakeyaml.version>1.31</snakeyaml.version>
+        <snakeyaml.version>1.32</snakeyaml.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.31</version>
+            <version>1.32</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
