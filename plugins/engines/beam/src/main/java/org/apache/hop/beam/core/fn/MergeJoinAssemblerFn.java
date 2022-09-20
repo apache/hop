@@ -160,9 +160,8 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
       HopRow leftValue = value.getKey();
       HopRow rightValue = value.getValue();
 
-      Object[] outputRow = RowDataUtil.allocateRowData(leftRowMeta.size() + rightRowMeta.size());
+      Object[] outputRow = new Object[leftRowMeta.size() + rightRowMeta.size()];
 
-      int index = 0;
       for (int i = 0; i < leftRowMeta.size(); i++) {
         // Only add key for inner and left-outer join types
         // Otherwise, leave this field blank to match up with default Hop behavior of the transform.
@@ -171,12 +170,11 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
         if (leftValue.isNotEmpty()) {
           Integer keyIndex = leftKeyIndexes.get(i);
           if (keyIndex != null) {
-            outputRow[index++] = key.getRow()[keyIndex];
+            outputRow[i] = key.getRow()[keyIndex];
           }
-
           Integer valueIndex = leftValueIndexes.get(i);
           if (valueIndex != null) {
-            outputRow[index++] = leftValue.getRow()[valueIndex];
+            outputRow[i] = leftValue.getRow()[valueIndex];
           }
         }
       }
@@ -187,11 +185,11 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
         if (rightValue.isNotEmpty()) {
           Integer keyIndex = rightKeyIndexes.get(i);
           if (keyIndex != null) {
-            outputRow[index++] = key.getRow()[keyIndex];
+            outputRow[leftRowMeta.size()+i] = key.getRow()[keyIndex];
           }
           Integer valueIndex = rightValueIndexes.get(i);
           if (valueIndex != null) {
-            outputRow[index++] = rightValue.getRow()[valueIndex];
+            outputRow[leftRowMeta.size()+i] = rightValue.getRow()[valueIndex];
           }
         }
       }

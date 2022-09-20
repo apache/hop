@@ -17,8 +17,6 @@
 
 package org.apache.hop.beam.core.transform;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -33,7 +31,6 @@ import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogLevel;
@@ -45,17 +42,10 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.execution.ExecutionInfoLocation;
-import org.apache.hop.execution.profiling.ExecutionDataProfile;
-import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
-import org.apache.hop.execution.sampler.IExecutionDataSampler;
-import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.*;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
@@ -63,7 +53,8 @@ import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TransformTransform extends PTransform<PCollection<HopRow>, PCollectionTuple> {
 
@@ -153,7 +144,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
       TupleTagList targetTupleTagList = null;
       for (String targetTransform : targetTransforms) {
         String tupleId = HopBeamUtil.createTargetTupleId(transformName, targetTransform);
-        TupleTag<HopRow> tupleTag = new TupleTag<HopRow>(tupleId) {};
+        TupleTag<HopRow> tupleTag = new TupleTag<>(tupleId) {};
         targetTupleTags.add(tupleTag);
         if (targetTupleTagList == null) {
           targetTupleTagList = TupleTagList.of(tupleTag);
@@ -533,8 +524,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
           // Create a list of TupleTag to direct the target rows
           //
-          mainTupleTag =
-              new TupleTag<HopRow>(HopBeamUtil.createMainOutputTupleId(transformName)) {};
+          mainTupleTag = new TupleTag<>(HopBeamUtil.createMainOutputTupleId(transformName)) {};
           tupleTagList = new ArrayList<>();
 
           // The lists in here will contain all the rows that ended up in the various target
@@ -547,7 +537,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
             transformCombis.add(targetCombi);
 
             String tupleId = HopBeamUtil.createTargetTupleId(transformName, targetTransform);
-            TupleTag<HopRow> tupleTag = new TupleTag<HopRow>(tupleId) {};
+            TupleTag<HopRow> tupleTag = new TupleTag<>(tupleId) {};
             tupleTagList.add(tupleTag);
             final List<Object[]> targetResultRows = new ArrayList<>();
             targetResultRowsList.add(targetResultRows);

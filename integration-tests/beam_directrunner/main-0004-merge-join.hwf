@@ -49,7 +49,7 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>Delete /tmp/0004-* files</name>
+      <name>Delete /tmp/0004/* files</name>
       <description/>
       <type>DELETE_FILES</type>
       <attributes/>
@@ -57,12 +57,12 @@ limitations under the License.
       <include_subfolders>N</include_subfolders>
       <fields>
         <field>
-          <name>${${java.io.tmpdir}</name>
-          <filemask>0004-.*\.csv</filemask>
+          <name>${java.io.tmpdir}/0004/</name>
+          <filemask>.*csv</filemask>
         </field>
       </fields>
       <parallel>N</parallel>
-      <xloc>240</xloc>
+      <xloc>400</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
@@ -90,7 +90,7 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>416</xloc>
+      <xloc>576</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
@@ -105,21 +105,26 @@ limitations under the License.
         </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>608</xloc>
+      <xloc>800</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>/tmp/0004/</name>
+      <description/>
+      <type>CREATE_FOLDER</type>
+      <attributes/>
+      <foldername>${java.io.tmpdir}/0004/</foldername>
+      <fail_of_folder_exists>N</fail_of_folder_exists>
+      <parallel>N</parallel>
+      <xloc>256</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
     <hop>
-      <from>Start</from>
-      <to>Delete /tmp/0004-* files</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>Delete /tmp/0004-* files</from>
+      <from>Delete /tmp/0004/* files</from>
       <to>0004-merge-join</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
@@ -128,6 +133,20 @@ limitations under the License.
     <hop>
       <from>0004-merge-join</from>
       <to>0004-merge-join-validation UNIT</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Start</from>
+      <to>/tmp/0004/</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>/tmp/0004/</from>
+      <to>Delete /tmp/0004/* files</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

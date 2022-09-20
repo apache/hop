@@ -83,7 +83,7 @@ public class StringToHopRowFn extends DoFn<String, HopRow> {
       String string = processContext.element();
       inputCounter.inc();
 
-      Object[] outputRow = RowDataUtil.allocateRowData(rowMeta.size());
+      Object[] outputRow = new Object[rowMeta.size()];
       outputRow[0] = string;
 
       processContext.output(new HopRow(outputRow));

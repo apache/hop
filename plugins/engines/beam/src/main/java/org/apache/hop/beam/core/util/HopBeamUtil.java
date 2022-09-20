@@ -47,8 +47,15 @@ public class HopBeamUtil {
     return transformName + " - INPUT";
   }
 
-  public static final HopRow copyHopRow(HopRow hopRow, IRowMeta rowMeta) throws HopException {
-    Object[] newRow = RowDataUtil.createResizedCopy(hopRow.getRow(), rowMeta.size());
+  /**
+   * Create a copy but don't over allocate objects in the target row.
+   * @param hopRow
+   * @param rowMeta
+   * @return
+   */
+  public static final HopRow copyHopRow(HopRow hopRow, IRowMeta rowMeta) {
+    Object[] newRow = new Object[rowMeta.size()];
+    System.arraycopy(hopRow.getRow(), 0, newRow, 0, rowMeta.size());
     return new HopRow(newRow);
   }
 

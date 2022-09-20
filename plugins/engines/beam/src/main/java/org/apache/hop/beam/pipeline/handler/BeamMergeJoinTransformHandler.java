@@ -178,8 +178,8 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
 
     // For efficiency of detecting "all null value rows" we send an empty row as null value.
     //
-    Object[] leftNull = RowDataUtil.allocateRowData(0);
-    Object[] rightNull = RowDataUtil.allocateRowData(0);
+    Object[] leftNull = new Object[0];
+    Object[] rightNull = new Object[0];
 
     int assemblerJoinType;
     if (MergeJoinMeta.joinTypes[0].equals(joinType)) {

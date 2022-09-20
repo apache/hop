@@ -56,7 +56,7 @@ public class HopRow implements Serializable {
       if ((thisValue == null && otherValue != null) || (thisValue != null && otherValue == null)) {
         return false;
       }
-      if (thisValue != null && otherValue != null && !thisValue.equals(otherValue)) {
+      if (thisValue != null && !thisValue.equals(otherValue)) {
         return false;
       }
     }

@@ -42,7 +42,7 @@ limitations under the License.
   <order>
     <hop>
       <from>Left outer join</from>
-      <to>/tmp/0004-left-outer-join</to>
+      <to>/tmp//0004/0004-left-outer-join</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -67,17 +67,17 @@ limitations under the License.
     </hop>
     <hop>
       <from>full outer join</from>
-      <to>/tmp/0004-full-outer-join</to>
+      <to>/tmp//0004/0004-full-outer-join</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>inner join</from>
-      <to>/tmp/0004-inner-join</to>
+      <to>/tmp/0004/0004-inner-join</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>right outer join</from>
-      <to>/tmp/0004-right-outer-join</to>
+      <to>/tmp/0004/0004-right-outer-join</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -106,6 +106,94 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
   </order>
+  <transform>
+    <name>/tmp//0004/0004-full-outer-join</name>
+    <type>BeamOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name/>
+    <file_prefix>0004-full-outer-join</file_prefix>
+    <file_suffix>.csv</file_suffix>
+    <output_location>${java.io.tmpdir}/0004/</output_location>
+    <windowed>N</windowed>
+    <attributes/>
+    <GUI>
+      <xloc>672</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>/tmp//0004/0004-left-outer-join</name>
+    <type>BeamOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name/>
+    <file_prefix>0004-left-outer-join</file_prefix>
+    <file_suffix>.csv</file_suffix>
+    <output_location>${java.io.tmpdir}/0004/</output_location>
+    <windowed>N</windowed>
+    <attributes/>
+    <GUI>
+      <xloc>672</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>/tmp/0004/0004-inner-join</name>
+    <type>BeamOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name/>
+    <file_prefix>0004-inner-join</file_prefix>
+    <file_suffix>.csv</file_suffix>
+    <output_location>${java.io.tmpdir}/0004/</output_location>
+    <windowed>N</windowed>
+    <attributes/>
+    <GUI>
+      <xloc>672</xloc>
+      <yloc>48</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>/tmp/0004/0004-right-outer-join</name>
+    <type>BeamOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name/>
+    <file_prefix>0004-right-outer-join</file_prefix>
+    <file_suffix>.csv</file_suffix>
+    <output_location>${java.io.tmpdir}/0004/</output_location>
+    <windowed>N</windowed>
+    <attributes/>
+    <GUI>
+      <xloc>672</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
   <transform>
     <name>Left outer join</name>
     <type>MergeJoin</type>
@@ -178,28 +266,6 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>/tmp/0004-full-outer-join</name>
-    <type>BeamOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <file_description_name/>
-    <file_prefix>0004-full-outer-join</file_prefix>
-    <file_suffix>.csv</file_suffix>
-    <output_location>${java.io.tmpdir}/</output_location>
-    <windowed>N</windowed>
-    <attributes/>
-    <GUI>
-      <xloc>672</xloc>
-      <yloc>336</yloc>
-    </GUI>
-  </transform>
-  <transform>
     <name>inner join</name>
     <type>MergeJoin</type>
     <description/>
@@ -226,50 +292,6 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>/tmp/0004-inner-join</name>
-    <type>BeamOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <file_description_name/>
-    <file_prefix>0004-inner-join</file_prefix>
-    <file_suffix>.csv</file_suffix>
-    <output_location>${java.io.tmpdir}/</output_location>
-    <windowed>N</windowed>
-    <attributes/>
-    <GUI>
-      <xloc>672</xloc>
-      <yloc>48</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>/tmp/0004-left-outer-join</name>
-    <type>BeamOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <file_description_name/>
-    <file_prefix>0004-left-outer-join</file_prefix>
-    <file_suffix>.csv</file_suffix>
-    <output_location>${java.io.tmpdir}/</output_location>
-    <windowed>N</windowed>
-    <attributes/>
-    <GUI>
-      <xloc>672</xloc>
-      <yloc>144</yloc>
-    </GUI>
-  </transform>
-  <transform>
     <name>right outer join</name>
     <type>MergeJoin</type>
     <description/>
@@ -292,28 +314,6 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>480</xloc>
-      <yloc>240</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>/tmp/0004-right-outer-join</name>
-    <type>BeamOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <file_description_name/>
-    <file_prefix>0004-right-outer-join</file_prefix>
-    <file_suffix>.csv</file_suffix>
-    <output_location>${java.io.tmpdir}/</output_location>
-    <windowed>N</windowed>
-    <attributes/>
-    <GUI>
-      <xloc>672</xloc>
       <yloc>240</yloc>
     </GUI>
   </transform>
