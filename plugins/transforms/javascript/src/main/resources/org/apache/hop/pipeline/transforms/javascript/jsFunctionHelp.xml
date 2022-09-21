@@ -826,6 +826,7 @@
             // hh - Hours
             // mi - Minutes
             // ss - Seconds
+            // ms - Milliseconds
             // 3: Numeric - The Value to add.
             //
             // 2006-11-15
@@ -861,6 +862,7 @@
             // hh - Hours
             // mi - Minutes
             // ss - Seconds
+            // ms - Milliseconds            
             //
             // 2006-11-15
             //

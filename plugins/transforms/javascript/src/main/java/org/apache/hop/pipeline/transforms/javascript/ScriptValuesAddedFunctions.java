@@ -649,6 +649,8 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
           } else if (strType.equals("w")) {
             int iDays = (int) ((endL - startL) / 86400000);
             return Double.valueOf(iDays / 7);
+          } else if (strType.equals("ms")) {            
+            return Double.valueOf(endL - startL);
           } else if (strType.equals("ss")) {
             return Double.valueOf(((endL - startL) / 1000));
           } else if (strType.equals("mi")) {
@@ -733,6 +735,8 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
           cal.add(Calendar.MINUTE, iValue);
         } else if (strType.equals("ss")) {
           cal.add(Calendar.SECOND, iValue);
+        } else if (strType.equals("ms")) {
+          cal.add(Calendar.MILLISECOND, iValue);
         }
         return cal.getTime();
       } catch (Exception e) {
