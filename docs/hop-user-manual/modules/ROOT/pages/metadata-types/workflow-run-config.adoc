@@ -41,6 +41,7 @@ None/All actions
 |Option|Description
 |Name|the name to use for this workflow run configuration
 |Description|the description to use for this workflow run configuration
+|Execution information location|The xref:metadata-types/execution-information-location.adoc[] to use with this workflow run configuration.
 |Workflow engine type|Hop local workflow engine or Hop remote workflow engine
 |Safe mode|(default: false) In safe mode, Hop performs a number of data type and other validation before starting the workflow execution.
 |===

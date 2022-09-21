@@ -45,6 +45,7 @@ The tab contains the name, description and the dropdown list for the workflow en
 |Option|Description
 |Name|The name you want to use for this workflow run configuration.
 |Description|A description you want to use for this workflow run configuration (optional).
+|Execution information location|The xref:metadata-types/execution-information-location.adoc[] to use with this workflow run configuration.
 |Engine type
 a|
 The available engine types are:

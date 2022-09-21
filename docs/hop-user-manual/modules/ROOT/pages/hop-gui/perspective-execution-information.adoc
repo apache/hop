@@ -14,14 +14,15 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:imagesdir: ../assets/images
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: An Apache Hop Execution Data Profile builds data profiles as data flows through pipelines.
 
-== Data Orchestration Perspective
+== Execution Information Perspective
 
-Icon: image:icons/data_orch.svg[width="24px"]
+Icon: image:icons/run.svg[width="24px"]
 
-Keyboard shortcut: `CTRL-Shift-D`
+Keyboard shortcut: `CTRL-Shift-I`
 
 Description::
-The Data Orchestration perspective is where you'll spend most of your time in Hop Gui.
-This is where xref:pipeline/pipelines.adoc[pipelines] and xref:workflow/workflows.adoc[workflows] are built, tested and run.
+The Execution Information perspective provides an overview of execution information for previously executed workflows and pipelines. The perspective allows you to browse the list of executions and drill up or down to parent or child workflows and/or pipelines. Additionally, this perspective provides information about the execution status, logging information, (pipeline) metrics and the profiled data.

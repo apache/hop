@@ -20,6 +20,8 @@ under the License.
 
 Icon: image:icons/folder.svg[width="24px"]
 
+Keyboard shortcut: `CTRL-Shift-E`
+
 Description::
 The file explorer perspective is where you'll perform a lot of your file operation.
 This perspective contains handlers for the most common file types known to Hop.

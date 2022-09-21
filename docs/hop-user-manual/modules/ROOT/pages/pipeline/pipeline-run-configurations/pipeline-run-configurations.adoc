@@ -47,6 +47,8 @@ The main tab contains the name, description and the dropdown list for the availa
 |Option|Description
 |Name|The name you want to use for this pipeline run configuration.
 |Description|A description you want to use for this pipeline run configuration (optional).
+|Execution information location|The xref:metadata-types/execution-information-location.adoc[] to use with this pipeline run configuration.
+|Execution data profile|The xref:metadata-types/execution-data-profile.adoc[] to use with this pipeline run configuration.
 |Engine type a|
 The available engine types are:
 
