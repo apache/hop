@@ -247,21 +247,16 @@
                 <include>org.apache.flink:flink-shaded-netty</include>
                 <include>org.apache.flink:flink-shaded-zookeeper-3</include>
                 <include>org.apache.flink:flink-streaming-java</include>
-                <include>org.apache.hadoop:hadoop-annotations</include>
-                <include>org.apache.hadoop:hadoop-auth</include>
-                <include>org.apache.hadoop:hadoop-client</include>
-                <include>org.apache.hadoop:hadoop-common</include>
-                <include>org.apache.hadoop:hadoop-hdfs</include>
-                <include>org.apache.hadoop:hadoop-mapreduce-client-common</include>
-                <include>org.apache.hadoop:hadoop-mapreduce-client-core</include>
-                <include>org.apache.hadoop:hadoop-mapreduce-client-jobclient</include>
-                <include>org.apache.hadoop:hadoop-yarn-api</include>
-                <include>org.apache.hadoop:hadoop-yarn-client</include>
-                <include>org.apache.hadoop:hadoop-yarn-common</include>
+                <include>org.apache.hadoop:hadoop-client-api</include>
+                <include>org.apache.hadoop:hadoop-client-runtime</include>
+                <include>org.apache.hadoop:hadoop-hdfs-client</include>
                 <include>org.apache.htrace:htrace-core</include>
                 <include>org.apache.ivy:ivy</include>
                 <include>org.apache.kafka:kafka-clients</include>
+                <include>org.apache.logging.log4j:log4j-slf4j-impl</include>
+                <include>org.apache.logging.log4j:log4j-api</include>
                 <include>org.apache.logging.log4j:log4j-core</include>
+                <include>org.apache.logging.log4j:log4j-1.2-api</include>
                 <include>org.apache.spark:spark-core_2.12</include>
                 <include>org.apache.spark:spark-kvstore_2.12</include>
                 <include>org.apache.spark:spark-launcher_2.12</include>
