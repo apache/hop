@@ -802,8 +802,8 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
               true),
           new ColumnInfo(
               BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Format.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              Const.getConversionFormats()),
+              ColumnInfo.COLUMN_TYPE_FORMAT,
+              3),
           new ColumnInfo(
               BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Length.Column"),
               ColumnInfo.COLUMN_TYPE_TEXT,

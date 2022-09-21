@@ -386,8 +386,8 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
               false),
           new ColumnInfo(
               BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Format"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
+              ColumnInfo.COLUMN_TYPE_FORMAT,
+              2),
           new ColumnInfo(
               BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Group"),
               ColumnInfo.COLUMN_TYPE_TEXT,

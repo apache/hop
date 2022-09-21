@@ -543,25 +543,6 @@ public class CsvInputDialog extends BaseTransformDialog
               ValueMetaString.trimTypeDesc),
         };
 
-    colinf[2].setComboValuesSelectionListener(
-        (tableItem, rowNr, colNr) -> {
-          String[] comboValues = new String[] {};
-          int type = ValueMetaFactory.getIdForValueMeta(tableItem.getText(colNr - 1));
-          switch (type) {
-            case IValueMeta.TYPE_DATE:
-              comboValues = Const.getDateFormats();
-              break;
-            case IValueMeta.TYPE_INTEGER:
-            case IValueMeta.TYPE_BIGNUMBER:
-            case IValueMeta.TYPE_NUMBER:
-              comboValues = Const.getNumberFormats();
-              break;
-            default:
-              break;
-          }
-          return comboValues;
-        });
-
     wFields =
         new TableView(variables, shell, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props);
 
