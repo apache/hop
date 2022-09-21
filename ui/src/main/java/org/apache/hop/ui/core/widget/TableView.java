@@ -278,7 +278,7 @@ public class TableView extends Composite {
     clearUndo();
 
     numberColumn = new ColumnInfo("#", ColumnInfo.COLUMN_TYPE_TEXT, true, true);
-    IValueMeta numberColumnValueMeta = new ValueMetaString("#");
+    IValueMeta numberColumnValueMeta = new ValueMetaInteger("#");
     numberColumnValueMeta.setConversionMask("####0.###");
     numberColumn.setValueMeta(numberColumnValueMeta);
 
