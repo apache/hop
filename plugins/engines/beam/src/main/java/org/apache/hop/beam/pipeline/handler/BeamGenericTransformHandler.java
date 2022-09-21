@@ -178,7 +178,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
               infoCollectionViews,
               runConfigurationName,
               dataSamplersJson,
-                  parentLogChannelId);
+              parentLogChannelId);
     } else {
       transformTransform =
           new TransformTransform(
@@ -233,24 +233,16 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
         //
         input =
             input
-                .apply(WithKeys.of((Void) null))
+                .apply(WithKeys.of((Void)null))
                 .setCoder(KvCoder.of(VoidCoder.of(), input.getCoder()))
                 .apply(GroupByKey.create())
                 .apply(Values.create())
                 .apply(Flatten.iterables());
       } else {
-
-        // Streaming: try partitioning over a single partition
-        // NOTE: doesn't seem to work <sigh/>
-        /*
-        input = input
-          .apply( Partition.of( 1, new SinglePartitionFn() ) )
-          .apply( Flatten.pCollections() )
-        ;
-         */
         throw new HopException(
-            "Unable to reduce parallel in an unbounded (streaming) pipeline in transform : "
-                + transformMeta.getName());
+            "Hop is unable to reduce the parallelism of transform '"
+                + transformMeta.getName()
+                + "' in an unbounded (streaming) pipeline.");
       }
     }
 

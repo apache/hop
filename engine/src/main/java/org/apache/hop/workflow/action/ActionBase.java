@@ -106,6 +106,7 @@ public abstract class ActionBase
     name = null;
     description = null;
     log = new LogChannel(this);
+    this.setVariable(Const.INTERNAL_VARIABLE_ACTION_ID, log.getLogChannelId());
     attributesMap = new HashMap<>();
     extensionDataMap = new HashMap<>();
   }
@@ -120,6 +121,7 @@ public abstract class ActionBase
     setName(name);
     setDescription(description);
     log = new LogChannel(this);
+    this.setVariable(Const.INTERNAL_VARIABLE_ACTION_ID, log.getLogChannelId());
     attributesMap = new HashMap<>();
     extensionDataMap = new HashMap<>();
   }
@@ -708,6 +710,7 @@ public abstract class ActionBase
     this.parentWorkflow = parentWorkflow;
     this.logLevel = parentWorkflow.getLogLevel();
     this.log = new LogChannel(this, parentWorkflow);
+    this.setVariable(Const.INTERNAL_VARIABLE_ACTION_ID, log.getLogChannelId());
     this.containerObjectId = parentWorkflow.getContainerId();
   }
 

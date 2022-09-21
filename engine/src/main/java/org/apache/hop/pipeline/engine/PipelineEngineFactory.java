@@ -157,6 +157,8 @@ public class PipelineEngineFactory {
 
     pipelineEngine.setPipelineMeta(pipelineMeta);
 
+    pipelineEngine.setInternalHopVariables(pipelineEngine);
+
     return pipelineEngine;
   }
 }

@@ -736,7 +736,7 @@ public class TransformBatchTransform extends TransformTransform {
         }
 
         if (!rowBuffer.isEmpty()) {
-          System.err.println("Async action detected on rowBuffer");
+          LOG.error("Async action detected on rowBuffer");
         }
 
         // Empty all the row buffers for another iteration
