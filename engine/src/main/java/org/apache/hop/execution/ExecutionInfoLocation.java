@@ -30,7 +30,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "Execution Information Location",
     description = "Describes where Hop can send execution information to",
     image = "ui/images/location.svg",
-    documentationUrl = "/metadata-types/execution-info-location.html")
+    documentationUrl = "/metadata-types/execution-information-location.html")
 public class ExecutionInfoLocation extends HopMetadataBase implements IHopMetadata, Cloneable {
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID =
       "ExecutionInfoLocation-PluginSpecific-Options";

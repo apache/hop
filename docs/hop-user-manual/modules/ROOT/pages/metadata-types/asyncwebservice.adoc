@@ -1,0 +1,41 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: This web service variant is used to execute long-running workflows. Instead of getting immediate results from a pipeline with a Web Service call, the only thing that is given back after the call in the unique ID of the executing workflow.
+
+= Asynchronous Web Service
+
+== Description
+
+This web service variant is used to execute long-running workflows. Instead of getting immediate results from a pipeline with a Web Service call, the only thing that is given back after the call in the unique ID of the executing workflow. With that unique ID you can query the status of the workflow. You can specify additional variables to report back during the querying of the status of the asynchronously running workflow.
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+|Name|The name to be used for this Asynchronous Web Services
+|Enabled|Boolean flag to indicated whether this web service is enabled or not
+|Filename|The workflow to use for this web service, with options to open the selected workflow ('Open'), create a new workflow ('New'), or browse to select an existing workflow ('Browse')
+|Status variables (, separated)|List the variables that are being reported back when the asynchronous status service is queried
+|Content variable|The name of the variable which will contain the content body of the service call
+|===
+
+== More information
+
+For more details on the Asynchronous Web Service and usage examples, check the xref:hop-server/async-web-service.adoc[] page in the xref:hop-server/index.adoc[] docs.
