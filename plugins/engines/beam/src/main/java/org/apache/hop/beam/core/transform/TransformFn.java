@@ -568,7 +568,9 @@ public class TransformFn extends TransformBaseFn {
   @FinishBundle
   public void finishBundle(FinishBundleContext context) {
     try {
-      executor.dispose();
+      if (executor != null) {
+        executor.dispose();
+      }
 
       // Send last data from the data samplers over to the location (if any)
       //

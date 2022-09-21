@@ -57,7 +57,7 @@ limitations under the License.
     </hop>
     <hop>
       <from>FL,CA</from>
-      <to>0007-customers-ca-fl.xlsx</to>
+      <to>0007-customers-ca-fl.xls</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -306,12 +306,12 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>0007-customers-ca-fl.xlsx</name>
+    <name>0007-customers-ca-fl.xls</name>
     <type>TypeExitExcelWriterTransform</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
-    <copies>SINGLE_BEAM</copies>
+    <copies>BATCH</copies>
     <partitioning>
       <method>none</method>
       <schema_name/>
@@ -325,12 +325,16 @@ limitations under the License.
       <autosizecolums>Y</autosizecolums>
       <createParentFolder>N</createParentFolder>
       <add_date>N</add_date>
+      <date_time_format/>
       <do_not_open_newfile_init>N</do_not_open_newfile_init>
-      <extension>xlsx</extension>
+      <extension>xls</extension>
       <name>gs://apache-hop-it/output/0007-customers-ca-fl-${Internal.Transform.ID}</name>
+      <filename_field/>
       <filename_in_field>N</filename_in_field>
       <if_file_exists>new</if_file_exists>
       <if_sheet_exists>new</if_sheet_exists>
+      <password/>
+      <protected_by/>
       <protect_sheet>N</protect_sheet>
       <sheetname>CA-FL-Customers</sheetname>
       <SpecifyFormat>N</SpecifyFormat>
@@ -346,64 +350,123 @@ limitations under the License.
     <makeSheetActive>Y</makeSheetActive>
     <fields>
       <field>
+        <commentAuthorField/>
+        <commentField/>
         <format>0</format>
         <formula>N</formula>
+        <hyperlinkField/>
         <name>id</name>
+        <styleCell/>
         <title>id</title>
+        <titleStyleCell/>
         <type>Integer</type>
       </field>
       <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
         <formula>N</formula>
+        <hyperlinkField/>
         <name>lastName</name>
+        <styleCell/>
         <title>lastName</title>
+        <titleStyleCell/>
         <type>String</type>
       </field>
       <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
         <formula>N</formula>
+        <hyperlinkField/>
         <name>firstName</name>
+        <styleCell/>
         <title>firstName</title>
+        <titleStyleCell/>
         <type>String</type>
       </field>
       <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
         <formula>N</formula>
+        <hyperlinkField/>
         <name>zipCode</name>
+        <styleCell/>
         <title>zipCode</title>
+        <titleStyleCell/>
         <type>String</type>
       </field>
       <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
         <formula>N</formula>
+        <hyperlinkField/>
         <name>city</name>
+        <styleCell/>
         <title>city</title>
+        <titleStyleCell/>
         <type>String</type>
       </field>
       <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
         <formula>N</formula>
+        <hyperlinkField/>
         <name>birthdate</name>
+        <styleCell/>
         <title>birthdate</title>
+        <titleStyleCell/>
         <type>String</type>
       </field>
       <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
         <formula>N</formula>
+        <hyperlinkField/>
         <name>street</name>
+        <styleCell/>
         <title>street</title>
+        <titleStyleCell/>
         <type>String</type>
       </field>
       <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
         <formula>N</formula>
+        <hyperlinkField/>
         <name>housenr</name>
+        <styleCell/>
         <title>housenr</title>
+        <titleStyleCell/>
         <type>String</type>
       </field>
       <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
         <formula>N</formula>
+        <hyperlinkField/>
         <name>stateCode</name>
+        <styleCell/>
         <title>stateCode</title>
+        <titleStyleCell/>
         <type>String</type>
       </field>
       <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
         <formula>N</formula>
+        <hyperlinkField/>
         <name>state</name>
+        <styleCell/>
         <title>state</title>
+        <titleStyleCell/>
         <type>String</type>
       </field>
     </fields>
@@ -414,6 +477,7 @@ limitations under the License.
       <filename>template.xls</filename>
       <sheet_enabled>N</sheet_enabled>
       <hidden>N</hidden>
+      <sheetname/>
     </template>
     <attributes/>
     <GUI>
