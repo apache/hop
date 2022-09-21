@@ -160,7 +160,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       // Also append to a log file...
       //
       String logFilename = getLogFilename(executionState);
-      try (OutputStream outputStream = HopVfs.getOutputStream(logFilename, true)) {
+      try (OutputStream outputStream = HopVfs.getOutputStream(logFilename, false)) {
         outputStream.write(executionState.getLoggingText().getBytes(StandardCharsets.UTF_8));
       }
     } catch (Exception e) {

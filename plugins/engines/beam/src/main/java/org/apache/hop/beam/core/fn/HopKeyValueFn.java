@@ -136,14 +136,14 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
 
       // Copy over the data...
       //
-      Object[] keyRow = RowDataUtil.allocateRowData(keyIndexes.length);
+      Object[] keyRow = new Object[keyIndexes.length];
       for (int i = 0; i < keyIndexes.length; i++) {
         keyRow[i] = inputRow[keyIndexes[i]];
       }
 
       // Copy over the values...
       //
-      Object[] valueRow = RowDataUtil.allocateRowData(valueIndexes.length);
+      Object[] valueRow = new Object[valueIndexes.length];
       for (int i = 0; i < valueIndexes.length; i++) {
         valueRow[i] = inputRow[valueIndexes[i]];
       }

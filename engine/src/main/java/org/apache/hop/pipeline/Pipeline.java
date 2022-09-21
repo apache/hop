@@ -2152,6 +2152,10 @@ public abstract class Pipeline
     variables.setVariable(
         Const.INTERNAL_VARIABLE_PIPELINE_NAME, Const.NVL(pipelineMeta.getName(), ""));
 
+    // The ID of the pipeline (log channel ID)
+    variables.setVariable(
+            Const.INTERNAL_VARIABLE_PIPELINE_ID, log!=null ? log.getLogChannelId() : "");
+
     // Here we don't clear the definition of the workflow specific parameters, as they may come in
     // handy.
     // A pipeline can be called from a workflow and may inherit the workflow internal variables

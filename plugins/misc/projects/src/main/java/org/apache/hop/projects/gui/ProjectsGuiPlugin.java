@@ -216,17 +216,19 @@ public class ProjectsGuiPlugin {
         String environmentName = auditEvent.getName();
         if (StringUtils.isNotEmpty(environmentName)) {
           environment = config.findEnvironment(environmentName);
-          // See that the project belongs to the environment
-          //
-          if (environment!=null && projectName.equals(environment.getProjectName())) {
-            // We found what we've been looking for
-            break;
-          } else {
-            // The project doesn't to the last selected environment
-            // Since we selected the project it is the driver of the selection.
-            // Keep looking.
+          if (environment != null) {
+            // See that the project belongs to the environment
             //
-            environment=null;
+            if (projectName.equals(environment.getProjectName())) {
+              // We found what we've been looking for
+              break;
+            } else {
+              // The project doesn't to the last selected environment
+              // Since we selected the project it is the driver of the selection.
+              // Keep looking.
+              //
+              environment = null;
+            }
           }
         }
       }

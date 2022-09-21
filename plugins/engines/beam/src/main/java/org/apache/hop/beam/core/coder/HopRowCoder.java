@@ -35,9 +35,9 @@ import java.util.Date;
 public class HopRowCoder extends AtomicCoder<HopRow> {
 
   @Override
-  public void encode(HopRow value, OutputStream outStream) throws IOException {
+  public void encode(HopRow hopRow, OutputStream outStream) throws IOException {
 
-    Object[] row = value.getRow();
+    Object[] row = hopRow.getRow();
     ObjectOutputStream out = new ObjectOutputStream(outStream);
 
     // Length
@@ -46,12 +46,12 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
       out.writeInt(-1);
       return; // all done
     } else {
-      out.writeInt(row.length);
+      out.writeInt(hopRow.length());
     }
 
     // The values
     //
-    for (int i = 0; i < row.length; i++) {
+    for (int i = 0; i < hopRow.length(); i++) {
       Object object = row[i];
       // Null?
       //
@@ -92,7 +92,7 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
       }
     }
 
-    return new HopRow(row);
+    return new HopRow(row, length);
   }
 
   @Override

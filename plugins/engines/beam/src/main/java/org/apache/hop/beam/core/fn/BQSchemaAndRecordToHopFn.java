@@ -129,7 +129,7 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
 
       // Convert to the requested Hop Data types
       //
-      Object[] row = RowDataUtil.allocateRowData(rowMeta.size());
+      Object[] row = new Object[rowMeta.size()];
       for (int index = 0; index < rowMeta.size(); index++) {
         IValueMeta valueMeta = rowMeta.getValueMeta(index);
         Object srcData = record.get(valueMeta.getName());

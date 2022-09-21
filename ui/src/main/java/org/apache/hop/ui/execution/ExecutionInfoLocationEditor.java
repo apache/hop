@@ -380,7 +380,6 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     wDescription.setText(Const.NVL(workingLocation.getDescription(), ""));
     wDataLoggingDelay.setText(Const.NVL(workingLocation.getDataLoggingDelay(), ""));
     wDataLoggingInterval.setText(Const.NVL(workingLocation.getDataLoggingInterval(), ""));
-    wDataLoggingSize.setText(Const.NVL(workingLocation.getDataLoggingSize(), ""));
 
     if (workingLocation.getExecutionInfoLocation() != null) {
       wPluginType.setText(
@@ -401,7 +400,6 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     location.setDescription(wDescription.getText());
     location.setDataLoggingDelay(wDataLoggingDelay.getText());
     location.setDataLoggingInterval(wDataLoggingInterval.getText());
-    location.setDataLoggingSize(wDataLoggingSize.getText());
 
     // Get the plugin specific information from the widgets on the screen
     //

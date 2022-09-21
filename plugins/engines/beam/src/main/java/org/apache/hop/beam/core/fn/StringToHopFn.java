@@ -96,7 +96,7 @@ public class StringToHopFn extends DoFn<String, HopRow> {
       // TODO: implement enclosure in FileDefinition
       //
 
-      Object[] row = RowDataUtil.allocateRowData(rowMeta.size());
+      Object[] row = new Object[rowMeta.size()];
       int index = 0;
       while (index < rowMeta.size() && index < components.length) {
         String sourceString = components[index];

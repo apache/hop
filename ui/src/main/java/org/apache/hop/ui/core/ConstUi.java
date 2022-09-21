@@ -82,7 +82,7 @@ public class ConstUi {
   public static final int COLOR_TAB_BLUE = 240;
 
   /** the default canvas refresh interval for running pipelines */
-  public static final int INTERVAL_MS_PIPELINE_CANVAS_REFRESH = 500;
+  public static final int INTERVAL_MS_PIPELINE_CANVAS_REFRESH = 1000;
 
   /** margin between points of controls */
   public static final int SMALL_MARGIN = 5;

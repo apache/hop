@@ -20,5 +20,7 @@ under the License.
 
 Icon: image:icons/metadata.svg[width="24px"]
 
+Keyboard shortcut: `CTRL-Shift-M`
+
 Description::
 The Metadata perspective is where you manage the different xref:metadata-types/index.adoc[metadata types] available in your Hop projects.

@@ -380,8 +380,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       linesOutput = 0L;
     }
 
-    inputRowSets = null;
-    outputRowSets = null;
+    inputRowSets = new ArrayList<>();
+    outputRowSets = new ArrayList<>();
     nextTransforms = null;
 
     terminator = transformMeta.hasTerminator();
@@ -417,8 +417,15 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     dispatch();
 
-    upperBufferBoundary = (int) (pipeline.getRowSetSize() * 0.99);
-    lowerBufferBoundary = (int) (pipeline.getRowSetSize() * 0.01);
+    if (pipeline != null) {
+      upperBufferBoundary = (int) (pipeline.getRowSetSize() * 0.99);
+      lowerBufferBoundary = (int) (pipeline.getRowSetSize() * 0.01);
+    } else {
+      upperBufferBoundary = 100;
+      lowerBufferBoundary = 10;
+    }
+
+    setInternalVariables();
   }
 
   @Override
@@ -2182,9 +2189,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     inputRowSetsLock.writeLock().lock();
     outputRowSetsLock.writeLock().lock();
     try {
-      inputRowSets = new ArrayList<>();
-      outputRowSets = new ArrayList<>();
-
       errorRowSet = null;
       prevTransforms = new TransformMeta[nrInput];
       nextTransforms = new TransformMeta[nrOutput];
@@ -2709,14 +2713,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   public void markStart() {
     Calendar cal = Calendar.getInstance();
     startTime = cal.getTime();
-
-    setInternalVariables();
   }
 
   /** Sets the internal variables. */
   public void setInternalVariables() {
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_NAME, transformName);
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, Integer.toString(getCopy()));
+    setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_ID, log.getLogChannelId());
   }
 
   /*

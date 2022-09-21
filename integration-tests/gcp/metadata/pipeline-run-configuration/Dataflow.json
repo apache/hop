@@ -29,5 +29,7 @@
   },
   "configurationVariables": [],
   "name": "Dataflow",
-  "description": ""
+  "description": "",
+  "executionInfoLocationName": "",
+  "dataProfile": ""
 }

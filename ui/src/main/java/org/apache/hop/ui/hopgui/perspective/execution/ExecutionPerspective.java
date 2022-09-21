@@ -62,6 +62,7 @@ import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.*;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -373,50 +374,59 @@ public class ExecutionPerspective implements IHopPerspective {
         }
       }
     } catch (Exception e) {
+      getShell().setCursor(null);
       new ErrorDialog(getShell(), "Error", "Error showing viewer for execution", e);
     }
   }
 
   public void createExecutionViewer(ExecutionInfoLocation location, Execution execution)
       throws Exception {
-    if (location==null || execution==null) {
-      return;
-    }
+    Cursor busyCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_WAIT);
 
-    // See if the viewer is already active...
-    //
-    IExecutionViewer active = findViewer(execution.getId(), execution.getName());
-    if (active != null) {
-      setActiveViewer(active);
-      return;
-    }
+    try {
+      if (location == null || execution == null) {
+        return;
+      }
+      getShell().setCursor(busyCursor);
 
-    // Load metadata
-    IHopMetadataProvider provider = new SerializableMetadataProvider(execution.getMetadataJson());
-    IVariables variables = Variables.getADefaultVariableSpace();
-    variables.setVariables(execution.getVariableValues());
+      // See if the viewer is already active...
+      //
+      IExecutionViewer active = findViewer(execution.getId(), execution.getName());
+      if (active != null) {
+        setActiveViewer(active);
+        return;
+      }
 
-    switch (execution.getExecutionType()) {
-      case Pipeline:
-        {
-          Node pipelineNode =
-              XmlHandler.loadXmlString(execution.getExecutorXml(), PipelineMeta.XML_TAG);
-          PipelineMeta pipelineMeta = new PipelineMeta(pipelineNode, provider);
-          PipelineExecutionViewer viewer =
-              new PipelineExecutionViewer(tabFolder, hopGui, pipelineMeta, location, execution);
-          addViewer(viewer);
-        }
-        break;
-      case Workflow:
-        {
-          Node workflowNode =
-              XmlHandler.loadXmlString(execution.getExecutorXml(), WorkflowMeta.XML_TAG);
-          WorkflowMeta workflowMeta = new WorkflowMeta(workflowNode, provider, variables);
-          WorkflowExecutionViewer viewer =
-              new WorkflowExecutionViewer(tabFolder, hopGui, workflowMeta, location, execution);
-          addViewer(viewer);
-        }
-        break;
+      // Load metadata
+      IHopMetadataProvider provider = new SerializableMetadataProvider(execution.getMetadataJson());
+      IVariables variables = Variables.getADefaultVariableSpace();
+      variables.setVariables(execution.getVariableValues());
+
+      switch (execution.getExecutionType()) {
+        case Pipeline:
+          {
+            Node pipelineNode =
+                XmlHandler.loadXmlString(execution.getExecutorXml(), PipelineMeta.XML_TAG);
+            PipelineMeta pipelineMeta = new PipelineMeta(pipelineNode, provider);
+            PipelineExecutionViewer viewer =
+                new PipelineExecutionViewer(tabFolder, hopGui, pipelineMeta, location, execution);
+            addViewer(viewer);
+          }
+          break;
+        case Workflow:
+          {
+            Node workflowNode =
+                XmlHandler.loadXmlString(execution.getExecutorXml(), WorkflowMeta.XML_TAG);
+            WorkflowMeta workflowMeta = new WorkflowMeta(workflowNode, provider, variables);
+            WorkflowExecutionViewer viewer =
+                new WorkflowExecutionViewer(tabFolder, hopGui, workflowMeta, location, execution);
+            addViewer(viewer);
+          }
+          break;
+      }
+    } finally {
+      getShell().setCursor(null);
+      busyCursor.dispose();
     }
   }
 
@@ -476,17 +486,17 @@ public class ExecutionPerspective implements IHopPerspective {
       Collections.sort(locations, Comparator.comparing(HopMetadataBase::getName));
 
       for (ExecutionInfoLocation location : locations) {
-          // Initialize the location first...
-          //
-          location
-              .getExecutionInfoLocation()
-              .initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
+        // Initialize the location first...
+        //
+        location
+            .getExecutionInfoLocation()
+            .initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
 
-          TreeItem locationItem = new TreeItem(tree, SWT.NONE);
-          locationItem.setText(0, Const.NVL(location.getName(), ""));
-          locationItem.setImage(GuiResource.getInstance().getImageLocation());
-          TreeMemory.getInstance().storeExpanded(EXECUTION_PERSPECTIVE_TREE, locationItem, true);
-          locationItem.setData(location);
+        TreeItem locationItem = new TreeItem(tree, SWT.NONE);
+        locationItem.setText(0, Const.NVL(location.getName(), ""));
+        locationItem.setImage(GuiResource.getInstance().getImageLocation());
+        TreeMemory.getInstance().storeExpanded(EXECUTION_PERSPECTIVE_TREE, locationItem, true);
+        locationItem.setData(location);
 
         try {
 

@@ -107,7 +107,7 @@ public class KinesisRecordToHopRowFn extends DoFn<KinesisRecord, HopRow> {
       assert kinesisRecord != null;
       inputCounter.inc();
 
-      Object[] outputRow = RowDataUtil.allocateRowData(rowMeta.size());
+      Object[] outputRow = new Object[rowMeta.size()];
       int index = 0;
       if (StringUtils.isNotEmpty(uniqueIdField)) {
         String uniqueId = new String(kinesisRecord.getUniqueId(), StandardCharsets.UTF_8);

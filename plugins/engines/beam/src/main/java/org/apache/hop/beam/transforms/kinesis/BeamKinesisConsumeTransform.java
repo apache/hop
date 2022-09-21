@@ -285,7 +285,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
         KV<String, String> kv = processContext.element();
         inputCounter.inc();
 
-        Object[] outputRow = RowDataUtil.allocateRowData(rowMeta.size());
+        Object[] outputRow = new Object[rowMeta.size()];
         outputRow[0] = kv.getKey(); // String
         outputRow[1] = kv.getValue(); // String
 
@@ -351,7 +351,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
         KV<String, GenericRecord> kv = processContext.element();
         inputCounter.inc();
 
-        Object[] outputRow = RowDataUtil.allocateRowData(rowMeta.size());
+        Object[] outputRow = new Object[rowMeta.size()];
         outputRow[0] = kv.getKey(); // String
         outputRow[1] = kv.getValue(); // Avro Record (GenericRecord)
 
