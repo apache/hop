@@ -19,7 +19,7 @@ version: '2.4'
 services:
   integration_test_spark:
     extends:
-      file: integration-tests-base-spark.yaml
+      file: integration-tests-base.yaml
       service: integration_test
     depends_on:
       - spark
