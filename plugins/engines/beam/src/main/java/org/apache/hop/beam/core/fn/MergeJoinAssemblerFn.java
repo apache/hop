@@ -25,47 +25,70 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class AssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
+public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
 
-  private String outputRowMetaJson;
+  public static int JOIN_TYPE_INNER = 0;
+  public static int JOIN_TYPE_LEFT_OUTER = 1;
+  public static int JOIN_TYPE_RIGHT_OUTER = 2;
+  public static int JOIN_TYPE_FULL_OUTER = 3;
+
+  private int joinType;
+  private String leftRowMetaJson;
+  private String rightRowMetaJson;
   private String leftKRowMetaJson;
   private String leftVRowMetaJson;
+  private String rightKRowMetaJson;
   private String rightVRowMetaJson;
   private String counterName;
   private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
-  private static final Logger LOG = LoggerFactory.getLogger(AssemblerFn.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MergeJoinAssemblerFn.class);
 
-  private transient IRowMeta outputRowMeta;
+  private transient IRowMeta leftRowMeta;
+  private transient IRowMeta rightRowMeta;
   private transient IRowMeta leftKRowMeta;
   private transient IRowMeta leftVRowMeta;
+  private transient IRowMeta rightKRowMeta;
   private transient IRowMeta rightVRowMeta;
 
-  private transient Counter initCounter;
   private transient Counter writtenCounter;
   private transient Counter errorCounter;
 
-  public AssemblerFn() {}
+  private transient Map<Integer, Integer> leftKeyIndexes;
+  private transient Map<Integer, Integer> leftValueIndexes;
+  private transient Map<Integer, Integer> rightKeyIndexes;
+  private transient Map<Integer, Integer> rightValueIndexes;
 
-  public AssemblerFn(
-      String outputRowMetaJson,
+  public MergeJoinAssemblerFn() {}
+
+  public MergeJoinAssemblerFn(
+      int joinType,
+      String leftRowMetaJson,
+      String rightRowMetaJson,
       String leftKRowMetaJson,
       String leftVRowMetaJson,
+      String rightKRowMetaJson,
       String rightVRowMetaJson,
       String counterName,
       List<String> transformPluginClasses,
       List<String> xpPluginClasses) {
-    this.outputRowMetaJson = outputRowMetaJson;
+    this.joinType = joinType;
+    this.leftRowMetaJson = leftRowMetaJson;
+    this.rightRowMetaJson = rightRowMetaJson;
     this.leftKRowMetaJson = leftKRowMetaJson;
     this.leftVRowMetaJson = leftVRowMetaJson;
+    this.rightKRowMetaJson = rightKRowMetaJson;
     this.rightVRowMetaJson = rightVRowMetaJson;
     this.counterName = counterName;
     this.transformPluginClasses = transformPluginClasses;
@@ -81,10 +104,42 @@ public class AssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
       // Initialize Hop Beam
       //
       BeamHop.init(transformPluginClasses, xpPluginClasses);
-      outputRowMeta = JsonRowMeta.fromJson(outputRowMetaJson);
+      leftRowMeta = JsonRowMeta.fromJson(leftRowMetaJson);
+      rightRowMeta = JsonRowMeta.fromJson(rightRowMetaJson);
       leftKRowMeta = JsonRowMeta.fromJson(leftKRowMetaJson);
       leftVRowMeta = JsonRowMeta.fromJson(leftVRowMetaJson);
+      rightKRowMeta = JsonRowMeta.fromJson(rightKRowMetaJson);
       rightVRowMeta = JsonRowMeta.fromJson(rightVRowMetaJson);
+
+      leftKeyIndexes = new HashMap<>();
+      leftValueIndexes = new HashMap<>();
+      rightKeyIndexes = new HashMap<>();
+      rightValueIndexes = new HashMap<>();
+
+      // Cache source-to-target mappings for values
+      //
+      for (int i = 0; i < leftRowMeta.size(); i++) {
+        IValueMeta valueMeta = leftRowMeta.getValueMeta(i);
+        int index = leftKRowMeta.indexOfValue(valueMeta.getName());
+        if (index >= 0) {
+          leftKeyIndexes.put(i, index);
+        }
+        index = leftVRowMeta.indexOfValue(valueMeta.getName());
+        if (index >= 0) {
+          leftValueIndexes.put(i, index);
+        }
+      }
+      for (int i = 0; i < rightRowMeta.size(); i++) {
+        IValueMeta valueMeta = rightRowMeta.getValueMeta(i);
+        int index = rightKRowMeta.indexOfValue(valueMeta.getName());
+        if (index >= 0) {
+          rightKeyIndexes.put(i, index);
+        }
+        index = rightVRowMeta.indexOfValue(valueMeta.getName());
+        if (index >= 0) {
+          rightValueIndexes.put(i, index);
+        }
+      }
 
       Metrics.counter(Pipeline.METRIC_NAME_INIT, counterName).inc();
     } catch (Exception e) {
@@ -98,7 +153,6 @@ public class AssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
   public void processElement(ProcessContext processContext) {
 
     try {
-
       KV<HopRow, KV<HopRow, HopRow>> element = processContext.element();
       KV<HopRow, HopRow> value = element.getValue();
 
@@ -106,10 +160,41 @@ public class AssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
       HopRow leftValue = value.getKey();
       HopRow rightValue = value.getValue();
 
-      Object[] outputRow = RowDataUtil.allocateRowData(outputRowMeta.size());
-      int index = 0;
+      Object[] outputRow = new Object[leftRowMeta.size() + rightRowMeta.size()];
 
-      // Hop style, first the left values
+      for (int i = 0; i < leftRowMeta.size(); i++) {
+        // Only add key for inner and left-outer join types
+        // Otherwise, leave this field blank to match up with default Hop behavior of the transform.
+        // If the left-hand side row is empty, we don't want to add keys or values
+        //
+        if (leftValue.isNotEmpty()) {
+          Integer keyIndex = leftKeyIndexes.get(i);
+          if (keyIndex != null) {
+            outputRow[i] = key.getRow()[keyIndex];
+          }
+          Integer valueIndex = leftValueIndexes.get(i);
+          if (valueIndex != null) {
+            outputRow[i] = leftValue.getRow()[valueIndex];
+          }
+        }
+      }
+
+      for (int i = 0; i < rightRowMeta.size(); i++) {
+        // If the right-hand side row is empty, we don't want to add keys or values
+        //
+        if (rightValue.isNotEmpty()) {
+          Integer keyIndex = rightKeyIndexes.get(i);
+          if (keyIndex != null) {
+            outputRow[leftRowMeta.size()+i] = key.getRow()[keyIndex];
+          }
+          Integer valueIndex = rightValueIndexes.get(i);
+          if (valueIndex != null) {
+            outputRow[leftRowMeta.size()+i] = rightValue.getRow()[valueIndex];
+          }
+        }
+      }
+
+      /*// Hop style, first the left values
       //
       if (leftValue.allNull()) {
         index += leftVRowMeta.size();
@@ -149,7 +234,7 @@ public class AssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
         for (int i = 0; i < rightVRowMeta.size(); i++) {
           outputRow[index++] = rightValue.getRow()[i];
         }
-      }
+      }*/
 
       processContext.output(new HopRow(outputRow));
       writtenCounter.inc();

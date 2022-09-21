@@ -34,7 +34,6 @@ public class BeamSparkPipelineEngineTest extends BeamBasePipelineEngineTest {
 
   // Disabled because of log4j library dependency problems with Spark
   @Test
-  @Ignore
   public void testSparkPipelineEngine() throws Exception {
 
     BeamSparkPipelineRunConfiguration configuration = new BeamSparkPipelineRunConfiguration();

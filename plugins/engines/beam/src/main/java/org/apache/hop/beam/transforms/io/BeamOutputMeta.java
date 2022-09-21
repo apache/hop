@@ -46,8 +46,8 @@ import java.util.Map;
 @Transform(
     id = "BeamOutput",
     image = "beam-output.svg",
-    name = "Beam Output",
-    description = "Describes a Beam Output",
+    name = "Beam File Output",
+    description = "Performs a parallel write to a group of files using the Beam framework",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamoutput.html")

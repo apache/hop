@@ -84,7 +84,7 @@ public class PubsubMessageToHopRowFn extends DoFn<PubsubMessage, HopRow> {
       PubsubMessage message = processContext.element();
       inputCounter.inc();
 
-      Object[] outputRow = RowDataUtil.allocateRowData(rowMeta.size());
+      Object[] outputRow = new Object[rowMeta.size()];
       outputRow[0] = message; // Serializable
 
       processContext.output(new HopRow(outputRow));

@@ -1058,6 +1058,7 @@ public abstract class Workflow extends Variables
     } else {
       workflowMeta.setInternalHopVariables(this);
     }
+    this.setVariable(Const.INTERNAL_VARIABLE_WORKFLOW_ID, log!=null ? log.getLogChannelId() : null);
   }
 
   /**

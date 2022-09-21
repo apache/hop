@@ -356,7 +356,6 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
     long delay = Const.toLong(resolve(executionInfoLocation.getDataLoggingDelay()), 2000L);
     long interval = Const.toLong(resolve(executionInfoLocation.getDataLoggingInterval()), 5000L);
-    final AtomicInteger lastLogLineNr = new AtomicInteger(0);
 
     final IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
     //
@@ -380,12 +379,9 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
               // Also update the pipeline execution state regularly
               //
               ExecutionState executionState =
-                  ExecutionStateBuilder.fromExecutor(LocalPipelineEngine.this, lastLogLineNr.get())
+                  ExecutionStateBuilder.fromExecutor(LocalPipelineEngine.this, -1)
                       .build();
               iLocation.updateExecutionState(executionState);
-              if (executionState.getLastLogLineNr() != null) {
-                lastLogLineNr.set(executionState.getLastLogLineNr());
-              }
             } catch (Exception e) {
               throw new RuntimeException(
                   "Error registering execution info (data and state) at location "

@@ -65,8 +65,8 @@ metadata:
   namespace: default
   name: hop-flink
 spec:
-  image: flink:1.14-scala_2.11-java11
-  flinkVersion: v1_14
+  image: flink:1.15-java11
+  flinkVersion: v1_15
   flinkConfiguration:
     taskmanager.numberOfTaskSlots: "8"
     taskmanager.memory.jvm-metaspace.size: "512m"
@@ -116,12 +116,12 @@ spec:
   jobManager:
     replicas: 1
     resource:
-      memory: "8g"
+      memory: "2g"
       cpu: 1
   taskManager:
     resource:
-      memory: "8g"
-      cpu: 4
+      memory: "2g"
+      cpu: 2
   job:
     jarURI: local:///hop/<your-hop-fat-jar>
     parallelism: 4

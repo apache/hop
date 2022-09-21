@@ -29,6 +29,7 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
@@ -56,6 +57,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.*;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
@@ -348,7 +350,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
               null,
               props);
 
-      for (int i=0;i<executionState.getMetrics().size();i++) {
+      for (int i = 0; i < executionState.getMetrics().size(); i++) {
         ExecutionStateComponentMetrics metrics = executionState.getMetrics().get(i);
         TableItem item = metricsView.table.getItem(i);
         item.setText(1, Const.NVL(metrics.getComponentName(), ""));
@@ -356,7 +358,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
         for (String metricHeader : metrics.getMetrics().keySet()) {
           Integer index = indexMap.get(metricHeader);
           Long value = metrics.getMetrics().get(metricHeader);
-          if (value!=null && index!=null && index>1 && index<=columns.size()) {
+          if (value != null && index != null && index > 1 && index <= columns.size()) {
             item.setText(index, value.toString());
           }
         }
@@ -383,8 +385,11 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   /** An entry is selected in the data list. Show the corresponding rows. */
   private void showDataRows() {
     int[] weights = dataSash.getWeights();
+    Cursor busyCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_WAIT);
 
     try {
+      getShell().setCursor(busyCursor);
+
       String[] selection = dataList.getSelection();
       if (selection.length != 1) {
         return;
@@ -456,6 +461,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     } finally {
       layout(true, true);
       dataSash.setWeights(weights);
+      getShell().setCursor(null);
     }
   }
 
@@ -728,50 +734,57 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   }
 
   private void showTransformData(TransformMeta transformMeta) {
-    transformMeta.setSelected(true);
-
-    // Remember which entry in the list was selected.
-    //
-    String previousListSelection = null;
-    if (dataList.getSelectionCount() == 1) {
-      previousListSelection = dataList.getSelection()[0];
-    }
-    dataList.removeAll();
-    dataView.clearAll();
-
+    Cursor busyCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_WAIT);
     try {
-      // Get the transform data
+      getShell().setCursor(busyCursor);
+      transformMeta.setSelected(true);
+
+      // Remember which entry in the list was selected.
       //
-      selectedTransformData = loadSelectedTransformData();
-
-      if (selectedTransformData == null) {
-        // Nothing collected
-        return;
+      String previousListSelection = null;
+      if (dataList.getSelectionCount() == 1) {
+        previousListSelection = dataList.getSelection()[0];
       }
+      dataList.removeAll();
+      dataView.clearAll();
 
-      Map<String, ExecutionDataSetMeta> setMetaData = selectedTransformData.getSetMetaData();
-      List<String> items = new ArrayList<>();
-      for (String key : setMetaData.keySet()) {
-        ExecutionDataSetMeta setMeta = setMetaData.get(key);
-        if (transformMeta.getName().equals(setMeta.getName())) {
-          // We're in the right place.  We can have different types of data though.
-          // We list the types in the List on the left in the data tab.
-          //
-          items.add(setMeta.getDescription());
+      try {
+        // Get the transform data
+        //
+        selectedTransformData = loadSelectedTransformData();
+
+        if (selectedTransformData == null) {
+          // Nothing collected
+          return;
         }
+
+        Map<String, ExecutionDataSetMeta> setMetaData = selectedTransformData.getSetMetaData();
+        List<String> items = new ArrayList<>();
+        for (String key : setMetaData.keySet()) {
+          ExecutionDataSetMeta setMeta = setMetaData.get(key);
+          if (transformMeta.getName().equals(setMeta.getName())) {
+            // We're in the right place.  We can have different types of data though.
+            // We list the types in the List on the left in the data tab.
+            //
+            items.add(setMeta.getDescription());
+          }
+        }
+        Collections.sort(items);
+        dataList.setItems(items.toArray(new String[0]));
+        tabFolder.setSelection(dataTab);
+        if (previousListSelection != null && items.contains(previousListSelection)) {
+          dataList.setSelection(items.indexOf(previousListSelection));
+        } else {
+          dataList.setSelection(0);
+        }
+        showDataRows();
+      } catch (Exception e) {
+        // Ignore this error: there simply isn't any data to be found
+        new ErrorDialog(getShell(), "Error", "Error showing transform data", e);
       }
-      Collections.sort(items);
-      dataList.setItems(items.toArray(new String[0]));
-      tabFolder.setSelection(dataTab);
-      if (previousListSelection != null && items.contains(previousListSelection)) {
-        dataList.setSelection(items.indexOf(previousListSelection));
-      } else {
-        dataList.setSelection(0);
-      }
-      showDataRows();
-    } catch (Exception e) {
-      // Ignore this error: there simply isn't any data to be found
-      new ErrorDialog(getShell(), "Error", "Error showing transform data", e);
+    } finally {
+      getShell().setCursor(null);
+      busyCursor.dispose();
     }
   }
 
@@ -792,10 +805,17 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
               .getExecutionInfoLocation()
               .findChildIds(ExecutionType.Pipeline, execution.getId());
       for (String childId : childIds) {
-        ExecutionData childData =
-            location.getExecutionInfoLocation().getExecutionData(execution.getId(), childId);
-
-        builder.addDataSets(childData.getDataSets()).addSetMeta(childData.getSetMetaData());
+        try {
+          ExecutionData childData =
+              location.getExecutionInfoLocation().getExecutionData(execution.getId(), childId);
+          if (childData != null) {
+            builder.addDataSets(childData.getDataSets()).addSetMeta(childData.getSetMetaData());
+          }
+        } catch (Exception e) {
+          // Data not yet written for this child ID
+          LogChannel.GENERAL.logDetailed(
+              "Error find transform data for child ID " + childId + " : " + e.getMessage());
+        }
       }
       data = builder.build();
     }

@@ -40,6 +40,7 @@ import org.apache.hop.beam.pipeline.handler.BeamGroupByTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamMergeJoinTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamRowGeneratorTransformHandler;
 import org.apache.hop.beam.util.BeamConst;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -234,8 +235,8 @@ public class HopPipelineMetaToBeamPipelineConverter {
           .as(HopPipelineExecutionOptions.class)
           .setLogLevel(
               LogLevel.getLogLevelForCode(
-                  pipelineRunConfiguration.getVariable(
-                      BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL)));
+                      Const.NVL(pipelineRunConfiguration.getVariable(
+                      BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL), "MINIMAL")));
 
       Pipeline pipeline = Pipeline.create(pipelineOptions);
 

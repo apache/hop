@@ -204,7 +204,8 @@ public abstract class BeamPipelineEngine extends Variables
             "Make sure Hop is correctly configured for more information see: https://hop.apache.org/manual/latest/pipeline/beam/spark-on-local-host.html");
       }
       if (logLevel != null) {
-        beamEngineRunConfiguration.setVariable(BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL, logLevel.getCode());
+        beamEngineRunConfiguration.setVariable(
+            BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL, logLevel.getCode());
       }
 
       // Do the lookup of the execution information, then register the pipeline,
@@ -867,8 +868,15 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   @Override
-  public void setInternalHopVariables(IVariables var) {
-    // TODO: get rid of this method.  Internal variables should always be available.
+  public void setInternalHopVariables(IVariables variables) {
+    // The name of the pipeline
+    variables.setVariable(
+        Const.INTERNAL_VARIABLE_PIPELINE_NAME, Const.NVL(pipelineMeta.getName(), ""));
+
+    // The ID of the pipeline (log channel ID)
+    variables.setVariable(
+        Const.INTERNAL_VARIABLE_PIPELINE_ID,
+        logChannel != null ? logChannel.getLogChannelId() : "");
   }
 
   /**
@@ -998,10 +1006,12 @@ public abstract class BeamPipelineEngine extends Variables
    */
   public void registerPipelineExecutionInformation() throws HopException {
     if (executionInfoLocation != null) {
-      // Register the execution at this locationExecutionBuilder.fromExecutor(this).build() = {Execution@14702}
+      // Register the execution at this locationExecutionBuilder.fromExecutor(this).build() =
+      // {Execution@14702}
       // This adds metadata, variables, parameters, ...
-      executionInfoLocation.getExecutionInfoLocation().registerExecution(
-              ExecutionBuilder.fromExecutor(this).build());
+      executionInfoLocation
+          .getExecutionInfoLocation()
+          .registerExecution(ExecutionBuilder.fromExecutor(this).build());
     }
   }
 
@@ -1015,7 +1025,7 @@ public abstract class BeamPipelineEngine extends Variables
     String locationName = resolve(pipelineRunConfiguration.getExecutionInfoLocationName());
     if (StringUtils.isNotEmpty(locationName)) {
       ExecutionInfoLocation location =
-              metadataProvider.getSerializer(ExecutionInfoLocation.class).load(locationName);
+          metadataProvider.getSerializer(ExecutionInfoLocation.class).load(locationName);
       if (location != null) {
         executionInfoLocation = location;
 
@@ -1023,9 +1033,9 @@ public abstract class BeamPipelineEngine extends Variables
         location.getExecutionInfoLocation().initialize(this, metadataProvider);
       } else {
         logChannel.logError(
-                "Execution information location '"
-                        + locationName
-                        + "' could not be found in the metadata");
+            "Execution information location '"
+                + locationName
+                + "' could not be found in the metadata");
       }
     }
   }
@@ -1037,32 +1047,27 @@ public abstract class BeamPipelineEngine extends Variables
 
     long delay = Const.toLong(resolve(executionInfoLocation.getDataLoggingDelay()), 2000L);
     long interval = Const.toLong(resolve(executionInfoLocation.getDataLoggingInterval()), 5000L);
-    final AtomicInteger lastLogLineNr = new AtomicInteger(0);
 
     final IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
     //
     TimerTask sampleTask =
-            new TimerTask() {
-              @Override
-              public void run() {
-                try {
-                  // Also update the pipeline execution state regularly
-                  //
-                  ExecutionState executionState =
-                          ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, lastLogLineNr.get())
-                                  .build();
-                  iLocation.updateExecutionState(executionState);
-                  if (executionState.getLastLogLineNr() != null) {
-                    lastLogLineNr.set(executionState.getLastLogLineNr());
-                  }
-                } catch (Exception e) {
-                  throw new RuntimeException(
-                          "Error registering execution info (data and state) at location "
-                                  + executionInfoLocation.getName(),
-                          e);
-                }
-              }
-            };
+        new TimerTask() {
+          @Override
+          public void run() {
+            try {
+              // Also update the pipeline execution state regularly
+              //
+              ExecutionState executionState =
+                  ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1).build();
+              iLocation.updateExecutionState(executionState);
+            } catch (Exception e) {
+              throw new RuntimeException(
+                  "Error registering execution info (data and state) at location "
+                      + executionInfoLocation.getName(),
+                  e);
+            }
+          }
+        };
 
     // Schedule the task to run regularly
     //
@@ -1075,10 +1080,12 @@ public abstract class BeamPipelineEngine extends Variables
       return;
     }
 
+    executionInfoTimer.cancel();
+
     // Register one final last state of the pipeline
     //
     ExecutionState executionState =
-            ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1).build();
+        ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1).build();
     executionInfoLocation.getExecutionInfoLocation().updateExecutionState(executionState);
   }
 
@@ -1566,10 +1573,10 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /**
-   * Add specific data samplers to all the transforms in a running pipeline.
-   * This will cause data to be sampled.
-   * We can't transfer classes to a remote location as a serialized function so we'll simply serialize the class to JSON.
-   * In the Beam transforms, on the nodes, we'll inflate the JSON to an object again.
+   * Add specific data samplers to all the transforms in a running pipeline. This will cause data to
+   * be sampled. We can't transfer classes to a remote location as a serialized function so we'll
+   * simply serialize the class to JSON. In the Beam transforms, on the nodes, we'll inflate the
+   * JSON to an object again.
    *
    * @param sampler The sampler to use
    * @param <Store>
@@ -1577,7 +1584,8 @@ public abstract class BeamPipelineEngine extends Variables
    * @throws HopException
    */
   @Override
-  public <Store extends IExecutionDataSamplerStore, Sampler extends IExecutionDataSampler<Store>> void addExecutionDataSampler(Sampler sampler) throws HopException {
+  public <Store extends IExecutionDataSamplerStore, Sampler extends IExecutionDataSampler<Store>>
+      void addExecutionDataSampler(Sampler sampler) throws HopException {
     dataSamplers.add(sampler);
   }
 

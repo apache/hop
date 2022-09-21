@@ -33,7 +33,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.workarounds.BufferedOutputStreamWithCloseDetection;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -47,6 +46,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class ExcelWriterTransform
     extends BaseTransform<ExcelWriterTransformMeta, ExcelWriterTransformData> {
@@ -209,14 +209,18 @@ public class ExcelWriterTransform
       }
       return true;
     } else {
-      // Close all files and dispose objects
-      for (ExcelWriterWorkbookDefinition workbookDefinition : data.usedFiles) {
-        closeOutputFile(workbookDefinition);
-      }
-      data.usedFiles.clear();
-      setOutputDone();
+      closeFilesAndDispose();
       return false;
     }
+  }
+
+  public void closeFilesAndDispose() throws HopException {
+    // Close all files and dispose objects
+    for (ExcelWriterWorkbookDefinition workbookDefinition : data.usedFiles) {
+      closeOutputFile(workbookDefinition);
+    }
+    data.usedFiles.clear();
+    setOutputDone();
   }
 
   private void createParentFolder(FileObject filename) throws Exception {
@@ -269,8 +273,7 @@ public class ExcelWriterTransform
   }
 
   private void closeOutputFile(ExcelWriterWorkbookDefinition file) throws HopException {
-    try (BufferedOutputStreamWithCloseDetection out =
-        new BufferedOutputStreamWithCloseDetection(HopVfs.getOutputStream(file.getFile(), false))) {
+    try (OutputStream out = HopVfs.getOutputStream(file.getFile(), false)) {
       // may have to write a footer here
       if (meta.isFooterEnabled()) {
         writeHeader(file, file.getSheet(), file.getPosX(), file.getPosY());
@@ -298,7 +301,9 @@ public class ExcelWriterTransform
         recalculateAllWorkbookFormulas(data.currentWorkbookDefinition);
       }
 
+      // This closes the output stream as well
       file.getWorkbook().write(out);
+      file.getWorkbook().close();
     } catch (IOException e) {
       throw new HopException(e);
     }
@@ -789,12 +794,17 @@ public class ExcelWriterTransform
               meta.getFile().getExtension().equalsIgnoreCase("xlsx")
                   ? new XSSFWorkbook()
                   : new HSSFWorkbook();
-          BufferedOutputStreamWithCloseDetection out =
-              new BufferedOutputStreamWithCloseDetection(HopVfs.getOutputStream(file, false));
-          wb.createSheet(data.realSheetname);
-          wb.write(out);
-          out.close();
-          wb.close();
+          try {
+            OutputStream out = HopVfs.getOutputStream(file, false);
+            try {
+              wb.createSheet(data.realSheetname);
+              wb.write(out);
+            } finally {
+              out.close();
+            }
+          } finally {
+            wb.close();
+          }
         }
         appendingToSheet = false;
       }
@@ -1011,6 +1021,14 @@ public class ExcelWriterTransform
   /** pipeline run end */
   @Override
   public void dispose() {
+    // Call one more time to make sure the files are closed in a Beam context
+    //
+    try {
+      closeFilesAndDispose();
+    } catch (Exception e) {
+      throw new RuntimeException("Error closing output files in Excel writer", e);
+    }
+
     super.dispose();
   }
 

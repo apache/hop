@@ -30,7 +30,6 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.workarounds.BufferedOutputStreamWithCloseDetection;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -253,7 +252,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     ZipInputStream zin = null;
     byte[] buffer;
     OutputStream dest = null;
-    BufferedOutputStreamWithCloseDetection buff = null;
+    BufferedOutputStream buff = null;
     ZipOutputStream out = null;
     ZipEntry entry;
     String localSourceFilename = realSourceDirectoryOrFile;
@@ -431,7 +430,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
             // Prepare Zip File
             buffer = new byte[18024];
             dest = HopVfs.getOutputStream(localrealZipfilename, false);
-            buff = new BufferedOutputStreamWithCloseDetection(dest);
+            buff = new BufferedOutputStream(dest);
             out = new ZipOutputStream(buff);
 
             HashSet<String> fileSet = new HashSet<>();
