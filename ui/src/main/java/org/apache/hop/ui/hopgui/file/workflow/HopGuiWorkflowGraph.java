@@ -910,6 +910,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           selectedNote = null;
           startHopAction = null;
           endHopLocation = null;
+          
+          updateGui();
         }
       }
     }
