@@ -1713,7 +1713,43 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     return new int[] {x1, y1, x2, y2};
   }
-
+  
+  @GuiContextAction(
+      id = "workflow-graph-action-10040-start-workflow-here",
+      parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
+      type = GuiActionType.Info,
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.StartWorkflowHere.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.StartWorkflowHere.Tooltip",
+      image = "ui/images/run.svg",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
+      categoryOrder = "1")
+  public void startWorkflowHere(HopGuiWorkflowActionContext context) {
+    workflowMeta.setShowDialog(workflowMeta.isAlwaysShowRunOptions());
+    ServerPushSessionFacade.start();    
+    Thread thread =
+        new Thread() {
+          @Override
+          public void run() {
+            hopGui.getDisplay()
+                .asyncExec(
+                    () -> {
+                      try {
+                        workflowRunDelegate.executeWorkflow(
+                            hopGui.getVariables(), workflowMeta, context.getActionMeta().getName());
+                        ServerPushSessionFacade.stop();
+                      } catch (Exception e) {
+                        new ErrorDialog(
+                            hopGui.getShell(),
+                            "Execute workflow",
+                            "There was an error during workflow execution",
+                            e);
+                      }
+                    });
+          }
+        };
+    thread.start();
+  }
+  
   @GuiContextAction(
       id = "workflow-graph-action-10050-create-hop",
       parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
