@@ -28,7 +28,6 @@ public class ExcelWriterTransformData extends BaseTransformData implements ITran
   public IRowMeta outputRowMeta;
   public String realSheetname;
   public String realTemplateSheetName;
-  public boolean firstFileOpened;
   public ArrayList<ExcelWriterWorkbookDefinition> usedFiles = new ArrayList<>();
   public ExcelWriterWorkbookDefinition currentWorkbookDefinition;
   public int[] fieldnrs;

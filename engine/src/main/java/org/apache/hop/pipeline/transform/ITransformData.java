@@ -82,4 +82,33 @@ public interface ITransformData {
    * @return true, if is disposed
    */
   boolean isDisposed();
+
+
+  /**
+   * Gets beamContext
+   *
+   * @return value of beamContext
+   */
+  public boolean isBeamContext();
+
+  /**
+   * Sets beamContext
+   *
+   * @param beamContext value of beamContext
+   */
+  public void setBeamContext(boolean beamContext);
+
+  /**
+   * Gets beamBundleNr
+   *
+   * @return value of beamBundleNr
+   */
+  public int getBeamBundleNr();
+
+  /**
+   * Sets beamBundleNr
+   *
+   * @param beamBundleNr value of beamBundleNr
+   */
+  public void setBeamBundleNr(int beamBundleNr);
 }

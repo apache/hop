@@ -346,69 +346,54 @@ public class ScriptValuesDummy implements ITransform {
 
   @Override
   public boolean isRunning() {
-    // TODO Auto-generated method stub
     return false;
   }
 
   public boolean isUsingThreadPriorityManagment() {
-    // TODO Auto-generated method stub
     return false;
   }
 
   public void setUsingThreadPriorityManagment(boolean usingThreadPriorityManagment) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public void setRunning(boolean running) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public void setStopped(boolean stopped) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public void setSafeStopped(boolean stopped) {
-    // TODO Auto-generated method stub
   }
 
   @Override
   public int rowsetInputSize() {
-    // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
   public int rowsetOutputSize() {
-    // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
   public long getProcessed() {
-    // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
   public Map<String, ResultFile> getResultFiles() {
-    // TODO Auto-generated method stub
     return null;
   }
 
   public long getRuntime() {
-    // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
   public EngineComponent.ComponentExecutionStatus getStatus() {
-    // TODO Auto-generated method stub
     return null;
   }
 
@@ -429,31 +414,23 @@ public class ScriptValuesDummy implements ITransform {
 
   @Override
   public boolean isPaused() {
-    // TODO Auto-generated method stub
     return false;
   }
 
   @Override
   public void identifyErrorOutput() {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public void setPartitioned(boolean partitioned) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public void setRepartitioning(int partitioningMethod) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public boolean canProcessOneRow() {
-    // TODO Auto-generated method stub
     return false;
   }
 
@@ -463,68 +440,60 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   public boolean isWaitingForData() {
-    // TODO Auto-generated method stub
     return false;
   }
 
   public void setWaitingForData(boolean waitingForData) {
-    // TODO Auto-generated method stub
   }
 
   public boolean isIdle() {
-    // TODO Auto-generated method stub
     return false;
   }
 
   public boolean isPassingData() {
-    // TODO Auto-generated method stub
     return false;
   }
 
   public void setPassingData(boolean passingData) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public void batchComplete() throws HopException {
-    // TODO Auto-generated method stub
+  }
+
+  @Override
+  public void startBundle() throws HopException {
+  }
+
+  @Override
+  public void finishBundle() throws HopException {
   }
 
   @Override
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public IHopMetadataProvider getMetadataProvider() {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public int getCurrentInputRowSetNr() {
-    // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
   public void setCurrentOutputRowSetNr(int index) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public int getCurrentOutputRowSetNr() {
-    // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
   public void setCurrentInputRowSetNr(int index) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override

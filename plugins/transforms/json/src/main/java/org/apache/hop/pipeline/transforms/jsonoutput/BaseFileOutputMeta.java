@@ -26,17 +26,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /** A base implementation for all output file based metas. */
-public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends JsonOutputData> extends BaseTransformMeta<Main, Data> {
+public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends JsonOutputData>
+    extends BaseTransformMeta<Main, Data> {
 
   /** Flag: add the transformnr in the filename */
-  @HopMetadataProperty(
-        injectionKeyDescription = "JsonOutput.Injection.INC_TRANSFORMNR_IN_FILENAME"
-  )
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.INC_TRANSFORMNR_IN_FILENAME")
   protected boolean transformNrInFilename;
 
   /** Flag: add the partition number in the filename */
-  @HopMetadataProperty(
-          injectionKeyDescription = "JsonOutput.Injection.INC_PARTNR_IN_FILENAME")
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.INC_PARTNR_IN_FILENAME")
   protected boolean partNrInFilename;
 
   /** Flag: add the date in the filename */
@@ -131,7 +129,7 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
     return partNrInFilename;
   }
 
-  public void setPartNrInFilename(boolean partNrInFilename){
+  public void setPartNrInFilename(boolean partNrInFilename) {
     this.partNrInFilename = partNrInFilename;
   }
 
@@ -139,7 +137,7 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
     return transformNrInFilename;
   }
 
-  public void setTransformNrInFilename(boolean transformNrInFilename){
+  public void setTransformNrInFilename(boolean transformNrInFilename) {
     this.transformNrInFilename = transformNrInFilename;
   }
 
@@ -202,6 +200,9 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
                     transform + "",
                     getPartPrefix() + part,
                     split + "",
+                    false,
+                    "",
+                    0,
                     now,
                     false,
                     showSamples);
@@ -222,6 +223,9 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
             "<transform>",
             "<partition>",
             "<split>",
+            false,
+            "",
+            0,
             now,
             false,
             showSamples)
@@ -238,8 +242,20 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
       final String copyNr,
       final String partitionNr,
       final String splitNr,
+      final boolean beamContext,
+      final String transformId,
+      final int bundleNr,
       final boolean ziparchive) {
-    return buildFilename(variables, copyNr, partitionNr, splitNr, ziparchive, true);
+    return buildFilename(
+        variables,
+        copyNr,
+        partitionNr,
+        splitNr,
+        beamContext,
+        transformId,
+        bundleNr,
+        ziparchive,
+        true);
   }
 
   public String buildFilename(
@@ -247,6 +263,9 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
       final String transformnr,
       final String partnr,
       final String splitnr,
+      final boolean beamContext,
+      final String transformId,
+      final int bundleNr,
       final boolean ziparchive,
       final boolean showSamples) {
 
@@ -259,6 +278,9 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
         transformnr,
         partnr,
         splitnr,
+        beamContext,
+        transformId,
+        bundleNr,
         new Date(),
         ziparchive,
         showSamples);
@@ -270,6 +292,9 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
       final String transformnr,
       final String partnr,
       final String splitnr,
+      final boolean beamContext,
+      final String transformId,
+      final int bundleNr,
       final Date date,
       final boolean ziparchive,
       final boolean showSamples) {
@@ -279,6 +304,9 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
         transformnr,
         partnr,
         splitnr,
+        beamContext,
+        transformId,
+        bundleNr,
         date,
         ziparchive,
         showSamples,
@@ -291,6 +319,9 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
       final String transformnr,
       final String partnr,
       final String splitnr,
+      final boolean beamContext,
+      final String transformId,
+      final int bundleNr,
       final Date date,
       final boolean ziparchive,
       final boolean showSamples,
@@ -302,6 +333,9 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
         transformnr,
         partnr,
         splitnr,
+        beamContext,
+        transformId,
+        bundleNr,
         date,
         ziparchive,
         showSamples,
@@ -315,6 +349,9 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
       final String transformnr,
       final String partnr,
       final String splitnr,
+      final boolean beamContext,
+      final String transformId,
+      final int bundleNr,
       final Date date,
       final boolean ziparchive,
       final boolean showSamples,
@@ -363,6 +400,10 @@ public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends J
     }
     if (meta.getSplitEvery(variables) > 0) {
       retval += "_" + splitnr;
+    }
+
+    if (beamContext) {
+      retval += "_" + transformId + "_" + bundleNr;
     }
 
     if ("Zip".equals(meta.getFileCompression())) {

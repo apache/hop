@@ -690,13 +690,13 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
   }
 
   @Override
-  public void batchComplete() {
+  public void batchComplete() throws HopException {
     try {
       wrapUpTransaction();
     } catch (Exception e) {
       setErrors(getErrors() + 1);
       stopAll();
-      throw new RuntimeException("Unable to complete batch of records", e);
+      throw new HopException("Unable to complete batch of records", e);
     }
   }
 

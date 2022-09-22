@@ -21,6 +21,8 @@ package org.apache.hop.beam.core.transform;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.beam.sdk.transforms.DoFn;
+import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
+import org.apache.beam.sdk.values.TupleTag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.Const;
@@ -40,6 +42,7 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.stream.IStream;
+import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +62,7 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
   protected transient List<IExecutionDataSampler> dataSamplers;
   protected transient List<IExecutionDataSamplerStore> dataSamplerStores;
   protected transient Timer executionInfoTimer;
+  protected transient BoundedWindow batchWindow;
 
   public TransformBaseFn(String parentLogChannelId, String runConfigName, String dataSamplersJson) {
     this.parentLogChannelId = parentLogChannelId;
@@ -185,6 +189,41 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
               task,
               Const.toLong(executionInfoLocation.getDataLoggingDelay(), 5000L),
               Const.toLong(executionInfoLocation.getDataLoggingInterval(), 10000L));
+    }
+  }
+
+  protected interface TupleOutputContext<T> {
+    void output(TupleTag<T> tupleTag, T output);
+  }
+
+  protected class TransformProcessContext implements TupleOutputContext<HopRow> {
+
+    private DoFn.ProcessContext context;
+
+    public TransformProcessContext(DoFn.ProcessContext processContext) {
+      this.context = processContext;
+    }
+
+    @Override
+    public void output(TupleTag<HopRow> tupleTag, HopRow output) {
+      context.output(tupleTag, output);
+    }
+  }
+
+  protected class TransformFinishBundleContext implements TupleOutputContext<HopRow> {
+
+    private DoFn.FinishBundleContext context;
+    private BoundedWindow batchWindow;
+
+    public TransformFinishBundleContext(
+            DoFn.FinishBundleContext context, BoundedWindow batchWindow) {
+      this.context = context;
+      this.batchWindow = batchWindow;
+    }
+
+    @Override
+    public void output(TupleTag<HopRow> tupleTag, HopRow output) {
+      context.output(tupleTag, output, Instant.now(), batchWindow);
     }
   }
 }

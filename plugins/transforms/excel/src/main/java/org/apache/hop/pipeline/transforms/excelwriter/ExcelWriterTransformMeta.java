@@ -333,7 +333,7 @@ public class ExcelWriterTransformMeta
     int i = 0;
     for (int copy = 0; copy < copies; copy++) {
       for (int split = 0; split < splits; split++) {
-        retval[i] = buildFilename(variables, copy, split);
+        retval[i] = buildFilename(variables, copy, split, false, "", 1);
         i++;
       }
     }
@@ -344,7 +344,7 @@ public class ExcelWriterTransformMeta
     return retval;
   }
 
-  public String buildFilename(IVariables variables, int transformnr, int splitnr) {
+  public String buildFilename(IVariables variables, int transformNr, int splitNr, boolean beamContext, String transformId, int bundleNr) {
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
@@ -370,10 +370,13 @@ public class ExcelWriterTransformMeta
       }
     }
     if (file.isTransformNrInFilename()) {
-      retval += "_" + transformnr;
+      retval += "_" + transformNr;
     }
     if (file.getSplitEvery() > 0) {
-      retval += "_" + splitnr;
+      retval += "_" + splitNr;
+    }
+    if (beamContext) {
+      retval+= "_"+transformId+"_"+bundleNr;
     }
 
     if (realextension != null && realextension.length() != 0) {

@@ -769,6 +769,9 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         getCopy(),
         getPartitionId(),
         data.splitnr,
+        data.isBeamContext(),
+        log.getLogChannelId(),
+        data.getBeamBundleNr(),
         ziparchive,
         meta);
   }
@@ -902,6 +905,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   protected void close() throws IOException {
     if (!meta.isServletOutput()) {
       data.getFileStreamsCollection().flushOpenFiles(true);
+      data.writer = null;
     }
   }
 
@@ -1030,5 +1034,29 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   protected OutputStream getOutputStream(String vfsFilename, IVariables variables, boolean append)
       throws HopFileException {
     return HopVfs.getOutputStream(vfsFilename, append);
+  }
+
+  @Override
+  public void startBundle() throws HopException {
+  }
+
+  @Override
+  public void batchComplete() throws HopException {
+    if (!data.isBeamContext()) {
+      try {
+        close();
+      } catch (IOException e) {
+        throw new HopException("Error closing file(s)", e);
+      }
+    }
+  }
+
+  @Override
+  public void finishBundle() throws HopException {
+    try {
+      close();
+    } catch (IOException e) {
+      throw new HopException("Error closing file(s)", e);
+    }
   }
 }

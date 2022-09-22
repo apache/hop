@@ -113,7 +113,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
       if (data.nrRowsInBloc > 0 && data.nrRow % data.nrRowsInBloc == 0) {
         // We can now output an object
-        outPutRow(row);
+        outputRow(row);
       }
     }
   }
@@ -165,7 +165,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
       if (data.nrRowsInBloc > 0 && data.nrRow % data.nrRowsInBloc == 0) {
         // We can now output an object
-        outPutRow(row);
+        outputRow(row);
       }
     }
   }
@@ -176,11 +176,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   public boolean processRow() throws HopException {
     Object[] r = getRow(); // This also waits for a row to be finished.
     if (r == null) {
-      // no more input to be expected...
-      if (!data.rowsAreSafe) {
-        // Let's output the remaining unsafe data
-        outPutRow(r);
-      }
+      writeJsonToFile();
 
       setOutputDone();
       return false;
@@ -220,14 +216,22 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     return true;
   }
 
+  private void writeJsonToFile() throws HopTransformException {
+    // no more input to be expected...
+    if (!data.rowsAreSafe) {
+      // Let's output the remaining unsafe data
+      outputRow(null);
+    }
+  }
+
   @SuppressWarnings("unchecked")
-  private void outPutRow(Object[] rowData) throws HopTransformException {
+  private void outputRow(Object[] rowData) throws HopTransformException {
     // We can now output an object
     data.jg = new JSONObject();
     data.jg.put(data.realBlocName, data.ja);
     String value = data.jg.toJSONString();
 
-    if (data.outputValue && data.outputRowMeta != null) {
+    if (rowData != null && data.outputValue && data.outputRowMeta != null) {
       Object[] outputRowData = RowDataUtil.addValueData(rowData, data.inputRowMetaSize, value);
       incrementLinesOutput();
       putRow(data.outputRowMeta, outputRowData);
@@ -300,7 +304,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       //
       if (data.ja.size() > 0) {
         try {
-          outPutRow(null);
+          outputRow(null);
         } catch (Exception e) {
           log.logError("Error writing final rows to disk", e);
         }
@@ -312,6 +316,25 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     }
     closeFile();
     super.dispose();
+  }
+
+  @Override
+  public void startBundle() throws HopException {
+    if (!first) {
+      openNewFile();
+    }
+  }
+
+  @Override
+  public void batchComplete() throws HopException {
+    if (!data.isBeamContext()) {
+      writeJsonToFile();
+    }
+  }
+
+  @Override
+  public void finishBundle() throws HopException {
+    writeJsonToFile();
   }
 
   private void createParentFolder(String filename) throws HopTransformException {
@@ -399,7 +422,15 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   }
 
   public String buildFilename() {
-    return meta.buildFilename(variables, getCopy() + "", null, data.splitnr + "", false);
+    return meta.buildFilename(
+        variables,
+        getCopy() + "",
+        null,
+        data.splitnr + "",
+        data.isBeamContext(),
+        log.getLogChannelId(),
+        data.getBeamBundleNr(),
+        false);
   }
 
   protected boolean closeFile() {

@@ -342,6 +342,10 @@ public class Const {
   public static final String INTERNAL_VARIABLE_TRANSFORM_ID =
           INTERNAL_VARIABLE_PREFIX + ".Transform.ID";
 
+  public static final String INTERNAL_VARIABLE_TRANSFORM_BUNDLE_NR =
+          INTERNAL_VARIABLE_PREFIX + ".Transform.BundleNr";
+
+
   public static final String INTERNAL_VARIABLE_ACTION_ID =
           INTERNAL_VARIABLE_PREFIX + ".Action.ID";
 

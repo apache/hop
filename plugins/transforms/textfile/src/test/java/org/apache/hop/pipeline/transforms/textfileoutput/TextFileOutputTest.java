@@ -371,6 +371,9 @@ public class TextFileOutputTest {
                 Mockito.anyString(),
                 Mockito.anyInt(),
                 Mockito.anyBoolean(),
+                Mockito.anyString(),
+                Mockito.anyInt(),
+                Mockito.anyBoolean(),
                 Mockito.any(TextFileOutputMeta.class)))
         .thenReturn(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
 
@@ -461,6 +464,9 @@ public class TextFileOutputTest {
                 Mockito.anyInt(),
                 Mockito.anyString(),
                 Mockito.anyInt(),
+                    Mockito.anyBoolean(),
+                    Mockito.anyString(),
+                    Mockito.anyInt(),
                 Mockito.anyBoolean(),
                 Mockito.any(TextFileOutputMeta.class)))
         .thenReturn(pathToFile);
@@ -642,6 +648,9 @@ public class TextFileOutputTest {
                 0,
                 null,
                 0,
+                false,
+                null,
+                0,
                 true,
                 transformMockHelper.iTransformMeta))
         .thenReturn(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
@@ -717,6 +726,9 @@ public class TextFileOutputTest {
                 null,
                 textFileOutputSpy,
                 0,
+                null,
+                0,
+                false,
                 null,
                 0,
                 true,
