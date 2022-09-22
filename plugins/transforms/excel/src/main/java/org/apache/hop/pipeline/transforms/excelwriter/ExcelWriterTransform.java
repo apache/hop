@@ -43,10 +43,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
 public class ExcelWriterTransform
     extends BaseTransform<ExcelWriterTransformMeta, ExcelWriterTransformData> {
@@ -215,6 +212,7 @@ public class ExcelWriterTransform
   }
 
   public void closeFilesAndDispose() throws HopException {
+
     // Close all files and dispose objects
     for (ExcelWriterWorkbookDefinition workbookDefinition : data.usedFiles) {
       closeOutputFile(workbookDefinition);
@@ -273,7 +271,9 @@ public class ExcelWriterTransform
   }
 
   private void closeOutputFile(ExcelWriterWorkbookDefinition file) throws HopException {
-    try (OutputStream out = HopVfs.getOutputStream(file.getFile(), false)) {
+    OutputStream out = null;
+    try {
+      out = new BufferedOutputStream(HopVfs.getOutputStream(file.getFile(), false));
       // may have to write a footer here
       if (meta.isFooterEnabled()) {
         writeHeader(file, file.getSheet(), file.getPosX(), file.getPosY());
@@ -306,6 +306,15 @@ public class ExcelWriterTransform
       file.getWorkbook().close();
     } catch (IOException e) {
       throw new HopException(e);
+    } finally {
+      if (out != null) {
+        try {
+          out.flush();
+          out.close();
+        } catch (Exception e) {
+          throw new HopException("Error closing excel file " + file.getFile(), e);
+        }
+      }
     }
   }
 
@@ -814,17 +823,21 @@ public class ExcelWriterTransform
       Sheet sheet;
       // file is guaranteed to be in place now
       if (meta.getFile().getExtension().equalsIgnoreCase("xlsx")) {
-        XSSFWorkbook xssfWorkbook = new XSSFWorkbook(HopVfs.getInputStream(file));
-        if (meta.getFile().isStreamingData() && !meta.getTemplate().isTemplateEnabled()) {
-          wb = new SXSSFWorkbook(xssfWorkbook, 100);
-        } else {
-          // Initialize it later after writing header/template because SXSSFWorkbook can't
-          // read/rewrite existing data,
-          // only append.
-          wb = xssfWorkbook;
+        try (InputStream inputStream = HopVfs.getInputStream(file)) {
+          XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
+          if (meta.getFile().isStreamingData() && !meta.getTemplate().isTemplateEnabled()) {
+            wb = new SXSSFWorkbook(xssfWorkbook, 100);
+          } else {
+            // Initialize it later after writing header/template because SXSSFWorkbook can't
+            // read/rewrite existing data,
+            // only append.
+            wb = xssfWorkbook;
+          }
         }
       } else {
-        wb = new HSSFWorkbook(HopVfs.getInputStream(file));
+        try (InputStream inputStream = HopVfs.getInputStream(file)) {
+          wb = new HSSFWorkbook(inputStream);
+        }
       }
 
       int existingActiveSheetIndex = wb.getActiveSheetIndex();

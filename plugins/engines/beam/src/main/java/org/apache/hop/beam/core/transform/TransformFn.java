@@ -428,7 +428,7 @@ public class TransformFn extends TransformBaseFn {
         }
       }
 
-      // Get one row from the context main input and make a copy so we can change it.
+      // Get one row from the context main input and make a copy, so we can change it.
       //
       HopRow originalInputRow = context.element();
       HopRow inputRow = HopBeamUtil.copyHopRow(originalInputRow, inputRowMeta);
@@ -568,16 +568,7 @@ public class TransformFn extends TransformBaseFn {
   @FinishBundle
   public void finishBundle(FinishBundleContext context) {
     try {
-      executor.dispose();
 
-      // Send last data from the data samplers over to the location (if any)
-      //
-      if (executionInfoLocation != null) {
-        if (executionInfoTimer != null) {
-          executionInfoTimer.cancel();
-        }
-        sendSamplesToLocation();
-      }
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Transform finishing bundle error :" + e.getMessage());
@@ -588,6 +579,18 @@ public class TransformFn extends TransformBaseFn {
   @Teardown
   public void tearDown() {
     try {
+      if (executor != null) {
+        executor.dispose();
+      }
+
+      // Send last data from the data samplers over to the location (if any)
+      //
+      if (executionInfoLocation != null) {
+        if (executionInfoTimer != null) {
+          executionInfoTimer.cancel();
+        }
+        sendSamplesToLocation();
+      }
     } catch (Exception e) {
       LOG.error(
           "Error sending row samples to execution info location for transform " + transformName,

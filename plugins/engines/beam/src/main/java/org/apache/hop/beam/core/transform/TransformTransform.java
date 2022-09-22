@@ -140,12 +140,10 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
       //
       TupleTag<HopRow> mainOutputTupleTag =
           new TupleTag<>(HopBeamUtil.createMainOutputTupleId(transformName)) {};
-      List<TupleTag<HopRow>> targetTupleTags = new ArrayList<>();
       TupleTagList targetTupleTagList = null;
       for (String targetTransform : targetTransforms) {
         String tupleId = HopBeamUtil.createTargetTupleId(transformName, targetTransform);
         TupleTag<HopRow> tupleTag = new TupleTag<>(tupleId) {};
-        targetTupleTags.add(tupleTag);
         if (targetTupleTagList == null) {
           targetTupleTagList = TupleTagList.of(tupleTag);
         } else {
@@ -175,7 +173,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
               dataSamplersJson,
               runConfigName,
               parentLogChannelId,
-      infoCollectionViews);
+              infoCollectionViews);
 
       // The actual transform functionality
       //
@@ -207,8 +205,4 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
       throw new RuntimeException("Error transforming data in transform", e);
     }
   }
-
-
-
-
 }
