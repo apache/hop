@@ -430,13 +430,13 @@ public class SingleThreadedPipelineExecutor {
                 String.valueOf(lu),
                 String.valueOf(e + lj)));
       }
-      ((BaseTransform) combi.transform).setLinesInput(0);
-      ((BaseTransform) combi.transform).setLinesOutput(0);
-      ((BaseTransform) combi.transform).setLinesWritten(0);
-      ((BaseTransform) combi.transform).setLinesRead(0);
-      ((BaseTransform) combi.transform).setLinesRejected(0);
-      ((BaseTransform) combi.transform).setLinesSkipped(0);
-      ((BaseTransform) combi.transform).setLinesUpdated(0);
+      ((BaseTransform<?,?>) combi.transform).setLinesInput(0);
+      ((BaseTransform<?,?>) combi.transform).setLinesOutput(0);
+      ((BaseTransform<?,?>) combi.transform).setLinesWritten(0);
+      ((BaseTransform<?,?>) combi.transform).setLinesRead(0);
+      ((BaseTransform<?,?>) combi.transform).setLinesSkipped(0);
+      ((BaseTransform<?,?>) combi.transform).setLinesUpdated(0);
+      combi.transform.setLinesRejected(0);
     }
   }
 

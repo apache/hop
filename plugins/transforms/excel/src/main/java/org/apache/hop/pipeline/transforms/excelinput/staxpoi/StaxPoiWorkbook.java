@@ -23,6 +23,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.ui.core.widget.Input;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 
@@ -67,8 +68,10 @@ public class StaxPoiWorkbook implements IKWorkbook {
   public StaxPoiWorkbook(String filename, String encoding) throws HopException {
     this();
     try {
-      opcpkg = OPCPackage.open(HopVfs.getInputStream(filename));
-      openFile(opcpkg, encoding);
+      try (InputStream inputStream = HopVfs.getInputStream(filename)) {
+        opcpkg = OPCPackage.open(inputStream);
+        openFile(opcpkg, encoding);
+      }
     } catch (Exception e) {
       throw new HopException(e);
     }

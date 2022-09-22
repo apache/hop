@@ -57,7 +57,7 @@ limitations under the License.
     </hop>
     <hop>
       <from>FL,CA</from>
-      <to>0007-customers-ca-fl.xls</to>
+      <to>0007-customers-ca-fl.xlsx</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -306,12 +306,12 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>0007-customers-ca-fl.xls</name>
+    <name>0007-customers-ca-fl.xlsx</name>
     <type>TypeExitExcelWriterTransform</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
-    <copies>BATCH</copies>
+    <copies>SINGLE_BEAM</copies>
     <partitioning>
       <method>none</method>
       <schema_name/>
@@ -327,7 +327,7 @@ limitations under the License.
       <add_date>N</add_date>
       <date_time_format/>
       <do_not_open_newfile_init>N</do_not_open_newfile_init>
-      <extension>xls</extension>
+      <extension>xlsx</extension>
       <name>gs://apache-hop-it/output/0007-customers-ca-fl-${Internal.Transform.ID}</name>
       <filename_field/>
       <filename_in_field>N</filename_in_field>

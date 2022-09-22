@@ -101,55 +101,6 @@
       ],
       "transform_name": "csv",
       "data_set_name": "0007-single-thread-golden"
-    },
-    {
-      "field_mappings": [
-        {
-          "transform_field": "id",
-          "data_set_field": "id"
-        },
-        {
-          "transform_field": "Last name",
-          "data_set_field": "lastName"
-        },
-        {
-          "transform_field": "First name",
-          "data_set_field": "firstName"
-        },
-        {
-          "transform_field": "cust_zip_code",
-          "data_set_field": "zipCode"
-        },
-        {
-          "transform_field": "city",
-          "data_set_field": "city"
-        },
-        {
-          "transform_field": "birthdate",
-          "data_set_field": "birthdate"
-        },
-        {
-          "transform_field": "street",
-          "data_set_field": "street"
-        },
-        {
-          "transform_field": "housenr",
-          "data_set_field": "housenr"
-        },
-        {
-          "transform_field": "stateCode",
-          "data_set_field": "stateCode"
-        },
-        {
-          "transform_field": "state",
-          "data_set_field": "state"
-        }
-      ],
-      "field_order": [
-        "id"
-      ],
-      "transform_name": "xlsx",
-      "data_set_name": "0007-single-thread-golden"
     }
   ],
   "input_data_sets": [],
