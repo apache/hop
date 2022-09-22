@@ -269,6 +269,9 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     if (meta.isFilenameIncludingSplitNr()) {
       filename += "-" + new DecimalFormat("0000").format(data.split);
     }
+    if (data.isBeamContext()) {
+      filename+= "_"+log.getLogChannelId()+"_"+data.getBeamBundleNr();
+    }
     filename += "." + Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
     filename += meta.getCompressionCodec().getExtension();
     return filename;
@@ -280,5 +283,24 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     } catch (Exception e) {
       throw new HopException("Error closing file " + data.filename, e);
     }
+  }
+
+  @Override
+  public void batchComplete() throws HopException {
+    if (!data.isBeamContext()) {
+      closeFile();
+    }
+  }
+
+  @Override
+  public void startBundle() throws HopException {
+    if (!first) {
+      openNewFile();
+    }
+  }
+
+  @Override
+  public void finishBundle() throws HopException {
+    closeFile();
   }
 }

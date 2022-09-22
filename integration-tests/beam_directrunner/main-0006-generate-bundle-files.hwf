@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0005-single-thread</name>
+  <name>main-0006-generate-bundle-files</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -44,12 +44,12 @@ limitations under the License.
       <weekDay>1</weekDay>
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
-      <xloc>112</xloc>
+      <xloc>144</xloc>
       <yloc>96</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>delete /tmp/0005/*</name>
+      <name>delete /tmp/0006/*</name>
       <description/>
       <type>DELETE_FILES</type>
       <attributes/>
@@ -57,7 +57,7 @@ limitations under the License.
       <include_subfolders>N</include_subfolders>
       <fields>
         <field>
-          <name>${java.io.tmpdir}/0005/</name>
+          <name>${java.io.tmpdir}/0006/</name>
           <filemask>.*</filemask>
         </field>
       </fields>
@@ -73,7 +73,7 @@ limitations under the License.
       <attributes/>
       <test_names>
         <test_name>
-          <name>0005-generate-single-file-validation UNIT</name>
+          <name>0006-generate-bundle-files-validation UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
@@ -82,11 +82,11 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0005-generate-single-file.hpl</name>
+      <name>0006-generate-bundle-files.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0005-generate-single-file.hpl</filename>
+      <filename>${PROJECT_HOME}/0006-generate-bundle-files.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -113,20 +113,20 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>delete /tmp/0005/*</to>
+      <to>delete /tmp/0006/*</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>delete /tmp/0005/*</from>
-      <to>0005-generate-single-file.hpl</to>
+      <from>delete /tmp/0006/*</from>
+      <to>0006-generate-bundle-files.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>0005-generate-single-file.hpl</from>
+      <from>0006-generate-bundle-files.hpl</from>
       <to>Run Pipeline Unit Tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>

@@ -51,7 +51,7 @@ public class SortRowsData extends BaseTransformData implements ITransformData {
   public int[] convertKeysToNative;
   public boolean convertAnyKeysToNative;
 
-  Comparator<RowTempFile> comparator;
+    Comparator<RowTempFile> comparator;
   Comparator<Object[]> rowComparator;
 
   public int freeCounter;

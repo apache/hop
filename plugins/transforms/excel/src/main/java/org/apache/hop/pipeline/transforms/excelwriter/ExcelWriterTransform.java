@@ -69,9 +69,9 @@ public class ExcelWriterTransform
     // get next row
     Object[] r = getRow();
 
-    // first row initialization
+    // We might have a row here, or we might get a null row if there was no input.
+    //
     if (first) {
-
       first = false;
       if (r == null) {
         data.outputRowMeta = new RowMeta();
@@ -81,10 +81,10 @@ public class ExcelWriterTransform
         data.inputRowMeta = getInputRowMeta().clone();
       }
 
-      // if we are supposed to init the file up front, here we go
+      // If we are supposed to create the file up front regardless of whether we receive input rows
+      // then this is the place to do it.
+      //
       if (!meta.getFile().isDoNotOpenNewFileInit()) {
-        data.firstFileOpened = true;
-
         try {
           prepareNextOutputFile(r);
         } catch (HopException e) {
@@ -100,9 +100,9 @@ public class ExcelWriterTransform
       }
 
       if (r != null) {
-        // if we are supposed to init the file delayed, here we go
+        // If we are supposed to create a file after receiving the first row, we do this here.
+        //
         if (meta.getFile().isDoNotOpenNewFileInit()) {
-          data.firstFileOpened = true;
           prepareNextOutputFile(r);
         }
 
@@ -166,19 +166,25 @@ public class ExcelWriterTransform
 
     if (r != null) {
       // check if the filename has changed between rows
-      if (meta.getFile().isFileNameInField()
-          && !data.currentWorkbookDefinition.getFile().equals(getFileLocation(r))) {
-        // check if the file is already used and switch or create new file
-        boolean fileFound = false;
-        for (int i = 0; i < data.usedFiles.size(); i++) {
-          if (data.usedFiles.get(i).getFile().equals(getFileLocation(r))) {
-            fileFound = true;
-            data.currentWorkbookDefinition = data.usedFiles.get(i);
-            break;
-          }
+      if (meta.getFile().isFileNameInField()) {
+        if (data.isBeamContext()) {
+          throw new HopException(
+              "Storing filenames in an input field is not supported in Beam pipelines");
         }
-        if (!fileFound) {
-          prepareNextOutputFile(r);
+
+        if (!data.currentWorkbookDefinition.getFile().equals(getFileLocation(r))) {
+          // check if the file is already used and switch or create new file
+          boolean fileFound = false;
+          for (int i = 0; i < data.usedFiles.size(); i++) {
+            if (data.usedFiles.get(i).getFile().equals(getFileLocation(r))) {
+              fileFound = true;
+              data.currentWorkbookDefinition = data.usedFiles.get(i);
+              break;
+            }
+          }
+          if (!fileFound) {
+            prepareNextOutputFile(r);
+          }
         }
       }
 
@@ -206,19 +212,19 @@ public class ExcelWriterTransform
       }
       return true;
     } else {
-      closeFilesAndDispose();
+      closeFiles();
+      setOutputDone();
       return false;
     }
   }
 
-  public void closeFilesAndDispose() throws HopException {
+  public void closeFiles() throws HopException {
 
     // Close all files and dispose objects
     for (ExcelWriterWorkbookDefinition workbookDefinition : data.usedFiles) {
       closeOutputFile(workbookDefinition);
     }
     data.usedFiles.clear();
-    setOutputDone();
   }
 
   private void createParentFolder(FileObject filename) throws Exception {
@@ -361,6 +367,7 @@ public class ExcelWriterTransform
       if (xlsRow == null) {
         xlsRow = workbookDefinition.getSheet().createRow(workbookDefinition.getPosY());
       }
+
       Object v = null;
       if (meta.getOutputFields() == null || meta.getOutputFields().isEmpty()) {
         //  Write all values in stream to text file.
@@ -679,7 +686,13 @@ public class ExcelWriterTransform
    * @return current output filename to write to
    */
   public String buildFilename(int splitNr) {
-    return meta.buildFilename(this, getCopy(), splitNr);
+    return meta.buildFilename(
+        this,
+        getCopy(),
+        splitNr,
+        data.isBeamContext(),
+        log.getLogChannelId(),
+        data.getBeamBundleNr());
   }
 
   /**
@@ -704,12 +717,23 @@ public class ExcelWriterTransform
 
   public void prepareNextOutputFile(Object[] row) throws HopException {
     try {
+      // Validation
+      //
       // sheet name shouldn't exceed 31 character
       if (data.realSheetname != null && data.realSheetname.length() > 31) {
         throw new HopException(
             BaseMessages.getString(
                 PKG, "ExcelWriterTransform.Exception.MaxSheetName", data.realSheetname));
       }
+
+      // Getting field names from input is not supported in a Beam context
+      //
+      if (data.isBeamContext() && meta.getFile().isFileNameInField()) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "ExcelWriterTransform.Exception.FilenameFromFieldNotSupportedInBeam"));
+      }
+
       // clear style cache
       int numOfFields =
           meta.getOutputFields() != null && meta.getOutputFields().size() > 0
@@ -904,7 +928,8 @@ public class ExcelWriterTransform
         data.startingCol = 0;
       }
 
-      // calculate starting positions
+      // Calculate the starting positions in the sheet.
+      //
       int posX;
       int posY;
       posX = data.startingCol;
@@ -964,7 +989,7 @@ public class ExcelWriterTransform
     } catch (Exception e) {
       logError("Error opening new file", e);
       setErrors(1);
-      throw new HopException(e);
+      throw new HopException("Error opening new file", e);
     }
   }
 
@@ -1031,18 +1056,29 @@ public class ExcelWriterTransform
     return false;
   }
 
-  /** pipeline run end */
   @Override
-  public void dispose() {
-    // Call one more time to make sure the files are closed in a Beam context
+  public void startBundle() throws HopException {
+    // Generate a new file for the next bundle
     //
-    try {
-      closeFilesAndDispose();
-    } catch (Exception e) {
-      throw new RuntimeException("Error closing output files in Excel writer", e);
+    if (!first) {
+      prepareNextOutputFile(null);
     }
+  }
 
-    super.dispose();
+  @Override
+  public void finishBundle() throws HopException {
+    closeFiles();
+  }
+
+  @Override
+  public void batchComplete() throws HopException {
+    // Call to make sure the files are closed in a Beam context
+    // On Beam the single threader engine works with one row at a time.
+    // We need to keep the file(s) open until the end of the bundle.
+    //
+    if (!data.isBeamContext()) {
+      closeFiles();
+    }
   }
 
   /** Write protect Sheet by setting password works only for xls output at the moment */

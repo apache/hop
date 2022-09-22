@@ -557,9 +557,9 @@ public class HopPipelineMetaToBeamPipelineConverter {
       throw new HopException(
           "Group By is not supported.  Use the Memory Group By transform instead.  It comes closest to Beam functionality.");
     }
-    if (meta instanceof SortRowsMeta) {
-      throw new HopException("Sort rows is not yet supported on Beam.");
-    }
+//    if (meta instanceof SortRowsMeta) {
+//      throw new HopException("Sort rows is not yet supported on Beam.");
+//    }
     if (meta instanceof UniqueRowsMeta) {
       throw new HopException(
           "The unique rows transform is not yet supported on Beam, for now use a Memory Group By to get distrinct rows");

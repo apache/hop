@@ -60,6 +60,55 @@
           "data_set_field": "id"
         },
         {
+          "transform_field": "Last_name",
+          "data_set_field": "Last name"
+        },
+        {
+          "transform_field": "First_name",
+          "data_set_field": "First name"
+        },
+        {
+          "transform_field": "cust_zip_code",
+          "data_set_field": "cust_zip_code"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "cvs",
+      "data_set_name": "0005-generate-one-json-file-golden"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
           "transform_field": "Last name",
           "data_set_field": "Last name"
         },
@@ -105,19 +154,19 @@
     {
       "field_mappings": [
         {
-          "transform_field": "id",
-          "data_set_field": "id"
-        },
-        {
-          "transform_field": "Last_name",
+          "transform_field": "lastName",
           "data_set_field": "Last name"
         },
         {
-          "transform_field": "First_name",
+          "transform_field": "firstName",
           "data_set_field": "First name"
         },
         {
-          "transform_field": "cust_zip_code",
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "zipCode",
           "data_set_field": "cust_zip_code"
         },
         {
@@ -125,8 +174,8 @@
           "data_set_field": "city"
         },
         {
-          "transform_field": "birthdate",
-          "data_set_field": "birthdate"
+          "transform_field": "id",
+          "data_set_field": "id"
         },
         {
           "transform_field": "street",
@@ -148,15 +197,15 @@
       "field_order": [
         "id"
       ],
-      "transform_name": "cvs",
+      "transform_name": "parquet",
       "data_set_name": "0005-generate-one-json-file-golden"
     }
   ],
   "input_data_sets": [],
-  "name": "0005-generate-one-json-file-validation UNIT",
+  "name": "0005-generate-single-file-validation UNIT",
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "./0005-generate-one-json-file-validation.hpl",
+  "pipeline_filename": "./0005-generate-single-file-validation.hpl",
   "test_type": "UNIT_TEST"
 }

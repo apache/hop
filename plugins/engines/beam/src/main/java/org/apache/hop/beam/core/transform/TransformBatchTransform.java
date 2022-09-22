@@ -19,7 +19,6 @@ package org.apache.hop.beam.core.transform;
 
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
-import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.values.*;
@@ -52,7 +51,6 @@ import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
-import org.joda.time.Instant;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -232,7 +230,6 @@ public class TransformBatchTransform extends TransformTransform {
     private transient SingleThreadedPipelineExecutor executor;
 
     private transient Queue<HopRow> rowBuffer;
-    private transient BoundedWindow batchWindow;
 
     private transient AtomicLong lastTimerCheck;
     private transient Timer timer;
@@ -838,38 +835,6 @@ public class TransformBatchTransform extends TransformTransform {
     }
   }
 
-  private interface TupleOutputContext<T> {
-    void output(TupleTag<T> tupleTag, T output);
-  }
 
-  private class TransformProcessContext implements TupleOutputContext<HopRow> {
 
-    private DoFn.ProcessContext context;
-
-    public TransformProcessContext(DoFn.ProcessContext processContext) {
-      this.context = processContext;
-    }
-
-    @Override
-    public void output(TupleTag<HopRow> tupleTag, HopRow output) {
-      context.output(tupleTag, output);
-    }
-  }
-
-  private class TransformFinishBundleContext implements TupleOutputContext<HopRow> {
-
-    private DoFn.FinishBundleContext context;
-    private BoundedWindow batchWindow;
-
-    public TransformFinishBundleContext(
-        DoFn.FinishBundleContext context, BoundedWindow batchWindow) {
-      this.context = context;
-      this.batchWindow = batchWindow;
-    }
-
-    @Override
-    public void output(TupleTag<HopRow> tupleTag, HopRow output) {
-      context.output(tupleTag, output, Instant.now(), batchWindow);
-    }
-  }
 }

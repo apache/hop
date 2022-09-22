@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0007-single-thread-validation</name>
+    <name>0005-generate-single-file-validation</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -31,9 +31,9 @@ limitations under the License.
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <created_user>-</created_user>
-    <created_date>2022/09/21 10:26:06.025</created_date>
+    <created_date>2022/09/21 09:05:34.033</created_date>
     <modified_user>-</modified_user>
-    <modified_date>2022/09/21 10:26:06.025</modified_date>
+    <modified_date>2022/09/21 09:05:34.033</modified_date>
     <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
@@ -41,22 +41,22 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>gs://apache-hop-it/output/0007-*.json</from>
+      <from>/tmp/0005/*.json</from>
       <to>json</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>gs://apache-hop-it/output/0007-*.csv</from>
-      <to>csv</to>
+      <from>/tmp/0005/*.csv</from>
+      <to>cvs</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>gs://apache-hop-it/output/0007-*.xlsx</from>
+      <from>/tmp/0005/*.xlsx</from>
       <to>xlsx</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>gs://apache-hop-it/output/0007-*.parquet</from>
+      <from>/tmp/0005/*.parquet</from>
       <to>read Parquet file</to>
       <enabled>Y</enabled>
     </hop>
@@ -67,24 +67,7 @@ limitations under the License.
     </hop>
   </order>
   <transform>
-    <name>csv</name>
-    <type>Dummy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>544</xloc>
-      <yloc>112</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>gs://apache-hop-it/output/0007-*.csv</name>
+    <name>/tmp/0005/*.csv</name>
     <type>TextFileInput2</type>
     <description/>
     <distribute>Y</distribute>
@@ -122,8 +105,8 @@ limitations under the License.
     <length>Characters</length>
     <add_to_result_filenames>Y</add_to_result_filenames>
     <file>
-      <name>gs://apache-hop-it/output/</name>
-      <filemask>0007-.*\.csv</filemask>
+      <name>${java.io.tmpdir}/0005/</name>
+      <filemask>.*\.csv</filemask>
       <exclude_filemask/>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
@@ -135,152 +118,152 @@ limitations under the License.
     <fields>
       <field>
         <name>id</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
+        <type>Integer</type>
+        <format>0</format>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>15</length>
-        <precision>0</precision>
+        <length>-1</length>
+        <precision>-1</precision>
         <trim_type>both</trim_type>
         <repeat>N</repeat>
       </field>
       <field>
-        <name>lastName</name>
+        <name>Last_name</name>
         <type>String</type>
         <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>15</length>
+        <length>-1</length>
         <precision>-1</precision>
-        <trim_type>none</trim_type>
+        <trim_type>both</trim_type>
         <repeat>N</repeat>
       </field>
       <field>
-        <name>firstName</name>
+        <name>First_name</name>
         <type>String</type>
         <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>20</length>
+        <length>-1</length>
         <precision>-1</precision>
-        <trim_type>none</trim_type>
+        <trim_type>both</trim_type>
         <repeat>N</repeat>
       </field>
       <field>
-        <name>zipCode</name>
+        <name>cust_zip_code</name>
         <type>String</type>
         <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>15</length>
-        <precision>0</precision>
-        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>both</trim_type>
         <repeat>N</repeat>
       </field>
       <field>
         <name>city</name>
         <type>String</type>
         <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>8</length>
+        <length>-1</length>
         <precision>-1</precision>
-        <trim_type>none</trim_type>
+        <trim_type>both</trim_type>
         <repeat>N</repeat>
       </field>
       <field>
         <name>birthdate</name>
         <type>String</type>
         <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
         <length>-1</length>
         <precision>-1</precision>
-        <trim_type>none</trim_type>
+        <trim_type>both</trim_type>
         <repeat>N</repeat>
       </field>
       <field>
         <name>street</name>
         <type>String</type>
         <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>11</length>
+        <length>-1</length>
         <precision>-1</precision>
-        <trim_type>none</trim_type>
+        <trim_type>both</trim_type>
         <repeat>N</repeat>
       </field>
       <field>
         <name>housenr</name>
         <type>String</type>
         <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>15</length>
-        <precision>0</precision>
-        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>both</trim_type>
         <repeat>N</repeat>
       </field>
       <field>
         <name>stateCode</name>
         <type>String</type>
         <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>9</length>
+        <length>-1</length>
         <precision>-1</precision>
-        <trim_type>none</trim_type>
+        <trim_type>both</trim_type>
         <repeat>N</repeat>
       </field>
       <field>
         <name>state</name>
         <type>String</type>
         <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>30</length>
+        <length>-1</length>
         <precision>-1</precision>
-        <trim_type>none</trim_type>
+        <trim_type>both</trim_type>
         <repeat>N</repeat>
       </field>
     </fields>
@@ -311,12 +294,12 @@ limitations under the License.
     <sizeFieldName/>
     <attributes/>
     <GUI>
-      <xloc>176</xloc>
-      <yloc>112</yloc>
+      <xloc>144</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>gs://apache-hop-it/output/0007-*.json</name>
+    <name>/tmp/0005/*.json</name>
     <type>JsonInput</type>
     <description/>
     <distribute>Y</distribute>
@@ -338,13 +321,39 @@ limitations under the License.
     <defaultPathLeafToNull>Y</defaultPathLeafToNull>
     <rownum_field/>
     <file>
-      <name>gs://apache-hop-it/output/</name>
-      <filemask>0007-.*\.json</filemask>
+      <name>${java.io.tmpdir}/0005/</name>
+      <filemask>.*\.json</filemask>
       <exclude_filemask/>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
     </file>
     <fields>
+      <field>
+        <name>First name</name>
+        <path>$.customers.*.['First name']</path>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>Last name</name>
+        <path>$.customers.*.['Last name']</path>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
       <field>
         <name>birthdate</name>
         <path>$.customers.*.birthdate</path>
@@ -372,8 +381,8 @@ limitations under the License.
         <repeat>N</repeat>
       </field>
       <field>
-        <name>firstName</name>
-        <path>$.customers.*.firstName</path>
+        <name>cust_zip_code</name>
+        <path>$.customers.*.cust_zip_code</path>
         <type>String</type>
         <format/>
         <currency/>
@@ -400,20 +409,7 @@ limitations under the License.
       <field>
         <name>id</name>
         <path>$.customers.*.id</path>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
-      <field>
-        <name>lastName</name>
-        <path>$.customers.*.lastName</path>
-        <type>String</type>
+        <type>Integer</type>
         <format/>
         <currency/>
         <decimal/>
@@ -462,19 +458,6 @@ limitations under the License.
         <trim_type>none</trim_type>
         <repeat>N</repeat>
       </field>
-      <field>
-        <name>zipCode</name>
-        <path>$.customers.*.zipCode</path>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
     </fields>
     <limit>0</limit>
     <IsInFields>N</IsInFields>
@@ -490,12 +473,12 @@ limitations under the License.
     <sizeFieldName/>
     <attributes/>
     <GUI>
-      <xloc>176</xloc>
-      <yloc>32</yloc>
+      <xloc>144</xloc>
+      <yloc>48</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>gs://apache-hop-it/output/0007-*.parquet</name>
+    <name>/tmp/0005/*.parquet</name>
     <type>GetFileNames</type>
     <description/>
     <distribute>Y</distribute>
@@ -510,8 +493,8 @@ limitations under the License.
     <dynamic_include_subfolders>N</dynamic_include_subfolders>
     <filefield>N</filefield>
     <file>
-      <filemask>0007-.*\.parquet</filemask>
-      <name>gs://apache-hop-it/output/</name>
+      <filemask>.*\.parquet</filemask>
+      <name>${java.io.tmpdir}/0005/</name>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
     </file>
@@ -523,12 +506,12 @@ limitations under the License.
     <limit>0</limit>
     <attributes/>
     <GUI>
-      <xloc>176</xloc>
-      <yloc>272</yloc>
+      <xloc>144</xloc>
+      <yloc>288</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>gs://apache-hop-it/output/0007-*.xlsx</name>
+    <name>/tmp/0005/*.xlsx</name>
     <type>ExcelInput</type>
     <description/>
     <distribute>Y</distribute>
@@ -554,8 +537,8 @@ limitations under the License.
     <accept_field/>
     <accept_transform_name/>
     <file>
-      <name>gs://apache-hop-it/output/</name>
-      <filemask>0007-.*\.xlsx</filemask>
+      <name>${java.io.tmpdir}/0005/</name>
+      <filemask>.*\.xlsx</filemask>
       <exclude_filemask/>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
@@ -706,11 +689,28 @@ limitations under the License.
     <rootUriNameFieldName/>
     <extensionFieldName/>
     <sizeFieldName/>
-    <spreadsheet_type>SAX_POI</spreadsheet_type>
+    <spreadsheet_type>POI</spreadsheet_type>
     <attributes/>
     <GUI>
-      <xloc>176</xloc>
-      <yloc>192</yloc>
+      <xloc>144</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>cvs</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>512</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
@@ -726,8 +726,8 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>544</xloc>
-      <yloc>32</yloc>
+      <xloc>512</xloc>
+      <yloc>48</yloc>
     </GUI>
   </transform>
   <transform>
@@ -743,8 +743,8 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>544</xloc>
-      <yloc>272</yloc>
+      <xloc>512</xloc>
+      <yloc>288</yloc>
     </GUI>
   </transform>
   <transform>
@@ -762,7 +762,7 @@ limitations under the License.
       <field>
         <source_field>id</source_field>
         <target_field>id</target_field>
-        <target_type>String</target_type>
+        <target_type>Integer</target_type>
       </field>
       <field>
         <source_field>lastName</source_field>
@@ -813,8 +813,8 @@ limitations under the License.
     <filename_field>filename</filename_field>
     <attributes/>
     <GUI>
-      <xloc>384</xloc>
-      <yloc>272</yloc>
+      <xloc>320</xloc>
+      <yloc>288</yloc>
     </GUI>
   </transform>
   <transform>
@@ -830,8 +830,8 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>544</xloc>
-      <yloc>192</yloc>
+      <xloc>512</xloc>
+      <yloc>208</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

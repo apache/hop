@@ -51,6 +51,7 @@
             <useProjectArtifact>false</useProjectArtifact>
             <scope>runtime</scope>
             <includes>
+                <include>com.fasterxml.woodstox:woodstox-core</include>
                 <include>com.github.luben:zstd-jni:jar</include>
                 <include>com.google.code.findbugs:jsr305:jar</include>
                 <include>com.google.protobuf:protobuf-java:jar</include>

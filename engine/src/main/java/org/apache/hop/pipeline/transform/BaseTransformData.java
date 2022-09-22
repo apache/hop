@@ -30,6 +30,12 @@ public abstract class BaseTransformData implements ITransformData {
   /** The status. */
   private ComponentExecutionStatus status;
 
+  /** Set to true if the transform is running in a Beam pipeline */
+  private boolean beamContext;
+
+  /** The Beam bundle number */
+  private int beamBundleNr;
+
   /** Instantiates a new base transform data. */
   public BaseTransformData() {
     status = ComponentExecutionStatus.STATUS_EMPTY;
@@ -122,5 +128,41 @@ public abstract class BaseTransformData implements ITransformData {
   @Override
   public boolean isDisposed() {
     return status == ComponentExecutionStatus.STATUS_DISPOSED;
+  }
+
+  /**
+   * Gets beamContext
+   *
+   * @return value of beamContext
+   */
+  public boolean isBeamContext() {
+    return beamContext;
+  }
+
+  /**
+   * Sets beamContext
+   *
+   * @param beamContext value of beamContext
+   */
+  public void setBeamContext(boolean beamContext) {
+    this.beamContext = beamContext;
+  }
+
+  /**
+   * Gets beamBundleNr
+   *
+   * @return value of beamBundleNr
+   */
+  public int getBeamBundleNr() {
+    return beamBundleNr;
+  }
+
+  /**
+   * Sets beamBundleNr
+   *
+   * @param beamBundleNr value of beamBundleNr
+   */
+  public void setBeamBundleNr(int beamBundleNr) {
+    this.beamBundleNr = beamBundleNr;
   }
 }

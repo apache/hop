@@ -227,149 +227,207 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     this.servletOutput = servletOutput;
   }
 
-  /** @param createparentfolder The createparentfolder to set. */
+  /**
+   * @param createparentfolder The createparentfolder to set.
+   */
   public void setCreateParentFolder(boolean createparentfolder) {
     this.createparentfolder = createparentfolder;
   }
 
-  /** @return Returns the createparentfolder. */
+  /**
+   * @return Returns the createparentfolder.
+   */
   public boolean isCreateParentFolder() {
     return createparentfolder;
   }
 
-  /** @param dateInFilename The dateInFilename to set. */
+  /**
+   * @param dateInFilename The dateInFilename to set.
+   */
   public void setDateInFilename(boolean dateInFilename) {
     this.dateInFilename = dateInFilename;
   }
 
-  /** @return Returns the enclosure. */
+  /**
+   * @return Returns the enclosure.
+   */
   public String getEnclosure() {
     return enclosure;
   }
 
-  /** @param enclosure The enclosure to set. */
+  /**
+   * @param enclosure The enclosure to set.
+   */
   public void setEnclosure(String enclosure) {
     this.enclosure = enclosure;
   }
 
-  /** @return Returns the enclosureForced. */
+  /**
+   * @return Returns the enclosureForced.
+   */
   public boolean isEnclosureForced() {
     return enclosureForced;
   }
 
-  /** @param enclosureForced The enclosureForced to set. */
+  /**
+   * @param enclosureForced The enclosureForced to set.
+   */
   public void setEnclosureForced(boolean enclosureForced) {
     this.enclosureForced = enclosureForced;
   }
 
-  /** @return Returns the enclosureFixDisabled. */
+  /**
+   * @return Returns the enclosureFixDisabled.
+   */
   public boolean isEnclosureFixDisabled() {
     return disableEnclosureFix;
   }
 
-  /** @param disableEnclosureFix The enclosureFixDisabled to set. */
+  /**
+   * @param disableEnclosureFix The enclosureFixDisabled to set.
+   */
   public void setEnclosureFixDisabled(boolean disableEnclosureFix) {
     this.disableEnclosureFix = disableEnclosureFix;
   }
 
-  /** @return Returns the add to result filesname. */
+  /**
+   * @return Returns the add to result filesname.
+   */
   public boolean isAddToResultFiles() {
     return addToResultFilenames;
   }
 
-  /** @param addtoresultfilenamesin The addtoresultfilenames to set. */
+  /**
+   * @param addtoresultfilenamesin The addtoresultfilenames to set.
+   */
   public void setAddToResultFiles(boolean addtoresultfilenamesin) {
     this.addToResultFilenames = addtoresultfilenamesin;
   }
 
-  /** @return Returns the fileAppended. */
+  /**
+   * @return Returns the fileAppended.
+   */
   public boolean isFileAppended() {
     return fileAppended;
   }
 
-  /** @param fileAppended The fileAppended to set. */
+  /**
+   * @param fileAppended The fileAppended to set.
+   */
   public void setFileAppended(boolean fileAppended) {
     this.fileAppended = fileAppended;
   }
 
-  /** @return Returns the fileFormat. */
+  /**
+   * @return Returns the fileFormat.
+   */
   public String getFileFormat() {
     return fileFormat;
   }
 
-  /** @param fileFormat The fileFormat to set. */
+  /**
+   * @param fileFormat The fileFormat to set.
+   */
   @Injection(name = "FORMAT")
   public void setFileFormat(String fileFormat) {
     this.fileFormat = fileFormat;
     this.newline = getNewLine(fileFormat);
   }
 
-  /** @return Returns the footer. */
+  /**
+   * @return Returns the footer.
+   */
   public boolean isFooterEnabled() {
     return footerEnabled;
   }
 
-  /** @param footer The footer to set. */
+  /**
+   * @param footer The footer to set.
+   */
   public void setFooterEnabled(boolean footer) {
     this.footerEnabled = footer;
   }
 
-  /** @return Returns the header. */
+  /**
+   * @return Returns the header.
+   */
   public boolean isHeaderEnabled() {
     return headerEnabled;
   }
 
-  /** @param header The header to set. */
+  /**
+   * @param header The header to set.
+   */
   public void setHeaderEnabled(boolean header) {
     this.headerEnabled = header;
   }
 
-  /** @return Returns the newline. */
+  /**
+   * @return Returns the newline.
+   */
   public String getNewline() {
     return newline;
   }
 
-  /** @param newline The newline to set. */
+  /**
+   * @param newline The newline to set.
+   */
   public void setNewline(String newline) {
     this.newline = newline;
   }
 
-  /** @return Returns the padded. */
+  /**
+   * @return Returns the padded.
+   */
   public boolean isPadded() {
     return padded;
   }
 
-  /** @param padded The padded to set. */
+  /**
+   * @param padded The padded to set.
+   */
   public void setPadded(boolean padded) {
     this.padded = padded;
   }
 
-  /** @return Returns the fastDump. */
+  /**
+   * @return Returns the fastDump.
+   */
   public boolean isFastDump() {
     return fastDump;
   }
 
-  /** @param fastDump The fastDump to set. */
+  /**
+   * @param fastDump The fastDump to set.
+   */
   public void setFastDump(boolean fastDump) {
     this.fastDump = fastDump;
   }
 
-  /** @return Returns the separator. */
+  /**
+   * @return Returns the separator.
+   */
   public String getSeparator() {
     return separator;
   }
 
-  /** @param separator The separator to set. */
+  /**
+   * @param separator The separator to set.
+   */
   public void setSeparator(String separator) {
     this.separator = separator;
   }
 
-  /** @return Returns the "do not open new file at init" flag. */
+  /**
+   * @return Returns the "do not open new file at init" flag.
+   */
   public boolean isDoNotOpenNewFileInit() {
     return doNotOpenNewFileInit;
   }
 
-  /** @param doNotOpenNewFileInit The "do not open new file at init" flag to set. */
+  /**
+   * @param doNotOpenNewFileInit The "do not open new file at init" flag to set.
+   */
   public void setDoNotOpenNewFileInit(boolean doNotOpenNewFileInit) {
     this.doNotOpenNewFileInit = doNotOpenNewFileInit;
   }
@@ -378,7 +436,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
    * @return Returns the splitEvery.
    * @deprecated use {@link #getSplitEvery(IVariables)} or {@link #getSplitEveryRows()}
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   public int getSplitEvery() {
     return Const.toInt(splitEveryRows, 0);
   }
@@ -391,17 +449,23 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     return Const.toInt(varSpace == null ? splitEveryRows : varSpace.resolve(splitEveryRows), 0);
   }
 
-  /** @return At how many rows to split into a new file. */
+  /**
+   * @return At how many rows to split into a new file.
+   */
   public String getSplitEveryRows() {
     return splitEveryRows;
   }
 
-  /** @param value At how many rows to split into a new file. */
+  /**
+   * @param value At how many rows to split into a new file.
+   */
   public void setSplitEveryRows(String value) {
     splitEveryRows = value;
   }
 
-  /** @return <tt>1</tt> if <tt>isFooterEnabled()</tt> and <tt>0</tt> otherwise */
+  /**
+   * @return <tt>1</tt> if <tt>isFooterEnabled()</tt> and <tt>0</tt> otherwise
+   */
   public int getFooterShift() {
     return isFooterEnabled() ? 1 : 0;
   }
@@ -410,32 +474,42 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
    * @param splitEvery The splitEvery to set.
    * @deprecated use {@link #setSplitEveryRows(String)}
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   public void setSplitEvery(int splitEvery) {
     splitEveryRows = Integer.toString(splitEvery);
   }
 
-  /** @param transformNrInFilename The transformNrInFilename to set. */
+  /**
+   * @param transformNrInFilename The transformNrInFilename to set.
+   */
   public void setTransformNrInFilename(boolean transformNrInFilename) {
     this.transformNrInFilename = transformNrInFilename;
   }
 
-  /** @param partNrInFilename The partNrInFilename to set. */
+  /**
+   * @param partNrInFilename The partNrInFilename to set.
+   */
   public void setPartNrInFilename(boolean partNrInFilename) {
     this.partNrInFilename = partNrInFilename;
   }
 
-  /** @param timeInFilename The timeInFilename to set. */
+  /**
+   * @param timeInFilename The timeInFilename to set.
+   */
   public void setTimeInFilename(boolean timeInFilename) {
     this.timeInFilename = timeInFilename;
   }
 
-  /** @return Returns the outputFields. */
+  /**
+   * @return Returns the outputFields.
+   */
   public TextFileField[] getOutputFields() {
     return outputFields;
   }
 
-  /** @param outputFields The outputFields to set. */
+  /**
+   * @param outputFields The outputFields to set.
+   */
   public void setOutputFields(TextFileField[] outputFields) {
     this.outputFields = outputFields;
   }
@@ -456,7 +530,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     this.encoding = encoding;
   }
 
-  /** @return The desired last line in the output file, null or empty if nothing has to be added. */
+  /**
+   * @return The desired last line in the output file, null or empty if nothing has to be added.
+   */
   public String getEndedLine() {
     return endedLine;
   }
@@ -469,22 +545,30 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     this.endedLine = endedLine;
   }
 
-  /** @return Is the file name coded in a field? */
+  /**
+   * @return Is the file name coded in a field?
+   */
   public boolean isFileNameInField() {
     return fileNameInField;
   }
 
-  /** @param fileNameInField Is the file name coded in a field? */
+  /**
+   * @param fileNameInField Is the file name coded in a field?
+   */
   public void setFileNameInField(boolean fileNameInField) {
     this.fileNameInField = fileNameInField;
   }
 
-  /** @return The field name that contains the output file name. */
+  /**
+   * @return The field name that contains the output file name.
+   */
   public String getFileNameField() {
     return fileNameField;
   }
 
-  /** @param fileNameField Name of the field that contains the file name */
+  /**
+   * @param fileNameField Name of the field that contains the file name
+   */
   public void setFileNameField(String fileNameField) {
     this.fileNameField = fileNameField;
   }
@@ -665,7 +749,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     setFileCompression(fileCompressionTypeCodes[FILE_COMPRESSION_TYPE_NONE]);
     fileName = "file";
     servletOutput = false;
-    doNotOpenNewFileInit = false;
+    doNotOpenNewFileInit = true;
     extension = "txt";
     transformNrInFilename = false;
     partNrInFilename = false;
@@ -705,6 +789,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       int transformnr,
       String partnr,
       int splitnr,
+      boolean beamContext,
+      String transformId,
+      int bundleNr,
       boolean ziparchive,
       TextFileOutputMeta meta) {
 
@@ -717,6 +804,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         Integer.toString(transformnr),
         partnr,
         Integer.toString(splitnr),
+        beamContext,
+        transformId,
+        bundleNr,
         new Date(),
         ziparchive,
         true,
@@ -1084,6 +1174,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
                     transform + "",
                     getPartPrefix() + part,
                     split + "",
+                    false,
+                    "",
+                    1,
                     now,
                     false,
                     showSamples);
@@ -1104,6 +1197,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
             "<transform>",
             "<partition>",
             "<split>",
+            false,
+            "",
+            1,
             now,
             false,
             showSamples)
@@ -1115,43 +1211,15 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     return "";
   }
 
-  public String buildFilename(
-      final IVariables variables,
-      final String transformnr,
-      final String partnr,
-      final String splitnr,
-      final boolean ziparchive) {
-    return buildFilename(variables, transformnr, partnr, splitnr, ziparchive, true);
-  }
-
-  public String buildFilename(
-      final IVariables variables,
-      final String transformnr,
-      final String partnr,
-      final String splitnr,
-      final boolean ziparchive,
-      final boolean showSamples) {
-
-    String realFileName = variables.resolve(fileName);
-    String realExtension = variables.resolve(extension);
-
-    return buildFilename(
-        realFileName,
-        realExtension,
-        transformnr,
-        partnr,
-        splitnr,
-        new Date(),
-        ziparchive,
-        showSamples);
-  }
-
   private String buildFilename(
       final String realFileName,
       final String realExtension,
       final String transformnr,
       final String partnr,
       final String splitnr,
+      final boolean beamContext,
+      final String transformId,
+      final int bundleNr,
       final Date date,
       final boolean ziparchive,
       final boolean showSamples) {
@@ -1161,6 +1229,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         transformnr,
         partnr,
         splitnr,
+        beamContext,
+        transformId,
+        bundleNr,
         date,
         ziparchive,
         showSamples,
@@ -1173,6 +1244,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       final String transformnr,
       final String partnr,
       final String splitnr,
+      final boolean beamContext,
+      final String transformId,
+      final int bundleNr,
       final Date date,
       final boolean ziparchive,
       final boolean showSamples,
@@ -1184,6 +1258,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         transformnr,
         partnr,
         splitnr,
+        beamContext,
+        transformId,
+        bundleNr,
         date,
         ziparchive,
         showSamples,
@@ -1197,6 +1274,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       final String transformnr,
       final String partnr,
       final String splitnr,
+      final boolean beamContext,
+      final String transformId,
+      final int bundleNr,
       final Date date,
       final boolean ziparchive,
       final boolean showSamples,
@@ -1245,6 +1325,11 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     }
     if (meta.getSplitEvery(variables) > 0) {
       retval += "_" + splitnr;
+    }
+    // In a Beam context, always add the transform ID and bundle number
+    //
+    if (beamContext) {
+      retval += "_" + transformId + "_" + bundleNr;
     }
 
     if ("Zip".equals(meta.getFileCompression())) {

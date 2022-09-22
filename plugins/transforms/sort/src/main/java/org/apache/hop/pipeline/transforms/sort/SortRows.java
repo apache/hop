@@ -626,6 +626,10 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
     }
   }
 
+  @Override
+  public void startBundle() throws HopException {
+  }
+
   /**
    * Calling this method will alert the transform that we finished passing records to the transform.
    * Specifically for transforms like "Sort Rows" it means that the buffered rows can be sorted and
@@ -633,6 +637,15 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
    */
   @Override
   public void batchComplete() throws HopException {
+    if (!data.isBeamContext()) {
+      preSortBeforeFlush();
+      passBuffer();
+      setOutputDone();
+    }
+  }
+
+  @Override
+  public void finishBundle() throws HopException {
     preSortBeforeFlush();
     passBuffer();
     setOutputDone();

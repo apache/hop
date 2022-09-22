@@ -3679,13 +3679,17 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     this.containerObjectId = containerObjectId;
   }
 
-  /*
-   * (non-Javadoc)
-   *
+  /**
    * @see org.apache.hop.pipeline.transform.ITransform#batchComplete()
    */
   @Override
   public void batchComplete() throws HopException {}
+
+  @Override
+  public void startBundle() throws HopException {}
+
+  @Override
+  public void finishBundle() throws HopException {}
 
   /**
    * Returns the registration date
