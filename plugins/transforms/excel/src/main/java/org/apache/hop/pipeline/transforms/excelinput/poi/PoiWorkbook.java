@@ -40,8 +40,7 @@ public class PoiWorkbook implements IKWorkbook {
   private Workbook workbook;
   private String filename;
   private String encoding;
-  // we need direct access to streams
-  private InputStream internalIS;
+
   private POIFSFileSystem poifs;
 
   public PoiWorkbook(String filename, String encoding) throws HopException {
@@ -63,8 +62,9 @@ public class PoiWorkbook implements IKWorkbook {
           workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(excelFile);
         }
       } else {
-        internalIS = HopVfs.getInputStream(filename);
-        workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(internalIS);
+        try (InputStream internalIS = HopVfs.getInputStream(filename)) {
+          workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(internalIS);
+        }
       }
     } catch (Exception e) {
       throw new HopException(e);
@@ -84,8 +84,8 @@ public class PoiWorkbook implements IKWorkbook {
   @Override
   public void close() {
     try {
-      if (internalIS != null) {
-        internalIS.close();
+      if (workbook!=null) {
+        workbook.close();
       }
       if (poifs != null) {
         poifs.close();

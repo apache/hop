@@ -40,6 +40,7 @@ import org.apache.hop.beam.pipeline.handler.BeamGroupByTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamMergeJoinTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamRowGeneratorTransformHandler;
 import org.apache.hop.beam.util.BeamConst;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -234,8 +235,8 @@ public class HopPipelineMetaToBeamPipelineConverter {
           .as(HopPipelineExecutionOptions.class)
           .setLogLevel(
               LogLevel.getLogLevelForCode(
-                  pipelineRunConfiguration.getVariable(
-                      BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL)));
+                      Const.NVL(pipelineRunConfiguration.getVariable(
+                      BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL), "MINIMAL")));
 
       Pipeline pipeline = Pipeline.create(pipelineOptions);
 
@@ -556,9 +557,9 @@ public class HopPipelineMetaToBeamPipelineConverter {
       throw new HopException(
           "Group By is not supported.  Use the Memory Group By transform instead.  It comes closest to Beam functionality.");
     }
-    if (meta instanceof SortRowsMeta) {
-      throw new HopException("Sort rows is not yet supported on Beam.");
-    }
+//    if (meta instanceof SortRowsMeta) {
+//      throw new HopException("Sort rows is not yet supported on Beam.");
+//    }
     if (meta instanceof UniqueRowsMeta) {
       throw new HopException(
           "The unique rows transform is not yet supported on Beam, for now use a Memory Group By to get distrinct rows");

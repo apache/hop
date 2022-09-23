@@ -728,7 +728,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
           new ColumnInfo(
               BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Format.Column"),
               ColumnInfo.COLUMN_TYPE_FORMAT,
-              4),
+              3),
           new ColumnInfo(
               BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Length.Column"),
               ColumnInfo.COLUMN_TYPE_TEXT,

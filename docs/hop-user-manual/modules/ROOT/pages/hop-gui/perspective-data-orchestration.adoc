@@ -20,6 +20,8 @@ under the License.
 
 Icon: image:icons/data_orch.svg[width="24px"]
 
+Keyboard shortcut: `CTRL-Shift-D`
+
 Description::
 The Data Orchestration perspective is where you'll spend most of your time in Hop Gui.
 This is where xref:pipeline/pipelines.adoc[pipelines] and xref:workflow/workflows.adoc[workflows] are built, tested and run.

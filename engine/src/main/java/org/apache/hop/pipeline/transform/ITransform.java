@@ -295,13 +295,26 @@ public interface ITransform
   void setRepartitioning(int partitioningMethod);
 
   /**
-   * Calling this method will alert the transform that we finished passing a batch of records to the
-   * transform. Specifically for transforms like "Sort Rows" it means that the buffered rows can be
-   * sorted and passed on.
+   * When using the Single threaded engine this signals to the transform that a batch of records has been processed
+   * and that no more are expected in this batch.
    *
    * @throws HopException In case an error occurs during the processing of the batch of rows.
    */
   void batchComplete() throws HopException;
+
+  /**
+   * When running in a Beam context this signals the transform that a new bundle was started.
+   * File writing transforms might want to create new files here.
+   * @throws HopException
+   */
+  void startBundle() throws HopException;
+
+  /**
+   * When running in a Beam context this signals the transform that a bundle was finished.
+   * File writing transforms will want to close open file(s) here.
+   * @throws HopException
+   */
+  void finishBundle() throws HopException;
 
   /**
    * Pass along the metadata to use when loading external elements at runtime.

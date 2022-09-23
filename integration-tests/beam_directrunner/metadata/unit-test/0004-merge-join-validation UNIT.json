@@ -1,0 +1,259 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "Last name",
+          "data_set_field": "Last name"
+        },
+        {
+          "transform_field": "First name",
+          "data_set_field": "First name"
+        },
+        {
+          "transform_field": "cust_zip_code",
+          "data_set_field": "cust_zip_code"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "state_1",
+          "data_set_field": "state_1"
+        },
+        {
+          "transform_field": "population",
+          "data_set_field": "population"
+        },
+        {
+          "transform_field": "upper_state",
+          "data_set_field": "upper_state"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "inner-join-data",
+      "data_set_name": "0004-inner-join-golden"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "Last name",
+          "data_set_field": "Last name"
+        },
+        {
+          "transform_field": "First name",
+          "data_set_field": "First name"
+        },
+        {
+          "transform_field": "cust_zip_code",
+          "data_set_field": "cust_zip_code"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "state_1",
+          "data_set_field": "state_1"
+        },
+        {
+          "transform_field": "population",
+          "data_set_field": "population"
+        },
+        {
+          "transform_field": "upper_state",
+          "data_set_field": "upper_state"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "left-outer-join-data",
+      "data_set_name": "0004-left-outer-golden"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "Last name",
+          "data_set_field": "Last name"
+        },
+        {
+          "transform_field": "First name",
+          "data_set_field": "First name"
+        },
+        {
+          "transform_field": "cust_zip_code",
+          "data_set_field": "cust_zip_code"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "state_1",
+          "data_set_field": "state_1"
+        },
+        {
+          "transform_field": "population",
+          "data_set_field": "population"
+        },
+        {
+          "transform_field": "upper_state",
+          "data_set_field": "upper_state"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "right-outer-join-data",
+      "data_set_name": "0004-right-outer-golden"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "Last name",
+          "data_set_field": "Last name"
+        },
+        {
+          "transform_field": "First name",
+          "data_set_field": "First name"
+        },
+        {
+          "transform_field": "cust_zip_code",
+          "data_set_field": "cust_zip_code"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "state_1",
+          "data_set_field": "state_1"
+        },
+        {
+          "transform_field": "population",
+          "data_set_field": "population"
+        },
+        {
+          "transform_field": "upper_state",
+          "data_set_field": "upper_state"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "full-outer-join-data",
+      "data_set_name": "0004-full-outer-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0004-merge-join-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0004-merge-join-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

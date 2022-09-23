@@ -17,10 +17,8 @@
 
 package org.apache.hop.beam.core.transform;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
-import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.values.*;
@@ -31,9 +29,9 @@ import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -44,20 +42,15 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.execution.ExecutionDataBuilder;
 import org.apache.hop.execution.ExecutionInfoLocation;
-import org.apache.hop.execution.profiling.ExecutionDataProfile;
-import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.*;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
-import org.joda.time.Instant;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -237,7 +230,6 @@ public class TransformBatchTransform extends TransformTransform {
     private transient SingleThreadedPipelineExecutor executor;
 
     private transient Queue<HopRow> rowBuffer;
-    private transient BoundedWindow batchWindow;
 
     private transient AtomicLong lastTimerCheck;
     private transient Timer timer;
@@ -576,12 +568,12 @@ public class TransformBatchTransform extends TransformTransform {
           // We're only going to go through the effort if we actually have any rows to sample.
           //
           attachExecutionSamplersToOutput(
-                  variables,
-                  transformName,
-                  pipeline.getLogChannelId(),
-                  inputRowMeta,
-                  outputRowMeta,
-                  pipeline.getTransform(transformName, 0));
+              variables,
+              transformName,
+              pipeline.getLogChannelId(),
+              inputRowMeta,
+              outputRowMeta,
+              pipeline.getTransform(transformName, 0));
 
           executor = new SingleThreadedPipelineExecutor(pipeline);
 
@@ -596,10 +588,14 @@ public class TransformBatchTransform extends TransformTransform {
 
           initCounter.inc();
 
+          pipeline.setLogLevel(LogLevel.NOTHING);
+
           // Doesn't really start the threads in single threaded mode
           // Just sets some flags all over the place
           //
           pipeline.startThreads();
+
+          pipeline.setLogLevel(LogLevel.BASIC);
 
           resultRows = new ArrayList<>();
 
@@ -737,7 +733,7 @@ public class TransformBatchTransform extends TransformTransform {
         }
 
         if (!rowBuffer.isEmpty()) {
-          System.err.println("Async action detected on rowBuffer");
+          LOG.error("Async action detected on rowBuffer");
         }
 
         // Empty all the row buffers for another iteration
@@ -839,38 +835,6 @@ public class TransformBatchTransform extends TransformTransform {
     }
   }
 
-  private interface TupleOutputContext<T> {
-    void output(TupleTag<T> tupleTag, T output);
-  }
 
-  private class TransformProcessContext implements TupleOutputContext<HopRow> {
 
-    private DoFn.ProcessContext context;
-
-    public TransformProcessContext(DoFn.ProcessContext processContext) {
-      this.context = processContext;
-    }
-
-    @Override
-    public void output(TupleTag<HopRow> tupleTag, HopRow output) {
-      context.output(tupleTag, output);
-    }
-  }
-
-  private class TransformFinishBundleContext implements TupleOutputContext<HopRow> {
-
-    private DoFn.FinishBundleContext context;
-    private BoundedWindow batchWindow;
-
-    public TransformFinishBundleContext(
-        DoFn.FinishBundleContext context, BoundedWindow batchWindow) {
-      this.context = context;
-      this.batchWindow = batchWindow;
-    }
-
-    @Override
-    public void output(TupleTag<HopRow> tupleTag, HopRow output) {
-      context.output(tupleTag, output, Instant.now(), batchWindow);
-    }
-  }
 }

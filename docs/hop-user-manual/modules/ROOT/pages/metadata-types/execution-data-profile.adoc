@@ -1,0 +1,57 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: An Apache Hop Execution Data Profile builds data profiles as data flows through pipelines.
+
+= Execution Data Profile
+
+== Description
+
+An Apache Hop Execution Data Profile builds data profiles as data flow through pipelines. A number of data profilers can be selected and configure the fine tune the type and detail of the data that is profiled.
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+|Name|The name to be used for this Execution Data Profile
+|Description|A description to be used for this Execution Data Profile
+|Data Samplers to use|One or more data samplers to use with this Execution Data Profile. See details below.
+|===
+
+== Data Samplers
+
+[options="header"]
+|===
+|Data Sampler|Description|Options
+|Data profile output rows|Allow for some basic data profiling to be performed on transform output rows
+a|
+
+* Sample size: This is the maximum number of sample rows kept for any discovered profiling result (default: 25)
+* Last transforms only: only perform data profiling on pipeline endpoints (last transforms)? (default: true)
+* Minima: store the minimum value for this data profile (default: true)
+* Maxima: store the maximum value for this data profile (default: true)
+* Count nulls: count null values for this data profile (default: true)
+* Count non-nulls: count non-null values for this data profile (default: true)
+* Min length: store the minimum lengths for this data profile (default: true)
+* Max length: store the maximum lengths for this data profile (default: true)
+
+|First output rows|Samples the first rows of a transform output|Sample size (default: 100)
+|Last output rows|Samples the last rows of a transform output|Sample size (default: 100)
+|Random output rows|Do reservoir sampling on the output rows of a transform|Sample size (default: 100)
+|===

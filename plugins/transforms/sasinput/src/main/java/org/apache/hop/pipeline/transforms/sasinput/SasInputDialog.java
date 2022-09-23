@@ -180,7 +180,7 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
           new ColumnInfo(
               BaseMessages.getString(PKG, "SASInputDialog.OutputFieldColumn.Mask"),
               ColumnInfo.COLUMN_TYPE_FORMAT,
-              2),
+              3),
           new ColumnInfo(
               BaseMessages.getString(PKG, "SASInputDialog.OutputFieldColumn.Length"),
               ColumnInfo.COLUMN_TYPE_TEXT,
@@ -202,25 +202,6 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               ValueMetaString.trimTypeDesc),
         };
-
-    colinf[3].setComboValuesSelectionListener(
-        (tableItem, rowNr, colNr) -> {
-          String[] comboValues = new String[] {};
-          int type = ValueMetaFactory.getIdForValueMeta(tableItem.getText(colNr - 1));
-          switch (type) {
-            case IValueMeta.TYPE_DATE:
-              comboValues = Const.getDateFormats();
-              break;
-            case IValueMeta.TYPE_INTEGER:
-            case IValueMeta.TYPE_BIGNUMBER:
-            case IValueMeta.TYPE_NUMBER:
-              comboValues = Const.getNumberFormats();
-              break;
-            default:
-              break;
-          }
-          return comboValues;
-        });
 
     wFields =
         new TableView(

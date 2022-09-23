@@ -115,6 +115,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.CREATE_PARENT_FOLDER")
   private boolean createParentFolder;
 
+  @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.DONT_CREATE_AT_START")
   private boolean doNotOpenNewFileInit;
 
   public JsonOutputMeta() {
@@ -222,6 +223,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     nrRowsInBloc = "1";
     operationType = OPERATION_TYPE_WRITE_TO_FILE;
     extension = "json";
+    doNotOpenNewFileInit=true;
     int nrFields = 0;
 
     for (int i = 0; i < nrFields; i++) {

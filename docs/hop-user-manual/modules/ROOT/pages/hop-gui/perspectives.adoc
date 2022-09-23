@@ -25,6 +25,8 @@ Use the keyboard shortcuts `CTRL-SHIFT-arrow-up` and `CTRL-SHIFT-arrow-down` to 
 
 include::perspective-data-orchestration.adoc[]
 
+include::perspective-execution-information.adoc[]
+
 include::perspective-metadata.adoc[]
 
 include::perspective-file-explorer.adoc[]

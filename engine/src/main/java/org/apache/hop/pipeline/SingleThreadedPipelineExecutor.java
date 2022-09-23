@@ -387,7 +387,8 @@ public class SingleThreadedPipelineExecutor {
             "An exception was raised during a transform's execution: "
                 + inProcessCombi.transformName);
         this.exceptionsRaisedCounter += 1;
-      } else throw new HopException("Error performing an iteration in a single threaded pipeline", e);
+      } else
+        throw new HopException("Error performing an iteration in a single threaded pipeline", e);
     }
     return nrDone < transforms.size() && !pipeline.isStopped();
   }
@@ -430,13 +431,13 @@ public class SingleThreadedPipelineExecutor {
                 String.valueOf(lu),
                 String.valueOf(e + lj)));
       }
-      ((BaseTransform) combi.transform).setLinesInput(0);
-      ((BaseTransform) combi.transform).setLinesOutput(0);
-      ((BaseTransform) combi.transform).setLinesWritten(0);
-      ((BaseTransform) combi.transform).setLinesRead(0);
-      ((BaseTransform) combi.transform).setLinesRejected(0);
-      ((BaseTransform) combi.transform).setLinesSkipped(0);
-      ((BaseTransform) combi.transform).setLinesUpdated(0);
+      ((BaseTransform<?, ?>) combi.transform).setLinesInput(0);
+      ((BaseTransform<?, ?>) combi.transform).setLinesOutput(0);
+      ((BaseTransform<?, ?>) combi.transform).setLinesWritten(0);
+      ((BaseTransform<?, ?>) combi.transform).setLinesRead(0);
+      ((BaseTransform<?, ?>) combi.transform).setLinesSkipped(0);
+      ((BaseTransform<?, ?>) combi.transform).setLinesUpdated(0);
+      combi.transform.setLinesRejected(0);
     }
   }
 
@@ -458,6 +459,18 @@ public class SingleThreadedPipelineExecutor {
 
   public boolean isStopped() {
     return pipeline.isStopped();
+  }
+
+  public void startBundle() throws HopException {
+    for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
+      combi.transform.startBundle();
+    }
+  }
+
+  public void finishBundle() throws HopException {
+    for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
+      combi.transform.finishBundle();
+    }
   }
 
   public void dispose() throws HopException {

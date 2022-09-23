@@ -22,11 +22,20 @@ import java.io.Serializable;
 public class HopRow implements Serializable {
 
   private Object[] row;
+  private int optionalSize;
 
-  public HopRow() {}
+  public HopRow() {
+    this(null, -1);
+  }
 
   public HopRow(Object[] row) {
+    this(row, -1);
+  }
+
+  public HopRow(Object[] row, int optionalSize) {
+    assert optionalSize<=row.length : "optionalSize needs to be <= row length";
     this.row = row;
+    this.optionalSize = optionalSize;
   }
 
   @Override
@@ -44,23 +53,31 @@ public class HopRow implements Serializable {
     if (thisRow == null && otherRow == null) {
       return true;
     }
-    if ((thisRow == null && otherRow != null) || (thisRow != null && otherRow == null)) {
+    if (thisRow == null || otherRow == null) {
       return false;
     }
     if (thisRow.length != otherRow.length) {
       return false;
     }
-    for (int i = 0; i < thisRow.length; i++) {
+    for (int i = 0; i < length(); i++) {
       Object thisValue = thisRow[i];
       Object otherValue = otherRow[i];
       if ((thisValue == null && otherValue != null) || (thisValue != null && otherValue == null)) {
         return false;
       }
-      if (thisValue != null && otherValue != null && !thisValue.equals(otherValue)) {
+      if (thisValue != null && !thisValue.equals(otherValue)) {
         return false;
       }
     }
     return true;
+  }
+
+  /**
+   * This only addresses the actual filled in items in the object array, not any possible trailing null values.
+   * @return the populated (actual) length of the row (optionalSize<=row.length).
+   */
+  public int length() {
+    return optionalSize<0 ? ( row==null ? 0 : row.length ) : optionalSize;
   }
 
   @Override
@@ -69,7 +86,7 @@ public class HopRow implements Serializable {
       return 0;
     }
     int hashValue = 0;
-    for (int i = 0; i < row.length; i++) {
+    for (int i = 0; i < length(); i++) {
       if (row[i] != null) {
         hashValue ^= row[i].hashCode();
       }
@@ -77,16 +94,19 @@ public class HopRow implements Serializable {
     return hashValue;
   }
 
-  public boolean allNull() {
+  public boolean isNotEmpty() {
     if (row == null) {
-      return true;
+      return false;
+    }
+    if (row.length==0) {
+      return false;
     }
     for (int i = 0; i < row.length; i++) {
       if (row[i] != null) {
-        return false;
+        return true;
       }
     }
-    return true;
+    return false;
   }
 
   /**
@@ -101,5 +121,23 @@ public class HopRow implements Serializable {
   /** @param row The row to set */
   public void setRow(Object[] row) {
     this.row = row;
+  }
+
+  /**
+   * Gets optionalSize
+   *
+   * @return value of optionalSize
+   */
+  public int getOptionalSize() {
+    return optionalSize;
+  }
+
+  /**
+   * Sets optionalSize
+   *
+   * @param optionalSize value of optionalSize
+   */
+  public void setOptionalSize(int optionalSize) {
+    this.optionalSize = optionalSize;
   }
 }

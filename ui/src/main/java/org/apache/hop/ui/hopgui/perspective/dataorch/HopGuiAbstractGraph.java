@@ -390,7 +390,6 @@ public abstract class HopGuiAbstractGraph extends Composite {
       }
       v.setSelection(verticalPct);
     }
-    canvas.setFocus();
   }
 
   protected void showToolTip(org.eclipse.swt.graphics.Point location) {

@@ -83,8 +83,13 @@ public class StringToHopRowFn extends DoFn<String, HopRow> {
       String string = processContext.element();
       inputCounter.inc();
 
-      Object[] outputRow = RowDataUtil.allocateRowData(rowMeta.size());
-      outputRow[0] = string;
+      Object[] outputRow = new Object[rowMeta.size()];
+
+      // Make sure we're not dealing with an empty sentinel row
+      //
+      if (outputRow.length > 0) {
+        outputRow[0] = string;
+      }
 
       processContext.output(new HopRow(outputRow));
       writtenCounter.inc();

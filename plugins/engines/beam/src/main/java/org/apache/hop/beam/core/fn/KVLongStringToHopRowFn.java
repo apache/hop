@@ -85,7 +85,7 @@ public class KVLongStringToHopRowFn extends DoFn<KV<Long, String>, HopRow> {
       KV<Long, String> kv = processContext.element();
       inputCounter.inc();
 
-      Object[] outputRow = RowDataUtil.allocateRowData(rowMeta.size());
+      Object[] outputRow = new Object[rowMeta.size()];
       outputRow[0] = kv.getKey();
       outputRow[1] = kv.getValue();
 

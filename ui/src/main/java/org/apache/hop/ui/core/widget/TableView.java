@@ -278,7 +278,7 @@ public class TableView extends Composite {
     clearUndo();
 
     numberColumn = new ColumnInfo("#", ColumnInfo.COLUMN_TYPE_TEXT, true, true);
-    IValueMeta numberColumnValueMeta = new ValueMetaString("#");
+    IValueMeta numberColumnValueMeta = new ValueMetaInteger("#");
     numberColumnValueMeta.setConversionMask("####0.###");
     numberColumn.setValueMeta(numberColumnValueMeta);
 
@@ -2070,56 +2070,63 @@ public class TableView extends Composite {
 
   private void keepSelected() {
     // Which items are selected?
-    int[] sels = table.getSelectionIndices();
+    int[] selectionIndices = table.getSelectionIndices();
 
     int size = table.getItemCount();
 
     // Which items do we delete?
-    int[] items = new int[size - sels.length];
+    int[] itemsToDelete = new int[size - selectionIndices.length];
 
-    if (items.length == 0) {
-      return; // everything is selected: keep everything, do nothing.
+    if (itemsToDelete.length == 0) {
+      return; // nothing is selected: keep everything, do nothing.
     }
 
     // Set the item-indices to delete...
     int nr = 0;
     for (int i = 0; i < table.getItemCount(); i++) {
       boolean selected = false;
-      for (int j = 0; j < sels.length && !selected; j++) {
-        if (sels[j] == i) {
+      for (int j = 0; j < selectionIndices.length && !selected; j++) {
+        if (selectionIndices[j] == i) {
           selected = true;
         }
       }
       if (!selected) {
-        items[nr] = i;
+        itemsToDelete[nr] = i;
         nr++;
       }
     }
 
     // Save undo information
-    String[][] before = new String[items.length][];
-    for (int i = 0; i < items.length; i++) {
-      TableItem ti = table.getItem(items[i]);
+    String[][] before = new String[itemsToDelete.length][];
+    for (int i = 0; i < itemsToDelete.length; i++) {
+      TableItem ti = table.getItem(itemsToDelete[i]);
       before[i] = getItemText(ti);
     }
 
     ChangeAction ta = new ChangeAction();
-    ta.setDelete(before, items);
+    ta.setDelete(before, itemsToDelete);
     addUndo(ta);
 
-    // Delete selected items.
-    table.remove(items);
+    // Delete non-selected items.
+    table.remove(itemsToDelete);
 
     if (table.getItemCount() == 0) {
       TableItem item = new TableItem(table, SWT.NONE);
-      // Save undo infomation!
-      String[] stritem = getItemText(item);
+      // Save undo information!
+      String[] strItem = getItemText(item);
       ta = new ChangeAction();
-      ta.setNew(new String[][] {stritem}, new int[] {0});
+      ta.setNew(new String[][] {strItem}, new int[] {0});
       addUndo(ta);
     }
 
     setRowNums();
+
+    // We only keep the selected items.
+    // This means we're always positioned at the very top of the table.
+    // We also know that we have at least one item. Otherwise, we wouldn't have ended up here.
+    //
+    activeTableItem = table.getItem(0);
+    activeTableRow = 0;
 
     setModified();
   }

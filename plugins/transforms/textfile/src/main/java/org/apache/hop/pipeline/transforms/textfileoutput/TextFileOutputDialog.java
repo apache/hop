@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.compress.CompressionProviderFactory;
@@ -1032,17 +1033,6 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     final int FieldsCols = 10;
     final int FieldsRows = input.getOutputFields().length;
 
-    // Prepare a list of possible formats...
-    String[] nums = Const.getNumberFormats();
-    int totsize = dats.length + nums.length;
-    String[] formats = new String[totsize];
-    for (int x = 0; x < dats.length; x++) {
-      formats[x] = dats[x];
-    }
-    for (int x = 0; x < nums.length; x++) {
-      formats[dats.length + x] = nums[x];
-    }
-
     colinf = new ColumnInfo[FieldsCols];
     colinf[0] =
         new ColumnInfo(
@@ -1058,8 +1048,8 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     colinf[2] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "TextFileOutputDialog.FormatColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_CCOMBO,
-            formats);
+            ColumnInfo.COLUMN_TYPE_FORMAT,
+            2);
     colinf[3] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "TextFileOutputDialog.LengthColumn.Column"),

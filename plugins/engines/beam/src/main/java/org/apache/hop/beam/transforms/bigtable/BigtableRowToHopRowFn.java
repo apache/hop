@@ -136,7 +136,7 @@ public class BigtableRowToHopRowFn extends DoFn<Row, HopRow> {
     try {
       // All Strings coming from Bigtable
       //
-      Object[] row = RowDataUtil.allocateRowData(sourceColumns.size());
+      Object[] row = new Object[sourceColumns.size()];
 
       if (StringUtils.isNotEmpty(keyField)) {
         row[0] = inputRow.getKey().toStringUtf8();

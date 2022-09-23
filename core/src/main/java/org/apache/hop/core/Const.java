@@ -17,6 +17,7 @@
 
 package org.apache.hop.core;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -283,6 +284,10 @@ public class Const {
   public static final String INTERNAL_VARIABLE_WORKFLOW_NAME =
       INTERNAL_VARIABLE_PREFIX + ".Workflow.Name";
 
+  /** The workflow ID */
+  public static final String INTERNAL_VARIABLE_WORKFLOW_ID =
+          INTERNAL_VARIABLE_PREFIX + ".Workflow.ID";
+
   /** The current pipeline directory */
   public static final String INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER =
       INTERNAL_VARIABLE_PREFIX + ".Entry.Current.Folder";
@@ -315,6 +320,10 @@ public class Const {
   public static final String INTERNAL_VARIABLE_PIPELINE_NAME =
       INTERNAL_VARIABLE_PREFIX + ".Pipeline.Name";
 
+  /** The pipeline ID */
+  public static final String INTERNAL_VARIABLE_PIPELINE_ID =
+          INTERNAL_VARIABLE_PREFIX + ".Pipeline.ID";
+
   /** The transform partition ID */
   public static final String INTERNAL_VARIABLE_TRANSFORM_PARTITION_ID =
       INTERNAL_VARIABLE_PREFIX + ".Transform.Partition.ID";
@@ -330,6 +339,16 @@ public class Const {
   /** The transform copy nr */
   public static final String INTERNAL_VARIABLE_TRANSFORM_COPYNR =
       INTERNAL_VARIABLE_PREFIX + ".Transform.CopyNr";
+
+  public static final String INTERNAL_VARIABLE_TRANSFORM_ID =
+          INTERNAL_VARIABLE_PREFIX + ".Transform.ID";
+
+  public static final String INTERNAL_VARIABLE_TRANSFORM_BUNDLE_NR =
+          INTERNAL_VARIABLE_PREFIX + ".Transform.BundleNr";
+
+
+  public static final String INTERNAL_VARIABLE_ACTION_ID =
+          INTERNAL_VARIABLE_PREFIX + ".Action.ID";
 
   /** The default maximum for the nr of lines in the GUI logs */
   public static final int MAX_NR_LOG_LINES = 5000;
@@ -2346,16 +2365,7 @@ public class Const {
    * @return An array of all default conversion formats, to be used in dialogs etc.
    */
   public static String[] getConversionFormats() {
-    String[] dats = Const.getDateFormats();
-    String[] nums = Const.getNumberFormats();
-    int totsize = dats.length + nums.length;
-    String[] formats = new String[totsize];
-    System.arraycopy(dats, 0, formats, 0, dats.length);
-    for (int x = 0; x < nums.length; x++) {
-      formats[dats.length + x] = nums[x];
-    }
-
-    return formats;
+    return (String[]) ArrayUtils.addAll(Const.getDateFormats(), Const.getNumberFormats());
   }
 
   /**

@@ -160,8 +160,8 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
               ValueMetaFactory.getValueMetaNames()),
           new ColumnInfo(
               BaseMessages.getString(PKG, "DataGridDialog.Format.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              Const.getDateFormats()),
+              ColumnInfo.COLUMN_TYPE_FORMAT,
+              2),
           new ColumnInfo(
               BaseMessages.getString(PKG, "DataGridDialog.Length.Column"),
               ColumnInfo.COLUMN_TYPE_TEXT,

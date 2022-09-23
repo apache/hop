@@ -648,17 +648,6 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
     final int FieldsRows = input.getOutputFields().length;
 
-    // Prepare a list of possible formats...
-    String[] nums = Const.getNumberFormats();
-    int totsize = dats.length + nums.length;
-    String[] formats = new String[totsize];
-    for (int x = 0; x < dats.length; x++) {
-      formats[x] = dats[x];
-    }
-    for (int x = 0; x < nums.length; x++) {
-      formats[dats.length + x] = nums[x];
-    }
-
     colinf =
         new ColumnInfo[] {
           new ColumnInfo(
@@ -683,8 +672,8 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
               ValueMetaBase.getTypes()),
           new ColumnInfo(
               BaseMessages.getString(PKG, "XMLOutputDialog.Format.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              formats),
+              ColumnInfo.COLUMN_TYPE_FORMAT,
+              5),
           new ColumnInfo(
               BaseMessages.getString(PKG, "XMLOutputDialog.Length.Column"),
               ColumnInfo.COLUMN_TYPE_TEXT,

@@ -338,7 +338,7 @@ public class ExcelWriterFileField {
     autosizecolums = false;
     streamingData = false;
     extension = "xls";
-    doNotOpenNewFileInit = false;
+    doNotOpenNewFileInit = true;
     transformNrInFilename = false;
     dateInFilename = false;
     timeInFilename = false;

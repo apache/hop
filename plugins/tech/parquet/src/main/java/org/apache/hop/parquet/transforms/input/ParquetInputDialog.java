@@ -167,9 +167,8 @@ public class ParquetInputDialog extends BaseTransformDialog implements ITransfor
               false),
           new ColumnInfo(
               BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetFormat.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              Const.getDateFormats(),
-              false),
+              ColumnInfo.COLUMN_TYPE_FORMAT,
+              3),
           new ColumnInfo(
               BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetLength.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,

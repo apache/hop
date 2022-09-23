@@ -45,7 +45,8 @@ import java.util.List;
 
 /** Converts input rows to avro and then writes this avro to one or more files. */
 public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
-  private static final Class<?> PKG = AvroOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      AvroOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
   private List<AvroOutputField> avroOutputFields;
   private int outputFieldIndex;
@@ -111,7 +112,7 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
               getValue(
                   r,
                   meta.getOutputFields().get(outputFieldIndex),
-                  data.fieldnrs[outputFieldIndex],
+                  data.fieldNrs[outputFieldIndex],
                   avroField);
           if (value != null) {
             result.put(avroName, value);
@@ -256,7 +257,7 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
         logDetailed("Writing schema file.");
       }
       try {
-        String schemaFileName = buildFilename(resolve(meta.getSchemaFileName()), true);
+        String schemaFileName = buildFilename(resolve(meta.getSchemaFileName()));
         if (meta.isCreateParentFolder()) {
           logDetailed("Creating parent folder for schema file");
           createParentFolder(schemaFileName);
@@ -286,7 +287,6 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
 
   @Override
   public synchronized boolean processRow() throws HopException {
-
     boolean result = true;
     Object[] r = getRow(); // This also waits for a row to be finished.
 
@@ -295,58 +295,17 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
 
       avroOutputFields = meta.getOutputFields();
 
-      try {
-        if (meta.isCreateSchemaFile()) {
-          logDetailed("Generating Avro schema.");
-          writeSchemaFile();
-        } else {
-          logDetailed("Reading Avro schema from file.");
-          try {
-            data.avroSchema = new Schema.Parser().parse(new File(meta.getSchemaFileName()));
-          } catch (Exception e) {
-            logError("Error parsing schema file", e);
-          }
-        }
-        data.datumWriter = new GenericDatumWriter<GenericRecord>(data.avroSchema);
+      createFileAndSchema();
 
-        if (meta.getOutputType()
-            .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_FIELD])) {
-          data.encoderFactory = new EncoderFactory();
-          data.byteArrayOutputStream = new ByteArrayOutputStream();
-          data.binaryEncoder = data.encoderFactory.binaryEncoder(data.byteArrayOutputStream, null);
-        } else if (meta.getOutputType()
-            .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_BINARY_FILE])) {
-          data.dataFileWriter = new DataFileWriter<GenericRecord>(data.datumWriter);
-          if (!Utils.isEmpty(meta.getCompressionType())
-              && !meta.getCompressionType().equalsIgnoreCase("none")) {
-            data.dataFileWriter.setCodec(CodecFactory.fromString(meta.getCompressionType()));
-          }
-          data.dataFileWriter.create(data.avroSchema, data.writer);
-        } else if (meta.getOutputType()
-            .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_JSON_FIELD])) {
-          data.encoderFactory = new EncoderFactory();
-          data.byteArrayOutputStream = new ByteArrayOutputStream();
-          data.jsonEncoder =
-              data.encoderFactory.jsonEncoder(data.avroSchema, data.byteArrayOutputStream);
-        } else {
-          throw new HopException("Invalid output type " + meta.getOutputType());
-        }
-      } catch (IOException ex) {
-        logError("Could not open Avro writer", ex);
-        setErrors(1L);
-        stopAll();
-        return false;
-      }
       if (r != null) {
-
         data.outputRowMeta = getInputRowMeta().clone();
         meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-        data.fieldnrs = new int[avroOutputFields.size()];
+        data.fieldNrs = new int[avroOutputFields.size()];
         for (int i = 0; i < avroOutputFields.size(); i++) {
           if (avroOutputFields.get(i).validate()) {
-            data.fieldnrs[i] = data.outputRowMeta.indexOfValue(avroOutputFields.get(i).getName());
-            if (data.fieldnrs[i] < 0) {
+            data.fieldNrs[i] = data.outputRowMeta.indexOfValue(avroOutputFields.get(i).getName());
+            if (data.fieldNrs[i] < 0) {
               throw new HopException(
                   "Field ["
                       + avroOutputFields.get(i).getName()
@@ -359,25 +318,9 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
 
     if (r == null) {
       // no more input to be expected...
-      if (meta.getOutputType()
-          .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_FIELD])) {
-        try {
-          data.binaryEncoder = null;
-          data.jsonEncoder = null;
-          if (data.byteArrayOutputStream != null) {
-            data.byteArrayOutputStream.close();
-          }
-          data.encoderFactory = null;
-        } catch (Exception ex) {
-          throw new HopException("Error cleaning up transform", ex);
-        }
-      } else if (meta.getOutputType()
-          .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_BINARY_FILE])) {
-        closeFile();
-      }
+      closeOutput();
       setOutputDone();
-      data.datumWriter = null;
-      data.avroSchema = null;
+
       return false;
     }
 
@@ -421,6 +364,71 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
     }
 
     return result;
+  }
+
+  private void createFileAndSchema() throws HopException {
+    try {
+      if (meta.isCreateSchemaFile()) {
+        logDetailed("Generating Avro schema.");
+        writeSchemaFile();
+      } else {
+        logDetailed("Reading Avro schema from file.");
+        try {
+          data.avroSchema = new Schema.Parser().parse(new File(meta.getSchemaFileName()));
+        } catch (Exception e) {
+          logError("Error parsing schema file", e);
+        }
+      }
+      data.datumWriter = new GenericDatumWriter<>(data.avroSchema);
+
+      if (meta.getOutputType()
+          .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_FIELD])) {
+        data.encoderFactory = new EncoderFactory();
+        data.byteArrayOutputStream = new ByteArrayOutputStream();
+        data.binaryEncoder = data.encoderFactory.binaryEncoder(data.byteArrayOutputStream, null);
+      } else if (meta.getOutputType()
+          .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_BINARY_FILE])) {
+        data.dataFileWriter = new DataFileWriter<>(data.datumWriter);
+        if (!Utils.isEmpty(meta.getCompressionType())
+            && !meta.getCompressionType().equalsIgnoreCase("none")) {
+          data.dataFileWriter.setCodec(CodecFactory.fromString(meta.getCompressionType()));
+        }
+
+        openNewFile(meta.getFileName());
+        data.dataFileWriter.create(data.avroSchema, data.writer);
+      } else if (meta.getOutputType()
+          .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_JSON_FIELD])) {
+        data.encoderFactory = new EncoderFactory();
+        data.byteArrayOutputStream = new ByteArrayOutputStream();
+        data.jsonEncoder =
+            data.encoderFactory.jsonEncoder(data.avroSchema, data.byteArrayOutputStream);
+      } else {
+        throw new HopException("Invalid output type " + meta.getOutputType());
+      }
+    } catch (IOException ex) {
+      throw new HopException("Could not open Avro writer", ex);
+    }
+  }
+
+  private void closeOutput() throws HopException {
+    if (meta.getOutputType()
+        .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_FIELD])) {
+      try {
+        data.binaryEncoder = null;
+        data.jsonEncoder = null;
+        if (data.byteArrayOutputStream != null) {
+          data.byteArrayOutputStream.close();
+        }
+        data.encoderFactory = null;
+      } catch (Exception ex) {
+        throw new HopException("Error cleaning up transform", ex);
+      }
+    } else if (meta.getOutputType()
+        .equals(AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_BINARY_FILE])) {
+      closeFile();
+    }
+    data.datumWriter = null;
+    data.avroSchema = null;
   }
 
   public Object getValue(
@@ -481,9 +489,15 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
     return field.schema();
   }
 
-  public String buildFilename(String filename, boolean ziparchive) {
+  public String buildFilename(String filename) {
     return meta.buildFilename(
-        filename, this, getCopy(), getPartitionId(), data.splitnr, ziparchive, meta);
+        filename,
+        this,
+        getCopy(),
+        getPartitionId(),
+        data.isBeamContext(),
+        log.getLogChannelId(),
+        data.getBeamBundleNr());
   }
 
   public void openNewFile(String baseFilename) throws HopException {
@@ -493,7 +507,7 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
 
     data.writer = null;
 
-    String filename = buildFilename(resolve(baseFilename), true);
+    String filename = buildFilename(resolve(baseFilename));
 
     try {
       // Check for parent folder creation only if the user asks for it
@@ -515,8 +529,6 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
     } catch (Exception e) {
       throw new HopException("Error opening new file : " + e.toString());
     }
-
-    data.splitnr++;
 
     if (meta.isAddToResultFilenames()) {
       // Add this to the result file names...
@@ -570,9 +582,8 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
   public boolean init() {
 
     if (super.init()) {
-      data.splitnr = 0;
       try {
-        openNewFile(meta.getFileName());
+
       } catch (Exception e) {
         logError("Couldn't open file " + meta.getFileName(), e);
         setErrors(1L);
@@ -595,6 +606,25 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
     data.avroSchema = null;
 
     super.dispose();
+  }
+
+  @Override
+  public void startBundle() throws HopException {
+    if (!first) {
+      createFileAndSchema();
+    }
+  }
+
+  @Override
+  public void batchComplete() throws HopException {
+    if (!data.isBeamContext()) {
+      closeOutput();
+    }
+  }
+
+  @Override
+  public void finishBundle() throws HopException {
+    closeOutput();
   }
 
   private void createParentFolder(String filename) throws Exception {

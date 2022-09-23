@@ -70,6 +70,12 @@ Here is the documentation for the relevant plugins:
 |2.38.0
 |3.1.3 (scala 2.12)
 |1.14.4 (scala 2.11)
+
+|2.1.0
+|2.41.0
+|3.3.0 (scala 2.12)
+|1.15.2
+
 |===
 
 == How are my pipelines executed?
@@ -78,6 +84,8 @@ An Apache Hop pipeline is just metadata.
 The various beam pipeline engine plugins look at this metadata one transform at a time.
 It decides what to do with it based on a Hop transform handler which is provided.
 The transforms are in general split into a different types described below.
+
+Important to remember is that Beam pipelines try to solve every action in an 'embarrassingly parallel' way. This means that every transform can and usually will run in more than 1 copy.  On large clusters you should expect a lot of copies of the same code to run at any given time.
 
 === Beam specific transforms
 
@@ -146,10 +154,11 @@ You'll see the following in for example your Dataflow pipeline: `Create.Values` 
 image:beam-getting-started-input-transforms-on-dataflow.png[Non-Beam input transforms on Dataflow,width=30%]
 
 |Non-Beam Output transforms
-|The insistence of a Beam pipeline to run work in parallel can also trip you up on the output side.
-In rare cases maybe you don't want a server to be bombarded by dozens of inbound connections.
-To limit the amount of output copies you can include *`SINGLE_BEAM`* in the number of copies value of a transform (click on the transform and select `Number of copies` in the Hop GUI).
-This will do a GroupBy exercise over all records to iterate over those and force a single thread.
+|The insistence of a Beam pipeline to run work in an embarrassingly parallel way can trip you up on the output side.  In general, it is NOT possible to limit the number of copies of a particular transform.  What Hop tries to do is perform a series of operations to try and force a single thread.  However, this does not work on all runners.  Flink for example insists on doing even this in parallel: `GroupByKey(Void)` -> `Values()` -> `Flatten()`.
+
+You can set the number of copies string of a transform to include *`SINGLE_BEAM`* (click on the transform and select `Number of copies` in the Hop GUI).
+
+A better way to deal with this problem is NOT to insist on creating a single file.  You can include the unique ID of a transform in the filename with variable `${Internal.Transform.ID}`.  This will allow the various transform copies to write unique files to the same folder.
 
 |Row batching with non-Beam transforms
 |A lot of target databases like to receive rows in batches of records.

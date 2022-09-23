@@ -176,11 +176,11 @@ public class TextFileOutputMetaTest {
     meta.setSplitEveryRows("${splitVar}");
     IVariables varSpace = new Variables();
     assertEquals(0, meta.getSplitEvery(varSpace));
-    String fileName = meta.buildFilename("foo", "txt2", varSpace, 0, null, 3, false, meta);
+    String fileName = meta.buildFilename("foo", "txt2", varSpace, 0, null, 3, false, null, 0, false, meta);
     assertEquals("foo.txt2", fileName);
     varSpace.setVariable("splitVar", "2");
     assertEquals(2, meta.getSplitEvery(varSpace));
-    fileName = meta.buildFilename("foo", "txt2", varSpace, 0, null, 5, false, meta);
+    fileName = meta.buildFilename("foo", "txt2", varSpace, 0, null, 5, false, null, 0, false, meta);
     assertEquals("foo_5.txt2", fileName);
   }
 
