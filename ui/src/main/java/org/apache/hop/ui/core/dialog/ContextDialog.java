@@ -436,12 +436,26 @@ public class ContextDialog extends Dialog {
     if (location != null) {
       /*Adapt to the monitor */
       Monitor monitor = shell.getMonitor();
+      boolean fitOtherMonitors = false;
+      for(Monitor monitorCheck : shell.getDisplay().getMonitors()) {
+        org.eclipse.swt.graphics.Rectangle displayPositionCheck = monitorCheck.getBounds();
+        if (((location.x - displayPositionCheck.x) <= monitorCheck.getClientArea().width - width)
+            && (location.y - displayPositionCheck.y <= monitorCheck.getClientArea().height - height)
+                ) {
+          fitOtherMonitors = true;
+          break;
+        }
+        if (monitorCheck.getClientArea().contains(location.x, location.y)) {
+          monitor = monitorCheck;
+        }
+      }
       org.eclipse.swt.graphics.Rectangle displayPosition = monitor.getBounds();
-      if ((location.x - displayPosition.x) > monitor.getClientArea().width - width)
-        location.x = (monitor.getClientArea().width + displayPosition.x) - width;
-      if (location.y - displayPosition.y > monitor.getClientArea().height - height)
-        location.y = (monitor.getClientArea().height + displayPosition.y) - height;
-
+      if (!fitOtherMonitors) {
+        if ((location.x - displayPosition.x) > monitor.getClientArea().width - width)
+          location.x = (monitor.getClientArea().width + displayPosition.x) - width;
+        if (location.y - displayPosition.y > monitor.getClientArea().height - height)
+          location.y = (monitor.getClientArea().height + displayPosition.y) - height;
+      }
       shell.setSize(width, height);
       shell.setLocation(location.x, location.y);
     } else {
