@@ -34,16 +34,14 @@ import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 
 public class AvroOutputData extends BaseTransformData implements ITransformData {
-  public int splitnr;
+  public int splitNr;
 
-  public int[] fieldnrs;
+  public int[] fieldNrs;
 
   public SimpleDateFormat daf;
   public DateFormatSymbols dafs;
 
   public OutputStream writer;
-
-  public OutputStream schemaWriter;
 
   public SimpleDateFormat defaultDateFormat;
   public DateFormatSymbols defaultDateFormatSymbols;

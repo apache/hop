@@ -41,7 +41,7 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>parking/customers-noheader-1k.txt</from>
+      <from>input/customers-noheader-1k.txt</from>
       <to>FL and CA</to>
       <enabled>Y</enabled>
     </hop>
@@ -63,6 +63,11 @@ limitations under the License.
     <hop>
       <from>FL and CA</from>
       <to>customers-fl-ca.parquet</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>FL and CA</from>
+      <to>customers-ca-fl.avro</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -103,8 +108,103 @@ limitations under the License.
     </compare>
     <attributes/>
     <GUI>
-      <xloc>336</xloc>
+      <xloc>304</xloc>
       <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>customers-ca-fl.avro</name>
+    <type>AvroOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>SINGLE_BEAM</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <add_to_result_filenames>Y</add_to_result_filenames>
+    <compressiontype>snappy</compressiontype>
+    <create_parent_folder>Y</create_parent_folder>
+    <create_schema_file>Y</create_schema_file>
+    <add_date>N</add_date>
+    <filename>${java.io.tmpdir}/0005/customers-ca-fl.avro</filename>
+    <namespace>customers</namespace>
+    <output_field_name>avro_record</output_field_name>
+    <fields>
+      <field>
+        <avroname>$.id</avroname>
+        <avrotype>5</avrotype>
+        <name>id</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.lastName</avroname>
+        <avrotype>6</avrotype>
+        <name>Last name</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.firstName</avroname>
+        <avrotype>6</avrotype>
+        <name>First name</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.zipCode</avroname>
+        <avrotype>6</avrotype>
+        <name>cust_zip_code</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.city</avroname>
+        <avrotype>6</avrotype>
+        <name>city</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.birthdate</avroname>
+        <avrotype>6</avrotype>
+        <name>birthdate</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.street</avroname>
+        <avrotype>6</avrotype>
+        <name>street</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.housenr</avroname>
+        <avrotype>6</avrotype>
+        <name>housenr</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.stateCode</avroname>
+        <avrotype>6</avrotype>
+        <name>stateCode</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.state</avroname>
+        <avrotype>6</avrotype>
+        <name>state</name>
+        <nullable>Y</nullable>
+      </field>
+    </fields>
+    <output_type>BinaryFile</output_type>
+    <haspartno>N</haspartno>
+    <recordname>customer</recordname>
+    <schemafilename>${java.io.tmpdir}/0005/customers-ca-fl.avsc</schemafilename>
+    <SpecifyFormat>N</SpecifyFormat>
+    <add_time>N</add_time>
+    <split>N</split>
+    <write_schema_file>N</write_schema_file>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>256</yloc>
     </GUI>
   </transform>
   <transform>
@@ -272,7 +372,7 @@ limitations under the License.
     </fields>
     <attributes/>
     <GUI>
-      <xloc>720</xloc>
+      <xloc>784</xloc>
       <yloc>112</yloc>
     </GUI>
   </transform>
@@ -348,8 +448,8 @@ limitations under the License.
     <transformNrInFilename>N</transformNrInFilename>
     <attributes/>
     <GUI>
-      <xloc>624</xloc>
-      <yloc>144</yloc>
+      <xloc>688</xloc>
+      <yloc>160</yloc>
     </GUI>
   </transform>
   <transform>
@@ -464,7 +564,7 @@ limitations under the License.
     </template>
     <attributes/>
     <GUI>
-      <xloc>816</xloc>
+      <xloc>880</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
@@ -538,12 +638,12 @@ limitations under the License.
     <version>2.0</version>
     <attributes/>
     <GUI>
-      <xloc>512</xloc>
-      <yloc>176</yloc>
+      <xloc>592</xloc>
+      <yloc>208</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>parking/customers-noheader-1k.txt</name>
+    <name>input/customers-noheader-1k.txt</name>
     <type>BeamInput</type>
     <description/>
     <distribute>Y</distribute>
@@ -557,7 +657,7 @@ limitations under the License.
     <input_location>${PROJECT_HOME}/input/customers-noheader-1k.txt</input_location>
     <attributes/>
     <GUI>
-      <xloc>144</xloc>
+      <xloc>128</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
