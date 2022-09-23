@@ -50,9 +50,10 @@ import java.util.List;
     keywords = "i18n::AvroFileOutputMeta.keyword")
 public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData> {
 
-  private static final Class<?> PKG = AvroOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      AvroOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
-  public static final String[] compressionTypes = {"none", "deflate", "snappy" , "bzip2"};
+  public static final String[] compressionTypes = {"none", "deflate", "snappy", "bzip2"};
 
   public static final String[] OUTPUT_TYPES = {"BinaryFile", "BinaryField", "JsonField"};
   public static final int OUTPUT_TYPE_BINARY_FILE = 0;
@@ -105,17 +106,18 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
       injectionKeyDescription = "AvroOutput.Injection.CREATE_PARENT_FOLDER")
   private boolean createParentFolder = true;
 
-  /** Flag: add the transformne in the filename */
+  /** Flag: add the transform copy number in the filename */
   @HopMetadataProperty(
       key = "split",
-      injectionKeyDescription = "AvroOutput.Injection.INCLUDE_STEPNR")
+      injectionKeyDescription = "AvroOutput.Injection.INCLUDE_TRANSFORM_NR")
   private boolean transformNrInFilename;
 
   /** Flag: add the partition number in the filename */
   @HopMetadataProperty(
       key = "haspartno",
-      injectionKeyDescription = "AvroOutput.Injection.INCLUDE_PARTNR")
+      injectionKeyDescription = "AvroOutput.Injection.INCLUDE_PART_NR")
   private boolean partNrInFilename;
+
 
   /** Flag: add the date in the filename */
   @HopMetadataProperty(
@@ -433,60 +435,57 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
   }
 
   public String buildFilename(
-      IVariables space, int transformnr, String partnr, int splitnr, boolean ziparchive) {
-    return buildFilename(fileName, space, transformnr, partnr, splitnr, ziparchive, this);
-  }
-
-  public String buildFilename(
-      String filename,
+      String baseFilename,
       IVariables space,
-      int transformnr,
-      String partnr,
-      int splitnr,
-      boolean ziparchive,
-      AvroOutputMeta meta) {
+      int transformNr,
+      String partNr,
+      boolean beamContext,
+      String transformId,
+      int bundleNr) {
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
-    String realFileName = space.resolve(filename);
+    String realBaseFileName = space.resolve(baseFilename);
     String extension = "";
-    String retval = "";
-    if (realFileName.contains(".")) {
-      retval = realFileName.substring(0, realFileName.lastIndexOf("."));
-      extension = realFileName.substring(realFileName.lastIndexOf(".") + 1);
+    String filename = "";
+    if (realBaseFileName.contains(".")) {
+      filename = realBaseFileName.substring(0, realBaseFileName.lastIndexOf("."));
+      extension = realBaseFileName.substring(realBaseFileName.lastIndexOf(".") + 1);
     } else {
-      retval = realFileName;
+      filename = realBaseFileName;
     }
 
     Date now = new Date();
 
-    if (meta.isSpecifyingFormat() && !Utils.isEmpty(meta.getDateTimeFormat())) {
-      daf.applyPattern(meta.getDateTimeFormat());
+    if (isSpecifyingFormat() && !Utils.isEmpty(getDateTimeFormat())) {
+      daf.applyPattern(getDateTimeFormat());
       String dt = daf.format(now);
-      retval += dt;
+      filename += dt;
     } else {
-      if (meta.isDateInFilename()) {
+      if (isDateInFilename()) {
         daf.applyPattern("yyyMMdd");
         String d = daf.format(now);
-        retval += "_" + d;
+        filename += "_" + d;
       }
-      if (meta.isTimeInFilename()) {
+      if (isTimeInFilename()) {
         daf.applyPattern("HHmmss");
         String t = daf.format(now);
-        retval += "_" + t;
+        filename += "_" + t;
       }
     }
-    if (meta.isTransformNrInFilename()) {
-      retval += "_" + transformnr;
+    if (isTransformNrInFilename()) {
+      filename += "_" + transformNr;
     }
-    if (meta.isPartNrInFilename()) {
-      retval += "_" + partnr;
+    if (isPartNrInFilename()) {
+      filename += "_" + partNr;
     }
-
-    if (extension != null && extension.length() != 0) {
-      retval += "." + extension;
+    if (beamContext) {
+      filename += "_" + transformId + "_" + bundleNr;
     }
-    return retval;
+    if (extension.length() != 0) {
+      filename += "." + extension;
+    }
+    return filename;
   }
 
   @Override

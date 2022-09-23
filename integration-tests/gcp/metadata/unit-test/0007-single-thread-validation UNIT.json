@@ -150,6 +150,55 @@
       ],
       "transform_name": "parquet",
       "data_set_name": "0007-single-thread-golden"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "firstName",
+          "data_set_field": "firstName"
+        },
+        {
+          "transform_field": "lastName",
+          "data_set_field": "lastName"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "zipCode",
+          "data_set_field": "zipCode"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "avro",
+      "data_set_name": "0007-single-thread-golden"
     }
   ],
   "input_data_sets": [],
