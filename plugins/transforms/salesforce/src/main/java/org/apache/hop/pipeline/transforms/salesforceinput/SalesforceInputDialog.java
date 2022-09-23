@@ -1193,7 +1193,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "SalesforceInputDialog.FieldsTable.Format.Column"),
               ColumnInfo.COLUMN_TYPE_FORMAT,
-              3),
+              4),
           new ColumnInfo(
               BaseMessages.getString(PKG, "SalesforceInputDialog.FieldsTable.Length.Column"),
               ColumnInfo.COLUMN_TYPE_TEXT,

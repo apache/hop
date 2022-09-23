@@ -245,8 +245,8 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
               false),
           new ColumnInfo(
               BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Format"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              Const.getDateFormats()),
+              ColumnInfo.COLUMN_TYPE_FORMAT,
+              4),
           new ColumnInfo(
               BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Group"),
               ColumnInfo.COLUMN_TYPE_TEXT,

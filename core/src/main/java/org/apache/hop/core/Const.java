@@ -17,6 +17,7 @@
 
 package org.apache.hop.core;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -2364,16 +2365,7 @@ public class Const {
    * @return An array of all default conversion formats, to be used in dialogs etc.
    */
   public static String[] getConversionFormats() {
-    String[] dats = Const.getDateFormats();
-    String[] nums = Const.getNumberFormats();
-    int totsize = dats.length + nums.length;
-    String[] formats = new String[totsize];
-    System.arraycopy(dats, 0, formats, 0, dats.length);
-    for (int x = 0; x < nums.length; x++) {
-      formats[dats.length + x] = nums[x];
-    }
-
-    return formats;
+    return (String[]) ArrayUtils.addAll(Const.getDateFormats(), Const.getNumberFormats());
   }
 
   /**

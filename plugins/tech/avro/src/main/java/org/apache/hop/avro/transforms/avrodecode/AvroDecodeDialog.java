@@ -180,9 +180,8 @@ public class AvroDecodeDialog extends BaseTransformDialog implements ITransformD
               false),
           new ColumnInfo(
               BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.TargetFormat"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              Const.getConversionFormats(),
-              false),
+              ColumnInfo.COLUMN_TYPE_FORMAT,
+              4),
           new ColumnInfo(
               BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.TargetLength"),
               ColumnInfo.COLUMN_TYPE_TEXT,

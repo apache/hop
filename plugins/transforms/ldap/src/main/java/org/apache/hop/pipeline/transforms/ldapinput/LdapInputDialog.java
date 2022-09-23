@@ -1019,7 +1019,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
           new ColumnInfo(
               BaseMessages.getString(PKG, "LdapInputDialog.FieldsTable.Format.Column"),
               ColumnInfo.COLUMN_TYPE_FORMAT,
-              3),
+              5),
           new ColumnInfo(
               BaseMessages.getString(PKG, "LdapInputDialog.FieldsTable.Length.Column"),
               ColumnInfo.COLUMN_TYPE_TEXT,

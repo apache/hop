@@ -1002,8 +1002,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
               true),
           new ColumnInfo(
               BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Format.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              Const.getDateFormats()),
+              ColumnInfo.COLUMN_TYPE_FORMAT,
+              5),
           new ColumnInfo(
               BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Length.Column"),
               ColumnInfo.COLUMN_TYPE_TEXT,

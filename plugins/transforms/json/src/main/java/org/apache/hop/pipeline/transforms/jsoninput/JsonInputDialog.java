@@ -393,8 +393,8 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
               true),
           new ColumnInfo(
               BaseMessages.getString(PKG, "JsonInputDialog.FieldsTable.Format.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              Const.getConversionFormats()),
+              ColumnInfo.COLUMN_TYPE_FORMAT,
+              3),
           new ColumnInfo(
               BaseMessages.getString(PKG, "JsonInputDialog.FieldsTable.Length.Column"),
               ColumnInfo.COLUMN_TYPE_TEXT,
