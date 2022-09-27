@@ -83,7 +83,10 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
 
   public RowGeneratorMeta() {
     fields = new ArrayList<>();
+  }
 
+  @Override
+  public void setDefault() {
     rowLimit = "10";
     neverEnding = false;
     intervalInMs = "5000";
