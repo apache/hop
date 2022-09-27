@@ -45,6 +45,8 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormLayout;
@@ -58,10 +60,14 @@ import java.util.function.Consumer;
 /** A base dialog class containing a body and a configurable button panel. */
 public abstract class BaseDialog extends Dialog {
   private static final Class<?> PKG = BaseDialog.class; // For Translator
-  
-  @Variable(scope=VariableScope.APPLICATION, value="N", description="Set this value to 'Y' if you want to use the system file open/save dialog when browsing files.")
+
+  @Variable(
+      scope = VariableScope.APPLICATION,
+      value = "N",
+      description =
+          "Set this value to 'Y' if you want to use the system file open/save dialog when browsing files.")
   public static final String HOP_USE_NATIVE_FILE_DIALOG = "HOP_USE_NATIVE_FILE_DIALOG";
-  
+
   public static final int MARGIN_SIZE = 15;
   public static final int LABEL_SPACING = 5;
   public static final int ELEMENT_SPACING = 10;
@@ -179,7 +185,8 @@ public abstract class BaseDialog extends Dialog {
       String[] filterNames,
       boolean folderAndFile) {
 
-    boolean useNativeFileDialog = HopGui.getInstance().getVariables().getVariableBoolean(HOP_USE_NATIVE_FILE_DIALOG, false);
+    boolean useNativeFileDialog =
+        HopGui.getInstance().getVariables().getVariableBoolean(HOP_USE_NATIVE_FILE_DIALOG, false);
 
     IFileDialog dialog;
 
@@ -463,6 +470,10 @@ public abstract class BaseDialog extends Dialog {
     //
     addDefaultListeners(shell, okConsumer);
 
+    // Set default icons on tab items to make them more manageable.
+    //
+    setDefaultIconsOnTabs(shell);
+
     // Set the size as well...
     //
     BaseTransformDialog.setSize(shell);
@@ -477,6 +488,25 @@ public abstract class BaseDialog extends Dialog {
     while (!shell.isDisposed()) {
       if (!display.readAndDispatch()) {
         display.sleep();
+      }
+    }
+  }
+
+  public static void setDefaultIconsOnTabs(Composite composite) {
+    if (composite == null || composite.isDisposed()) {
+      return;
+    }
+
+    for (Control control : composite.getChildren()) {
+      // Some of these are composites so check first
+      //
+      if (control instanceof CTabFolder) {
+        CTabFolder tabFolder = (CTabFolder) control;
+        for (CTabItem item : tabFolder.getItems()) {
+          if (item.getImage() == null) {
+            item.setImage(GuiResource.getInstance().getImageHop());
+          }
+        }
       }
     }
   }

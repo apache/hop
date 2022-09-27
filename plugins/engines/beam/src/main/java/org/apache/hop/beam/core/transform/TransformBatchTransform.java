@@ -27,7 +27,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
-import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -42,6 +42,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.execution.ExecutionDataBuilder;
 import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -190,7 +191,6 @@ public class TransformBatchTransform extends TransformTransform {
     protected String metastoreJson;
     protected List<String> transformPluginClasses;
     protected List<String> xpPluginClasses;
-    protected String transformName;
     protected String transformPluginId;
     protected String transformMetaInterfaceXml;
     protected String inputRowMetaJson;
@@ -317,7 +317,11 @@ public class TransformBatchTransform extends TransformTransform {
             if (executionInfoTimer != null) {
               executionInfoTimer.cancel();
             }
-            sendSamplesToLocation();
+            sendSamplesToLocation(true);
+
+            // Close the location
+            //
+            executionInfoLocation.getExecutionInfoLocation().close();
           }
         }
       } catch (Exception e) {
@@ -328,11 +332,14 @@ public class TransformBatchTransform extends TransformTransform {
       }
     }
 
-    protected void sendSamplesToLocation() throws HopException {
+    protected void sendSamplesToLocation(boolean finished) throws HopException {
       ExecutionDataBuilder dataBuilder =
-          ExecutionDataBuilder.anExecutionData()
+          ExecutionDataBuilder.of()
               .withOwnerId(executor.getPipeline().getLogChannelId())
-              .withParentId(parentLogChannelId);
+              .withParentId(parentLogChannelId)
+              .withCollectionDate(new Date())
+              .withFinished(finished)
+              .withExecutionType(ExecutionType.Transform);
       for (IExecutionDataSamplerStore store : dataSamplerStores) {
         dataBuilder =
             dataBuilder.addDataSets(store.getSamples()).addSetMeta(store.getSamplesMetadata());
@@ -475,7 +482,7 @@ public class TransformBatchTransform extends TransformTransform {
             pipelineMeta.addPipelineHop(new PipelineHopMeta(infoTransformMeta, transformMeta));
           }
 
-          lookupExecutionInformation(metadataProvider);
+          lookupExecutionInformation(variables, metadataProvider);
 
           iTransformMeta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
 
@@ -834,7 +841,4 @@ public class TransformBatchTransform extends TransformTransform {
           "Configuration error, transform '" + transformName + "' not found in transformation");
     }
   }
-
-
-
 }

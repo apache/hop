@@ -156,8 +156,8 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
         case TYPE_SYSTEM_INFO_SYSTEM_DATE:
         case TYPE_SYSTEM_INFO_PIPELINE_DATE_FROM:
         case TYPE_SYSTEM_INFO_PIPELINE_DATE_TO:
-        case TYPE_SYSTEM_INFO_JOB_DATE_FROM:
-        case TYPE_SYSTEM_INFO_JOB_DATE_TO:
+        case TYPE_SYSTEM_INFO_WORKFLOW_DATE_FROM:
+        case TYPE_SYSTEM_INFO_WORKFLOW_DATE_TO:
         case TYPE_SYSTEM_INFO_PREV_DAY_START:
         case TYPE_SYSTEM_INFO_PREV_DAY_END:
         case TYPE_SYSTEM_INFO_THIS_DAY_START:

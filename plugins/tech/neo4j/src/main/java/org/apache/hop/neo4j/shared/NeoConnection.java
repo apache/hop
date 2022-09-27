@@ -108,14 +108,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     automatic = true;
   }
 
-  public NeoConnection(IVariables parent) {
-    this();
-    usingEncryption = true;
-    trustAllCertificates = false;
-  }
-
-  public NeoConnection(IVariables parent, NeoConnection source) {
-    this(parent);
+  public NeoConnection(NeoConnection source) {
     this.name = source.name;
     this.server = source.server;
     this.boltPort = source.boltPort;
@@ -139,6 +132,8 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     this.version4Variable = source.version4Variable;
     this.automatic = source.automatic;
     this.automaticVariable = source.automaticVariable;
+    this.manualUrls = new ArrayList<>();
+    this.manualUrls.addAll(source.manualUrls);
   }
 
   @Override

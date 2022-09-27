@@ -37,6 +37,7 @@ import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.execution.*;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -87,7 +88,8 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   public static final String TOOLBAR_ITEM_GO_UP = "WorkflowExecutionViewer-Toolbar-11300-GoUp";
 
   protected final WorkflowMeta workflowMeta;
-  protected final ExecutionInfoLocation location;
+  protected final String locationName;
+  protected final ExecutionPerspective perspective;
   protected final Execution execution;
 
   protected ActionMeta selectedAction;
@@ -108,11 +110,13 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       Composite parent,
       HopGui hopGui,
       WorkflowMeta workflowMeta,
-      ExecutionInfoLocation location,
+      String locationName,
+      ExecutionPerspective perspective,
       Execution execution) {
     super(parent, hopGui);
     this.workflowMeta = workflowMeta;
-    this.location = location;
+    this.locationName = locationName;
+    this.perspective = perspective;
     this.execution = execution;
 
     actionExecutions = new HashMap<>();
@@ -162,6 +166,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     canvas.addPaintListener(this);
     canvas.addMouseListener(this);
     canvas.addMouseMoveListener(this);
+    canvas.addKeyListener(this);
 
     // The execution information tabs at the bottom
     //
@@ -210,6 +215,10 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     try {
       infoView.clearAll();
 
+      ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
+      if (location == null) {
+        return;
+      }
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
       ExecutionState state = iLocation.getExecutionState(execution.getId());
@@ -220,12 +229,13 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       // Calculate information staleness
       //
       String statusDescription = state.getStatusDescription();
-      if ("Running".equals(statusDescription)) {
+      if (Pipeline.STRING_RUNNING.equalsIgnoreCase(statusDescription)
+          || Pipeline.STRING_INITIALIZING.equalsIgnoreCase(statusDescription)) {
         long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
         if (System.currentTimeMillis() - state.getUpdateTime().getTime() > loggingInterval) {
           // The information is stale, not getting updates!
           //
-          TableItem item = infoView.add("Update state", "Stale");
+          TableItem item = infoView.add("Update state", STRING_STATE_STALE);
           item.setBackground(GuiResource.getInstance().getColorLightBlue());
           item.setForeground(GuiResource.getInstance().getColorWhite());
         }
@@ -251,19 +261,23 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       // Cache the information of all the executed actions...
       //
       actionExecutions.clear();
-      for (String id : iLocation.findChildIds(ExecutionType.Workflow, execution.getId())) {
-        ExecutionData actionData = iLocation.getExecutionData(execution.getId(), id);
+      List<String> childIds = iLocation.findChildIds(ExecutionType.Workflow, execution.getId());
+      if (childIds != null) {
+        for (String id : childIds) {
+          ExecutionData actionData = iLocation.getExecutionData(execution.getId(), id);
 
-        ExecutionDataSetMeta dataSetMeta = actionData.getDataSetMeta();
-        String actionName = dataSetMeta.getName();
+          ExecutionDataSetMeta dataSetMeta = actionData.getDataSetMeta();
+          if (dataSetMeta != null) {
+            String actionName = dataSetMeta.getName();
 
-        // Add this one under that name
-        //
-        List<ExecutionData> executionDataList =
-            actionExecutions.computeIfAbsent(actionName, k -> new ArrayList<>());
-        executionDataList.add(actionData);
+            // Add this one under that name
+            //
+            List<ExecutionData> executionDataList =
+                actionExecutions.computeIfAbsent(actionName, k -> new ArrayList<>());
+            executionDataList.add(actionData);
+          }
+        }
       }
-
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error refreshing pipeline status", e);
     }
@@ -278,7 +292,9 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
     // The list of available data on the left-hand side.
     //
-    dataList = new org.eclipse.swt.widgets.List(dataSash, SWT.SINGLE | SWT.LEFT | SWT.V_SCROLL | SWT.H_SCROLL);
+    dataList =
+        new org.eclipse.swt.widgets.List(
+            dataSash, SWT.SINGLE | SWT.LEFT | SWT.V_SCROLL | SWT.H_SCROLL);
     dataList.addListener(SWT.Selection, e -> showDataRows());
 
     // An empty table view on the right.  This will be populated during a refresh.
@@ -566,6 +582,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   public void refresh() {
     refreshStatus();
     refreshActionData();
+    setFocus();
   }
 
   @GuiToolbarElement(
@@ -634,8 +651,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       // Ignore
     }
 
-    canvas.setFocus();
-    redraw();
+    refresh();
   }
 
   /**
@@ -656,9 +672,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   public String getLogChannelId() {
     return execution.getId();
   }
-
-  @Override
-  public void mouseDoubleClick(MouseEvent e) {}
 
   @Override
   public void mouseDown(MouseEvent e) {
@@ -740,8 +753,26 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   @Override
   public void mouseUp(MouseEvent e) {}
 
-  @Override
-  public void mouseMove(MouseEvent e) {}
+  public void drillDownOnHover() {
+    if (currentMouseLocation == null) {
+      return;
+    }
+    AreaOwner areaOwner = getVisibleAreaOwner(currentMouseLocation.x, currentMouseLocation.y);
+    if (areaOwner == null) {
+      return;
+    }
+
+    if (areaOwner.getAreaType() == AreaOwner.AreaType.ACTION_ICON) {
+      // Show the data for this action
+      //
+      selectedAction = (ActionMeta) areaOwner.getOwner();
+      refreshActionData();
+
+      // Now drill down
+      //
+      drillDown();
+    }
+  }
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
@@ -753,11 +784,17 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       return;
     }
 
+    ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
+    if (location == null) {
+      return;
+    }
+    IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+
     // We need to look up a pipeline or workflow execution where the parent is the ID of the action
     //
     try {
       String id = selectedExecutionData.getOwnerId();
-      List<Execution> childExecutions = location.getExecutionInfoLocation().findChildExecutions(id);
+      List<Execution> childExecutions = iLocation.findExecutions(id);
       if (childExecutions.isEmpty()) {
         return;
       }
@@ -770,14 +807,12 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
         // Select the execution...
         //
         IRowMeta rowMeta =
-            new RowMetaBuilder()
-                .addString("Name")
-                .addString("Type")
-                .addDate("Start date")
-                .build();
+            new RowMetaBuilder().addString("Name").addString("Type").addDate("Start date").build();
         List<RowMetaAndData> rows = new ArrayList<>();
         for (Execution childExecution : childExecutions) {
-          rows.add(new RowMetaAndData(rowMeta,
+          rows.add(
+              new RowMetaAndData(
+                  rowMeta,
                   childExecution.getName(),
                   childExecution.getExecutionType().name(),
                   childExecution.getExecutionStartDate()));
@@ -787,12 +822,12 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
             new SelectRowDialog(
                 getShell(), hopGui.getVariables(), SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL, rows);
         RowMetaAndData selectedRow = dialog.open();
-        if (selectedRow==null) {
+        if (selectedRow == null) {
           // Operation is canceled
           return;
         }
         int index = rows.indexOf(selectedRow);
-        if (index<0) {
+        if (index < 0) {
           return;
         }
         child = childExecutions.get(index);
@@ -800,7 +835,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
       // Open this one
       //
-      HopGui.getExecutionPerspective().createExecutionViewer(location, child);
+      perspective.createExecutionViewer(locationName, child);
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error drilling down into selected action", e);
     }
@@ -818,19 +853,25 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
         return;
       }
 
+      ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
+      if (location == null) {
+        return;
+      }
+      IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+
       // This parent ID is the ID of the transform or action.
       // We need to find the parent of this child
       //
-      String grandParentId = location.getExecutionInfoLocation().findParentId(parentId);
+      String grandParentId = iLocation.findParentId(parentId);
       if (grandParentId == null) {
         return;
       }
 
-      Execution grandParent = location.getExecutionInfoLocation().getExecution(grandParentId);
+      Execution grandParent = iLocation.getExecution(grandParentId);
 
       // Open this one
       //
-      HopGui.getExecutionPerspective().createExecutionViewer(location, grandParent);
+      perspective.createExecutionViewer(locationName, grandParent);
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error navigating up to parent execution", e);
     }

@@ -18,13 +18,9 @@
 package org.apache.hop.beam.transforms.kinesis;
 
 import com.amazonaws.regions.Regions;
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.core.transform.BeamKafkaOutputTransform;
-import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.core.annotations.Transform;
@@ -33,7 +29,6 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;

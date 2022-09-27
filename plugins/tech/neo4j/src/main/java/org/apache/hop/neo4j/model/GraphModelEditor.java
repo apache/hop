@@ -834,7 +834,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       if (transformName == null) {
         return;
       }
-      IRowMeta inputRowMeta = pipelineMeta.getTransformFields(getVariables(), transformName);
+      IRowMeta inputRowMeta = pipelineMeta.getTransformFields(manager.getVariables(), transformName);
 
       String[] fieldNames = inputRowMeta.getFieldNames();
 

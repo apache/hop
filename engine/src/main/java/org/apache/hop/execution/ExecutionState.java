@@ -40,7 +40,7 @@ public class ExecutionState {
   private String name;
 
   /** The copy number of the transform update or null */
-  private Integer copyNr;
+  private String copyNr;
 
   /** The log lines for this particular executor */
   private String loggingText;
@@ -59,6 +59,8 @@ public class ExecutionState {
 
   /** The list of immediate child IDs for this execution */
   private List<String> childIds;
+
+  private boolean failed;
 
   public ExecutionState() {
     this.metrics = new ArrayList<>();
@@ -143,7 +145,7 @@ public class ExecutionState {
    *
    * @return value of copyNr
    */
-  public Integer getCopyNr() {
+  public String getCopyNr() {
     return copyNr;
   }
 
@@ -152,7 +154,7 @@ public class ExecutionState {
    *
    * @param copyNr value of copyNr
    */
-  public void setCopyNr(Integer copyNr) {
+  public void setCopyNr(String copyNr) {
     this.copyNr = copyNr;
   }
 
@@ -262,5 +264,23 @@ public class ExecutionState {
    */
   public void setChildIds(List<String> childIds) {
     this.childIds = childIds;
+  }
+
+  /**
+   * Gets failed
+   *
+   * @return value of failed
+   */
+  public boolean isFailed() {
+    return failed;
+  }
+
+  /**
+   * Sets failed
+   *
+   * @param failed value of failed
+   */
+  public void setFailed(boolean failed) {
+    this.failed = failed;
   }
 }

@@ -288,6 +288,10 @@ public class Const {
   public static final String INTERNAL_VARIABLE_WORKFLOW_ID =
           INTERNAL_VARIABLE_PREFIX + ".Workflow.ID";
 
+  /** The workflow parent ID */
+  public static final String INTERNAL_VARIABLE_WORKFLOW_PARENT_ID =
+          INTERNAL_VARIABLE_PREFIX + ".Workflow.ParentID";
+
   /** The current pipeline directory */
   public static final String INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER =
       INTERNAL_VARIABLE_PREFIX + ".Entry.Current.Folder";
@@ -323,6 +327,10 @@ public class Const {
   /** The pipeline ID */
   public static final String INTERNAL_VARIABLE_PIPELINE_ID =
           INTERNAL_VARIABLE_PREFIX + ".Pipeline.ID";
+
+  /** The pipeline parent ID */
+  public static final String INTERNAL_VARIABLE_PIPELINE_PARENT_ID =
+          INTERNAL_VARIABLE_PREFIX + ".Pipeline.ParentID";
 
   /** The transform partition ID */
   public static final String INTERNAL_VARIABLE_TRANSFORM_PARTITION_ID =

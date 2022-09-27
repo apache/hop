@@ -5393,10 +5393,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
       }
 
-      // Initialize the location.
-      location.getExecutionInfoLocation().initialize(variables, metadataProvider);
-
-      ep.createLastExecutionView(location, ExecutionType.Pipeline, pipelineMeta.getName());
+      ep.createLastExecutionView(location.getName(), ExecutionType.Pipeline, pipelineMeta.getName());
       ep.activate();
     } catch (Exception e) {
       new ErrorDialog(

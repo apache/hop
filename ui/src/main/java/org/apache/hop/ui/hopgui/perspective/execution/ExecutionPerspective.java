@@ -70,9 +70,7 @@ import org.eclipse.swt.widgets.*;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
 
 @HopPerspectivePlugin(
@@ -111,6 +109,8 @@ public class ExecutionPerspective implements IHopPerspective {
 
   private List<IExecutionViewer> viewers = new ArrayList<>();
 
+  private Map<String, ExecutionInfoLocation> locationMap;
+
   public ExecutionPerspective() {
     instance = this;
   }
@@ -129,6 +129,8 @@ public class ExecutionPerspective implements IHopPerspective {
 
   @Override
   public void perspectiveActivated() {
+    // Automatically refresh.
+    //
     this.refresh();
   }
 
@@ -145,6 +147,7 @@ public class ExecutionPerspective implements IHopPerspective {
   @Override
   public void initialize(HopGui hopGui, Composite parent) {
     this.hopGui = hopGui;
+    this.locationMap = new HashMap<>();
 
     // Split tree and tab folder
     //
@@ -342,10 +345,6 @@ public class ExecutionPerspective implements IHopPerspective {
     viewers.remove(viewer);
     tabItem.dispose();
 
-    // Refresh tree to remove bold
-    //
-    this.refresh();
-
     // If all editor are closed
     //
     if (tabFolder.getItemCount() == 0) {
@@ -367,7 +366,7 @@ public class ExecutionPerspective implements IHopPerspective {
           ExecutionInfoLocation location =
               (ExecutionInfoLocation) treeItem.getParentItem().getData();
 
-          createExecutionViewer(location, execution);
+          createExecutionViewer(location.getName(), execution);
         } else if (treeItem.getData("error") instanceof Exception) {
           Exception e = (Exception) treeItem.getData("error");
           new ErrorDialog(getShell(), "Error", "Location error:", e);
@@ -379,12 +378,12 @@ public class ExecutionPerspective implements IHopPerspective {
     }
   }
 
-  public void createExecutionViewer(ExecutionInfoLocation location, Execution execution)
+  public void createExecutionViewer(String locationName, Execution execution)
       throws Exception {
     Cursor busyCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_WAIT);
 
     try {
-      if (location == null || execution == null) {
+      if (locationName == null || execution == null) {
         return;
       }
       getShell().setCursor(busyCursor);
@@ -409,7 +408,8 @@ public class ExecutionPerspective implements IHopPerspective {
                 XmlHandler.loadXmlString(execution.getExecutorXml(), PipelineMeta.XML_TAG);
             PipelineMeta pipelineMeta = new PipelineMeta(pipelineNode, provider);
             PipelineExecutionViewer viewer =
-                new PipelineExecutionViewer(tabFolder, hopGui, pipelineMeta, location, execution);
+                new PipelineExecutionViewer(
+                    tabFolder, hopGui, pipelineMeta, locationName, this, execution);
             addViewer(viewer);
           }
           break;
@@ -419,7 +419,8 @@ public class ExecutionPerspective implements IHopPerspective {
                 XmlHandler.loadXmlString(execution.getExecutorXml(), WorkflowMeta.XML_TAG);
             WorkflowMeta workflowMeta = new WorkflowMeta(workflowNode, provider, variables);
             WorkflowExecutionViewer viewer =
-                new WorkflowExecutionViewer(tabFolder, hopGui, workflowMeta, location, execution);
+                new WorkflowExecutionViewer(
+                    tabFolder, hopGui, workflowMeta, locationName, this, execution);
             addViewer(viewer);
           }
           break;
@@ -438,13 +439,16 @@ public class ExecutionPerspective implements IHopPerspective {
    * @param name The name of the pipeline
    * @return The execution or null if none was found
    */
-  public void createLastExecutionView(
-      ExecutionInfoLocation location, ExecutionType executionType, String name) throws Exception {
+  public void createLastExecutionView(String locationName, ExecutionType executionType, String name) throws Exception {
     try {
+      ExecutionInfoLocation location = locationMap.get(locationName);
+      if (location==null) {
+        return;
+      }
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
       Execution execution = iLocation.findLastExecution(executionType, name);
-      createExecutionViewer(location, execution);
+      createExecutionViewer(location.getName(), execution);
 
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error opening view on last execution information", e);
@@ -472,7 +476,18 @@ public class ExecutionPerspective implements IHopPerspective {
   @GuiKeyboardShortcut(key = SWT.F5)
   @GuiOsxKeyboardShortcut(key = SWT.F5)
   public void refresh() {
+    Cursor busyCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_WAIT);
+
     try {
+      getShell().setCursor(busyCursor);
+
+      // If there are any cached locations we want to close them before initializing new ones
+      //
+      for (ExecutionInfoLocation location : locationMap.values()) {
+        location.getExecutionInfoLocation().close();
+      }
+      locationMap.clear();
+
       tree.setRedraw(false);
       tree.removeAll();
 
@@ -486,11 +501,15 @@ public class ExecutionPerspective implements IHopPerspective {
       Collections.sort(locations, Comparator.comparing(HopMetadataBase::getName));
 
       for (ExecutionInfoLocation location : locations) {
+        IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+
         // Initialize the location first...
         //
-        location
-            .getExecutionInfoLocation()
-            .initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
+        iLocation.initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
+
+        // Keep the location around to close at the next refresh.
+        //
+        locationMap.put(location.getName(), location);
 
         TreeItem locationItem = new TreeItem(tree, SWT.NONE);
         locationItem.setText(0, Const.NVL(location.getName(), ""));
@@ -502,7 +521,6 @@ public class ExecutionPerspective implements IHopPerspective {
 
           // Get the data in the location
           //
-          IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
           List<String> ids = iLocation.getExecutionIds(false, 100);
 
           // Display the executions
@@ -536,11 +554,14 @@ public class ExecutionPerspective implements IHopPerspective {
 
       tree.setRedraw(true);
     } catch (Exception e) {
+      getShell().setCursor(null);
       new ErrorDialog(
           getShell(),
           BaseMessages.getString(PKG, "ExecutionPerspective.Refresh.Error.Header"),
           BaseMessages.getString(PKG, "ExecutionPerspective.Refresh.Error.Message"),
           e);
+    } finally{
+      getShell().setCursor(null);
     }
   }
 
@@ -589,16 +610,6 @@ public class ExecutionPerspective implements IHopPerspective {
           if (editor.equals(item.getData())) {
             item.dispose();
           }
-        }
-
-        // Refresh tree to remove bold
-        //
-        this.refresh();
-
-        // If all editor are closed
-        //
-        if (tabFolder.getItemCount() == 0) {
-          HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
         }
       }
     }
@@ -656,5 +667,14 @@ public class ExecutionPerspective implements IHopPerspective {
   public List<ISearchable> getSearchables() {
     List<ISearchable> searchables = new ArrayList<>();
     return searchables;
+  }
+
+  /**
+   * Gets locationMap
+   *
+   * @return value of locationMap
+   */
+  public Map<String, ExecutionInfoLocation> getLocationMap() {
+    return locationMap;
   }
 }

@@ -1260,7 +1260,7 @@ public abstract class Pipeline
    */
   @Override
   public void firePipelineExecutionFinishedListeners() throws HopException {
-
+    log.logBasic("==> Fire finished listeners");
     synchronized (executionFinishedListeners) {
       if (executionFinishedListeners.size() == 0) {
         return;
@@ -1275,7 +1275,7 @@ public abstract class Pipeline
         }
       }
       if (pipelineWaitUntilFinishedBlockingQueue != null) {
-        // Signal for the the waitUntilFinished blocker...
+        // Signal for the waitUntilFinished blocker...
         pipelineWaitUntilFinishedBlockingQueue.add(new Object());
       }
       if (!badGuys.isEmpty()) {
@@ -2154,7 +2154,13 @@ public abstract class Pipeline
 
     // The ID of the pipeline (log channel ID)
     variables.setVariable(
-            Const.INTERNAL_VARIABLE_PIPELINE_ID, log!=null ? log.getLogChannelId() : "");
+        Const.INTERNAL_VARIABLE_PIPELINE_ID, log != null ? log.getLogChannelId() : "");
+
+    if (parent != null) {
+      this.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_PARENT_ID, parent.getLogChannelId());
+    } else {
+      this.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_PARENT_ID, null);
+    }
 
     // Here we don't clear the definition of the workflow specific parameters, as they may come in
     // handy.

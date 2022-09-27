@@ -38,6 +38,7 @@ import org.apache.hop.www.RegisterExecutionInfoServlet;
 import org.apache.http.client.utils.URIBuilder;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -74,8 +75,6 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   @HopMetadataProperty(key = "location")
   protected String locationName;
 
-  // TODO: push variables down to the locations
-  //
   private HopServer server;
   private ExecutionInfoLocation location;
   private IVariables variables;
@@ -112,6 +111,13 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
       validateSettings();
     } catch (Exception e) {
       throw new HopException("Error initializing remote execution information location", e);
+    }
+  }
+
+  @Override
+  public void close() throws HopException {
+    if (location != null) {
+      location.getExecutionInfoLocation().close();
     }
   }
 
@@ -246,7 +252,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public List<Execution> findChildExecutions(String parentExecutionId) throws HopException {
+  public List<Execution> findExecutions(String parentExecutionId) throws HopException {
     try {
       validateSettings();
       URI uri =
@@ -263,6 +269,41 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
       return Arrays.asList(executions);
     } catch (Exception e) {
       throw new HopException("Error getting execution state from remote location", e);
+    }
+  }
+
+  @Override
+  public List<Execution> findExecutions(IExecutionMatcher matcher) throws HopException {
+    try {
+      List<Execution> executions = new ArrayList<>();
+
+      for (String id : getExecutionIds(true, 0)) {
+        Execution execution = getExecution(id);
+        if (matcher.matches(execution)) {
+          executions.add(execution);
+        }
+      }
+      return executions;
+    } catch (Exception e) {
+      throw new HopException("Error finding executions with a matcher", e);
+    }
+  }
+
+  @Override
+  public Execution findPreviousSuccessfulExecution(ExecutionType executionType, String name)
+      throws HopException {
+    try {
+      List<Execution> executions =
+          findExecutions(e -> e.getExecutionType() == executionType && name.equals(e.getName()));
+      for (Execution execution : executions) {
+        ExecutionState executionState = getExecutionState(execution.getId());
+        if (executionState != null && !executionState.isFailed()) {
+          return execution;
+        }
+      }
+      return null;
+    } catch (Exception e) {
+      throw new HopException("Error finding previous successful execution", e);
     }
   }
 

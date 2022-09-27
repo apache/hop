@@ -208,7 +208,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     //
     wExecutionInfoLocation =
         new MetaSelectionLine<>(
-            getVariables(),
+            manager.getVariables(),
             manager.getMetadataProvider(),
             ExecutionInfoLocation.class,
             wMainComp,
@@ -227,8 +227,8 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     wProfile =
         new MetaSelectionLine<>(
-            getVariables(),
-            getMetadataManager().getMetadataProvider(),
+            manager.getVariables(),
+            manager.getMetadataProvider(),
             ExecutionDataProfile.class,
             wMainComp,
             SWT.LEFT | SWT.BORDER,
@@ -267,7 +267,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     // Add a composite area
     //
-    wsPluginSpecificComp = new ScrolledComposite(wMainComp, SWT.V_SCROLL|SWT.H_SCROLL);
+    wsPluginSpecificComp = new ScrolledComposite(wMainComp, SWT.V_SCROLL | SWT.H_SCROLL);
     wsPluginSpecificComp.setLayout(new FormLayout());
     FormData fdsPluginSpecificComp = new FormData();
     fdsPluginSpecificComp.left = new FormAttachment(0, 0);

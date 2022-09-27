@@ -501,9 +501,13 @@ public class PropsUi extends Props {
         font = gui.getFontFixed();
         break;
       case WIDGET_STYLE_TABLE:
-        foreground = gui.getColorBlack();
-        background = gui.getColorWhite();
-        font = null;
+        background = gui.getColorLightGray();
+        foreground = gui.getColorDarkGray();
+        if (control instanceof Table) {
+          Table table = (Table) control;
+          table.setHeaderBackground(gui.getColorLightGray());
+          table.setHeaderForeground(gui.getColorDarkGray());
+        }
         break;
       case WIDGET_STYLE_NOTEPAD:
         foreground = gui.getColorBlack();
@@ -524,13 +528,12 @@ public class PropsUi extends Props {
         }
         break;
       case WIDGET_STYLE_TAB:
-        background = gui.getColorWhite();
-        foreground = gui.getColorDarkGray();
         CTabFolder tabFolder = (CTabFolder) control;
         tabFolder.setBorderVisible(true);
-        // need to make a copy of the tab selection background color to get around bug
-        Color tabColor = new Color(gui.getColorTab().getDevice(), gui.getColorTab().getRGB());
-        tabFolder.setSelectionBackground(tabColor);
+        tabFolder.setSimple(true);
+        tabFolder.setBackground(gui.getColorGray());
+        tabFolder.setForeground(gui.getColorBlack());
+        tabFolder.setSelectionBackground(gui.getColorWhite());
         tabFolder.setSelectionForeground(gui.getColorBlack());
         break;
       default:
@@ -763,11 +766,12 @@ public class PropsUi extends Props {
 
     contrastingColors.put(new RGB(254, 254, 254), new RGB(35, 35, 35));
     contrastingColors.put(new RGB(245, 245, 245), new RGB(40, 40, 40));
+    contrastingColors.put(new RGB(240, 240, 240), new RGB(45, 45, 45));
     contrastingColors.put(new RGB(235, 235, 235), new RGB(50, 50, 50));
-    contrastingColors.put(new RGB(240, 240, 240), new RGB(15, 15, 15));
-    contrastingColors.put(new RGB(225, 225, 225), new RGB(30, 30, 30));
-    contrastingColors.put(new RGB(215, 215, 215), new RGB(40, 40, 40));
-    contrastingColors.put(new RGB(100, 100, 100), new RGB(155, 155, 155));
+    contrastingColors.put(new RGB(225, 225, 225), new RGB(70, 70, 70));
+    contrastingColors.put(new RGB(215, 215, 215), new RGB(100, 100, 100));
+    contrastingColors.put(new RGB(100, 100, 100), new RGB(215, 215, 215));
+    contrastingColors.put(new RGB(50, 50, 50), new RGB(235, 235, 235));
 
     // Add all the inverse color mappings as well
     //

@@ -22,15 +22,18 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionType;
+import org.apache.hop.execution.IExecutionInfoLocation;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.time.Instant;
+import java.util.*;
 
 /** Get information from the System or the supervising pipeline. */
 public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
@@ -53,26 +56,35 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
     for (int i = 0, index = inputRowMeta.size(); i < meta.getFieldName().length; i++, index++) {
       Calendar cal;
 
-      int argnr = 0;
-
       switch (meta.getFieldType()[i]) {
         case TYPE_SYSTEM_INFO_SYSTEM_START:
+        case TYPE_SYSTEM_INFO_PIPELINE_DATE_TO:
           row[index] = getPipeline().getExecutionStartDate();
           break;
         case TYPE_SYSTEM_INFO_SYSTEM_DATE:
           row[index] = new Date();
           break;
         case TYPE_SYSTEM_INFO_PIPELINE_DATE_FROM:
-          row[index] = getPipeline().getEngineMetrics().getStartDate();
+          row[index] =
+              calculateStartRange(
+                  getPipeline().getPipelineRunConfiguration().getExecutionInfoLocationName(),
+                  ExecutionType.Pipeline,
+                  getPipeline().getPipelineMeta().getName());
           break;
-        case TYPE_SYSTEM_INFO_PIPELINE_DATE_TO:
-          row[index] = getPipeline().getEngineMetrics().getEndDate();
+        case TYPE_SYSTEM_INFO_WORKFLOW_DATE_FROM:
+          if (getPipeline().getParentWorkflow() != null) {
+            row[index] =
+                calculateStartRange(
+                    getPipeline()
+                        .getParentWorkflow()
+                        .getWorkflowRunConfiguration()
+                        .getExecutionInfoLocationName(),
+                    ExecutionType.Workflow,
+                    getPipeline().getParentWorkflow().getWorkflowMeta().getName());
+          }
           break;
-        case TYPE_SYSTEM_INFO_JOB_DATE_FROM:
+        case TYPE_SYSTEM_INFO_WORKFLOW_DATE_TO:
           row[index] = getPipeline().getParentWorkflow().getExecutionStartDate();
-          break;
-        case TYPE_SYSTEM_INFO_JOB_DATE_TO:
-          row[index] = getPipeline().getParentWorkflow().getExecutionEndDate();
           break;
         case TYPE_SYSTEM_INFO_PREV_DAY_START:
           cal = Calendar.getInstance();
@@ -655,6 +667,40 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
     }
 
     return row;
+  }
+
+  /** Calculate the start of the data range for a pipeline. */
+  private Date calculateStartRange(String locationName, ExecutionType executionType, String name)
+      throws HopException {
+    ExecutionInfoLocation location = loadLocation(metadataProvider, locationName);
+    if (location == null) {
+      // Nothing to look up!
+      //
+      return null;
+    }
+    IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+
+    try {
+      iLocation.initialize(this, metadataProvider);
+
+      // Look up the previous successful execution of a pipeline with the given name
+      //
+      Execution execution = iLocation.findPreviousSuccessfulExecution(executionType, name);
+      if (execution == null) {
+        // We can go back millions of years but that would probably confuse a lot of 3rd party systems.
+        //
+        return new GregorianCalendar(1900, Calendar.JANUARY, 1).getTime();
+      } else {
+        return execution.getExecutionStartDate();
+      }
+    } finally {
+      iLocation.close();
+    }
+  }
+
+  private ExecutionInfoLocation loadLocation(
+      IHopMetadataProvider metadataProvider, String locationName) throws HopException {
+    return metadataProvider.getSerializer(ExecutionInfoLocation.class).load(resolve(locationName));
   }
 
   @Override

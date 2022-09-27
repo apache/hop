@@ -62,18 +62,20 @@ public final class ExecutionDataBuilder {
     this.setMetaData = Collections.synchronizedMap(new HashMap<>());
   }
 
-  public static ExecutionDataBuilder anExecutionData() {
+  public static ExecutionDataBuilder of() {
     return new ExecutionDataBuilder();
   }
 
   public static ExecutionDataBuilder fromAllTransformData(
       IPipelineEngine<PipelineMeta> pipeline,
-      Map<String, List<IExecutionDataSamplerStore>> samplerStoresMap) {
+      Map<String, List<IExecutionDataSamplerStore>> samplerStoresMap,
+      boolean finished) {
     ExecutionDataBuilder dataBuilder =
-        ExecutionDataBuilder.anExecutionData()
+        ExecutionDataBuilder.of()
             .withExecutionType(ExecutionType.Transform)
             .withParentId(pipeline.getLogChannelId())
-            .withOwnerId(ALL_TRANSFORMS);
+            .withOwnerId(ALL_TRANSFORMS)
+            .withFinished(finished);
 
     for (String transformName : samplerStoresMap.keySet()) {
       List<IExecutionDataSamplerStore> samplerStores = samplerStoresMap.get(transformName);
@@ -96,7 +98,7 @@ public final class ExecutionDataBuilder {
     String logChannelId = action.getLogChannel().getLogChannelId();
 
     ExecutionDataBuilder dataBuilder =
-        ExecutionDataBuilder.anExecutionData()
+        ExecutionDataBuilder.of()
             .withExecutionType(ExecutionType.Action)
             .withParentId(workflow.getLogChannelId())
             .withOwnerId(logChannelId)
@@ -171,7 +173,7 @@ public final class ExecutionDataBuilder {
     String logChannelId = action.getLogChannel().getLogChannelId();
 
     ExecutionDataBuilder dataBuilder =
-        ExecutionDataBuilder.anExecutionData()
+        ExecutionDataBuilder.of()
             .withExecutionType(ExecutionType.Action)
             .withParentId(workflow.getLogChannelId())
             .withOwnerId(logChannelId)
