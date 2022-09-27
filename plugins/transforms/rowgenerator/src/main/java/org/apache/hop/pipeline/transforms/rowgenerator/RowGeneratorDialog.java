@@ -323,7 +323,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
       logDebug("getting fields info...");
     }
 
-    wLimit.setText(input.getRowLimit());
+    wLimit.setText(Const.NVL(input.getRowLimit(), ""));
     wNeverEnding.setSelection(input.isNeverEnding());
     wInterval.setText(Const.NVL(input.getIntervalInMs(), ""));
     wRowTimeField.setText(Const.NVL(input.getRowTimeField(), ""));
