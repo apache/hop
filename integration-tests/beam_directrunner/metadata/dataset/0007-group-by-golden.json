@@ -1,0 +1,48 @@
+{
+  "base_filename": "0007-group-by-golden.csv",
+  "name": "0007-group-by-golden",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 2,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "stateCode"
+    },
+    {
+      "field_comment": "",
+      "field_length": 14,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "state"
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": " #",
+      "field_name": "count"
+    },
+    {
+      "field_comment": "",
+      "field_length": 13,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "minFirstName"
+    },
+    {
+      "field_comment": "",
+      "field_length": 13,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "maxFirstName"
+    }
+  ],
+  "folder_name": ""
+}

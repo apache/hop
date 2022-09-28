@@ -22,24 +22,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelFileWriter;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.util.FileUtil;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionState;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-import org.apache.hop.pipeline.PipelineConfiguration;
-import org.apache.hop.pipeline.PipelineExecutionConfiguration;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,22 +36,18 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.UUID;
 
 @HopServerServlet(id = "registerExecInfo", name = "Register execution information")
-public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final long serialVersionUID = -2817136625869923847L;
+public class DeleteExecutionInfoServlet extends BaseHttpServlet implements IHopServerPlugin {
+  private static final long serialVersionUID = -1901302231769020201L;
 
-  public static final String CONTEXT_PATH = "/hop/registerExecInfo";
-  public static final String TYPE_EXECUTION = "execution";
-  public static final String TYPE_STATE = "state";
-  public static final String TYPE_DATA = "data";
-  public static final String PARAMETER_TYPE = "type";
+  public static final String CONTEXT_PATH = "/hop/deleteExecInfo";
+  public static final String PARAMETER_ID = "id";
   public static final String PARAMETER_LOCATION = "location";
 
-  public RegisterExecutionInfoServlet() {}
+  public DeleteExecutionInfoServlet() {}
 
-  public RegisterExecutionInfoServlet(PipelineMap pipelineMap) {
+  public DeleteExecutionInfoServlet(PipelineMap pipelineMap) {
     super(pipelineMap);
   }
 
@@ -74,13 +59,12 @@ public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHo
     }
 
     if (log.isDebug()) {
-      logDebug("Register execution information");
+      logDebug("Delete execution information");
     }
 
-    // We receive some JSON as payload
-    // The type parameter shows what type of information we get
+    // The ID of the execution to delete
     //
-    String type = request.getParameter(PARAMETER_TYPE);
+    String id = request.getParameter(PARAMETER_ID);
 
     // The name of the location is also in a parameter
     //
@@ -97,12 +81,12 @@ public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHo
     try {
       // validate the parameters
       //
-      if (StringUtils.isEmpty(type)) {
-        throw new HopException("Please specify the type of execution information to register.");
+      if (StringUtils.isEmpty(id)) {
+        throw new HopException("Please specify the ID of the execution to delete.");
       }
       if (StringUtils.isEmpty(locationName)) {
         throw new HopException(
-            "Please specify the name of the execution information location to register at.");
+            "Please specify the name of the execution information location to delete in.");
       }
 
       // Look up the location in the metadata.
@@ -115,47 +99,14 @@ public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHo
         throw new HopException("Unable to find execution information location " + locationName);
       }
 
-
-
-      // First read the complete JSON document in memory from the request
-      //
-      StringBuilder json = new StringBuilder(request.getContentLength());
-      int c;
-      while ((c = in.read()) != -1) {
-        json.append((char) c);
-      }
-
-      // What type of information are we receiving?
-      //
-      switch (type) {
-        case TYPE_EXECUTION:
-          Execution execution = new ObjectMapper().readValue(json.toString(), Execution.class);
-          location.getExecutionInfoLocation().registerExecution(execution);
-          break;
-        case TYPE_STATE:
-          ExecutionState state =
-              new ObjectMapper().readValue(json.toString(), ExecutionState.class);
-          location.getExecutionInfoLocation().updateExecutionState(state);
-          break;
-        case TYPE_DATA:
-          ExecutionData data = new ObjectMapper().readValue(json.toString(), ExecutionData.class);
-          location.getExecutionInfoLocation().registerData(data);
-          break;
-        default:
-          throw new HopException(
-              "Unknown update type: "
-                  + type
-                  + " allowed are: "
-                  + TYPE_EXECUTION
-                  + ", "
-                  + TYPE_STATE
-                  + ", "
-                  + TYPE_DATA);
-      }
+      location.getExecutionInfoLocation().deleteExecution(id);
 
       // Return the log channel id as well
       //
-      out.println(new WebResult(WebResult.STRING_OK, "Registration successful at location "+locationName));
+      out.println(
+          new WebResult(
+              WebResult.STRING_OK,
+              "Execution deletion was successful at location " + locationName));
 
     } catch (Exception ex) {
 
@@ -164,7 +115,7 @@ public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHo
   }
 
   public String toString() {
-    return "Register execution information";
+    return "Delete execution";
   }
 
   @Override

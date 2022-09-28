@@ -66,7 +66,7 @@ public class GuiCompositeWidgets {
    * @param variables
    * @param maxNrItems
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   public GuiCompositeWidgets(IVariables variables, int maxNrItems) {
     this.variables = variables;
     labelsMap = new HashMap<>();
@@ -133,11 +133,14 @@ public class GuiCompositeWidgets {
     //
     if (guiElements.getId() != null) {
 
+      GuiElementType elementType = guiElements.getType();
+
       // Add the label on the left-hand side...
       // For metadata, the label is handled in the meta selection line widget below
       //
       if (StringUtils.isNotEmpty(guiElements.getLabel())
-          && guiElements.getType() != GuiElementType.METADATA) {
+          && elementType != GuiElementType.METADATA
+          && elementType != GuiElementType.BUTTON) {
         label = new Label(parent, SWT.RIGHT | SWT.SINGLE);
         props.setLook(label);
         label.setText(Const.NVL(guiElements.getLabel(), ""));
@@ -158,7 +161,7 @@ public class GuiCompositeWidgets {
 
       // Add the GUI element
       //
-      switch (guiElements.getType()) {
+      switch (elementType) {
         case TEXT:
         case FILENAME:
         case FOLDER:
@@ -173,6 +176,8 @@ public class GuiCompositeWidgets {
         case METADATA:
           control = getMetadataControl(parent, guiElements, props, lastControl);
           break;
+        case BUTTON:
+          control = getButtonControl(sourceObject, parent, guiElements, props, lastControl);
         default:
           break;
       }
@@ -267,6 +272,53 @@ public class GuiCompositeWidgets {
     layoutControlBelowLast(props, lastControl, metaSelectionLine);
 
     return metaSelectionLine;
+  }
+
+  private Button getButtonControl(
+      Object sourceObject,
+      Composite parent,
+      GuiElements guiElements,
+      PropsUi props,
+      Control lastControl) {
+
+    Button button = new Button(parent, SWT.PUSH);
+    props.setLook(button);
+    button.setText(Const.NVL(guiElements.getLabel(), ""));
+    if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
+      button.setToolTipText(guiElements.getToolTip());
+    }
+    widgetsMap.put(guiElements.getId(), button);
+
+    button.addListener(
+        SWT.Selection,
+        event -> {
+          // This widget annotation was on top of a method.
+          // We need to instantiate the method using the provided classloader.
+          //
+          Method buttonMethod = guiElements.getButtonMethod();
+          Class<?> methodClass = buttonMethod.getDeclaringClass();
+
+          try {
+            // ClassLoader classLoader = guiElements.getClassLoader();
+
+            Object guiObject = methodClass.getDeclaredConstructor().newInstance();
+
+            // Invoke the button method
+            //
+            buttonMethod.invoke(guiObject, sourceObject);
+          } catch (Exception e) {
+            LogChannel.UI.logError(
+                "Error invoking method "
+                    + buttonMethod.getName()
+                    + " in class "
+                    + methodClass.getName(),
+                e);
+          }
+        });
+
+    layoutControlBetweenLabelAndRightControl(props, lastControl, null, button, null);
+
+    return button;
   }
 
   /**
@@ -581,6 +633,10 @@ public class GuiCompositeWidgets {
     if (guiElements.isIgnored()) {
       return;
     }
+    // No data to set for a button widget
+    if (guiElements.getType()==GuiElementType.BUTTON) {
+      return;
+    }
 
     // Do we add the element or the children?
     //
@@ -636,6 +692,9 @@ public class GuiCompositeWidgets {
             MetaSelectionLine line = (MetaSelectionLine) control;
             line.setText(stringValue);
             break;
+          case BUTTON:
+            // No data to set
+            break;
           default:
             System.err.println(
                 "WARNING: setting data on widget with ID "
@@ -683,6 +742,10 @@ public class GuiCompositeWidgets {
     if (guiElements.isIgnored()) {
       return;
     }
+    // No data to retrieve from a button widget
+    if (guiElements.getType()==GuiElementType.BUTTON) {
+      return;
+    }
 
     // Do we add the element or the children?
     //
@@ -723,6 +786,9 @@ public class GuiCompositeWidgets {
           case METADATA:
             MetaSelectionLine line = (MetaSelectionLine) control;
             value = line.getText();
+            break;
+          case BUTTON:
+            // No data to retrieve from widget
             break;
           default:
             System.err.println(
@@ -849,7 +915,9 @@ public class GuiCompositeWidgets {
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }
@@ -863,7 +931,9 @@ public class GuiCompositeWidgets {
     return labelsMap;
   }
 
-  /** @param labelsMap The labelsMap to set */
+  /**
+   * @param labelsMap The labelsMap to set
+   */
   public void setLabelsMap(Map<String, Control> labelsMap) {
     this.labelsMap = labelsMap;
   }
@@ -877,7 +947,9 @@ public class GuiCompositeWidgets {
     return widgetsMap;
   }
 
-  /** @param widgetsMap The widgetsMap to set */
+  /**
+   * @param widgetsMap The widgetsMap to set
+   */
   public void setWidgetsMap(Map<String, Control> widgetsMap) {
     this.widgetsMap = widgetsMap;
   }

@@ -1,0 +1,61 @@
+stateCode,state,count,minFirstName,maxFirstName
+NJ,NEW JERSEY," 17",anp-firstname,yvv-firstname
+OR,OREGON," 12",cwt-firstname,utp-firstname
+GU,GUAM," 19",eky-firstname,zry-firstname
+ME,MAINE," 19",box-firstname,yiu-firstname
+NV,NEVADA," 24",anr-firstname,yzt-firstname
+RI,RHODE ISLAND," 20",aeu-firstname,xzd-firstname
+AS,AMERICAN SAMOA," 15",blm-firstname,zvm-firstname
+TX,TEXAS," 16",btl-firstname,zts-firstname
+WI,WISCONSIN," 17",atn-firstname,vyn-firstname
+CO,COLORADO," 18",azn-firstname,ygc-firstname
+KY,KENTUCKY," 18",ani-firstname,zwt-firstname
+PW,PALAU," 16",bty-firstname,xpn-firstname
+MN,MINNESOTA," 23",aqz-firstname,zlw-firstname
+CA,CALIFORNIA," 19",ahc-firstname,zio-firstname
+OH,OHIO," 12",aik-firstname,wwh-firstname
+NC,NORTH CAROLINA," 16",ard-firstname,yfe-firstname
+VI,VIRGIN ISLANDS," 14",alj-firstname,ynb-firstname
+OK,OKLAHOMA," 26",aal-firstname,znx-firstname
+PR,PUERTO RICO," 12",agc-firstname,wcr-firstname
+PA,PENNSYLVANIA," 15",cqi-firstname,yuu-firstname
+TN,TENNESSEE," 11",cgz-firstname,zka-firstname
+MA,MASSACHUSETTS," 18",gla-firstname,ynb-firstname
+IN,INDIANA," 20",fpu-firstname,zpb-firstname
+MI,MICHIGAN," 11",aih-firstname,wwx-firstname
+SD,SOUTH DAKOTA," 19",akr-firstname,ztz-firstname
+WY,WYOMING," 16",avd-firstname,zyo-firstname
+NM,NEW MEXICO," 10",bhe-firstname,wbw-firstname
+UT,UTAH," 19",aeb-firstname,zwd-firstname
+WV,WEST VIRGINIA," 22",aqm-firstname,ziy-firstname
+IL,ILLINOIS," 13",aid-firstname,yxz-firstname
+SC,SOUTH CAROLINA," 8",bwx-firstname,tet-firstname
+AR,ARKANSAS," 20",brc-firstname,zkj-firstname
+MD,MARYLAND," 18",asq-firstname,xlc-firstname
+NH,NEW HAMPSHIRE," 14",aco-firstname,zhy-firstname
+GA,GEORGIA," 14",fqf-firstname,xhg-firstname
+NY,NEW YORK," 21",afq-firstname,yth-firstname
+ND,NORTH DAKOTA," 14",ael-firstname,zep-firstname
+KS,KANSAS," 18",gcp-firstname,ztu-firstname
+AZ,ARIZONA," 15",geu-firstname,xfq-firstname
+MT,MONTANA," 19",ajz-firstname,ysk-firstname
+HI,HAWAII," 22",apn-firstname,zpy-firstname
+MP,NORTHERN MARIANA ISLANDS," 17",bxz-firstname,zkx-firstname
+VT,VERMONT," 16",acw-firstname,zms-firstname
+VA,VIRGINIA," 20",bjx-firstname,ytn-firstname
+undefined,undefined," 13",agu-firstname,zvh-firstname
+IA,IOWA," 14",ciu-firstname,zim-firstname
+MH,MARSHALL ISLANDS," 14",byy-firstname,ukn-firstname
+AL,ALABAMA," 14",aev-firstname,ybj-firstname
+DC,DISTRICT OF COLUMBIA," 16",adv-firstname,zpp-firstname
+NE,NEBRASKA," 20",bba-firstname,wbm-firstname
+AK,ALASKA," 19",cdv-firstname,yra-firstname
+FL,FLORIDA," 20",aaz-firstname,xhp-firstname
+WA,WASHINGTON," 18",bbg-firstname,zpj-firstname
+FM,FEDERATED STATES OF MICRONESIA," 12",abw-firstname,yfe-firstname
+MO,MISSOURI," 19",cru-firstname,zaa-firstname
+DE,DELAWARE," 18",cxa-firstname,zdr-firstname
+CT,CONNECTICUT," 14",ajt-firstname,zfz-firstname
+ID,IDAHO," 14",bgl-firstname,ysq-firstname
+LA,LOUISIANA," 21",dmy-firstname,zhv-firstname
+MS,MISSISSIPPI," 11",fat-firstname,zrg-firstname

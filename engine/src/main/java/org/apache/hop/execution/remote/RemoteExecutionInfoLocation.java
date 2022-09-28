@@ -154,6 +154,24 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
+  public boolean deleteExecution(String executionId) throws HopException {
+    try {
+      URI uri =
+              new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH)
+                      .addParameter(
+                              RegisterExecutionInfoServlet.PARAMETER_TYPE,
+                              RegisterExecutionInfoServlet.TYPE_EXECUTION)
+                      .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+                      .build();
+
+      validateSettings();
+      return false;
+    } catch (Exception e) {
+      throw new HopException("Error deleting execution at remote location", e);
+    }
+  }
+
+  @Override
   public void updateExecutionState(ExecutionState executionState) throws HopException {
     try {
       validateSettings();

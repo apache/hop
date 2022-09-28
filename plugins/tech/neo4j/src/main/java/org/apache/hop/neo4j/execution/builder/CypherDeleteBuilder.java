@@ -18,6 +18,8 @@
 
 package org.apache.hop.neo4j.execution.builder;
 
+import java.util.Map;
+
 public class CypherDeleteBuilder extends CypherMatchBuilder {
 
   private CypherDeleteBuilder() {
@@ -35,22 +37,8 @@ public class CypherDeleteBuilder extends CypherMatchBuilder {
 
   @Override
   public CypherDeleteBuilder withMatch(
-      String label, String alias, String id1, Object value1, String id2, Object value2) {
-    return (CypherDeleteBuilder) super.withMatch(label, alias, id1, value1, id2, value2);
-  }
-
-  @Override
-  public CypherDeleteBuilder withMatch(
-      String label,
-      String alias,
-      String id1,
-      Object value1,
-      String id2,
-      Object value2,
-      String id3,
-      Object value3) {
-    return (CypherDeleteBuilder)
-        super.withMatch(label, alias, id1, value1, id2, value2, id3, value3);
+      String label, String alias, Map<String, Object> keyValueMap) {
+    return (CypherDeleteBuilder) super.withMatch(label, alias, keyValueMap);
   }
 
   public CypherDeleteBuilder withDelete(String... aliases) {

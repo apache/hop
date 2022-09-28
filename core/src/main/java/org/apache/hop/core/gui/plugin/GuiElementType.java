@@ -26,5 +26,6 @@ public enum GuiElementType {
   COMBO,
   CHECKBOX,
   METADATA, // Metadata selection line
+  BUTTON, // Push button
   ;
 }

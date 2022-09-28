@@ -302,8 +302,6 @@ public class HopGuiWorkflowClipboardDelegate {
       return;
     }
 
-    IVariables variables = workflowGraph.getVariables();
-
     StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());
     try {
       xml.append(XmlHandler.openTag(XML_TAG_WORKFLOW_ACTIONS)).append(Const.CR);
@@ -345,6 +343,27 @@ public class HopGuiWorkflowClipboardDelegate {
     }
   }
 
+  public static final void copyActionsToClipboard(List<ActionMeta> actions) throws HopException {
+    if (actions == null || actions.size() == 0) {
+      return;
+    }
+
+    StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());
+    try {
+      xml.append(XmlHandler.openTag(XML_TAG_WORKFLOW_ACTIONS)).append(Const.CR);
+      xml.append(XmlHandler.openTag(XML_TAG_ACTIONS)).append(Const.CR);
+      for (ActionMeta action : actions) {
+        xml.append(action.getXml());
+      }
+      xml.append(XmlHandler.closeTag(XML_TAG_ACTIONS)).append(Const.CR);
+      xml.append(XmlHandler.closeTag(XML_TAG_WORKFLOW_ACTIONS)).append(Const.CR);
+
+      GuiResource.getInstance().toClipboard(xml.toString());
+    } catch (Exception e) {
+      throw new HopException("Error copying actions to clipboard", e);
+    }
+  }
+
   /**
    * Gets hopGui
    *
@@ -354,7 +373,9 @@ public class HopGuiWorkflowClipboardDelegate {
     return hopGui;
   }
 
-  /** @param hopGui The hopGui to set */
+  /**
+   * @param hopGui The hopGui to set
+   */
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }
@@ -368,7 +389,9 @@ public class HopGuiWorkflowClipboardDelegate {
     return workflowGraph;
   }
 
-  /** @param workflowGraph The workflowGraph to set */
+  /**
+   * @param workflowGraph The workflowGraph to set
+   */
   public void setJobGraph(HopGuiWorkflowGraph workflowGraph) {
     this.workflowGraph = workflowGraph;
   }
@@ -382,7 +405,9 @@ public class HopGuiWorkflowClipboardDelegate {
     return log;
   }
 
-  /** @param log The log to set */
+  /**
+   * @param log The log to set
+   */
   public void setLog(ILogChannel log) {
     this.log = log;
   }

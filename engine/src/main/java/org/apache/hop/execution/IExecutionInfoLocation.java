@@ -80,6 +80,15 @@ public interface IExecutionInfoLocation extends Cloneable {
   void updateExecutionState(ExecutionState executionState) throws HopException;
 
   /**
+   * Delete the execution with the given ID, its children and the associated information.
+   *
+   * @param executionId The ID of the execution to delete
+   * @return true if the execution was found and deleted.
+   * @throws HopException
+   */
+  boolean deleteExecution(String executionId) throws HopException;
+
+  /**
    * Get the execution state for an execution
    *
    * @param executionId The id of the execution

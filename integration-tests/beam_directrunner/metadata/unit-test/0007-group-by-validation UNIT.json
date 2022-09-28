@@ -1,0 +1,45 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        },
+        {
+          "transform_field": "minFirstName",
+          "data_set_field": "minFirstName"
+        },
+        {
+          "transform_field": "maxFirstName",
+          "data_set_field": "maxFirstName"
+        }
+      ],
+      "field_order": [
+        "stateCode",
+        "state"
+      ],
+      "transform_name": "Validate",
+      "data_set_name": "0007-group-by-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0007-group-by-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0007-group-by-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

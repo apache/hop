@@ -18,6 +18,8 @@
 
 package org.apache.hop.neo4j.execution.builder;
 
+import java.util.Map;
+
 public class CypherMatchBuilder extends BaseCypherBuilder {
 
   protected CypherMatchBuilder() {
@@ -45,105 +47,22 @@ public class CypherMatchBuilder extends BaseCypherBuilder {
   }
 
   public CypherMatchBuilder withMatch(
-      String label, String alias, String id1, Object value1, String id2, Object value2) {
-    String key1=alias+"_"+id1;
-    String key2=alias+"_"+id2;
-    cypher
-        .append("MATCH(")
-        .append(alias)
-        .append(":")
-        .append(label)
-        .append("{ ")
-        .append(id1)
-        .append(" : $")
-        .append(key1)
-        .append(", ")
-        .append(id2)
-        .append(" : $")
-        .append(key2)
-        .append(" }) ");
-    addParameter(key1, value1);
-    addParameter(key2, value2);
-    return this;
-  }
+      String nodeLabel, String nodeAlias, Map<String, Object> keyValueMap) {
+    cypher.append("MATCH(").append(nodeAlias).append(":").append(nodeLabel).append(" {");
 
-  public CypherMatchBuilder withMatch(
-      String label,
-      String alias,
-      String id1,
-      Object value1,
-      String id2,
-      Object value2,
-      String id3,
-      Object value3) {
-    String key1=alias+"_"+id1;
-    String key2=alias+"_"+id2;
-    String key3=alias+"_"+id3;
-    cypher
-        .append("MATCH(")
-        .append(alias)
-        .append(":")
-        .append(label)
-        .append("{ ")
-        .append(id1)
-        .append(" : $")
-        .append(key1)
-        .append(", ")
-        .append(id2)
-        .append(" : $")
-        .append(key2)
-        .append(", ")
-        .append(id3)
-        .append(" : $")
-        .append(key3)
-        .append(" }) ");
-    addParameter(key1, value1);
-    addParameter(key2, value2);
-    addParameter(key3, value3);
-    return this;
-  }
-
-  public CypherMatchBuilder withMatch(
-      String label,
-      String alias,
-      String id1,
-      Object value1,
-      String id2,
-      Object value2,
-      String id3,
-      Object value3,
-      String id4,
-      Object value4) {
-    String key1=alias+"_"+id1;
-    String key2=alias+"_"+id2;
-    String key3=alias+"_"+id3;
-    String key4=alias+"_"+id4;
-    cypher
-        .append("MATCH(")
-        .append(alias)
-        .append(":")
-        .append(label)
-        .append("{ ")
-        .append(id1)
-        .append(" : $")
-        .append(key1)
-        .append(", ")
-        .append(id2)
-        .append(" : $")
-        .append(key2)
-        .append(", ")
-        .append(id3)
-        .append(" : $")
-        .append(key3)
-        .append(", ")
-        .append(id4)
-        .append(" : $")
-        .append(key4)
-        .append(" }) ");
-    addParameter(key1, value1);
-    addParameter(key2, value2);
-    addParameter(key3, value3);
-    addParameter(key4, value4);
+    boolean firstKey = true;
+    for (String key : keyValueMap.keySet()) {
+      String param = nodeAlias + "_" + key;
+      Object value = keyValueMap.get(key);
+      if (firstKey) {
+        firstKey = false;
+      } else {
+        cypher.append(", ");
+      }
+      cypher.append(key).append(" : $").append(param);
+      parameters.put(param, value);
+    }
+    cypher.append(" }) ");
     return this;
   }
 }
