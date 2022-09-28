@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution;
 
+import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.pipeline.Pipeline;
@@ -31,8 +32,6 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import java.util.*;
 
-import static org.apache.hop.execution.ExecutionMetricsType.*;
-
 public final class ExecutionStateBuilder {
   private ExecutionType executionType;
   private Date updateTime;
@@ -40,11 +39,12 @@ public final class ExecutionStateBuilder {
   private String parentId;
   private String id;
   private String name;
-  private Integer copyNr;
+  private String copyNr;
   private String loggingText;
   private Integer lastLogLineNr;
   private List<ExecutionStateComponentMetrics> metrics;
   private List<String> childIds;
+  private boolean failed;
 
   private ExecutionStateBuilder() {
     this.updateTime = new Date();
@@ -52,7 +52,7 @@ public final class ExecutionStateBuilder {
     this.childIds = new ArrayList<>();
   }
 
-  public static ExecutionStateBuilder anExecutionUpdate() {
+  public static ExecutionStateBuilder of() {
     return new ExecutionStateBuilder();
   }
 
@@ -77,13 +77,13 @@ public final class ExecutionStateBuilder {
     int lastNrInLogStore = HopLogStore.getLastBufferLineNr();
 
     ExecutionStateBuilder builder =
-        anExecutionUpdate()
-            .withExecutionType(ExecutionType.Pipeline)
+        of().withExecutionType(ExecutionType.Pipeline)
             .withParentId(parentLogChannelId)
             .withId(pipeline.getLogChannelId())
             .withName(pipeline.getPipelineMeta().getName())
             .withLoggingText(getLoggingText(pipeline.getLogChannelId(), lastLogLineNr))
             .withLastLogLineNr(lastNrInLogStore)
+            .withFailed(pipeline.getErrors() > 0)
             .withStatusDescription(pipeline.getStatusDescription())
             .withChildIds(
                 LoggingRegistry.getInstance().getChildrenMap().get(pipeline.getLogChannelId()));
@@ -136,15 +136,16 @@ public final class ExecutionStateBuilder {
     // Look it up before querying the store to avoid missing lines
     //
     int lastNrInLogStore = HopLogStore.getLastBufferLineNr();
+    Result result = workflow.getResult();
 
     ExecutionStateBuilder builder =
-        anExecutionUpdate()
-            .withExecutionType(ExecutionType.Workflow)
+        of().withExecutionType(ExecutionType.Workflow)
             .withParentId(parentLogChannelId)
             .withId(workflow.getLogChannelId())
             .withName(workflow.getWorkflowMeta().getName())
             .withLoggingText(getLoggingText(workflow.getLogChannelId(), lastLogLineNr))
             .withLastLogLineNr(lastNrInLogStore)
+            .withFailed(result != null && !result.getResult())
             .withStatusDescription(workflow.getStatusDescription())
             .withChildIds(
                 LoggingRegistry.getInstance().getChildrenMap().get(workflow.getLogChannelId()));
@@ -178,7 +179,7 @@ public final class ExecutionStateBuilder {
     return this;
   }
 
-  public ExecutionStateBuilder withCopyNr(Integer copyNr) {
+  public ExecutionStateBuilder withCopyNr(String copyNr) {
     this.copyNr = copyNr;
     return this;
   }
@@ -213,19 +214,25 @@ public final class ExecutionStateBuilder {
     return this;
   }
 
+  public ExecutionStateBuilder withFailed(boolean failed) {
+    this.failed = failed;
+    return this;
+  }
+
   public ExecutionState build() {
-    ExecutionState executionUpdate = new ExecutionState();
-    executionUpdate.setExecutionType(executionType);
-    executionUpdate.setParentId(parentId);
-    executionUpdate.setId(id);
-    executionUpdate.setName(name);
-    executionUpdate.setCopyNr(copyNr);
-    executionUpdate.setLoggingText(loggingText);
-    executionUpdate.setLastLogLineNr(lastLogLineNr);
-    executionUpdate.setMetrics(metrics);
-    executionUpdate.setUpdateTime(updateTime);
-    executionUpdate.setStatusDescription(statusDescription);
-    executionUpdate.setChildIds(childIds);
-    return executionUpdate;
+    ExecutionState state = new ExecutionState();
+    state.setExecutionType(executionType);
+    state.setParentId(parentId);
+    state.setId(id);
+    state.setName(name);
+    state.setCopyNr(copyNr);
+    state.setLoggingText(loggingText);
+    state.setLastLogLineNr(lastLogLineNr);
+    state.setMetrics(metrics);
+    state.setUpdateTime(updateTime);
+    state.setStatusDescription(statusDescription);
+    state.setChildIds(childIds);
+    state.setFailed(failed);
+    return state;
   }
 }

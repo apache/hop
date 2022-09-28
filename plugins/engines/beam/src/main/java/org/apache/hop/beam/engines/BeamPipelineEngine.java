@@ -150,7 +150,7 @@ public abstract class BeamPipelineEngine extends Variables
     activeSubWorkflows = new HashMap<>();
     engineCapabilities = new BeamPipelineEngineCapabilities();
     extensionDataMap = Collections.synchronizedMap(new HashMap<>());
-    statusDescription = "IDLE";
+    statusDescription = Pipeline.STRING_WAITING;
     dataSamplers = Collections.synchronizedList(new ArrayList<>());
   }
 
@@ -176,6 +176,8 @@ public abstract class BeamPipelineEngine extends Variables
     ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
     try {
       executionStartDate = new Date();
+      status = ComponentExecutionStatus.STATUS_INIT;
+      statusDescription = Pipeline.STRING_INITIALIZING;
 
       // Explain to various classes in the Beam API (@see org.apache.beam.sdk.io.FileSystems)
       // what the context classloader is.
@@ -301,6 +303,9 @@ public abstract class BeamPipelineEngine extends Variables
       setRunning(true);
       setReadyToStart(false);
 
+      status = ComponentExecutionStatus.STATUS_RUNNING;
+      statusDescription = Pipeline.STRING_RUNNING;
+
       if (beamEngineRunConfiguration.isRunningAsynchronous()) {
         // Certain runners like Direct and DataFlow allow async execution
         //
@@ -362,6 +367,12 @@ public abstract class BeamPipelineEngine extends Variables
                       refreshTimer.cancel(); // no more needed
                     }
                     setRunning(false);
+                    status = ComponentExecutionStatus.STATUS_FINISHED;
+                    if (getErrors() > 0) {
+                      statusDescription = Pipeline.STRING_FINISHED_WITH_ERRORS;
+                    } else {
+                      statusDescription = Pipeline.STRING_FINISHED;
+                    }
                     executionEndDate = new Date();
                   } catch (Exception e) {
                     throw new RuntimeException("Error post-processing a beam pipeline", e);
@@ -519,8 +530,9 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   protected synchronized void evaluatePipelineStatus() throws HopException {
+    // For pipelines that don't evaluate asynchronously we can't change the status
+    //
     if (beamPipelineResults == null || safelyCall(() -> beamPipelineResults.getState()) == null) {
-      statusDescription = "";
       return;
     }
 
@@ -1029,8 +1041,12 @@ public abstract class BeamPipelineEngine extends Variables
       if (location != null) {
         executionInfoLocation = location;
 
+        IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+
         // Initialize the location.
-        location.getExecutionInfoLocation().initialize(this, metadataProvider);
+        iLocation.initialize(this, metadataProvider);
+        // Close shop when we're done
+        addExecutionFinishedListener(l -> iLocation.close());
       } else {
         logChannel.logError(
             "Execution information location '"
@@ -1087,6 +1103,10 @@ public abstract class BeamPipelineEngine extends Variables
     ExecutionState executionState =
         ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1).build();
     executionInfoLocation.getExecutionInfoLocation().updateExecutionState(executionState);
+
+    // Close the location: close connections & temp files, empty memory structures.
+    //
+    executionInfoLocation.getExecutionInfoLocation().close();
   }
 
   /**

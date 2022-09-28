@@ -31,7 +31,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
-import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -66,7 +66,6 @@ public class TransformFn extends TransformBaseFn {
   protected String metastoreJson;
   protected List<String> transformPluginClasses;
   protected List<String> xpPluginClasses;
-  protected String transformName;
   protected String transformPluginId;
   protected String transformMetaInterfaceXml;
   protected String inputRowMetaJson;
@@ -162,7 +161,8 @@ public class TransformFn extends TransformBaseFn {
       // Call start of the bundle on the transform
       //
       if (executor != null) {
-        // Increment the bundle number before calling the next startBundle() method in the Hop transforms.
+        // Increment the bundle number before calling the next startBundle() method in the Hop
+        // transforms.
         //
         executor
             .getPipeline()
@@ -323,7 +323,7 @@ public class TransformFn extends TransformBaseFn {
     // The data samplers list is composed of those in the data profile along with the set from
     // the extra ones in the parent pipeline.
     //
-    lookupExecutionInformation(metadataProvider);
+    lookupExecutionInformation(variables, metadataProvider);
 
     iTransformMeta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
 
@@ -345,10 +345,13 @@ public class TransformFn extends TransformBaseFn {
     // Indicate that we're dealing with a Beam pipeline during execution
     // Start counting bundle numbers from 1
     //
-    pipeline.getTransforms().forEach(c -> {
-      c.data.setBeamContext(true);
-      c.data.setBeamBundleNr(1);
-    });
+    pipeline
+        .getTransforms()
+        .forEach(
+            c -> {
+              c.data.setBeamContext(true);
+              c.data.setBeamBundleNr(1);
+            });
 
     // Create producers so we can efficiently pass data
     //
@@ -624,7 +627,11 @@ public class TransformFn extends TransformBaseFn {
         if (executionInfoTimer != null) {
           executionInfoTimer.cancel();
         }
-        sendSamplesToLocation();
+        sendSamplesToLocation(true);
+
+        // Close the location
+        //
+        executionInfoLocation.getExecutionInfoLocation().close();
       }
     } catch (Exception e) {
       LOG.error(

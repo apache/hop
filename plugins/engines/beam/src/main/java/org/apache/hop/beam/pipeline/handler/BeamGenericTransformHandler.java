@@ -32,7 +32,7 @@ import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.transform.TransformBatchTransform;
 import org.apache.hop.beam.core.transform.TransformTransform;
 import org.apache.hop.beam.core.util.HopBeamUtil;
-import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.beam.util.BeamConst;

@@ -125,132 +125,143 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
         throw new HopException("Unable to find execution information location " + locationName);
       }
 
+      IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+
       // Initialize the location.
-      location.getExecutionInfoLocation().initialize(variables, provider);
+      iLocation.initialize(variables, provider);
 
-      switch (type) {
-        case state:
-          {
-            // Get the state of an execution: we need an execution ID
-            //
-            String id = request.getParameter(PARAMETER_ID);
-            if (StringUtils.isEmpty(id)) {
-              throw new HopException(
-                  "Please specify the ID of execution state with parameter 'id'");
+      try {
+        switch (type) {
+          case state:
+            {
+              // Get the state of an execution: we need an execution ID
+              //
+              String id = request.getParameter(PARAMETER_ID);
+              if (StringUtils.isEmpty(id)) {
+                throw new HopException(
+                    "Please specify the ID of execution state with parameter 'id'");
+              }
+              ExecutionState executionState =
+                  location.getExecutionInfoLocation().getExecutionState(id);
+              new ObjectMapper().writeValue(out, executionState);
             }
-            ExecutionState executionState =
-                location.getExecutionInfoLocation().getExecutionState(id);
-            new ObjectMapper().writeValue(out, executionState);
-          }
-          break;
-        case ids:
-          {
-            String children = request.getParameter(PARAMETER_CHILDREN);
-            boolean includeChildren =
-                "Y".equalsIgnoreCase(children) || "true".equalsIgnoreCase(children);
-            String limit = request.getParameter(PARAMETER_LIMIT);
-            int limitNr = Const.toInt(limit, 100);
-            List<String> ids =
-                location.getExecutionInfoLocation().getExecutionIds(includeChildren, limitNr);
-            new ObjectMapper().writeValue(out, ids);
-          }
-          break;
-        case execution:
-          {
-            // Get an execution: we need an execution ID
-            //
-            String id = request.getParameter(PARAMETER_ID);
-            if (StringUtils.isEmpty(id)) {
-              throw new HopException("Please specify the execution ID with parameter 'id'");
+            break;
+          case ids:
+            {
+              String children = request.getParameter(PARAMETER_CHILDREN);
+              boolean includeChildren =
+                  "Y".equalsIgnoreCase(children) || "true".equalsIgnoreCase(children);
+              String limit = request.getParameter(PARAMETER_LIMIT);
+              int limitNr = Const.toInt(limit, 100);
+              List<String> ids =
+                  location.getExecutionInfoLocation().getExecutionIds(includeChildren, limitNr);
+              new ObjectMapper().writeValue(out, ids);
             }
-            Execution execution = location.getExecutionInfoLocation().getExecution(id);
-            new ObjectMapper().writeValue(out, execution);
-          }
-          break;
-        case children:
-          {
-            String id = request.getParameter(PARAMETER_ID);
-            if (StringUtils.isEmpty(id)) {
-              throw new HopException("Please specify the parent execution ID with parameter 'id'");
+            break;
+          case execution:
+            {
+              // Get an execution: we need an execution ID
+              //
+              String id = request.getParameter(PARAMETER_ID);
+              if (StringUtils.isEmpty(id)) {
+                throw new HopException("Please specify the execution ID with parameter 'id'");
+              }
+              Execution execution = location.getExecutionInfoLocation().getExecution(id);
+              new ObjectMapper().writeValue(out, execution);
             }
-            List<Execution> children = location.getExecutionInfoLocation().findChildExecutions(id);
-            new ObjectMapper().writeValue(out, children);
-          }
-          break;
-        case data:
-          {
-            // Get a execution data: we need an execution ID and its parent
-            //
-            String parentId = request.getParameter(PARAMETER_PARENT_ID);
-            if (StringUtils.isEmpty(parentId)) {
-              throw new HopException(
-                  "Please specify the parent execution ID with parameter 'parentId'");
+            break;
+          case children:
+            {
+              String id = request.getParameter(PARAMETER_ID);
+              if (StringUtils.isEmpty(id)) {
+                throw new HopException(
+                    "Please specify the parent execution ID with parameter 'id'");
+              }
+              List<Execution> children =
+                  location.getExecutionInfoLocation().findExecutions(id);
+              new ObjectMapper().writeValue(out, children);
             }
-            String id = request.getParameter("id");
-            if (StringUtils.isEmpty(id)) {
-              throw new HopException("Please specify the execution ID with parameter 'id'");
+            break;
+          case data:
+            {
+              // Get a execution data: we need an execution ID and its parent
+              //
+              String parentId = request.getParameter(PARAMETER_PARENT_ID);
+              if (StringUtils.isEmpty(parentId)) {
+                throw new HopException(
+                    "Please specify the parent execution ID with parameter 'parentId'");
+              }
+              String id = request.getParameter("id");
+              if (StringUtils.isEmpty(id)) {
+                throw new HopException("Please specify the execution ID with parameter 'id'");
+              }
+              ExecutionData data =
+                  location.getExecutionInfoLocation().getExecutionData(parentId, id);
+              new ObjectMapper().writeValue(out, data);
             }
-            ExecutionData data = location.getExecutionInfoLocation().getExecutionData(parentId, id);
-            new ObjectMapper().writeValue(out, data);
-          }
-          break;
-        case lastExecution:
-          {
-            // Get the last execution: we need an execution type and a name
-            //
-            String name = request.getParameter(PARAMETER_NAME);
-            if (StringUtils.isEmpty(name)) {
-              throw new HopException(
-                  "Please specify the name of the last execution to find with parameter 'name'");
-            }
-            String execType = request.getParameter(PARAMETER_EXEC_TYPE);
-            if (StringUtils.isEmpty(execType)) {
-              throw new HopException(
-                  "Please specify the type of the last execution to find with parameter 'execType'");
-            }
-            ExecutionType executionType = ExecutionType.valueOf(execType);
+            break;
+          case lastExecution:
+            {
+              // Get the last execution: we need an execution type and a name
+              //
+              String name = request.getParameter(PARAMETER_NAME);
+              if (StringUtils.isEmpty(name)) {
+                throw new HopException(
+                    "Please specify the name of the last execution to find with parameter 'name'");
+              }
+              String execType = request.getParameter(PARAMETER_EXEC_TYPE);
+              if (StringUtils.isEmpty(execType)) {
+                throw new HopException(
+                    "Please specify the type of the last execution to find with parameter 'execType'");
+              }
+              ExecutionType executionType = ExecutionType.valueOf(execType);
 
-            Execution execution =
-                location.getExecutionInfoLocation().findLastExecution(executionType, name);
-            new ObjectMapper().writeValue(out, execution);
-          }
-          break;
-        case childIds:
-          {
-            String execType = request.getParameter(PARAMETER_EXEC_TYPE);
-            if (StringUtils.isEmpty(execType)) {
-              throw new HopException(
-                  "Please specify the type of execution to find children for with parameter 'execType'");
+              Execution execution =
+                  location.getExecutionInfoLocation().findLastExecution(executionType, name);
+              new ObjectMapper().writeValue(out, execution);
             }
-            ExecutionType executionType = ExecutionType.valueOf(execType);
+            break;
+          case childIds:
+            {
+              String execType = request.getParameter(PARAMETER_EXEC_TYPE);
+              if (StringUtils.isEmpty(execType)) {
+                throw new HopException(
+                    "Please specify the type of execution to find children for with parameter 'execType'");
+              }
+              ExecutionType executionType = ExecutionType.valueOf(execType);
 
-            String id = request.getParameter(PARAMETER_ID);
-            if (StringUtils.isEmpty(id)) {
-              throw new HopException(
-                  "Please specify the ID of execution to find children for with parameter 'id'");
-            }
+              String id = request.getParameter(PARAMETER_ID);
+              if (StringUtils.isEmpty(id)) {
+                throw new HopException(
+                    "Please specify the ID of execution to find children for with parameter 'id'");
+              }
 
-            List<String> ids = location.getExecutionInfoLocation().findChildIds(executionType, id);
-            new ObjectMapper().writeValue(out, ids);
-          }
-          break;
-        case parentId:
-          {
-            String id = request.getParameter(PARAMETER_ID);
-            if (StringUtils.isEmpty(id)) {
-              throw new HopException(
-                  "Please specify the child execution ID to find the parent for with parameter 'id'");
+              List<String> ids =
+                  location.getExecutionInfoLocation().findChildIds(executionType, id);
+              new ObjectMapper().writeValue(out, ids);
             }
-            String parentId = location.getExecutionInfoLocation().findParentId(id);
-            new ObjectMapper().writeValue(out, parentId);
-          }
-          break;
-        default:
-          String message = "Unknown update type: " + type + ". Allowed values are: ";
-          for (Type typeValue : Type.values()) {
-            message += typeValue.name() + " ";
-          }
-          throw new HopException(message);
+            break;
+          case parentId:
+            {
+              String id = request.getParameter(PARAMETER_ID);
+              if (StringUtils.isEmpty(id)) {
+                throw new HopException(
+                    "Please specify the child execution ID to find the parent for with parameter 'id'");
+              }
+              String parentId = location.getExecutionInfoLocation().findParentId(id);
+              new ObjectMapper().writeValue(out, parentId);
+            }
+            break;
+          default:
+            StringBuilder message =
+                new StringBuilder("Unknown update type: " + type + ". Allowed values are: ");
+            for (Type typeValue : Type.values()) {
+              message.append(typeValue.name()).append(" ");
+            }
+            throw new HopException(message.toString());
+        }
+      } finally {
+        iLocation.close();
       }
     } catch (Exception e) {
       String message = Const.getStackTracker(e);

@@ -26,6 +26,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -36,7 +37,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public abstract class BaseExecutionViewer extends Composite {
+public abstract class BaseExecutionViewer extends Composite
+    implements MouseMoveListener, KeyListener, MouseListener {
+
+  public static final String STRING_STATE_STALE = "Stale";
 
   protected final HopGui hopGui;
   protected final PropsUi props;
@@ -50,6 +54,7 @@ public abstract class BaseExecutionViewer extends Composite {
   protected float magnification = 1.0f;
   protected CTabFolder tabFolder;
   protected Point offset;
+  protected Point currentMouseLocation;
 
   public BaseExecutionViewer(Composite parent, HopGui hopGui) {
     super(parent, SWT.NO_BACKGROUND);
@@ -64,6 +69,11 @@ public abstract class BaseExecutionViewer extends Composite {
     return hopGui.getDisplay();
   }
 
+  @Override
+  public boolean setFocus() {
+    return canvas.setFocus();
+  }
+
   protected float calculateCorrectedMagnification() {
     return (float) (magnification * PropsUi.getInstance().getZoomFactor());
   }
@@ -71,10 +81,10 @@ public abstract class BaseExecutionViewer extends Composite {
   public Point screen2real(int x, int y) {
     float correctedMagnification = calculateCorrectedMagnification();
     Point real;
-      real =
-              new Point(
-                      Math.round((x / correctedMagnification - offset.x)),
-                      Math.round((y / correctedMagnification - offset.y)));
+    real =
+        new Point(
+            Math.round((x / correctedMagnification - offset.x)),
+            Math.round((y / correctedMagnification - offset.y)));
 
     return real;
   }
@@ -90,10 +100,33 @@ public abstract class BaseExecutionViewer extends Composite {
   }
 
   protected String formatDate(Date date) {
-    if (date==null) {
+    if (date == null) {
       return "";
     }
     return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date);
   }
 
+  @Override
+  public void mouseMove(MouseEvent e) {
+    this.currentMouseLocation = screen2real(e.x, e.y);
+  }
+
+  public abstract void drillDownOnHover();
+
+  @Override
+  public void keyPressed(KeyEvent keyEvent) {
+    if (currentMouseLocation != null && keyEvent.keyCode == 'z') {
+      drillDownOnHover();
+    }
+  }
+
+  @Override
+  public void keyReleased(KeyEvent keyEvent) {}
+
+  @Override
+  public void mouseDoubleClick(MouseEvent mouseEvent) {
+    if (currentMouseLocation != null) {
+      drillDownOnHover();
+    }
+  }
 }

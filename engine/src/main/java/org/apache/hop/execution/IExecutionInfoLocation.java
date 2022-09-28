@@ -46,7 +46,22 @@ public interface IExecutionInfoLocation extends Cloneable {
 
   IExecutionInfoLocation clone();
 
+  /**
+   * Initialize a location. Load files, open database connections, ...
+   *
+   * @param variables
+   * @param metadataProvider
+   * @throws HopException
+   */
   void initialize(IVariables variables, IHopMetadataProvider metadataProvider) throws HopException;
+
+  /**
+   * When you're done with this location you can call this method to clean up any left-over
+   * temporary files, memory structures or database connections.
+   *
+   * @throws HopException
+   */
+  void close() throws HopException;
 
   /**
    * Register an execution of a pipeline or workflow at this location * *
@@ -55,7 +70,6 @@ public interface IExecutionInfoLocation extends Cloneable {
    * @throws HopException In case there was a problem with the registration
    */
   void registerExecution(Execution execution) throws HopException;
-
 
   /**
    * update the execution details of an executor: pipeline, workflow, transform or action
@@ -67,6 +81,7 @@ public interface IExecutionInfoLocation extends Cloneable {
 
   /**
    * Get the execution state for an execution
+   *
    * @param executionId The id of the execution
    * @return The state of the execution or null if not found
    * @throws HopException In case there was a problem reading the state
@@ -75,15 +90,18 @@ public interface IExecutionInfoLocation extends Cloneable {
 
   /**
    * register output data for a given transform
+   *
    * @param data
    * @throws HopException
    */
   void registerData(ExecutionData data) throws HopException;
 
   /**
-   * Retrieve a list of execution IDs (log channel IDs) for all pipelines and workflows.
-   * The list is reverse ordered by (start of) execution date.
-   * @param includeChildren set to true if you want to see child executions of workflows and pipelines.
+   * Retrieve a list of execution IDs (log channel IDs) for all pipelines and workflows. The list is
+   * reverse ordered by (start of) execution date.
+   *
+   * @param includeChildren set to true if you want to see child executions of workflows and
+   *     pipelines.
    * @param limit the maximum number of IDs to retrieve or a value <=0 to get all IDs.
    * @return The list of execution IDs
    * @throws HopException in case something went wrong
@@ -91,8 +109,9 @@ public interface IExecutionInfoLocation extends Cloneable {
   List<String> getExecutionIds(boolean includeChildren, int limit) throws HopException;
 
   /**
-   * Get the execution information for a specific execution ID.
-   * This is the execution information of a workflow or pipeline.
+   * Get the execution information for a specific execution ID. This is the execution information of
+   * a workflow or pipeline.
+   *
    * @param executionId The ID of the execution to look for
    * @return The Execution or null if nothing was found
    * @throws HopException in case something went wrong
@@ -100,21 +119,45 @@ public interface IExecutionInfoLocation extends Cloneable {
   Execution getExecution(String executionId) throws HopException;
 
   /**
-   * Find all the child executions for a particular execution ID.
-   * For example if you want to know the execution of a particular action you can use this method.
+   * Find all the child executions for a particular execution ID. For example if you want to know
+   * the execution of a particular action you can use this method.
    *
    * @param parentExecutionId The parent execution ID
    * @return A list of executions or an empty list if nothing was found.
    * @throws HopException In case of an unexpected error.
    */
-  List<Execution> findChildExecutions(String parentExecutionId) throws HopException;
+  List<Execution> findExecutions(String parentExecutionId) throws HopException;
 
   /**
-   * Get execution data for transforms or an action.
-   * The parent ID would typically be a pipeline ID, and you'd get data for all the transforms.
-   * You can also get the execution data for specific actions in a workflow (when finished).
+   * Find the previous successful execution of a pipeline or workflow.
+   *
+   * @param executionType The type of execution to look for
+   * @param name The name of the executor
+   * @return The execution or null if no previous successful execution could be found.
+   * @throws HopException
+   */
+  Execution findPreviousSuccessfulExecution(ExecutionType executionType, String name)
+      throws HopException;
+
+  /**
+   * Find executions with a matcher. This will parse through all executions in the location.
+   *
+   * @param matcher The matcher to allow you to filter any execution from the system.
+   * @return A list of executions or an empty list if nothing was found.
+   * @throws HopException In case of an unexpected error.
+   */
+  List<Execution> findExecutions(IExecutionMatcher matcher) throws HopException;
+
+  /**
+   * Get execution data for transforms or an action. The parent ID would typically be a pipeline ID,
+   * and you'd get data for all the transforms. You can also get the execution data for specific
+   * actions in a workflow (when finished).
+   *
    * @param parentExecutionId The ID of the parent (pipeline) execution.
-   * @param executionId The ID of the transforms (all transforms) or a specific action.
+   * @param executionId The ID of the transforms (all transforms) or a specific action. Set this
+   *     parameter to null if you want to collect all the data associated with the parent execution
+   *     ID. This is for the Beam use case where we don't know up-front how many transforms are
+   *     running or when they'll pop up.
    * @return The ExecutionData
    * @throws HopException In case something went wrong
    */
@@ -122,6 +165,7 @@ public interface IExecutionInfoLocation extends Cloneable {
 
   /**
    * Find the last execution of with a given type and name
+   *
    * @param executionType The type to look for
    * @param name The name to match
    * @return The last execution or null if none could be found
@@ -129,19 +173,21 @@ public interface IExecutionInfoLocation extends Cloneable {
   Execution findLastExecution(ExecutionType executionType, String name) throws HopException;
 
   /**
-   * Find children of an execution.  A workflow can find child actions with this method.
+   * Find children of an execution. A workflow can find child actions with this method.
+   *
    * @param parentExecutionType The parent execution type (Workflow or Pipeline)
    * @param executionId The parent execution ID to look into
    * @return A list of IDs or an empty list if nothing could be found.
    * @throws HopException in case of a serialization error
    */
-  List<String> findChildIds(ExecutionType parentExecutionType, String executionId) throws HopException;
+  List<String> findChildIds(ExecutionType parentExecutionType, String executionId)
+      throws HopException;
 
   String findParentId(String childId) throws HopException;
 
-    /**
-   * This object factory is needed to instantiate the correct plugin class
-   * based on the value of the Object ID which is simply the object ID.
+  /**
+   * This object factory is needed to instantiate the correct plugin class based on the value of the
+   * Object ID which is simply the object ID.
    */
   final class ExecutionInfoLocationObjectFactory implements IHopMetadataObjectFactory {
 
@@ -156,7 +202,9 @@ public interface IExecutionInfoLocation extends Cloneable {
     public String getObjectId(Object object) throws HopException {
       if (!(object instanceof IExecutionInfoLocation)) {
         throw new HopException(
-                "Object is not of class IExecutionInfoLocation but of " + object.getClass().getName() + "'");
+            "Object is not of class IExecutionInfoLocation but of "
+                + object.getClass().getName()
+                + "'");
       }
       return ((IExecutionInfoLocation) object).getPluginId();
     }

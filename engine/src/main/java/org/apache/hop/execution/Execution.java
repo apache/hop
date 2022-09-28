@@ -87,6 +87,9 @@ public class Execution {
   /** The start time of the execution */
   private Date executionStartDate;
 
+  /** The copy number for an executor transform running in multiple copies */
+  private String copyNr;
+
   public Execution() {
     this.variableValues = new HashMap<>();
     this.parameterValues = new HashMap<>();
@@ -343,5 +346,23 @@ public class Execution {
    */
   public void setExecutionStartDate(Date executionStartDate) {
     this.executionStartDate = executionStartDate;
+  }
+
+  /**
+   * Gets copyNr
+   *
+   * @return value of copyNr
+   */
+  public String getCopyNr() {
+    return copyNr;
+  }
+
+  /**
+   * Sets copyNr
+   *
+   * @param copyNr value of copyNr
+   */
+  public void setCopyNr(String copyNr) {
+    this.copyNr = copyNr;
   }
 }

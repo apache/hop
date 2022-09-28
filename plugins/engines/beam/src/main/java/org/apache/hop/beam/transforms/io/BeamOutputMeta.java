@@ -21,7 +21,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamOutputTransform;
-import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.metadata.FieldDefinition;
 import org.apache.hop.beam.metadata.FileDefinition;

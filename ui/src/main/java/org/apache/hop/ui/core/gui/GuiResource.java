@@ -87,6 +87,8 @@ public class GuiResource {
 
   private Color colorDarkGray;
 
+  private Color colorVeryDarkGray;
+
   private Color colorLightGray;
 
   private Color colorDemoGray;
@@ -336,10 +338,11 @@ public class GuiResource {
     imageMap = new HashMap<>();
     colorMap = new HashMap<>();
 
-    // It is recommended not to use the Device to create the color, but the RAP needs a screen (to be removed if the RAP evolves)!
-    colorBackground = new Color(display, props.contrastColor(new RGB(240,240,240)));
-    colorGraph = new Color(display, props.contrastColor(new RGB(235,235,235)));
-    colorTab = new Color(display, props.contrastColor(new RGB(128,128,128)));
+    // It is recommended not to use the Device to create the color, but the RAP needs a screen (to
+    // be removed if the RAP evolves)!
+    colorBackground = new Color(display, props.contrastColor(new RGB(240, 240, 240)));
+    colorGraph = new Color(display, props.contrastColor(new RGB(235, 235, 235)));
+    colorTab = new Color(display, props.contrastColor(new RGB(128, 128, 128)));
     colorSuccessGreen = new Color(display, props.contrastColor(0, 139, 0));
     colorRed = new Color(display, props.contrastColor(255, 0, 0));
     colorGreen = new Color(display, props.contrastColor(0, 255, 0));
@@ -355,6 +358,7 @@ public class GuiResource {
     colorLightGray = new Color(display, props.contrastColor(225, 225, 225));
     colorGray = new Color(display, props.contrastColor(215, 215, 215));
     colorDarkGray = new Color(display, props.contrastColor(100, 100, 100));
+    colorVeryDarkGray = new Color(display, props.contrastColor(50, 50, 50));
     colorBlack = new Color(display, props.contrastColor(0, 0, 0));
     colorLightBlue = new Color(display, props.contrastColor(135, 206, 250)); // light sky blue
     colorDirectory = new Color(display, props.contrastColor(0, 0, 255));
@@ -880,62 +884,93 @@ public class GuiResource {
     }
   }
 
-  /** @return Returns the colorBackground. */
+  /**
+   * @return Returns the colorBackground.
+   */
   public Color getColorBackground() {
     return colorBackground;
   }
 
-  /** @return Returns the colorBlack. */
+  /**
+   * @return Returns the colorBlack.
+   */
   public Color getColorBlack() {
     return colorBlack;
   }
 
-  /** @return Returns the colorBlue. */
+  /**
+   * @return Returns the colorBlue.
+   */
   public Color getColorBlue() {
     return colorBlue;
   }
 
-  /** @return Returns the colorDarkGray. */
+  /**
+   * @return Returns the colorDarkGray.
+   */
   public Color getColorDarkGray() {
     return colorDarkGray;
   }
 
-  /** @return Returns the colorDemoGray. */
+  /**
+   * @return Returns veryDarkGray.
+   */
+  public Color getColorVeryDarkGray() {
+    return colorVeryDarkGray;
+  }
+
+  /**
+   * @return Returns the colorDemoGray.
+   */
   public Color getColorDemoGray() {
     return colorDemoGray;
   }
 
-  /** @return Returns the colorDirectory. */
+  /**
+   * @return Returns the colorDirectory.
+   */
   public Color getColorDirectory() {
     return colorDirectory;
   }
 
-  /** @return Returns the colorGraph. */
+  /**
+   * @return Returns the colorGraph.
+   */
   public Color getColorGraph() {
     return colorGraph;
   }
 
-  /** @return Returns the colorGray. */
+  /**
+   * @return Returns the colorGray.
+   */
   public Color getColorGray() {
     return colorGray;
   }
 
-  /** @return Returns the colorGreen. */
+  /**
+   * @return Returns the colorGreen.
+   */
   public Color getColorGreen() {
     return colorGreen;
   }
 
-  /** @return Returns the colorLightGray. */
+  /**
+   * @return Returns the colorLightGray.
+   */
   public Color getColorLightGray() {
     return colorLightGray;
   }
 
-  /** @return Returns the colorLightBlue. */
+  /**
+   * @return Returns the colorLightBlue.
+   */
   public Color getColorLightBlue() {
     return colorLightBlue;
   }
 
-  /** @return Returns the colorMagenta. */
+  /**
+   * @return Returns the colorMagenta.
+   */
   public Color getColorMagenta() {
     return colorMagenta;
   }
@@ -948,79 +983,109 @@ public class GuiResource {
     return colorIndigo;
   }
 
-  /** @return Returns the colorOrange. */
+  /**
+   * @return Returns the colorOrange.
+   */
   public Color getColorOrange() {
     return colorOrange;
   }
 
-  /** @return Returns the colorSuccessGreen. */
+  /**
+   * @return Returns the colorSuccessGreen.
+   */
   public Color getColorSuccessGreen() {
     return colorSuccessGreen;
   }
 
-  /** @return Returns the colorRed. */
+  /**
+   * @return Returns the colorRed.
+   */
   public Color getColorRed() {
     return colorRed;
   }
 
-  /** @return Returns the colorBlueCustomGrid. */
+  /**
+   * @return Returns the colorBlueCustomGrid.
+   */
   public Color getColorBlueCustomGrid() {
     return colorBlueCustomGrid;
   }
 
-  /** @return Returns the colorTab. */
+  /**
+   * @return Returns the colorTab.
+   */
   public Color getColorTab() {
     return colorTab;
   }
 
-  /** @return Returns the colorWhite. */
+  /**
+   * @return Returns the colorWhite.
+   */
   public Color getColorWhite() {
     return colorWhite;
   }
 
-  /** @return Returns the colorYellow. */
+  /**
+   * @return Returns the colorYellow.
+   */
   public Color getColorYellow() {
     return colorYellow;
   }
 
-  /** @return Returns the fontFixed. */
+  /**
+   * @return Returns the fontFixed.
+   */
   public Font getFontFixed() {
     return fontFixed.getFont();
   }
 
-  /** @return Returns the fontGraph. */
+  /**
+   * @return Returns the fontGraph.
+   */
   public Font getFontGraph() {
     return fontGraph.getFont();
   }
 
-  /** @return Returns the fontNote. */
+  /**
+   * @return Returns the fontNote.
+   */
   public Font getFontNote() {
     return fontNote.getFont();
   }
 
-  /** @return Returns the imageBol. */
+  /**
+   * @return Returns the imageBol.
+   */
   public Image getImageBol() {
     return imageBol.getAsBitmapForSize(display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  /** @return Returns the imageCalendar. */
+  /**
+   * @return Returns the imageCalendar.
+   */
   public Image getImageCalendar() {
     return imageCalendar;
   }
 
-  /** @return Returns the imageServer. */
+  /**
+   * @return Returns the imageServer.
+   */
   public Image getImageServer() {
     return imageServer.getAsBitmapForSize(
         display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  /** @return Returns the database image. */
+  /**
+   * @return Returns the database image.
+   */
   public Image getImageDatabase() {
     return imageDatabase.getAsBitmapForSize(
         display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  /** @return Returns the data image. */
+  /**
+   * @return Returns the data image.
+   */
   public Image getImageData() {
     return imageData.getAsBitmapForSize(display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
@@ -1037,38 +1102,52 @@ public class GuiResource {
     return imageAdd;
   }
 
-  /** @return Returns the table image. */
+  /**
+   * @return Returns the table image.
+   */
   public Image getImageTable() {
     return imageTable;
   }
 
-  /** @return Returns the preview image. */
+  /**
+   * @return Returns the preview image.
+   */
   public Image getImagePreview() {
     return imagePreview.getAsBitmapForSize(
         display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  /** @return Returns the imageSchema. */
+  /**
+   * @return Returns the imageSchema.
+   */
   public Image getImageSchema() {
     return imageSchema;
   }
 
-  /** @return Returns the imageSynonym. */
+  /**
+   * @return Returns the imageSynonym.
+   */
   public Image getImageSynonym() {
     return imageSynonym;
   }
 
-  /** @return Returns the imageView. */
+  /**
+   * @return Returns the imageView.
+   */
   public Image getImageNote() {
     return imageNote;
   }
 
-  /** @return Returns the imageColor. */
+  /**
+   * @return Returns the imageColor.
+   */
   public Image getImageColor() {
     return imageColor;
   }
 
-  /** @return Returns the imageMissing. */
+  /**
+   * @return Returns the imageMissing.
+   */
   public Image getImageMissing() {
     return imageMissing.getAsBitmapForSize(display, ConstUi.ICON_SIZE, ConstUi.ICON_SIZE);
   }
@@ -1077,23 +1156,31 @@ public class GuiResource {
     return imageMissing;
   }
 
-  /** @return Returns the imageHop. */
+  /**
+   * @return Returns the imageHop.
+   */
   public Image getImageHop() {
     return imageLogo.getAsBitmapForSize(display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  /** @return Returns the imageDisabledHop. */
+  /**
+   * @return Returns the imageDisabledHop.
+   */
   public Image getImageDisabledHop() {
     return imageDisabledHop.getAsBitmapForSize(
         display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  /** @return Returns the imagesTransforms. */
+  /**
+   * @return Returns the imagesTransforms.
+   */
   public Map<String, SwtUniversalImage> getImagesTransforms() {
     return imagesTransforms;
   }
 
-  /** @return Returns the imagesActions. */
+  /**
+   * @return Returns the imagesActions.
+   */
   public Map<String, SwtUniversalImage> getImagesActions() {
     return imagesActions;
   }
@@ -1108,22 +1195,30 @@ public class GuiResource {
     return imagesValueMeta.get(String.valueOf(valueMeta.getType()));
   }
 
-  /** @return the fontLarge */
+  /**
+   * @return the fontLarge
+   */
   public Font getFontLarge() {
     return fontLarge.getFont();
   }
 
-  /** @return the tiny font */
+  /**
+   * @return the tiny font
+   */
   public Font getFontTiny() {
     return fontTiny.getFont();
   }
 
-  /** @return the small font */
+  /**
+   * @return the small font
+   */
   public Font getFontSmall() {
     return fontSmall.getFont();
   }
 
-  /** @return Returns the clipboard. */
+  /**
+   * @return Returns the clipboard.
+   */
   public Clipboard getNewClipboard() {
     if (clipboard != null) {
       clipboard.dispose();
@@ -1161,7 +1256,9 @@ public class GuiResource {
         device, (int) (zoomFactor * width), (int) (zoomFactor * height));
   }
 
-  /** @return the imageVariable */
+  /**
+   * @return the imageVariable
+   */
   public Image getImageVariable() {
     return getZoomedImaged(imageVariable, display, 10, 10);
   }
@@ -1198,7 +1295,9 @@ public class GuiResource {
     return imageResetOption;
   }
 
-  /** @return the imageArrow */
+  /**
+   * @return the imageArrow
+   */
   public Image getImageArrow() {
     return getZoomedImaged(imageArrow, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
@@ -1207,27 +1306,37 @@ public class GuiResource {
     return imageArrow;
   }
 
-  /** @return the imageArrow */
+  /**
+   * @return the imageArrow
+   */
   public Image getImageFolder() {
     return getZoomedImaged(imageFolder, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  /** @return the imageFile */
+  /**
+   * @return the imageFile
+   */
   public Image getImageFile() {
     return getZoomedImaged(imageFile, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  /** @return the color */
+  /**
+   * @return the color
+   */
   public Color getColorHop() {
     return colorHop;
   }
 
-  /** @return the imageLogoSmall */
+  /**
+   * @return the imageLogoSmall
+   */
   public Image getImageHopUi() {
     return getZoomedImaged(imageLogo, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
-  /** @return the image size for Taskbar */
+  /**
+   * @return the image size for Taskbar
+   */
   public Image getImageHopUiTaskbar() {
     if (OsHelper.isMac()) {
       return getZoomedImaged(imageLogo, display, 512, 512);
@@ -1236,32 +1345,44 @@ public class GuiResource {
     }
   }
 
-  /** @return the colorLight */
+  /**
+   * @return the colorLight
+   */
   public Color getColorLight() {
     return colorLight;
   }
 
-  /** @return the colorCream */
+  /**
+   * @return the colorCream
+   */
   public Color getColorCream() {
     return colorCream;
   }
 
-  /** @return the default color of text in the Crystal theme */
+  /**
+   * @return the default color of text in the Crystal theme
+   */
   public Color getColorCrystalText() {
     return colorCrystalText;
   }
 
-  /** @return the default color the hop lines for default/unconditional */
+  /**
+   * @return the default color the hop lines for default/unconditional
+   */
   public Color getColorHopDefault() {
     return colorHopDefault;
   }
 
-  /** @return the default color the hop lines for the "OK" condition */
+  /**
+   * @return the default color the hop lines for the "OK" condition
+   */
   public Color getColorHopTrue() {
     return colorHopTrue;
   }
 
-  /** @return the default color the deprecated condition */
+  /**
+   * @return the default color the deprecated condition
+   */
   public Color getColorDeprecated() {
     return colorDeprecated;
   }
@@ -1295,72 +1416,100 @@ public class GuiResource {
     return p;
   }
 
-  /** @return the fontMedium */
+  /**
+   * @return the fontMedium
+   */
   public Font getFontMedium() {
     return fontMedium.getFont();
   }
 
-  /** @return the fontMediumBold */
+  /**
+   * @return the fontMediumBold
+   */
   public Font getFontMediumBold() {
     return fontMediumBold.getFont();
   }
 
-  /** @return the imageShowLog */
+  /**
+   * @return the imageShowLog
+   */
   public Image getImageShowLog() {
     return imageShowLog;
   }
 
-  /** @return the imageShowGrid */
+  /**
+   * @return the imageShowGrid
+   */
   public Image getImageShowGrid() {
     return imageShowGrid;
   }
 
-  /** @return the imageShowHistory */
+  /**
+   * @return the imageShowHistory
+   */
   public Image getImageShowHistory() {
     return imageShowHistory;
   }
 
-  /** @return the imageShowPerf */
+  /**
+   * @return the imageShowPerf
+   */
   public Image getImageShowPerf() {
     return imageShowPerf;
   }
 
-  /** @return the "hide" image */
+  /**
+   * @return the "hide" image
+   */
   public Image getImageHide() {
     return imageHide;
   }
 
-  /** @return the "show" image */
+  /**
+   * @return the "show" image
+   */
   public Image getImageShow() {
     return imageShow;
   }
 
-  /** @return the "show selected" image */
+  /**
+   * @return the "show selected" image
+   */
   public Image getImageShowSelected() {
     return imageShowSelected;
   }
 
-  /** @return the "show all" image */
+  /**
+   * @return the "show all" image
+   */
   public Image getImageShowAll() {
     return imageShowAll;
   }
 
-  /** @return the close panel image */
+  /**
+   * @return the close panel image
+   */
   public Image getImageClosePanel() {
     return imageClosePanel;
   }
 
-  /** @return the maximize panel image */
+  /**
+   * @return the maximize panel image
+   */
   public Image getImageMaximizePanel() {
     return imageMaximizePanel;
   }
 
-  /** @return the minimize panel image */
+  /**
+   * @return the minimize panel image
+   */
   public Image getImageMinimizePanel() {
     return imageMinimizePanel;
   }
 
-  /** @return the show error lines image */
+  /**
+   * @return the show error lines image
+   */
   public Image getImageShowErrorLines() {
     return imageShowErrorLines;
   }
@@ -1646,7 +1795,9 @@ public class GuiResource {
     return imageMap;
   }
 
-  /** @return the imageTrue */
+  /**
+   * @return the imageTrue
+   */
   public Image getImageTrue() {
     return getZoomedImaged(imageTrue, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
@@ -1659,7 +1810,9 @@ public class GuiResource {
     return imageTrueDisabled;
   }
 
-  /** @return the imageFalse */
+  /**
+   * @return the imageFalse
+   */
   public Image getImageFalse() {
     return getZoomedImaged(imageFalse, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
@@ -1688,7 +1841,9 @@ public class GuiResource {
     return imageSuccess;
   }
 
-  /** @return the imageContextMenu */
+  /**
+   * @return the imageContextMenu
+   */
   public Image getImageContextMenu() {
     return getZoomedImaged(
         imageContextMenu, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);

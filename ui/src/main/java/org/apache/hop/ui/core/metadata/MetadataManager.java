@@ -34,7 +34,6 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextHandler;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
-import org.apache.hop.ui.hopgui.dialog.MetadataExplorerDialog;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
@@ -63,11 +62,6 @@ public class MetadataManager<T extends IHopMetadata> {
     this.classLoader = managedClass.getClassLoader();
     this.metadataProvider = metadataProvider;
     this.managedClass = managedClass;
-  }
-
-  public void openMetaStoreExplorer() {
-    MetadataExplorerDialog dialog = new MetadataExplorerDialog(HopGui.getInstance().getShell());
-    dialog.open();
   }
 
   /**
@@ -181,16 +175,28 @@ public class MetadataManager<T extends IHopMetadata> {
       initializeElementVariables(element);
 
       MetadataEditor<T> editor = this.createEditor(element);
-      editor.setTitle(getManagedName());
-      MetadataEditorDialog dialog = new MetadataEditorDialog(hopGui.getShell(), editor);
-      String result = dialog.open();
+      editor.setTitle(element.getName());
 
-      if (result != null) {
-        ExtensionPointHandler.callExtensionPoint(
-            hopGui.getLog(), variables, HopExtensionPoint.HopGuiMetadataObjectUpdated.id, element);
-        return true;
-      } else {
+      // Open this element in the metadata perspective if that one is active.
+      //
+      MetadataPerspective perspective = HopGui.getMetadataPerspective();
+      if (perspective.isActive()) {
+        perspective.addEditor(editor);
         return false;
+      } else {
+        MetadataEditorDialog dialog = new MetadataEditorDialog(hopGui.getShell(), editor);
+        String result = dialog.open();
+
+        if (result != null) {
+          ExtensionPointHandler.callExtensionPoint(
+              hopGui.getLog(),
+              variables,
+              HopExtensionPoint.HopGuiMetadataObjectUpdated.id,
+              element);
+          return true;
+        } else {
+          return false;
+        }
       }
 
     } catch (Exception e) {
@@ -385,7 +391,7 @@ public class MetadataManager<T extends IHopMetadata> {
     try {
       // Create a new instance of the managed class
       //
-      T element = managedClass.newInstance();
+      T element = managedClass.getDeclaredConstructor().newInstance();
       initializeElementVariables(element);
 
       return newMetadata(element);
@@ -408,6 +414,9 @@ public class MetadataManager<T extends IHopMetadata> {
       MetadataEditor<T> editor = this.createEditor(element);
       editor.setTitle(getManagedName());
 
+      // Always open this in a separate dialog so that we block until we have a name for the new element.
+      // Parent code can then use that name to fill in the proper widget.
+      //
       MetadataEditorDialog dialog =
           new MetadataEditorDialog(HopGui.getInstance().getShell(), editor);
 
@@ -434,7 +443,7 @@ public class MetadataManager<T extends IHopMetadata> {
 
       // Create a new instance of the managed class
       //
-      T element = managedClass.newInstance();
+      T element = managedClass.getDeclaredConstructor().newInstance();
       initializeElementVariables(element);
 
       ExtensionPointHandler.callExtensionPoint(
@@ -523,14 +532,7 @@ public class MetadataManager<T extends IHopMetadata> {
       Constructor<MetadataEditor<T>> constructor;
       constructor = editorClass.getDeclaredConstructor(constructorArguments);
 
-      if (constructor == null) {
-        throw new HopException(
-            "Unable to find editor class ("
-                + className
-                + ") constructor with arguments: HopGui, MetadataManager and IHopMetadata, T and optionally IVariables");
-      }
-
-      return constructor.newInstance(new Object[] {HopGui.getInstance(), this, metadata});
+      return constructor.newInstance(HopGui.getInstance(), this, metadata);
     } catch (InstantiationException
         | IllegalAccessException
         | NoSuchMethodException
@@ -550,7 +552,9 @@ public class MetadataManager<T extends IHopMetadata> {
     return metadataProvider;
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
@@ -564,7 +568,9 @@ public class MetadataManager<T extends IHopMetadata> {
     return variables;
   }
 
-  /** @param variables The variables variables to set */
+  /**
+   * @param variables The variables variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }
@@ -578,7 +584,9 @@ public class MetadataManager<T extends IHopMetadata> {
     return classLoader;
   }
 
-  /** @param classLoader The classLoader to set */
+  /**
+   * @param classLoader The classLoader to set
+   */
   public void setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
@@ -600,7 +608,9 @@ public class MetadataManager<T extends IHopMetadata> {
     return null;
   }
 
-  /** @param managedClass The managedClass to set */
+  /**
+   * @param managedClass The managedClass to set
+   */
   public void setManagedClass(Class<T> managedClass) {
     this.managedClass = managedClass;
   }

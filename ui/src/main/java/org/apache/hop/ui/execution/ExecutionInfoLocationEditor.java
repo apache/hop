@@ -69,7 +69,6 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
   private Text wDescription;
   private Text wDataLoggingDelay;
   private Text wDataLoggingInterval;
-  private Text wDataLoggingSize;
   private ComboVar wPluginType;
 
   private Composite wPluginSpecificComp;
@@ -217,24 +216,6 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     wDataLoggingInterval.setLayoutData(fdDataLoggingInterval);
     lastControl = wDataLoggingInterval;
 
-    Label wlDataLoggingSize = new Label(wMainComp, SWT.RIGHT);
-    props.setLook(wlDataLoggingSize);
-    wlDataLoggingSize.setText(
-        BaseMessages.getString(PKG, "ExecutionInfoLocationEditor.label.DataLoggingSize"));
-    FormData fdlDataLoggingSize = new FormData();
-    fdlDataLoggingSize.top = new FormAttachment(lastControl, margin * 2);
-    fdlDataLoggingSize.left = new FormAttachment(0, 0); // First one in the left top corner
-    fdlDataLoggingSize.right = new FormAttachment(middle, 0);
-    wlDataLoggingSize.setLayoutData(fdlDataLoggingSize);
-    wDataLoggingSize = new Text(wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDataLoggingSize);
-    FormData fdDataLoggingSize = new FormData();
-    fdDataLoggingSize.top = new FormAttachment(wlDataLoggingSize, 0, SWT.CENTER);
-    fdDataLoggingSize.left = new FormAttachment(middle, margin); // To the right of the label
-    fdDataLoggingSize.right = new FormAttachment(100, 0);
-    wDataLoggingSize.setLayoutData(fdDataLoggingSize);
-    lastControl = wDataLoggingSize;
-
     // What's the type of location plugin?
     //
     Label wlPluginType = new Label(wMainComp, SWT.RIGHT);
@@ -301,7 +282,6 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     wDescription.addListener(SWT.Modify, modifyListener);
     wDataLoggingDelay.addListener(SWT.Modify, modifyListener);
     wDataLoggingInterval.addListener(SWT.Modify, modifyListener);
-    wDataLoggingSize.addListener(SWT.Modify, modifyListener);
     wPluginType.addListener(SWT.Modify, modifyListener);
     wPluginType.addListener(SWT.Modify, e -> changeConnectionType());
   }

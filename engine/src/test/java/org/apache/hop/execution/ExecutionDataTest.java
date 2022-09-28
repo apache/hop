@@ -112,7 +112,7 @@ public class ExecutionDataTest {
             "First rows of transform"
     );
     ExecutionData data =
-        ExecutionDataBuilder.anExecutionData()
+        ExecutionDataBuilder.of()
             .addDataSets(Map.of("firstRows", new RowBuffer(rowMeta, rows)))
             .addSetMeta(Map.of("firstRows", setMeta))
             .withParentId("parentId")

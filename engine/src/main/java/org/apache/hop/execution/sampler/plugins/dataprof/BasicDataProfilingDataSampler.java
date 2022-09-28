@@ -310,7 +310,7 @@ public class BasicDataProfilingDataSampler
             if (oldMax == null) {
               store.getMaxLengths().put(name, length);
             } else {
-              if (length < oldMax) {
+              if (length > oldMax) {
                 // We have a new maximum length
                 //
                 store.getMaxLengths().put(name, length);

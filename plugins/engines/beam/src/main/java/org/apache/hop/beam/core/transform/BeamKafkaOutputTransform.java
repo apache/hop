@@ -35,7 +35,7 @@ import org.apache.beam.sdk.values.PDone;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.HopRowToKVStringStringFn;
-import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.beam.transforms.kafka.ConfigOption;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;

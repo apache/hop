@@ -41,10 +41,7 @@ import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEnginePlugin;
 
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @WorkflowEnginePlugin(
@@ -258,8 +255,13 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
         if (location != null) {
           executionInfoLocation = location;
 
+          IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
           // Initialize the location.
-          executionInfoLocation.getExecutionInfoLocation().initialize(this, metadataProvider);
+          // This location is closed when nothing else needs to be done.  This is when the timer is
+          // stopped in
+          // stopExecutionInfoTimer().
+          //
+          iLocation.initialize(this, metadataProvider);
         } else {
           log.logError(
               "Execution information location '"
@@ -365,9 +367,6 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
     @Override
     public void beforeExecution(
         IWorkflowEngine<WorkflowMeta> workflow, ActionMeta actionMeta, IAction action) {
-      ExecutionDataBuilder dataBuilder =
-          ExecutionDataBuilder.beforeActionExecution(
-              workflow, actionMeta, action, referenceVariables);
 
       // Keep the variables from before the action started...
       //
@@ -375,7 +374,28 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
       beforeVariables.copyFrom(workflow);
 
       try {
-        iLocation.registerData(dataBuilder.build());
+        // Register the execution of the action
+        //
+        iLocation.registerExecution(
+            ExecutionBuilder.of()
+                .withId(action.getLogChannel().getLogChannelId())
+                .withParentId(workflow.getLogChannelId())
+                .withExecutionStartDate(new Date())
+                .withRegistrationDate(new Date())
+                .withExecutorType(ExecutionType.Action)
+                .withLogLevel(action.getLogChannel().getLogLevel())
+                .build());
+
+        // Register all the data we can for this action
+        iLocation.registerData(
+            ExecutionDataBuilder.beforeActionExecution(
+                    workflow, actionMeta, action, referenceVariables)
+                .build());
+
+        // Also register the execution node itself
+        //
+        iLocation.registerExecution(
+            ExecutionBuilder.fromAction(workflow, actionMeta, action, new Date()).build());
       } catch (Exception e) {
         log.logError(
             "Error registering execution data before action "
@@ -415,12 +435,18 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
       return;
     }
 
-    IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+    try {
+      IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
 
-    // Register one final last state of the workflow
-    //
-    ExecutionState executionState =
-        ExecutionStateBuilder.fromExecutor(LocalWorkflowEngine.this, -1).build();
-    iLocation.updateExecutionState(executionState);
+      // Register one final last state of the workflow
+      //
+      ExecutionState executionState =
+          ExecutionStateBuilder.fromExecutor(LocalWorkflowEngine.this, -1).build();
+      iLocation.updateExecutionState(executionState);
+    } finally {
+      // Nothing more needs to be done. We can now close the location.
+      //
+      executionInfoLocation.getExecutionInfoLocation().close();
+    }
   }
 }

@@ -86,6 +86,11 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
+  public void close() throws HopException {
+    // Nothing to close
+  }
+
+  @Override
   public void registerExecution(Execution execution) throws HopException {
     try {
       // Register this execution with the
@@ -329,11 +334,11 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public List<Execution> findChildExecutions(String parentExecutionId) throws HopException {
+  public List<Execution> findExecutions(String parentExecutionId) throws HopException {
     try {
       List<Execution> executions = new ArrayList<>();
 
-      for (String id : getExecutionIds(true, 100)) {
+      for (String id : getExecutionIds(true, 10000)) {
         Execution execution = getExecution(id);
         if (parentExecutionId.equals(execution.getParentId())) {
           executions.add(execution);
@@ -343,6 +348,41 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
     } catch (Exception e) {
       throw new HopException(
           "Error finding child executions for parent ID " + parentExecutionId, e);
+    }
+  }
+
+  @Override
+  public List<Execution> findExecutions(IExecutionMatcher matcher) throws HopException {
+    try {
+      List<Execution> executions = new ArrayList<>();
+
+      for (String id : getExecutionIds(true, 0)) {
+        Execution execution = getExecution(id);
+        if (matcher.matches(execution)) {
+          executions.add(execution);
+        }
+      }
+      return executions;
+    } catch (Exception e) {
+      throw new HopException("Error finding executions with a matcher", e);
+    }
+  }
+
+  @Override
+  public Execution findPreviousSuccessfulExecution(ExecutionType executionType, String name)
+      throws HopException {
+    try {
+      List<Execution> executions =
+          findExecutions(e -> e.getExecutionType() == executionType && name.equals(e.getName()));
+      for (Execution execution : executions) {
+        ExecutionState executionState = getExecutionState(execution.getId());
+        if (executionState != null && !executionState.isFailed()) {
+          return execution;
+        }
+      }
+      return null;
+    } catch (Exception e) {
+      throw new HopException("Error finding previous successful execution", e);
     }
   }
 

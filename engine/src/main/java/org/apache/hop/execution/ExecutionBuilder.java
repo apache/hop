@@ -27,7 +27,11 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.Execution.EnvironmentDetailType;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import java.net.InetAddress;
@@ -51,6 +55,7 @@ public final class ExecutionBuilder {
   public Map<String, String> environmentDetails;
   public Date registrationDate;
   public Date executionStartDate;
+  public String copyNr;
 
   private ExecutionBuilder() {
     this.variableValues = new HashMap<>();
@@ -59,18 +64,18 @@ public final class ExecutionBuilder {
     this.registrationDate = new Date();
   }
 
-  public static ExecutionBuilder anExecutionRegistration() {
+  public static ExecutionBuilder of() {
     return new ExecutionBuilder();
   }
 
   public static ExecutionBuilder fromExecutor(IPipelineEngine<PipelineMeta> pipeline)
       throws HopException {
-    ExecutionBuilder builder = anExecutionRegistration();
+    ExecutionBuilder builder = of();
     builder
         .withFilename(pipeline.getPipelineMeta().getFilename())
         .withName(pipeline.getPipelineMeta().getName())
         .withId(pipeline.getLogChannelId())
-        .withParentId(pipeline.getParent()==null ? null : pipeline.getParent().getLogChannelId())
+        .withParentId(pipeline.getParent() == null ? null : pipeline.getParent().getLogChannelId())
         .withExecutorType(ExecutionType.Pipeline)
         .withExecutorXml(pipeline.getPipelineMeta().getXml(pipeline))
         .withMetadataJson(new SerializableMetadataProvider(pipeline.getMetadataProvider()).toJson())
@@ -90,18 +95,18 @@ public final class ExecutionBuilder {
 
   public static ExecutionBuilder fromExecutor(IWorkflowEngine<WorkflowMeta> workflow)
       throws HopException {
-    ExecutionBuilder builder = anExecutionRegistration();
-    builder
-        .withFilename(workflow.getWorkflowMeta().getFilename())
-        .withName(workflow.getWorkflowMeta().getName())
-        .withId(workflow.getLogChannelId())
-        .withParentId(workflow.getParent().getLogChannelId())
-        .withExecutorType(ExecutionType.Workflow)
-        .withExecutorXml(workflow.getWorkflowMeta().getXml(workflow))
-        .withMetadataJson(new SerializableMetadataProvider(workflow.getMetadataProvider()).toJson())
-        .withRunConfigurationName(workflow.getWorkflowRunConfiguration().getName())
-        .withLogLevel(workflow.getLogLevel())
-        .withExecutionStartDate(workflow.getExecutionStartDate());
+    ExecutionBuilder builder =
+        of().withFilename(workflow.getWorkflowMeta().getFilename())
+            .withName(workflow.getWorkflowMeta().getName())
+            .withId(workflow.getLogChannelId())
+            .withParentId(workflow.getParent().getLogChannelId())
+            .withExecutorType(ExecutionType.Workflow)
+            .withExecutorXml(workflow.getWorkflowMeta().getXml(workflow))
+            .withMetadataJson(
+                new SerializableMetadataProvider(workflow.getMetadataProvider()).toJson())
+            .withRunConfigurationName(workflow.getWorkflowRunConfiguration().getName())
+            .withLogLevel(workflow.getLogLevel())
+            .withExecutionStartDate(workflow.getExecutionStartDate());
 
     builder.environmentDetails.put(
         EnvironmentDetailType.ContainerId.name(), workflow.getContainerId());
@@ -111,6 +116,40 @@ public final class ExecutionBuilder {
     builder.updateRuntimeInformation();
 
     return builder;
+  }
+
+  public static ExecutionBuilder fromTransform(
+      IPipelineEngine<PipelineMeta> pipeline, ITransform transform) {
+    return ExecutionBuilder.of()
+        .withFilename(null)
+        .withName(transform.getTransformName())
+        .withCopyNr(Integer.toString(transform.getCopyNr()))
+        .withId(transform.getLogChannelId())
+        .withParentId(pipeline.getLogChannelId())
+        .withExecutorType(ExecutionType.Transform)
+        .withExecutorXml(null)
+        .withMetadataJson(null)
+        .withRunConfigurationName(null)
+        .withLogLevel(transform.getLogLevel())
+        .withExecutionStartDate(pipeline.getExecutionStartDate());
+  }
+
+  public static ExecutionBuilder fromAction(
+      IWorkflowEngine<WorkflowMeta> workflow,
+      ActionMeta actionMeta,
+      IAction action,
+      Date startDate) {
+    return ExecutionBuilder.of()
+        .withFilename(null)
+        .withName(actionMeta.getName())
+        .withId(action.getLogChannel().getLogChannelId())
+        .withParentId(workflow.getLogChannelId())
+        .withExecutorType(ExecutionType.Action)
+        .withExecutorXml(null)
+        .withMetadataJson(null)
+        .withRunConfigurationName(null)
+        .withLogLevel(action.getLogChannel().getLogLevel())
+        .withExecutionStartDate(startDate);
   }
 
   private void getVariableInformation(IVariables variables) {
@@ -157,6 +196,11 @@ public final class ExecutionBuilder {
   public ExecutionBuilder withName(String name) {
     assert name != null : "the registration of an execution needs to have a name";
     this.name = name;
+    return this;
+  }
+
+  public ExecutionBuilder withCopyNr(String copyNr) {
+    this.copyNr = copyNr;
     return this;
   }
 
@@ -232,6 +276,7 @@ public final class ExecutionBuilder {
   public Execution build() {
     Execution executionRegistration = new Execution();
     executionRegistration.setName(name);
+    executionRegistration.setCopyNr(copyNr);
     executionRegistration.setFilename(filename);
     executionRegistration.setId(id);
     executionRegistration.setParentId(parentId);

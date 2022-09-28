@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.perspective.execution;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.IGc;
@@ -33,6 +34,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.execution.*;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -42,6 +44,7 @@ import org.apache.hop.pipeline.engine.IEngineMetric;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -70,7 +73,7 @@ import java.util.List;
 
 @GuiPlugin
 public class PipelineExecutionViewer extends BaseExecutionViewer
-    implements IExecutionViewer, PaintListener, MouseListener, MouseMoveListener {
+    implements IExecutionViewer, PaintListener, MouseListener, MouseMoveListener, KeyListener {
   private static final Class<?> PKG = PipelineExecutionViewer.class; // For Translator
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "PipelineExecutionViewer-Toolbar";
@@ -86,7 +89,8 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   public static final String TOOLBAR_ITEM_GO_UP = "PipelineExecutionViewer-Toolbar-11300-GoUp";
 
   protected final PipelineMeta pipelineMeta;
-  protected final ExecutionInfoLocation location;
+  protected final ExecutionPerspective perspective;
+  protected final String locationName;
   protected final Execution execution;
 
   protected TransformMeta selectedTransform;
@@ -108,11 +112,13 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       Composite parent,
       HopGui hopGui,
       PipelineMeta pipelineMeta,
-      ExecutionInfoLocation location,
+      String locationName,
+      ExecutionPerspective perspective,
       Execution execution) {
     super(parent, hopGui);
     this.pipelineMeta = pipelineMeta;
-    this.location = location;
+    this.locationName = locationName;
+    this.perspective = perspective;
     this.execution = execution;
 
     addWidgets();
@@ -160,6 +166,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     canvas.addPaintListener(this);
     canvas.addMouseListener(this);
     canvas.addMouseMoveListener(this);
+    canvas.addKeyListener(this);
 
     // The execution information tabs at the bottom
     //
@@ -209,6 +216,10 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     try {
       infoView.clearAll();
 
+      ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
+      if (location == null) {
+        return;
+      }
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
       executionState = iLocation.getExecutionState(execution.getId());
@@ -219,13 +230,14 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       // Calculate information staleness
       //
       String statusDescription = executionState.getStatusDescription();
-      if ("Running".equals(statusDescription)) {
+      if (Pipeline.STRING_RUNNING.equalsIgnoreCase(statusDescription)
+          || Pipeline.STRING_INITIALIZING.equalsIgnoreCase(statusDescription)) {
         long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
         if (System.currentTimeMillis() - executionState.getUpdateTime().getTime()
             > loggingInterval) {
           // The information is stale, not getting updates!
           //
-          TableItem item = infoView.add("Update executionState", "Stale");
+          TableItem item = infoView.add("Update state", STRING_STATE_STALE);
           item.setBackground(GuiResource.getInstance().getColorLightBlue());
           item.setForeground(GuiResource.getInstance().getColorWhite());
         }
@@ -607,6 +619,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     refreshStatus();
     refreshMetrics();
     refreshTransformData();
+    setFocus();
   }
 
   @GuiToolbarElement(
@@ -678,8 +691,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       // Ignore
     }
 
-    canvas.setFocus();
-    redraw();
+    refresh();
   }
 
   /**
@@ -700,9 +712,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   public String getLogChannelId() {
     return execution.getId();
   }
-
-  @Override
-  public void mouseDoubleClick(MouseEvent e) {}
 
   @Override
   public void mouseDown(MouseEvent e) {
@@ -789,32 +798,38 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   }
 
   private ExecutionData loadSelectedTransformData() throws HopException {
-    ExecutionData data =
-        location
-            .getExecutionInfoLocation()
-            .getExecutionData(execution.getId(), ExecutionDataBuilder.ALL_TRANSFORMS);
+    ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
+    if (location == null) {
+      return null;
+    }
+    IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+
+    // Load the execution data of all transforms at the same time
+    //
+    ExecutionData data = iLocation.getExecutionData(execution.getId(), null);
 
     // If this is for a beam pipeline we won't have data for all transforms but for individual
     // copies...
     //
     if (data == null) {
-      ExecutionDataBuilder builder =
-          ExecutionDataBuilder.anExecutionData().withParentId(execution.getId());
+      ExecutionDataBuilder builder = ExecutionDataBuilder.of().withParentId(execution.getId());
       List<String> childIds =
           location
               .getExecutionInfoLocation()
               .findChildIds(ExecutionType.Pipeline, execution.getId());
-      for (String childId : childIds) {
-        try {
-          ExecutionData childData =
-              location.getExecutionInfoLocation().getExecutionData(execution.getId(), childId);
-          if (childData != null) {
-            builder.addDataSets(childData.getDataSets()).addSetMeta(childData.getSetMetaData());
+      if (childIds != null) {
+        for (String childId : childIds) {
+          try {
+            ExecutionData childData =
+                location.getExecutionInfoLocation().getExecutionData(execution.getId(), childId);
+            if (childData != null) {
+              builder.addDataSets(childData.getDataSets()).addSetMeta(childData.getSetMetaData());
+            }
+          } catch (Exception e) {
+            // Data not yet written for this child ID
+            LogChannel.GENERAL.logDetailed(
+                "Error find transform data for child ID " + childId + " : " + e.getMessage());
           }
-        } catch (Exception e) {
-          // Data not yet written for this child ID
-          LogChannel.GENERAL.logDetailed(
-              "Error find transform data for child ID " + childId + " : " + e.getMessage());
         }
       }
       data = builder.build();
@@ -826,9 +841,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   @Override
   public void mouseUp(MouseEvent e) {}
 
-  @Override
-  public void mouseMove(MouseEvent e) {}
-
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DRILL_DOWN,
@@ -838,6 +850,12 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     if (selectedTransform == null) {
       return;
     }
+
+    ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
+    if (location == null) {
+      return;
+    }
+    IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
     // We need to look up a pipeline or workflow execution where the parent is the ID of the action
     //
@@ -849,18 +867,99 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       for (ExecutionDataSetMeta setMeta : selectedTransformData.getSetMetaData().values()) {
         if (setMeta.getName().equals(selectedTransform.getName())) {
           String parentId = setMeta.getLogChannelId();
-          List<Execution> childExecutions =
-              location.getExecutionInfoLocation().findChildExecutions(parentId);
+          List<Execution> childExecutions = iLocation.findExecutions(parentId);
           if (childExecutions.isEmpty()) {
             return;
           }
           Execution child = childExecutions.get(0);
-          HopGui.getExecutionPerspective().createExecutionViewer(location, child);
+          perspective.createExecutionViewer(locationName, child);
+          return;
         }
       }
+
+      // If we're still here we're maybe dealing with an executor.
+      // In this scenario the transform executed a sub-pipeline or workflow.
+      // See: PipelineExecutor, WorkflowExecutor, MetaInject, ...
+      //
+      // What we do is look at the execution state which gives us the child IDs.
+      // We'll find Transform executions with the transform name and the parent
+      //
+      List<Execution> executions =
+          iLocation.findExecutions(
+              e ->
+                  selectedTransform.getName().equals(e.getName())
+                      && e.getExecutionType() == ExecutionType.Transform
+                      && execution.getId().equals(e.getParentId()));
+
+      // Since we're here this probably means that we have more than one execution for an executor.
+      // We can have multiple copies of this executor running.  Ask which copy to pick...
+      //
+      if (executions.isEmpty()) {
+        return;
+      }
+      Execution transformExecution;
+      if (executions.size() == 1) {
+        transformExecution = executions.get(0);
+      } else {
+        transformExecution = selectExecution(executions);
+      }
+      if (transformExecution == null) {
+        return;
+      }
+
+      // Now we have the transform execution that we want we can look for the execution(s) with this
+      // as parent
+      //
+      List<Execution> childExecutions = iLocation.findExecutions(transformExecution.getId());
+      if (childExecutions.isEmpty()) {
+        return;
+      }
+      Execution childExecution;
+      if (childExecutions.size() == 1) {
+        childExecution = childExecutions.get(0);
+      } else {
+        childExecution = selectExecution(childExecutions);
+      }
+
+      perspective.createExecutionViewer(locationName, childExecution);
+
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error drilling down into selected action", e);
     }
+  }
+
+  private Execution selectExecution(List<Execution> executions) {
+    IRowMeta rowMeta =
+        new RowMetaBuilder()
+            .addString("Type")
+            .addString("Name")
+            .addString("Copy")
+            .addDate("Start date")
+            .build();
+    List<RowMetaAndData> rows = new ArrayList<>();
+    for (Execution execution : executions) {
+      rows.add(
+          new RowMetaAndData(
+              rowMeta,
+              execution.getExecutionType().name(),
+              execution.getName(),
+              execution.getCopyNr(),
+              execution.getExecutionStartDate()));
+    }
+
+    SelectRowDialog dialog =
+        new SelectRowDialog(
+            getShell(), hopGui.getVariables(), SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL, rows);
+    RowMetaAndData selectedRow = dialog.open();
+    if (selectedRow == null) {
+      // Operation is canceled
+      return null;
+    }
+    int index = rows.indexOf(selectedRow);
+    if (index < 0) {
+      return null;
+    }
+    return executions.get(index);
   }
 
   @GuiToolbarElement(
@@ -875,21 +974,55 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
         return;
       }
 
+      ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
+      if (location == null) {
+        return;
+      }
+      IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+
       // This parent ID is the ID of the transform or action.
       // We need to find the parent of this child
       //
-      String grandParentId = location.getExecutionInfoLocation().findParentId(parentId);
+      String grandParentId = iLocation.findParentId(parentId);
       if (grandParentId == null) {
         return;
       }
 
-      Execution grandParent = location.getExecutionInfoLocation().getExecution(grandParentId);
+      Execution grandParent = iLocation.getExecution(grandParentId);
 
       // Open this one
       //
-      HopGui.getExecutionPerspective().createExecutionViewer(location, grandParent);
+      perspective.createExecutionViewer(locationName, grandParent);
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error navigating up to parent execution", e);
     }
   }
+
+  @Override
+  public void drillDownOnHover() {
+    if (currentMouseLocation == null) {
+      return;
+    }
+    AreaOwner areaOwner = getVisibleAreaOwner(currentMouseLocation.x, currentMouseLocation.y);
+    if (areaOwner == null) {
+      return;
+    }
+    if (areaOwner.getAreaType() == AreaOwner.AreaType.TRANSFORM_ICON) {
+      // Show the data for this transform
+      //
+      selectedTransform = (TransformMeta) areaOwner.getOwner();
+      refreshTransformData();
+      ;
+
+      // Now drill down
+      //
+      drillDown();
+    }
+  }
+
+  @Override
+  public void keyPressed(KeyEvent keyEvent) {}
+
+  @Override
+  public void keyReleased(KeyEvent keyEvent) {}
 }

@@ -30,7 +30,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.PublishMessagesFn;
 import org.apache.hop.beam.core.fn.PublishStringsFn;
-import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;

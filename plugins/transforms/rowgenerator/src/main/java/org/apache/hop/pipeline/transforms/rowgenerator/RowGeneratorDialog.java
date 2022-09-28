@@ -79,9 +79,6 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     props.setLook(shell);
     setShellImage(shell, input);
 
-    ModifyListener lsMod = e -> input.setChanged();
-    changed = input.hasChanged();
-
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
@@ -104,7 +101,6 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     props.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
@@ -122,7 +118,6 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wLimit);
-    wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
     fdLimit.top = new FormAttachment(lastControl, margin);
@@ -145,7 +140,6 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
           @Override
           public void widgetSelected(SelectionEvent e) {
             updateWidgets();
-            input.setChanged();
           }
         });
     FormData fdNeverEnding = new FormData();
@@ -165,7 +159,6 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     wlInterval.setLayoutData(fdlInterval);
     wInterval = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wInterval);
-    wInterval.addModifyListener(lsMod);
     FormData fdInterval = new FormData();
     fdInterval.left = new FormAttachment(middle, 0);
     fdInterval.top = new FormAttachment(lastControl, margin);
@@ -183,7 +176,6 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     wlRowTimeField.setLayoutData(fdlRowTimeField);
     wRowTimeField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wRowTimeField);
-    wRowTimeField.addModifyListener(lsMod);
     FormData fdRowTimeField = new FormData();
     fdRowTimeField.left = new FormAttachment(middle, 0);
     fdRowTimeField.top = new FormAttachment(lastControl, margin);
@@ -201,7 +193,6 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     wlLastTimeField.setLayoutData(fdlLastTimeField);
     wLastTimeField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wLastTimeField);
-    wLastTimeField.addModifyListener(lsMod);
     FormData fdLastTimeField = new FormData();
     fdLastTimeField.left = new FormAttachment(middle, 0);
     fdLastTimeField.top = new FormAttachment(lastControl, margin);
@@ -273,10 +264,8 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
           new ColumnInfo(
               BaseMessages.getString(PKG, "System.Column.SetEmptyString"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No")
-              })
+                  BaseMessages.getString(PKG, "System.Combo.Yes"),
+                  BaseMessages.getString(PKG, "System.Combo.No"))
         };
 
     wFields =
@@ -286,7 +275,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             nrFields,
-            lsMod,
+            null,
             props);
 
     FormData fdFields = new FormData();
@@ -306,7 +295,6 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     shell.addListener(SWT.Resize, lsResize);
 
     getData();
-    input.setChanged(changed);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -335,7 +323,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
       logDebug("getting fields info...");
     }
 
-    wLimit.setText(input.getRowLimit());
+    wLimit.setText(Const.NVL(input.getRowLimit(), ""));
     wNeverEnding.setSelection(input.isNeverEnding());
     wInterval.setText(Const.NVL(input.getIntervalInMs(), ""));
     wRowTimeField.setText(Const.NVL(input.getRowTimeField(), ""));
@@ -383,7 +371,6 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
   private void cancel() {
     transformName = null;
-    input.setChanged(changed);
     dispose();
   }
 
@@ -394,8 +381,8 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     transformName = wTransformName.getText(); // return value
     try {
-      getInfo(new RowGeneratorMeta()); // to see if there is an exception
       getInfo(input); // to put the content on the input structure for real if all is well.
+      input.setChanged();
       dispose();
     } catch (HopException e) {
       new ErrorDialog(

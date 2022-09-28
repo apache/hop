@@ -176,7 +176,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     //
     wExecutionInfoLocation =
             new MetaSelectionLine<>(
-                    getVariables(),
+                    manager.getVariables(),
                     manager.getMetadataProvider(),
                     ExecutionInfoLocation.class,
                     parent,
