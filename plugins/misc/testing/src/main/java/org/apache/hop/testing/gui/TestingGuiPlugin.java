@@ -824,7 +824,7 @@ public class TestingGuiPlugin {
       //
       Map<String, Object> stateMap = getStateMap(pipelineMeta);
       if (stateMap != null) {
-        stateMap.remove(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+        stateMap.clear();
       }
 
       // Clear the combo box
@@ -833,6 +833,11 @@ public class TestingGuiPlugin {
       if (combo != null) {
         combo.setText("");
       }
+
+      // Also clear the unit test variables from the pipelineGraph instance.
+      //
+      pipelineGraph.getVariables().setVariable(DataSetConst.VAR_RUN_UNIT_TEST, "N");
+      pipelineGraph.getVariables().setVariable(DataSetConst.VAR_UNIT_TEST_NAME, null);
 
       // Update the GUI
       //
