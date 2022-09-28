@@ -103,7 +103,6 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public static final String OP_SET_KEY = "setKey";
   public static final String OP_ROW_NR = "rowNr";
 
-  public static final String R_EXECUTION_STATE = "EXECUTION_STATE";
   public static final String R_EXECUTES = "EXECUTES";
   public static final String R_HAS_DATA = "HAS_DATA";
   public static final String R_HAS_METADATA = "HAS_METADATA";
@@ -269,7 +268,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
             CypherRelationshipBuilder.of()
                 .withMatch(EL_EXECUTION, "e1", EP_ID, execution.getId())
                 .withMatch(EL_EXECUTION, "e2", EP_ID, execution.getParentId())
-                .withMerge("e1", "e2", R_EXECUTES);
+                .withMerge("e2", "e1", R_EXECUTES);
         execute(transaction, selfRelationshipBuilder);
       }
 
