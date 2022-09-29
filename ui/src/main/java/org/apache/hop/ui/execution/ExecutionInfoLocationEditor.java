@@ -318,6 +318,8 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
             }
           });
     }
+
+    wPluginSpecificComp.layout(true, true);
   }
 
   private final AtomicBoolean busyChangingPluginType = new AtomicBoolean(false);
