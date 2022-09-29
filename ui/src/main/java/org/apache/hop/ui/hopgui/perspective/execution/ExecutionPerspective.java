@@ -378,9 +378,8 @@ public class ExecutionPerspective implements IHopPerspective {
     }
   }
 
-  public void createExecutionViewer(String locationName, Execution execution)
-      throws Exception {
-    Cursor busyCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_WAIT);
+  public void createExecutionViewer(String locationName, Execution execution) throws Exception {
+    Cursor busyCursor = getBusyCursor();
 
     try {
       if (locationName == null || execution == null) {
@@ -431,6 +430,10 @@ public class ExecutionPerspective implements IHopPerspective {
     }
   }
 
+  private Cursor getBusyCursor() {
+    return new Cursor(getShell().getDisplay(), SWT.CURSOR_WAIT);
+  }
+
   /**
    * Simply search the tree items to look for the first matching pipeline execution
    *
@@ -439,10 +442,11 @@ public class ExecutionPerspective implements IHopPerspective {
    * @param name The name of the pipeline
    * @return The execution or null if none was found
    */
-  public void createLastExecutionView(String locationName, ExecutionType executionType, String name) throws Exception {
+  public void createLastExecutionView(String locationName, ExecutionType executionType, String name)
+      throws Exception {
     try {
       ExecutionInfoLocation location = locationMap.get(locationName);
-      if (location==null) {
+      if (location == null) {
         return;
       }
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
@@ -476,7 +480,7 @@ public class ExecutionPerspective implements IHopPerspective {
   @GuiKeyboardShortcut(key = SWT.F5)
   @GuiOsxKeyboardShortcut(key = SWT.F5)
   public void refresh() {
-    Cursor busyCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_WAIT);
+    Cursor busyCursor = getBusyCursor();
 
     try {
       getShell().setCursor(busyCursor);
@@ -560,7 +564,7 @@ public class ExecutionPerspective implements IHopPerspective {
           BaseMessages.getString(PKG, "ExecutionPerspective.Refresh.Error.Header"),
           BaseMessages.getString(PKG, "ExecutionPerspective.Refresh.Error.Message"),
           e);
-    } finally{
+    } finally {
       getShell().setCursor(null);
     }
   }
@@ -615,6 +619,54 @@ public class ExecutionPerspective implements IHopPerspective {
     }
 
     return false;
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_DELETE,
+      toolTip = "i18n::ExecutionPerspective.ToolbarElement.Delete.Tooltip",
+      image = "ui/images/delete.svg",
+      separator = true)
+  @GuiKeyboardShortcut(key = SWT.DEL)
+  @GuiOsxKeyboardShortcut(key = SWT.DEL)
+  public void delete() {
+    try {
+      if (tree.getSelectionCount() != 1) {
+        return;
+      }
+      TreeItem item = tree.getSelection()[0];
+      Object itemData = item.getData();
+      if (itemData instanceof ExecutionInfoLocation) {
+        // Delete the whole location
+        //
+        MessageBox box = new MessageBox(getShell(), SWT.APPLICATION_MODAL | SWT.NO|SWT.YES);
+        box.setText("Confirm delete");
+        box.setMessage("Are you sure you want to delete all information in this location?");
+        int answer = box.open();
+        if ((answer&SWT.YES)==0) {
+          return;
+        }
+
+        ExecutionInfoLocation location = (ExecutionInfoLocation) itemData;
+        IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+        List<String> executionIds = iLocation.getExecutionIds(false, 0);
+        for (int i=executionIds.size()-1;i>=0;i--) {
+          iLocation.deleteExecution(executionIds.get(i));
+        }
+        refresh();
+      } else if(itemData instanceof Execution) {
+        // Delete one execution: do not ask for confirmation
+        //
+        Execution execution = (Execution) itemData;
+        TreeItem parentItem = item.getParentItem();
+        ExecutionInfoLocation location = (ExecutionInfoLocation) parentItem.getData();
+        IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+        iLocation.deleteExecution(execution.getId());
+        refresh();
+      }
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error deleting location(s)", e);
+    }
   }
 
   @Override

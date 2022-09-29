@@ -86,12 +86,12 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public void close() throws HopException {
+  public synchronized void close() throws HopException {
     // Nothing to close
   }
 
   @Override
-  public void registerExecution(Execution execution) throws HopException {
+  public synchronized void registerExecution(Execution execution) throws HopException {
     try {
       // Register this execution with the
       //
@@ -117,7 +117,32 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public Execution findLastExecution(ExecutionType executionType, String name) throws HopException {
+  public synchronized boolean deleteExecution(String executionId) throws HopException {
+    try {
+      // Get the children of this execution and delete those first.
+      //
+      List<Execution> childExecutions = findExecutions(executionId);
+      for (Execution childExecution : childExecutions) {
+        deleteExecution(childExecution.getId());
+      }
+
+      // Delete the folder and everything in it
+      //
+      FileObject executionFolder = HopVfs.getFileObject(getSubFolder(executionId));
+      for (FileObject child : executionFolder.getChildren()) {
+        child.delete();
+      }
+      executionFolder.delete();
+
+      return true;
+    } catch (Exception e) {
+      throw new HopException("Error deleting execution with ID " + executionId, e);
+    }
+  }
+
+  @Override
+  public synchronized Execution findLastExecution(ExecutionType executionType, String name)
+      throws HopException {
     try {
       List<String> ids = getExecutionIds(true, 100);
       for (String id : ids) {
@@ -134,7 +159,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public void updateExecutionState(ExecutionState executionState) throws HopException {
+  public synchronized void updateExecutionState(ExecutionState executionState) throws HopException {
     try {
       // We need to add the logging text incrementally.
       // This means: read the previous value first and then add the new lines here...
@@ -174,7 +199,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public ExecutionState getExecutionState(String executionId) throws HopException {
+  public synchronized ExecutionState getExecutionState(String executionId) throws HopException {
     try {
       String updateFilename = getUpdateFilename(executionId);
       if (!HopVfs.fileExists(updateFilename)) {
@@ -195,7 +220,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
    * @param data
    * @throws HopException
    */
-  public void registerData(ExecutionData data) throws HopException {
+  public synchronized void registerData(ExecutionData data) throws HopException {
     try {
       // We simply store the data in a file with the ID of the transform in the name
       // The parent folder(s) should already exist at this time!
@@ -212,7 +237,8 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public List<String> getExecutionIds(boolean includeChildren, int limit) throws HopException {
+  public synchronized List<String> getExecutionIds(boolean includeChildren, int limit)
+      throws HopException {
     try {
       // The list of IDs is simply the content of the pipelines and workflows folders
       //
@@ -277,8 +303,8 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public List<String> findChildIds(ExecutionType parentExecutionType, String executionId)
-      throws HopException {
+  public synchronized List<String> findChildIds(
+      ExecutionType parentExecutionType, String executionId) throws HopException {
     try {
       List<String> ids = new ArrayList<>();
 
@@ -309,7 +335,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public Execution getExecution(String executionId) throws HopException {
+  public synchronized Execution getExecution(String executionId) throws HopException {
     try {
       // Look in the pipeline executions
       //
@@ -334,7 +360,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public List<Execution> findExecutions(String parentExecutionId) throws HopException {
+  public synchronized List<Execution> findExecutions(String parentExecutionId) throws HopException {
     try {
       List<Execution> executions = new ArrayList<>();
 
@@ -352,7 +378,8 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public List<Execution> findExecutions(IExecutionMatcher matcher) throws HopException {
+  public synchronized List<Execution> findExecutions(IExecutionMatcher matcher)
+      throws HopException {
     try {
       List<Execution> executions = new ArrayList<>();
 
@@ -369,8 +396,8 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public Execution findPreviousSuccessfulExecution(ExecutionType executionType, String name)
-      throws HopException {
+  public synchronized Execution findPreviousSuccessfulExecution(
+      ExecutionType executionType, String name) throws HopException {
     try {
       List<Execution> executions =
           findExecutions(e -> e.getExecutionType() == executionType && name.equals(e.getName()));
@@ -387,7 +414,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public String findParentId(String childId) throws HopException {
+  public synchronized String findParentId(String childId) throws HopException {
     try {
       for (String id : getExecutionIds(true, 100)) {
         ExecutionState executionState = getExecutionState(id);
@@ -402,7 +429,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public ExecutionData getExecutionData(String parentExecutionId, String executionId)
+  public synchronized ExecutionData getExecutionData(String parentExecutionId, String executionId)
       throws HopException {
     try {
       try (FileObject folder = HopVfs.getFileObject(getSubFolder(parentExecutionId))) {

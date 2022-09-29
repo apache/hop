@@ -140,6 +140,11 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           if (guiCallback != null) {
             guiRegistry.registerGuiCallback(guiPluginClass, method, guiCallback);
           }
+
+          GuiWidgetElement guiWidgetElement = method.getAnnotation(GuiWidgetElement.class);
+          if (guiWidgetElement!=null) {
+            guiRegistry.addGuiWidgetElement(guiWidgetElement, method, guiPluginClassName, classLoader);
+          }
         }
       }
 

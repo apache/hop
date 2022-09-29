@@ -18,6 +18,8 @@
 
 package org.apache.hop.neo4j.execution.builder;
 
+import java.util.Map;
+
 public class CypherRelationshipBuilder extends CypherMatchBuilder {
 
   private CypherRelationshipBuilder() {
@@ -35,38 +37,8 @@ public class CypherRelationshipBuilder extends CypherMatchBuilder {
 
   @Override
   public CypherRelationshipBuilder withMatch(
-      String label, String alias, String id1, Object value1, String id2, Object value2) {
-    return (CypherRelationshipBuilder) super.withMatch(label, alias, id1, value1, id2, value2);
-  }
-
-  @Override
-  public CypherRelationshipBuilder withMatch(
-      String label,
-      String alias,
-      String id1,
-      Object value1,
-      String id2,
-      Object value2,
-      String id3,
-      Object value3) {
-    return (CypherRelationshipBuilder)
-        super.withMatch(label, alias, id1, value1, id2, value2, id3, value3);
-  }
-
-  @Override
-  public CypherRelationshipBuilder withMatch(
-      String label,
-      String alias,
-      String id1,
-      Object value1,
-      String id2,
-      Object value2,
-      String id3,
-      Object value3,
-      String id4,
-      Object value4) {
-    return (CypherRelationshipBuilder)
-        super.withMatch(label, alias, id1, value1, id2, value2, id3, value3, id4, value4);
+          String label, String alias, Map<String, Object> keyValueMap) {
+    return (CypherRelationshipBuilder) super.withMatch(label, alias, keyValueMap);
   }
 
   public CypherRelationshipBuilder withMerge(

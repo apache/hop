@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.util.StringUtil;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,6 +74,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
 
   private Class<? extends ITypeFilename> typeFilename;
   private Class<? extends ITypeMetadata> typeMetadata;
+  private Method buttonMethod;
 
   public GuiElements() {
     children = new ArrayList<>();
@@ -109,6 +111,48 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
         getTranslation(guiElement.toolTip(), fieldPackageName, field.getDeclaringClass());
     this.typeFilename = guiElement.typeFilename();
     this.typeMetadata = guiElement.typeMetadata();
+    this.buttonMethod = null;
+  }
+
+  /**
+   * This is used for methods like buttons that want to call the annotated method.
+   *
+   * @param guiElement
+   * @param method
+   */
+  public GuiElements(GuiWidgetElement guiElement, Method method, ClassLoader classLoader) {
+    this();
+
+    Class<?> methodClass = method.getDeclaringClass();
+    String methodPackageName = methodClass.getPackage().getName();
+
+    if (StringUtil.isEmpty(guiElement.id())) {
+      this.id = method.getName();
+    } else {
+      this.id = guiElement.id();
+    }
+    this.order = guiElement.order();
+    this.type = guiElement.type();
+    this.parentId = guiElement.parentId();
+    this.fieldName = null;
+    this.fieldClass = null;
+    this.getterMethod = null;
+    this.setterMethod = null;
+    this.getComboValuesMethod = guiElement.comboValuesMethod();
+    this.image = guiElement.image();
+    this.disabledImage = null;
+    this.variablesEnabled = guiElement.variables();
+    this.password = guiElement.password();
+    this.ignored = guiElement.ignored();
+    this.addingSeparator = guiElement.separator();
+    this.label = getTranslation(guiElement.label(), methodPackageName, method.getDeclaringClass());
+    this.toolTip =
+        getTranslation(guiElement.toolTip(), methodPackageName, method.getDeclaringClass());
+    this.typeFilename = guiElement.typeFilename();
+    this.typeMetadata = guiElement.typeMetadata();
+
+    this.classLoader = classLoader;
+    this.buttonMethod = method;
   }
 
   /** Sort the children using the sort order. If no sort field is available we use the ID */
@@ -160,7 +204,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -174,7 +220,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return order;
   }
 
-  /** @param order The order to set */
+  /**
+   * @param order The order to set
+   */
   public void setOrder(String order) {
     this.order = order;
   }
@@ -188,7 +236,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return parentId;
   }
 
-  /** @param parentId The parentId to set */
+  /**
+   * @param parentId The parentId to set
+   */
   public void setParentId(String parentId) {
     this.parentId = parentId;
   }
@@ -202,7 +252,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return label;
   }
 
-  /** @param label The label to set */
+  /**
+   * @param label The label to set
+   */
   public void setLabel(String label) {
     this.label = label;
   }
@@ -216,7 +268,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return toolTip;
   }
 
-  /** @param toolTip The toolTip to set */
+  /**
+   * @param toolTip The toolTip to set
+   */
   public void setToolTip(String toolTip) {
     this.toolTip = toolTip;
   }
@@ -230,7 +284,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(GuiElementType type) {
     this.type = type;
   }
@@ -244,7 +300,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return image;
   }
 
-  /** @param image The image to set */
+  /**
+   * @param image The image to set
+   */
   public void setImage(String image) {
     this.image = image;
   }
@@ -258,7 +316,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return disabledImage;
   }
 
-  /** @param disabledImage The disabledImage to set */
+  /**
+   * @param disabledImage The disabledImage to set
+   */
   public void setDisabledImage(String disabledImage) {
     this.disabledImage = disabledImage;
   }
@@ -272,7 +332,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return children;
   }
 
-  /** @param children The children to set */
+  /**
+   * @param children The children to set
+   */
   public void setChildren(List<GuiElements> children) {
     this.children = children;
   }
@@ -286,7 +348,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return variablesEnabled;
   }
 
-  /** @param variablesEnabled The variablesEnabled to set */
+  /**
+   * @param variablesEnabled The variablesEnabled to set
+   */
   public void setVariablesEnabled(boolean variablesEnabled) {
     this.variablesEnabled = variablesEnabled;
   }
@@ -300,7 +364,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return password;
   }
 
-  /** @param password The password to set */
+  /**
+   * @param password The password to set
+   */
   public void setPassword(boolean password) {
     this.password = password;
   }
@@ -314,7 +380,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set */
+  /**
+   * @param fieldName The fieldName to set
+   */
   public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
@@ -328,7 +396,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return getterMethod;
   }
 
-  /** @param getterMethod The getterMethod to set */
+  /**
+   * @param getterMethod The getterMethod to set
+   */
   public void setGetterMethod(String getterMethod) {
     this.getterMethod = getterMethod;
   }
@@ -342,7 +412,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return setterMethod;
   }
 
-  /** @param setterMethod The setterMethod to set */
+  /**
+   * @param setterMethod The setterMethod to set
+   */
   public void setSetterMethod(String setterMethod) {
     this.setterMethod = setterMethod;
   }
@@ -356,7 +428,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return getComboValuesMethod;
   }
 
-  /** @param getComboValuesMethod The getComboValuesMethod to set */
+  /**
+   * @param getComboValuesMethod The getComboValuesMethod to set
+   */
   public void setGetComboValuesMethod(String getComboValuesMethod) {
     this.getComboValuesMethod = getComboValuesMethod;
   }
@@ -370,7 +444,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return fieldClass;
   }
 
-  /** @param fieldClass The fieldClass to set */
+  /**
+   * @param fieldClass The fieldClass to set
+   */
   public void setFieldClass(Class<?> fieldClass) {
     this.fieldClass = fieldClass;
   }
@@ -384,7 +460,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return ignored;
   }
 
-  /** @param ignored The ignored to set */
+  /**
+   * @param ignored The ignored to set
+   */
   public void setIgnored(boolean ignored) {
     this.ignored = ignored;
   }
@@ -398,7 +476,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return addingSeparator;
   }
 
-  /** @param addingSeparator The addingSeparator to set */
+  /**
+   * @param addingSeparator The addingSeparator to set
+   */
   public void setAddingSeparator(boolean addingSeparator) {
     this.addingSeparator = addingSeparator;
   }
@@ -412,7 +492,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return listenerClass;
   }
 
-  /** @param listenerClass The listenerClass to set */
+  /**
+   * @param listenerClass The listenerClass to set
+   */
   public void setListenerClass(Class<?> listenerClass) {
     this.listenerClass = listenerClass;
   }
@@ -426,7 +508,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return listenerMethod;
   }
 
-  /** @param listenerMethod The menuMethod to set */
+  /**
+   * @param listenerMethod The menuMethod to set
+   */
   public void setListenerMethod(String listenerMethod) {
     this.listenerMethod = listenerMethod;
   }
@@ -440,7 +524,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return singleTon;
   }
 
-  /** @param singleTon The singleTon to set */
+  /**
+   * @param singleTon The singleTon to set
+   */
   public void setSingleTon(boolean singleTon) {
     this.singleTon = singleTon;
   }
@@ -454,7 +540,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return classLoader;
   }
 
-  /** @param classLoader The classLoader to set */
+  /**
+   * @param classLoader The classLoader to set
+   */
   public void setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
@@ -468,7 +556,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return typeFilename;
   }
 
-  /** @param typeFilename The typeFilename to set */
+  /**
+   * @param typeFilename The typeFilename to set
+   */
   public void setTypeFilename(Class<? extends ITypeFilename> typeFilename) {
     this.typeFilename = typeFilename;
   }
@@ -482,8 +572,28 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     return typeMetadata;
   }
 
-  /** @param typeMetadata The typeMetadata to set */
+  /**
+   * @param typeMetadata The typeMetadata to set
+   */
   public void setTypeMetadata(Class<? extends ITypeMetadata> typeMetadata) {
     this.typeMetadata = typeMetadata;
+  }
+
+  /**
+   * Gets buttonMethod
+   *
+   * @return value of buttonMethod
+   */
+  public Method getButtonMethod() {
+    return buttonMethod;
+  }
+
+  /**
+   * Sets buttonMethod
+   *
+   * @param buttonMethod value of buttonMethod
+   */
+  public void setButtonMethod(Method buttonMethod) {
+    this.buttonMethod = buttonMethod;
   }
 }

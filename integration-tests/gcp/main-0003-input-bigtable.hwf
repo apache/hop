@@ -44,8 +44,8 @@ limitations under the License.
       <weekDay>1</weekDay>
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
-      <xloc>144</xloc>
-      <yloc>96</yloc>
+      <xloc>112</xloc>
+      <yloc>80</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -62,8 +62,8 @@ limitations under the License.
         </field>
       </fields>
       <parallel>N</parallel>
-      <xloc>304</xloc>
-      <yloc>96</yloc>
+      <xloc>272</xloc>
+      <yloc>80</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -90,8 +90,8 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>512</xloc>
-      <yloc>96</yloc>
+      <xloc>544</xloc>
+      <yloc>80</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -105,8 +105,36 @@ limitations under the License.
         </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>704</xloc>
-      <yloc>96</yloc>
+      <xloc>752</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0003-input-bigtable</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0003-input-bigtable.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>Dataflow</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>272</xloc>
+      <yloc>240</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -119,21 +147,56 @@ limitations under the License.
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>Cleanup output files</from>
-      <to>0003-input-bigtable-readback</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
       <from>0003-input-bigtable-readback</from>
       <to>Run input-bigtable tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
+    <hop>
+      <from>Cleanup output files</from>
+      <to>0003-input-bigtable</to>
+      <enabled>N</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0003-input-bigtable</from>
+      <to>0003-input-bigtable-readback</to>
+      <enabled>N</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Cleanup output files</from>
+      <to>0003-input-bigtable-readback</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
   </hops>
   <notepads>
+    <notepad>
+      <note>Only run this pipeline once manually 
+to populate the table in BigTable. </note>
+      <xloc>368</xloc>
+      <yloc>240</yloc>
+      <width>227</width>
+      <heigth>46</heigth>
+      <fontname>Noto Sans</fontname>
+      <fontsize>12</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>200</fontcolorred>
+      <fontcolorgreen>231</fontcolorgreen>
+      <fontcolorblue>250</fontcolorblue>
+      <backgroundcolorred>15</backgroundcolorred>
+      <backgroundcolorgreen>136</backgroundcolorgreen>
+      <backgroundcolorblue>210</backgroundcolorblue>
+      <bordercolorred>200</bordercolorred>
+      <bordercolorgreen>231</bordercolorgreen>
+      <bordercolorblue>250</bordercolorblue>
+    </notepad>
   </notepads>
   <attributes/>
 </workflow>

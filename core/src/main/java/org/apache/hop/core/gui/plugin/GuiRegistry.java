@@ -307,6 +307,45 @@ public class GuiRegistry {
   }
 
   /**
+   * Add a GUI menu element to the registry. If there is no elements objects for the parent ID under
+   * which the element belongs, one will be added.
+   *
+   * @param guiPluginClassName Class in which we paint the GUI element
+   * @param guiElement
+   * @param guiPluginClassMethod
+   */
+  public void addGuiWidgetElement(
+          GuiWidgetElement guiElement,
+          Method guiPluginClassMethod,
+          String dataClassName,
+          ClassLoader classLoader) {
+
+    GuiElements guiElements = findGuiElements(dataClassName, guiElement.parentId());
+    if (guiElements == null) {
+      guiElements = new GuiElements();
+      putGuiElements(dataClassName, guiElement.parentId(), guiElements);
+    }
+
+    // Extract all the information we need from the available data at boot time
+    //
+    GuiElements child = new GuiElements(guiElement, guiPluginClassMethod, classLoader);
+
+    // See if we need to disable something of if something is disabled already...
+    // In those scenarios we ignore the GuiWidgetElement
+    //
+    GuiElements existing = guiElements.findChild(guiElement.id());
+    if (existing != null && existing.isIgnored()) {
+      return;
+    }
+    if (existing != null && child.isIgnored()) {
+      existing.setIgnored(true);
+      return;
+    }
+
+    guiElements.getChildren().add(child);
+  }
+
+  /**
    * Add a GUI element to the registry. If there is no elements objects for the parent ID under
    * which the element belongs, one will be added.
    *
