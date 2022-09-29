@@ -75,6 +75,11 @@ public class ExecutionInfoLocation extends HopMetadataBase implements IHopMetada
     }
   }
 
+  @Override
+  public ExecutionInfoLocation clone() {
+    return new ExecutionInfoLocation(this);
+  }
+
   /**
    * Gets description
    *

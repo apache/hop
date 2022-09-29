@@ -304,7 +304,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
 
   @Override
   public synchronized List<String> findChildIds(
-      ExecutionType parentExecutionType, String executionId) throws HopException {
+      ExecutionType parentExecutionType, String parentExecutionId) throws HopException {
     try {
       List<String> ids = new ArrayList<>();
 
@@ -312,7 +312,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       // For a Beam pipeline to find child transforms.
       //
       String suffix = "-data.json";
-      FileObject folderObject = HopVfs.getFileObject(getSubFolder(executionId));
+      FileObject folderObject = HopVfs.getFileObject(getSubFolder(parentExecutionId));
 
       // In this folder we have a number of files ending with "-data.json"
       for (FileObject child : folderObject.getChildren()) {
@@ -329,7 +329,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       return ids;
     } catch (Exception e) {
       throw new HopException(
-          "Error finding children of " + parentExecutionType.name() + " execution " + executionId,
+          "Error finding children of " + parentExecutionType.name() + " execution " + parentExecutionId,
           e);
     }
   }

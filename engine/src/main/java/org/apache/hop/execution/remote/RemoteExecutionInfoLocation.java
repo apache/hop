@@ -370,7 +370,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public List<String> findChildIds(ExecutionType parentExecutionType, String executionId)
+  public List<String> findChildIds(ExecutionType parentExecutionType, String parentExecutionId)
       throws HopException {
     try {
       validateSettings();
@@ -381,7 +381,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
                   GetExecutionInfoServlet.Type.childIds.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
               .addParameter(GetExecutionInfoServlet.PARAMETER_EXEC_TYPE, parentExecutionType.name())
-              .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_ID, parentExecutionId)
               .build();
 
       String json = server.execService(variables, uri.toString());

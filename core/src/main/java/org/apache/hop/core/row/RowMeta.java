@@ -530,6 +530,16 @@ public class RowMeta implements IRowMeta {
     return getDate(dataRow, index);
   }
 
+  @Override
+  public Boolean getBoolean(Object[] dataRow, String valueName, Boolean defaultValue)
+      throws HopValueException {
+    int index = indexOfValue(valueName);
+    if (index < 0) {
+      return defaultValue;
+    }
+    return getBoolean(dataRow, index);
+  }
+
   /**
    * Searches the index of a value meta with a given name
    *

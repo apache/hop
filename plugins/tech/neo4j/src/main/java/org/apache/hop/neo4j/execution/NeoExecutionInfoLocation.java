@@ -26,6 +26,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.*;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.*;
@@ -68,6 +69,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public static final String EP_EXECUTOR_XML = "executorXml";
   public static final String EP_METADATA_JSON = "metadataJson";
   public static final String EP_RUN_CONFIG_NAME = "runConfigName";
+  public static final String EP_LOG_LEVEL = "logLevel";
   public static final String EP_REGISTRATION_DATE = "registrationDate";
   public static final String EP_EXECUTION_START_DATE = "executionStartDate";
 
@@ -385,6 +387,9 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
               .withValue(EP_EXECUTOR_XML, execution.getExecutorXml())
               .withValue(EP_METADATA_JSON, execution.getMetadataJson())
               .withValue(EP_RUN_CONFIG_NAME, execution.getRunConfigurationName())
+              .withValue(
+                  EP_LOG_LEVEL,
+                  execution.getLogLevel() == null ? null : execution.getLogLevel().getCode())
               .withValue(EP_REGISTRATION_DATE, execution.getRegistrationDate())
               .withValue(EP_EXECUTION_START_DATE, execution.getExecutionStartDate());
       execute(transaction, builder);
@@ -504,6 +509,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                 EP_EXECUTOR_XML,
                 EP_METADATA_JSON,
                 EP_RUN_CONFIG_NAME,
+                EP_LOG_LEVEL,
                 EP_REGISTRATION_DATE,
                 EP_EXECUTION_START_DATE);
     Result result = transaction.run(builder.cypher(), builder.parameters());
@@ -525,6 +531,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         .withExecutorXml(getString(record, EP_EXECUTOR_XML))
         .withMetadataJson(getString(record, EP_METADATA_JSON))
         .withRunConfigurationName(getString(record, EP_RUN_CONFIG_NAME))
+        .withLogLevel(LogLevel.getLogLevelForCode(getString(record, EP_LOG_LEVEL)))
         .withRegistrationDate(getDate(record, EP_REGISTRATION_DATE))
         .withExecutionStartDate(getDate(record, EP_EXECUTION_START_DATE))
         .build();
@@ -1369,17 +1376,20 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public List<String> findChildIds(ExecutionType parentExecutionType, String executionId)
+  public List<String> findChildIds(ExecutionType parentExecutionType, String parentExecutionId)
       throws HopException {
     try {
-      ExecutionState state = getExecutionState(executionId);
+      ExecutionState state = getExecutionState(parentExecutionId);
       if (state != null) {
         return state.getChildIds();
       }
       return Collections.emptyList();
     } catch (Exception e) {
       throw new HopException(
-          "Error finding children of " + parentExecutionType.name() + " execution " + executionId,
+          "Error finding children of "
+              + parentExecutionType.name()
+              + " execution "
+              + parentExecutionId,
           e);
     }
   }

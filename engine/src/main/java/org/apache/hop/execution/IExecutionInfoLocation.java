@@ -185,11 +185,11 @@ public interface IExecutionInfoLocation extends Cloneable {
    * Find children of an execution. A workflow can find child actions with this method.
    *
    * @param parentExecutionType The parent execution type (Workflow or Pipeline)
-   * @param executionId The parent execution ID to look into
+   * @param parentExecutionId The parent execution ID to look into
    * @return A list of IDs or an empty list if nothing could be found.
    * @throws HopException in case of a serialization error
    */
-  List<String> findChildIds(ExecutionType parentExecutionType, String executionId)
+  List<String> findChildIds(ExecutionType parentExecutionType, String parentExecutionId)
       throws HopException;
 
   String findParentId(String childId) throws HopException;
