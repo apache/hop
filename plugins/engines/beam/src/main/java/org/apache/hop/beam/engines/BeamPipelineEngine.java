@@ -201,10 +201,6 @@ public abstract class BeamPipelineEngine extends Variables
 
       beamEngineRunConfiguration = (IBeamPipelineEngineRunConfiguration) engineRunConfiguration;
 
-      if (beamEngineRunConfiguration.getRunnerType() == RunnerType.Spark) {
-        logChannel.logBasic(
-            "Make sure Hop is correctly configured for more information see: https://hop.apache.org/manual/latest/pipeline/beam/spark-on-local-host.html");
-      }
       if (logLevel != null) {
         beamEngineRunConfiguration.setVariable(
             BeamConst.STRING_LOCAL_PIPELINE_FLAG_LOG_LEVEL, logLevel.getCode());
