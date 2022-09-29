@@ -69,6 +69,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     // Skip the transform from which we stream data. Keep that available for runtime action.
     //
     data.rowMap = new HashMap<>();
+    boolean receivedRows = true;
     for (String prevTransformName : getPipelineMeta().getPrevTransformNames(getTransformMeta())) {
       // Don't read from the streaming source transform
       //
@@ -85,10 +86,16 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
 
           row = getRowFrom(rowSet);
         }
-        if (!list.isEmpty()) {
-          data.rowMap.put(prevTransformName, list);
+        if (list.isEmpty()){
+          receivedRows = false;
+          break;
         }
+        data.rowMap.put(prevTransformName, list);
       }
+    }
+    if (!receivedRows) {
+      setOutputDone();
+      return false;
     }
 
     List<TransformMeta> transforms = data.pipelineMeta.getTransforms();
