@@ -254,6 +254,13 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     //
     addGuiCompositeWidgets();
 
+    FormData fdMainSComp = new FormData();
+    fdMainSComp.top = new FormAttachment(0,0);
+    fdMainSComp.left = new FormAttachment(0,0);
+    fdMainSComp.right = new FormAttachment(95, 0);
+    fdMainSComp.bottom = new FormAttachment(95, 0);
+    wMainSComp.setLayoutData(fdMainSComp);
+
     FormData fdMainComp = new FormData();
     fdMainComp.left = new FormAttachment(0, 0);
     fdMainComp.top = new FormAttachment(0, 0);
