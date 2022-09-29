@@ -62,10 +62,7 @@ For durability, a reliable filesystem such as HDFS/S3/GS is necessary.|local dir
 
 == Running from GUI or Hop Server
 
-Due to conflicts in libraries which we hope to resolve in one of our future version it's currently not possible to start Spark jobs directly from the Hop GUI or Hop Server. Spark submit command will however work as expected and is described further in this document.
-
-If you want to run spark jobs directly from hop you can follow the seps in the following guide. +
-xref:pipeline/beam/spark-on-local-host.adoc[Apache Spark from GUI/Hop Server]
+You can start Apache Spark pipelines when Hop is running directly on the master node. This means that you can run spark jobs directly from hop when a cluster is available on localhost. This also means you can deploy a Hop Server on your spark master node and use this as a jumphost to start jobs on a Apache Spark cluster.
 
 == Running remotely
 
@@ -157,12 +154,6 @@ export SPARK_LOCAL_IP="127.0.0.1"
 ----
 
 == Possible errors
-
-If you see any of the following errors it means your installation was not adapted to support Apache Spark
-
-`java.lang.ClassNotFoundException: org.apache.log4j.spi.Filter`
-
-Or errors related to Scala, please follow the instructions xref:pipeline/beam/spark-on-local-host.adoc[here], if this does not help raise a jira ticket with as much info as possible.
 
 When you receive a stack trace looking lik this, it usually means it can not find the spark master.
 
