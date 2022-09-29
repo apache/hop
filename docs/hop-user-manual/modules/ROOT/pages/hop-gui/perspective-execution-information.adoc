@@ -27,6 +27,10 @@ Icon: image:icons/run.svg[width="24px"]
 
 The Execution Information perspective provides an overview of execution information for previously executed workflows and pipelines. The perspective allows you to browse the list of executions and drill up or down to parent or child workflows and/or pipelines. Additionally, this perspective provides information about the execution status, logging information, (pipeline) metrics and the profiled data.
 
+== Information collection
+
+The execution information displayed in this perspective is not collected automatically.  You need to specify to which xref:metadata-types/execution-information-location.adoc[location] you want to send execution information in the xref:metadata-types/pipeline-run-config.adoc[Pipeline run confirmation] or xref:metadata-types/workflow-run-config.adoc[Workflow run configuration] of your choice.
+
 == Navigation
 
 You can navigate to it by clicking the image:icons/run.svg[width="24px"] icon from the vertical perspective toolbar in the Hop GUI.
@@ -50,8 +54,7 @@ For example:
 
 image::execution-information-perspective-left-panel-example.png[An example left panel]
 
-Options:
-
+Possible action:
 
 |===
 |Action |Result
