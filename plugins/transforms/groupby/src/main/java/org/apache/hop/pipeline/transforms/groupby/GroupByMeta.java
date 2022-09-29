@@ -183,7 +183,7 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
   }
 
   @Override
-  public Object clone() {
+  public GroupByMeta clone() {
     GroupByMeta groupByMeta = (GroupByMeta) super.clone();
 
     List<GroupingField> groupingFieldsCopy = new ArrayList<>();
