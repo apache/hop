@@ -66,7 +66,7 @@ import java.util.List;
  *
  * <p>
  */
-@JsonDeserialize(as=RowMeta.class)
+@JsonDeserialize(as = RowMeta.class)
 public interface IRowMeta extends Cloneable {
 
   /**
@@ -288,6 +288,18 @@ public interface IRowMeta extends Cloneable {
    * @throws HopValueException the hop value exception
    */
   Date getDate(Object[] dataRow, String valueName, Date defaultValue) throws HopValueException;
+
+  /**
+   * Finds a boolean field and returns its value .
+   *
+   * @param dataRow the data row
+   * @param valueName the value name
+   * @param defaultValue the default value
+   * @return the integer
+   * @throws HopValueException the hop value exception
+   */
+  Boolean getBoolean(Object[] dataRow, String valueName, Boolean defaultValue)
+      throws HopValueException;
 
   /**
    * Searches for a value with a certain name in the value meta list.

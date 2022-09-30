@@ -89,72 +89,76 @@ public class HopGuiLogBrowser {
                         busy.set(true);
 
                         ILogChannel logChannel = provider.getLogChannel();
-                        String parentLogChannelId = logChannel.getLogChannelId();
-                        LoggingRegistry registry = LoggingRegistry.getInstance();
-                        Date registryModDate = registry.getLastModificationTime();
-
-                        if (childIds == null
-                            || lastLogRegistryChange == null
-                            || registryModDate.compareTo(lastLogRegistryChange) > 0) {
-                          lastLogRegistryChange = registry.getLastModificationTime();
-                          childIds =
-                              LoggingRegistry.getInstance()
-                                  .getLogChannelChildren(parentLogChannelId);
-                        }
-
-                        // See if we need to log any lines...
+                        // The log channel can still be initializing.
+                        // It happens with slow writing of execution information to a location.
                         //
-                        int lastNr = HopLogStore.getLastBufferLineNr();
-                        if (lastNr > lastLogId.get()) {
-                          List<HopLoggingEvent> logLines =
-                              HopLogStore.getLogBufferFromTo(
-                                  childIds, true, lastLogId.get(), lastNr);
+                        if (logChannel != null) {
+                          String parentLogChannelId = logChannel.getLogChannelId();
+                          LoggingRegistry registry = LoggingRegistry.getInstance();
+                          Date registryModDate = registry.getLastModificationTime();
 
-                          // The maximum size of the log buffer
-                          //
-                          int maxSize;
-                          DescribedVariable describedVariable =
-                              HopConfig.getInstance()
-                                  .findDescribedVariable(Const.HOP_MAX_LOG_SIZE_IN_LINES);
-                          if (describedVariable == null) {
-                            maxSize = Const.MAX_NR_LOG_LINES;
-                          } else {
-                            maxSize =
-                                Const.toInt(describedVariable.getValue(), Const.MAX_NR_LOG_LINES);
+                          if (childIds == null
+                              || lastLogRegistryChange == null
+                              || registryModDate.compareTo(lastLogRegistryChange) > 0) {
+                            lastLogRegistryChange = registry.getLastModificationTime();
+                            childIds =
+                                LoggingRegistry.getInstance()
+                                    .getLogChannelChildren(parentLogChannelId);
                           }
 
-                          synchronized (text) {
-                            for (int i = 0; i < logLines.size(); i++) {
-                              HopLoggingEvent event = logLines.get(i);
-                              String line = logLayout.format(event).trim();
-                              int start = text.getText().length();
-                              int length = line.length();
+                          // See if we need to log any lines...
+                          //
+                          int lastNr = HopLogStore.getLastBufferLineNr();
+                          if (lastNr > lastLogId.get()) {
+                            List<HopLoggingEvent> logLines =
+                                HopLogStore.getLogBufferFromTo(
+                                    childIds, true, lastLogId.get(), lastNr);
 
-                              if (length > 0) {
-                                Format format = TextFormatter.getInstance().execute(line);
-                                text.append(format.getText());
-                                text.append(Const.CR);
+                            // The maximum size of the log buffer
+                            //
+                            int maxSize;
+                            DescribedVariable describedVariable =
+                                HopConfig.getInstance()
+                                    .findDescribedVariable(Const.HOP_MAX_LOG_SIZE_IN_LINES);
+                            if (describedVariable == null) {
+                              maxSize = Const.MAX_NR_LOG_LINES;
+                            } else {
+                              maxSize =
+                                  Const.toInt(describedVariable.getValue(), Const.MAX_NR_LOG_LINES);
+                            }
+
+                            synchronized (text) {
+                              for (int i = 0; i < logLines.size(); i++) {
+                                HopLoggingEvent event = logLines.get(i);
+                                String line = logLayout.format(event).trim();
+                                int start = text.getText().length();
+                                int length = line.length();
+
+                                if (length > 0) {
+                                  Format format = TextFormatter.getInstance().execute(line);
+                                  text.append(format.getText());
+                                  text.append(Const.CR);
+                                }
                               }
                             }
+
+                            // Erase it all in one go
+                            // This makes it a bit more efficient
+                            //
+                            int size = text.getText().length();
+                            if (maxSize > 0 && size > maxSize) {
+
+                              int dropIndex =
+                                  (text.getText().indexOf(Const.CR, size - maxSize))
+                                      + Const.CR.length();
+                              text.setText(text.getText().substring(dropIndex));
+                            }
+
+                            text.setSelection(text.getText().length());
+
+                            lastLogId.set(lastNr);
                           }
-
-                          // Erase it all in one go
-                          // This makes it a bit more efficient
-                          //
-                          int size = text.getText().length();
-                          if (maxSize > 0 && size > maxSize) {
-
-                            int dropIndex =
-                                (text.getText().indexOf(Const.CR, size - maxSize))
-                                    + Const.CR.length();
-                            text.setText(text.getText().substring(dropIndex));
-                          }
-
-                          text.setSelection(text.getText().length());
-
-                          lastLogId.set(lastNr);
                         }
-
                         busy.set(false);
                       }
                     });
@@ -202,7 +206,9 @@ public class HopGuiLogBrowser {
         });
   }
 
-  /** @return the text */
+  /**
+   * @return the text
+   */
   public Text getText() {
     return text;
   }

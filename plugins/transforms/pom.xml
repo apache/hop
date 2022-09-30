@@ -99,6 +99,7 @@
                 <module>dynamicsqlrow</module>
                 <module>edi2xml</module>
                 <module>excel</module>
+                <module>execinfo</module>
                 <module>execprocess</module>
                 <module>execsqlrow</module>
                 <module>fake</module>

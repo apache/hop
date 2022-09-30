@@ -708,17 +708,8 @@ public class TransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopException {
 
-    // Compatibility with previous release...
-    //
-    String resources =
-        transform.exportResources(variables, definitions, iResourceNaming, metadataProvider);
-    if (resources != null) {
-      return resources;
-    }
-
-    // The transform calls out to the ITransformMeta...
-    // These can in turn add anything to the map in terms of resources, etc.
-    // Even reference files, etc. For now it's just XML probably...
+    // The transform calls out to ITransformMeta.
+    // This object can in turn add anything to the map in terms of resources, reference files, etc.
     //
     return transform.exportResources(variables, definitions, iResourceNaming, metadataProvider);
   }

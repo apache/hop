@@ -530,7 +530,6 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_TAB:
         CTabFolder tabFolder = (CTabFolder) control;
         tabFolder.setBorderVisible(true);
-        tabFolder.setSimple(true);
         tabFolder.setBackground(gui.getColorGray());
         tabFolder.setForeground(gui.getColorBlack());
         tabFolder.setSelectionBackground(gui.getColorWhite());
