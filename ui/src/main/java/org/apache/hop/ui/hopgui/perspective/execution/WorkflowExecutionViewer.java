@@ -73,7 +73,7 @@ import java.util.*;
 
 @GuiPlugin
 public class WorkflowExecutionViewer extends BaseExecutionViewer
-    implements IExecutionViewer, PaintListener, MouseListener, MouseMoveListener {
+    implements IExecutionViewer, PaintListener, MouseListener {
   private static final Class<?> PKG = WorkflowExecutionViewer.class; // For Translator
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "WorkflowExecutionViewer-Toolbar";
@@ -165,7 +165,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     canvas.setLayoutData(fdCanvas);
     canvas.addPaintListener(this);
     canvas.addMouseListener(this);
-    canvas.addMouseMoveListener(this);
     canvas.addKeyListener(this);
 
     // The execution information tabs at the bottom
@@ -563,7 +562,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     } finally {
       gc.dispose();
     }
-    CanvasFacade.setData(canvas, magnification, workflowMeta, WorkflowExecutionViewer.class);
   }
 
   @Override
@@ -753,11 +751,11 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   @Override
   public void mouseUp(MouseEvent e) {}
 
-  public void drillDownOnHover() {
-    if (currentMouseLocation == null) {
+  public void drillDownOnLocation(Point location) {
+    if (location == null) {
       return;
     }
-    AreaOwner areaOwner = getVisibleAreaOwner(currentMouseLocation.x, currentMouseLocation.y);
+    AreaOwner areaOwner = getVisibleAreaOwner(location.x, location.y);
     if (areaOwner == null) {
       return;
     }

@@ -38,7 +38,7 @@ import java.util.Date;
 import java.util.List;
 
 public abstract class BaseExecutionViewer extends Composite
-    implements MouseMoveListener, KeyListener, MouseListener {
+    implements KeyListener, MouseListener {
 
   public static final String STRING_STATE_STALE = "Stale";
 
@@ -54,7 +54,6 @@ public abstract class BaseExecutionViewer extends Composite
   protected float magnification = 1.0f;
   protected CTabFolder tabFolder;
   protected Point offset;
-  protected Point currentMouseLocation;
 
   public BaseExecutionViewer(Composite parent, HopGui hopGui) {
     super(parent, SWT.NO_BACKGROUND);
@@ -106,18 +105,10 @@ public abstract class BaseExecutionViewer extends Composite
     return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date);
   }
 
-  @Override
-  public void mouseMove(MouseEvent e) {
-    this.currentMouseLocation = screen2real(e.x, e.y);
-  }
-
-  public abstract void drillDownOnHover();
+  public abstract void drillDownOnLocation(Point location);
 
   @Override
   public void keyPressed(KeyEvent keyEvent) {
-    if (currentMouseLocation != null && keyEvent.keyCode == 'z') {
-      drillDownOnHover();
-    }
   }
 
   @Override
@@ -125,8 +116,6 @@ public abstract class BaseExecutionViewer extends Composite
 
   @Override
   public void mouseDoubleClick(MouseEvent mouseEvent) {
-    if (currentMouseLocation != null) {
-      drillDownOnHover();
-    }
+      drillDownOnLocation(screen2real(mouseEvent.x, mouseEvent.y));
   }
 }

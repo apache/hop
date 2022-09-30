@@ -73,7 +73,7 @@ import java.util.List;
 
 @GuiPlugin
 public class PipelineExecutionViewer extends BaseExecutionViewer
-    implements IExecutionViewer, PaintListener, MouseListener, MouseMoveListener, KeyListener {
+    implements IExecutionViewer, PaintListener, MouseListener, KeyListener {
   private static final Class<?> PKG = PipelineExecutionViewer.class; // For Translator
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "PipelineExecutionViewer-Toolbar";
@@ -165,7 +165,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     canvas.setLayoutData(fdCanvas);
     canvas.addPaintListener(this);
     canvas.addMouseListener(this);
-    canvas.addMouseMoveListener(this);
     canvas.addKeyListener(this);
 
     // The execution information tabs at the bottom
@@ -599,7 +598,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     } finally {
       gc.dispose();
     }
-    CanvasFacade.setData(canvas, magnification, pipelineMeta, PipelineExecutionViewer.class);
   }
 
   @Override
@@ -999,11 +997,11 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   }
 
   @Override
-  public void drillDownOnHover() {
-    if (currentMouseLocation == null) {
+  public void drillDownOnLocation(Point location) {
+    if (location == null) {
       return;
     }
-    AreaOwner areaOwner = getVisibleAreaOwner(currentMouseLocation.x, currentMouseLocation.y);
+    AreaOwner areaOwner = getVisibleAreaOwner(location.x, location.y);
     if (areaOwner == null) {
       return;
     }
@@ -1012,7 +1010,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       //
       selectedTransform = (TransformMeta) areaOwner.getOwner();
       refreshTransformData();
-      ;
 
       // Now drill down
       //
