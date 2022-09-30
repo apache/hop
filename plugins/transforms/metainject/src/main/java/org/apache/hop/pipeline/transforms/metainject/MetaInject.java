@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -28,6 +30,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -69,6 +72,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     // Skip the transform from which we stream data. Keep that available for runtime action.
     //
     data.rowMap = new HashMap<>();
+    boolean receivedRows = true;
     for (String prevTransformName : getPipelineMeta().getPrevTransformNames(getTransformMeta())) {
       // Don't read from the streaming source transform
       //
@@ -85,10 +89,16 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
 
           row = getRowFrom(rowSet);
         }
-        if (!list.isEmpty()) {
-          data.rowMap.put(prevTransformName, list);
+        if (list.isEmpty()){
+          receivedRows = false;
+          break;
         }
+        data.rowMap.put(prevTransformName, list);
       }
+    }
+    if (!receivedRows) {
+      setOutputDone();
+      return false;
     }
 
     List<TransformMeta> transforms = data.pipelineMeta.getTransforms();
@@ -151,10 +161,10 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
 
       // See if we need to stream some data over...
       //
-      RowProducer rowProducer = null;
-      if (data.streaming) {
-        rowProducer = injectPipeline.addRowProducer(data.streamingTargetTransformName, 0);
-      }
+      RowProducer rowProducer =
+          data.streaming
+              ? injectPipeline.addRowProducer(data.streamingTargetTransformName, 0)
+              : null;
 
       // Finally, add the mapping transformation to the active sub-transformations
       // map in the parent transformation
@@ -182,6 +192,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
 
       injectPipeline.startThreads();
 
+      Future<HopTransformException> steamingFuture = null;
       if (data.streaming) {
         // Deplete all the rows from the parent transformation into the modified transformation
         //
@@ -192,12 +203,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
                   + data.streamingSourceTransformName
                   + "' to stream data from");
         }
-        Object[] row = getRowFrom(rowSet);
-        while (row != null && !isStopped()) {
-          rowProducer.putRow(rowSet.getRowMeta(), row);
-          row = getRowFrom(rowSet);
-        }
-        rowProducer.finished();
+        steamingFuture = ExecutorUtil.getExecutor().submit(() -> putRows(rowSet, rowProducer));
       }
 
       // Wait until the child transformation finished processing...
@@ -214,6 +220,15 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       }
       copyResult(injectPipeline);
       waitUntilFinished(injectPipeline);
+      try {
+        if (steamingFuture != null && steamingFuture.get() != null) {
+          throw steamingFuture.get();
+        }
+      } catch (ExecutionException ignore) {
+        // Ignore
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
     }
 
     // let the transformation complete it's execution to allow for any customizations to MDI to
@@ -231,6 +246,20 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     setOutputDone();
 
     return false;
+  }
+
+  HopTransformException putRows(IRowSet rowSet, RowProducer rowProducer) {
+    try {
+      Object[] row;
+      while (!isStopped() && (row = getRowFrom(rowSet)) != null) {
+        rowProducer.putRow(rowSet.getRowMeta(), row);
+      }
+    } catch (HopTransformException e) {
+      return e;
+    } finally {
+      rowProducer.finished();
+    }
+    return null;
   }
 
   void waitUntilFinished(Pipeline injectTrans) {
