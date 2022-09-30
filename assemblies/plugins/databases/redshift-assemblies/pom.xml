@@ -37,7 +37,7 @@
     <description></description>
 
     <properties>
-        <redshift.version>2.0.0.7</redshift.version>
+        <redshift.version>2.1.0.8</redshift.version>
     </properties>
 
 
