@@ -150,7 +150,6 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
-    wTabFolder.setSimple(false);
 
     // start of the connection tab
     CTabItem wConnectionTab = new CTabItem(wTabFolder, SWT.BORDER);
