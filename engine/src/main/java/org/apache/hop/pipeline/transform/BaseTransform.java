@@ -41,6 +41,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.BasePartitioner;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -299,7 +300,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   private long minRowsForMaxErrorPercent = -1L;
 
   /** set this flag to true to allow empty field names and types to output */
-  private boolean allowEmptyFieldNamesAndTypes = false;
+  private boolean allowEmptyFieldNamesAndTypes = true;
 
   /** Keeps track of the number of rows read for input deadlock verification. */
   protected long deadLockCounter;
@@ -464,10 +465,19 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, Integer.toString(copyNr));
 
-    // BACKLOG-18004
-    allowEmptyFieldNamesAndTypes =
-        ValueMetaBase.convertStringToBoolean(
-            System.getProperties().getProperty(Const.HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES, "N"));
+    // See if fields and types are not null when running.
+    // Since this is expensive we're only going to enable it when safe mode checking is on.
+    //
+    IPipelineEngineRunConfiguration engineRunConfiguration =
+        pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
+    if (engineRunConfiguration instanceof LocalPipelineRunConfiguration) {
+      if (((LocalPipelineRunConfiguration) engineRunConfiguration).isSafeModeEnabled()) {
+        allowEmptyFieldNamesAndTypes =
+            ValueMetaBase.convertStringToBoolean(
+                System.getProperties()
+                    .getProperty(Const.HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES, "Y"));
+      }
+    }
 
     // Getting ans setting the error handling values
     // first, get the transform meta
@@ -1342,7 +1352,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     getRowHandler().putError(rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes);
   }
 
-  private void handlePutError(
+  public void handlePutError(
       IVariables variables,
       IRowMeta rowMeta,
       Object[] row,
