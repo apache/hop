@@ -105,6 +105,7 @@
                 <module>snowflake</module>
                 <module>clickhouse</module>
                 <module>cockroachdb</module>
+                <module>hive</module>
             </modules>
         </profile>
 

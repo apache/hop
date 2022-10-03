@@ -117,6 +117,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         }
         database.setPluginId(plugin.getIds()[0]);
         database.setPluginName(plugin.getName());
+        database.addDefaultOptions();
 
         metaMap.put(database.getClass(), database);
       } catch (Exception e) {
@@ -386,16 +387,25 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     DatabaseMeta databaseMeta = this.getMetadata();
 
+    // Keep track of the old database type since this changes when getting the content
+    //
+    Class<? extends IDatabase> oldClass = databaseMeta.getIDatabase().getClass();
+    String oldTypeName = databaseMeta.getPluginName();
+    String newTypeName = wConnectionType.getText();
+    wConnectionType.setText(databaseMeta.getPluginName());
+
     // Capture any information on the widgets
     //
     this.getWidgetsContent(databaseMeta);
 
-    // Save the state of this type so we can switch back and forth
-    metaMap.put(databaseMeta.getIDatabase().getClass(), databaseMeta.getIDatabase());
+    // Save the state of this type, so we can switch back and forth
+    //
+    metaMap.put(oldClass, databaseMeta.getIDatabase());
 
     // Now change the data type
     //
-    databaseMeta.setDatabaseType(wConnectionType.getText());
+    wConnectionType.setText(newTypeName);
+    databaseMeta.setDatabaseType(newTypeName);
 
     // Get possible information from the metadata map (from previous work)
     //

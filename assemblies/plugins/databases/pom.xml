@@ -74,6 +74,7 @@
     <module>clickhouse-assemblies</module>
     <module>doris-assemblies</module>
     <module>generic-assemblies</module>
+    <module>hive-assemblies</module>
   </modules>
 
 

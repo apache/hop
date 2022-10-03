@@ -170,25 +170,33 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     }
   }
 
-  /** @return plugin ID of this class */
+  /**
+   * @return plugin ID of this class
+   */
   @Override
   public String getPluginId() {
     return pluginId;
   }
 
-  /** @param pluginId The plugin ID to set. */
+  /**
+   * @param pluginId The plugin ID to set.
+   */
   @Override
   public void setPluginId(String pluginId) {
     this.pluginId = pluginId;
   }
 
-  /** @return plugin name of this class */
+  /**
+   * @return plugin name of this class
+   */
   @Override
   public String getPluginName() {
     return pluginName;
   }
 
-  /** @param pluginName The plugin name to set. */
+  /**
+   * @param pluginName The plugin name to set.
+   */
   @Override
   public void setPluginName(String pluginName) {
     this.pluginName = pluginName;
@@ -197,49 +205,65 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @Override
   public abstract int[] getAccessTypeList();
 
-  /** @return Returns the accessType. */
+  /**
+   * @return Returns the accessType.
+   */
   @Override
   public int getAccessType() {
     return accessType;
   }
 
-  /** @param accessType The accessType to set. */
+  /**
+   * @param accessType The accessType to set.
+   */
   @Override
   public void setAccessType(int accessType) {
     this.accessType = accessType;
   }
 
-  /** @return Returns the changed. */
+  /**
+   * @return Returns the changed.
+   */
   @Override
   public boolean isChanged() {
     return changed;
   }
 
-  /** @param changed The changed to set. */
+  /**
+   * @param changed The changed to set.
+   */
   @Override
   public void setChanged(boolean changed) {
     this.changed = changed;
   }
 
-  /** @return Returns the databaseName. */
+  /**
+   * @return Returns the databaseName.
+   */
   @Override
   public String getDatabaseName() {
     return databaseName;
   }
 
-  /** @param databaseName The databaseName to set. */
+  /**
+   * @param databaseName The databaseName to set.
+   */
   @Override
   public void setDatabaseName(String databaseName) {
     this.databaseName = databaseName;
   }
 
-  /** @return Returns the hostname. */
+  /**
+   * @return Returns the hostname.
+   */
   @Override
   public String getHostname() {
     return hostname;
   }
 
-  /** @param hostname The hostname to set. */
+  /**
+   * @param hostname The hostname to set.
+   */
   @Override
   public void setHostname(String hostname) {
     this.hostname = hostname;
@@ -255,73 +279,97 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return port;
   }
 
-  /** @param port The port to set */
+  /**
+   * @param port The port to set
+   */
   @Override
   public void setPort(String port) {
     this.port = port;
   }
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   @Override
   public String getPassword() {
     return password;
   }
 
-  /** @param password The password to set. */
+  /**
+   * @param password The password to set.
+   */
   @Override
   public void setPassword(String password) {
     this.password = password;
   }
 
-  /** @return Returns the servername. */
+  /**
+   * @return Returns the servername.
+   */
   @Override
   public String getServername() {
     return servername;
   }
 
-  /** @param servername The servername to set. */
+  /**
+   * @param servername The servername to set.
+   */
   @Override
   public void setServername(String servername) {
     this.servername = servername;
   }
 
-  /** @return Returns the tablespaceData. */
+  /**
+   * @return Returns the tablespaceData.
+   */
   @Override
   public String getDataTablespace() {
     return dataTablespace;
   }
 
-  /** @param dataTablespace The data tablespace to set. */
+  /**
+   * @param dataTablespace The data tablespace to set.
+   */
   @Override
   public void setDataTablespace(String dataTablespace) {
     this.dataTablespace = dataTablespace;
   }
 
-  /** @return Returns the index tablespace. */
+  /**
+   * @return Returns the index tablespace.
+   */
   @Override
   public String getIndexTablespace() {
     return indexTablespace;
   }
 
-  /** @param indexTablespace The index tablespace to set. */
+  /**
+   * @param indexTablespace The index tablespace to set.
+   */
   @Override
   public void setIndexTablespace(String indexTablespace) {
     this.indexTablespace = indexTablespace;
   }
 
-  /** @return Returns the username. */
+  /**
+   * @return Returns the username.
+   */
   @Override
   public String getUsername() {
     return username;
   }
 
-  /** @param username The username to set. */
+  /**
+   * @param username The username to set.
+   */
   @Override
   public void setUsername(String username) {
     this.username = username;
   }
 
-  /** @return The extra attributes for this database connection */
+  /**
+   * @return The extra attributes for this database connection
+   */
   @Override
   public Map<String, String> getAttributes() {
     return attributes;
@@ -378,7 +426,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * DEFAULT SETTINGS FOR ALL DATABASES ********************************************************************************
    */
 
-  /** @return the default database port number */
+  /**
+   * @return the default database port number
+   */
   @Override
   public int getDefaultDatabasePort() {
     return -1; // No default port or not used.
@@ -399,7 +449,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return true;
   }
 
-  /** @return Whether or not the database can use auto increment type of fields (pk) */
+  /**
+   * @return Whether or not the database can use auto increment type of fields (pk)
+   */
   @Override
   public boolean isSupportsAutoInc() {
     return true;
@@ -502,13 +554,17 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return false;
   }
 
-  /** @return true if the database supports schemas */
+  /**
+   * @return true if the database supports schemas
+   */
   @Override
   public boolean isSupportsSchemas() {
     return true;
   }
 
-  /** @return true if the database supports catalogs */
+  /**
+   * @return true if the database supports catalogs
+   */
   @Override
   public boolean isSupportsCatalogs() {
     return true;
@@ -523,31 +579,41 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return true;
   }
 
-  /** @return the function for SUM agrregate */
+  /**
+   * @return the function for SUM agrregate
+   */
   @Override
   public String getFunctionSum() {
     return "SUM";
   }
 
-  /** @return the function for Average agrregate */
+  /**
+   * @return the function for Average agrregate
+   */
   @Override
   public String getFunctionAverage() {
     return "AVG";
   }
 
-  /** @return the function for Minimum agrregate */
+  /**
+   * @return the function for Minimum agrregate
+   */
   @Override
   public String getFunctionMinimum() {
     return "MIN";
   }
 
-  /** @return the function for Maximum agrregate */
+  /**
+   * @return the function for Maximum agrregate
+   */
   @Override
   public String getFunctionMaximum() {
     return "MAX";
   }
 
-  /** @return the function for Count agrregate */
+  /**
+   * @return the function for Count agrregate
+   */
   @Override
   public String getFunctionCount() {
     return "COUNT";
@@ -589,25 +655,33 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return DatabaseMeta.CLOB_LENGTH;
   }
 
-  /** @return true if the database supports transactions. */
+  /**
+   * @return true if the database supports transactions.
+   */
   @Override
   public boolean isSupportsTransactions() {
     return true;
   }
 
-  /** @return true if the database supports sequences */
+  /**
+   * @return true if the database supports sequences
+   */
   @Override
   public boolean isSupportsSequences() {
     return false;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return true;
   }
 
-  /** @return true if the database JDBC driver supports the setLong command */
+  /**
+   * @return true if the database JDBC driver supports the setLong command
+   */
   @Override
   public boolean isSupportsSetLong() {
     return true;
@@ -635,43 +709,57 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return "ALTER TABLE " + tableName + " DROP " + v.getName() + Const.CR;
   }
 
-  /** @return an array of reserved words for the database type... */
+  /**
+   * @return an array of reserved words for the database type...
+   */
   @Override
   public String[] getReservedWords() {
     return new String[] {};
   }
 
-  /** @return true if reserved words need to be double quoted ("password", "select", ...) */
+  /**
+   * @return true if reserved words need to be double quoted ("password", "select", ...)
+   */
   @Override
   public boolean isQuoteReservedWords() {
     return true;
   }
 
-  /** @return The start quote sequence, mostly just double quote, but sometimes [, ... */
+  /**
+   * @return The start quote sequence, mostly just double quote, but sometimes [, ...
+   */
   @Override
   public String getStartQuote() {
     return "\"";
   }
 
-  /** @return The end quote sequence, mostly just double quote, but sometimes ], ... */
+  /**
+   * @return The end quote sequence, mostly just double quote, but sometimes ], ...
+   */
   @Override
   public String getEndQuote() {
     return "\"";
   }
 
-  /** @return a list of table types to retrieve tables for the database */
+  /**
+   * @return a list of table types to retrieve tables for the database
+   */
   @Override
   public String[] getTableTypes() {
     return new String[] {"TABLE"};
   }
 
-  /** @return a list of table types to retrieve views for the database */
+  /**
+   * @return a list of table types to retrieve views for the database
+   */
   @Override
   public String[] getViewTypes() {
     return new String[] {"VIEW"};
   }
 
-  /** @return a list of table types to retrieve synonyms for the database */
+  /**
+   * @return a list of table types to retrieve synonyms for the database
+   */
   @Override
   public String[] getSynonymTypes() {
     return new String[] {"SYNONYM"};
@@ -686,25 +774,33 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return false;
   }
 
-  /** @return true if the database supports views */
+  /**
+   * @return true if the database supports views
+   */
   @Override
   public boolean isSupportsViews() {
     return true;
   }
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   @Override
   public boolean isSupportsSynonyms() {
     return false;
   }
 
-  /** @return The SQL on this database to get a list of stored procedures. */
+  /**
+   * @return The SQL on this database to get a list of stored procedures.
+   */
   @Override
   public String getSqlListOfProcedures() {
     return null;
   }
 
-  /** @return The SQL on this database to get a list of sequences. */
+  /**
+   * @return The SQL on this database to get a list of sequences.
+   */
   @Override
   public String getSqlListOfSequences() {
     return null;
@@ -801,7 +897,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return "Y".equalsIgnoreCase(supportsBooleanString);
   }
 
-  /** @param b Set to true if the database supports a boolean, bit, logical, ... datatype */
+  /**
+   * @param b Set to true if the database supports a boolean, bit, logical, ... datatype
+   */
   @Override
   public void setSupportsBooleanDataType(boolean b) {
     attributes.put(ATTRIBUTE_SUPPORTS_BOOLEAN_DATA_TYPE, b ? "Y" : "N");
@@ -825,14 +923,18 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     attributes.put(ATTRIBUTE_SUPPORTS_TIMESTAMP_DATA_TYPE, b ? "Y" : "N");
   }
 
-  /** @return true if reserved words' case should be preserved */
+  /**
+   * @return true if reserved words' case should be preserved
+   */
   @Override
   public boolean isPreserveReservedCase() {
     String usePool = getAttributeProperty(ATTRIBUTE_PRESERVE_RESERVED_WORD_CASE, "Y");
     return "Y".equalsIgnoreCase(usePool);
   }
 
-  /** @param b Set to true if reserved words' case should be preserved */
+  /**
+   * @param b Set to true if reserved words' case should be preserved
+   */
   @Override
   public void setPreserveReservedCase(boolean b) {
     attributes.put(ATTRIBUTE_PRESERVE_RESERVED_WORD_CASE, b ? "Y" : "N");
@@ -847,7 +949,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return true;
   }
 
-  /** @return all the extra options that are set to be used for the database URL */
+  /**
+   * @return all the extra options that are set to be used for the database URL
+   */
   @Override
   public Map<String, String> getExtraOptions() {
     Map<String, String> map = new Hashtable<>();
@@ -894,7 +998,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return "=";
   }
 
-  /** @return This indicator separates the normal URL from the options */
+  /**
+   * @return This indicator separates the normal URL from the options
+   */
   @Override
   public String getExtraOptionIndicator() {
     return ";";
@@ -909,7 +1015,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return true;
   }
 
-  /** @return extra help text on the supported options on the selected database platform. */
+  /**
+   * @return extra help text on the supported options on the selected database platform.
+   */
   @Override
   public String getExtraOptionsHelpText() {
     return null;
@@ -924,13 +1032,17 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return true;
   }
 
-  /** @return The SQL to execute right after connecting */
+  /**
+   * @return The SQL to execute right after connecting
+   */
   @Override
   public String getConnectSql() {
     return getAttributeProperty(ATTRIBUTE_SQL_CONNECT);
   }
 
-  /** @param sql The SQL to execute right after connecting */
+  /**
+   * @param sql The SQL to execute right after connecting
+   */
   @Override
   public void setConnectSql(String sql) {
     attributes.put(ATTRIBUTE_SQL_CONNECT, sql);
@@ -972,7 +1084,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     attributes.put(ATTRIBUTE_USE_RESULT_STREAMING, useStreaming ? "Y" : "N");
   }
 
-  /** @return true if all fields should always be quoted in db */
+  /**
+   * @return true if all fields should always be quoted in db
+   */
   @Override
   public boolean isQuoteAllFields() {
     String quoteAllFields =
@@ -989,7 +1103,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     attributes.put(ATTRIBUTE_QUOTE_ALL_FIELDS, quoteAllFields ? "Y" : "N");
   }
 
-  /** @return true if all identifiers should be forced to lower case */
+  /**
+   * @return true if all identifiers should be forced to lower case
+   */
   @Override
   public boolean isForcingIdentifiersToLowerCase() {
     String forceLowerCase =
@@ -997,13 +1113,17 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return "Y".equalsIgnoreCase(forceLowerCase);
   }
 
-  /** @param forceLowerCase true if all identifiers should be forced to lower case */
+  /**
+   * @param forceLowerCase true if all identifiers should be forced to lower case
+   */
   @Override
   public void setForcingIdentifiersToLowerCase(boolean forceLowerCase) {
     attributes.put(ATTRIBUTE_FORCE_IDENTIFIERS_TO_LOWERCASE, forceLowerCase ? "Y" : "N");
   }
 
-  /** @return true if all identifiers should be forced to upper case */
+  /**
+   * @return true if all identifiers should be forced to upper case
+   */
   @Override
   public boolean isForcingIdentifiersToUpperCase() {
     String forceUpperCase =
@@ -1011,7 +1131,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return "Y".equalsIgnoreCase(forceUpperCase);
   }
 
-  /** @param forceUpperCase true if all identifiers should be forced to upper case */
+  /**
+   * @param forceUpperCase true if all identifiers should be forced to upper case
+   */
   @Override
   public void setForcingIdentifiersToUpperCase(boolean forceUpperCase) {
     attributes.put(ATTRIBUTE_FORCE_IDENTIFIERS_TO_UPPERCASE, forceUpperCase ? "Y" : "N");
@@ -1061,13 +1183,17 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return DatabaseFactory.class.getName();
   }
 
-  /** @return The preferred schema name of this database connection. */
+  /**
+   * @return The preferred schema name of this database connection.
+   */
   @Override
   public String getPreferredSchemaName() {
     return getAttributeProperty(ATTRIBUTE_PREFERRED_SCHEMA_NAME);
   }
 
-  /** @param preferredSchemaName The preferred schema name of this database connection. */
+  /**
+   * @param preferredSchemaName The preferred schema name of this database connection.
+   */
   @Override
   public void setPreferredSchemaName(String preferredSchemaName) {
     attributes.put(ATTRIBUTE_PREFERRED_SCHEMA_NAME, preferredSchemaName);
@@ -1197,7 +1323,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return false;
   }
 
-  /** @return true if the database supports newlines in a SQL statements. */
+  /**
+   * @return true if the database supports newlines in a SQL statements.
+   */
   @Override
   public boolean isSupportsNewLinesInSql() {
     return true;
@@ -1211,7 +1339,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return null;
   }
 
-  /** @return The maximum number of columns in a database, <=0 means: no known limit */
+  /**
+   * @return The maximum number of columns in a database, <=0 means: no known limit
+   */
   @Override
   public int getMaxColumnsInIndex() {
     return 0;
@@ -1442,78 +1572,104 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return false;
   }
 
-  /** @return true if the database is a Teradata variant. */
+  /**
+   * @return true if the database is a Teradata variant.
+   */
   @Override
   public boolean isTeradataVariant() {
     return false;
   }
 
-  /** @return true if the database is a Sybase variant. */
+  /**
+   * @return true if the database is a Sybase variant.
+   */
   @Override
   public boolean isSybaseVariant() {
     return false;
   }
 
-  /** @return true if the database is a Sybase variant. */
+  /**
+   * @return true if the database is a Sybase variant.
+   */
   @Override
   public boolean isSybaseIQVariant() {
     return false;
   }
 
-  /** @return true if the database is a Neoview variant. */
+  /**
+   * @return true if the database is a Neoview variant.
+   */
   @Override
   public boolean isNeoviewVariant() {
     return false;
   }
 
-  /** @return true if the database is a Exasol variant. */
+  /**
+   * @return true if the database is a Exasol variant.
+   */
   @Override
   public boolean isExasolVariant() {
     return false;
   }
 
-  /** @return true if the database is a Informix variant. */
+  /**
+   * @return true if the database is a Informix variant.
+   */
   @Override
   public boolean isInformixVariant() {
     return false;
   }
 
-  /** @return true if the database is a MS SQL Server (native) variant. */
+  /**
+   * @return true if the database is a MS SQL Server (native) variant.
+   */
   @Override
   public boolean isMsSqlServerNativeVariant() {
     return false;
   }
 
-  /** @return true if the database is a MS SQL Server variant. */
+  /**
+   * @return true if the database is a MS SQL Server variant.
+   */
   @Override
   public boolean isMsSqlServerVariant() {
     return false;
   }
 
-  /** @return true if the database is an Oracle variant. */
+  /**
+   * @return true if the database is an Oracle variant.
+   */
   @Override
   public boolean isOracleVariant() {
     return false;
   }
 
-  /** @return true if the database is an Netezza variant. */
+  /**
+   * @return true if the database is an Netezza variant.
+   */
   @Override
   public boolean isNetezzaVariant() {
     return false;
   }
 
-  /** @return true if the database is a SQLite variant. */
+  /**
+   * @return true if the database is a SQLite variant.
+   */
   @Override
   public boolean isSqliteVariant() {
     return false;
   }
 
-  /** @return true if the database type can be tested against a database instance */
+  /**
+   * @return true if the database type can be tested against a database instance
+   */
   public boolean canTest() {
     return true;
   }
 
-  /** @return true if the database name is a required parameter */
+  /**
+   * @return true if the database name is a required parameter
+   */
   @Override
   public boolean isRequiresName() {
     return true;
@@ -1717,13 +1873,17 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return fieldname;
   }
 
-  /** @return string with the no max value sequence option. */
+  /**
+   * @return string with the no max value sequence option.
+   */
   @Override
   public String getSequenceNoMaxValueOption() {
     return "NOMAXVALUE";
   }
 
-  /** @return true if the database supports autoGeneratedKeys */
+  /**
+   * @return true if the database supports autoGeneratedKeys
+   */
   @Override
   public boolean isSupportsAutoGeneratedKeys() {
     return true;
@@ -1781,5 +1941,10 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @Override
   public String getAttribute(String attributeId, String defaultValue) {
     return getAttributeProperty(attributeId, defaultValue);
+  }
+
+  @Override
+  public String getSqlInsertClauseBeforeFields(IVariables variables, String schemaTable) {
+    return null;
   }
 }

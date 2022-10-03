@@ -190,7 +190,9 @@ public class Database implements IVariables, ILoggingObject {
     this.connection = connection;
   }
 
-  /** @return Returns the connection. */
+  /**
+   * @return Returns the connection.
+   */
   public Connection getConnection() {
     return connection;
   }
@@ -204,17 +206,23 @@ public class Database implements IVariables, ILoggingObject {
     rowlimit = rows;
   }
 
-  /** @return Returns the prepStatementInsert. */
+  /**
+   * @return Returns the prepStatementInsert.
+   */
   public PreparedStatement getPrepStatementInsert() {
     return prepStatementInsert;
   }
 
-  /** @return Returns the prepStatementLookup. */
+  /**
+   * @return Returns the prepStatementLookup.
+   */
   public PreparedStatement getPrepStatementLookup() {
     return prepStatementLookup;
   }
 
-  /** @return Returns the prepStatementUpdate. */
+  /**
+   * @return Returns the prepStatementUpdate.
+   */
   public PreparedStatement getPrepStatementUpdate() {
     return prepStatementUpdate;
   }
@@ -352,7 +360,8 @@ public class Database implements IVariables, ILoggingObject {
           }
           // Prevent registering multiple delegating drivers for same class, plugin
           if (!registeredDriversFromPlugin.contains(driverClass.getCanonicalName())) {
-            DriverManager.registerDriver(new DelegatingDriver((Driver) driverClass.getDeclaredConstructor().newInstance()));
+            DriverManager.registerDriver(
+                new DelegatingDriver((Driver) driverClass.getDeclaredConstructor().newInstance()));
             registeredDriversFromPlugin.add(driverClass.getCanonicalName());
           }
         } else {
@@ -512,8 +521,7 @@ public class Database implements IVariables, ILoggingObject {
       // Always close the connection, irrespective of what happens above...
       try {
         closeConnectionOnly();
-      } catch (
-          HopDatabaseException hde) {
+      } catch (HopDatabaseException hde) {
         log.logError(
             "Error disconnecting from database - closeConnectionOnly failed:"
                 + Const.CR
@@ -982,9 +990,18 @@ public class Database implements IVariables, ILoggingObject {
     StringBuilder ins = new StringBuilder(128);
 
     String schemaTable = databaseMeta.getQuotedSchemaTableCombination(this, schemaName, tableName);
-    ins.append("INSERT INTO ").append(schemaTable).append(" (");
+    ins.append("INSERT INTO ").append(schemaTable).append(" ");
+
+    // See if the database dialect requires any additional clause
+    //
+    String beforeFieldsClause =
+        databaseMeta.getIDatabase().getSqlInsertClauseBeforeFields(this, schemaTable);
+    if (StringUtils.isNotEmpty(beforeFieldsClause)) {
+      ins.append(beforeFieldsClause).append(" ");
+    }
 
     // now add the names in the row:
+    ins.append("(");
     for (int i = 0; i < fields.size(); i++) {
       if (i > 0) {
         ins.append(", ");
@@ -992,7 +1009,8 @@ public class Database implements IVariables, ILoggingObject {
       String name = fields.getValueMeta(i).getName();
       ins.append(databaseMeta.quoteField(name));
     }
-    ins.append(") VALUES (");
+    ins.append(")");
+    ins.append(" VALUES (");
 
     // Add placeholders...
     for (int i = 0; i < fields.size(); i++) {
@@ -3010,7 +3028,8 @@ public class Database implements IVariables, ILoggingObject {
       execStatement(truncateStatement);
     } else {
       execStatement(
-              databaseMeta.getSqlDeleteStmt(databaseMeta.getQuotedSchemaTableCombination(this, schema, tableName)));
+          databaseMeta.getSqlDeleteStmt(
+              databaseMeta.getQuotedSchemaTableCombination(this, schema, tableName)));
     }
   }
 
@@ -3889,7 +3908,9 @@ public class Database implements IVariables, ILoggingObject {
     return commitsize <= 0;
   }
 
-  /** @return Returns the databaseMeta. */
+  /**
+   * @return Returns the databaseMeta.
+   */
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
   }
@@ -3940,42 +3961,58 @@ public class Database implements IVariables, ILoggingObject {
     }
   }
 
-  /** @return the opened */
+  /**
+   * @return the opened
+   */
   public int getOpened() {
     return opened;
   }
 
-  /** @param opened the opened to set */
+  /**
+   * @param opened the opened to set
+   */
   public synchronized void setOpened(int opened) {
     this.opened = opened;
   }
 
-  /** @return the connectionGroup */
+  /**
+   * @return the connectionGroup
+   */
   public String getConnectionGroup() {
     return connectionGroup;
   }
 
-  /** @param connectionGroup the connectionGroup to set */
+  /**
+   * @param connectionGroup the connectionGroup to set
+   */
   public void setConnectionGroup(String connectionGroup) {
     this.connectionGroup = connectionGroup;
   }
 
-  /** @return the partitionId */
+  /**
+   * @return the partitionId
+   */
   public String getPartitionId() {
     return partitionId;
   }
 
-  /** @param partitionId the partitionId to set */
+  /**
+   * @param partitionId the partitionId to set
+   */
   public void setPartitionId(String partitionId) {
     this.partitionId = partitionId;
   }
 
-  /** @return the copy */
+  /**
+   * @return the copy
+   */
   public int getCopy() {
     return copy;
   }
 
-  /** @param copy the copy to set */
+  /**
+   * @param copy the copy to set
+   */
   public synchronized void setCopy(int copy) {
     this.copy = copy;
   }
@@ -4239,7 +4276,8 @@ public class Database implements IVariables, ILoggingObject {
       }
       return truncateStatement;
     } else {
-      return (databaseMeta.getSqlDeleteStmt(databaseMeta.getQuotedSchemaTableCombination(this, schema, tableName)));
+      return (databaseMeta.getSqlDeleteStmt(
+          databaseMeta.getQuotedSchemaTableCombination(this, schema, tableName)));
     }
   }
 
@@ -4479,13 +4517,17 @@ public class Database implements IVariables, ILoggingObject {
     log.setLogLevel(logLevel);
   }
 
-  /** @return the serverObjectId */
+  /**
+   * @return the serverObjectId
+   */
   @Override
   public String getContainerId() {
     return containerObjectId;
   }
 
-  /** @param containerObjectId the execution container Object id to set */
+  /**
+   * @param containerObjectId the execution container Object id to set
+   */
   public void setContainerObjectId(String containerObjectId) {
     this.containerObjectId = containerObjectId;
   }
@@ -4496,12 +4538,16 @@ public class Database implements IVariables, ILoggingObject {
     return null;
   }
 
-  /** @return the nrExecutedCommits */
+  /**
+   * @return the nrExecutedCommits
+   */
   public int getNrExecutedCommits() {
     return nrExecutedCommits;
   }
 
-  /** @param nrExecutedCommits the nrExecutedCommits to set */
+  /**
+   * @param nrExecutedCommits the nrExecutedCommits to set
+   */
   public void setNrExecutedCommits(int nrExecutedCommits) {
     this.nrExecutedCommits = nrExecutedCommits;
   }
