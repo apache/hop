@@ -17,8 +17,11 @@
 
 package org.apache.hop.beam.metadata;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
@@ -64,12 +67,25 @@ public class FileDefinition extends HopMetadataBase implements Serializable, IHo
 
   public IRowMeta getRowMeta() throws HopPluginException {
     IRowMeta rowMeta = new RowMeta();
-
     for (FieldDefinition fieldDefinition : fieldDefinitions) {
       rowMeta.addValueMeta(fieldDefinition.getValueMeta());
     }
-
     return rowMeta;
+  }
+
+
+  public void validate() throws HopException  {
+    if (StringUtils.isEmpty(separator)) {
+      throw new HopException("Please specify a separator in file definition "+name);
+    }
+    for (IValueMeta valueMeta : getRowMeta().getValueMetaList()) {
+      if (StringUtils.isEmpty(valueMeta.getName())) {
+        throw new HopException("File definition "+name+" should not contain fields without a name");
+      }
+      if (valueMeta.getType()==IValueMeta.TYPE_NONE) {
+        throw new HopException("File definition "+name+" should not contain fields without a type");
+      }
+    }
   }
 
   /**
@@ -127,4 +143,5 @@ public class FileDefinition extends HopMetadataBase implements Serializable, IHo
   public void setEnclosure(String enclosure) {
     this.enclosure = enclosure;
   }
+
 }
