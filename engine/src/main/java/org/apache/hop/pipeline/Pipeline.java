@@ -1260,7 +1260,6 @@ public abstract class Pipeline
    */
   @Override
   public void firePipelineExecutionFinishedListeners() throws HopException {
-    log.logBasic("==> Fire finished listeners");
     synchronized (executionFinishedListeners) {
       if (executionFinishedListeners.size() == 0) {
         return;

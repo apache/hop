@@ -16,11 +16,11 @@ under the License.
 ////
 :imagesdir: ../assets/images
 
-== Search Perspective
+= Search Perspective
 
 Icon: image:icons/search.svg[width="24px"]
 
-Description::
+== Description
 The Search perspective allows you to search through all metadata in your Hop projects.
 This not only includes workflows and actions, pipelines and transforms, but any other metadata type known to Hop.
 
