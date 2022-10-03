@@ -3894,4 +3894,22 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   public void setExecutionEndDate(Date executionEndDate) {
     this.executionEndDate = executionEndDate;
   }
+
+  /**
+   * Sets allowEmptyFieldNamesAndTypes
+   *
+   * @param allowEmptyFieldNamesAndTypes value of allowEmptyFieldNamesAndTypes
+   */
+  public void setAllowEmptyFieldNamesAndTypes(boolean allowEmptyFieldNamesAndTypes) {
+    this.allowEmptyFieldNamesAndTypes = allowEmptyFieldNamesAndTypes;
+  }
+
+  /**
+   * Gets allowEmptyFieldNamesAndTypes
+   *
+   * @return value of allowEmptyFieldNamesAndTypes
+   */
+  public boolean isAllowEmptyFieldNamesAndTypes() {
+    return allowEmptyFieldNamesAndTypes;
+  }
 }
