@@ -19,6 +19,7 @@ package org.apache.hop.core.database;
 
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataObject;
@@ -1004,4 +1005,14 @@ public interface IDatabase extends Cloneable {
 
   /** @return true if the database name is a required parameter */
   boolean isRequiresName();
+
+  /**
+   * If the database requires it you can generate an additional clause before the 'fields' specification in an insert statement.
+   * For example, you might have INSERT INTO table1(field1, field2, field3) but you need to include a PARTITION clause.
+   * That's what you can do right here.  If you make this method return PARTITION(field4) you will get INSERT INTO table1 PARTITION(field4) (field1, field2, field3).
+   *
+   * @param variables the variables to resolve with.
+   * @param schemaTable The schema-table name combination (Fully qualified table name) to generate the clause for.
+   */
+  String getSqlInsertClauseBeforeFields(IVariables variables, String schemaTable);
 }

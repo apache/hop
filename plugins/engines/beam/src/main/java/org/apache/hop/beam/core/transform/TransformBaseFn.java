@@ -77,6 +77,10 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
   }
 
   protected void sendSamplesToLocation(boolean finished) throws HopException {
+    if (executor==null || executor.getPipeline()==null) {
+      return;
+    }
+
     String logChannelId = executor.getPipeline().getLogChannelId();
 
     ExecutionDataBuilder dataBuilder =

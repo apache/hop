@@ -30,19 +30,42 @@ After execution this information can be consulted from the xref:hop-gui/perspect
 
 [options="header"]
 |===
+
 |Option|Description|Default
 |Name|The name to use for this Execution Information Location|-
 |Description|The description to use for this Execution Information Location|-
+
 |Data logging delay (ms)||2000
 |Data logging interval (ms)||5000
 |Data logging size (rows)||1000
-|Location type
-a| Write the execution information to a
 
-* File location: write execution information to files in a path on the local file system.
-** Root folder: the folder to write the execution information to.
-* Remote location: write execution information to a remote Hop Server
-** Hop Server: the remote Hop Server to write the execution information to.
-** Execution Information Location: the Execution Information Location to be used on the remote Hop Server.
-|-
+|Location type
+|The location plugin type to write to.  Depending on the type you can enter more plugin specific options.
+|
 |===
+
+== Location type specific options
+
+=== File location
+
+With a file location you can write execution information to files in a path on the local file system.
+
+Options:
+
+* *Root folder*: the folder to write the execution information to.
+
+=== Remote location
+
+A remote location allows you to write execution information to a Hop Server.
+
+Options:
+
+* *Hop Server*: the remote Hop Server to write the execution information to.
+* *Execution Information Location*: the Execution Information Location to be used on the remote Hop Server.
+
+=== Neo4j location
+
+With this location type you can store execution information in a xref:technology/neo4j/index.adoc[Neo4j] graph database.  For more information on this plugin, see the xref:metadata-types/neo4j/neo4j-location-type.adoc[Neo4j location type] documentation.
+
+
+

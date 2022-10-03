@@ -23,16 +23,18 @@ Hop comes with a number of perspectives built in.
 Change the current perspectives by clicking on the icon in the left-hand toolbar, or through the corresponding keyboard shortcut.
 Use the keyboard shortcuts `CTRL-SHIFT-arrow-up` and `CTRL-SHIFT-arrow-down` to cycle through perspectives.
 
-include::perspective-data-orchestration.adoc[]
+Here are the available perspectives:
 
-include::perspective-execution-information.adoc[]
+* xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestration]
 
-include::perspective-metadata.adoc[]
+* xref:hop-gui/perspective-execution-information.adoc[Execution Information]
 
-include::perspective-file-explorer.adoc[]
+* xref:hop-gui/perspective-metadata.adoc[Metadata]
 
-include::perspective-search.adoc[]
+* xref:hop-gui/perspective-file-explorer.adoc[File explorer]
 
-include::perspective-plugin.adoc[]
+* xref:hop-gui/perspective-search.adoc[Search]
 
-include::perspective-neo4j.adoc[]
+* xref:hop-gui/perspective-plugin.adoc[Plugins explorer]
+
+* xref:hop-gui/perspective-neo4j.adoc[Neo4j]

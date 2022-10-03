@@ -80,6 +80,7 @@ Most of the times you can replace ctrl with cmd.
 |CTRL + Shift + &uarr; | Switch one perspective up
 |CTRL + Shift + &darr; |Switch one perspective down
 |CTRL + Shift + d |Open the Data Orchestration Perspective
+|CTRL + Shift + i |Open the Execution Information Perspective
 |CTRL + Shift + m |Open the Metadata Perspective
 |CTRL + Shift + e |Open the File Explorer Perspective
 |CTRL + f |Open the Search Perspective

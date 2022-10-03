@@ -16,11 +16,31 @@ under the License.
 ////
 :imagesdir: ../assets/images
 
-== Metadata Perspective
+= Metadata Perspective
 
 Icon: image:icons/metadata.svg[width="24px"]
 
 Keyboard shortcut: `CTRL-Shift-M`
 
-Description::
+== Description
+
 The Metadata perspective is where you manage the different xref:metadata-types/index.adoc[metadata types] available in your Hop projects.
+
+== Usage
+
+=== The types tree
+
+This perspective has a tree on the left-hand side where the metadata types are shown as top level with elements below it:
+
+image::hop-gui/perspective-data-orchestration-left-hand-tree.png[The left-hand tree of the data orchestration perspective]
+
+=== Managing elements
+
+You can right-click on any element to edit, rename, duplicate or delete an element.  You can also use this menu to create new elements.
+To create a new element you can also double-click on the element type itself.
+You can also use the toolbar icons in the toolbar located right above the metadata tree.
+
+=== Tabs
+
+When creating or editing metadata elements you will get the information presented in a separate tab on the right-hand side.  This will allow you to easily switch between various metadata elements when working in a project.
+

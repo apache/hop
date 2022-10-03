@@ -430,7 +430,6 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
         // The location is closed when the last piece of information is saved.
         // See: stopTransformExecutionInfoTimer()
         //
-        log.logBasic("==> Initialize location");
         executionInfoLocation.getExecutionInfoLocation().initialize(this, metadataProvider);
       } else {
         log.logError(
@@ -470,7 +469,6 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
       // We're now certain all listeners fired. We can close the location.
       //
-      log.logBasic("==> Close location");
       executionInfoLocation.getExecutionInfoLocation().close();
     } catch (Exception e) {
       log.logError("Error handling writing final pipeline state to location (non-fatal)", e);

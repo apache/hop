@@ -50,7 +50,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/beaminput.html")
-public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData> implements IBeamPipelineTransformHandler {
+public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "input_location")
   private String inputLocation;
@@ -105,6 +106,13 @@ public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData> i
     if (fileDefinition == null) {
       throw new HopTransformException(
           "Unable to find file definition '" + fileDefinitionName + "' in the metadata");
+    }
+
+    try {
+      fileDefinition.validate();
+    } catch (Exception e) {
+      throw new HopTransformException(
+          "There was an error validating file definition " + fileDefinition.getName(), e);
     }
 
     return fileDefinition;
@@ -171,7 +179,9 @@ public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData> i
     return inputLocation;
   }
 
-  /** @param inputLocation The inputLocation to set */
+  /**
+   * @param inputLocation The inputLocation to set
+   */
   public void setInputLocation(String inputLocation) {
     this.inputLocation = inputLocation;
   }
@@ -185,7 +195,9 @@ public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData> i
     return fileDefinitionName;
   }
 
-  /** @param fileDefinitionName The fileDescriptionName to set */
+  /**
+   * @param fileDefinitionName The fileDescriptionName to set
+   */
   public void setFileDefinitionName(String fileDefinitionName) {
     this.fileDefinitionName = fileDefinitionName;
   }

@@ -426,6 +426,12 @@ public class TransformFn extends TransformBaseFn {
         pipelineMeta.getTransformFields(variables, transformName),
         pipeline.getTransform(transformName, 0));
 
+    // Change the row handler
+    //
+    for (TransformMetaDataCombi c : pipeline.getTransforms()) {
+      ((BaseTransform)c.transform).setRowHandler(new BeamRowHandler((BaseTransform) c.transform));
+    }
+
     executor = new SingleThreadedPipelineExecutor(pipeline);
 
     // Initialize the transforms...
@@ -496,7 +502,7 @@ public class TransformFn extends TransformBaseFn {
     // Pass the rows in the rowBuffer to the input RowSet
     //
     if (!inputTransform) {
-      rowProducer.putRow(inputRowMeta, inputRow.getRow());
+      rowProducer.putRow(inputRowMeta, inputRow.getRow(), false);
     }
 
     // Execute all transforms in the transformation

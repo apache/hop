@@ -56,30 +56,20 @@
                 <include>com.google.code.findbugs:jsr305:jar</include>
                 <include>com.google.protobuf:protobuf-java:jar</include>
                 <include>commons-collections:commons-collections:jar</include>
-                <include>commons-digester:commons-digester:jar</include>
                 <include>io.netty:netty:jar</include>
-                <include>jakarta.activation:jakarta.activation:jar</include>
                 <include>javax.xml.bind:jaxb-api:jar</include>
                 <include>org.apache.curator:curator-client:jar</include>
                 <include>org.apache.curator:curator-framework:jar</include>
                 <include>org.apache.curator:curator-recipes:jar</include>
-                <include>org.apache.directory.api:api-asn1-api:jar</include>
-                <include>org.apache.directory.api:api-util:jar</include>
-                <include>org.apache.directory.server:apacheds-i18n:jar</include>
-                <include>org.apache.directory.server:apacheds-kerberos-codec:jar</include>
                 <include>org.apache.hadoop:hadoop-annotations:jar</include>
                 <include>org.apache.hadoop:hadoop-auth:jar</include>
                 <include>org.apache.hadoop:hadoop-client:jar</include>
                 <include>org.apache.hadoop:hadoop-common:jar</include>
-                <include>org.apache.hadoop:hadoop-hdfs:jar</include>
-                <include>org.apache.hadoop:hadoop-mapreduce-client-app:jar</include>
                 <include>org.apache.hadoop:hadoop-mapreduce-client-common:jar</include>
                 <include>org.apache.hadoop:hadoop-mapreduce-client-core:jar</include>
                 <include>org.apache.hadoop:hadoop-mapreduce-client-jobclient:jar</include>
-                <include>org.apache.hadoop:hadoop-mapreduce-client-shuffle:jar</include>
                 <include>org.apache.hadoop:hadoop-yarn-api:jar</include>
                 <include>org.apache.hadoop:hadoop-yarn-client:jar</include>
-                <include>org.apache.hadoop:hadoop-yarn-common:jar</include>
                 <include>org.apache.hadoop:hadoop-yarn-server-common:jar</include>
                 <include>org.apache.parquet:parquet-avro:jar</include>
                 <include>org.apache.parquet:parquet-column:jar</include>
@@ -94,9 +84,7 @@
                 <include>org.codehaus.jackson:jackson-jaxrs:jar</include>
                 <include>org.codehaus.jackson:jackson-mapper-asl:jar</include>
                 <include>org.codehaus.jackson:jackson-xc:jar</include>
-                <include>org.fusesource.leveldbjni:leveldbjni-all:jar</include>
-                <include>org.htrace:htrace-core:jar</include>
-                <include>xmlenc:xmlenc:jar</include>
+                <include>org.apache.hadoop.thirdparty:hadoop-shaded-guava:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

@@ -16,12 +16,22 @@ under the License.
 ////
 :imagesdir: ../assets/images
 
-== Data Orchestration Perspective
+= Data Orchestration Perspective
 
 Icon: image:icons/data_orch.svg[width="24px"]
 
 Keyboard shortcut: `CTRL-Shift-D`
 
-Description::
+== Description
+
 The Data Orchestration perspective is where you'll spend most of your time in Hop Gui.
 This is where xref:pipeline/pipelines.adoc[pipelines] and xref:workflow/workflows.adoc[workflows] are built, tested and run.
+
+== Usage
+
+Pipelines and workflow files can be opened or created. At that point they appear in new tabs in this perspective.
+
+For more information on how to get started with pipelines, see the xref:getting-started/hop-gui-pipelines.adoc[Pipelines getting started guide].
+
+For more information on how to get started with workflow, see the xref:getting-started/hop-gui-workflows.adoc[Workflows getting started guide].
+

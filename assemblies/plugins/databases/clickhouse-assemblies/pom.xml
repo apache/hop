@@ -35,8 +35,6 @@
     <description></description>
 
     <properties>
-        <slf4j-api.version>1.7.32</slf4j-api.version>
-        <slf4j-nop.version>1.7.32</slf4j-nop.version>
         <clickhouse.jdbc.version>0.3.2-patch9</clickhouse.jdbc.version>
     </properties>
 
