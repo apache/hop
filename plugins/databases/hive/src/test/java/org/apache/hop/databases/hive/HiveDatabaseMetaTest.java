@@ -13,8 +13,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
-package org.apache.hop.databases.mysql;
+package org.apache.hop.databases.hive;
 
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -440,15 +441,6 @@ public class HiveDatabaseMetaTest {
     doThrow(new SQLException()).when(resultSetMetaData).getColumnName(1);
 
     return resultSetMetaData;
-  }
-
-  @Test
-  public void testExtraOptions() {
-    DatabaseMeta nativeMeta =
-        new DatabaseMeta("", "MYSQL", "JDBC", null, "stub:stub", null, null, null);
-    Map<String, String> opts = nativeMeta.getExtraOptions();
-    assertNotNull(opts);
-    assertEquals("500", opts.get("MYSQL.defaultFetchSize"));
   }
 
 
