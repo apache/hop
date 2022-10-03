@@ -44,7 +44,6 @@
 
     <properties>
         <parquet.version>1.12.3</parquet.version>
-        <hadoop.version>2.6.5</hadoop.version>
     </properties>
 
     <dependencies>
