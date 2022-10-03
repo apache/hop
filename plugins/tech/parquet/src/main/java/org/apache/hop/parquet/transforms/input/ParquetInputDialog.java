@@ -208,7 +208,7 @@ public class ParquetInputDialog extends BaseTransformDialog implements ITransfor
               new String[] {"Parquet files", "All files"},
               true);
       if (filename != null) {
-        FileObject fileObject = HopVfs.getFileObject(filename);
+        FileObject fileObject = HopVfs.getFileObject(variables.resolve(filename));
 
         long size = fileObject.getContent().getSize();
         InputStream inputStream = HopVfs.getInputStream(fileObject);
