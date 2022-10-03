@@ -152,6 +152,8 @@ public class CsvInputContentParsingTest extends BaseCsvParsingTest {
 
     setFields(new TextFileInputField(), new TextFileInputField(), new TextFileInputField());
 
+    transform.setAllowEmptyFieldNamesAndTypes(false);
+
     process();
   }
 
