@@ -361,6 +361,7 @@ public class BaseTransformTest {
             mockHelper.pipelineMeta,
             mockHelper.pipeline);
     baseTransform.setRowHandler(rowHandler);
+    baseTransform.setAllowEmptyFieldNamesAndTypes(false);
 
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaBase(null, IValueMeta.TYPE_INTEGER));
@@ -379,6 +380,7 @@ public class BaseTransformTest {
             mockHelper.pipelineMeta,
             mockHelper.pipeline);
     baseTransform.setRowHandler(rowHandler);
+    baseTransform.setAllowEmptyFieldNamesAndTypes(false);
 
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaBase("", IValueMeta.TYPE_INTEGER));
@@ -397,6 +399,7 @@ public class BaseTransformTest {
             mockHelper.pipelineMeta,
             mockHelper.pipeline);
     baseTransform.setRowHandler(rowHandler);
+    baseTransform.setAllowEmptyFieldNamesAndTypes(false);
 
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaBase("  ", IValueMeta.TYPE_INTEGER));
