@@ -20,7 +20,7 @@ under the License.
 = Working with git
 
 Version control is an important aspect of any serious data orchestration project.
-Hop wants to make it as easy as possible to manage versions for your workflows and pipelines through the integrated git options in the xref:hop-gui/perspectives.adoc#_file_explorer_perspective[File Explorer perspective].
+Hop wants to make it as easy as possible to manage versions for your workflows and pipelines through the integrated git options in the xref:hop-gui/perspective-file-explorer.adoc[File Explorer perspective].
 
 == File Explorer Toolbar
 
