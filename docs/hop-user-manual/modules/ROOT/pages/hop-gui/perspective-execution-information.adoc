@@ -20,7 +20,7 @@ under the License.
 
 = Execution Information Perspective
 
-Icon: image:icons/run.svg[width="24px"]
+Icon: image:icons/location.svg[width="24px"]
 
 
 == Description
@@ -33,7 +33,7 @@ The execution information displayed in this perspective is not collected automat
 
 == Navigation
 
-You can navigate to it by clicking the image:icons/run.svg[width="24px"] icon from the vertical perspective toolbar in the Hop GUI.
+You can navigate to it by clicking the image:icons/location.svg[width="24px"] icon from the vertical perspective toolbar in the Hop GUI.
 
 The Keyboard shortcut to do the same is: `CTRL-Shift-I`.
 

@@ -77,7 +77,7 @@ import java.util.List;
     id = "150-HopExecutionPerspective",
     name = "i18n::ExecutionPerspective.Name",
     description = "i18n::ExecutionPerspective.Description",
-    image = "ui/images/run.svg")
+    image = "ui/images/location.svg")
 @GuiPlugin
 public class ExecutionPerspective implements IHopPerspective {
 
