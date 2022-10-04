@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -150,6 +151,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     CTabItem wMainTab = new CTabItem(wTabFolder, SWT.NONE);
     wMainTab.setText(
         BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.MainTab.TabTitle"));
+    wMainTab.setImage(GuiResource.getInstance().getImageRun());
 
     ScrolledComposite wMainSComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     wMainSComp.setLayout(new FillLayout());
@@ -319,6 +321,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     CTabItem wVariablesTab = new CTabItem(wTabFolder, SWT.NONE);
     wVariablesTab.setText(
         BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.VariablesTab.TabTitle"));
+    wVariablesTab.setImage(GuiResource.getInstance().getImageVariable());
 
     ScrolledComposite wVariablesSComp =
         new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);

@@ -25,16 +25,16 @@ Use the keyboard shortcuts `CTRL-SHIFT-arrow-up` and `CTRL-SHIFT-arrow-down` to 
 
 Here are the available perspectives:
 
-* xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestration]
+* image:icons/data_orch.svg[width="24px"] xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestration]
 
-* xref:hop-gui/perspective-execution-information.adoc[Execution Information]
+* image:icons/location.svg[width="24px"] xref:hop-gui/perspective-execution-information.adoc[Execution Information]
 
-* xref:hop-gui/perspective-metadata.adoc[Metadata]
+* image:icons/metadata.svg[width="24px"] xref:hop-gui/perspective-metadata.adoc[Metadata]
 
-* xref:hop-gui/perspective-file-explorer.adoc[File explorer]
+* image:icons/folder.svg[width="24px"] xref:hop-gui/perspective-file-explorer.adoc[File explorer]
 
-* xref:hop-gui/perspective-search.adoc[Search]
+* image:icons/search.svg[width="24px"] xref:hop-gui/perspective-search.adoc[Search]
 
-* xref:hop-gui/perspective-plugin.adoc[Plugins explorer]
+* image:icons/plugin.svg[width="24px"] xref:hop-gui/perspective-plugin.adoc[Plugins explorer]
 
-* xref:hop-gui/perspective-neo4j.adoc[Neo4j]
+* image:icons/neo4j_logo.svg[width="24px"] xref:hop-gui/perspective-neo4j.adoc[Neo4j]

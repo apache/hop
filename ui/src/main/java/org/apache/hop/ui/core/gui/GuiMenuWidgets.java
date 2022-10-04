@@ -342,9 +342,6 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
     boolean enable = hasCapability && active;
     if (enable != menuItem.isEnabled()) {
       menuItem.setEnabled(enable);
-      if (id.equals(HopGui.ID_MAIN_MENU_FILE_SAVE)) {
-        System.out.println("Changed save menu state to "+enable);
-      }
     }
     return menuItem;
   }
