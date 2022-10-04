@@ -248,7 +248,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
       //
       Map<String, PCollection<HopRow>> transformCollectionMap = new HashMap<>();
 
-      // Handle io
+      // Handle input
       //
       handleBeamInputTransforms(log, transformCollectionMap, pipeline);
 
@@ -374,13 +374,30 @@ public class HopPipelineMetaToBeamPipelineConverter {
       }
       TransformMeta previousTransform = previousTransforms.get(0);
 
-      PCollection<HopRow> input = transformCollectionMap.get(previousTransform.getName());
+      // See if this output transform isn't targeted specifically by the previous transform.
+      //
+      // Check in the map to see if previousTransform isn't targeting this one
+      //
+      String targetName =
+              HopBeamUtil.createTargetTupleId(
+                      previousTransform.getName(), transformMeta.getName());
+      PCollection<HopRow> input = transformCollectionMap.get(targetName);
       if (input == null) {
-        throw new HopException(
-            "Previous PCollection for transform "
-                + previousTransform.getName()
-                + " could not be found");
+        input = transformCollectionMap.get(previousTransform.getName());
+        if (input == null) {
+          throw new HopException(
+                  "Previous PCollection for transform "
+                          + previousTransform.getName()
+                          + " could not be found");
+        }
+      } else {
+        log.logBasic(
+                "Transform "
+                        + transformMeta.getName()
+                        + " reading from previous transform targeting this one using : "
+                        + targetName);
       }
+
 
       // What fields are we getting from the previous transform(s)?
       //
