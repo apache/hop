@@ -34,6 +34,8 @@ include::../snippets/variables/hop-plugin-base-folders.adoc[]
 
 include::../snippets/variables/hop-shared-jdbc-folder.adoc[]
 
+include::../snippets/variables/hop-windows-shell-encoding.adoc[]
+
 == Keyboard Shortcuts and Mouse actions
 
 CTRL-K::

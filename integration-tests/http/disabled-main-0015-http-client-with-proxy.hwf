@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0014-rest-client-with-proxy</name>
+  <name>main-0015-http-client-with-proxy</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -55,11 +55,11 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0014-rest-client-with-proxy.hpl</name>
+      <name>0015-http-client-with-proxy.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0014-rest-client-with-proxy.hpl</filename>
+      <filename>${PROJECT_HOME}/0015-http-client-with-proxy.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -76,9 +76,14 @@ limitations under the License.
       <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>HOSTNAME</name>
+          <stream_name/>
+          <value>${HOSTNAME}</value>
+        </parameter>
       </parameters>
       <parallel>N</parallel>
-      <xloc>208</xloc>
+      <xloc>304</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -86,13 +91,33 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>0014-rest-client-with-proxy.hpl</to>
+      <to>0015-http-client-with-proxy.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
   </hops>
   <notepads>
+    <notepad>
+      <note>Does not work via Server (public proxy gets rejected)</note>
+      <xloc>48</xloc>
+      <yloc>128</yloc>
+      <width>332</width>
+      <heigth>26</heigth>
+      <fontname>.AppleSystemUIFont</fontname>
+      <fontsize>13</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+    </notepad>
   </notepads>
   <attributes/>
 </workflow>
