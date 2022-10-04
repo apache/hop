@@ -24,7 +24,7 @@ under the License.
 
 The Execution Information Location determines where Apache Hop can send information execution information to.
 
-After execution this information can be consulted from the xref:hop-gui/perspectives.adoc#_execution_information_perspective[Execution Information Perspective]
+After execution this information can be consulted from the xref:hop-gui/perspective-execution-information.adoc[Execution Information Perspective]
 
 == Options
 
