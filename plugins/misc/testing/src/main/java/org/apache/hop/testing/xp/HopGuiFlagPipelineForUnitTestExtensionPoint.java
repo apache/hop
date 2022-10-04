@@ -23,7 +23,9 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
@@ -44,6 +46,13 @@ public class HopGuiFlagPipelineForUnitTestExtensionPoint
   @Override
   public void callExtensionPoint(ILogChannel log, IVariables variables, IPipelineEngine pipeline)
       throws HopException {
+
+    IPipelineEngineRunConfiguration runConfig =
+        pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
+    if (!(runConfig instanceof LocalPipelineRunConfiguration)) {
+      pipeline.setVariable(DataSetConst.VAR_RUN_UNIT_TEST, "N");
+      return;
+    }
 
     PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest(pipeline.getPipelineMeta());
     if (unitTest == null) {
