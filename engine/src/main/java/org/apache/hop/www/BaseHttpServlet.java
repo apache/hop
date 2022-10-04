@@ -91,7 +91,10 @@ public class BaseHttpServlet extends HttpServlet {
   protected void service(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     if (req.getContentLength() > 0 && req.getContentType() != null) {
-      req.setCharacterEncoding(getContentEncoding(req.getContentType()));
+      String encoding = getContentEncoding(req.getContentType());
+      if(encoding != null){
+        req.setCharacterEncoding(encoding);
+      }
     }
     if ("GET".equals(req.getMethod())) {
       supportGraphicEnvironment =

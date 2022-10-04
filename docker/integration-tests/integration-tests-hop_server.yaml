@@ -35,6 +35,9 @@ services:
     environment:
       - HOP_SERVER_PORT=8181
       - HOP_SERVER_HOSTNAME=hop-server
+      - HOP_SERVER_METADATA_FOLDER=/hop_server_volume/metadata
+    volumes:
+      - ./../../integration-tests/hop_server/:/hop_server_volume
     healthcheck:
       test: curl -u cluster:cluster --fail http://hop-server:8181 || exit 1 
       interval: 20s

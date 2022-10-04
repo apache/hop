@@ -1,0 +1,10 @@
+{
+  "transformName": "OUTPUT",
+  "filename": "/hop_server_volume/testService-pipeline.hpl",
+  "fieldName": "data",
+  "bodyContentVariable": "",
+  "listingStatus": false,
+  "name": "testService",
+  "contentType": "application/json",
+  "enabled": true
+}
