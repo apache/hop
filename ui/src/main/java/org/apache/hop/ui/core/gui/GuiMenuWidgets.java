@@ -24,6 +24,7 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -338,7 +339,13 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
       return null;
     }
     boolean hasCapability = fileType.hasCapability(permission);
-    menuItem.setEnabled(hasCapability && active);
+    boolean enable = hasCapability && active;
+    if (enable != menuItem.isEnabled()) {
+      menuItem.setEnabled(enable);
+      if (id.equals(HopGui.ID_MAIN_MENU_FILE_SAVE)) {
+        System.out.println("Changed save menu state to "+enable);
+      }
+    }
     return menuItem;
   }
 
