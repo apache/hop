@@ -309,7 +309,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
       return null;
     }
     boolean hasCapability = fileType.hasCapability(permission);
-    item.setEnabled(hasCapability && active);
+    boolean enabled = hasCapability && active;
+    if (enabled != item.isEnabled()) {
+      item.setEnabled(hasCapability && active);
+    }
     return item;
   }
 

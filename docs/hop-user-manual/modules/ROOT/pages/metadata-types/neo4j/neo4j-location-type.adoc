@@ -34,5 +34,5 @@ With this location type you can store execution information in a xref:technology
 
 This is the graph model that gets populated by this execution information location plugin:
 
-image:metadata-types/neo4j/apache-hop-execution-information-model.svg[The Apache Hop execution information graph model, width="100%']
+image:metadata-types/neo4j/apache-hop-execution-information-model.svg[The Apache Hop execution information graph model, width="100%"]
 
