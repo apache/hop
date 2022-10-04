@@ -106,6 +106,14 @@ public class HopToBQTableRowFn implements SerializableFunction<HopRow, TableRow>
             case IValueMeta.TYPE_NUMBER:
               tableRow.put(valueMeta.getName(), valueMeta.getNumber(valueData));
               break;
+            case IValueMeta.TYPE_TIMESTAMP:
+              if (valueMeta.getNumber(valueData) != null) {
+                // we have a nanoseconds value and BigQuery expects microseconds, so divide by 1000
+                tableRow.put(valueMeta.getName(), Math.round(valueMeta.getNumber(valueData) / 1000));
+              } else {
+                tableRow.put(valueMeta.getName(), valueMeta.getNumber(valueData));
+              }
+              break;
             default:
               throw new RuntimeException(
                   "Data type conversion from Hop to BigQuery TableRow not supported yet: "

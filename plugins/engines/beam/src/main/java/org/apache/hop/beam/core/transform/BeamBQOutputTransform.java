@@ -130,6 +130,9 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
           case IValueMeta.TYPE_NUMBER:
             schemaField.setType("FLOAT");
             break;
+          case IValueMeta.TYPE_TIMESTAMP:
+            schemaField.setType("TIMESTAMP");
+            break;
           default:
             throw new RuntimeException(
                 "Conversion from Hop value "
