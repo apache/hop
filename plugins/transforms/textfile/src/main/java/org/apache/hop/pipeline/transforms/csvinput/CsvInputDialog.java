@@ -27,7 +27,6 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -73,15 +72,14 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 public class CsvInputDialog extends BaseTransformDialog
     implements ITransformDialog,
         IGetFieldsCapableTransformDialog<CsvInputMeta>,
         ICsvInputAwareTransformDialog {
   private static final Class<?> PKG = CsvInput.class; // For Translator
+  public static final String STRING_USAGE_INFO_PARAMETER = "UsageInfoParameter";
 
   private final CsvInputMeta inputMeta;
 
@@ -598,6 +596,28 @@ public class CsvInputDialog extends BaseTransformDialog
     inputMeta.setChanged(changed);
     initializing = false;
 
+    shell.getDisplay().asyncExec(() -> {
+      // Show more information about the transform and its alternatives
+      //
+      if ("Y".equalsIgnoreCase(props.getCustomParameter(STRING_USAGE_INFO_PARAMETER, "Y"))) {
+        MessageDialogWithToggle md =
+                new MessageDialogWithToggle(
+                        shell,
+                        BaseMessages.getString(PKG, "CsvInputDialog.UsageInfoDialog.DialogTitle"),
+                        BaseMessages.getString(
+                                PKG, "CsvInputDialog.UsageInfoDialog.DialogMessage", Const.CR)
+                                + Const.CR,
+                        SWT.ICON_INFORMATION,
+                        new String[] {
+                                BaseMessages.getString(PKG, "CsvInputDialog.UsageInfoDialog.Close")
+                        },
+                        BaseMessages.getString(PKG, "CsvInputDialog.UsageInfoDialog.DoNotShowAgain"),
+                        "N".equalsIgnoreCase(props.getCustomParameter(STRING_USAGE_INFO_PARAMETER, "Y")));
+        md.open();
+        props.setCustomParameter(STRING_USAGE_INFO_PARAMETER, md.getToggleState() ? "N" : "Y");
+      }
+    });
+
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -773,6 +793,7 @@ public class CsvInputDialog extends BaseTransformDialog
 
     getInfo(inputMeta);
     transformName = wTransformName.getText();
+
     dispose();
   }
 

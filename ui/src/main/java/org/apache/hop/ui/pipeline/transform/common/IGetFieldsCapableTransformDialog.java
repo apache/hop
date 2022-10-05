@@ -66,7 +66,9 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
    */
   String[] getFieldNames(final TransformMetaType meta);
 
-  /** @return the {@link TableView} containing transform fields */
+  /**
+   * @return the {@link TableView} containing transform fields
+   */
   TableView getFieldsTable();
 
   default TableItem findTableItem(final String fieldName) {
@@ -128,26 +130,9 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
       }
     } else {
       // we have no new fields
-      final BaseDialog errorDlg =
-          new BaseMessageDialog(
-              getShell(),
-              BaseMessages.getString(PKG, "GetFieldsCapableTransformDialog.NoNewFields.Title"),
-              BaseMessages.getString(PKG, "GetFieldsCapableTransformDialog.NoNewFields.Message"));
-      // if there are no incoming fields at all, we leave the OK button handler as-is and simply
-      // dispose the dialog
-      // if there are some incoming fields, we overwrite the OK button handler to show the
-      // GetFieldsSampleDataDialog
-      if (incomingFieldNames != null && incomingFieldNames.length > 0) {
-        final Map<String, Listener> buttons = new HashMap();
-        buttons.put(
-            BaseMessages.getString(PKG, "System.Button.OK"),
-            event -> {
-              errorDlg.dispose();
-              openGetFieldsSampleDataDialog(true);
-            });
-        errorDlg.setButtons(buttons);
-      }
-      errorDlg.open();
+      // Simply go get the samples
+      //
+      openGetFieldsSampleDataDialog(true);
     }
   }
 

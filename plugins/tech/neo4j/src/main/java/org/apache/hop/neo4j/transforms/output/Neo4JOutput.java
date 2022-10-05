@@ -191,6 +191,10 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
           }
         }
       }
+
+      // Finally, perform some extra validation (beyond the field names).
+      //
+      validateConfiguration();
     }
 
     if (meta.isReturningGraph()) {
@@ -237,6 +241,45 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       data.previousRelationshipLabel = data.relationshipLabel;
     }
     return true;
+  }
+
+  private void validateConfiguration() throws HopException {
+    // Is there a primary key field specified for the To and From nodes?
+    //
+    boolean hasFromNode = meta.getFromNodeLabels().length > 0;
+    boolean hasToNode = meta.getFromNodeLabels().length > 0;
+    boolean hasRelationship =
+        StringUtils.isNotEmpty(meta.getRelationship())
+            || StringUtils.isNotEmpty(meta.getRelationshipValue());
+    if (hasRelationship) {
+      // We need both nodes to be specified
+      //
+      if (!hasFromNode || !hasToNode) {
+        throw new HopException("Please specify both nodes to be able to update relationships");
+      }
+      // Make sure both nodes have fields
+      //
+      boolean noFromKey = true;
+      for (boolean key : meta.getFromNodePropPrimary()) {
+        if (key) {
+          noFromKey = false;
+          break;
+        }
+      }
+      if (noFromKey) {
+        throw new HopException("Please specify at least one or more primary key properties in the 'from' node");
+      }
+      boolean noToKey = true;
+      for (boolean key : meta.getToNodePropPrimary()) {
+        if (key) {
+          noToKey = false;
+          break;
+        }
+      }
+      if (noToKey) {
+        throw new HopException("Please specify at least one or more primary key properties in the 'to' node");
+      }
+    }
   }
 
   private void addPropertiesToMap(
@@ -912,7 +955,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       }
     }
 
-    // Create a index on the primary fields of the node properties
+    // Create an index on the primary fields of the node properties
     //
     for (String label : labels) {
       List<String> primaryProperties = new ArrayList<>();
