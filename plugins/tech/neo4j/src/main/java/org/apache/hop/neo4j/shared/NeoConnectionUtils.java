@@ -65,10 +65,10 @@ public class NeoConnectionUtils {
     //
     // CREATE INDEX ON :NodeLabel(property, property2, ...)
     //
-    String indexCypher = "CREATE INDEX IF NOT EXISTS ON ";
+    String indexCypher = "CREATE INDEX IF NOT EXISTS FOR (n";
 
     indexCypher += labelsClause;
-    indexCypher += "(";
+    indexCypher += ") ON (";
     boolean firstProperty = true;
     for (String property : keyProperties) {
       if (firstProperty) {
@@ -76,7 +76,7 @@ public class NeoConnectionUtils {
       } else {
         indexCypher += ", ";
       }
-      indexCypher += property;
+      indexCypher += "n."+property;
     }
     indexCypher += ")";
 
