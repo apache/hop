@@ -113,7 +113,7 @@ public class HopToStringFn extends DoFn<HopRow, String> {
           if (valueString != null) {
             boolean enclose = false;
             if (StringUtils.isNotEmpty(enclosure)) {
-              enclose = valueString.contains(enclosure);
+              enclose = valueString.contains(separator);
             }
             if (enclose) {
               line.append(enclosure);
