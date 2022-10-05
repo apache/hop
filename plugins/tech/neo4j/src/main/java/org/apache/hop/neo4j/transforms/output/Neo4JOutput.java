@@ -955,7 +955,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       }
     }
 
-    // Create a index on the primary fields of the node properties
+    // Create an index on the primary fields of the node properties
     //
     for (String label : labels) {
       List<String> primaryProperties = new ArrayList<>();
