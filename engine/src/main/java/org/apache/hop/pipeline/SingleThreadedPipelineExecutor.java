@@ -241,7 +241,7 @@ public class SingleThreadedPipelineExecutor {
           tLogString
               .append(
                   String.format(
-                      "existing outer loop because no "
+                      "exiting outer loop because no "
                           + "change was detected going forward or backward. index:%s  min:%s  max:%s",
                       x, transformsMinSize, transformsSize))
               .append("\n");
