@@ -77,13 +77,15 @@ public final class ExecutionDataBuilder {
             .withOwnerId(ALL_TRANSFORMS)
             .withFinished(finished);
 
-    for (String transformName : samplerStoresMap.keySet()) {
-      List<IExecutionDataSamplerStore> samplerStores = samplerStoresMap.get(transformName);
-      for (IExecutionDataSamplerStore samplerStore : samplerStores) {
-        dataBuilder =
-            dataBuilder
-                .addDataSets(samplerStore.getSamples())
-                .addSetMeta(samplerStore.getSamplesMetadata());
+    if (samplerStoresMap != null) {
+      for (String transformName : samplerStoresMap.keySet()) {
+        List<IExecutionDataSamplerStore> samplerStores = samplerStoresMap.get(transformName);
+        for (IExecutionDataSamplerStore samplerStore : samplerStores) {
+          dataBuilder =
+              dataBuilder
+                  .addDataSets(samplerStore.getSamples())
+                  .addSetMeta(samplerStore.getSamplesMetadata());
+        }
       }
     }
     dataBuilder = dataBuilder.withCollectionDate(new Date());
