@@ -21,14 +21,14 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities.FileTypeCapabilities;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileType;
-
-import java.util.Properties;
 
 @HopFileTypePlugin(
     id = "MarkDownExplorerFileType",
@@ -44,7 +44,12 @@ public class MarkDownExplorerFileType extends BaseTextExplorerFileType<TextExplo
         ".md",
         new String[] {"*.md"},
         new String[] {"MarkDown files"},
-        new Properties());
+        FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_SAVE,
+            IHopFileType.CAPABILITY_CLOSE, 
+            IHopFileType.CAPABILITY_FILE_HISTORY,
+            IHopFileType.CAPABILITY_COPY, 
+            IHopFileType.CAPABILITY_SELECT));
   }
 
   @Override

@@ -150,8 +150,15 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
   public void redraw() {}
 
   @Override
-  public void updateGui() {}
-
+  public void updateGui() {
+    hopGui
+    .getDisplay()
+    .asyncExec(
+        () ->
+            hopGui.handleFileCapabilities(
+                this.getFileType(), this.hasChanged(), false, false));
+  }
+  
   @Override
   public void selectAll() {}
 
@@ -219,7 +226,7 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
 
   @Override
   public void close() {
-    perspective.closeFile(explorerFile);
+    perspective.remove(this);
   }
 
   @Override

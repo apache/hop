@@ -46,6 +46,7 @@ import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -65,6 +66,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.ExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.*;
 import org.eclipse.swt.graphics.Image;
@@ -199,15 +201,7 @@ public class ExplorerPerspective implements IHopPerspective {
       this.refresh();
     }
 
-    // If all editor are closed
-    //
-    if (tabFolder.getItemCount() == 0) {
-      HopGui.getInstance().handleFileCapabilities(emptyFileType, false, false, false);
-    } else {
-      ExplorerFile activeFile = getActiveFile();
-      boolean changed = activeFile != null && activeFile.isChanged();
-      HopGui.getInstance().handleFileCapabilities(explorerFileType, changed, false, false);
-    }
+    this.updateGui();
   }
 
   @Override
@@ -600,6 +594,7 @@ public class ExplorerPerspective implements IHopPerspective {
       CTabItem tabItem = (CTabItem) event.item;
       ExplorerFile explorerFile = (ExplorerFile) tabItem.getData();
       selectInTree(explorerFile.getFilename());
+      updateGui();
     }
   }
 
@@ -749,16 +744,6 @@ public class ExplorerPerspective implements IHopPerspective {
     }
   }
 
-  public void closeFile(ExplorerFile explorerFile) {
-    for (CTabItem item : tabFolder.getItems()) {
-      if (item.getData().equals(explorerFile)) {
-        if (explorerFile.getFileTypeHandler().isCloseable()) {
-          item.dispose();
-        }
-      }
-    }
-  }
-
   public ExplorerFile getActiveFile() {
     if (tabFolder.getSelectionIndex() < 0) {
       return null;
@@ -805,12 +790,7 @@ public class ExplorerPerspective implements IHopPerspective {
       //
       this.refresh();
 
-      // If all editor are closed
-      //
-      if (tabFolder.getItemCount() == 0) {
-        HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
-      }
-      updateGui();
+      this.updateGui();
     } else {
       // Ignore event if canceled
       event.doit = false;
@@ -1112,13 +1092,13 @@ public class ExplorerPerspective implements IHopPerspective {
 
   @Override
   public boolean remove(IHopFileTypeHandler typeHandler) {
-    if (typeHandler instanceof ExplorerFile) {
-      ExplorerFile file = (ExplorerFile) typeHandler;
+    
+    if (typeHandler instanceof BaseExplorerFileTypeHandler) {
+      BaseExplorerFileTypeHandler fileTypeHandler = (BaseExplorerFileTypeHandler) typeHandler;
 
-      if (file.getFileTypeHandler().isCloseable()) {
-
+      if (fileTypeHandler.isCloseable()) {
+        ExplorerFile file = fileTypeHandler.getExplorerFile();        
         files.remove(file);
-
         for (CTabItem item : tabFolder.getItems()) {
           if (file.equals(item.getData())) {
             item.dispose();
@@ -1128,12 +1108,10 @@ public class ExplorerPerspective implements IHopPerspective {
         // Refresh tree to remove bold
         //
         this.refresh();
-
-        // If all editor are closed
+        
+        // Update HopGui menu and toolbar
         //
-        if (tabFolder.getItemCount() == 0) {
-          HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
-        }
+        this.updateGui();
       }
     }
 
@@ -1142,33 +1120,40 @@ public class ExplorerPerspective implements IHopPerspective {
 
   @Override
   public List<TabItemHandler> getItems() {
-    return null;
+    List<TabItemHandler> items = new ArrayList<>();
+    for (CTabItem tabItem : tabFolder.getItems()) {
+      for (ExplorerFile file : files) {
+        if (tabItem.getData().equals(file)) {
+          // This is the editor tabItem...
+          //
+          items.add(new TabItemHandler(tabItem, file.getFileTypeHandler()));
+        }
+      }
+    }
+
+    return items;
   }
 
   @Override
   public void navigateToPreviousFile() {
-    tabFolder.setSelection(tabFolder.getSelectionIndex() + 1);
+    tabFolder.setSelection(tabFolder.getSelectionIndex() - 1);
+    updateGui();
   }
 
   @Override
   public void navigateToNextFile() {
-    tabFolder.setSelection(tabFolder.getSelectionIndex() - 1);
+    tabFolder.setSelection(tabFolder.getSelectionIndex() + 1);
+    updateGui();
   }
 
   @Override
   public boolean hasNavigationPreviousFile() {
-    if (tabFolder.getItemCount() == 0) {
-      return false;
-    }
-    return tabFolder.getSelectionIndex() >= 1;
+    return tabFolder.getSelectionIndex() > 0;
   }
 
   @Override
   public boolean hasNavigationNextFile() {
-    if (tabFolder.getItemCount() == 0) {
-      return false;
-    }
-    return tabFolder.getSelectionIndex() < tabFolder.getItemCount();
+    return ( tabFolder.getItemCount() > 0 ) && ( tabFolder.getSelectionIndex() < (tabFolder.getItemCount() - 1) );
   }
 
   @Override
@@ -1190,17 +1175,15 @@ public class ExplorerPerspective implements IHopPerspective {
     return new ArrayList<>();
   }
 
+  /**
+   *  Update HOP GUI menu and toolbar...
+   */
   public void updateGui() {
     if (hopGui == null || toolBarWidgets == null || toolBar == null || toolBar.isDisposed()) {
       return;
     }
     final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
-    hopGui
-        .getDisplay()
-        .asyncExec(
-            () ->
-                hopGui.handleFileCapabilities(
-                    activeHandler.getFileType(), activeHandler.hasChanged(), false, false));
+    activeHandler.updateGui();
   }
 
   /**

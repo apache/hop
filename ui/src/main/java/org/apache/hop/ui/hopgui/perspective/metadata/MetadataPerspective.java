@@ -104,13 +104,11 @@ public class MetadataPerspective implements IHopPerspective {
 
   private List<MetadataEditor<?>> editors = new ArrayList<>();
 
-  private final EmptyFileType emptyFileType;
   private final MetadataFileType metadataFileType;
 
   public MetadataPerspective() {
     instance = this;
 
-    this.emptyFileType = new EmptyFileType();
     this.metadataFileType = new MetadataFileType();
   }
 
@@ -130,16 +128,7 @@ public class MetadataPerspective implements IHopPerspective {
   public void perspectiveActivated() {
     this.refresh();
     this.updateSelection();
-
-    // If all editor are closed
-    //
-    if (tabFolder.getItemCount() == 0) {
-      HopGui.getInstance().handleFileCapabilities(emptyFileType, false, false, false);
-    } else {
-      IHopFileTypeHandler handler = getActiveFileTypeHandler();
-      boolean changed = handler != null ? handler.hasChanged() : false;
-      HopGui.getInstance().handleFileCapabilities(metadataFileType, changed, false, false);
-    }
+    this.updateGui();
   }
 
   @Override
@@ -316,6 +305,7 @@ public class MetadataPerspective implements IHopPerspective {
             onTabClose(event);
           }
         });
+    tabFolder.addListener(SWT.Selection, event -> updateGui());
     props.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
 
     // Show/Hide tree
@@ -457,6 +447,8 @@ public class MetadataPerspective implements IHopPerspective {
       return editor;
     }
 
+    // If all editor are closed
+    //
     return new EmptyHopFileTypeHandler();
   }
 
@@ -706,20 +698,15 @@ public class MetadataPerspective implements IHopPerspective {
 
     // Update HOP GUI menu and toolbar...
     //
-    updateGui();
+    this.updateGui();
   }
 
+  /**
+   *  Update HopGui menu and toolbar...
+   */
   public void updateGui() {
-    if (hopGui == null || toolBarWidgets == null || toolBar == null || toolBar.isDisposed()) {
-      return;
-    }
-    final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
-    hopGui
-        .getDisplay()
-        .asyncExec(
-            () ->
-                hopGui.handleFileCapabilities(
-                    activeHandler.getFileType(), activeHandler.hasChanged(), false, false));
+    final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();    
+    activeHandler.updateGui();
   }
 
   @GuiToolbarElement(
@@ -838,11 +825,8 @@ public class MetadataPerspective implements IHopPerspective {
         //
         this.refresh();
 
-        // If all editor are closed
-        //
-        if (tabFolder.getItemCount() == 0) {
-          HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
-        }
+        // Update Gui menu and toolbar
+        this.updateGui();
       }
     }
 
@@ -867,28 +851,24 @@ public class MetadataPerspective implements IHopPerspective {
 
   @Override
   public void navigateToPreviousFile() {
-    tabFolder.setSelection(tabFolder.getSelectionIndex() + 1);
+    tabFolder.setSelection(tabFolder.getSelectionIndex() - 1);
+    updateGui();
   }
 
   @Override
   public void navigateToNextFile() {
-    tabFolder.setSelection(tabFolder.getSelectionIndex() - 1);
+    tabFolder.setSelection(tabFolder.getSelectionIndex() + 1);
+    updateGui();
   }
 
   @Override
   public boolean hasNavigationPreviousFile() {
-    if (tabFolder.getItemCount() == 0) {
-      return false;
-    }
-    return tabFolder.getSelectionIndex() >= 1;
+    return tabFolder.getSelectionIndex() > 0;
   }
 
   @Override
   public boolean hasNavigationNextFile() {
-    if (tabFolder.getItemCount() == 0) {
-      return false;
-    }
-    return tabFolder.getSelectionIndex() < tabFolder.getItemCount();
+    return ( tabFolder.getItemCount() > 0 ) && ( tabFolder.getSelectionIndex() < (tabFolder.getItemCount() - 1) );
   }
 
   @Override
