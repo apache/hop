@@ -35,8 +35,10 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
+import org.apache.hop.history.AuditState;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -78,6 +80,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private static final Class<?> PKG = HopVfsFileDialog.class; // For Translator
 
   public static final String BOOKMARKS_AUDIT_TYPE = "vfs-bookmarks";
+  public static final String DIALOG_STATE_TYPE = "vfs-dialog-state";
+  public static final String DIALOG_STATE_NAME = "vfs-dialog-state";
+  public static final String DIALOG_STATE_VALUE_SORT_INDEX = "sortIndex";
+  public static final String DIALOG_STATE_VALUE_SORT_ASCENDING = "sortAscending";
 
   public static final String BOOKMARKS_TOOLBAR_PARENT_ID = "HopVfsFileDialog-BookmarksToolbar";
   private static final String BOOKMARKS_ITEM_ID_BOOKMARKS = "0000-bookmarks";
@@ -144,8 +150,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private boolean savingFile;
   private String saveFilename;
 
-  private int sortIndex = 0;
-  private boolean ascending = true;
+  private int sortIndex;
+  private boolean ascending;
 
   private String usedNamespace;
 
@@ -176,8 +182,30 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     }
 
     try {
-
+      // Get the bookmarks
+      //
       bookmarks = AuditManager.getActive().loadMap(usedNamespace, BOOKMARKS_AUDIT_TYPE);
+
+      // Save the previous state of the dialog:
+      // - sort column index
+      //
+      sortIndex = 0;
+      ascending = true;
+
+      AuditState auditState =
+          AuditManager.retrieveState(
+              LogChannel.UI,
+              HopGui.DEFAULT_HOP_GUI_NAMESPACE,
+              DIALOG_STATE_TYPE,
+              DIALOG_STATE_NAME);
+      if (auditState != null) {
+        Object indexValue = auditState.getStateMap().get(DIALOG_STATE_VALUE_SORT_INDEX);
+        Object ascendingValue = auditState.getStateMap().get(DIALOG_STATE_VALUE_SORT_ASCENDING);
+        if (indexValue != null && ascendingValue != null) {
+          sortIndex = (int) indexValue;
+          ascending = (boolean) ascendingValue;
+        }
+      }
     } catch (Exception e) {
       LogChannel.GENERAL.logError("Error loading bookmarks", e);
       bookmarks = new HashMap<>();
@@ -251,7 +279,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     gridLayout.marginWidth = 0;
     navigateComposite.setLayout(gridLayout);
     props.setLook(navigateComposite);
-    
+
     FormData fdNavigationForm = new FormData();
     fdNavigationForm.left = new FormAttachment(0, 0);
     fdNavigationForm.top = new FormAttachment(0, 0);
@@ -282,7 +310,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       wFilters.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false));
       props.setLook(wFilters);
     }
-    
+
     // Above this we have a sash form
     //
     SashForm sashForm = new SashForm(shell, SWT.HORIZONTAL);
@@ -530,7 +558,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     if (activeFileObject == null) {
       return null;
     }
-    
+
     return activeFileObject.toString();
   }
 
@@ -594,12 +622,12 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private void okButton() {
     try {
       activeFileObject = HopVfs.getFileObject(wFilename.getText());
-            
-      if ( !this.browsingDirectories && activeFileObject.isFolder() ) {
+
+      if (!this.browsingDirectories && activeFileObject.isFolder()) {
         navigateTo(HopVfs.getFilename(activeFileObject), true);
         return;
-      }        
-      
+      }
+
       ok();
     } catch (Throwable e) {
       showError(
@@ -792,7 +820,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     showDetails(message);
 
     navigateTo(fileName, true);
-    browserColumnSelected(0);
+
+    // The next statement inverses ascending so we do it again
+    ascending=!ascending;
+    browserColumnSelected(sortIndex);
   }
 
   private void showDetails(String details) {
@@ -1055,8 +1086,25 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private void dispose() {
     instance = null;
     try {
+      // Save the navigation history
+      //
       AuditManager.getActive()
           .storeList(usedNamespace, BOOKMARKS_AUDIT_TYPE, new AuditList(navigationHistory));
+
+      // Save the dialog state:
+      // - sort column index
+      //
+      AuditManager.storeState(
+          LogChannel.UI,
+          HopGui.DEFAULT_HOP_GUI_NAMESPACE,
+          DIALOG_STATE_TYPE,
+          DIALOG_STATE_NAME,
+          Map.of(
+              DIALOG_STATE_VALUE_SORT_INDEX,
+              sortIndex,
+              DIALOG_STATE_VALUE_SORT_ASCENDING,
+              ascending));
+
     } catch (Exception e) {
       LogChannel.GENERAL.logError("Error storing navigation history", e);
     }
@@ -1445,7 +1493,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return text;
   }
 
-  /** @param text The text to set */
+  /**
+   * @param text The text to set
+   */
   @Override
   public void setText(String text) {
     this.text = text;
@@ -1460,7 +1510,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }
@@ -1475,7 +1527,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return fileName;
   }
 
-  /** @param fileName The fileName to set */
+  /**
+   * @param fileName The fileName to set
+   */
   @Override
   public void setFileName(String fileName) {
     this.fileName = fileName;
@@ -1490,7 +1544,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return filterExtensions;
   }
 
-  /** @param filterExtensions The filterExtensions to set */
+  /**
+   * @param filterExtensions The filterExtensions to set
+   */
   @Override
   public void setFilterExtensions(String[] filterExtensions) {
     this.filterExtensions = filterExtensions;
@@ -1505,7 +1561,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return filterNames;
   }
 
-  /** @param filterNames The filterNames to set */
+  /**
+   * @param filterNames The filterNames to set
+   */
   @Override
   public void setFilterNames(String[] filterNames) {
     this.filterNames = filterNames;
@@ -1520,7 +1578,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return bookmarks;
   }
 
-  /** @param bookmarks The bookmarks to set */
+  /**
+   * @param bookmarks The bookmarks to set
+   */
   public void setBookmarks(Map<String, String> bookmarks) {
     this.bookmarks = bookmarks;
   }
@@ -1534,7 +1594,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return activeFileObject;
   }
 
-  /** @param activeFileObject The activeFileObject to set */
+  /**
+   * @param activeFileObject The activeFileObject to set
+   */
   public void setActiveFileObject(FileObject activeFileObject) {
     this.activeFileObject = activeFileObject;
   }
@@ -1548,7 +1610,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return activeFolder;
   }
 
-  /** @param activeFolder The activeFolder to set */
+  /**
+   * @param activeFolder The activeFolder to set
+   */
   public void setActiveFolder(FileObject activeFolder) {
     this.activeFolder = activeFolder;
   }
@@ -1563,7 +1627,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return filterPath;
   }
 
-  /** @param filterPath The filterPath to set */
+  /**
+   * @param filterPath The filterPath to set
+   */
   @Override
   public void setFilterPath(String filterPath) {
     this.filterPath = variables.resolve(filterPath);
@@ -1578,7 +1644,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return showingHiddenFiles;
   }
 
-  /** @param showingHiddenFiles The showingHiddenFiles to set */
+  /**
+   * @param showingHiddenFiles The showingHiddenFiles to set
+   */
   public void setShowingHiddenFiles(boolean showingHiddenFiles) {
     this.showingHiddenFiles = showingHiddenFiles;
   }
@@ -1601,7 +1669,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return browsingDirectories;
   }
 
-  /** @param browsingDirectories The browsingDirectories to set */
+  /**
+   * @param browsingDirectories The browsingDirectories to set
+   */
   public void setBrowsingDirectories(boolean browsingDirectories) {
     this.browsingDirectories = browsingDirectories;
   }
@@ -1615,7 +1685,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return savingFile;
   }
 
-  /** @param savingFile The savingFile to set */
+  /**
+   * @param savingFile The savingFile to set
+   */
   public void setSavingFile(boolean savingFile) {
     this.savingFile = savingFile;
   }
@@ -1629,7 +1701,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     return saveFilename;
   }
 
-  /** @param saveFilename The saveFilename to set */
+  /**
+   * @param saveFilename The saveFilename to set
+   */
   public void setSaveFilename(String saveFilename) {
     this.saveFilename = saveFilename;
   }
