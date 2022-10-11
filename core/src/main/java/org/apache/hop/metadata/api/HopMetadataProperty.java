@@ -99,4 +99,9 @@ public @interface HopMetadataProperty {
    */
   Class<? extends InjectionTypeConverter> injectionConverter() default
       DefaultInjectionTypeConverter.class;
+
+  /**
+   * @return true to store metadata inline with the parent metadata, not in a sub-element.
+   */
+  boolean inline() default false;
 }

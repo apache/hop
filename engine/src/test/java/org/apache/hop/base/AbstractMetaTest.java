@@ -399,6 +399,46 @@ public class AbstractMetaTest {
       return ".ext";
     }
 
+    @Override
+    public String getName() {
+      return null;
+    }
+
+    @Override
+    public void setName(String newName) {
+
+    }
+
+    @Override
+    public boolean isNameSynchronizedWithFilename() {
+      return false;
+    }
+
+    @Override
+    public void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename) {
+
+    }
+
+    @Override
+    public String getDescription() {
+      return null;
+    }
+
+    @Override
+    public void setDescription(String description) {
+
+    }
+
+    @Override
+    public String getExtendedDescription() {
+      return null;
+    }
+
+    @Override
+    public void setExtendedDescription(String extendedDescription) {
+
+    }
+
     // Reuse this method to set a mock internal variable variables
     @Override
     public void setInternalHopVariables(IVariables var) {}
@@ -408,6 +448,46 @@ public class AbstractMetaTest {
 
     @Override
     protected void setInternalNameHopVariable(IVariables var) {}
+
+    @Override
+    public Date getCreatedDate() {
+      return null;
+    }
+
+    @Override
+    public void setCreatedDate(Date createdDate) {
+
+    }
+
+    @Override
+    public void setCreatedUser(String createdUser) {
+
+    }
+
+    @Override
+    public String getCreatedUser() {
+      return null;
+    }
+
+    @Override
+    public void setModifiedDate(Date modifiedDate) {
+
+    }
+
+    @Override
+    public Date getModifiedDate() {
+      return null;
+    }
+
+    @Override
+    public void setModifiedUser(String modifiedUser) {
+
+    }
+
+    @Override
+    public String getModifiedUser() {
+      return null;
+    }
 
     @Override
     public String getXml(IVariables variables) throws HopException {

@@ -23,10 +23,7 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.metadata.api.IEnumHasCode;
-import org.apache.hop.metadata.api.IHopMetadata;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.*;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.w3c.dom.Node;
 
@@ -34,6 +31,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
+import java.util.function.Function;
 
 public class XmlMetadataUtil {
   /**
@@ -46,17 +44,15 @@ public class XmlMetadataUtil {
    * @throws HopException
    */
   public static String serializeObjectToXml(Object object) throws HopException {
+    Class<?> objectClass = object.getClass();
+
     String xml = "";
 
-    // Pick up all the @HopMetadataProperty annotations
-    // Serialize them to XML
+    // Pick up all the fields with @HopMetadataProperty annotation, sorted by name.
+    // Serialize them to XML.
     //
-    List<Field> fields = new ArrayList(ReflectionUtil.findAllFields(object.getClass()));
-
-    // Sort the fields by name to get stable XML as output
-    //
-    Collections.sort(fields, Comparator.comparing(Field::getName));
-
+    List<Field> fields =
+        ReflectionUtil.findAllFields(objectClass, new MetadataPropertyKeyFunction());
     for (Field field : fields) {
       // Don't serialize fields flagged as transient or volatile
       //
@@ -94,7 +90,7 @@ public class XmlMetadataUtil {
           if (property.storeWithName()) {
             xml += XmlHandler.addTagValue(tag, ((IHopMetadata) value).getName());
           } else {
-            xml += serializeObjectToXml(value, groupKey, tag, isPassword, storeWithCode);
+            xml += serializeObjectToXml(property, value, groupKey, tag, isPassword, storeWithCode);
           }
         }
       }
@@ -104,7 +100,12 @@ public class XmlMetadataUtil {
   }
 
   private static String serializeObjectToXml(
-      Object value, String groupKey, String tag, boolean password, boolean storeWithCode)
+      HopMetadataProperty property,
+      Object value,
+      String groupKey,
+      String tag,
+      boolean password,
+      boolean storeWithCode)
       throws HopException {
 
     String xml = "";
@@ -149,7 +150,7 @@ public class XmlMetadataUtil {
         //
         List listItems = (List) value;
         for (Object listItem : listItems) {
-          xml += serializeObjectToXml(listItem, groupKey, tag, password, storeWithCode);
+          xml += serializeObjectToXml(property, listItem, groupKey, tag, password, storeWithCode);
         }
 
         if (StringUtils.isNotEmpty(groupKey)) {
@@ -162,9 +163,13 @@ public class XmlMetadataUtil {
         // We only take the fields of the POJO class that are annotated
         // We wrap the POJO properties in the provided tag
         //
-        xml += XmlHandler.openTag(tag) + Const.CR;
+        if (!property.inline()) {
+          xml += XmlHandler.openTag(tag) + Const.CR;
+        }
         xml += serializeObjectToXml(value);
-        xml += XmlHandler.closeTag(tag) + Const.CR;
+        if (!property.inline()) {
+          xml += XmlHandler.closeTag(tag) + Const.CR;
+        }
       }
     }
     return xml;
@@ -182,8 +187,29 @@ public class XmlMetadataUtil {
   public static <T> T deSerializeFromXml(
       Node node, Class<? extends T> clazz, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
-    return deSerializeFromXml(node, clazz, null, metadataProvider);
+    return deSerializeFromXml(null, node, clazz, null, metadataProvider);
   }
+
+  /**
+   * Load the metadata in the provided XML node and return it as a new object. It does this by
+   * looking at the HopMetadataProperty annotations of the fields in the object's class.
+   *
+   * @param parentObject An optional parent object to allow a factory to load extra information
+   *     from.
+   * @param node The metadata to read
+   * @param clazz the class to de-serialize
+   * @param metadataProvider to load name references from
+   * @throws HopXmlException
+   */
+  public static <T> T deSerializeFromXml(
+      Object parentObject,
+      Node node,
+      Class<? extends T> clazz,
+      IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    return deSerializeFromXml(parentObject, node, clazz, null, metadataProvider);
+  }
+
   /**
    * Load the metadata in the provided XML node into the given object. It does this by looking at
    * the HopMetadataProperty annotations of the fields in the object's class.
@@ -197,9 +223,55 @@ public class XmlMetadataUtil {
   public static <T> T deSerializeFromXml(
       Node node, Class<? extends T> clazz, T object, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
+    return deSerializeFromXml(null, node, clazz, object, metadataProvider);
+  }
+
+  /**
+   * Load the metadata in the provided XML node into the given object. It does this by looking at
+   * the HopMetadataProperty annotations of the fields in the object's class.
+   *
+   * @param parentObject An optional parent object to allow factories to retrieve extra information.
+   * @param node The metadata to read
+   * @param clazz the class to de-serialize
+   * @param object The object to load into. If null: create a new object.
+   * @param metadataProvider to load name references from
+   * @throws HopXmlException
+   */
+  public static <T> T deSerializeFromXml(
+      Object parentObject,
+      Node node,
+      Class<? extends T> clazz,
+      T object,
+      IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
     if (object == null) {
       try {
-        object = clazz.getDeclaredConstructor().newInstance();
+
+        // See if this is an interface where we need to use a factory.
+        //
+        HopMetadataObject metadataObject = clazz.getAnnotation(HopMetadataObject.class);
+        if (metadataObject != null) {
+          String xmlKey = metadataObject.xmlKey();
+          if (StringUtils.isEmpty(xmlKey)) {
+            throw new HopXmlException(
+                "Please specify which XML attribute to consider the key.  Hop will use this key to create the appropriate class instance of type "
+                    + clazz);
+          }
+          String objectId = XmlHandler.getNodeValue(XmlHandler.getSubNode(node, xmlKey));
+          if (StringUtils.isEmpty(objectId)) {
+            throw new HopXmlException(
+                "XML attribute "
+                    + xmlKey
+                    + " is needed to instantiate type "
+                    + clazz
+                    + " but it wasn't provided");
+          }
+          IHopMetadataObjectFactory factory =
+              metadataObject.objectFactory().getConstructor().newInstance();
+          object = (T) factory.createObject(objectId, parentObject);
+        } else {
+          object = clazz.getDeclaredConstructor().newInstance();
+        }
       } catch (Exception e) {
         throw new HopXmlException(
             "Unable to create a new instance of class "
@@ -209,10 +281,11 @@ public class XmlMetadataUtil {
       }
     }
 
-    // Pick up all the @HopMetadataProperty annotations
-    // Serialize them to XML
+    // Pick up all the @HopMetadataProperty annotations.
+    // The fields are sorted by name to get a stable XML output when serialized.
     //
-    Set<Field> fields = ReflectionUtil.findAllFields(clazz);
+    List<Field> fields =
+        ReflectionUtil.findAllFields(object.getClass(), new MetadataPropertyKeyFunction());
     for (Field field : fields) {
       // Don't serialize fields flagged as transient or volatile
       //
@@ -233,7 +306,12 @@ public class XmlMetadataUtil {
         boolean password = property.password();
         boolean storeWithCode = property.storeWithCode();
 
-        Node tagNode = XmlHandler.getSubNode(node, tag);
+        Node tagNode;
+        if (property.inline()) {
+          tagNode = node;
+        } else {
+          tagNode = XmlHandler.getSubNode(node, tag);
+        }
         Node groupNode;
         if (StringUtils.isEmpty(groupKey)) {
           groupNode = node;
@@ -242,6 +320,7 @@ public class XmlMetadataUtil {
         }
         Object value =
             deSerializeFromXml(
+                object,
                 fieldType,
                 groupNode,
                 tagNode,
@@ -276,6 +355,7 @@ public class XmlMetadataUtil {
   }
 
   private static Object deSerializeFromXml(
+      Object parentObject,
       Class<?> fieldType,
       Node groupNode,
       Node elementNode,
@@ -287,7 +367,6 @@ public class XmlMetadataUtil {
       boolean password,
       boolean storeWithCode)
       throws HopXmlException {
-
     String elementString = XmlHandler.getNodeValue(elementNode);
 
     if (storeWithName) {
@@ -372,6 +451,7 @@ public class XmlMetadataUtil {
         try {
           Object newItem =
               deSerializeFromXml(
+                  parentObject,
                   listClass,
                   null,
                   itemNode,
@@ -401,7 +481,7 @@ public class XmlMetadataUtil {
     } else {
       // Load the metadata for this node...
       //
-      return deSerializeFromXml(elementNode, fieldType, metadataProvider);
+      return deSerializeFromXml(parentObject, elementNode, fieldType, metadataProvider);
     }
 
     // No value found for the given arguments: return the default value

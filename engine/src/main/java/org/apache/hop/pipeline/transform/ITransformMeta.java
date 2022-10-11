@@ -24,8 +24,13 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataObject;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
@@ -130,6 +135,7 @@ import java.util.Map;
  *       Working with Fields goes into deeper detail on IValueMeta.
  * </ul>
  */
+@HopMetadataObject(xmlKey = "type", objectFactory = ITransformMeta.TransformFactory.class)
 public interface ITransformMeta {
   /** Set default values */
   void setDefault();
@@ -465,4 +471,17 @@ public interface ITransformMeta {
    * ￼
    */
   String getDialogClassName();
+
+  final class TransformFactory implements IHopMetadataObjectFactory {
+    @Override
+    public Object createObject(String id, Object parentObject) throws HopException {
+      return PluginRegistry.getInstance()
+          .loadClass(TransformPluginType.class, id, ITransformMeta.class);
+    }
+
+    @Override
+    public String getObjectId(Object object) throws HopException {
+      return PluginRegistry.getInstance().getPluginId(TransformPluginType.class, object);
+    }
+  }
 }
