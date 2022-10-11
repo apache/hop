@@ -61,8 +61,6 @@ public class SplitGraphDialog extends BaseTransformDialog implements ITransformD
       String transformName) {
     super(parent, variables, (BaseTransformMeta) inputMetadata, pipelineMeta, transformName);
     input = (SplitGraphMeta) inputMetadata;
-
-    metadataProvider = HopGui.getInstance().getMetadataProvider();
   }
 
   @Override

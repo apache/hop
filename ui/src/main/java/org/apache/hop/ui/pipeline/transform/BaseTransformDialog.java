@@ -50,6 +50,7 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
@@ -174,6 +175,8 @@ public class BaseTransformDialog extends Dialog {
     this.baseTransformMeta = (ITransformMeta) baseTransformMeta;
     this.backupChanged = baseTransformMeta.hasChanged();
     this.props = PropsUi.getInstance();
+    this.metadataProvider = HopGui.getInstance().getMetadataProvider();
+
   }
 
   /**

@@ -30,6 +30,7 @@ import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 import org.apache.hop.neo4j.model.GraphPropertyType;
 import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.neo4j.shared.NeoHopData;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -484,80 +485,11 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
             for (ReturnValue returnValue : meta.getReturnValues()) {
               Value recordValue = record.get(returnValue.getName());
               IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta(index);
-              Object value = null;
               GraphPropertyDataType neoType = data.returnSourceTypeMap.get(returnValue.getName());
-              if (recordValue != null && !recordValue.isNull()) {
-                try {
-                  switch (targetValueMeta.getType()) {
-                    case IValueMeta.TYPE_STRING:
-                      value = convertToString(recordValue, neoType);
-                      break;
-                    case ValueMetaGraph.TYPE_GRAPH:
-                      // This is for Node, Path and Relationship
-                      value = convertToGraphData(recordValue, neoType);
-                      break;
-                    case IValueMeta.TYPE_INTEGER:
-                      value = recordValue.asLong();
-                      break;
-                    case IValueMeta.TYPE_NUMBER:
-                      value = recordValue.asDouble();
-                      break;
-                    case IValueMeta.TYPE_BOOLEAN:
-                      value = recordValue.asBoolean();
-                      break;
-                    case IValueMeta.TYPE_BIGNUMBER:
-                      value = new BigDecimal(recordValue.asString());
-                      break;
-                    case IValueMeta.TYPE_DATE:
-                      if (neoType != null) {
-                        // Standard...
-                        switch (neoType) {
-                          case LocalDateTime:
-                            {
-                              LocalDateTime localDateTime = recordValue.asLocalDateTime();
-                              value = java.sql.Date.valueOf(localDateTime.toLocalDate());
-                              break;
-                            }
-                          case Date:
-                            {
-                              LocalDate localDate = recordValue.asLocalDate();
-                              value = java.sql.Date.valueOf(localDate);
-                              break;
-                            }
-                          case DateTime:
-                            {
-                              ZonedDateTime zonedDateTime = recordValue.asZonedDateTime();
-                              value = Date.from(zonedDateTime.toInstant());
-                              break;
-                            }
-                          default:
-                            throw new HopException(
-                                "Conversion from Neo4j daa type "
-                                    + neoType.name()
-                                    + " to a Hop Date isn't supported yet");
-                        }
-                      } else {
-                        LocalDate localDate = recordValue.asLocalDate();
-                        value = java.sql.Date.valueOf(localDate);
-                      }
-                      break;
-                    case IValueMeta.TYPE_TIMESTAMP:
-                      LocalDateTime localDateTime = recordValue.asLocalDateTime();
-                      value = java.sql.Timestamp.valueOf(localDateTime);
-                      break;
-                    default:
-                      throw new HopException(
-                          "Unable to convert Neo4j data to type " + targetValueMeta.toStringMeta());
-                  }
-                } catch (Exception e) {
-                  throw new HopException(
-                      "Unable to convert Neo4j record value '"
-                          + returnValue.getName()
-                          + "' to type : "
-                          + targetValueMeta.getTypeDesc(),
-                      e);
-                }
-              }
+              Object value =
+                  NeoHopData.convertNeoToHopValue(
+                      returnValue.getName(), recordValue, neoType, targetValueMeta);
+
               outputRow[index++] = value;
             }
 

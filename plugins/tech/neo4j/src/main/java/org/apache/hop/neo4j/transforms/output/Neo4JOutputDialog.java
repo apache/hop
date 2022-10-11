@@ -88,8 +88,6 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (Neo4JOutputMeta) in;
-
-    metadataProvider = HopGui.getInstance().getMetadataProvider();
   }
 
   @Override

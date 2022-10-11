@@ -78,8 +78,6 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
       String transformName) {
     super(parent, variables, (BaseTransformMeta) inputMetadata, pipelineMeta, transformName);
     input = (ImporterMeta) inputMetadata;
-
-    metadataProvider = HopGui.getInstance().getMetadataProvider();
   }
 
   @Override

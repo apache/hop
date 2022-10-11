@@ -63,8 +63,6 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
       String transformName) {
     super(parent, variables, (BaseTransformMeta) inputMetadata, pipelineMeta, transformName);
     input = (GenerateCsvMeta) inputMetadata;
-
-    metadataProvider = HopGui.getInstance().getMetadataProvider();
   }
 
   @Override
