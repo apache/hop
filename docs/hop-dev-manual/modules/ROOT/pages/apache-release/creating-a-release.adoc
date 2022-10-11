@@ -127,6 +127,39 @@ gpg --verify apache-hop-client-X.XX.zip.asc
 sha512sum -c apache-hop-client-X.XX.zip.sha512
 ----
 
+== Creating the Helm chart (if needed)
+
+When changes have been made to the helm chart a new release of this artifact is also needed.
+This assumes helm has been installed.
+
+[source,bash]
+----
+# Copy source to temp build location
+cd apache-hop-X.XX/helm
+
+# Run helm package
+helm package hop
+
+# Copy client back (and rename)
+cp hop-X.XX.tgz ../../hop-X.XX.tgz
+
+# Go back to root of your working dir
+cd ../..
+----
+
+As we now added a new binary file we also need to sign and create a sha512 for it.
+
+[source,bash]
+----
+# Create keyfile and sha512
+gpg --armor --default-key username@apache.org --output hop-X.XX.tgz.asc --detach-sig hop-X.XX.tgz
+sha512sum hop-X.XX.tgz > hop-X.XX.tgz.sha512
+
+# Validate
+gpg --verify hop-X.XX.tgz.asc
+sha512sum -c hop-X.XX.tgz.sha512
+----
+
 == Staging the files
 
 First step is to check out the SVN directory, and create a new directory
