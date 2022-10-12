@@ -51,9 +51,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
-import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.*;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.*;
@@ -74,7 +72,7 @@ import java.util.List;
     description = "i18n::MetadataPerspective.Description",
     image = "ui/images/metadata.svg")
 @GuiPlugin(description = "i18n::MetadataPerspective.GuiPlugin.Description")
-public class MetadataPerspective implements IHopPerspective {
+public class MetadataPerspective implements IHopPerspective , TabClosable {
 
   public static final Class<?> PKG = MetadataPerspective.class; // i18n
   private static final String METADATA_PERSPECTIVE_TREE = "Metadata perspective tree";
@@ -336,6 +334,8 @@ public class MetadataPerspective implements IHopPerspective {
         });
     tabFolder.setTopRight(toolBar, SWT.RIGHT);
 
+    new TabCloseHandler(this);
+
     // Support reorder tab item
     //
     new TabFolderReorder(tabFolder);
@@ -469,20 +469,7 @@ public class MetadataPerspective implements IHopPerspective {
 
   protected void onTabClose(CTabFolderEvent event) {
     CTabItem tabItem = (CTabItem) event.item;
-    MetadataEditor<?> editor = (MetadataEditor<?>) tabItem.getData();
-
-    boolean isRemoved = remove(editor);
-
-    if (!isRemoved) {
-      event.doit = false;
-      return;
-    }
-
-    // If all editor are closed
-    //
-    if (tabFolder.getItemCount() == 0) {
-      HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
-    }
+    closeTab(event, tabItem);
   }
 
   public void onNewMetadata() {
@@ -910,5 +897,28 @@ public class MetadataPerspective implements IHopPerspective {
   public List<ISearchable> getSearchables() {
     List<ISearchable> searchables = new ArrayList<>();
     return searchables;
+  }
+
+  @Override
+  public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
+    MetadataEditor<?> editor = (MetadataEditor<?>) tabItem.getData();
+
+    boolean isRemoved = remove(editor);
+
+    if (!isRemoved && event != null) {
+      event.doit = false;
+      return;
+    }
+
+    // If all editor are closed
+    //
+    if (tabFolder.getItemCount() == 0) {
+      HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
+    }
+  }
+
+  @Override
+  public CTabFolder getTabFolder() {
+    return tabFolder;
   }
 }

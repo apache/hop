@@ -57,9 +57,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
-import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.*;
 import org.apache.hop.ui.hopgui.perspective.explorer.config.ExplorerPerspectiveConfigSingleton;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.ExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
@@ -82,7 +80,7 @@ import java.util.*;
     description = "The Hop Explorer Perspective",
     image = "ui/images/folder.svg")
 @GuiPlugin(description = "i18n::ExplorerPerspective.GuiPlugin.Description")
-public class ExplorerPerspective implements IHopPerspective {
+public class ExplorerPerspective implements IHopPerspective , TabClosable {
 
   public static final Class<?> PKG = ExplorerPerspective.class; // i18n
 
@@ -585,9 +583,51 @@ public class ExplorerPerspective implements IHopPerspective {
         });
     tabFolder.setTopRight(toolBar, SWT.RIGHT);
 
+    new TabCloseHandler(this);
+
     // Support reorder tab item
     //
     new TabFolderReorder(tabFolder);
+  }
+
+  @Override
+  public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
+    ExplorerFile file = (ExplorerFile) tabItem.getData();
+
+    if (file.getFileTypeHandler().isCloseable()) {
+      files.remove(file);
+      tabItem.dispose();
+
+      //
+      // Remove the file in refreshDelegate
+      try {
+        hopGui.fileRefreshDelegate.remove(
+            HopVfs.getFileObject(file.getFileTypeHandler().getFilename()).getPublicURIString());
+      } catch (HopFileException e) {
+        hopGui.getLog().logError("Error getting VFS fileObject", e);
+      }
+
+      // Refresh tree to remove bold
+      //
+      this.refresh();
+
+      // If all editor are closed
+      //
+      if (tabFolder.getItemCount() == 0) {
+        HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
+      }
+      updateGui();
+    } else {
+      if (event != null) {
+        // Ignore event if canceled
+        event.doit = false;
+      }
+    }
+  }
+
+  @Override
+  public CTabFolder getTabFolder() {
+    return tabFolder;
   }
 
   /**
@@ -786,35 +826,7 @@ public class ExplorerPerspective implements IHopPerspective {
 
   protected void onTabClose(CTabFolderEvent event) {
     CTabItem tabItem = (CTabItem) event.item;
-    ExplorerFile file = (ExplorerFile) tabItem.getData();
-
-    if (file.getFileTypeHandler().isCloseable()) {
-      files.remove(file);
-      tabItem.dispose();
-
-      //
-      // Remove the file in refreshDelegate
-      try {
-        hopGui.fileRefreshDelegate.remove(
-            HopVfs.getFileObject(file.getFileTypeHandler().getFilename()).getPublicURIString());
-      } catch (HopFileException e) {
-        hopGui.getLog().logError("Error getting VFS fileObject", e);
-      }
-
-      // Refresh tree to remove bold
-      //
-      this.refresh();
-
-      // If all editor are closed
-      //
-      if (tabFolder.getItemCount() == 0) {
-        HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
-      }
-      updateGui();
-    } else {
-      // Ignore event if canceled
-      event.doit = false;
-    }
+    closeTab(event, tabItem);
   }
 
   @GuiToolbarElement(
