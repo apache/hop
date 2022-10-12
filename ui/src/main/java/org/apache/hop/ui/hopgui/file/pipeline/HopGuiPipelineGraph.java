@@ -4648,8 +4648,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   .asyncExec(
                       () -> {
                         if (!HopGuiPipelineGraph.this.canvas.isDisposed()) {
-                          HopGuiPipelineGraph.this.canvas.redraw();
-                          HopGuiPipelineGraph.this.updateGui();
+                          if (perspective.isActive() && HopGuiPipelineGraph.this.isVisible()) {
+                            HopGuiPipelineGraph.this.canvas.redraw();
+                            HopGuiPipelineGraph.this.updateGui();
+                          }
                         }
                       });
             }

@@ -47,7 +47,9 @@ import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlFormatter;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.stream.IStream;
@@ -84,14 +86,17 @@ public class PipelineMeta extends AbstractMeta
   public static final String XML_TAG = "pipeline";
 
   public static final int BORDER_INDENT = 20;
+
+  @HopMetadataProperty(key = "info")
+  protected PipelineMetaInfo info;
+
   /** The list of transforms associated with the pipeline. */
+  @HopMetadataProperty(key = "transform")
   protected List<TransformMeta> transforms;
 
   /** The list of hops associated with the pipeline. */
+  @HopMetadataProperty(groupKey = "order", key = "hop")
   protected List<PipelineHopMeta> hops;
-
-  /** The version string for the pipeline. */
-  protected String pipelineVersion;
 
   /** The status of the pipeline. */
   protected int pipelineStatus;
@@ -103,15 +108,6 @@ public class PipelineMeta extends AbstractMeta
 
   /** The previous result. */
   protected Result previousResult;
-
-  /** Whether the pipeline is capturing transform performance snap shots. */
-  protected boolean capturingTransformPerformanceSnapShots;
-
-  /** The transform performance capturing delay. */
-  protected long transformPerformanceCapturingDelay;
-
-  /** The transform performance capturing size limit. */
-  protected String transformPerformanceCapturingSizeLimit;
 
   /** The transforms fields cache. */
   protected Map<String, IRowMeta> transformFieldsCache;
@@ -125,91 +121,7 @@ public class PipelineMeta extends AbstractMeta
   /** The list of TransformChangeListeners */
   protected List<ITransformMetaChangeListener> transformChangeListeners;
 
-  protected byte[] keyForSessionKey;
-  boolean isKeyPrivate;
   private ArrayList<Missing> missingPipeline;
-
-  /**
-   * The PipelineType enum describes the various types of pipelines in terms of execution, including
-   * Normal, Serial Single-Threaded, and Single-Threaded.
-   */
-  public enum PipelineType {
-
-    /** A normal pipeline. */
-    Normal("Normal", BaseMessages.getString(PKG, "PipelineMeta.PipelineType.Normal")),
-
-    /** A single-threaded pipeline. */
-    SingleThreaded(
-        "SingleThreaded", BaseMessages.getString(PKG, "PipelineMeta.PipelineType.SingleThreaded"));
-
-    /** The code corresponding to the pipeline type. */
-    private final String code;
-
-    /** The description of the pipeline type. */
-    private final String description;
-
-    /**
-     * Instantiates a new pipeline type.
-     *
-     * @param code the code
-     * @param description the description
-     */
-    PipelineType(String code, String description) {
-      this.code = code;
-      this.description = description;
-    }
-
-    /**
-     * Gets the code corresponding to the pipeline type.
-     *
-     * @return the code
-     */
-    public String getCode() {
-      return code;
-    }
-
-    /**
-     * Gets the description of the pipeline type.
-     *
-     * @return the description
-     */
-    public String getDescription() {
-      return description;
-    }
-
-    /**
-     * Gets the pipeline type by code.
-     *
-     * @param pipelineTypeCode the pipeline type code
-     * @return the pipeline type by code
-     */
-    public static PipelineType getPipelineTypeByCode(String pipelineTypeCode) {
-      if (pipelineTypeCode != null) {
-        for (PipelineType type : values()) {
-          if (type.code.equalsIgnoreCase(pipelineTypeCode)) {
-            return type;
-          }
-        }
-      }
-      return Normal;
-    }
-
-    /**
-     * Gets the pipeline types descriptions.
-     *
-     * @return the pipeline types descriptions
-     */
-    public static String[] getPipelineTypesDescriptions() {
-      String[] desc = new String[values().length];
-      for (int i = 0; i < values().length; i++) {
-        desc[i] = values()[i].getDescription();
-      }
-      return desc;
-    }
-  }
-
-  /** The pipeline type. */
-  protected PipelineType pipelineType;
 
   // //////////////////////////////////////////////////////////////////////////
 
@@ -389,15 +301,14 @@ public class PipelineMeta extends AbstractMeta
    */
   @Override
   public void clear() {
-    nameSynchronizedWithFilename = true;
-
     transforms = new ArrayList<>();
     hops = new ArrayList<>();
     namedParams = new NamedParameters();
     transformChangeListeners = new ArrayList<>();
 
     pipelineStatus = -1;
-    pipelineVersion = null;
+
+    info = new PipelineMetaInfo();
 
     undo = new ArrayList<>();
     maxUndo = Const.MAX_UNDO;
@@ -405,16 +316,9 @@ public class PipelineMeta extends AbstractMeta
 
     super.clear();
 
-    // The performance monitoring options
-    //
-    capturingTransformPerformanceSnapShots = false;
-    transformPerformanceCapturingDelay = 1000; // every 1 seconds
-    transformPerformanceCapturingSizeLimit = "100"; // maximum 100 data points
-
     transformFieldsCache = new HashMap<>();
     loopCache = new HashMap<>();
     previousTransformCache = new HashMap<>();
-    pipelineType = PipelineType.Normal;
   }
 
   /**
@@ -1207,7 +1111,8 @@ public class PipelineMeta extends AbstractMeta
       //
       row = getPrevTransformFields(variables, transformMeta);
 
-      // Check if row object is null that means the transform could be an input transform. In this case, get fields
+      // Check if row object is null that means the transform could be an input transform. In this
+      // case, get fields
       // out from transform itself
       if (row.isEmpty()) {
         row = getThisTransformFields(variables, transformMeta, targetTransform, row, monitor);
@@ -1581,6 +1486,18 @@ public class PipelineMeta extends AbstractMeta
    */
   @Override
   public String getXml(IVariables variables) throws HopException {
+    /*
+    TODO : HOP-4286 : Cleanup XML of PipelineMeta
+    try {
+      return XmlFormatter.format(
+          XmlHandler.openTag(XML_TAG)
+              + XmlMetadataUtil.serializeObjectToXml(this)
+              + XmlHandler.closeTag(XML_TAG));
+    } catch (Exception e) {
+      throw new HopException("Error serializing pipeline metadata to XML", e);
+    }
+     */
+
 
     StringBuilder xml = new StringBuilder(800);
 
@@ -1594,11 +1511,11 @@ public class PipelineMeta extends AbstractMeta
         .append(
             XmlHandler.addTagValue("name", getName())); // lossy if name is sync'ed with filename
     xml.append("    ")
-        .append(XmlHandler.addTagValue("name_sync_with_filename", nameSynchronizedWithFilename));
-    xml.append("    ").append(XmlHandler.addTagValue("description", description));
-    xml.append("    ").append(XmlHandler.addTagValue("extended_description", extendedDescription));
-    xml.append("    ").append(XmlHandler.addTagValue("pipeline_version", pipelineVersion));
-    xml.append("    ").append(XmlHandler.addTagValue("pipeline_type", pipelineType.getCode()));
+        .append(XmlHandler.addTagValue("name_sync_with_filename", isNameSynchronizedWithFilename()));
+    xml.append("    ").append(XmlHandler.addTagValue("description", getDescription()));
+    xml.append("    ").append(XmlHandler.addTagValue("extended_description", getExtendedDescription()));
+    xml.append("    ").append(XmlHandler.addTagValue("pipeline_version", getPipelineVersion()));
+    xml.append("    ").append(XmlHandler.addTagValue("pipeline_type", getPipelineType().getCode()));
 
     if (pipelineStatus >= 0) {
       xml.append("    ").append(XmlHandler.addTagValue("pipeline_status", pipelineStatus));
@@ -1622,30 +1539,23 @@ public class PipelineMeta extends AbstractMeta
     xml.append("    ")
         .append(
             XmlHandler.addTagValue(
-                "capture_transform_performance", capturingTransformPerformanceSnapShots));
+                "capture_transform_performance", isCapturingTransformPerformanceSnapShots()));
     xml.append("    ")
         .append(
             XmlHandler.addTagValue(
-                "transform_performance_capturing_delay", transformPerformanceCapturingDelay));
+                "transform_performance_capturing_delay", getTransformPerformanceCapturingDelay()));
     xml.append("    ")
         .append(
             XmlHandler.addTagValue(
                 "transform_performance_capturing_size_limit",
-                transformPerformanceCapturingSizeLimit));
+                getTransformPerformanceCapturingSizeLimit()));
 
-    xml.append("    ").append(XmlHandler.addTagValue("created_user", createdUser));
+    xml.append("    ").append(XmlHandler.addTagValue("created_user", getCreatedUser()));
     xml.append("    ")
-        .append(XmlHandler.addTagValue("created_date", XmlHandler.date2string(createdDate)));
-    xml.append("    ").append(XmlHandler.addTagValue("modified_user", modifiedUser));
+        .append(XmlHandler.addTagValue("created_date", XmlHandler.date2string(getCreatedDate())));
+    xml.append("    ").append(XmlHandler.addTagValue("modified_user", getModifiedUser()));
     xml.append("    ")
-        .append(XmlHandler.addTagValue("modified_date", XmlHandler.date2string(modifiedDate)));
-
-    try {
-      xml.append("    ").append(XmlHandler.addTagValue("key_for_session_key", keyForSessionKey));
-    } catch (Exception ex) {
-      LogChannel.GENERAL.logError("Unable to decode key", ex);
-    }
-    xml.append("    ").append(XmlHandler.addTagValue("is_key_private", isKeyPrivate));
+        .append(XmlHandler.addTagValue("modified_date", XmlHandler.date2string(getModifiedDate())));
 
     xml.append("  ").append(XmlHandler.closeTag(XML_TAG_INFO)).append(Const.CR);
 
@@ -1665,13 +1575,13 @@ public class PipelineMeta extends AbstractMeta
     }
     xml.append("  ").append(XmlHandler.closeTag(XML_TAG_ORDER)).append(Const.CR);
 
-    /* The transforms... */
+    // The transforms.
     for (int i = 0; i < nrTransforms(); i++) {
       TransformMeta transformMeta = getTransform(i);
       xml.append(transformMeta.getXml());
     }
 
-    /* The error handling metadata on the transforms */
+    // The error handling metadata on the transforms
     xml.append("  ").append(XmlHandler.openTag(XML_TAG_TRANSFORM_ERROR_HANDLING)).append(Const.CR);
     for (int i = 0; i < nrTransforms(); i++) {
       TransformMeta transformMeta = getTransform(i);
@@ -1703,9 +1613,7 @@ public class PipelineMeta extends AbstractMeta
    *     exception in that case)
    */
   public PipelineMeta(
-          String fname,
-          IHopMetadataProvider metadataProvider,
-          IVariables parentVariableSpace)
+      String fname, IHopMetadataProvider metadataProvider, IVariables parentVariableSpace)
       throws HopXmlException, HopMissingPluginsException {
     // if fname is not provided, there's not much we can do, throw an exception
     if (StringUtils.isBlank(fname)) {
@@ -1774,9 +1682,7 @@ public class PipelineMeta extends AbstractMeta
    *     exception in that case)
    */
   public PipelineMeta(
-      InputStream xmlStream,
-      IHopMetadataProvider metadataProvider,
-      IVariables parentVariableSpace)
+      InputStream xmlStream, IHopMetadataProvider metadataProvider, IVariables parentVariableSpace)
       throws HopXmlException, HopMissingPluginsException {
     Document doc = XmlHandler.loadXmlFile(xmlStream, null, false, false);
     Node pipelineNode = XmlHandler.getSubNode(doc, XML_TAG);
@@ -1825,9 +1731,16 @@ public class PipelineMeta extends AbstractMeta
         // Clear the pipeline
         clear();
 
-        // Set the filename here so it can be used in variables for ALL aspects of the pipeline FIX.
+        // Set the filename here, so it can be used in variables for ALL aspects of the pipeline
+        // FIX.
         //
         setFilename(filename);
+
+        // TODO: HOP-4286 : Cleanup XML of PipelineMeta
+        //
+        // XmlMetadataUtil.deSerializeFromXml(
+        //    pipelineNode, PipelineMeta.class, this, metadataProvider);
+        //
 
         // Read the notes...
         Node notepadsNode = XmlHandler.getSubNode(pipelineNode, XML_TAG_NOTEPADS);
@@ -1910,29 +1823,29 @@ public class PipelineMeta extends AbstractMeta
 
         // Name
         //
-        this.name = XmlHandler.getTagValue(infoNode, "name");
+        info.setName(XmlHandler.getTagValue(infoNode, "name"));
 
-        nameSynchronizedWithFilename =
-            "Y".equalsIgnoreCase(XmlHandler.getTagValue(infoNode, "name_sync_with_filename"));
+        info.setNameSynchronizedWithFilename(
+            "Y".equalsIgnoreCase(XmlHandler.getTagValue(infoNode, "name_sync_with_filename")));
 
         // description
         //
-        description = XmlHandler.getTagValue(infoNode, "description");
+        info.setDescription(XmlHandler.getTagValue(infoNode, "description"));
 
         // extended description
         //
-        extendedDescription = XmlHandler.getTagValue(infoNode, "extended_description");
+        info.setExtendedDescription(XmlHandler.getTagValue(infoNode, "extended_description"));
 
         // pipeline version
         //
-        pipelineVersion = XmlHandler.getTagValue(infoNode, "pipeline_version");
+        info.setPipelineVersion(XmlHandler.getTagValue(infoNode, "pipeline_version"));
 
         // pipeline status
         //
         pipelineStatus = Const.toInt(XmlHandler.getTagValue(infoNode, "pipeline_status"), -1);
 
         String pipelineTypeCode = XmlHandler.getTagValue(infoNode, "pipeline_type");
-        pipelineType = PipelineType.getPipelineTypeByCode(pipelineTypeCode);
+        info.setPipelineType(PipelineType.getPipelineTypeByCode(pipelineTypeCode));
 
         // Read the named parameters.
         Node paramsNode = XmlHandler.getSubNode(infoNode, XML_TAG_PARAMETERS);
@@ -1950,26 +1863,26 @@ public class PipelineMeta extends AbstractMeta
 
         // Performance monitoring for transforms...
         //
-        capturingTransformPerformanceSnapShots =
-            "Y".equalsIgnoreCase(XmlHandler.getTagValue(infoNode, "capture_transform_performance"));
-        transformPerformanceCapturingDelay =
+        info.setCapturingTransformPerformanceSnapShots(
+            "Y".equalsIgnoreCase(XmlHandler.getTagValue(infoNode, "capture_transform_performance")));
+        info.setTransformPerformanceCapturingDelay(
             Const.toLong(
-                XmlHandler.getTagValue(infoNode, "transform_performance_capturing_delay"), 1000);
-        transformPerformanceCapturingSizeLimit =
-            XmlHandler.getTagValue(infoNode, "transform_performance_capturing_size_limit");
+                XmlHandler.getTagValue(infoNode, "transform_performance_capturing_delay"), 1000));
+        info.setTransformPerformanceCapturingSizeLimit(
+            XmlHandler.getTagValue(infoNode, "transform_performance_capturing_size_limit"));
 
         // Created user/date
-        createdUser = XmlHandler.getTagValue(infoNode, "created_user");
+        info.setCreatedUser(XmlHandler.getTagValue(infoNode, "created_user"));
         String createDate = XmlHandler.getTagValue(infoNode, "created_date");
         if (createDate != null) {
-          createdDate = XmlHandler.stringToDate(createDate);
+          info.setCreatedDate(XmlHandler.stringToDate(createDate));
         }
 
         // Changed user/date
-        modifiedUser = XmlHandler.getTagValue(infoNode, "modified_user");
+        info.setModifiedUser(XmlHandler.getTagValue(infoNode, "modified_user"));
         String modDate = XmlHandler.getTagValue(infoNode, "modified_date");
         if (modDate != null) {
-          modifiedDate = XmlHandler.stringToDate(modDate);
+          info.setModifiedDate(XmlHandler.stringToDate(modDate));
         }
 
         if (LogChannel.GENERAL.isDebug()) {
@@ -1988,14 +1901,10 @@ public class PipelineMeta extends AbstractMeta
             AttributesUtil.loadAttributes(
                 XmlHandler.getSubNode(pipelineNode, AttributesUtil.XML_TAG));
 
-        keyForSessionKey =
-            XmlHandler.stringToBinary(XmlHandler.getTagValue(infoNode, "key_for_session_key"));
-        isKeyPrivate = "Y".equals(XmlHandler.getTagValue(infoNode, "is_key_private"));
-
       } catch (HopXmlException xe) {
         throw new HopXmlException(
             BaseMessages.getString(PKG, "PipelineMeta.Exception.ErrorReadingPipeline"), xe);
-      } catch (HopException e) {
+      } catch (Exception e) {
         throw new HopXmlException(e);
       } finally {
         ExtensionPointHandler.callExtensionPoint(
@@ -2016,22 +1925,6 @@ public class PipelineMeta extends AbstractMeta
       }
     }
     clearChanged();
-  }
-
-  public byte[] getKey() {
-    return keyForSessionKey;
-  }
-
-  public void setKey(byte[] key) {
-    this.keyForSessionKey = key;
-  }
-
-  public boolean isPrivateKey() {
-    return isKeyPrivate;
-  }
-
-  public void setPrivateKey(boolean privateKey) {
-    this.isKeyPrivate = privateKey;
   }
 
   /**
@@ -3120,25 +3013,25 @@ public class PipelineMeta extends AbstractMeta
    * @return The version of the pipeline
    */
   public String getPipelineVersion() {
-    return pipelineVersion;
+    return info.getPipelineVersion();
   }
 
   /**
    * Sets the version of the pipeline.
    *
-   * @param n The new version description of the pipeline
+   * @param pipelineVersion The new version description of the pipeline
    */
-  public void setPipelineVersion(String n) {
-    pipelineVersion = n;
+  public void setPipelineVersion(String pipelineVersion) {
+    info.setPipelineVersion(pipelineVersion);
   }
 
   /**
    * Sets the status of the pipeline.
    *
-   * @param n The new status description of the pipeline
+   * @param pipelineStatus The new status description of the pipeline
    */
-  public void setPipelineStatus(int n) {
-    pipelineStatus = n;
+  public void setPipelineStatus(int pipelineStatus) {
+    this.pipelineStatus = pipelineStatus;
   }
 
   /**
@@ -3159,15 +3052,15 @@ public class PipelineMeta extends AbstractMeta
   @Override
   public String toString() {
     if (!Utils.isEmpty(filename)) {
-      if (Utils.isEmpty(name)) {
+      if (Utils.isEmpty(getName())) {
         return filename;
       } else {
-        return filename + " : " + name;
+        return filename + " : " + getName();
       }
     }
 
-    if (name != null) {
-      return name;
+    if (getName() != null) {
+      return getName();
     } else {
       return PipelineMeta.class.getName();
     }
@@ -3403,7 +3296,7 @@ public class PipelineMeta extends AbstractMeta
   protected void setInternalNameHopVariable(IVariables variables) {
     // The name of the pipeline
     //
-    variables.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_NAME, Const.NVL(name, ""));
+    variables.setVariable(Const.INTERNAL_VARIABLE_PIPELINE_NAME, Const.NVL(getName(), ""));
   }
 
   /**
@@ -3652,7 +3545,7 @@ public class PipelineMeta extends AbstractMeta
    * @return true if the pipeline is capturing transform performance snapshots, false otherwise
    */
   public boolean isCapturingTransformPerformanceSnapShots() {
-    return capturingTransformPerformanceSnapShots;
+    return info.isCapturingTransformPerformanceSnapShots();
   }
 
   /**
@@ -3663,7 +3556,7 @@ public class PipelineMeta extends AbstractMeta
    */
   public void setCapturingTransformPerformanceSnapShots(
       boolean capturingTransformPerformanceSnapShots) {
-    this.capturingTransformPerformanceSnapShots = capturingTransformPerformanceSnapShots;
+    this.info.setCapturingTransformPerformanceSnapShots(capturingTransformPerformanceSnapShots);
   }
 
   /**
@@ -3672,7 +3565,7 @@ public class PipelineMeta extends AbstractMeta
    * @return the transform performance capturing delay
    */
   public long getTransformPerformanceCapturingDelay() {
-    return transformPerformanceCapturingDelay;
+    return info.getTransformPerformanceCapturingDelay();
   }
 
   /**
@@ -3681,7 +3574,7 @@ public class PipelineMeta extends AbstractMeta
    * @param transformPerformanceCapturingDelay the transformPerformanceCapturingDelay to set
    */
   public void setTransformPerformanceCapturingDelay(long transformPerformanceCapturingDelay) {
-    this.transformPerformanceCapturingDelay = transformPerformanceCapturingDelay;
+    this.info.setTransformPerformanceCapturingDelay(transformPerformanceCapturingDelay);
   }
 
   /**
@@ -3690,7 +3583,7 @@ public class PipelineMeta extends AbstractMeta
    * @return the transform performance capturing size limit
    */
   public String getTransformPerformanceCapturingSizeLimit() {
-    return transformPerformanceCapturingSizeLimit;
+    return info.getTransformPerformanceCapturingSizeLimit();
   }
 
   /**
@@ -3701,7 +3594,7 @@ public class PipelineMeta extends AbstractMeta
    */
   public void setTransformPerformanceCapturingSizeLimit(
       String transformPerformanceCapturingSizeLimit) {
-    this.transformPerformanceCapturingSizeLimit = transformPerformanceCapturingSizeLimit;
+    this.info.setTransformPerformanceCapturingSizeLimit(transformPerformanceCapturingSizeLimit);
   }
 
   /** Clears the transform fields and loop caches. */
@@ -3732,7 +3625,7 @@ public class PipelineMeta extends AbstractMeta
    * @return the pipelineType
    */
   public PipelineType getPipelineType() {
-    return pipelineType;
+    return info.getPipelineType();
   }
 
   /**
@@ -3741,7 +3634,7 @@ public class PipelineMeta extends AbstractMeta
    * @param pipelineType the pipelineType to set
    */
   public void setPipelineType(PipelineType pipelineType) {
-    this.pipelineType = pipelineType;
+    this.info.setPipelineType(pipelineType);
   }
 
   public void addTransformChangeListener(ITransformMetaChangeListener listener) {
@@ -3831,5 +3724,278 @@ public class PipelineMeta extends AbstractMeta
 
   public boolean isEmpty() {
     return nrTransforms() == 0 && nrNotes() == 0;
+  }
+
+  /**
+   * Sets transforms
+   *
+   * @param transforms value of transforms
+   */
+  public void setTransforms(List<TransformMeta> transforms) {
+    this.transforms = transforms;
+  }
+
+  /**
+   * Gets hops
+   *
+   * @return value of hops
+   */
+  public List<PipelineHopMeta> getHops() {
+    return hops;
+  }
+
+  /**
+   * Sets hops
+   *
+   * @param hops value of hops
+   */
+  public void setHops(List<PipelineHopMeta> hops) {
+    this.hops = hops;
+  }
+
+  /**
+   * The PipelineType enum describes the various types of pipelines in terms of execution, including
+   * Normal, Serial Single-Threaded, and Single-Threaded.
+   */
+  public enum PipelineType {
+
+    /** A normal pipeline. */
+    Normal("Normal", BaseMessages.getString(PKG, "PipelineMeta.PipelineType.Normal")),
+
+    /** A single-threaded pipeline. */
+    SingleThreaded(
+        "SingleThreaded", BaseMessages.getString(PKG, "PipelineMeta.PipelineType.SingleThreaded"));
+
+    /** The code corresponding to the pipeline type. */
+    private final String code;
+
+    /** The description of the pipeline type. */
+    private final String description;
+
+    /**
+     * Instantiates a new pipeline type.
+     *
+     * @param code the code
+     * @param description the description
+     */
+    PipelineType(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
+
+    /**
+     * Gets the code corresponding to the pipeline type.
+     *
+     * @return the code
+     */
+    public String getCode() {
+      return code;
+    }
+
+    /**
+     * Gets the description of the pipeline type.
+     *
+     * @return the description
+     */
+    public String getDescription() {
+      return description;
+    }
+
+    /**
+     * Gets the pipeline type by code.
+     *
+     * @param pipelineTypeCode the pipeline type code
+     * @return the pipeline type by code
+     */
+    public static PipelineType getPipelineTypeByCode(String pipelineTypeCode) {
+      if (pipelineTypeCode != null) {
+        for (PipelineType type : values()) {
+          if (type.code.equalsIgnoreCase(pipelineTypeCode)) {
+            return type;
+          }
+        }
+      }
+      return Normal;
+    }
+
+    /**
+     * Gets the pipeline types descriptions.
+     *
+     * @return the pipeline types descriptions
+     */
+    public static String[] getPipelineTypesDescriptions() {
+      String[] desc = new String[values().length];
+      for (int i = 0; i < values().length; i++) {
+        desc[i] = values()[i].getDescription();
+      }
+      return desc;
+    }
+  }
+
+  /**
+   * Gets info
+   *
+   * @return value of info
+   */
+  public PipelineMetaInfo getInfo() {
+    return info;
+  }
+
+  /**
+   * Sets info
+   *
+   * @param info value of info
+   */
+  public void setInfo(PipelineMetaInfo info) {
+    this.info = info;
+  }
+
+  /**
+   * Get the name of the pipeline. If the name is synchronized with the filename, we return the base
+   * filename.
+   *
+   * @return The name of the pipeline
+   */
+  @Override
+  public String getName() {
+    return extractNameFromFilename(
+        isNameSynchronizedWithFilename(), info.getName(), filename, getExtension());
+  }
+
+  /**
+   * Set the name.
+   *
+   * @param newName The new name
+   */
+  @Override
+  public void setName(String newName) {
+    fireNameChangedListeners(getName(), newName);
+    this.info.setName(newName);
+  }
+
+  @Override
+  public boolean isNameSynchronizedWithFilename() {
+    return info.isNameSynchronizedWithFilename();
+  }
+
+  @Override
+  public void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename) {
+    info.setNameSynchronizedWithFilename(nameSynchronizedWithFilename);
+  }
+
+  /**
+   * Gets the description of the workflow.
+   *
+   * @return The description of the workflow
+   */
+  public String getDescription() {
+    return info.getDescription();
+  }
+
+  /**
+   * Set the description of the workflow.
+   *
+   * @param description The new description of the workflow
+   */
+  public void setDescription(String description) {
+    this.info.setDescription(description);
+  }
+
+  /**
+   * Gets the extended description of the workflow.
+   *
+   * @return The extended description of the workflow
+   */
+  public String getExtendedDescription() {
+    return info.getExtendedDescription();
+  }
+
+  /**
+   * Set the description of the workflow.
+   *
+   * @param extendedDescription The new extended description of the workflow
+   */
+  public void setExtendedDescription(String extendedDescription) {
+    info.setExtendedDescription(extendedDescription);
+  }
+
+  /**
+   * Gets the date the pipeline was created.
+   *
+   * @return the date the pipeline was created.
+   */
+  @Override
+  public Date getCreatedDate() {
+    return info.getCreatedDate();
+  }
+
+  /**
+   * Sets the date the pipeline was created.
+   *
+   * @param createdDate The creation date to set.
+   */
+  @Override
+  public void setCreatedDate(Date createdDate) {
+    info.setCreatedDate(createdDate);
+  }
+
+  /**
+   * Sets the user by whom the pipeline was created.
+   *
+   * @param createdUser The user to set.
+   */
+  @Override
+  public void setCreatedUser(String createdUser) {
+    info.setCreatedUser(createdUser);
+  }
+
+  /**
+   * Gets the user by whom the pipeline was created.
+   *
+   * @return the user by whom the pipeline was created.
+   */
+  @Override
+  public String getCreatedUser() {
+    return info.getCreatedUser();
+  }
+
+  /**
+   * Sets the date the pipeline was modified.
+   *
+   * @param modifiedDate The modified date to set.
+   */
+  @Override
+  public void setModifiedDate(Date modifiedDate) {
+    info.setModifiedDate(modifiedDate);
+  }
+
+  /**
+   * Gets the date the pipeline was modified.
+   *
+   * @return the date the pipeline was modified.
+   */
+  @Override
+  public Date getModifiedDate() {
+    return info.getModifiedDate();
+  }
+
+  /**
+   * Sets the user who last modified the pipeline.
+   *
+   * @param modifiedUser The user name to set.
+   */
+  @Override
+  public void setModifiedUser(String modifiedUser) {
+    info.setModifiedUser(modifiedUser);
+  }
+
+  /**
+   * Gets the user who last modified the pipeline.
+   *
+   * @return the user who last modified the pipeline.
+   */
+  @Override
+  public String getModifiedUser() {
+    return info.getModifiedUser();
   }
 }

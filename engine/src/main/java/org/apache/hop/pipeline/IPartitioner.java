@@ -21,6 +21,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataObject;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.w3c.dom.Node;
 
@@ -69,6 +70,7 @@ import org.w3c.dom.Node;
  *       <p><i><a href="">public int getPartition(...)</a></i>
  * </ul>
  */
+@HopMetadataObject()
 public interface IPartitioner {
 
   /**

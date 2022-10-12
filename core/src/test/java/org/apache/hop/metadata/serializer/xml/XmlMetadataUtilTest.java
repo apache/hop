@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.xml.classes.Field;
+import org.apache.hop.metadata.serializer.xml.classes.Info;
 import org.apache.hop.metadata.serializer.xml.classes.MetaData;
 import org.apache.hop.metadata.serializer.xml.classes.TestEnum;
 import org.junit.Test;
@@ -41,10 +42,13 @@ public class XmlMetadataUtilTest extends TestCase {
     metaTest.getFields().add(new Field("c", "Date", -1, -1, "yyyy/MM/dd HH:mm:ss", TestEnum.THREE));
     metaTest.setValues(Arrays.asList("v1", "v2", "v3"));
     metaTest.setTestEnum(TestEnum.TWO);
+    metaTest.setInfo(new Info("aValue", "bValue"));
 
     String xml = XmlMetadataUtil.serializeObjectToXml(metaTest);
     assertEquals(
-        "<fields>"
+        "<field_separator>,</field_separator>"
+            + Const.CR
+            + "<fields>"
             + Const.CR
             + "<field>"
             + Const.CR
@@ -96,7 +100,9 @@ public class XmlMetadataUtilTest extends TestCase {
             + Const.CR
             + "<grouping_symbol>&#34;</grouping_symbol>"
             + Const.CR
-            + "<field_separator>,</field_separator>"
+            + "<a>aValue</a>"
+            + Const.CR
+            + "<b>bValue</b>"
             + Const.CR
             + "<test_enum>TWO</test_enum>"
             + Const.CR
@@ -115,7 +121,7 @@ public class XmlMetadataUtilTest extends TestCase {
     // Now load that object back in from XML...
     //
     Node node = XmlHandler.loadXmlString("<meta>" + xml + "</meta>", "meta");
-    MetaData metaData = XmlMetadataUtil.deSerializeFromXml(node, MetaData.class, null);
+    MetaData metaData = XmlMetadataUtil.deSerializeFromXml(null, node, MetaData.class, null);
 
     assertEquals(metaTest.getFilename(), metaData.getFilename());
     assertEquals(metaTest.getGroup(), metaData.getGroup());

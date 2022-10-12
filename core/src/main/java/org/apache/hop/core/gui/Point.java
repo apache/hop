@@ -17,9 +17,16 @@
 
 package org.apache.hop.core.gui;
 
+import org.apache.hop.metadata.api.HopMetadataProperty;
+
 import java.util.Objects;
 
 public class Point {
+
+  public Point() {
+    this(0,0);
+  }
+
   public Point(int x, int y) {
     this.x = x;
     this.y = y;
@@ -30,7 +37,10 @@ public class Point {
     this.y = p.y;
   }
 
+  @HopMetadataProperty(key = "xloc")
   public int x;
+
+  @HopMetadataProperty(key = "yloc")
   public int y;
 
   public void multiply(float factor) {
@@ -53,5 +63,41 @@ public class Point {
   @Override
   public int hashCode() {
     return Objects.hash(x, y);
+  }
+
+  /**
+   * Gets x
+   *
+   * @return value of x
+   */
+  public int getX() {
+    return x;
+  }
+
+  /**
+   * Sets x
+   *
+   * @param x value of x
+   */
+  public void setX(int x) {
+    this.x = x;
+  }
+
+  /**
+   * Gets y
+   *
+   * @return value of y
+   */
+  public int getY() {
+    return y;
+  }
+
+  /**
+   * Sets y
+   *
+   * @param y value of y
+   */
+  public void setY(int y) {
+    this.y = y;
   }
 }

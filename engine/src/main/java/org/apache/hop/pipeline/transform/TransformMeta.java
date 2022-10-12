@@ -35,6 +35,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
@@ -73,15 +74,17 @@ public class TransformMeta
 
   public static final String STRING_ID_MAPPING_OUTPUT = "MappingOutput";
 
+  @HopMetadataProperty(key = "type")
   private String transformPluginId; // --> transform plugin id
 
-  private String name;
+  @HopMetadataProperty private String name;
 
+  @HopMetadataProperty(inline = true)
   private ITransformMeta transform;
 
-  private boolean selected;
+  @HopMetadataProperty private boolean selected;
 
-  private boolean distributes;
+  @HopMetadataProperty private boolean distributes;
 
   private boolean isDeprecated;
 
@@ -89,16 +92,20 @@ public class TransformMeta
 
   private IRowDistribution rowDistribution;
 
+  @HopMetadataProperty(key = "copies")
   private String copiesString;
 
+  @HopMetadataProperty(key = "GUI")
   private Point location;
 
-  private String description;
+  @HopMetadataProperty private String description;
 
   private boolean terminator;
 
+  @HopMetadataProperty(key = "partitioning")
   private TransformPartitioningMeta transformPartitioningMeta;
 
+  @HopMetadataProperty(key = "target_transform_partitioning")
   private TransformPartitioningMeta targetTransformPartitioningMeta;
 
   private TransformErrorMeta transformErrorMeta;
@@ -107,6 +114,8 @@ public class TransformMeta
 
   private Integer copiesCache = null;
 
+  // TODO: Find a way to implement this in the XML metadata serializer.
+  // Annotate as well
   protected Map<String, Map<String, String>> attributesMap;
 
   /**
@@ -379,7 +388,7 @@ public class TransformMeta
   }
 
   public void setChanged(boolean ch) {
-    BaseTransformMeta<?,?> meta = (BaseTransformMeta<?,?>) this.getTransform();
+    BaseTransformMeta<?, ?> meta = (BaseTransformMeta<?, ?>) this.getTransform();
     if (meta != null) {
       meta.setChanged(ch);
     }
@@ -571,33 +580,45 @@ public class TransformMeta
     return getName();
   }
 
-  /** @return true is the transform is partitioned */
+  /**
+   * @return true is the transform is partitioned
+   */
   public boolean isPartitioned() {
     return transformPartitioningMeta != null && transformPartitioningMeta.isPartitioned();
   }
 
-  /** @return true is the transform is partitioned */
+  /**
+   * @return true is the transform is partitioned
+   */
   public boolean isTargetPartitioned() {
     return targetTransformPartitioningMeta != null
         && targetTransformPartitioningMeta.isPartitioned();
   }
 
-  /** @return the transformPartitioningMeta */
+  /**
+   * @return the transformPartitioningMeta
+   */
   public TransformPartitioningMeta getTransformPartitioningMeta() {
     return transformPartitioningMeta;
   }
 
-  /** @param transformPartitioningMeta the transformPartitioningMeta to set */
+  /**
+   * @param transformPartitioningMeta the transformPartitioningMeta to set
+   */
   public void setTransformPartitioningMeta(TransformPartitioningMeta transformPartitioningMeta) {
     this.transformPartitioningMeta = transformPartitioningMeta;
   }
 
-  /** @return the distributes */
+  /**
+   * @return the distributes
+   */
   public boolean isDistributes() {
     return distributes;
   }
 
-  /** @param distributes the distributes to set */
+  /**
+   * @param distributes the distributes to set
+   */
   public void setDistributes(boolean distributes) {
     if (this.distributes != distributes) {
       this.distributes = distributes;
@@ -605,12 +626,16 @@ public class TransformMeta
     }
   }
 
-  /** @return the TransformErrorMeta error handling metadata for this transform */
+  /**
+   * @return the TransformErrorMeta error handling metadata for this transform
+   */
   public TransformErrorMeta getTransformErrorMeta() {
     return transformErrorMeta;
   }
 
-  /** @param transformErrorMeta the error handling metadata for this transform */
+  /**
+   * @param transformErrorMeta the error handling metadata for this transform
+   */
   public void setTransformErrorMeta(TransformErrorMeta transformErrorMeta) {
     this.transformErrorMeta = transformErrorMeta;
   }
@@ -714,12 +739,16 @@ public class TransformMeta
     return transform.exportResources(variables, definitions, iResourceNaming, metadataProvider);
   }
 
-  /** @return the targetTransformPartitioningMeta */
+  /**
+   * @return the targetTransformPartitioningMeta
+   */
   public TransformPartitioningMeta getTargetTransformPartitioningMeta() {
     return targetTransformPartitioningMeta;
   }
 
-  /** @param targetTransformPartitioningMeta the targetTransformPartitioningMeta to set */
+  /**
+   * @param targetTransformPartitioningMeta the targetTransformPartitioningMeta to set
+   */
   public void setTargetTransformPartitioningMeta(
       TransformPartitioningMeta targetTransformPartitioningMeta) {
     this.targetTransformPartitioningMeta = targetTransformPartitioningMeta;
@@ -766,12 +795,16 @@ public class TransformMeta
     setChanged(true);
   }
 
-  /** @return the copiesString */
+  /**
+   * @return the copiesString
+   */
   public String getCopiesString() {
     return copiesString;
   }
 
-  /** @param copiesString the copiesString to set */
+  /**
+   * @param copiesString the copiesString to set
+   */
   public void setCopiesString(String copiesString) {
     this.copiesString = copiesString;
     copiesCache = null;

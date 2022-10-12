@@ -38,7 +38,9 @@ import org.apache.hop.core.parameters.*;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.AbstractMetaInfo;
 import org.apache.hop.server.HopServer;
 
 import java.util.*;
@@ -59,14 +61,6 @@ public abstract class AbstractMeta
   /** Constant = 4 */
   public static final int TYPE_UNDO_POSITION = 4;
 
-  protected String name;
-
-  protected boolean nameSynchronizedWithFilename;
-
-  protected String description;
-
-  protected String extendedDescription;
-
   protected String filename;
 
   protected Set<INameChangedListener> nameChangedListeners =
@@ -81,22 +75,19 @@ public abstract class AbstractMeta
   protected Set<ICurrentDirectoryChangedListener> currentDirectoryChangedListeners =
       Collections.newSetFromMap(new ConcurrentHashMap<>());
 
+  @HopMetadataProperty(groupKey = "notepads", key = NotePadMeta.XML_TAG)
   protected List<NotePadMeta> notes;
 
   protected boolean changedNotes;
 
   protected List<ChangeAction> undo;
 
+  // TODO serialize to XML as well using @HopMetadataProperty
   protected Map<String, Map<String, String>> attributesMap;
 
   protected INamedParameters namedParams = new NamedParameters();
 
   protected IHopMetadataProvider metadataProvider;
-
-  protected String createdUser;
-  protected String modifiedUser;
-  protected Date createdDate;
-  protected Date modifiedDate;
 
   protected final ChangedFlag changedFlag = new ChangedFlag();
 
@@ -129,17 +120,6 @@ public abstract class AbstractMeta
 
   protected abstract String getExtension();
 
-  /**
-   * Get the name of the pipeline. If the name is synchronized with the filename, we return the base
-   * filename.
-   *
-   * @return The name of the pipeline
-   */
-  @Override
-  public String getName() {
-    return extractNameFromFilename(nameSynchronizedWithFilename, name, filename, getExtension());
-  }
-
   public static final String extractNameFromFilename(
       boolean sync, String name, String filename, String extension) {
     if (filename == null) {
@@ -170,67 +150,64 @@ public abstract class AbstractMeta
   }
 
   /**
+   * Sets notes
+   *
+   * @param notes value of notes
+   */
+  public void setNotes(List<NotePadMeta> notes) {
+    this.notes = notes;
+  }
+
+  /**
+   * Get the name of the pipeline. If the name is synchronized with the filename, we return the base
+   * filename.
+   *
+   * @return The name of the pipeline
+   */
+  @Override
+  public abstract String getName();
+
+  /**
    * Set the name.
    *
    * @param newName The new name
    */
   @Override
-  public void setName(String newName) {
-    fireNameChangedListeners(this.name, newName);
-    this.name = newName;
-  }
+  public abstract void setName(String newName);
 
-  /**
-   * Gets nameSynchronizedWithFilename
-   *
-   * @return value of nameSynchronizedWithFilename
-   */
   @Override
-  public boolean isNameSynchronizedWithFilename() {
-    return nameSynchronizedWithFilename;
-  }
+  public abstract boolean isNameSynchronizedWithFilename();
 
-  /** @param nameSynchronizedWithFilename The nameSynchronizedWithFilename to set */
   @Override
-  public void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename) {
-    this.nameSynchronizedWithFilename = nameSynchronizedWithFilename;
-  }
+  public abstract void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename);
 
   /**
    * Gets the description of the workflow.
    *
    * @return The description of the workflow
    */
-  public String getDescription() {
-    return description;
-  }
+  public abstract String getDescription();
 
   /**
    * Set the description of the workflow.
    *
    * @param description The new description of the workflow
    */
-  public void setDescription(String description) {
-    this.description = description;
-  }
+  public abstract void setDescription(String description);
 
   /**
    * Gets the extended description of the workflow.
    *
    * @return The extended description of the workflow
    */
-  public String getExtendedDescription() {
-    return extendedDescription;
-  }
+  public abstract String getExtendedDescription();
 
   /**
    * Set the description of the workflow.
    *
    * @param extendedDescription The new extended description of the workflow
    */
-  public void setExtendedDescription(String extendedDescription) {
-    this.extendedDescription = extendedDescription;
-  }
+  public abstract void setExtendedDescription(String extendedDescription);
 
   /** Builds a name - if no name is set, yet - from the filename */
   @Override
@@ -280,7 +257,7 @@ public abstract class AbstractMeta
    * @param name The database name to look for
    * @return The database connection or null if nothing was found.
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   public DatabaseMeta findDatabase(String name) {
     if (metadataProvider == null || StringUtils.isEmpty(name)) {
       return null;
@@ -321,7 +298,7 @@ public abstract class AbstractMeta
       return metadataProvider.getSerializer(DatabaseMeta.class).listObjectNames().size();
     } catch (HopException e) {
       throw new RuntimeException(
-          "Unable to load database with name '" + name + "' from the metadata", e);
+          "Unable to count the number of RDBMS connections in the metadata", e);
     }
   }
 
@@ -475,14 +452,14 @@ public abstract class AbstractMeta
    * @return the hop server or null if we couldn't spot an approriate entry.
    */
   public HopServer findHopServer(String serverString) {
-    if (metadataProvider == null || StringUtils.isEmpty(name)) {
+    if (metadataProvider == null || StringUtils.isEmpty(getName())) {
       return null;
     }
     try {
-      return metadataProvider.getSerializer(HopServer.class).load(name);
+      return metadataProvider.getSerializer(HopServer.class).load(getName());
     } catch (HopException e) {
       throw new RuntimeException(
-          "Unable to load hop server with name '" + name + "' from the metadata", e);
+          "Unable to load hop server with name '" + getName() + "' from the metadata", e);
     }
   }
 
@@ -1006,9 +983,7 @@ public abstract class AbstractMeta
    * @return the date the pipeline was created.
    */
   @Override
-  public Date getCreatedDate() {
-    return createdDate;
-  }
+  public abstract Date getCreatedDate();
 
   /**
    * Sets the date the pipeline was created.
@@ -1016,9 +991,7 @@ public abstract class AbstractMeta
    * @param createdDate The creation date to set.
    */
   @Override
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
+  public abstract void setCreatedDate(Date createdDate);
 
   /**
    * Sets the user by whom the pipeline was created.
@@ -1026,9 +999,7 @@ public abstract class AbstractMeta
    * @param createdUser The user to set.
    */
   @Override
-  public void setCreatedUser(String createdUser) {
-    this.createdUser = createdUser;
-  }
+  public abstract void setCreatedUser(String createdUser);
 
   /**
    * Gets the user by whom the pipeline was created.
@@ -1036,9 +1007,7 @@ public abstract class AbstractMeta
    * @return the user by whom the pipeline was created.
    */
   @Override
-  public String getCreatedUser() {
-    return createdUser;
-  }
+  public abstract String getCreatedUser();
 
   /**
    * Sets the date the pipeline was modified.
@@ -1046,9 +1015,7 @@ public abstract class AbstractMeta
    * @param modifiedDate The modified date to set.
    */
   @Override
-  public void setModifiedDate(Date modifiedDate) {
-    this.modifiedDate = modifiedDate;
-  }
+  public abstract void setModifiedDate(Date modifiedDate);
 
   /**
    * Gets the date the pipeline was modified.
@@ -1056,9 +1023,7 @@ public abstract class AbstractMeta
    * @return the date the pipeline was modified.
    */
   @Override
-  public Date getModifiedDate() {
-    return modifiedDate;
-  }
+  public abstract Date getModifiedDate();
 
   /**
    * Sets the user who last modified the pipeline.
@@ -1066,9 +1031,7 @@ public abstract class AbstractMeta
    * @param modifiedUser The user name to set.
    */
   @Override
-  public void setModifiedUser(String modifiedUser) {
-    this.modifiedUser = modifiedUser;
-  }
+  public abstract void setModifiedUser(String modifiedUser);
 
   /**
    * Gets the user who last modified the pipeline.
@@ -1076,9 +1039,7 @@ public abstract class AbstractMeta
    * @return the user who last modified the pipeline.
    */
   @Override
-  public String getModifiedUser() {
-    return modifiedUser;
-  }
+  public abstract String getModifiedUser();
 
   public void clear() {
     setName(null);
@@ -1089,14 +1050,6 @@ public abstract class AbstractMeta
     clearUndo();
     clearChanged();
     setChanged(false);
-
-    createdUser = "-";
-    createdDate = new Date();
-
-    modifiedUser = "-";
-    modifiedDate = new Date();
-    description = null;
-    extendedDescription = null;
   }
 
   @Override
@@ -1215,7 +1168,7 @@ public abstract class AbstractMeta
 
   @Override
   public int hashCode() {
-    return Objects.hash(filename, name);
+    return Objects.hash(filename, getName());
   }
 
   private static class RunOptions {

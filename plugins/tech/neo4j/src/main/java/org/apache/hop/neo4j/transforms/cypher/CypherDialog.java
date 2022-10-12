@@ -771,8 +771,6 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
   }
 
   private void getReturnValues() {
-
-    IHopMetadataProvider metadataProvider = HopGui.getInstance().getMetadataProvider();
     Driver driver = null;
     Session session = null;
     Transaction transaction = null;

@@ -1,4 +1,3 @@
-package org.apache.hop.metadata.api;
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -14,20 +13,58 @@ package org.apache.hop.metadata.api;
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+package org.apache.hop.metadata.serializer.xml.classes;
 
-/**
- * This class annotation signals to Hop Metadata that this object can be serialized. It also
- * provides information on how the object should be instantiated.
- */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface HopMetadataObject {
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
-  Class<? extends IHopMetadataObjectFactory> objectFactory() default
-      HopMetadataDefaultObjectFactory.class;
+public class Info {
+  @HopMetadataProperty private String a;
+  @HopMetadataProperty private String b;
 
-  String xmlKey() default "";
+  public Info() {
+  }
+
+  public Info(String a, String b) {
+    this.a = a;
+    this.b = b;
+  }
+
+  /**
+   * Gets a
+   *
+   * @return value of a
+   */
+  public String getA() {
+    return a;
+  }
+
+  /**
+   * Sets a
+   *
+   * @param a value of a
+   */
+  public void setA(String a) {
+    this.a = a;
+  }
+
+  /**
+   * Gets b
+   *
+   * @return value of b
+   */
+  public String getB() {
+    return b;
+  }
+
+  /**
+   * Sets b
+   *
+   * @param b value of b
+   */
+  public void setB(String b) {
+    this.b = b;
+  }
 }

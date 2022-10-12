@@ -95,8 +95,6 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
       String transformName) {
     super(parent, variables, (BaseTransformMeta) inputMetadata, pipelineMeta, transformName);
     input = (GraphOutputMeta) inputMetadata;
-
-    metadataProvider = HopGui.getInstance().getMetadataProvider();
   }
 
   @Override
