@@ -153,17 +153,8 @@ public class MetadataFileTypeHandler<T extends IHopMetadata> implements IHopFile
 
   @Override
   public void close() {
-    TabItemHandler tabItemHandler = findTabItemHandler();
-    if (tabItemHandler == null) {
-      return;
-    }
-    // Simply close the associated tab
-    //
-    CTabItem tabItem = tabItemHandler.getTabItem();
-    tabItem.dispose();
-
-    // Also remove it from the perspective
-    MetadataPerspective.getInstance().remove(tabItemHandler.getTypeHandler());
+    // Remove it from the perspective
+    MetadataPerspective.getInstance().remove(this);
   }
 
   @Override

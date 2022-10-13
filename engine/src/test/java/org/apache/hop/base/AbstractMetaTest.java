@@ -61,51 +61,6 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testGetSetName() throws Exception {
-    assertNull(meta.getName());
-    meta.setName("myName");
-    assertEquals("myName", meta.getName());
-  }
-
-  @Test
-  public void testNameFilenameSync() throws Exception {
-    meta.setName("myName");
-    assertEquals("myName", meta.getName());
-
-    meta.setNameSynchronizedWithFilename(true);
-    meta.setFilename("/my/path/some-file-name.ext");
-    assertEquals("some-file-name", meta.getName());
-
-    meta.setFilename("C:\\some\\windows\\path\\windows-name.ext");
-    assertEquals("windows-name", meta.getName());
-  }
-
-  @Test
-  public void testGetSetDescription() throws Exception {
-    assertNull(meta.getDescription());
-    meta.setDescription("I am a meta");
-    assertEquals("I am a meta", meta.getDescription());
-  }
-
-  @Test
-  public void testGetSetExtendedDescription() throws Exception {
-    assertNull(meta.getExtendedDescription());
-    meta.setExtendedDescription("I am a meta");
-    assertEquals("I am a meta", meta.getExtendedDescription());
-  }
-
-  @Test
-  public void testNameFromFilename() throws Exception {
-    assertNull(meta.getName());
-    assertNull(meta.getFilename());
-    meta.nameFromFilename();
-    assertNull(meta.getName());
-    meta.setFilename("/path/to/my/file 2.hpl");
-    meta.nameFromFilename();
-    assertEquals("file 2", meta.getName());
-  }
-
-  @Test
   public void testGetSetFilename() throws Exception {
     assertNull(meta.getFilename());
     meta.setFilename("myfile");
@@ -300,35 +255,6 @@ public class AbstractMetaTest {
     assertEquals(2, indexes.length);
   }
 
-  @Test
-  public void testGetSetCreatedDate() throws Exception {
-    assertNull(meta.getCreatedDate());
-    Date now = Calendar.getInstance().getTime();
-    meta.setCreatedDate(now);
-    assertEquals(now, meta.getCreatedDate());
-  }
-
-  @Test
-  public void testGetSetCreatedUser() throws Exception {
-    assertNull(meta.getCreatedUser());
-    meta.setCreatedUser("joe");
-    assertEquals("joe", meta.getCreatedUser());
-  }
-
-  @Test
-  public void testGetSetModifiedDate() throws Exception {
-    assertNull(meta.getModifiedDate());
-    Date now = Calendar.getInstance().getTime();
-    meta.setModifiedDate(now);
-    assertEquals(now, meta.getModifiedDate());
-  }
-
-  @Test
-  public void testGetSetModifiedUser() throws Exception {
-    assertNull(meta.getModifiedUser());
-    meta.setModifiedUser("joe");
-    assertEquals("joe", meta.getModifiedUser());
-  }
 
   @Test
   public void testAddDeleteModifyObserver() throws Exception {
@@ -399,6 +325,46 @@ public class AbstractMetaTest {
       return ".ext";
     }
 
+    @Override
+    public String getName() {
+      return null;
+    }
+
+    @Override
+    public void setName(String newName) {
+
+    }
+
+    @Override
+    public boolean isNameSynchronizedWithFilename() {
+      return false;
+    }
+
+    @Override
+    public void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename) {
+
+    }
+
+    @Override
+    public String getDescription() {
+      return null;
+    }
+
+    @Override
+    public void setDescription(String description) {
+
+    }
+
+    @Override
+    public String getExtendedDescription() {
+      return null;
+    }
+
+    @Override
+    public void setExtendedDescription(String extendedDescription) {
+
+    }
+
     // Reuse this method to set a mock internal variable variables
     @Override
     public void setInternalHopVariables(IVariables var) {}
@@ -408,6 +374,46 @@ public class AbstractMetaTest {
 
     @Override
     protected void setInternalNameHopVariable(IVariables var) {}
+
+    @Override
+    public Date getCreatedDate() {
+      return null;
+    }
+
+    @Override
+    public void setCreatedDate(Date createdDate) {
+
+    }
+
+    @Override
+    public void setCreatedUser(String createdUser) {
+
+    }
+
+    @Override
+    public String getCreatedUser() {
+      return null;
+    }
+
+    @Override
+    public void setModifiedDate(Date modifiedDate) {
+
+    }
+
+    @Override
+    public Date getModifiedDate() {
+      return null;
+    }
+
+    @Override
+    public void setModifiedUser(String modifiedUser) {
+
+    }
+
+    @Override
+    public String getModifiedUser() {
+      return null;
+    }
 
     @Override
     public String getXml(IVariables variables) throws HopException {

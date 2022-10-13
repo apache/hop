@@ -667,12 +667,12 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
 
   @Override
   public void navigateToPreviousFile() {
-    tabFolder.setSelection(tabFolder.getSelectionIndex() + 1);
+    tabFolder.setSelection(tabFolder.getSelectionIndex() - 1);
   }
 
   @Override
   public void navigateToNextFile() {
-    tabFolder.setSelection(tabFolder.getSelectionIndex() - 1);
+    tabFolder.setSelection(tabFolder.getSelectionIndex() + 1);
   }
 
   @Override

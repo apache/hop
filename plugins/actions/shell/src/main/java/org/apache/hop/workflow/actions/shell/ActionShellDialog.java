@@ -164,8 +164,8 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
-    fdlName.top = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, 0);
+    fdlName.top = new FormAttachment(0, margin);
+    fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
 
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -201,7 +201,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlInsertScript);
     FormData fdlInsertScript = new FormData();
     fdlInsertScript.left = new FormAttachment(0, 0);
-    fdlInsertScript.top = new FormAttachment(wName, margin);
+    fdlInsertScript.top = new FormAttachment(0, margin);
     fdlInsertScript.right = new FormAttachment(middle, -margin);
     wlInsertScript.setLayoutData(fdlInsertScript);
     wInsertScript = new Button(wGeneralComp, SWT.CHECK);
@@ -229,15 +229,15 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wlInsertScript, 2 * margin);
-    fdlFilename.right = new FormAttachment(middle, 0);
+    fdlFilename.top = new FormAttachment(wInsertScript, 2 * margin);
+    fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
 
     wbFilename = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFilename = new FormData();
-    fdbFilename.top = new FormAttachment(wlInsertScript, 2 * margin);
+    fdbFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     fdbFilename.right = new FormAttachment(100, 0);
     wbFilename.setLayoutData(fdbFilename);
     wbFilename.addListener(
@@ -257,7 +257,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.right = new FormAttachment(wbFilename, -margin);
-    fdFilename.top = new FormAttachment(wlInsertScript, 2 * margin);
+    fdFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wFilename.setLayoutData(fdFilename);
 
     // /////////////////////
@@ -268,8 +268,8 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlWorkDirectory);
     FormData fdlWorkDirectory = new FormData();
     fdlWorkDirectory.left = new FormAttachment(0, 0);
-    fdlWorkDirectory.top = new FormAttachment(wFilename, margin);
-    fdlWorkDirectory.right = new FormAttachment(middle, 0);
+    fdlWorkDirectory.top = new FormAttachment(wFilename, 2 * margin);
+    fdlWorkDirectory.right = new FormAttachment(middle, -margin);
     wlWorkDirectory.setLayoutData(fdlWorkDirectory);
 
     wWorkDirectory = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -278,7 +278,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     FormData fdWorkDirectory = new FormData();
     fdWorkDirectory.left = new FormAttachment(middle, 0);
     fdWorkDirectory.right = new FormAttachment(wbFilename, -margin);
-    fdWorkDirectory.top = new FormAttachment(wFilename, margin);
+    fdWorkDirectory.top = new FormAttachment(wlWorkDirectory, 0, SWT.CENTER);
     wWorkDirectory.setLayoutData(fdWorkDirectory);
 
     // ////////////////////////
@@ -325,7 +325,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlAppendLogfile);
     FormData fdlAppendLogfile = new FormData();
     fdlAppendLogfile.left = new FormAttachment(0, 0);
-    fdlAppendLogfile.top = new FormAttachment(wlSetLogfile, 2 * margin);
+    fdlAppendLogfile.top = new FormAttachment(wSetLogfile, 2 * margin);
     fdlAppendLogfile.right = new FormAttachment(middle, -margin);
     wlAppendLogfile.setLayoutData(fdlAppendLogfile);
     wAppendLogfile = new Button(wLogging, SWT.CHECK);
@@ -349,8 +349,8 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlLogfile);
     FormData fdlLogfile = new FormData();
     fdlLogfile.left = new FormAttachment(0, 0);
-    fdlLogfile.top = new FormAttachment(wlAppendLogfile, 2 * margin);
-    fdlLogfile.right = new FormAttachment(middle, 0);
+    fdlLogfile.top = new FormAttachment(wAppendLogfile, 2 * margin);
+    fdlLogfile.right = new FormAttachment(middle, -margin);
     wlLogfile.setLayoutData(fdlLogfile);
     wLogfile = new TextVar(variables, wLogging, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wLogfile.setText("");
@@ -367,15 +367,15 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlLogExt);
     FormData fdlLogExt = new FormData();
     fdlLogExt.left = new FormAttachment(0, 0);
-    fdlLogExt.top = new FormAttachment(wlLogfile, 2 * margin);
-    fdlLogExt.right = new FormAttachment(middle, 0);
+    fdlLogExt.top = new FormAttachment(wLogfile, 2 * margin);
+    fdlLogExt.right = new FormAttachment(middle, -margin);
     wlLogExt.setLayoutData(fdlLogExt);
     wLogExt = new TextVar(variables, wLogging, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wLogExt.setText("");
     props.setLook(wLogExt);
     FormData fdLogExt = new FormData();
     fdLogExt.left = new FormAttachment(middle, 0);
-    fdLogExt.top = new FormAttachment(wLogfile, margin);
+    fdLogExt.top = new FormAttachment(wlLogExt, 0, SWT.CENTER);
     fdLogExt.right = new FormAttachment(100, 0);
     wLogExt.setLayoutData(fdLogExt);
 
@@ -385,7 +385,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment(0, 0);
-    fdlAddDate.top = new FormAttachment(wlLogExt, 2 * margin);
+    fdlAddDate.top = new FormAttachment(wLogExt, 2 * margin);
     fdlAddDate.right = new FormAttachment(middle, -margin);
     wlAddDate.setLayoutData(fdlAddDate);
     wAddDate = new Button(wLogging, SWT.CHECK);
@@ -410,7 +410,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
-    fdlAddTime.top = new FormAttachment(wlAddDate, 2 * margin);
+    fdlAddTime.top = new FormAttachment(wAddDate, 2 * margin);
     fdlAddTime.right = new FormAttachment(middle, -margin);
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(wLogging, SWT.CHECK);
@@ -435,14 +435,14 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     FormData fdlLoglevel = new FormData();
     fdlLoglevel.left = new FormAttachment(0, 0);
     fdlLoglevel.right = new FormAttachment(middle, -margin);
-    fdlLoglevel.top = new FormAttachment(wlAddTime, 2 * margin);
+    fdlLoglevel.top = new FormAttachment(wAddTime, 2 * margin);
     wlLoglevel.setLayoutData(fdlLoglevel);
     wLoglevel = new CCombo(wLogging, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wLoglevel.setItems(LogLevel.getLogLevelDescriptions());
     props.setLook(wLoglevel);
     FormData fdLoglevel = new FormData();
     fdLoglevel.left = new FormAttachment(middle, 0);
-    fdLoglevel.top = new FormAttachment(wlAddTime, 2 * margin);
+    fdLoglevel.top = new FormAttachment(wlLoglevel, 0, SWT.CENTER);
     fdLoglevel.right = new FormAttachment(100, 0);
     wLoglevel.setLayoutData(fdLoglevel);
 
@@ -489,7 +489,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     props.setLook(wlEveryRow);
     FormData fdlEveryRow = new FormData();
     fdlEveryRow.left = new FormAttachment(0, 0);
-    fdlEveryRow.top = new FormAttachment(wlPrevious, 2 * margin);
+    fdlEveryRow.top = new FormAttachment(wPrevious, 2 * margin);
     fdlEveryRow.right = new FormAttachment(middle, -margin);
     wlEveryRow.setLayoutData(fdlEveryRow);
     wEveryRow = new Button(wGeneralComp, SWT.CHECK);

@@ -28,4 +28,6 @@ public @interface HopMetadataObject {
 
   Class<? extends IHopMetadataObjectFactory> objectFactory() default
       HopMetadataDefaultObjectFactory.class;
+
+  String xmlKey() default "";
 }

@@ -34,6 +34,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -155,6 +156,10 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
               } else {
                 row[index] = simpleDateTimeFormat.parse(datetimeString);
               }
+              break;
+            case IValueMeta.TYPE_TIMESTAMP:
+              // we get a nanoseconds value from BigQuery, so divide by 1000
+              row[index] = new Timestamp((Long) srcData / 1000);
               break;
             default:
               throw new RuntimeException(

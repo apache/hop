@@ -22,14 +22,14 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities.FileTypeCapabilities;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileType;
-
-import java.util.Properties;
 
 @HopFileTypePlugin(
     id = "SvgExplorerFileType",
@@ -40,7 +40,8 @@ public class SvgExplorerFileType extends BaseExplorerFileType<SvgExplorerFileTyp
     implements IExplorerFileType<SvgExplorerFileTypeHandler> {
 
   public SvgExplorerFileType() {
-    super("SVG file", ".svg", new String[] {"*.svg"}, new String[] {"SVG Files"}, new Properties());
+    super("SVG file", ".svg", new String[] {"*.svg"}, new String[] {"SVG Files"}, 
+        FileTypeCapabilities.getCapabilities(IHopFileType.CAPABILITY_CLOSE, IHopFileType.CAPABILITY_FILE_HISTORY));
   }
 
   @Override

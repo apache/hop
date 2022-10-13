@@ -23,7 +23,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -117,7 +117,10 @@ public class ExplorerFileTypeHandler implements IHopFileTypeHandler {
   }
 
   @Override
-  public void close() {}
+  public void close() {
+    // Remove it from the perspective
+    ExplorerPerspective.getInstance().remove(this);
+  }
 
   @Override
   public boolean hasChanged() {

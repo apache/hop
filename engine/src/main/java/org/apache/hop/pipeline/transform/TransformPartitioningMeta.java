@@ -28,6 +28,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.partition.PartitionSchema;
@@ -47,10 +48,14 @@ public class TransformPartitioningMeta implements Cloneable {
       new String[] {"None", "Mirror to all partitions"};
 
   private int methodType;
+
+  @HopMetadataProperty
   private String method;
 
+  @HopMetadataProperty(storeWithName = true)
   private PartitionSchema partitionSchema;
 
+  @HopMetadataProperty
   private IPartitioner partitioner;
 
   private boolean hasChanged = false;

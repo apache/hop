@@ -41,6 +41,10 @@ public class MetaData {
   @HopMetadataProperty(key = "test_enum")
   private TestEnum testEnum;
 
+  /** The "inline" annotation property puts the metadata not in a separate element in the metadata (XML) */
+  @HopMetadataProperty(inline = true)
+  private Info info;
+
   public MetaData() {
     fields = new ArrayList<>();
     values = new ArrayList<>();
@@ -128,5 +132,23 @@ public class MetaData {
   /** @param testEnum The testEnum to set */
   public void setTestEnum(TestEnum testEnum) {
     this.testEnum = testEnum;
+  }
+
+  /**
+   * Gets info
+   *
+   * @return value of info
+   */
+  public Info getInfo() {
+    return info;
+  }
+
+  /**
+   * Sets info
+   *
+   * @param info value of info
+   */
+  public void setInfo(Info info) {
+    this.info = info;
   }
 }

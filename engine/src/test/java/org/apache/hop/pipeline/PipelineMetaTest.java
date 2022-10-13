@@ -19,6 +19,7 @@ package org.apache.hop.pipeline;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IProgressMonitor;
+import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.gui.Point;
@@ -28,6 +29,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transform.*;
@@ -517,5 +519,30 @@ public class PipelineMetaTest {
     assertEquals(
         "Original value defined at run execution",
         variables.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER));
+  }
+
+  @Test
+  public void testSerialization1() throws Exception {
+    pipelineMeta.setName("testSerialization1");
+    pipelineMeta.setDescription("description of testSerialization1");
+    pipelineMeta.setExtendedDescription("extended description of testSerialization1");
+    pipelineMeta.addNote(new NotePadMeta("Test note", 50, 50, 300, 20));
+
+    TransformMeta one = new TransformMeta("one", new DummyMeta());
+    one.setLocation(100, 200);
+    TransformMeta two = new TransformMeta("two", new DummyMeta());
+    one.setLocation(200, 200);
+
+    pipelineMeta.addTransform(one);
+    pipelineMeta.addTransform(two);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(one, two));
+
+    String xml = pipelineMeta.getXml(variables);
+
+    // Re-inflate from XML
+    //
+    PipelineMeta copy = new PipelineMeta(XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG), metadataProvider);
+
+    assertEquals(xml, copy.getXml(variables));
   }
 }

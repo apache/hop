@@ -341,4 +341,14 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
   @Override
   public void dispose() {}
+  
+  @Override
+  public void updateGui() {
+    hopGui
+    .getDisplay()
+    .asyncExec(
+        () ->
+            hopGui.handleFileCapabilities(
+                this.getFileType(), this.hasChanged(), false, false));
+  }
 }

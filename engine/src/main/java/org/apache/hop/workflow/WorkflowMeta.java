@@ -47,7 +47,9 @@ import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlFormatter;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -76,6 +78,9 @@ public class WorkflowMeta extends AbstractMeta
   public static final String XML_TAG = "workflow";
 
   static final int BORDER_INDENT = 20;
+
+  @HopMetadataProperty(inline = true)
+  protected WorkflowMetaInfo info;
 
   protected String workflowVersion;
 
@@ -121,12 +126,11 @@ public class WorkflowMeta extends AbstractMeta
   /** Clears or reinitializes many of the WorkflowMeta properties. */
   @Override
   public void clear() {
-    nameSynchronizedWithFilename = true;
-
     workflowActions = new ArrayList<>();
     workflowHops = new ArrayList<>();
     namedParams = new NamedParameters();
 
+    info = new WorkflowMetaInfo();
     arguments = null;
 
     super.clear();
@@ -316,6 +320,15 @@ public class WorkflowMeta extends AbstractMeta
   @Override
   public String getXml(IVariables variables) throws HopException {
 
+    /*
+     * TODO: HOP-4287 : Cleanup XML of WorkflowMeta
+
+      return XmlFormatter.format(
+          XmlHandler.openTag(XML_TAG)
+              + XmlMetadataUtil.serializeObjectToXml(this)
+              + XmlHandler.closeTag(XML_TAG));
+    */
+
     StringBuilder xml = new StringBuilder(500);
 
     xml.append(XmlHandler.getLicenseHeader(variables));
@@ -326,21 +339,21 @@ public class WorkflowMeta extends AbstractMeta
         .append(
             XmlHandler.addTagValue("name", getName())); // lossy if name is sync'ed with filename
     xml.append("  ")
-        .append(XmlHandler.addTagValue("name_sync_with_filename", nameSynchronizedWithFilename));
+        .append(XmlHandler.addTagValue("name_sync_with_filename", info.isNameSynchronizedWithFilename()));
 
-    xml.append("  ").append(XmlHandler.addTagValue("description", description));
-    xml.append("  ").append(XmlHandler.addTagValue("extended_description", extendedDescription));
+    xml.append("  ").append(XmlHandler.addTagValue("description", info.getDescription()));
+    xml.append("  ").append(XmlHandler.addTagValue("extended_description", info.getExtendedDescription()));
     xml.append("  ").append(XmlHandler.addTagValue("workflow_version", workflowVersion));
     if (workflowStatus >= 0) {
       xml.append("  ").append(XmlHandler.addTagValue("workflow_status", workflowStatus));
     }
 
-    xml.append("  ").append(XmlHandler.addTagValue("created_user", createdUser));
+    xml.append("  ").append(XmlHandler.addTagValue("created_user", info.getCreatedUser()));
     xml.append("  ")
-        .append(XmlHandler.addTagValue("created_date", XmlHandler.date2string(createdDate)));
-    xml.append("  ").append(XmlHandler.addTagValue("modified_user", modifiedUser));
+        .append(XmlHandler.addTagValue("created_date", XmlHandler.date2string(info.getCreatedDate())));
+    xml.append("  ").append(XmlHandler.addTagValue("modified_user", info.getModifiedUser()));
     xml.append("  ")
-        .append(XmlHandler.addTagValue("modified_date", XmlHandler.date2string(modifiedDate)));
+        .append(XmlHandler.addTagValue("modified_date", XmlHandler.date2string(info.getModifiedDate())));
 
     xml.append("    ").append(XmlHandler.openTag(XML_TAG_PARAMETERS)).append(Const.CR);
     String[] parameters = listParameters();
@@ -492,18 +505,25 @@ public class WorkflowMeta extends AbstractMeta
 
       setFilename(filename);
 
+      /*
+        TODO: HOP-4287 : Cleanup XML of WorkflowMeta
+
+        XmlMetadataUtil.deSerializeFromXml(workflowNode, WorkflowMeta.class, this, metadataProvider);
+
+      */
+
       // get workflow info:
       //
-      this.name = XmlHandler.getTagValue(workflowNode, "name");
+      info.setName(XmlHandler.getTagValue(workflowNode, "name"));
 
-      nameSynchronizedWithFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(workflowNode, "name_sync_with_filename"));
+      info.setNameSynchronizedWithFilename(
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(workflowNode, "name_sync_with_filename")));
 
       // description
-      description = XmlHandler.getTagValue(workflowNode, "description");
+      info.setDescription( XmlHandler.getTagValue(workflowNode, "description"));
 
       // extended description
-      extendedDescription = XmlHandler.getTagValue(workflowNode, "extended_description");
+      info.setExtendedDescription( XmlHandler.getTagValue(workflowNode, "extended_description"));
 
       // workflow version
       workflowVersion = XmlHandler.getTagValue(workflowNode, "workflow_version");
@@ -512,18 +532,18 @@ public class WorkflowMeta extends AbstractMeta
       workflowStatus = Const.toInt(XmlHandler.getTagValue(workflowNode, "workflow_status"), -1);
 
       // Created user/date
-      createdUser = XmlHandler.getTagValue(workflowNode, "created_user");
+      info.setCreatedUser( XmlHandler.getTagValue(workflowNode, "created_user"));
       String createDate = XmlHandler.getTagValue(workflowNode, "created_date");
 
       if (createDate != null) {
-        createdDate = XmlHandler.stringToDate(createDate);
+        info.setCreatedDate(XmlHandler.stringToDate(createDate));
       }
 
       // Changed user/date
-      modifiedUser = XmlHandler.getTagValue(workflowNode, "modified_user");
+      info.setModifiedUser(XmlHandler.getTagValue(workflowNode, "modified_user"));
       String modDate = XmlHandler.getTagValue(workflowNode, "modified_date");
       if (modDate != null) {
-        modifiedDate = XmlHandler.stringToDate(modDate);
+        info.setModifiedDate(XmlHandler.stringToDate(modDate));
       }
 
       // Read the named parameters.
@@ -538,9 +558,8 @@ public class WorkflowMeta extends AbstractMeta
         addParameterDefinition(parameterName, defaultValue, description);
       }
 
-      /*
-       * read the actions...
-       */
+      // read the action metadata
+      //
       Node actionsNode = XmlHandler.getSubNode(workflowNode, "actions");
       List<Node> actionNodes = XmlHandler.getNodes(actionsNode, ActionMeta.XML_TAG);
       for (Node actionNode : actionNodes) {
@@ -583,10 +602,11 @@ public class WorkflowMeta extends AbstractMeta
           AttributesUtil.loadAttributes(
               XmlHandler.getSubNode(workflowNode, AttributesUtil.XML_TAG));
 
+      clearChanged();
+
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowMetaLoaded.id, this);
 
-      clearChanged();
     } catch (Exception e) {
       throw new HopXmlException(
           BaseMessages.getString(PKG, "WorkflowMeta.Exception.UnableToLoadWorkflowFromXMLNode"), e);
@@ -1353,15 +1373,15 @@ public class WorkflowMeta extends AbstractMeta
    */
   public String toString() {
     if (!Utils.isEmpty(filename)) {
-      if (Utils.isEmpty(name)) {
+      if (Utils.isEmpty(getName())) {
         return filename;
       } else {
-        return filename + " : " + name;
+        return filename + " : " + getName();
       }
     }
 
-    if (name != null) {
-      return name;
+    if (getName() != null) {
+      return getName();
     } else {
       return WorkflowMeta.class.getName();
     }
@@ -1657,7 +1677,7 @@ public class WorkflowMeta extends AbstractMeta
   @Override
   protected void setInternalNameHopVariable(IVariables variables) {
     // The name of the workflow
-    variables.setVariable(Const.INTERNAL_VARIABLE_WORKFLOW_NAME, Const.NVL(name, ""));
+    variables.setVariable(Const.INTERNAL_VARIABLE_WORKFLOW_NAME, Const.NVL(getName(), ""));
   }
 
   /**
@@ -1978,5 +1998,171 @@ public class WorkflowMeta extends AbstractMeta
 
   public boolean isEmpty() {
     return nrActions() == 0 && nrNotes() == 0;
+  }
+
+  /**
+   * Gets info
+   *
+   * @return value of info
+   */
+  public WorkflowMetaInfo getInfo() {
+    return info;
+  }
+
+  /**
+   * Sets info
+   *
+   * @param info value of info
+   */
+  public void setInfo(WorkflowMetaInfo info) {
+    this.info = info;
+  }
+
+  /**
+   * Get the name of the workflow. If the name is synchronized with the filename, we return the base
+   * filename.
+   *
+   * @return The name of the workflow
+   */
+  @Override
+  public String getName() {
+    return extractNameFromFilename(
+        isNameSynchronizedWithFilename(), info.getName(), filename, getExtension());
+  }
+  /**
+   * Set the name.
+   *
+   * @param newName The new name
+   */
+  @Override
+  public void setName(String newName) {
+    fireNameChangedListeners(getName(), newName);
+    this.info.setName(newName);
+  }
+
+  @Override
+  public boolean isNameSynchronizedWithFilename() {
+    return info.isNameSynchronizedWithFilename();
+  }
+
+  @Override
+  public void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename) {
+    info.setNameSynchronizedWithFilename(nameSynchronizedWithFilename);
+  }
+
+  /**
+   * Gets the description of the workflow.
+   *
+   * @return The description of the workflow
+   */
+  public String getDescription() {
+    return info.getDescription();
+  }
+
+  /**
+   * Set the description of the workflow.
+   *
+   * @param description The new description of the workflow
+   */
+  public void setDescription(String description) {
+    this.info.setDescription(description);
+  }
+
+  /**
+   * Gets the extended description of the workflow.
+   *
+   * @return The extended description of the workflow
+   */
+  public String getExtendedDescription() {
+    return info.getExtendedDescription();
+  }
+
+  /**
+   * Set the description of the workflow.
+   *
+   * @param extendedDescription The new extended description of the workflow
+   */
+  public void setExtendedDescription(String extendedDescription) {
+    info.setExtendedDescription(extendedDescription);
+  }
+
+  /**
+   * Gets the date the pipeline was created.
+   *
+   * @return the date the pipeline was created.
+   */
+  @Override
+  public Date getCreatedDate() {
+    return info.getCreatedDate();
+  }
+
+  /**
+   * Sets the date the pipeline was created.
+   *
+   * @param createdDate The creation date to set.
+   */
+  @Override
+  public void setCreatedDate(Date createdDate) {
+    info.setCreatedDate(createdDate);
+  }
+
+  /**
+   * Sets the user by whom the pipeline was created.
+   *
+   * @param createdUser The user to set.
+   */
+  @Override
+  public void setCreatedUser(String createdUser) {
+    info.setCreatedUser(createdUser);
+  }
+
+  /**
+   * Gets the user by whom the pipeline was created.
+   *
+   * @return the user by whom the pipeline was created.
+   */
+  @Override
+  public String getCreatedUser() {
+    return info.getCreatedUser();
+  }
+
+  /**
+   * Sets the date the pipeline was modified.
+   *
+   * @param modifiedDate The modified date to set.
+   */
+  @Override
+  public void setModifiedDate(Date modifiedDate) {
+    info.setModifiedDate(modifiedDate);
+  }
+
+  /**
+   * Gets the date the pipeline was modified.
+   *
+   * @return the date the pipeline was modified.
+   */
+  @Override
+  public Date getModifiedDate() {
+    return info.getModifiedDate();
+  }
+
+  /**
+   * Sets the user who last modified the pipeline.
+   *
+   * @param modifiedUser The user name to set.
+   */
+  @Override
+  public void setModifiedUser(String modifiedUser) {
+    info.setModifiedUser(modifiedUser);
+  }
+
+  /**
+   * Gets the user who last modified the pipeline.
+   *
+   * @return the user who last modified the pipeline.
+   */
+  @Override
+  public String getModifiedUser() {
+    return info.getModifiedUser();
   }
 }

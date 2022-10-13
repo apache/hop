@@ -460,6 +460,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   @Override
   public void close() {
     perspective.getTree().removeListener(SWT.Selection, GitInfoExplorerFileTypeHandler.this);
+    super.close();
   }
 
   /**

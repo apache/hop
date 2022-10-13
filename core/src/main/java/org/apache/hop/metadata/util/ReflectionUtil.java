@@ -19,10 +19,11 @@ package org.apache.hop.metadata.util;
 
 import org.apache.hop.core.exception.HopException;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 
 public class ReflectionUtil {
   /** myAttribute ==> setMyAttribute */
@@ -56,26 +57,77 @@ public class ReflectionUtil {
    * @param clazz
    * @return A set of fields.
    */
-  public static final Set<Field> findAllFields(Class<?> clazz) {
-    Set<Field> fields = new HashSet<>();
+  public static final List<Field> findAllFields(Class<?> clazz) {
+    Set<Field> fieldsSet = new HashSet<>();
 
     // Find the fields from the root class
     //
     for (Field classField : clazz.getDeclaredFields()) {
-      fields.add(classField);
+      fieldsSet.add(classField);
     }
     // If this class has a parent class, grab the fields
     //
     Class<?> superClass = clazz.getSuperclass();
     while (superClass != null) {
       for (Field superClassField : superClass.getDeclaredFields()) {
-        fields.add(superClassField);
+        fieldsSet.add(superClassField);
       }
 
       // Repeat this process until we have no more super class
       //
       superClass = superClass.getSuperclass();
     }
+
+    List<Field> fields = new ArrayList<>(fieldsSet);
+
+    // Sort the fields by name
+    Collections.sort(fields, Comparator.comparing(Field::getName));
+
+    return fields;
+  }
+
+  /**
+   * Find all fields from the given class as well as the fields from all the parent classes. It will
+   * recurse all the way to the top class from which the given class inherits from.
+   *
+   * <p>This means that it's possible to inherit from other classes during serialization.
+   *
+   * @param clazz The class to investigate.
+   * @param sortFunction the function to extract the key to sort on.  If the function returns null the field is not included.
+   * @param
+   * @return A sorted list of fields.
+   */
+  public static final List<Field> findAllFields(Class<?> clazz, Function<Field, String> sortFunction) {
+    Set<Field> fieldsSet = new HashSet<>();
+
+    // Find the fields from the root class
+    //
+    for (Field classField : clazz.getDeclaredFields()) {
+      String keyField = sortFunction.apply(classField);
+      if (keyField!=null) {
+        fieldsSet.add(classField);
+      }
+    }
+    // If this class has a parent class, grab the fields
+    //
+    Class<?> superClass = clazz.getSuperclass();
+    while (superClass != null) {
+      for (Field superClassField : superClass.getDeclaredFields()) {
+        String keyField = sortFunction.apply(superClassField);
+        if (keyField!=null) {
+          fieldsSet.add(superClassField);
+        }
+      }
+
+      // Repeat this process until we have no more super class
+      //
+      superClass = superClass.getSuperclass();
+    }
+
+    List<Field> fields = new ArrayList<>(fieldsSet);
+
+    // Sort the fields by name
+    Collections.sort(fields, Comparator.comparing(sortFunction::apply));
 
     return fields;
   }

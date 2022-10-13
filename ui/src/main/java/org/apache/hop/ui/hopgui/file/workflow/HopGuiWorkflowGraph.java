@@ -3009,8 +3009,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_SNAP_TO_GRID,
       // label = "Snap to grid",
       toolTip = "i18n::WorkflowGraph.Toolbar.SnapToGrid.Tooltip",
-      image = "ui/images/snap-to-grid.svg",
-      disabledImage = "ui/images/snap-to-grid-disabled.svg")
+      image = "ui/images/snap-to-grid.svg")
   public void snapToGrid() {
     snapToGrid(ConstUi.GRID_SIZE);
   }
@@ -3023,8 +3022,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_LEFT,
       toolTip = "i18n::WorkflowGraph.Toolbar.AlignLeft.Tooltip",
-      image = "ui/images/align-left.svg",
-      disabledImage = "ui/images/align-left-disabled.svg")
+      image = "ui/images/align-left.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
   public void alignLeft() {
@@ -3035,8 +3033,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_RIGHT,
       toolTip = "i18n::WorkflowGraph.Toolbar.AlignRight.Tooltip",
-      image = "ui/images/align-right.svg",
-      disabledImage = "ui/images/align-right-disabled.svg")
+      image = "ui/images/align-right.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_RIGHT)
   public void alignRight() {
@@ -3047,8 +3044,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_TOP,
       toolTip = "i18n::WorkflowGraph.Toolbar.AlignTop.Tooltip",
-      image = "ui/images/align-top.svg",
-      disabledImage = "ui/images/align-top-disabled.svg")
+      image = "ui/images/align-top.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
   public void alignTop() {
@@ -3059,8 +3055,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ALIGN_BOTTOM,
       toolTip = "i18n::WorkflowGraph.Toolbar.AlignBottom.Tooltip",
-      image = "ui/images/align-bottom.svg",
-      disabledImage = "ui/images/align-bottom-disabled.svg")
+      image = "ui/images/align-bottom.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_DOWN)
   public void alignBottom() {
@@ -3071,8 +3066,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY,
       toolTip = "i18n::WorkflowGraph.Toolbar.DistributeHorizontal.Tooltip",
-      image = "ui/images/distribute-horizontally.svg",
-      disabledImage = "ui/images/distribute-horizontally-disabled.svg")
+      image = "ui/images/distribute-horizontally.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   public void distributeHorizontal() {
@@ -3083,8 +3077,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY,
       toolTip = "i18n::WorkflowGraph.Toolbar.DistributeVertical.Tooltip",
-      image = "ui/images/distribute-vertically.svg",
-      disabledImage = "ui/images/distribute-vertically-disabled.svg")
+      image = "ui/images/distribute-vertically.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
   public void distributeVertical() {
@@ -3175,7 +3168,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       // label = "Undo",
       toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Undo.Tooltip",
       image = "ui/images/undo.svg",
-      disabledImage = "ui/images/undo-disabled.svg",
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'z')
   @Override
@@ -3189,8 +3181,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_REDO_ID,
       // label = "Redo",
       toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Redo.Tooltip",
-      image = "ui/images/redo.svg",
-      disabledImage = "ui/images/redo-disabled.svg")
+      image = "ui/images/redo.svg")
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
   @Override
   public void redo() {
