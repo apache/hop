@@ -18,21 +18,28 @@
 
 package org.apache.hop.beam.gui;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.welcome.WelcomeDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.MessageBox;
+
+import java.lang.reflect.Method;
 
 @GuiPlugin
 public class WelcomeBeam {
@@ -78,19 +85,9 @@ public class WelcomeBeam {
       label =
           "To get started with building and running Beam pipelines, see our <a>"
               + WEB_NAME_BEAM_GETTING_STARTED
-              + "</a>.\n")
+              + "</a>.\n\nYou can also open one of the 'Hello, world' examples below:")
   public void homepageLink(Event event) {
     handleWebLinkEvent(event, WEB_NAME_BEAM_GETTING_STARTED, WEB_LINK_BEAM_GETTING_STARTED);
-  }
-
-  private void handleWebLinkEvent(Event event, String text, String url) {
-    try {
-      if (text.equals(event.text)) {
-        Program.launch(url);
-      }
-    } catch (Exception e) {
-      new ErrorDialog(HopGui.getInstance().getShell(), "Error", "Error opening link to " + url, e);
-    }
   }
 
   private static final String EXAMPLE1_NAME = "input-process-output.hpl";
@@ -102,7 +99,7 @@ public class WelcomeBeam {
       parentId = WELCOME_BEAM_PARENT_ID,
       type = GuiElementType.LINK,
       label =
-          "Open a simple pipeline which read from and writes to a file: <a>"
+          "- A simple pipeline which read from and writes to a file: <a>"
               + EXAMPLE1_NAME
               + "</a>")
   public void openBeamSample1(Event event) {
@@ -117,9 +114,34 @@ public class WelcomeBeam {
       parentId = WELCOME_BEAM_PARENT_ID,
       type = GuiElementType.LINK,
       label =
-          "Open a more complex pipeline showcasing the possibilities: <a>" + EXAMPLE2_NAME + "</a>")
+          "- Open a more complex pipeline showcasing the possibilities: <a>" + EXAMPLE2_NAME + "</a>")
   public void openBeamSample2(Event event) {
     openSampleFileEvent(event, EXAMPLE2_NAME, EXAMPLE2_FILE);
+  }
+
+  private static final String EI_PERSPECTIVE_NAME = "execution information perspective";
+  private static final String EXP_PERSPECTIVE_NAME = "file explorer perspective";
+
+  @GuiWidgetElement(
+      id = "WelcomeBeam.12000.running-a-sample",
+      parentId = WELCOME_BEAM_PARENT_ID,
+      type = GuiElementType.LINK,
+      label =
+          "\nTo run a sample, click on the start icon (triangle).  You can safely use the Direct, Spark and Flink run configurations to execute.\n"
+              + "During the execution you can take a look in the <a>"
+              + EI_PERSPECTIVE_NAME
+              + "</a>.\n"
+              + "The results of the pipelines are written to the beam/output folder. "
+              + "You can reach those files from within the <a>"
+              + EXP_PERSPECTIVE_NAME
+              + "</a>")
+  public void runningSamples(Event event) {
+    if (EI_PERSPECTIVE_NAME.equals(event.text)) {
+      HopGui.getExecutionPerspective().activate();
+    }
+    if (EXP_PERSPECTIVE_NAME.equals(event.text)) {
+      HopGui.getExplorerPerspective().activate();
+    }
   }
 
   private void openSampleFileEvent(Event event, String expectedText, String filename) {
@@ -139,7 +161,61 @@ public class WelcomeBeam {
     }
   }
 
+  private void handleWebLinkEvent(Event event, String text, String url) {
+    try {
+      if (text.equals(event.text)) {
+        Program.launch(url);
+      }
+    } catch (Exception e) {
+      new ErrorDialog(HopGui.getInstance().getShell(), "Error", "Error opening link to " + url, e);
+    }
+  }
+
   private boolean checkProject() {
-    return true;
+    String projectName = HopNamespace.getNamespace();
+    if ("samples".equalsIgnoreCase(projectName)) {
+      return true;
+    }
+
+    // Show a dialog asking the user to switch to the samples project.
+    //
+    MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.CANCEL);
+    box.setText("Switch to samples project");
+    box.setMessage(
+        "This example works best in the samples project.\n"
+            + "Do you want to switch to the samples project now?\n");
+    int answer = box.open();
+    if ((answer & SWT.NO) != 0) {
+      return true;
+    }
+    if ((answer & SWT.YES) != 0) {
+      // Switch to the samples project
+      //
+      try {
+        PluginRegistry registry = PluginRegistry.getInstance();
+        String guiPluginClassName = "org.apache.hop.projects.gui.ProjectsGuiPlugin";
+        IPlugin plugin = registry.findPluginWithId(GuiPluginType.class, guiPluginClassName);
+        if (plugin == null) {
+          throw new HopException(
+              "Unable to switch projects because the projects GUI plugin couldn't be found");
+        }
+        ClassLoader classLoader = registry.getClassLoader(plugin);
+        Class<?> guiPluginClass = classLoader.loadClass(guiPluginClassName);
+
+        Method method = guiPluginClass.getMethod("enableProject", String.class);
+        // Switch to the samples project
+        method.invoke(null, "samples");
+        return true;
+      } catch (Exception e) {
+        new ErrorDialog(
+            HopGui.getInstance().getShell(),
+            "Error",
+            "Sorry, I couldn't switch to the samples project",
+            e);
+        return false;
+      }
+    }
+
+    return false;
   }
 }

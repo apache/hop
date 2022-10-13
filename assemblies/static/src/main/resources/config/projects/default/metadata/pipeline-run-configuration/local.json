@@ -13,5 +13,7 @@
   },
   "name": "local",
   "configurationVariables": [],
-  "description": ""
+  "description": "",
+  "executionInfoLocationName": "local-audit",
+  "dataProfile": "first-last"
 }

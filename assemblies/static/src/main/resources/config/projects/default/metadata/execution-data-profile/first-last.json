@@ -1,0 +1,16 @@
+{
+  "name": "first-last",
+  "description": "capture the first and last 100 rows of every Hop transform",
+  "sampler": [
+    {
+      "FirstRowsExecutionDataSampler": {
+        "sampleSize": "100"
+      }
+    },
+    {
+      "LastRowsExecutionDataSampler": {
+        "sampleSize": "100"
+      }
+    }
+  ]
+}

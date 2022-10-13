@@ -81,6 +81,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchLocation;
@@ -1492,6 +1493,11 @@ public class HopGui
   public static ExecutionPerspective getExecutionPerspective() {
     return (ExecutionPerspective)
         HopGui.getInstance().getPerspectiveManager().findPerspective(ExecutionPerspective.class);
+  }
+
+  public static ExplorerPerspective getExplorerPerspective() {
+    return (ExplorerPerspective)
+            HopGui.getInstance().getPerspectiveManager().findPerspective(ExplorerPerspective.class);
   }
 
   /**
