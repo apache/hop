@@ -21,17 +21,15 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -49,8 +47,11 @@ public class ActionDelay extends ActionBase implements Cloneable, IAction {
 
   private static final String DEFAULT_MAXIMUM_TIMEOUT = "0";
 
-  private String maximumTimeout; // maximum timeout in seconds
+  // Maximum timeout in seconds
+  @HopMetadataProperty(key = "maximumTimeout")
+  private String maximumTimeout; 
 
+  @HopMetadataProperty(key = "scaletime")
   public int scaleTime;
 
   public ActionDelay(String n) {
@@ -65,30 +66,6 @@ public class ActionDelay extends ActionBase implements Cloneable, IAction {
   public Object clone() {
     ActionDelay je = (ActionDelay) super.clone();
     return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("maximumTimeout", maximumTimeout));
-    retval.append("      ").append(XmlHandler.addTagValue("scaletime", scaleTime));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      maximumTimeout = XmlHandler.getTagValue(entrynode, "maximumTimeout");
-      scaleTime = Integer.parseInt(XmlHandler.getTagValue(entrynode, "scaletime"));
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionDelay.UnableToLoadFromXml.Label"), e);
-    }
   }
 
   /**
