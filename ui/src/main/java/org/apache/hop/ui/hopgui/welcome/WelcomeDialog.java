@@ -19,6 +19,7 @@
 package org.apache.hop.ui.hopgui.welcome;
 
 import org.apache.hop.core.SwtUniversalImageSvg;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -43,19 +44,26 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Map;
 
 /** We show this dialog at the start of the application. */
 @GuiPlugin
 public class WelcomeDialog {
   public static final String PARENT_ID_WELCOME_WIDGETS = "WelcomeDialog.Parent.ID";
+  public static final String HOP_CONFIG_NO_SHOW_OPTION = "doNotShowWelcomeDialog";
+  public static final String VARIABLE_HOP_NO_WELCOME_DIALOG = "HOP_NO_WELCOME_DIALOG";
+
   private Shell shell;
   private Image logoImage;
   private Font titleFont;
 
+  private Button doNotShow;
   private List wTopics;
   private Composite wPluginsComp;
 
-  public WelcomeDialog() {
+  public WelcomeDialog() {}
+
+  public void open() {
     Shell parent = HopGui.getInstance().getShell();
     try {
       shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.RESIZE | SWT.MAX);
@@ -94,9 +102,10 @@ public class WelcomeDialog {
 
       // An area at the bottom that shows the "don't show this again" option.
       //
-      Button doNotShow = new Button(shell, SWT.CHECK);
-      doNotShow.setText("Please don't show this dialog again");
+      doNotShow = new Button(shell, SWT.CHECK);
+      doNotShow.setText("Don't show this at startup (find me in the Help menu)");
       doNotShow.addListener(SWT.Selection, this::dontShowAgain);
+      doNotShow.setSelection(HopConfig.readOptionBoolean(HOP_CONFIG_NO_SHOW_OPTION, false));
       FormData fdDoNotShow = new FormData();
       fdDoNotShow.bottom = new FormAttachment(100, 0);
       fdDoNotShow.left = new FormAttachment(0, 0);
@@ -182,9 +191,12 @@ public class WelcomeDialog {
 
   private void dontShowAgain(Event event) {
     boolean doNotShow = ((Button) event.widget).getSelection();
+    HopConfig.getInstance().saveOption(HOP_CONFIG_NO_SHOW_OPTION, doNotShow);
   }
 
   public void close() {
+    HopConfig.saveOptions(
+        Map.of(WelcomeDialog.HOP_CONFIG_NO_SHOW_OPTION, doNotShow.getSelection()));
     shell.dispose();
   }
 
@@ -195,7 +207,6 @@ public class WelcomeDialog {
       id = "help.welcome",
       label = "Welcome")
   public void menuHelpWelcome() {
-    // This class will be instantiated automatically and the dialog will pop up.
-    // There's no need to do anything else in this case.
+    open();
   }
 }

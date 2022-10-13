@@ -2744,4 +2744,18 @@ public class ConstTest {
       System.setProperty(key, curValue);
     }
   }
+
+  @Test
+  public void testToBoolean() throws Exception {
+    assertTrue(Const.toBoolean("Y"));
+    assertTrue(Const.toBoolean("y"));
+    assertTrue(Const.toBoolean("true"));
+    assertTrue(Const.toBoolean("True"));
+    assertTrue(Const.toBoolean("TRUE"));
+    assertFalse(Const.toBoolean("N"));
+    assertFalse(Const.toBoolean("n"));
+    assertFalse(Const.toBoolean("treu"));
+    assertFalse(Const.toBoolean("0"));
+    assertFalse(Const.toBoolean("1"));
+  }
 }

@@ -122,7 +122,7 @@ public class HopConfig extends ConfigFile implements IConfigFile {
       return ((Integer) value) != 0;
     }
     String str = value.toString();
-    return "true".equalsIgnoreCase(str) || "y".equalsIgnoreCase(str);
+    return Const.toBoolean(str);
   }
 
   public static List<String> getSortedKeys() {

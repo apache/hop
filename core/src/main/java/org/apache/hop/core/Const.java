@@ -286,31 +286,31 @@ public class Const {
 
   /** The workflow ID */
   public static final String INTERNAL_VARIABLE_WORKFLOW_ID =
-          INTERNAL_VARIABLE_PREFIX + ".Workflow.ID";
+      INTERNAL_VARIABLE_PREFIX + ".Workflow.ID";
 
   /** The workflow parent ID */
   public static final String INTERNAL_VARIABLE_WORKFLOW_PARENT_ID =
-          INTERNAL_VARIABLE_PREFIX + ".Workflow.ParentID";
+      INTERNAL_VARIABLE_PREFIX + ".Workflow.ParentID";
 
   /** The current pipeline directory */
   public static final String INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER =
       INTERNAL_VARIABLE_PREFIX + ".Entry.Current.Folder";
 
   /** All the internal pipeline variables */
-  public static final Set<String> INTERNAL_PIPELINE_VARIABLES = Set.of(      
-        Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER,
-        Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY,
-        Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME,
-        Const.INTERNAL_VARIABLE_PIPELINE_NAME
-      );
+  public static final Set<String> INTERNAL_PIPELINE_VARIABLES =
+      Set.of(
+          Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER,
+          Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY,
+          Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME,
+          Const.INTERNAL_VARIABLE_PIPELINE_NAME);
 
   /** All the internal workflow variables */
-  public static final Set<String> INTERNAL_WORKFLOW_VARIABLES = Set.of(     
-        Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER,
-        Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER,
-        Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME,
-        Const.INTERNAL_VARIABLE_WORKFLOW_NAME
-      );
+  public static final Set<String> INTERNAL_WORKFLOW_VARIABLES =
+      Set.of(
+          Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER,
+          Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER,
+          Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME,
+          Const.INTERNAL_VARIABLE_WORKFLOW_NAME);
 
   /** The pipeline filename directory */
   public static final String INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY =
@@ -326,11 +326,11 @@ public class Const {
 
   /** The pipeline ID */
   public static final String INTERNAL_VARIABLE_PIPELINE_ID =
-          INTERNAL_VARIABLE_PREFIX + ".Pipeline.ID";
+      INTERNAL_VARIABLE_PREFIX + ".Pipeline.ID";
 
   /** The pipeline parent ID */
   public static final String INTERNAL_VARIABLE_PIPELINE_PARENT_ID =
-          INTERNAL_VARIABLE_PREFIX + ".Pipeline.ParentID";
+      INTERNAL_VARIABLE_PREFIX + ".Pipeline.ParentID";
 
   /** The transform partition ID */
   public static final String INTERNAL_VARIABLE_TRANSFORM_PARTITION_ID =
@@ -349,14 +349,12 @@ public class Const {
       INTERNAL_VARIABLE_PREFIX + ".Transform.CopyNr";
 
   public static final String INTERNAL_VARIABLE_TRANSFORM_ID =
-          INTERNAL_VARIABLE_PREFIX + ".Transform.ID";
+      INTERNAL_VARIABLE_PREFIX + ".Transform.ID";
 
   public static final String INTERNAL_VARIABLE_TRANSFORM_BUNDLE_NR =
-          INTERNAL_VARIABLE_PREFIX + ".Transform.BundleNr";
+      INTERNAL_VARIABLE_PREFIX + ".Transform.BundleNr";
 
-
-  public static final String INTERNAL_VARIABLE_ACTION_ID =
-          INTERNAL_VARIABLE_PREFIX + ".Action.ID";
+  public static final String INTERNAL_VARIABLE_ACTION_ID = INTERNAL_VARIABLE_PREFIX + ".Action.ID";
 
   /** The default maximum for the nr of lines in the GUI logs */
   public static final int MAX_NR_LOG_LINES = 5000;
@@ -490,8 +488,11 @@ public class Const {
   public static final String HOP_SIMPLE_STACK_TRACES = "HOP_SIMPLE_STACK_TRACES";
 
   public static final boolean isUsingSimpleStackTraces() {
-    String property = System.getProperty(Const.HOP_SIMPLE_STACK_TRACES);
-    return "y".equalsIgnoreCase(property) || "true".equalsIgnoreCase(property);
+    return toBoolean(System.getProperty(Const.HOP_SIMPLE_STACK_TRACES));
+  }
+
+  public static boolean toBoolean(String string) {
+    return "y".equalsIgnoreCase(string) || "true".equalsIgnoreCase(string);
   }
 
   /**
@@ -562,13 +563,10 @@ public class Const {
   @Variable(description = "A comma delimited list of classes to scan for plugin annotations")
   public static final String HOP_PLUGIN_CLASSES = "HOP_PLUGIN_CLASSES";
 
-  /**
-   * Name of the environment variable to specify alternative location for plugins.
-   */
+  /** Name of the environment variable to specify alternative location for plugins. */
   @Variable(
       scope = VariableScope.SYSTEM,
-      description =
-          "The variable which points to the alternative location for plugins.")
+      description = "The variable which points to the alternative location for plugins.")
   public static final String HOP_PLUGIN_BASE_FOLDERS = "HOP_PLUGIN_BASE_FOLDERS";
 
   /**
@@ -875,16 +873,14 @@ public class Const {
           "This is the name of the variable which when set should contains the path to a file which will be included in the serialization of pipelines and workflows")
   public static final String HOP_LICENSE_HEADER_FILE = "HOP_LICENSE_HEADER_FILE";
 
-  /**
-   * The variable says Hop to consider nulls when parsing JSON files
-   */
-  @Variable(value = "N",
+  /** The variable says Hop to consider nulls when parsing JSON files */
+  @Variable(
+      value = "N",
       description =
           "Name of te variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is \"Y\" then nulls will be included otherwise they will not be included (default behavior)")
   public static final String HOP_JSON_INPUT_INCLUDE_NULLS = "HOP_JSON_INPUT_INCLUDE_NULLS";
   /** By default, HOP do not consider NULLS while parsing input */
   public static final String JSON_INPUT_INCLUDE_NULLS = "N";
-
 
   /** The i18n prefix to signal that this is a String in the format: i18n:package:key */
   public static final String I18N_PREFIX = "i18n:";
