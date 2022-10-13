@@ -30,9 +30,24 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.row.*;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.JsonRowMeta;
+import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.execution.*;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionBuilder;
+import org.apache.hop.execution.ExecutionData;
+import org.apache.hop.execution.ExecutionDataBuilder;
+import org.apache.hop.execution.ExecutionDataSetMeta;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionStateBuilder;
+import org.apache.hop.execution.ExecutionStateComponentMetrics;
+import org.apache.hop.execution.ExecutionType;
+import org.apache.hop.execution.IExecutionInfoLocation;
+import org.apache.hop.execution.IExecutionMatcher;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -40,7 +55,12 @@ import org.apache.hop.neo4j.actions.index.IndexUpdate;
 import org.apache.hop.neo4j.actions.index.Neo4jIndex;
 import org.apache.hop.neo4j.actions.index.ObjectType;
 import org.apache.hop.neo4j.actions.index.UpdateType;
-import org.apache.hop.neo4j.execution.builder.*;
+import org.apache.hop.neo4j.execution.builder.CypherCreateBuilder;
+import org.apache.hop.neo4j.execution.builder.CypherDeleteBuilder;
+import org.apache.hop.neo4j.execution.builder.CypherMergeBuilder;
+import org.apache.hop.neo4j.execution.builder.CypherQueryBuilder;
+import org.apache.hop.neo4j.execution.builder.CypherRelationshipBuilder;
+import org.apache.hop.neo4j.execution.builder.ICypherBuilder;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.neo4j.shared.NeoConnectionTypeMetadata;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -50,11 +70,20 @@ import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardD
 import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
-import org.neo4j.driver.*;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
+import org.neo4j.driver.Value;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @GuiPlugin(description = "Neo4j execution information location GUI elements")
 @ExecutionInfoLocationPlugin(
@@ -523,7 +552,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     if (!result.hasNext()) {
       return null;
     }
-    Record record = result.next();
+    org.neo4j.driver.Record record = result.next();
 
     return ExecutionBuilder.of()
         .withId(executionId)
@@ -570,7 +599,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
     Result result = transaction.run(builder.cypher());
     while (result.hasNext()) {
-      Record record = result.next();
+      org.neo4j.driver.Record record = result.next();
       ids.add(getString(record, EP_ID));
     }
     return ids;
@@ -668,7 +697,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     if (!result.hasNext()) {
       return null;
     }
-    Record record = result.next();
+    org.neo4j.driver.Record record = result.next();
 
     ExecutionStateBuilder stateBuilder =
         ExecutionStateBuilder.of()
@@ -696,7 +725,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     Map<String, ExecutionStateComponentMetrics> metricsMap = new HashMap<>();
 
     while (metricsResult.hasNext()) {
-      Record metricsRecord = metricsResult.next();
+      org.neo4j.driver.Record metricsRecord = metricsResult.next();
       String componentName = getString(metricsRecord, CP_NAME);
       String componentCopy = getString(metricsRecord, CP_COPY_NR);
       String componentKey = componentName + "." + componentCopy;
@@ -785,7 +814,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                 .withLabelAndKey("n", EL_EXECUTION, EP_PARENT_ID, parentExecutionId)
                 .withReturnValues("n", EP_ID));
     while (result.hasNext()) {
-      Record record = result.next();
+      org.neo4j.driver.Record record = result.next();
       String executionId = getString(record, EP_ID);
 
       try {
@@ -1136,7 +1165,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     boolean foundData = false;
     boolean allFinished = true;
     while (result.hasNext()) {
-      Record dataRecord = result.next();
+      org.neo4j.driver.Record dataRecord = result.next();
       foundData = true;
       boolean finished = getBoolean(dataRecord, DP_FINISHED);
       if (!finished) {
@@ -1175,7 +1204,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                       Map.of(TP_PARENT_ID, parentExecutionId, TP_OWNER_ID, ownerId))
                   .withReturnValues("n", TP_SET_KEY, TP_ROW_META_JSON));
       while (dataSetsResults.hasNext()) {
-        Record record = dataSetsResults.next();
+        org.neo4j.driver.Record record = dataSetsResults.next();
         String setKey = getString(record, TP_SET_KEY);
         String rowMetaJson = getString(record, TP_ROW_META_JSON);
         IRowMeta rowMeta;
@@ -1218,7 +1247,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                         .withOrderBy("n", OP_ROW_NR, true));
             RowBuffer rowBuffer = new RowBuffer(rowMeta);
             while (rowsResult.hasNext()) {
-              Record rowsRecord = rowsResult.next();
+              org.neo4j.driver.Record rowsRecord = rowsResult.next();
               Object[] row = new Object[rowMeta.size()];
               for (int v = 0; v < rowMeta.size(); v++) {
                 IValueMeta valueMeta = rowMeta.getValueMeta(v);
@@ -1353,7 +1382,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     }
   }
 
-  private ExecutionDataSetMeta extractDataSetMeta(Record record) {
+  private ExecutionDataSetMeta extractDataSetMeta(org.neo4j.driver.Record record) {
     ExecutionDataSetMeta setMeta = new ExecutionDataSetMeta();
     setMeta.setSetKey(getString(record, MP_SET_KEY));
     setMeta.setName(getString(record, MP_NAME));
@@ -1421,11 +1450,11 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     return transaction.run(builder.cypher(), builder.parameters());
   }
 
-  private Date getDate(Record record, String key) {
+  private Date getDate(org.neo4j.driver.Record record, String key) {
     return getDate("n", record, key);
   }
 
-  private Date getDate(String nodeAlias, Record record, String key) {
+  private Date getDate(String nodeAlias, org.neo4j.driver.Record record, String key) {
     Value value = record.get(nodeAlias + "." + key);
     if (value == null) {
       return null;
@@ -1440,11 +1469,11 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
   }
 
-  private String getString(Record record, String key) {
+  private String getString(org.neo4j.driver.Record record, String key) {
     return getString("n", record, key);
   }
 
-  private String getString(String nodeAlias, Record record, String key) {
+  private String getString(String nodeAlias, org.neo4j.driver.Record record, String key) {
     Value value = record.get(nodeAlias + "." + key);
     if (value == null) {
       return null;
@@ -1455,11 +1484,11 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     return value.asString();
   }
 
-  private boolean getBoolean(Record record, String key) {
+  private boolean getBoolean(org.neo4j.driver.Record record, String key) {
     return getBoolean("n", record, key);
   }
 
-  private boolean getBoolean(String nodeAlias, Record record, String key) {
+  private boolean getBoolean(String nodeAlias, org.neo4j.driver.Record record, String key) {
     Value value = record.get(nodeAlias + "." + key);
     if (value == null) {
       return false;
@@ -1470,11 +1499,11 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     return value.asBoolean();
   }
 
-  private Long getLong(Record record, String key) {
+  private Long getLong(org.neo4j.driver.Record record, String key) {
     return getLong("n", record, key);
   }
 
-  private Long getLong(String nodeAlias, Record record, String key) {
+  private Long getLong(String nodeAlias, org.neo4j.driver.Record record, String key) {
     Value value = record.get(nodeAlias + "." + key);
     if (value == null) {
       return null;
@@ -1485,11 +1514,11 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     return value.asLong();
   }
 
-  private List<String> getList(Record record, String key) {
+  private List<String> getList(org.neo4j.driver.Record record, String key) {
     return getList("n", record, key);
   }
 
-  private List<String> getList(String nodeAlias, Record record, String key) {
+  private List<String> getList(String nodeAlias, org.neo4j.driver.Record record, String key) {
     Value value = record.get(nodeAlias + "." + key);
     if (value == null) {
       return null;
@@ -1501,11 +1530,11 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     return list;
   }
 
-  private Map<String, String> getMap(Record record, String key) {
+  private Map<String, String> getMap(org.neo4j.driver.Record record, String key) {
     return getMap("n", record, key);
   }
 
-  private Map<String, String> getMap(String nodeAlias, Record record, String key) {
+  private Map<String, String> getMap(String nodeAlias, org.neo4j.driver.Record record, String key) {
     Value value = record.get(nodeAlias + "." + key);
     if (value == null) {
       return null;

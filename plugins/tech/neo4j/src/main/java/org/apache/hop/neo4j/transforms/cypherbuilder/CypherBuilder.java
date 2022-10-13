@@ -31,11 +31,13 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.neo4j.driver.*;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Transaction;
+import org.neo4j.driver.TransactionWork;
+import org.neo4j.driver.Value;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class CypherBuilder extends BaseTransform<CypherBuilderMeta, CypherBuilderData> {
@@ -249,7 +251,7 @@ public class CypherBuilder extends BaseTransform<CypherBuilderMeta, CypherBuilde
 
   private void putResultRows(Object[] inputRowData, Result result) throws HopException {
     while (result.hasNext()) {
-      Record record = result.next();
+      org.neo4j.driver.Record record = result.next();
 
       // For every record we create a copy of the input data and append the extra fields.
       //
