@@ -17,20 +17,39 @@
 
 package org.apache.hop.beam.gui;
 
+import org.apache.beam.runners.dataflow.DataflowPipelineJob;
+import org.apache.beam.sdk.PipelineResult;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.beam.engines.dataflow.BeamDataFlowPipelineEngine;
 import org.apache.hop.beam.pipeline.fatjar.FatJarBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRunnableWithProgress;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPoint;
+import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
+import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
+import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -52,6 +71,9 @@ public class HopBeamGuiPlugin {
   public static final String ID_MAIN_MENU_TOOLS_FAT_JAR = "40200-menu-tools-fat-jar";
   public static final String ID_MAIN_MENU_TOOLS_EXPORT_METADATA =
       "40210-menu-tools-export-metadata";
+  public static final String TOOLBAR_ID_VISIT_GCP_DATAFLOW =
+      "HopGuiPipelineGraph-ToolBar-10450-VisitGcpDataflow";
+  public static final String TOOLBAR_ID_PIPELINE_EXECUTION_VIEWER_VISIT_GCP_DATAFLOW = "PipelineExecutionViewer-Toolbar-20000-VisitGcpDataflow";
 
   private static HopBeamGuiPlugin instance;
 
@@ -196,12 +218,12 @@ public class HopBeamGuiPlugin {
 
     File libSwtFiles = new File("libswt/linux/x86_64");
     if (libSwtFiles.exists())
-      jarFiles.addAll(
-          FileUtils.listFiles(libSwtFiles, new String[] {"jar"}, true));
+      jarFiles.addAll(FileUtils.listFiles(libSwtFiles, new String[] {"jar"}, true));
 
     jarFiles.addAll(FileUtils.listFiles(new File("plugins"), new String[] {"jar"}, true));
 
-    // If we are in the hop-web Docker container, we need to import the Hop main JARs too for Dataflow
+    // If we are in the hop-web Docker container, we need to import the Hop main JARs too for
+    // Dataflow
     // (and for other runners probably too)
     File hopWebJars = new File("webapps/ROOT/WEB-INF/lib");
     if (hopWebJars.exists())
@@ -210,5 +232,119 @@ public class HopBeamGuiPlugin {
     List<String> jarFilenames = new ArrayList<>();
     jarFiles.forEach(file -> jarFilenames.add(file.toString()));
     return jarFilenames;
+  }
+
+  /**
+   * Add a toolbar item just above the pipeline graph to quickly visit the execution of a Dataflow
+   * pipeline in the GCP console.
+   */
+  @GuiToolbarElement(
+      root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ID_VISIT_GCP_DATAFLOW,
+      toolTip = "Visit the pipeline execution in the GCP Dataflow console",
+      image = "dataflow.svg",
+      separator = true)
+  public void pipelineGraphVisitGcpDataflow() {
+    DataflowPipelineJob dataflowPipelineJob = findDataflowPipelineJob();
+    if (dataflowPipelineJob == null) {
+      return;
+    }
+
+    String jobId = dataflowPipelineJob.getJobId();
+    String projectId = dataflowPipelineJob.getProjectId();
+    String region = dataflowPipelineJob.getRegion();
+
+    openDataflowJobInConsole(jobId, projectId, region);
+  }
+
+  /**
+   * Add a toolbar item just above the pipeline graph to quickly visit the execution of a Dataflow
+   * pipeline in the GCP console.
+   */
+  @GuiToolbarElement(
+      root = PipelineExecutionViewer.GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ID_PIPELINE_EXECUTION_VIEWER_VISIT_GCP_DATAFLOW,
+      toolTip = "Visit the pipeline execution in the GCP Dataflow console",
+      image = "dataflow.svg",
+      separator = true)
+  public void executionViewerVisitGcpDataflow() {
+    ExecutionState executionState = findExecutionState();
+    if (executionState != null) {
+      String jobId =
+          executionState.getDetails().get(BeamDataFlowPipelineEngine.DETAIL_DATAFLOW_JOB_ID);
+      String projectId =
+          executionState.getDetails().get(BeamDataFlowPipelineEngine.DETAIL_DATAFLOW_PROJECT_ID);
+      String region =
+          executionState.getDetails().get(BeamDataFlowPipelineEngine.DETAIL_DATAFLOW_REGION);
+
+      if (StringUtils.isEmpty(jobId)
+          || StringUtils.isEmpty(projectId)
+          || StringUtils.isEmpty(region)) {
+        return;
+      }
+      openDataflowJobInConsole(jobId, projectId, region);
+    }
+  }
+
+  public static ExecutionState findExecutionState() {
+    ExecutionPerspective perspective = HopGui.getExecutionPerspective();
+    if (perspective == null) {
+      return null;
+    }
+    IExecutionViewer activeViewer = perspective.getActiveViewer();
+    if (activeViewer == null) {
+      return null;
+    }
+    if (!(activeViewer instanceof PipelineExecutionViewer)) {
+      return null;
+    }
+
+    PipelineExecutionViewer viewer = (PipelineExecutionViewer) activeViewer;
+
+    return viewer.getExecutionState();
+  }
+
+  public void openDataflowJobInConsole(String jobId, String projectId, String region) {
+    // https://console.cloud.google.com/dataflow/jobs/<region>/<id>;graphView=0?project=<projectId>
+    //
+    // example:
+    //
+    // https://console.cloud.google.com/dataflow/jobs/us-east1/2022-10-12_02_14_02-12614547583538213213;graphView=0?project=apache-hop
+    //
+    String url =
+        "https://console.cloud.google.com/dataflow/jobs/"
+            + region
+            + "/"
+            + jobId
+            + ";graphView=0?project="
+            + projectId;
+
+    org.eclipse.swt.program.Program.launch(url);
+  }
+
+  public static DataflowPipelineJob findDataflowPipelineJob() {
+    HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
+    IHopFileTypeHandler typeHandler = perspective.getActiveFileTypeHandler();
+    if (typeHandler == null) {
+      return null;
+    }
+    if (!(typeHandler instanceof HopGuiPipelineGraph)) {
+      return null;
+    }
+
+    HopGuiPipelineGraph graph = (HopGuiPipelineGraph) typeHandler;
+
+    if (graph.getPipeline() == null) {
+      return null;
+    }
+    if (!(graph.getPipeline() instanceof BeamDataFlowPipelineEngine)) {
+      return null;
+    }
+
+    BeamDataFlowPipelineEngine pipeline = (BeamDataFlowPipelineEngine) graph.getPipeline();
+    if (pipeline.getBeamPipelineResults() == null) {
+      return null;
+    }
+    return (DataflowPipelineJob) pipeline.getBeamPipelineResults();
   }
 }

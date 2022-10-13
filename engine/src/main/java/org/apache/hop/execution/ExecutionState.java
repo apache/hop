@@ -60,12 +60,18 @@ public class ExecutionState {
   /** The list of immediate child IDs for this execution */
   private List<String> childIds;
 
+  /**
+   * Extra details that a plugin might want to save in the state
+   */
+  private Map<String, String> details;
+
   private boolean failed;
 
   public ExecutionState() {
     this.metrics = new ArrayList<>();
     this.updateTime = new Date();
     this.childIds = new ArrayList<>();
+    this.details = new HashMap<>();
   }
 
   /**
@@ -282,5 +288,23 @@ public class ExecutionState {
    */
   public void setFailed(boolean failed) {
     this.failed = failed;
+  }
+
+  /**
+   * Gets details
+   *
+   * @return value of details
+   */
+  public Map<String, String> getDetails() {
+    return details;
+  }
+
+  /**
+   * Sets details
+   *
+   * @param details value of details
+   */
+  public void setDetails(Map<String, String> details) {
+    this.details = details;
   }
 }

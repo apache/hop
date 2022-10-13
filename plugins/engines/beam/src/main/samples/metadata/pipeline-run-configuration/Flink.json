@@ -16,7 +16,7 @@
       "transformPluginClasses": "",
       "xpPluginClasses": "",
       "flinkNumberOfExecutionRetries": "",
-      "flinkParallelism": "8",
+      "flinkParallelism": "4",
       "flinkDisableMetrics": "",
       "userAgent": "Hop",
       "pluginsToStage": "",
@@ -24,7 +24,7 @@
       "flinkExecutionModeForBatch": "",
       "tempLocation": "file:///tmp",
       "flinkMinPauseBetweenCheckpoints": "",
-      "flinkMaster": "[local]",
+      "flinkMaster": "[auto]",
       "flinkExecutionRetryDelay": "",
       "streamingHopTransformsFlushInterval": "",
       "flinkLatencyTrackingInterval": ""
@@ -48,5 +48,7 @@
     }
   ],
   "name": "Flink",
-  "description": ""
+  "description": "",
+  "executionInfoLocationName": "local-audit",
+  "dataProfile": "first-last"
 }

@@ -19,7 +19,6 @@ package org.apache.hop.core.gui.plugin;
 
 public enum GuiElementType {
   NONE, // To disable default options
-  PARENT, // Is a placeholder for children
   TEXT,
   FILENAME, // Text widget with browse button
   FOLDER, // Text widget with browse button
@@ -27,5 +26,6 @@ public enum GuiElementType {
   CHECKBOX,
   METADATA, // Metadata selection line
   BUTTON, // Push button
-  ;
+  LINK, // A URL style link (underlined text)
+  COMPOSITE, // Painted on a method which can add widgets to a composite
 }

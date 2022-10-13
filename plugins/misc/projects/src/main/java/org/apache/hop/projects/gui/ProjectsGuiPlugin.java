@@ -72,7 +72,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -153,7 +161,7 @@ public class ProjectsGuiPlugin {
             }
             enableHopGuiProject(projectConfig.getProjectName(), project, environment);
           }
-          
+
           // refresh automatically when the projects changes
           //
           hopGui.getEventsHandler().fire(projectName, HopGuiEvents.ProjectUpdated.name());
@@ -751,8 +759,7 @@ public class ProjectsGuiPlugin {
       IHopMetadataSerializer<PipelineRunConfiguration> runConfigSerializer =
           hopGui.getMetadataProvider().getSerializer(PipelineRunConfiguration.class);
       for (PipelineRunConfiguration runConfig : runConfigSerializer.loadAll()) {
-        for (DescribedVariable variableValueDescription :
-            runConfig.getConfigurationVariables()) {
+        for (DescribedVariable variableValueDescription : runConfig.getConfigurationVariables()) {
           variables.setVariable(variableValueDescription.getName(), "");
         }
       }
@@ -1108,5 +1115,25 @@ public class ProjectsGuiPlugin {
       zipOutputStream.write(bytes, 0, length);
     }
     fis.close();
+  }
+
+  /**
+   * used by the welcome dialog to switch to the samples project.
+   * @param projectName The name of the project to switch to.
+   * @throws HopException
+   */
+  public static final void enableProject(String projectName) throws HopException {
+
+    HopGui hopGui = HopGui.getInstance();
+
+    IVariables variables = hopGui.getVariables();
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    if (projectConfig==null) {
+      throw new HopException("The project with name '"+projectName+"' could not be found");
+    }
+    Project project = projectConfig.loadProject(variables);
+
+    enableHopGuiProject(projectName, project, null);
   }
 }

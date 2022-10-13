@@ -104,7 +104,8 @@ public class BeamRowHandler implements IRowHandler {
   }
 
   @Override
-  public void putRowTo(IRowMeta rowMeta, Object[] row, IRowSet rowSet) throws HopTransformException {
+  public void putRowTo(IRowMeta rowMeta, Object[] row, IRowSet rowSet)
+      throws HopTransformException {
     List<IRowListener> rowListeners = transform.getRowListeners();
     for (IRowListener listener : rowListeners) {
       listener.rowWrittenEvent(rowMeta, row);
@@ -112,5 +113,20 @@ public class BeamRowHandler implements IRowHandler {
 
     rowSet.putRow(rowMeta, row);
     transform.incrementLinesWritten();
+  }
+
+  @Override
+  public Object[] getRowFrom(IRowSet rowSet) throws HopTransformException {
+    Object[] row = rowSet.getRow();
+    transform.incrementLinesRead();
+
+    // call all row listeners...
+    //
+    List<IRowListener> rowListeners = transform.getRowListeners();
+    for (IRowListener listener : rowListeners) {
+      listener.rowReadEvent(rowSet.getRowMeta(), row);
+    }
+
+    return row;
   }
 }

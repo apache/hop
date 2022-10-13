@@ -45,11 +45,13 @@ public final class ExecutionStateBuilder {
   private List<ExecutionStateComponentMetrics> metrics;
   private List<String> childIds;
   private boolean failed;
+  private Map<String, String> details;
 
   private ExecutionStateBuilder() {
     this.updateTime = new Date();
     this.metrics = new ArrayList<>();
     this.childIds = new ArrayList<>();
+    this.details = new HashMap<>();
   }
 
   public static ExecutionStateBuilder of() {
@@ -219,6 +221,11 @@ public final class ExecutionStateBuilder {
     return this;
   }
 
+  public ExecutionStateBuilder withDetails(Map<String, String> details) {
+    this.details = details;
+    return this;
+  }
+
   public ExecutionState build() {
     ExecutionState state = new ExecutionState();
     state.setExecutionType(executionType);
@@ -233,6 +240,8 @@ public final class ExecutionStateBuilder {
     state.setStatusDescription(statusDescription);
     state.setChildIds(childIds);
     state.setFailed(failed);
+    state.setDetails(details);
     return state;
   }
+
 }

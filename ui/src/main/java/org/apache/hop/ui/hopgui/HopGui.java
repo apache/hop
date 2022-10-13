@@ -81,9 +81,11 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchLocation;
+import org.apache.hop.ui.hopgui.welcome.WelcomeDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -390,6 +392,15 @@ public class HopGui
             auditDelegate.openLastFiles();
           }
         });
+
+    // See if we need to show the Welcome dialog
+    //
+
+    boolean doNotShowWelcomeDialog = HopConfig.readOptionBoolean(WelcomeDialog.HOP_CONFIG_NO_SHOW_OPTION, false);;
+    doNotShowWelcomeDialog|=Const.toBoolean(variables.getVariable(WelcomeDialog.VARIABLE_HOP_NO_WELCOME_DIALOG));
+    if (!doNotShowWelcomeDialog) {
+      new WelcomeDialog().open();
+    }
 
     // On RAP, return here otherwise UIThread doesn't get terminated properly.
     if (EnvironmentUtils.getInstance().isWeb()) {
@@ -1476,14 +1487,17 @@ public class HopGui
 
   public static MetadataPerspective getMetadataPerspective() {
     return (MetadataPerspective)
-            HopGui.getInstance()
-                    .getPerspectiveManager()
-                    .findPerspective(MetadataPerspective.class);
+        HopGui.getInstance().getPerspectiveManager().findPerspective(MetadataPerspective.class);
   }
 
   public static ExecutionPerspective getExecutionPerspective() {
     return (ExecutionPerspective)
         HopGui.getInstance().getPerspectiveManager().findPerspective(ExecutionPerspective.class);
+  }
+
+  public static ExplorerPerspective getExplorerPerspective() {
+    return (ExplorerPerspective)
+            HopGui.getInstance().getPerspectiveManager().findPerspective(ExplorerPerspective.class);
   }
 
   /**

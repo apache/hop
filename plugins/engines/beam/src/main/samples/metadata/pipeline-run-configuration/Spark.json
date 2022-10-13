@@ -38,5 +38,7 @@
     }
   ],
   "name": "Spark",
-  "description": ""
+  "description": "",
+  "executionInfoLocationName": "local-audit",
+  "dataProfile": "first-last"
 }

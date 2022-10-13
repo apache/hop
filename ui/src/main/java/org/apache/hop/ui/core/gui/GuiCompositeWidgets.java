@@ -140,7 +140,8 @@ public class GuiCompositeWidgets {
       //
       if (StringUtils.isNotEmpty(guiElements.getLabel())
           && elementType != GuiElementType.METADATA
-          && elementType != GuiElementType.BUTTON) {
+          && elementType != GuiElementType.BUTTON
+          && elementType != GuiElementType.LINK) {
         label = new Label(parent, SWT.RIGHT | SWT.SINGLE);
         props.setLook(label);
         label.setText(Const.NVL(guiElements.getLabel(), ""));
@@ -178,6 +179,9 @@ public class GuiCompositeWidgets {
           break;
         case BUTTON:
           control = getButtonControl(sourceObject, parent, guiElements, props, lastControl);
+          break;
+        case LINK:
+          control = getLinkControl(parent, guiElements, props, lastControl);
         default:
           break;
       }
@@ -319,6 +323,57 @@ public class GuiCompositeWidgets {
     layoutControlBetweenLabelAndRightControl(props, lastControl, null, button, null);
 
     return button;
+  }
+
+  private Link getLinkControl(
+      Composite parent,
+      GuiElements guiElements,
+      PropsUi props,
+      Control lastControl) {
+
+    Link link = new Link(parent, SWT.NONE);
+    props.setLook(link);
+    link.setText(Const.NVL(guiElements.getLabel(), ""));
+    if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
+      link.setToolTipText(guiElements.getToolTip());
+    }
+    widgetsMap.put(guiElements.getId(), link);
+
+    link.addListener(
+        SWT.Selection,
+        event -> {
+          // This widget annotation was on top of a method.
+          // We need to instantiate the method using the provided classloader.
+          //
+          Method buttonMethod = guiElements.getButtonMethod();
+          Class<?> methodClass = buttonMethod.getDeclaringClass();
+
+          try {
+            // ClassLoader classLoader = guiElements.getClassLoader();
+
+            Object guiObject = methodClass.getDeclaredConstructor().newInstance();
+
+            // Invoke the link method
+            //
+            if (buttonMethod.getParameterCount() == 0) {
+              buttonMethod.invoke(guiObject);
+            } else {
+              // Also pass along the event to detect which link was clicked.
+              buttonMethod.invoke(guiObject, event);
+            }
+          } catch (Exception e) {
+            LogChannel.UI.logError(
+                "Error invoking method "
+                    + buttonMethod.getName()
+                    + " in class "
+                    + methodClass.getName(),
+                e);
+          }
+        });
+
+    layoutControlBelowLast(props, lastControl, link);
+
+    return link;
   }
 
   /**
@@ -634,7 +689,7 @@ public class GuiCompositeWidgets {
       return;
     }
     // No data to set for a button widget
-    if (guiElements.getType()==GuiElementType.BUTTON) {
+    if (guiElements.getType() == GuiElementType.BUTTON) {
       return;
     }
 
@@ -693,6 +748,7 @@ public class GuiCompositeWidgets {
             line.setText(stringValue);
             break;
           case BUTTON:
+          case LINK:
             // No data to set
             break;
           default:
@@ -743,7 +799,7 @@ public class GuiCompositeWidgets {
       return;
     }
     // No data to retrieve from a button widget
-    if (guiElements.getType()==GuiElementType.BUTTON) {
+    if (guiElements.getType() == GuiElementType.BUTTON) {
       return;
     }
 
@@ -788,6 +844,7 @@ public class GuiCompositeWidgets {
             value = line.getText();
             break;
           case BUTTON:
+          case LINK:
             // No data to retrieve from widget
             break;
           default:

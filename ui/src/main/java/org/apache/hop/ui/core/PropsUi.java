@@ -35,6 +35,7 @@ import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 import java.util.HashMap;
@@ -856,4 +857,14 @@ public class PropsUi extends Props {
       new String[] {
         "200%", "175%", "150%", "140%", "130%", "120%", "110%", "100%", "90%", "80%", "70%"
       };
+
+  public Layout createFormLayout() {
+    int margin = (int) (getMargin() * getZoomFactor());
+    FormLayout formLayout = new FormLayout();
+    formLayout.marginLeft = margin;
+    formLayout.marginTop = margin;
+    formLayout.marginBottom = margin;
+    formLayout.marginRight = margin;
+    return formLayout;
+  }
 }

@@ -34,8 +34,6 @@ limitations under the License.
     <created_date>2022/09/21 09:05:34.033</created_date>
     <modified_user>-</modified_user>
     <modified_date>2022/09/21 09:05:34.033</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
@@ -47,7 +45,7 @@ limitations under the License.
     </hop>
     <hop>
       <from>/tmp/0005/*.csv</from>
-      <to>cvs</to>
+      <to>csv</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -92,22 +90,22 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <isaddresult>Y</isaddresult>
     <doNotFailIfNoFile>N</doNotFailIfNoFile>
     <dynamic_include_subfolders>N</dynamic_include_subfolders>
-    <filefield>N</filefield>
     <file>
-      <filemask>.*\.avro</filemask>
-      <name>${java.io.tmpdir}/0005/</name>
       <file_required>N</file_required>
+      <filemask>.*\.avro</filemask>
       <include_subfolders>N</include_subfolders>
+      <name>${java.io.tmpdir}/0005/</name>
     </file>
+    <filefield>N</filefield>
     <filter>
       <filterfiletype>all_files</filterfiletype>
     </filter>
-    <rownum>N</rownum>
-    <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
+    <isaddresult>Y</isaddresult>
     <limit>0</limit>
+    <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
+    <rownum>N</rownum>
     <attributes/>
     <GUI>
       <xloc>144</xloc>
@@ -536,22 +534,22 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <isaddresult>Y</isaddresult>
     <doNotFailIfNoFile>N</doNotFailIfNoFile>
     <dynamic_include_subfolders>N</dynamic_include_subfolders>
-    <filefield>N</filefield>
     <file>
-      <filemask>.*\.parquet</filemask>
-      <name>${java.io.tmpdir}/0005/</name>
       <file_required>N</file_required>
+      <filemask>.*\.parquet</filemask>
       <include_subfolders>N</include_subfolders>
+      <name>${java.io.tmpdir}/0005/</name>
     </file>
+    <filefield>N</filefield>
     <filter>
       <filterfiletype>all_files</filterfiletype>
     </filter>
-    <rownum>N</rownum>
-    <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
+    <isaddresult>Y</isaddresult>
     <limit>0</limit>
+    <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
+    <rownum>N</rownum>
     <attributes/>
     <GUI>
       <xloc>144</xloc>
@@ -755,9 +753,6 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <ignore_missing>Y</ignore_missing>
-    <remove_source_field>Y</remove_source_field>
-    <source_field>avro</source_field>
     <fields>
       <field>
         <source_avro_type>Union</source_avro_type>
@@ -820,6 +815,9 @@ limitations under the License.
         <target_type>String</target_type>
       </field>
     </fields>
+    <ignore_missing>Y</ignore_missing>
+    <remove_source_field>Y</remove_source_field>
+    <source_field>avro</source_field>
     <attributes/>
     <GUI>
       <xloc>384</xloc>
@@ -844,7 +842,7 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>cvs</name>
+    <name>csv</name>
     <type>Dummy</type>
     <description/>
     <distribute>Y</distribute>

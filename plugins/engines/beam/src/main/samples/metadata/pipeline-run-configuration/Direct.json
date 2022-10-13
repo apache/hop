@@ -30,5 +30,7 @@
     }
   ],
   "name": "Direct",
-  "description": ""
+  "description": "",
+  "executionInfoLocationName": "local-audit",
+  "dataProfile": "first-last"
 }
