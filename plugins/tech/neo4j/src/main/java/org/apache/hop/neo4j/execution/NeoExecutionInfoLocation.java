@@ -18,6 +18,9 @@
 
 package org.apache.hop.neo4j.execution;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -79,6 +82,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public static final String EP_UPDATE_TIME = "updateTime";
   public static final String EP_CHILD_IDS = "childIds";
   public static final String EP_FAILED = "failed";
+  public static final String EP_DETAILS = "details";
 
   public static final String CL_EXECUTION_METRIC = "ExecutionMetric";
   public static final String CP_ID = "id";
@@ -595,7 +599,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
               .withValue(EP_LOGGING_TEXT, state.getLoggingText())
               .withValue(EP_UPDATE_TIME, state.getUpdateTime())
               .withValue(EP_CHILD_IDS, state.getChildIds())
-              .withValue(EP_FAILED, state.isFailed());
+              .withValue(EP_FAILED, state.isFailed())
+              .withValue(EP_DETAILS, state.getDetails());
       transaction.run(stateCypherBuilder.cypher(), stateCypherBuilder.parameters());
 
       // Save the metrics as well...
@@ -654,7 +659,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                 EP_STATUS_DESCRIPTION,
                 EP_UPDATE_TIME,
                 EP_CHILD_IDS,
-                EP_FAILED);
+                EP_FAILED,
+                EP_DETAILS);
     Result result = transaction.run(executionBuilder.cypher(), executionBuilder.parameters());
 
     // We expect exactly one result
@@ -675,7 +681,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
             .withStatusDescription(getString(record, EP_STATUS_DESCRIPTION))
             .withUpdateTime(getDate(record, EP_UPDATE_TIME))
             .withChildIds(getList(record, EP_CHILD_IDS))
-            .withFailed(getBoolean(record, EP_FAILED));
+            .withFailed(getBoolean(record, EP_FAILED))
+            .withDetails(getMap(record, EP_DETAILS));
 
     // Add the metrics to the state...
     //
@@ -1492,6 +1499,34 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     }
     List<String> list = value.asList(Value::asString);
     return list;
+  }
+
+  private Map<String, String> getMap(Record record, String key) {
+    return getMap("n", record, key);
+  }
+
+  private Map<String, String> getMap(String nodeAlias, Record record, String key) {
+    Value value = record.get(nodeAlias + "." + key);
+    if (value == null) {
+      return null;
+    }
+    if (value.isNull()) {
+      return null;
+    }
+    // We get a JSON String as a result
+    //
+    String jsonString = value.asString();
+
+    // Convert this to a Map<String,String>
+    //
+    ObjectMapper objectMapper = new ObjectMapper();
+    TypeReference<HashMap<String, String>> typeRef = new TypeReference<>() {};
+
+    try {
+      return objectMapper.readValue(jsonString, typeRef);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException("Error reading converting JSON String to a Map: " + jsonString, e);
+    }
   }
 
   /**

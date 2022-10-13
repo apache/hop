@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
@@ -51,6 +52,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
@@ -258,6 +260,16 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       loggingText.setText(Const.NVL(executionState.getLoggingText(), ""));
       // Scroll to the bottom
       loggingText.setSelection(loggingText.getCharCount());
+
+      try {
+        ExtensionPointHandler.callExtensionPoint(
+            LogChannel.UI,
+            hopGui.getVariables(),
+            HopGuiExtensionPoint.PipelineExecutionViewerUpdate.id,
+            this);
+      } catch (Exception xe) {
+        LogChannel.UI.logError("Error handling extension point 'HopGuiFileOpenDialog'", xe);
+      }
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error refreshing pipeline status", e);
     }
@@ -1022,4 +1034,60 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
   @Override
   public void keyReleased(KeyEvent keyEvent) {}
+
+  /**
+   * Gets pipelineMeta
+   *
+   * @return value of pipelineMeta
+   */
+  public PipelineMeta getPipelineMeta() {
+    return pipelineMeta;
+  }
+
+  /**
+   * Gets execution
+   *
+   * @return value of execution
+   */
+  public Execution getExecution() {
+    return execution;
+  }
+
+  /**
+   * Gets selectedTransform
+   *
+   * @return value of selectedTransform
+   */
+  public TransformMeta getSelectedTransform() {
+    return selectedTransform;
+  }
+
+  /**
+   * Sets selectedTransform
+   *
+   * @param selectedTransform value of selectedTransform
+   */
+  public void setSelectedTransform(TransformMeta selectedTransform) {
+    this.selectedTransform = selectedTransform;
+  }
+
+  /**
+   * Gets executionState
+   *
+   * @return value of executionState
+   */
+  public ExecutionState getExecutionState() {
+    return executionState;
+  }
+
+  /**
+   * Sets executionState
+   *
+   * @param executionState value of executionState
+   */
+  public void setExecutionState(ExecutionState executionState) {
+    this.executionState = executionState;
+  }
+
+
 }

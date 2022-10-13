@@ -130,7 +130,7 @@ public abstract class BeamPipelineEngine extends Variables
   private org.apache.beam.sdk.Pipeline beamPipeline;
 
   private Thread beamThread;
-  private PipelineResult beamPipelineResults;
+  protected PipelineResult beamPipelineResults;
   private IBeamPipelineEngineRunConfiguration beamEngineRunConfiguration;
 
   private ExecutionInfoLocation executionInfoLocation;
@@ -1061,17 +1061,15 @@ public abstract class BeamPipelineEngine extends Variables
     long interval = Const.toLong(resolve(executionInfoLocation.getDataLoggingInterval()), 5000L);
 
     final IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+
+    // Update the pipeline execution state regularly.
     //
     TimerTask sampleTask =
         new TimerTask() {
           @Override
           public void run() {
             try {
-              // Also update the pipeline execution state regularly
-              //
-              ExecutionState executionState =
-                  ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1).build();
-              iLocation.updateExecutionState(executionState);
+              updatePipelineState(iLocation);
             } catch (Exception e) {
               throw new RuntimeException(
                   "Error registering execution info (data and state) at location "
@@ -1085,6 +1083,12 @@ public abstract class BeamPipelineEngine extends Variables
     //
     executionInfoTimer = new Timer();
     executionInfoTimer.schedule(sampleTask, delay, interval);
+  }
+
+  protected void updatePipelineState(IExecutionInfoLocation iLocation) throws HopException {
+    ExecutionState executionState =
+        ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1).build();
+    iLocation.updateExecutionState(executionState);
   }
 
   public void stopExecutionInfoTimer() throws HopException {

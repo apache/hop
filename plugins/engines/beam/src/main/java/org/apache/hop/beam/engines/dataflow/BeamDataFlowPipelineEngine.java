@@ -17,10 +17,13 @@
 
 package org.apache.hop.beam.engines.dataflow;
 
+import org.apache.beam.runners.dataflow.DataflowPipelineJob;
 import org.apache.hop.beam.engines.BeamPipelineEngine;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.execution.sampler.IExecutionDataSampler;
-import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionStateBuilder;
+import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -31,8 +34,14 @@ import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
     name = "Beam DataFlow pipeline engine",
     description =
         "This allows you to run your pipeline on Google Cloud Platform DataFlow, provided by the Apache Beam community")
+@GuiPlugin
 public class BeamDataFlowPipelineEngine extends BeamPipelineEngine
     implements IPipelineEngine<PipelineMeta> {
+
+  public static final String DETAIL_DATAFLOW_JOB_ID = "dataflow.job.id";
+  public static final String DETAIL_DATAFLOW_PROJECT_ID = "dataflow.project.id";
+  public static final String DETAIL_DATAFLOW_REGION = "dataflow.region";
+
   @Override
   public IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration() {
     BeamDataFlowPipelineRunConfiguration runConfiguration =
@@ -49,5 +58,23 @@ public class BeamDataFlowPipelineEngine extends BeamPipelineEngine
           "A Beam Direct pipeline engine needs a direct run configuration, not of class "
               + engineRunConfiguration.getClass().getName());
     }
+  }
+
+  @Override
+  protected void updatePipelineState(IExecutionInfoLocation iLocation) throws HopException {
+    ExecutionState executionState =
+            ExecutionStateBuilder.fromExecutor(BeamDataFlowPipelineEngine.this, -1).build();
+
+    // Add Dataflow specific information to the execution state.
+    // This can then be picked up
+    //
+    if (beamPipelineResults!=null) {
+      DataflowPipelineJob dataflowPipelineJob = (DataflowPipelineJob) beamPipelineResults;
+      executionState.getDetails().put(DETAIL_DATAFLOW_JOB_ID, dataflowPipelineJob.getJobId());
+      executionState.getDetails().put(DETAIL_DATAFLOW_PROJECT_ID, dataflowPipelineJob.getProjectId());
+      executionState.getDetails().put(DETAIL_DATAFLOW_REGION, dataflowPipelineJob.getRegion());
+    }
+
+    iLocation.updateExecutionState(executionState);
   }
 }

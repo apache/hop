@@ -118,4 +118,13 @@ public abstract class BaseExecutionViewer extends Composite
   public void mouseDoubleClick(MouseEvent mouseEvent) {
       drillDownOnLocation(screen2real(mouseEvent.x, mouseEvent.y));
   }
+
+  /**
+   * Gets toolBarWidgets
+   *
+   * @return value of toolBarWidgets
+   */
+  public GuiToolbarWidgets getToolBarWidgets() {
+    return toolBarWidgets;
+  }
 }
