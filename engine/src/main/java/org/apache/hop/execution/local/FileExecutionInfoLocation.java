@@ -27,7 +27,13 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.execution.*;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionData;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionType;
+import org.apache.hop.execution.IExecutionInfoLocation;
+import org.apache.hop.execution.IExecutionMatcher;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -35,7 +41,10 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 @GuiPlugin(description = "File execution information location GUI elements")
 @ExecutionInfoLocationPlugin(
@@ -61,6 +70,8 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   @HopMetadataProperty
   protected String rootFolder;
 
+  private IVariables variables;
+
   public FileExecutionInfoLocation() {}
 
   public FileExecutionInfoLocation(String rootFolder) {
@@ -82,7 +93,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   @Override
   public void initialize(IVariables variables, IHopMetadataProvider metadataProvider)
       throws HopException {
-    // Nothing to do here really.
+    this.variables = variables;
   }
 
   @Override
@@ -246,7 +257,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
 
       List<FileObject> subFolders = new ArrayList<>();
 
-      FileObject folder = HopVfs.getFileObject(rootFolder);
+      FileObject folder = HopVfs.getFileObject(variables.resolve(rootFolder));
       if (!folder.exists()) {
         return Collections.emptyList();
       }
@@ -329,7 +340,10 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       return ids;
     } catch (Exception e) {
       throw new HopException(
-          "Error finding children of " + parentExecutionType.name() + " execution " + parentExecutionId,
+          "Error finding children of "
+              + parentExecutionType.name()
+              + " execution "
+              + parentExecutionId,
           e);
     }
   }
@@ -453,7 +467,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private String getSubFolder(Execution registration) {
-    return rootFolder + "/" + registration.getId();
+    return variables.resolve(rootFolder) + "/" + registration.getId();
   }
 
   private String getSubFolder(ExecutionState update) {
@@ -461,7 +475,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private String getSubFolder(String executionId) {
-    return rootFolder + "/" + executionId;
+    return variables.resolve(rootFolder) + "/" + executionId;
   }
 
   private String getSubFolder(ExecutionData data) {
