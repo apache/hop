@@ -44,7 +44,12 @@ public class LogExplorerFileType extends BaseTextExplorerFileType<LogExplorerFil
         ".log",
         new String[] {"*.log"},
         new String[] {"Log files"},
-        FileTypeCapabilities.getCapabilities(IHopFileType.CAPABILITY_SAVE));
+        FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_SAVE,
+            IHopFileType.CAPABILITY_CLOSE, 
+            IHopFileType.CAPABILITY_FILE_HISTORY,
+            IHopFileType.CAPABILITY_COPY, 
+            IHopFileType.CAPABILITY_SELECT));
   }
 
   @Override

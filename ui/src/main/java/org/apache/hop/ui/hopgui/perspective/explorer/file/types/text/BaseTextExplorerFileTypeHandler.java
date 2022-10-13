@@ -112,4 +112,19 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
           "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
     }
   }
+  
+  @Override
+  public void selectAll() {
+    wText.selectAll();
+  }
+  
+  @Override
+  public void unselectAll() {
+    wText.setSelection(0, 0);
+  }  
+
+  @Override
+  public void copySelectedToClipboard() {
+    wText.copy();
+  }  
 }
