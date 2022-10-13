@@ -1,0 +1,76 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "Last_name",
+          "data_set_field": "Last_name"
+        },
+        {
+          "transform_field": "First_name",
+          "data_set_field": "First_name"
+        },
+        {
+          "transform_field": "cust_zip_code",
+          "data_set_field": "cust_zip_code"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "state_1",
+          "data_set_field": "state_1"
+        },
+        {
+          "transform_field": "population",
+          "data_set_field": "population"
+        },
+        {
+          "transform_field": "nrPerState",
+          "data_set_field": "nrPerState"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "0009-stream-lookup-golden",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0009-stream-lookup-validation UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0009-stream-lookup-validation.hpl",
+  "test_type": "UNIT_TEST"
+}
