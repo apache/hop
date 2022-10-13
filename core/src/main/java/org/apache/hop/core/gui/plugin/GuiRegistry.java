@@ -60,6 +60,7 @@ public class GuiRegistry {
   private Map<String, List<GuiAction>> contextActionsMap;
   private Map<String, List<GuiActionFilter>> contextActionFiltersMap;
   private Map<String, List<GuiCallbackMethod>> callbackMethodsMap;
+  private Map<String, List<GuiElements>> compositeGuiElements;
 
   /**
    * The first entry in this map is the HopGui ID Then the maps found are GuiPlugin class names and
@@ -76,6 +77,7 @@ public class GuiRegistry {
     contextActionFiltersMap = new HashMap<>();
     guiPluginObjectsMap = new HashMap<>();
     callbackMethodsMap = new HashMap<>();
+    compositeGuiElements = new HashMap<>();
   }
 
   public static final GuiRegistry getInstance() {
@@ -229,6 +231,20 @@ public class GuiRegistry {
     return guiElements;
   }
 
+  public GuiElements findGuiElements(String parentGuiElementId) {
+    assert parentGuiElementId != null : "please provide a non-null parent ID";
+
+    Collection<Map<String, GuiElements>> values = dataElementsMap.values();
+    for (Map<String, GuiElements> valuesMap : values) {
+      for (GuiElements guiElements : valuesMap.values()) {
+        if (parentGuiElementId.equals(guiElements.getParentId())) {
+          return guiElements;
+        }
+      }
+    }
+    return null;
+  }
+
   /**
    * Look at the given {@link GuiElements} object its children and see if the element with the given
    * ID is found.
@@ -289,7 +305,7 @@ public class GuiRegistry {
    * @param guiElement
    * @param guiPluginClassMethod
    */
-  public void addGuiWidgetElement(
+  public void addGuiMenuElement(
       String guiPluginClassName,
       GuiMenuElement guiElement,
       Method guiPluginClassMethod,
@@ -307,18 +323,17 @@ public class GuiRegistry {
   }
 
   /**
-   * Add a GUI menu element to the registry. If there is no elements objects for the parent ID under
-   * which the element belongs, one will be added.
+   * Add a GUI widget element to the registry. If there is no elements objects for the parent ID
+   * under which the element belongs, one will be added.
    *
-   * @param guiPluginClassName Class in which we paint the GUI element
    * @param guiElement
    * @param guiPluginClassMethod
    */
   public void addGuiWidgetElement(
-          GuiWidgetElement guiElement,
-          Method guiPluginClassMethod,
-          String dataClassName,
-          ClassLoader classLoader) {
+      GuiWidgetElement guiElement,
+      Method guiPluginClassMethod,
+      String dataClassName,
+      ClassLoader classLoader) {
 
     GuiElements guiElements = findGuiElements(dataClassName, guiElement.parentId());
     if (guiElements == null) {
@@ -343,6 +358,26 @@ public class GuiRegistry {
     }
 
     guiElements.getChildren().add(child);
+  }
+
+  /**
+   * Add a GUI widget element item to the registry for a composite area.
+   *
+   * @param guiElement
+   * @param guiPluginClassMethod
+   */
+  public void addCompositeGuiWidgetElement(
+      GuiWidgetElement guiElement, Method guiPluginClassMethod, ClassLoader classLoader) {
+
+    List<GuiElements> elements =
+        compositeGuiElements.computeIfAbsent(guiElement.parentId(), f -> new ArrayList<>());
+
+    // Extract all the information we need from the available data at boot time.
+    // In this case we simply add all the items since we want to show a simple list of items.
+    //
+    GuiElements child = new GuiElements(guiElement, guiPluginClassMethod, classLoader);
+
+    elements.add(child);
   }
 
   /**
@@ -592,7 +627,9 @@ public class GuiRegistry {
     return dataElementsMap;
   }
 
-  /** @param dataElementsMap The dataElementsMap to set */
+  /**
+   * @param dataElementsMap The dataElementsMap to set
+   */
   public void setDataElementsMap(Map<String, Map<String, GuiElements>> dataElementsMap) {
     this.dataElementsMap = dataElementsMap;
   }
@@ -606,7 +643,9 @@ public class GuiRegistry {
     return shortCutsMap;
   }
 
-  /** @param shortCutsMap The shortCutsMap to set */
+  /**
+   * @param shortCutsMap The shortCutsMap to set
+   */
   public void setShortCutsMap(Map<String, List<KeyboardShortcut>> shortCutsMap) {
     this.shortCutsMap = shortCutsMap;
   }
@@ -620,7 +659,9 @@ public class GuiRegistry {
     return contextActionsMap;
   }
 
-  /** @param contextActionsMap The contextActionsMap to set */
+  /**
+   * @param contextActionsMap The contextActionsMap to set
+   */
   public void setContextActionsMap(Map<String, List<GuiAction>> contextActionsMap) {
     this.contextActionsMap = contextActionsMap;
   }
@@ -634,7 +675,9 @@ public class GuiRegistry {
     return guiMenuMap;
   }
 
-  /** @param guiMenuMap The guiMenuMap to set */
+  /**
+   * @param guiMenuMap The guiMenuMap to set
+   */
   public void setGuiMenuMap(Map<String, Map<String, GuiMenuItem>> guiMenuMap) {
     this.guiMenuMap = guiMenuMap;
   }
@@ -648,7 +691,9 @@ public class GuiRegistry {
     return guiToolbarMap;
   }
 
-  /** @param guiToolbarMap The guiToolbarMap to set */
+  /**
+   * @param guiToolbarMap The guiToolbarMap to set
+   */
   public void setGuiToolbarMap(Map<String, Map<String, GuiToolbarItem>> guiToolbarMap) {
     this.guiToolbarMap = guiToolbarMap;
   }
@@ -662,7 +707,9 @@ public class GuiRegistry {
     return guiPluginObjectsMap;
   }
 
-  /** @param guiPluginObjectsMap The guiPluginObjectsMap to set */
+  /**
+   * @param guiPluginObjectsMap The guiPluginObjectsMap to set
+   */
   public void setGuiPluginObjectsMap(
       Map<String, Map<String, Map<String, Object>>> guiPluginObjectsMap) {
     this.guiPluginObjectsMap = guiPluginObjectsMap;
@@ -677,9 +724,29 @@ public class GuiRegistry {
     return contextActionFiltersMap;
   }
 
-  /** @param contextActionFiltersMap The contextActionFiltersMap to set */
+  /**
+   * @param contextActionFiltersMap The contextActionFiltersMap to set
+   */
   public void setContextActionFiltersMap(
       Map<String, List<GuiActionFilter>> contextActionFiltersMap) {
     this.contextActionFiltersMap = contextActionFiltersMap;
+  }
+
+  /**
+   * Gets compositeGuiElements
+   *
+   * @return value of compositeGuiElements
+   */
+  public Map<String, List<GuiElements>> getCompositeGuiElements() {
+    return compositeGuiElements;
+  }
+
+  /**
+   * Sets compositeGuiElements
+   *
+   * @param compositeGuiElements value of compositeGuiElements
+   */
+  public void setCompositeGuiElements(Map<String, List<GuiElements>> compositeGuiElements) {
+    this.compositeGuiElements = compositeGuiElements;
   }
 }

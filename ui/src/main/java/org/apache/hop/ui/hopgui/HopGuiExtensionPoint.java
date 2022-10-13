@@ -23,6 +23,7 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardExtension;
+import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 
 public enum HopGuiExtensionPoint {
@@ -51,6 +52,9 @@ public enum HopGuiExtensionPoint {
       "A filename is pasted into a workflow", HopGuiWorkflowClipboardExtension.class),
 
   HopGuiPipelineFinished("A pipeline finished in the GUI", HopGuiPipelineFinishedExtension.class),
+
+  HopGuiPipelineGraphUpdateGui("When the UI needs updating and you want to enable/disable widgets", HopGuiPipelineGraph.class),
+  PipelineExecutionViewerUpdate("When the UI needs updating and you want to enable/disable widgets", PipelineExecutionViewer.class),
   ;
 
   public String id;

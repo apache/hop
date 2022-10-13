@@ -82,6 +82,7 @@ import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.*;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiServerDelegate;
 import org.apache.hop.ui.hopgui.dialog.CheckPipelineProgressDialog;
 import org.apache.hop.ui.hopgui.dialog.EnterPreviewRowsDialog;
@@ -244,7 +245,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   // Keep track if a contextual dialog box is open, do not display the tooltip
   private boolean openedContextDialog = false;
-  
+
   private PipelineHopMeta lastHopSplit;
 
   private org.apache.hop.core.gui.Rectangle selectionRegion;
@@ -1038,7 +1039,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           selectedNote = null;
           startHopTransform = null;
           endHopLocation = null;
-          updateGui();          
+          updateGui();
         }
       }
     }
@@ -1272,13 +1273,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
           this.openedContextDialog = true;
           this.hideToolTips();
-          
+
           // Show the context dialog
           //
           avoidContextDialog =
               GuiContextUtil.getInstance()
                   .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
-          
+
           this.openedContextDialog = false;
         }
       }
@@ -2076,10 +2077,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     IPlugin plugin =
         PluginRegistry.getInstance()
             .getPlugin(TransformPluginType.class, context.getTransformMeta().getPluginId());
-        
+
     HelpUtils.openHelp(getShell(), plugin);
   }
-  
+
   @GuiContextAction(
       id = "pipeline-graph-transform-10100-transform-detach",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
@@ -2579,7 +2580,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             });
     return checkedEntries;
   }
-  
+
   @GuiContextAction(
       id = "pipeline-graph-hop-10080-hop-insert-transform",
       parentId = HopGuiPipelineHopContext.CONTEXT_ID,
@@ -2622,15 +2623,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
       guiActions.add(guiAction);
     }
-    
+
     String message =
         BaseMessages.getString(
-            PKG,
-            "HopGuiPipelineGraph.ContextualActionDialog.InsertTransform.Header");
-    
+            PKG, "HopGuiPipelineGraph.ContextualActionDialog.InsertTransform.Header");
+
     ContextDialog contextDialog =
         new ContextDialog(
-            hopShell(), message, context.getClick(), guiActions,HopGuiPipelineContext.CONTEXT_ID);
+            hopShell(), message, context.getClick(), guiActions, HopGuiPipelineContext.CONTEXT_ID);
 
     GuiAction selectedAction = contextDialog.open();
 
@@ -2781,7 +2781,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private AreaOwner setToolTip(int x, int y, int screenX, int screenY) {
     AreaOwner subject = null;
 
-    if (!hopGui.getProps().showToolTips() || openedContextDialog ) {
+    if (!hopGui.getProps().showToolTips() || openedContextDialog) {
       return subject;
     }
 
@@ -2947,13 +2947,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           tip.append(BaseMessages.getString(PKG, "PipelineGraph.ShowMenu.Tooltip"));
           tipImage = GuiResource.getInstance().getImageContextMenu();
           break;
-          
-        case TRANSFORM_INFO_ICON:  
+
+        case TRANSFORM_INFO_ICON:
         case TRANSFORM_ICON:
           TransformMeta iconTransformMeta = (TransformMeta) areaOwner.getOwner();
-          
-          // If transform is deprecated, display first   
-          if (iconTransformMeta.isDeprecated()) { 
+
+          // If transform is deprecated, display first
+          if (iconTransformMeta.isDeprecated()) {
             tip.append(
                     BaseMessages.getString(PKG, "PipelineGraph.DeprecatedTransform.Tooltip.Title"))
                 .append(Const.CR);
@@ -2980,8 +2980,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                       iconTransformMeta.getSuggestion()));
             }
             tipImage = GuiResource.getInstance().getImageDeprecated();
-          }
-          else if ( !Utils.isEmpty(iconTransformMeta.getDescription()) ) {
+          } else if (!Utils.isEmpty(iconTransformMeta.getDescription())) {
             tip.append(iconTransformMeta.getDescription());
           }
           break;
@@ -3801,14 +3800,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     try {
       // Check if the file is saved. If not, ask for it to be stopped before closing
       //
-      if (pipeline!=null && ( pipeline.isRunning() || pipeline.isPaused())) {
+      if (pipeline != null && (pipeline.isRunning() || pipeline.isPaused())) {
         MessageBox messageDialog =
-                new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
-        messageDialog.setText(BaseMessages.getString(PKG, "PipelineGraph.RunningFile.Dialog.Header"));
+            new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+        messageDialog.setText(
+            BaseMessages.getString(PKG, "PipelineGraph.RunningFile.Dialog.Header"));
         messageDialog.setMessage(
-                BaseMessages.getString(PKG, "PipelineGraph.RunningFile.Dialog.Message", buildTabName()));
+            BaseMessages.getString(
+                PKG, "PipelineGraph.RunningFile.Dialog.Message", buildTabName()));
         int answer = messageDialog.open();
-        // The NO answer means: ignore the state of the pipeline and just let it run in the background
+        // The NO answer means: ignore the state of the pipeline and just let it run in the
+        // background
         // It can be seen in the execution information perspective if a location was set up.
         //
         if ((answer & SWT.YES) != 0) {
@@ -5165,6 +5167,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 adjustScrolling();
               }
 
+              try {
+                ExtensionPointHandler.callExtensionPoint(
+                    LogChannel.UI,
+                    variables,
+                    HopGuiExtensionPoint.HopGuiPipelineGraphUpdateGui.id,
+                    this);
+              } catch (Exception xe) {
+                LogChannel.UI.logError("Error handling extension point 'HopGuiFileOpenDialog'", xe);
+              }
+
               HopGuiPipelineGraph.super.redraw();
             });
   }
@@ -5328,14 +5340,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-          id = "pipeline-graph-navigate-to-execution-info",
-          parentId = HopGuiPipelineContext.CONTEXT_ID,
-          type = GuiActionType.Info,
-          name = "i18n::HopGuiPipelineGraph.ContextualAction.NavigateToExecutionInfo.Text",
-          tooltip = "i18n::HopGuiPipelineGraph.ContextualAction.NavigateToExecutionInfo.Tooltip",
-          image = "ui/images/location.svg",
-          category = "Basic",
-          categoryOrder = "1")
+      id = "pipeline-graph-navigate-to-execution-info",
+      parentId = HopGuiPipelineContext.CONTEXT_ID,
+      type = GuiActionType.Info,
+      name = "i18n::HopGuiPipelineGraph.ContextualAction.NavigateToExecutionInfo.Text",
+      tooltip = "i18n::HopGuiPipelineGraph.ContextualAction.NavigateToExecutionInfo.Tooltip",
+      image = "ui/images/location.svg",
+      category = "Basic",
+      categoryOrder = "1")
   public void navigateToExecutionInfo(HopGuiPipelineContext context) {
     navigateToExecutionInfo();
   }
@@ -5372,21 +5384,26 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         return;
       }
       ExecutionInfoLocation location;
-      if (locationNames.size()==1) {
+      if (locationNames.size() == 1) {
         // No need to ask which location, just pick this one
         location = serializer.load(locationNames.get(0));
       } else {
-        EnterSelectionDialog dialog = new EnterSelectionDialog(getShell(), locationNames.toArray(new String[0]),
-                "Select location", "Select the execution information location to query");
+        EnterSelectionDialog dialog =
+            new EnterSelectionDialog(
+                getShell(),
+                locationNames.toArray(new String[0]),
+                "Select location",
+                "Select the execution information location to query");
         String locationName = dialog.open();
-        if (locationName!=null) {
+        if (locationName != null) {
           location = serializer.load(locationName);
         } else {
           return;
         }
       }
 
-      ep.createLastExecutionView(location.getName(), ExecutionType.Pipeline, pipelineMeta.getName());
+      ep.createLastExecutionView(
+          location.getName(), ExecutionType.Pipeline, pipelineMeta.getName());
       ep.activate();
     } catch (Exception e) {
       new ErrorDialog(

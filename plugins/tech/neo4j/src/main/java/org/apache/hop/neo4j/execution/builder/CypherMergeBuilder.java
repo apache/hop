@@ -18,6 +18,9 @@
 
 package org.apache.hop.neo4j.execution.builder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.Map;
 
 public class CypherMergeBuilder extends BaseCypherBuilder {
@@ -76,7 +79,17 @@ public class CypherMergeBuilder extends BaseCypherBuilder {
     }
     cypher.append("n.").append(property).append("=$").append(property).append(" ");
 
-    addParameter(property, value);
+    if (value instanceof Map) {
+      String jsonString;
+      try {
+        jsonString = new ObjectMapper().writeValueAsString(value);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException("Error converting Map to a JSON String", e);
+      }
+      addParameter(property, jsonString);
+    } else {
+      addParameter(property, value);
+    }
 
     return this;
   }

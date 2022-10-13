@@ -22,6 +22,7 @@ import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -103,7 +104,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
         for (Method method : methods) {
           GuiMenuElement menuElement = method.getAnnotation(GuiMenuElement.class);
           if (menuElement != null) {
-            guiRegistry.addGuiWidgetElement(guiPluginClassName, menuElement, method, classLoader);
+            guiRegistry.addGuiMenuElement(guiPluginClassName, menuElement, method, classLoader);
           }
           GuiToolbarElement toolbarElement = method.getAnnotation(GuiToolbarElement.class);
           if (toolbarElement != null) {
@@ -142,8 +143,13 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           }
 
           GuiWidgetElement guiWidgetElement = method.getAnnotation(GuiWidgetElement.class);
-          if (guiWidgetElement!=null) {
-            guiRegistry.addGuiWidgetElement(guiWidgetElement, method, guiPluginClassName, classLoader);
+          if (guiWidgetElement != null) {
+            if (guiWidgetElement.type() == GuiElementType.COMPOSITE) {
+              guiRegistry.addCompositeGuiWidgetElement(guiWidgetElement, method, classLoader);
+            } else {
+              guiRegistry.addGuiWidgetElement(
+                  guiWidgetElement, method, guiPluginClassName, classLoader);
+            }
           }
         }
       }
