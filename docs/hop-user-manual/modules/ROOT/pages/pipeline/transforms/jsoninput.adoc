@@ -155,7 +155,7 @@ The Additional output fields tab contains the following options to specify addit
 |===
 
 == Considerations
-Normally, while processing input JSON files, if a field contains null then the whole record will be omitted from the output.
+While processing input JSON files, if a JSON record has one or more field  containing null values, by default the null values will be present in the transform output.
 
 For example if we have a JSON file like this
 ```json
@@ -208,16 +208,16 @@ Name 2
 Name 4
 ```
 
-You will notice that you only have 3 rowst retuned in this case ( the null line is omited from the result)
+You will notice that you only have 3 rowsets returned in this case ( the null line is omited from the result)
 
 
-To change Hop's behavior regarding Null values in Json files, change the following configuration variable:
+To change Hop's behavior regarding null values in JSON files, so that null values will not be considered in JSON output, you change the `HOP_JSON_INCLUDE_NULLS` configuration variable and set it's value to N
 
 ```
-HOP_JSON_INPUT_INCLUDE_NULLS = Y
+HOP_JSON_INPUT_INCLUDE_NULLS = N
 ```
 
-When restarting and re-running the pipeline you will have 4 result rows containing the null value.
+After restaring Hop, when we run the pipeline once again you will have 3 rows resulting because the the null values will be omitted.
 
 == Metadata Injection Support
 
