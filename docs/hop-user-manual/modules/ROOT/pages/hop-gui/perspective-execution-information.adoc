@@ -29,7 +29,7 @@ The Execution Information perspective provides an overview of execution informat
 
 == Information collection
 
-The execution information displayed in this perspective is not collected automatically.  You need to specify to which xref:metadata-types/execution-information-location.adoc[location] you want to send execution information in the xref:metadata-types/pipeline-run-config.adoc[Pipeline run confirmation] or xref:metadata-types/workflow-run-config.adoc[Workflow run configuration] of your choice.
+The execution information displayed in this perspective is not collected automatically.  You need to specify to which xref:metadata-types/execution-information-location.adoc[location] you want to send execution information in the xref:metadata-types/pipeline-run-config.adoc[Pipeline run configuration] or xref:metadata-types/workflow-run-config.adoc[Workflow run configuration] of your choice.
 
 == Navigation
 
