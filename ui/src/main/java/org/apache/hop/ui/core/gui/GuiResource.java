@@ -1772,7 +1772,7 @@ public class GuiResource {
       }
 
       svg.dispose();
-      imageMap.put(location, image);
+      imageMap.put(key, image);
     }
     return image;
   }
