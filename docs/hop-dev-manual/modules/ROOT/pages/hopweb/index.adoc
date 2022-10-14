@@ -29,6 +29,11 @@ Hop currently doesn't offer any standalone Hop Web builds.
 
 Running your own Hop Web environment is straightforward but requires you to build Hop. Follow the xref:setup-dev-environment.adoc[development environment setup] guide to get the Hop source code and build Hop.
 
+The steps to set up the default Docker image are included in a helper script `docker/create_hop_web_container.sh` in the Hop code base.
+This should get you started to make modifications or create your own version entirely.
+
+Additional info in xref:hopweb/developer-guide.adoc#_building_the_hop_web_docker_container[Building the Hop Web Docker container]
+
 == Tomcat Configuration
 
 === Copy files
@@ -37,16 +42,13 @@ We'll use Apache Tomcat in this example. If you use another application server, 
 
 Hop 2.x is built with Java 11, so you'll need to https://tomcat.apache.org/download-90.cgi[download the latest Tomcat 9].
 
-The steps to set up the default Docker image are included in a helper script `docker/create_hop_web_container.sh` in the Hop code base.
-This should get you started to make modifications or create your own version entirely.
-
 Copy or extract the following files from your Hop build, where `$CATALINA_HOME` is your Tomcat installation folder.
 
 [source,bash]
 ----
 
 #unzip files for docker image
-unzip assemblies/web/target/hop.war -d $CATALINA_HOME/webapp
+unzip assemblies/web/target/hop.war -d $CATALINA_HOME/webapps/hop/
 unzip assemblies/plugins/dist/target/hop-assemblies-*.zip -d $CATALINA_HOME/
 ----
 
@@ -57,23 +59,23 @@ Configure Tomcat to run Hop by adding the information below to  `$CATALINA_HOME/
 [source,bash]
 ----
 
-HOP_AES_ENCODER_KEY=
+export HOP_AES_ENCODER_KEY=
 # specify where Hop should store audit information
-HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/hop/audit"
+export HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/hop/audit"
 # specify where Hop should manage configuration metadata (e.g. projects and environments information).
-HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/hop/config"
+export HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/hop/config"
 # specify the hop log level
-HOP_LOG_LEVEL="Basic"
+export HOP_LOG_LEVEL="Basic"
 # any additional JRE settings you want to pass on
-#HOP_OPTIONS=
+#export HOP_OPTIONS=
 # default Hop password encoder plugin
-HOP_PASSWORD_ENCODER_PLUGIN="Hop"
+export HOP_PASSWORD_ENCODER_PLUGIN="Hop"
 # point Hop to the plugins folder
-HOP_PLUGIN_BASE_FOLDERS="plugins"
+export HOP_PLUGIN_BASE_FOLDERS="${CATALINA_HOME}/plugins"
 # path to jdbc drivers
-HOP_SHARED_JDBC_FOLDER=
+export HOP_SHARED_JDBC_FOLDER=
 # the theme to use (dark or light)
-HOP_WEB_THEME="light"
+export HOP_WEB_THEME="light"
 
 # Set TOMCAT start variables
 export CATALINA_OPTS='${HOP_OPTIONS} -DHOP_AES_ENCODER_KEY="${HOP_AES_ENCODER_KEY}" -DHOP_AUDIT_FOLDER="${HOP_AUDIT_FOLDER}" -DHOP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}" -DHOP_LOG_LEVEL="${HOP_LOG_LEVEL}" -DHOP_PASSWORD_ENCODER_PLUGIN="${HOP_PASSWORD_ENCODER_PLUGIN}" -DHOP_PLUGIN_BASE_FOLDERS="${HOP_PLUGIN_BASE_FOLDERS}" -DHOP_SHARED_JDBC_FOLDER="${HOP_SHARED_JDBC_FOLDER}" -DHOP_WEB_THEME="${HOP_WEB_THEME}"'
@@ -108,7 +110,7 @@ On Windows, modify `hop-config.json` to make sure `projectsConf` looks like the 
 
 ----
 
-== Start Tomcat
+=== Start Tomcat
 
 Run `bin/startup.sh` (Linux/Mac) or `bin/startup.bat` (Windows).
 
