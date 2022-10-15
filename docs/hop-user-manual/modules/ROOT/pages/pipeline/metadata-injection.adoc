@@ -46,6 +46,113 @@ The goal is to add Metadata Injection support to all transforms, The current (15
 
 |===
 |Transform|Supports MDI
+|Abort|Y
+|Add a checksum|Y
+|Add constants|Y
+|Add sequence|Y
+|Add value fields changing sequence|Y
+|Add XML|Y
+|Analytic query|Y
+|Apache Tika|Y
+|Append streams|Y
+|Avro Decode|Y
+|Avro Encode|Y
+|Avro File Input|Y
+|Avro File Output|Y
+|Azure Event Hubs Listener|N
+|Azure Event Hubs Writer|N
+|Beam BigQuery Input|Y
+|Beam BigQuery Output|Y
+|Beam Bigtable Input|Y
+|Beam Bigtable Output|Y
+|Beam File Input|Y
+|Beam File Output|Y
+|Beam GCP Pub/Sub : Publish|Y
+|Beam GCP Pub/Sub : Subscribe|Y
+|Beam Kafka Consume|Y
+|Beam Kafka Produce|Y
+|Beam Kinesis Consume|Y
+|Beam Kinesis Produce|Y
+|Beam Timestamp|Y
+|Beam Window|Y
+|Block until transforms finish|Y
+|Blocking transform|Y
+|Calculator|Y
+|Call DB procedure|N
+|Cassandra input|Y
+|Cassandra output|Y
+|Change file encoding|Y
+|Check if file is locked|Y
+|Check if webservice is available|Y
+|Clone row|Y
+|Closure generator|N
+|Coalesce Fields|Y
+|Column exists|Y
+|Combination lookup/update|Y
+|Concat Fields|N
+|Copy rows to result|N
+|Credit card validator|N
+|CSV file input|Y
+|Data grid|Y
+|Database join|Y
+|Database lookup|Y
+|De-serialize from file|N
+|Delay row|Y
+|Delete|Y
+|Detect empty stream|N
+|Dimension lookup/update|Y
+|Doris bulk loader|Y
+|Dummy (do nothing)|N
+|Dynamic SQL row|Y
+|EDI to XML|N
+|Email messages input|N
+|Enhanced JSON Output|Y
+|ETL metadata injection|Y
+|Execute a process|N
+|Execute row SQL script|Y
+|Execute SQL script|Y
+|Execute Unit Tests|N
+|Execution Information|Y
+|Fake data|Y
+|File exists|Y
+|File Metadata|N
+|Filter rows|Y
+|Formula|Y
+|Fuzzy match|N
+|Generate random value|N
+|Generate rows|Y
+|Get data from XML|N
+|Get file names|Y
+|Get files from result|N
+|Get files rows count|N
+|Get ID from hop server|N
+|Get Neo4j Logging Info|Y
+|Get records from stream|N
+|Get rows from result|N
+|Get Server Status|Y
+|Get subfolder names|N
+|Get system info|Y
+|Get table names|Y
+|Get variables|Y
+|Group by|Y
+|HTTP client|N
+|HTTP post|Y
+|Identify last row in a stream|Y
+|If Null|Y
+|Injector|Y
+|Insert / update|Y
+|Java filter|Y
+|JavaScript|Y
+|Join rows (cartesian product)|Y
+|JSON input|Y
+|JSON output|Y
+|Kafka Consumer|Y
+|Kafka Producer|Y
+|LDAP input|N
+|LDAP output|N
+|Load file content in memory|N
+|Mail|N
+|Mapping Input|N
 |Mapping Output|N
 |Memory group by|Y
 |Merge join|Y
@@ -69,6 +176,7 @@ The goal is to add Metadata Injection support to all transforms, The current (15
 |Neo4j Split Graph|N
 |Null if|Y
 |Number range|Y
+|org.mozilla.javascript.UniqueTag@1bac1db9: NOT_FOUND|N
 |Parquet File Input|Y
 |Parquet File Output |Y
 |PGP decrypt stream|N
