@@ -42,122 +42,17 @@ The metadata is injected into the template pipeline through any transform that s
 
 == Supported Transforms
 
-The goal is to add Metadata Injection support to all transforms, The current (29-july 2022) status is:
+The goal is to add Metadata Injection support to all transforms, The current (15-October 2022) status is:
 
 |===
 |Transform|Supports MDI
-|Abort|Y
-|Add a checksum|Y
-|Add constants|Y
-|Add sequence|Y
-|Add value fields changing sequence|Y
-|Add XML|Y
-|Analytic query|Y
-|Apache Tika|Y
-|Append streams|Y
-|Avro Decode|Y
-|Avro Encode|Y
-|Avro File Input|Y
-|Avro File Output|Y
-|Azure Event Hubs Listener|Y
-|Azure Event Hubs Writer|Y
-|Beam BigQuery Input|Y
-|Beam BigQuery Output|Y
-|Beam Bigtable Input|Y
-|Beam Bigtable Output|Y
-|Beam GCP Pub/Sub : Publish|Y
-|Beam GCP Pub/Sub : Subscribe|Y
-|Beam Input|Y
-|Beam Kafka Consume|Y
-|Beam Kafka Produce|Y
-|Beam Kinesis Consume|Y
-|Beam Kinesis Produce|Y
-|Beam Output|Y
-|Beam Timestamp|Y
-|Beam Window|Y
-|Block until transforms finish|Y
-|Blocking transform|Y
-|Calculator|Y
-|Call DB procedure|Y
-|Cassandra input|Y
-|Cassandra output|Y
-|Change file encoding|Y
-|Check if file is locked|Y
-|Check if webservice is available|Y
-|Clone row|Y
-|Closure generator|Y
-|Coalesce Fields|Y
-|Column exists|Y
-|Combination lookup/update|Y
-|Concat Fields|Y
-|Copy rows to result|Y
-|Credit card validator|Y
-|CSV file input|Y
-|Data grid|Y
-|Database join|Y
-|Database lookup|Y
-|De-serialize from file|Y
-|Delay row|Y
-|Delete|Y
-|Detect empty stream|Y
-|Dimension lookup/update|Y
-|Doris bulk loader|Y
-|Dummy (do nothing)|Y
-|Dynamic SQL row|Y
-|EDI to XML|Y
-|Email messages input|Y
-|Enhanced JSON Output|Y
-|ETL metadata injection|Y
-|Execute a process|Y
-|Execute row SQL script|Y
-|Execute SQL script|Y
-|Execute Unit Tests|Y
-|Fake data|Y
-|File exists|Y
-|File Metadata|Y
-|Filter rows|Y
-|Formula|Y
-|Fuzzy match|Y
-|Generate random value|Y
-|Generate rows|Y
-|Get data from XML|Y
-|Get file names|Y
-|Get files from result|Y
-|Get files rows count|Y
-|Get ID from hop server|Y
-|Get Neo4j Logging Info|Y
-|Get records from stream|Y
-|Get rows from result|Y
-|Get Server Status|Y
-|Get subfolder names|Y
-|Get system info|Y
-|Get table names|Y
-|Get variables|Y
-|Group by|Y
-|HTTP client|Y
-|HTTP post|Y
-|Identify last row in a stream|Y
-|If Null|Y
-|Injector|Y
-|Insert / update|Y
-|Java filter|Y
-|JavaScript|Y
-|Join rows (cartesian product)|Y
-|JSON input|Y
-|JSON output|Y
-|Kafka Consumer|Y
-|Kafka Producer|Y
-|LDAP input|Y
-|LDAP output|Y
-|Load file content in memory|Y
-|Mail|Y
-|Mapping Input|Y
-|Mapping Output|Y
+|Mapping Output|N
 |Memory group by|Y
 |Merge join|Y
 |Merge rows (diff)|Y
 |Metadata Input|Y
 |Metadata structure of stream|Y
+|Microsoft Access output|Y
 |Microsoft Excel input|Y
 |Microsoft Excel writer|Y
 |MonetDB bulk loader|Y
@@ -166,59 +61,60 @@ The goal is to add Metadata Injection support to all transforms, The current (29
 |MongoDB output|Y
 |Multiway merge join|Y
 |Neo4j Cypher|Y
-|Neo4j Generate CSVs|Y
+|Neo4j Cypher Builder|Y
+|Neo4j Generate CSVs|N
 |Neo4j Graph Output|Y
 |Neo4j Import|Y
 |Neo4J Output|Y
-|Neo4j Split Graph|Y
+|Neo4j Split Graph|N
 |Null if|Y
 |Number range|Y
 |Parquet File Input|Y
 |Parquet File Output |Y
-|PGP decrypt stream|Y
-|PGP encrypt stream|Y
-|Pipeline executor|Y
+|PGP decrypt stream|N
+|PGP encrypt stream|N
+|Pipeline executor|N
 |Pipeline Logging|Y
 |Pipeline Probe|Y
 |PostgreSQL Bulk Loader|Y
 |Process files|Y
-|Properties input|Y
-|Properties output|Y
-|Regex evaluation|Y
+|Properties input|N
+|Properties output|N
+|Regex evaluation|N
 |Replace in string|Y
-|Reservoir sampling|Y
-|REST client|Y
+|Reservoir sampling|N
+|REST client|N
 |Row denormaliser|Y
-|Row flattener|Y
+|Row flattener|N
 |Row normaliser|Y
 |Rules accumulator|Y
 |Rules executor|Y
 |Run SSH commands|Y
-|Salesforce delete|Y
+|Salesforce delete|N
 |Salesforce input|Y
-|Salesforce insert|Y
-|Salesforce update|Y
-|Salesforce upsert|Y
-|Sample rows|Y
-|SAS Input|Y
+|Salesforce insert|N
+|Salesforce update|N
+|Salesforce upsert|N
+|Sample rows|N
+|SAS Input|N
 |Select values|Y
-|Serialize to file|Y
+|Serialize to file|N
 |Set field value|Y
 |Set field value to a constant|Y
-|Set files in result|Y
-|Set variables|Y
-|Simple Mapping|Y
+|Set files in result|N
+|Set variables|N
+|Simple Mapping|N
 |Snowflake Bulk Loader|Y
 |Sort rows|Y
 |Sorted merge|Y
 |Split field to rows|Y
 |Split fields|Y
 |Splunk Input|Y
-|SQL file output|Y
+|SQL file output|N
 |SSTable output|Y
 |Standardize phone number|Y
 |Stream lookup|Y
-|Stream Schema Merge|Y
+|Stream Schema Merge|N
 |String operations|Y
 |Strings cut|Y
 |Switch / case|Y
@@ -227,26 +123,26 @@ The goal is to add Metadata Injection support to all transforms, The current (29
 |Table exists|Y
 |Table input|Y
 |Table output|Y
-|Teradata Fastload bulk loader|Y
+|Teradata Fastload bulk loader|N
 |Text file input|Y
-|Text file input (deprecated)|Y
+|Text file input (deprecated)|N
 |Text file output|Y
 |Token Replacement|Y
 |Unique rows|Y
-|Unique rows (HashSet)|Y
+|Unique rows (HashSet)|N
 |Update|Y
 |User defined Java class|Y
 |User defined Java expression|Y
 |Value mapper|Y
-|Web services lookup|Y
-|Workflow executor|Y
+|Web services lookup|N
+|Workflow executor|N
 |Workflow Logging|Y
-|Write to log|Y
-|XML input stream (StAX)|Y
+|Write to log|N
+|XML input stream (StAX)|N
 |XML join|Y
 |XML output|Y
-|XSD validator|Y
-|XSL Transformation|Y
-|YAML input |Y
+|XSD validator|N
+|XSL Transformation|N
+|YAML input |N
 |Zip file|Y
 |===
