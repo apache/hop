@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -221,7 +222,8 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
 
   @Override
   public Map<String, Object> getStateProperties() {
-    return Collections.emptyMap();
+    // Return an empty editable map because HopGuiAuditDelegate tries to add properties
+    return new HashMap<>();
   }
 
   @Override
