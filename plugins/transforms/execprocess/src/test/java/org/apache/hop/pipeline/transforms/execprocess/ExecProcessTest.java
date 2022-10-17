@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.execprocess;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.SingleRowRowSet;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -46,19 +47,25 @@ public class ExecProcessTest {
         .thenReturn(tmh.iLogChannel);
     when(tmh.pipeline.isRunning()).thenReturn(true);
     when(tmh.iTransformMeta.getProcessField()).thenReturn("p");
-    when(tmh.iTransformMeta.getArgumentFieldNames()).thenReturn(new String[] {"arg"});
+    String[] argFields = Const.isWindows() ? "arg1 arg2 arg3".split(" ") : new String[] {"arg"};
+    when(tmh.iTransformMeta.getArgumentFieldNames()).thenReturn(argFields);
     when(tmh.iTransformMeta.isArgumentsInFields()).thenReturn(true);
     when(tmh.iTransformMeta.getResultFieldName()).thenReturn("r1");
     tmh.iTransformData.runtime = Runtime.getRuntime();
 
     rowRowSet = new RowMeta();
     rowRowSet.addValueMeta(new ValueMetaString("p"));
-    rowRowSet.addValueMeta(new ValueMetaString("arg"));
+    for (String field : argFields) {
+      rowRowSet.addValueMeta(new ValueMetaString(field));
+    }
   }
 
   @Test
   public void testNormalProcess() throws Exception {
-    ExecProcess echoProcess = createExecProcess("echo", "'a echo message'");
+    ExecProcess echoProcess =
+        Const.isWindows()
+            ? createExecProcess("cmd", "/c", "echo", "a echo message")
+            : createExecProcess("echo", "a echo message");
     assertTrue(echoProcess.init());
     assertTrue(echoProcess.processRow());
     assertFalse(echoProcess.processRow());
@@ -67,7 +74,10 @@ public class ExecProcessTest {
 
   @Test
   public void testHandlingProcess() throws Exception {
-    ExecProcess echoProcess = createExecProcess("sleep", "30");
+    ExecProcess echoProcess =
+        Const.isWindows()
+            ? createExecProcess("cmd", "/c", "pause", "")
+            : createExecProcess("sleep", "30");
     assertTrue(echoProcess.init());
     CountDownLatch waitingLatch = new CountDownLatch(1);
     Executors.newSingleThreadScheduledExecutor()
@@ -82,11 +92,10 @@ public class ExecProcessTest {
             100,
             TimeUnit.MILLISECONDS);
     echoProcess.processRow();
-    waitingLatch.await();
-    verify(tmh.iLogChannel).logMinimal(anyString());
+    assertTrue(waitingLatch.await(10, TimeUnit.SECONDS));
   }
 
-  private ExecProcess createExecProcess(String shellCmd, String arg) {
+  private ExecProcess createExecProcess(String shellCmd, String... args) {
     ExecProcess execEcho =
         new ExecProcess(
             tmh.transformMeta,
@@ -98,7 +107,10 @@ public class ExecProcessTest {
     execEcho.setInputRowMeta(rowRowSet);
 
     SingleRowRowSet rs = new SingleRowRowSet();
-    rs.putRow(rowRowSet, new Object[] {shellCmd, arg});
+    Object[] data = new Object[args.length + 1];
+    data[0] = shellCmd;
+    System.arraycopy(args, 0, data, 1, args.length);
+    rs.putRow(rowRowSet, data);
     rs.setDone();
     execEcho.setInputRowMeta(rowRowSet);
     execEcho.setInputRowSets(new ArrayList<>(Collections.singletonList(rs)));
