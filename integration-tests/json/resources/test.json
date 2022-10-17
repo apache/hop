@@ -1,0 +1,25 @@
+{
+	"id": "123456",
+	"testArray": [
+		{
+			"id": "1654879",
+			"Name": null,
+			"testArray_inner_one": [
+				{
+					"id": "15697",
+					"Name": "Robert"
+				}
+			]
+		},
+		{
+			"id": "888",
+			"Name": "Robert222",
+			"testArray_inner_two": [
+				{
+					"id": "4309",
+					"Name": null
+				}
+			]
+		}
+	]
+}
