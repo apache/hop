@@ -265,12 +265,6 @@ public class ContextDialog extends Dialog {
     public void setAreaOwner(AreaOwner areaOwner) {
       this.areaOwner = areaOwner;
     }
-
-    public void dispose() {
-      if (image != null) {
-        image.dispose();
-      }
-    }
   }
 
   public ContextDialog(
@@ -642,11 +636,10 @@ public class ContextDialog extends Dialog {
     // Close the dialog window
     shell.close();
 
-    // Clean up the images...
-    //
-    for (Item item : items) {
-      item.dispose();
-    }
+    // Do not dispose item images. They are cached by GuiResource so that they're only ever loaded once.
+    // There's no need to keep re-loading all the time.
+    // Previously this cache was not functional so that we needed to dispose here.
+
     highlightColor.dispose();
     headerFont.dispose();
   }

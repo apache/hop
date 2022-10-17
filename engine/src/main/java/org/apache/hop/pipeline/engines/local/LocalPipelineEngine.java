@@ -339,8 +339,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     super.startThreads();
 
     // Make sure to kill the timer when this pipeline is finished.
-    //
-    super.addExecutionFinishedListener(engine -> stopTransformExecutionInfoTimer());
+    // We do this with an extension point.
   }
 
   @Override
@@ -438,6 +437,11 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                 + "' could not be found in the metadata");
       }
     }
+  }
+
+  @Override
+  public void pipelineCompleted() throws HopException {
+    stopTransformExecutionInfoTimer();
   }
 
   public void stopTransformExecutionInfoTimer() {

@@ -641,9 +641,7 @@ public class TransformFn extends TransformBaseFn {
       }
     } catch (Exception e) {
       LOG.error(
-          "Error sending row samples to execution info location for transform " + transformName, e);
-      throw new RuntimeException(
-          "Error sending row samples to execution info location for transform " + transformName, e);
+          "Error sending row samples to execution info location for transform " + transformName+" (non-fatal)", e);
     }
   }
 }

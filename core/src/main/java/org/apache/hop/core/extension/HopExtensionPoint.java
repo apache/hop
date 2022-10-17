@@ -29,6 +29,7 @@ public enum HopExtensionPoint {
   PipelineHeartbeat(
       "A signal sent at regular intervals to indicate that the Pipeline is still active"),
   PipelineFinish("A Pipeline finishes"),
+  PipelineCompleted("A pipeline has completed after all finished listeners were fired"),
   PipelineMetaLoaded("Pipeline metadata was loaded"),
 
   PipelinePainterStart("Draw Pipeline or plugin metadata at the start (below the rest)"),

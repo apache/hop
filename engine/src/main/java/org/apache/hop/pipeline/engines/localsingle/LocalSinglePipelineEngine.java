@@ -97,4 +97,9 @@ public class LocalSinglePipelineEngine extends Pipeline implements IPipelineEngi
   public String getStatusDescription() {
     return super.getStatus();
   }
+
+  @Override
+  public void pipelineCompleted() throws HopException {
+
+  }
 }
