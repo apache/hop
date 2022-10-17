@@ -135,6 +135,12 @@ public interface IPipelineEngine<T extends PipelineMeta>
   /** Wait until the execution is done. */
   void waitUntilFinished();
 
+  /**
+   * This method is called when all the finished listeners are executed and when the pipeline has completed.
+   * @throws HopException
+   */
+  void pipelineCompleted() throws HopException;
+
   /** Stops all parts of the execution from running and alerts any registered listeners. */
   void stopAll();
 

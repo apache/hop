@@ -24,36 +24,72 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.*;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.LoggingObject;
+import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
-import org.apache.hop.core.parameters.*;
+import org.apache.hop.core.parameters.DuplicateParamException;
+import org.apache.hop.core.parameters.INamedParameterDefinitions;
+import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.parameters.NamedParameters;
+import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.VariableScope;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.*;
+import org.apache.hop.pipeline.IExecutionFinishedListener;
+import org.apache.hop.pipeline.IExecutionStartedListener;
+import org.apache.hop.pipeline.IExecutionStoppedListener;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineConfiguration;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engine.*;
+import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
+import org.apache.hop.pipeline.engine.EngineMetrics;
+import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IPipelineComponentRowsReceived;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
+import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.apache.hop.www.*;
+import org.apache.hop.www.HopServerPipelineStatus;
+import org.apache.hop.www.PrepareExecutionPipelineServlet;
+import org.apache.hop.www.RegisterPackageServlet;
+import org.apache.hop.www.RegisterPipelineServlet;
+import org.apache.hop.www.SniffTransformServlet;
+import org.apache.hop.www.StartExecutionPipelineServlet;
+import org.apache.hop.www.WebResult;
 import org.w3c.dom.Node;
 
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @PipelineEnginePlugin(
     id = "Remote",
@@ -658,6 +694,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   }
 
   @Override
+  public void pipelineCompleted() throws HopException {}
+
+  @Override
   public String getComponentLogText(String componentName, int copyNr) {
     return ""; // TODO implement this
   }
@@ -985,6 +1024,15 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         listener.finished(this);
       }
     }
+
+    // Now the status and everything else is set correctly. We've completed the pipeline.
+    //
+    pipelineCompleted();
+
+    // Also call an extension point in case plugins want to play along
+    //
+    ExtensionPointHandler.callExtensionPoint(
+        logChannel, this, HopExtensionPoint.PipelineCompleted.id, this);
   }
 
   @Override
@@ -1029,7 +1077,8 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       // TODO: send this mapper over to the remote pipeline.
       // TODO: create new servlet to accept a new data sampler
 
-      throw new HopException("Adding execution data sampler to remote pipeline is not yet implemented");
+      throw new HopException(
+          "Adding execution data sampler to remote pipeline is not yet implemented");
     } catch (Exception e) {
       throw new HopException("Error adding execution data sampler to remote pipeline", e);
     }

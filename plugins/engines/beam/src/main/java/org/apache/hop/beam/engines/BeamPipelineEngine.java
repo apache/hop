@@ -37,6 +37,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.*;
 import org.apache.hop.core.parameters.*;
 import org.apache.hop.core.variables.IVariables;
@@ -212,7 +214,8 @@ public abstract class BeamPipelineEngine extends Variables
       lookupExecutionInformationLocation();
       registerPipelineExecutionInformation();
       startExecutionInfoTimer();
-      addExecutionFinishedListener(engine -> stopExecutionInfoTimer());
+
+      // The execution info timer is stopped in pipelineCompleted()
 
       converter =
           new HopPipelineMetaToBeamPipelineConverter(
@@ -362,14 +365,6 @@ public abstract class BeamPipelineEngine extends Variables
                     if (refreshTimer != null) {
                       refreshTimer.cancel(); // no more needed
                     }
-                    setRunning(false);
-                    status = ComponentExecutionStatus.STATUS_FINISHED;
-                    if (getErrors() > 0) {
-                      statusDescription = Pipeline.STRING_FINISHED_WITH_ERRORS;
-                    } else {
-                      statusDescription = Pipeline.STRING_FINISHED;
-                    }
-                    executionEndDate = new Date();
                   } catch (Exception e) {
                     throw new RuntimeException("Error post-processing a beam pipeline", e);
                   }
@@ -994,6 +989,25 @@ public abstract class BeamPipelineEngine extends Variables
         listener.finished(this);
       }
     }
+
+    // Make sure we capture this moment in time correctly.
+    //
+    setRunning(false);
+    status = ComponentExecutionStatus.STATUS_FINISHED;
+    if (getErrors() > 0) {
+      statusDescription = Pipeline.STRING_FINISHED_WITH_ERRORS;
+    } else {
+      statusDescription = Pipeline.STRING_FINISHED;
+    }
+    executionEndDate = new Date();
+
+    // Now the status and everything else is set correctly. We've completed the pipeline.
+    //
+    pipelineCompleted();
+
+    // Also call an extension point in case plugins want to play along
+    //
+    ExtensionPointHandler.callExtensionPoint(logChannel, this, HopExtensionPoint.PipelineCompleted.id, this);
   }
 
   @Override
@@ -1089,6 +1103,11 @@ public abstract class BeamPipelineEngine extends Variables
     ExecutionState executionState =
         ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1).build();
     iLocation.updateExecutionState(executionState);
+  }
+
+  @Override
+  public void pipelineCompleted() throws HopException {
+    stopExecutionInfoTimer();
   }
 
   public void stopExecutionInfoTimer() throws HopException {
