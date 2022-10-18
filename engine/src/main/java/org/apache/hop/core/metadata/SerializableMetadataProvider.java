@@ -50,6 +50,7 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
    * @param source the source store to copy over
    */
   public SerializableMetadataProvider(IHopMetadataProvider source) throws HopException {
+    this.description = "Serializable metadata provider (source is "+source.getDescription()+")";
 
     // What is the list of available classes?
     //
@@ -104,7 +105,7 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
 
   public SerializableMetadataProvider(String storeJson) throws ParseException, HopException {
     this();
-
+    this.description = "Serializable metadata provider (source is JSON)";
     try {
 
       ByteArrayInputStream inputStream = null;

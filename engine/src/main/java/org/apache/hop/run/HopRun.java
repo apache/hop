@@ -17,6 +17,7 @@
 
 package org.apache.hop.run;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.core.Const;
@@ -31,6 +32,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
@@ -39,6 +41,7 @@ import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
@@ -58,6 +61,8 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +100,11 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       names = {"-r", "--runconfig"},
       description = "The name of the Run Configuration to use")
   private String runConfigurationName = null;
+
+  @Option(
+      names = {"-m", "--metadata-export"},
+      description = "A file containing exported metadata in JSON format")
+  private String metadataExportFile;
 
   @Option(
       names = {"-o", "--printoptions"},
@@ -136,6 +146,21 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
         if (mixin instanceof IConfigOptions) {
           IConfigOptions configOptions = (IConfigOptions) mixin;
           configOptions.handleOption(log, this, variables);
+        }
+      }
+
+      // Optionally we can configure metadata to come from a JSON export file.
+      //
+      String metadataExportFile = variables.resolve(getMetadataExportFile());
+      if (StringUtils.isNotEmpty(metadataExportFile)) {
+        // Load the JSON from the specified file:
+        //
+        try (InputStream inputStream = HopVfs.getInputStream(metadataExportFile)) {
+          String json = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+          SerializableMetadataProvider exportedProvider = new SerializableMetadataProvider(json);
+          metadataProvider.getProviders().add(exportedProvider);
+
+          System.out.println("===> Metadata provider is now: "+metadataProvider.getDescription());
         }
       }
 
@@ -181,7 +206,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     cmd.parseArgs(helpArgs);
   }
 
-  private void buildVariableSpace() throws IOException {
+  private void buildVariableSpace() {
     // Also grabs the system properties from hop.config.
     //
     variables = Variables.getADefaultVariableSpace();
@@ -258,8 +283,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       pipeline.prepareExecution();
       pipeline.startThreads();
       pipeline.waitUntilFinished();
-      // TODO: how to see if a pipeline fails? getresult always return true
-      setFinishedWithoutError(pipeline.getResult().getNrErrors() == 0l);
+      setFinishedWithoutError(pipeline.getResult().getNrErrors() == 0L);
     } catch (Exception e) {
       throw new ExecutionException(cmd, "Error running pipeline locally", e);
     }
@@ -731,6 +755,24 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     this.finishedWithoutError = finishedWithoutError;
   }
 
+  /**
+   * Gets metadataExportFile
+   *
+   * @return value of metadataExportFile
+   */
+  public String getMetadataExportFile() {
+    return metadataExportFile;
+  }
+
+  /**
+   * Sets metadataExportFile
+   *
+   * @param metadataExportFile value of metadataExportFile
+   */
+  public void setMetadataExportFile(String metadataExportFile) {
+    this.metadataExportFile = metadataExportFile;
+  }
+
   public static void main(String[] args) {
 
     HopRun hopRun = new HopRun();
@@ -768,7 +810,8 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       //
       hopRun.metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(hopRun.variables);
 
-      // Now add run configuration plugins...
+      // Now add configuration plugins with the RUN category.
+      // The 'projects' plugin for example configures things like the project metadata provider.
       //
       List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins(ConfigPluginType.class);
       for (IPlugin configPlugin : configPlugins) {
@@ -779,6 +822,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
           cmd.addMixin(configPlugin.getIds()[0], configOptions);
         }
       }
+
       hopRun.setCmd(cmd);
 
       // This will calculate the option values and put them in HopRun or the plugin classes

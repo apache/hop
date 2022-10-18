@@ -19,10 +19,25 @@
 
 # USE THIS FOR LOCAL DEV ONLY
 cd ../..
-# create new build
-mvn -DskipTests=true clean install
-# unzip new build
-unzip assemblies/client/target/hop-client-*.zip -d assemblies/client/target
-# build docker image
-LATEST_BUILD_VERSION=`date '+%Y%m%d%H%M%S'`
+
+if [ "$1" != "no-mvn" ]
+then
+  echo "Building Apache Hop: use first argument 'no-mvn' to skip this part."
+
+  # create new build
+  mvn -DskipTests=true clean install
+
+  # unzip new build
+  unzip assemblies/client/target/hop-client-*.zip -d assemblies/client/target
+fi
+
+if [ "$2" != "latest" ]
+then
+  echo "Using the current time as build version. Use second argument 'latest' to use that tag."
+  LATEST_BUILD_VERSION=`date '+%Y%m%d%H%M%S'`
+else
+  LATEST_BUILD_VERSION="latest"
+fi
+
+# build the docker image
 docker build . -f docker/Dockerfile -t apache-hop:${LATEST_BUILD_VERSION}

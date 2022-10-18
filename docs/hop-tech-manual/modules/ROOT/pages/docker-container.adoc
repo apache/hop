@@ -134,6 +134,10 @@ If you configured a project you can use a relative path to the project home fold
 | Optionally, you can specify the parameters that should be passed to the pipeline or workflow you are executing.
 You can specify them as a comma separated list, e.g. ```PARAM_1=aaa,PARAM_2=bbb```.
 
+|```HOP_RUN_METADATA_EXPORT```
+| No
+| You can specify a metadata export file here which will contain all required metadata elements.  See also the metadata export option in the Hop Conf tool.
+
 |===
 
 Below are the variables you can use for a **long-lived** container, running Hop Server:

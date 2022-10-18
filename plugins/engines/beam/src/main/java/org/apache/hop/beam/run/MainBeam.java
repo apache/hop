@@ -47,46 +47,42 @@ public class MainBeam {
 
       // Read the pipeline XML and metadata JSON (optionally from Hadoop FS)
       //
-      String pipelineMetaXml="";
-      String metadataJson="";
-      String runConfigName="";
+      String pipelineMetaXml = "";
+      String metadataJson = "";
+      String runConfigName = "";
 
-      if(args[0].startsWith("--")){
-        for(int i=0;i< args.length;i++){
-          String[] split = args[i].split("=", 2);
+      if (args[0].startsWith("--")) {
+        for (String arg : args) {
+          String[] split = arg.split("=", 2);
           String key = split.length > 0 ? split[0] : null;
           String value = split.length > 1 ? split[1] : null;
-          if(key!=null){
-            switch(key){
-              case("--HopPipelinePath"):
+          if (key != null) {
+            switch (key) {
+              case ("--HopPipelinePath"):
                 System.out.println("Argument 1 : Pipeline filename (.hpl)   : " + value);
                 pipelineMetaXml = readFileIntoString(value, "UTF-8");
                 break;
-              case("--HopMetadataPath"):
-                System.out.println("Argument 2 : Metadata filename (.json)  : " + value);
+              case ("--HopMetadataPath"):
+                System.out.println("Argument 2 : Environment state filename (.json)  : " + value);
                 metadataJson = readFileIntoString(value, "UTF-8");
                 break;
-              case("--HopRunConfigurationName"):
+              case ("--HopRunConfigurationName"):
                 System.out.println("Argument 3 : Pipeline run configuration : " + value);
                 runConfigName = value;
                 break;
             }
           }
         }
-
-      }else{
+      } else {
         System.out.println("Argument 1 : Pipeline filename (.hpl)   : " + args[0]);
         pipelineMetaXml = readFileIntoString(args[0], "UTF-8");
-        System.out.println("Argument 2 : Metadata filename (.json)  : " + args[1]);
+        System.out.println("Argument 2 : Environment state filename: (.json)  : " + args[1]);
         metadataJson = readFileIntoString(args[1], "UTF-8");
         System.out.println("Argument 3 : Pipeline run configuration : " + args[2]);
         runConfigName = args[2];
 
         System.out.println(">>>>>> Initializing Hop...");
       }
-
-
-
 
       // Inflate the metadata:
       //
@@ -109,11 +105,13 @@ public class MainBeam {
 
       System.out.println(">>>>>> Building Apache Beam Pipeline...");
       PluginRegistry registry = PluginRegistry.getInstance();
+
+      // Validate that the fat jar was found and built correctly.
+      // If it doesn't contain the Beam plugin we should just call it quits here.
+      //
       IPlugin beamInputPlugin =
           registry.getPlugin(TransformPluginType.class, BeamConst.STRING_BEAM_INPUT_PLUGIN_ID);
-      if (beamInputPlugin != null) {
-        System.out.println(">>>>>> Found Beam Input transform plugin class loader");
-      } else {
+      if (beamInputPlugin == null) {
         throw new HopException(
             "ERROR: Unable to find Beam Input transform plugin. Is it in the fat jar? ");
       }
