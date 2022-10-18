@@ -32,7 +32,7 @@ public class MultiMetadataProviderTest extends MetadataTestBase {
   public void testGetDescription() {
     String description = multiMetadataProvider.getDescription();
     assertNotNull(description);
-    assertEquals("Multi Metadata Provider: Provider1, Provider2, Provider3", description);
+    assertEquals("Multi Metadata Provider with 3 providers: Provider1, Provider2, Provider3", description);
   }
 
   public void testGetMetadataClasses() {
@@ -76,7 +76,7 @@ public class MultiMetadataProviderTest extends MetadataTestBase {
     // see if the description has changed...
     //
     assertEquals(
-        "Multi Metadata Provider: Provider1, Provider2, Provider3, Provider4",
+        "Multi Metadata Provider with 4 providers: Provider1, Provider2, Provider3, Provider4",
         multiMetadataProvider.getDescription());
   }
 }
