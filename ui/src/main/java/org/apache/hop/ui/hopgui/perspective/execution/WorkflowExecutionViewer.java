@@ -31,11 +31,22 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
-import org.apache.hop.execution.*;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionData;
+import org.apache.hop.execution.ExecutionDataBuilder;
+import org.apache.hop.execution.ExecutionDataSetMeta;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionType;
+import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelinePainter;
@@ -46,8 +57,9 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
@@ -60,16 +72,31 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.w3c.dom.Node;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 @GuiPlugin
 public class WorkflowExecutionViewer extends BaseExecutionViewer
@@ -86,6 +113,10 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   public static final String TOOLBAR_ITEM_DRILL_DOWN =
       "WorkflowExecutionViewer-Toolbar-11200-DrillDown";
   public static final String TOOLBAR_ITEM_GO_UP = "WorkflowExecutionViewer-Toolbar-11300-GoUp";
+  public static final String TOOLBAR_ITEM_VIEW_EXECUTOR =
+      "WorkflowExecutionViewer-Toolbar-12000-ViewExecutor";
+  public static final String TOOLBAR_ITEM_VIEW_METADATA =
+          "WorkflowExecutionViewer-Toolbar-12100-ViewMetadata";
 
   protected final WorkflowMeta workflowMeta;
   protected final String locationName;
@@ -873,5 +904,50 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error navigating up to parent execution", e);
     }
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_VIEW_EXECUTOR,
+      toolTip = "i18n::WorkflowExecutionViewer.ToolbarElement.ViewExecutor.Tooltip",
+      image = "ui/images/view.svg",
+      separator = true)
+  public void viewExecutor() {
+    try {
+      String workflowXml = execution.getExecutorXml();
+      Node workflowNode = XmlHandler.loadXmlString(workflowXml, WorkflowMeta.XML_TAG);
+
+      // Also inflate the metadata
+      //
+      String metadataJson = execution.getMetadataJson();
+      SerializableMetadataProvider metadataProvider =
+          new SerializableMetadataProvider(metadataJson);
+
+      // The variables set
+      //
+      IVariables variables = Variables.getADefaultVariableSpace();
+      variables.setVariables(execution.getVariableValues());
+      variables.setVariables(execution.getParameterValues());
+
+      WorkflowMeta workflowMeta = new WorkflowMeta(workflowNode, metadataProvider, variables);
+
+      HopDataOrchestrationPerspective p = HopGui.getDataOrchestrationPerspective();
+      HopGuiWorkflowGraph graph =
+          (HopGuiWorkflowGraph) p.addWorkflow(hopGui, workflowMeta, new HopWorkflowFileType<>());
+      graph.setVariables(variables);
+
+      p.activate();
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error viewing the executor", e);
+    }
+  }
+
+  @GuiToolbarElement(
+          root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+          id = TOOLBAR_ITEM_VIEW_METADATA,
+          toolTip = "i18n::WorkflowExecutionViewer.ToolbarElement.ViewMetadata.Tooltip",
+          image = "ui/images/metadata.svg")
+  public void viewMetadata() {
+    super.viewMetadata(execution);
   }
 }
