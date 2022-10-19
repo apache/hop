@@ -211,7 +211,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
             manager.getMetadataProvider(),
             ExecutionInfoLocation.class,
             wMainComp,
-            SWT.SINGLE | SWT.LEFT,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(
                 PKG, "PipelineRunConfigurationDialog.label.ExecutionInfoLocation"),
             BaseMessages.getString(

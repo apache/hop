@@ -180,7 +180,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
                     manager.getMetadataProvider(),
                     ExecutionInfoLocation.class,
                     parent,
-                    SWT.SINGLE | SWT.LEFT,
+                    SWT.SINGLE | SWT.LEFT | SWT.BORDER,
                     BaseMessages.getString(
                             PKG, "WorkflowRunConfigurationDialog.label.ExecutionInfoLocation"),
                     BaseMessages.getString(
