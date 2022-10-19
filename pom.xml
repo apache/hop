@@ -170,7 +170,7 @@
         <jandex-maven-plugin.version>1.0.8</jandex-maven-plugin.version>
         <wagon-plugin.version>2.0.0</wagon-plugin.version>
 
-        <jackson.version>2.13.0</jackson.version>
+        <jackson.version>2.13.4.1</jackson.version>
         <commons-compress.version>1.21</commons-compress.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
         <aws-java-sdk.version>1.12.279</aws-java-sdk.version>
