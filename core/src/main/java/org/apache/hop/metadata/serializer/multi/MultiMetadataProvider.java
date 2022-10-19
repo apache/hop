@@ -27,7 +27,11 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.BaseMetadataProvider;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 
 /**
  * This metadata provider delegates for a standard provider but also reads information from others
@@ -36,7 +40,6 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
   private ITwoWayPasswordEncoder twoWayPasswordEncoder;
   private IVariables variables;
   private List<IHopMetadataProvider> providers;
-  private String description;
 
   /**
    * @param twoWayPasswordEncoder The password encoder to use
@@ -51,7 +54,6 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
     this.twoWayPasswordEncoder = twoWayPasswordEncoder;
     this.providers = providers;
     this.variables = variables;
-    calculateDescription();
   }
 
   public MultiMetadataProvider(IVariables variables, IHopMetadataProvider... metadataProviders) {
@@ -68,17 +70,18 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
     }
   }
 
-  private void calculateDescription() {
-    description = "Multi Metadata Provider";
+  private String calculateDescription() {
+    String descr = "Multi Metadata Provider with "+providers.size()+" providers";
     for (int i = 0; i < providers.size(); i++) {
       IHopMetadataProvider provider = providers.get(i);
       if (i == 0) {
-        description += ": ";
+        descr += ": ";
       } else {
-        description += ", ";
+        descr += ", ";
       }
-      description += provider.getDescription();
+      descr += provider.getDescription();
     }
+    return descr;
   }
 
   @Override
@@ -151,12 +154,16 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
    */
   @Override
   public String getDescription() {
-    return description;
+    return calculateDescription();
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
-    this.description = description;
+    throw new RuntimeException(
+        "The description of the multi metadata provider can't be changed. "
+            + "It's derived from the list of providers it contains.");
   }
 
   @Override
@@ -164,7 +171,9 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
     return twoWayPasswordEncoder;
   }
 
-  /** @param twoWayPasswordEncoder The twoWayPasswordEncoder to set */
+  /**
+   * @param twoWayPasswordEncoder The twoWayPasswordEncoder to set
+   */
   public void setTwoWayPasswordEncoder(ITwoWayPasswordEncoder twoWayPasswordEncoder) {
     this.twoWayPasswordEncoder = twoWayPasswordEncoder;
   }
@@ -178,10 +187,11 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
     return providers;
   }
 
-  /** @param providers The providers to set */
+  /**
+   * @param providers The providers to set
+   */
   public void setProviders(List<IHopMetadataProvider> providers) {
     this.providers = providers;
-    calculateDescription();
   }
 
   /**
@@ -193,7 +203,9 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }

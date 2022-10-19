@@ -32,27 +32,44 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
-import org.apache.hop.execution.*;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionData;
+import org.apache.hop.execution.ExecutionDataBuilder;
+import org.apache.hop.execution.ExecutionDataSetMeta;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionStateComponentMetrics;
+import org.apache.hop.execution.ExecutionType;
+import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.pipeline.engine.IEngineMetric;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
@@ -61,17 +78,36 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.w3c.dom.Node;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @GuiPlugin
 public class PipelineExecutionViewer extends BaseExecutionViewer
@@ -89,6 +125,11 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   public static final String TOOLBAR_ITEM_DRILL_DOWN =
       "PipelineExecutionViewer-Toolbar-11200-DrillDown";
   public static final String TOOLBAR_ITEM_GO_UP = "PipelineExecutionViewer-Toolbar-11300-GoUp";
+
+  public static final String TOOLBAR_ITEM_VIEW_EXECUTOR =
+      "PipelineExecutionViewer-Toolbar-12000-ViewExecutor";
+  public static final String TOOLBAR_ITEM_VIEW_METADATA =
+      "PipelineExecutionViewer-Toolbar-12100-ViewMetadata";
 
   protected final PipelineMeta pipelineMeta;
   protected final ExecutionPerspective perspective;
@@ -1029,6 +1070,52 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     }
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_VIEW_EXECUTOR,
+      toolTip = "i18n::PipelineExecutionViewer.ToolbarElement.ViewExecutor.Tooltip",
+      image = "ui/images/view.svg",
+      separator = true)
+  public void viewExecutor() {
+    try {
+      String pipelineXml = execution.getExecutorXml();
+      Node pipelineNode = XmlHandler.loadXmlString(pipelineXml, PipelineMeta.XML_TAG);
+
+      // Also inflate the metadata
+      //
+      String metadataJson = execution.getMetadataJson();
+      SerializableMetadataProvider metadataProvider =
+          new SerializableMetadataProvider(metadataJson);
+
+      // The variables set
+      //
+      IVariables variables = Variables.getADefaultVariableSpace();
+      variables.setVariables(execution.getVariableValues());
+      variables.setVariables(execution.getParameterValues());
+
+      PipelineMeta pipelineMeta = new PipelineMeta(pipelineNode, metadataProvider);
+
+      HopDataOrchestrationPerspective p = HopGui.getDataOrchestrationPerspective();
+      HopGuiPipelineGraph graph =
+          (HopGuiPipelineGraph) p.addPipeline(hopGui, pipelineMeta, new HopPipelineFileType<>());
+
+      graph.setVariables(variables);
+
+      p.activate();
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error viewing the executor", e);
+    }
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_VIEW_METADATA,
+      toolTip = "i18n::PipelineExecutionViewer.ToolbarElement.ViewMetadata.Tooltip",
+      image = "ui/images/metadata.svg")
+  public void viewMetadata() {
+    super.viewMetadata(execution);
+  }
+
   @Override
   public void keyPressed(KeyEvent keyEvent) {}
 
@@ -1088,6 +1175,4 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   public void setExecutionState(ExecutionState executionState) {
     this.executionState = executionState;
   }
-
-
 }

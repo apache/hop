@@ -21,14 +21,30 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.*;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.IEngineMeta;
+import org.apache.hop.core.IProgressMonitor;
+import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
-import org.apache.hop.core.exception.*;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopMissingPluginsException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.*;
+import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
+import org.apache.hop.core.gui.BasePainter;
+import org.apache.hop.core.gui.IGc;
+import org.apache.hop.core.gui.IRedrawable;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
@@ -38,7 +54,16 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
-import org.apache.hop.core.logging.*;
+import org.apache.hop.core.logging.DefaultLogLevel;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.IHasLogChannel;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILogParentProvided;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -51,13 +76,18 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionType;
+import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.lineage.PipelineDataLineage;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-import org.apache.hop.pipeline.*;
+import org.apache.hop.pipeline.DatabaseImpact;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.PipelineHopMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
@@ -67,22 +97,41 @@ import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration.SampleType;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.IRowDistribution;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.RowAdapter;
+import org.apache.hop.pipeline.transform.RowDistributionPluginType;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.CheckResultDialog;
+import org.apache.hop.ui.core.dialog.ContextDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
+import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.OsHelper;
-import org.apache.hop.ui.hopgui.*;
+import org.apache.hop.ui.hopgui.CanvasFacade;
+import org.apache.hop.ui.hopgui.CanvasListener;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiServerDelegate;
 import org.apache.hop.ui.hopgui.dialog.CheckPipelineProgressDialog;
 import org.apache.hop.ui.hopgui.dialog.EnterPreviewRowsDialog;
@@ -94,16 +143,20 @@ import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineHopContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineNoteContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
-import org.apache.hop.ui.hopgui.file.pipeline.delegates.*;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineClipboardDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineGridDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineHopDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineLogDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineRunDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineTransformDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineUndoDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
-import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
-import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
@@ -114,19 +167,53 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.ToolTip;
 
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 
 /**
  * This class handles the display of the pipelines in a graphical way using icons, arrows, etc. One
@@ -198,6 +285,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       "pipeline-graph-transform-10650-rows-copy";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_DISTRIBUTE =
       "pipeline-graph-transform-10600-rows-distribute";
+
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_VIEW_EXECUTION_INFO =
+      "pipeline-graph-transform-11000-view-execution-info";
 
   private final ILogChannel log;
 
@@ -2411,6 +2501,24 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_COPY)) {
       return context.getTransformMeta().isDistributes();
     }
+    if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_VIEW_EXECUTION_INFO)) {
+      // See if the pipeline is running and that the transform is running in one or more copies.
+      // Also disable this if the running pipeline doesn't have a location configured.
+      //
+      if (pipeline == null) {
+        return false;
+      }
+      PipelineRunConfiguration runConfiguration = pipeline.getPipelineRunConfiguration();
+      String runConfigName = variables.resolve(runConfiguration.getExecutionInfoLocationName());
+      if (StringUtils.isEmpty(runConfigName)) {
+        return false;
+      }
+
+      TransformMeta transformMeta = context.getTransformMeta();
+      List<IEngineComponent> componentCopies = pipeline.getComponentCopies(transformMeta.getName());
+      return componentCopies != null && componentCopies.size() > 0;
+    }
+
     return true;
   }
 
@@ -5370,6 +5478,25 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           ep.setActiveViewer(viewer);
           ep.activate();
           return;
+        } else {
+          // We know the location, look it up
+          //
+          ep.refresh();
+
+          // Get the location
+          String locationName =
+              variables.resolve(
+                  pipeline.getPipelineRunConfiguration().getExecutionInfoLocationName());
+          if (StringUtils.isNotEmpty(locationName)) {
+            ExecutionInfoLocation location = ep.getLocationMap().get(locationName);
+            IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+            Execution execution = iLocation.getExecution(pipeline.getLogChannelId());
+            if (execution != null) {
+              ep.createExecutionViewer(locationName, execution);
+              ep.activate();
+              return;
+            }
+          }
         }
       }
 
@@ -5448,5 +5575,60 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
     redraw();
     updateGui();
+  }
+
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_VIEW_EXECUTION_INFO,
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Info,
+      name = "i18n::HopGuiPipelineGraph.TransformAction.ViewExecutionInfo.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.TransformAction.ViewExecutionInfo.Tooltip",
+      image = "ui/images/location.svg",
+      category = "Basic",
+      categoryOrder = "1")
+  public void viewTransformExecutionInfo(HopGuiPipelineTransformContext context) {
+    try {
+      if (pipeline == null) {
+        return;
+      }
+      PipelineRunConfiguration runConfiguration = pipeline.getPipelineRunConfiguration();
+      String locationName = variables.resolve(runConfiguration.getExecutionInfoLocationName());
+      if (StringUtils.isEmpty(locationName)) {
+        return;
+      }
+
+      ExecutionPerspective executionPerspective = HopGui.getExecutionPerspective();
+      executionPerspective.refresh();
+
+      ExecutionInfoLocation location = executionPerspective.getLocationMap().get(locationName);
+      if (location == null) {
+        throw new HopException(
+            "Unable to find execution information location '"
+                + locationName
+                + "' in the execution information perspective");
+      }
+      IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+
+      TransformMeta transformMeta = context.getTransformMeta();
+      List<IEngineComponent> components = pipeline.getComponentCopies(transformMeta.getName());
+      if (components.isEmpty()) {
+        throw new HopException("Hop couldn't find any running copies of this transform.");
+      }
+
+      // We select the first copy and execution.
+      // Later we can look up all executions of this transform and allow the user to select one.
+      //
+      IEngineComponent component = components.get(0);
+      String transformId = component.getLogChannelId();
+
+      List<Execution> executions = iLocation.findExecutions(transformId);
+      if (executions.size() > 0) {
+        Execution execution = executions.get(0);
+        executionPerspective.createExecutionViewer(locationName, execution);
+        executionPerspective.activate();
+      }
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error looking up execution information", e);
+    }
   }
 }

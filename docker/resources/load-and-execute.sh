@@ -213,6 +213,14 @@ else
     exitWithCode 9
   fi
 
+  # See if we need to use a JSON metadata export file
+  # We only do this for the short-lived container
+  #
+  if [ -n "${HOP_RUN_METADATA_EXPORT}" ]; then
+    log "Using a JSON metadata export file: ${HOP_RUN_METADATA_EXPORT}"
+    HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --metadata-export=${HOP_RUN_METADATA_EXPORT}"
+  fi
+
   log "Running a single hop workflow / pipeline (${HOP_FILE_PATH})"
   "${DEPLOYMENT_PATH}"/hop/hop-run.sh \
     --file="${HOP_FILE_PATH}" \

@@ -388,7 +388,7 @@ public abstract class BeamPipelineEngine extends Variables
                   refreshTimer.cancel(); // no more needed
                 }
               } catch (Throwable e) {
-                throw new RuntimeException(
+                logChannel.logError(
                     "Error refreshing engine metrics in the Beam pipeline engine", e);
               }
             }
