@@ -27,7 +27,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.Execution.EnvironmentDetailType;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -99,7 +98,8 @@ public final class ExecutionBuilder {
         of().withFilename(workflow.getWorkflowMeta().getFilename())
             .withName(workflow.getWorkflowMeta().getName())
             .withId(workflow.getLogChannelId())
-            .withParentId(workflow.getParent().getLogChannelId())
+            .withParentId(
+                workflow.getParent() == null ? null : workflow.getParent().getLogChannelId())
             .withExecutorType(ExecutionType.Workflow)
             .withExecutorXml(workflow.getWorkflowMeta().getXml(workflow))
             .withMetadataJson(
