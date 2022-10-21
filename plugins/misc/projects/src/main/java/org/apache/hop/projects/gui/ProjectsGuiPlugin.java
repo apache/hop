@@ -89,6 +89,7 @@ public class ProjectsGuiPlugin {
 
   public static final Class<?> PKG = ProjectsGuiPlugin.class; // i18n
 
+  public static final String ID_TOOLBAR_DIALOG = "toolbar-40000-project-button";
   public static final String ID_TOOLBAR_PROJECT_LABEL = "toolbar-40000-project-label";
   public static final String ID_TOOLBAR_PROJECT_COMBO = "toolbar-40010-project-list";
   public static final String ID_TOOLBAR_PROJECT_EDIT = "toolbar-40020-project-edit";
