@@ -53,7 +53,7 @@
         <jsch.version>0.1.54</jsch.version>
         <jzlib.version>1.0.7</jzlib.version>
         <ognl.version>2.6.9</ognl.version>
-        <woodstox-core.version>5.0.3</woodstox-core.version>
+        <woodstox-core.version>5.4.0</woodstox-core.version>
         <xmlunit.version>1.5</xmlunit.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <json-simple.version>1.1.1</json-simple.version>
