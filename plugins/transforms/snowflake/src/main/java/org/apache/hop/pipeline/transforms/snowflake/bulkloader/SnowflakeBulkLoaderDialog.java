@@ -190,7 +190,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
    * ************************************************/
 
   // Specify Fields line
-  private Label wlSpecifyFields;
   private Button wSpecifyFields;
 
   // JSON Field Line
@@ -219,8 +218,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
   /** List of ColumnInfo that should have the field names of the selected database table */
   private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
-  private final int margin = Const.MARGIN;
-
   @SuppressWarnings("unused")
   public SnowflakeBulkLoaderDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -239,6 +236,8 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     Shell parent = getParent();
     display = parent.getDisplay();
 
+    int margin = props.getMargin();
+    
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
     setShellImage(shell, input);
@@ -282,8 +281,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
 
     // Transform name line
     wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "BaseTransform.TypeLongDesc.SnowflakeBulkLoaderMessage"));
+    wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
@@ -926,22 +924,15 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wFieldsComp.setLayout(fieldsLayout);
 
     // Specify Fields line
-    wlSpecifyFields = new Label(wFieldsComp, SWT.RIGHT);
-    wlSpecifyFields.setText(
-        BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.SpecifyFields.Label"));
-    wlSpecifyFields.setToolTipText(
-        BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.SpecifyFields.Tooltip"));
-    props.setLook(wlSpecifyFields);
-    FormData fdlSpecifyFields = new FormData();
-    fdlSpecifyFields.left = new FormAttachment(0, 0);
-    fdlSpecifyFields.top = new FormAttachment(0, margin);
-    fdlSpecifyFields.right = new FormAttachment(middle, -margin);
-    wlSpecifyFields.setLayoutData(fdlSpecifyFields);
-
     wSpecifyFields = new Button(wFieldsComp, SWT.CHECK);
+    wSpecifyFields.setText(
+        BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.SpecifyFields.Label"));
+    wSpecifyFields.setToolTipText(
+        BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.SpecifyFields.Tooltip"));
+
     props.setLook(wSpecifyFields);
     FormData fdSpecifyFields = new FormData();
-    fdSpecifyFields.left = new FormAttachment(middle, 0);
+    fdSpecifyFields.left = new FormAttachment(0, 0);
     fdSpecifyFields.top = new FormAttachment(0, margin);
     fdSpecifyFields.right = new FormAttachment(100, 0);
     wSpecifyFields.setLayoutData(fdSpecifyFields);
@@ -1084,13 +1075,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wFieldsComp.layout();
     wFieldsTab.setControl(wFieldsComp);
 
-    FormData fdTabFolder = new FormData();
-    fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
-    fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
-    wTabFolder.setLayoutData(fdTabFolder);
-
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wSql = new Button(shell, SWT.PUSH);
@@ -1098,22 +1082,17 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
-    setButtonPositions(new Button[] {wOk, wSql, wCancel}, margin, wTabFolder);
+    setButtonPositions(new Button[] {wOk, wSql, wCancel}, margin, null);
 
-    wbTable.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getTableName();
-          }
-        });
-    wbSchema.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getSchemaNames();
-          }
-        });
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.bottom = new FormAttachment(wCancel, -2 * margin);
+    wTabFolder.setLayoutData(fdTabFolder);
+    
+    wbTable.addListener(SWT.Selection, e -> getTableName());
+    wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
 
     // Whenever something changes, set the tooltip to the expanded version:
     wSchema.addModifyListener(e -> wSchema.setToolTipText(variables.resolve(wSchema.getText())));
@@ -1678,7 +1657,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
       wJsonField.setVisible(true);
       wlJsonField.setVisible(true);
       wSpecifyFields.setVisible(false);
-      wlSpecifyFields.setVisible(false);
       wFields.setVisible(false);
       wGet.setVisible(false);
       wDoMapping.setVisible(false);
@@ -1688,7 +1666,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
       wJsonField.setVisible(false);
       wlJsonField.setVisible(false);
       wSpecifyFields.setVisible(true);
-      wlSpecifyFields.setVisible(true);
       wFields.setVisible(true);
       wFields.setEnabled(wSpecifyFields.getSelection());
       wFields.table.setEnabled(wSpecifyFields.getSelection());
