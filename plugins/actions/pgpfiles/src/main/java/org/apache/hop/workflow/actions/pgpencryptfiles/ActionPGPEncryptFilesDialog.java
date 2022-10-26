@@ -560,18 +560,20 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
               false),
         };
 
-    colinf[0].setUsingVariables(true);
-    colinf[1].setUsingVariables(true);
     colinf[1].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.SourceFileFolder.Tooltip"));
-    colinf[2].setUsingVariables(true);
     colinf[2].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.Wildcard.Tooltip"));
-    colinf[3].setUsingVariables(true);
     colinf[3].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.UserID.Tooltip"));
     colinf[4].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.DestinationFileFolder.Tooltip"));
+
+    colinf[0].setUsingVariables(true);
+    colinf[1].setUsingVariables(true);
+    colinf[2].setUsingVariables(true);
+    colinf[3].setUsingVariables(true);
+    colinf[4].setUsingVariables(true);
 
     wFields =
         new TableView(
@@ -634,8 +636,8 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
             int idx = wFields.getSelectionIndex();
             if (idx >= 0) {
               String[] string = wFields.getItem(idx);
-              wSourceFileFolder.setText(string[0]);
-              wDestinationFileFolder.setText(string[1]);
+              wSourceFileFolder.setText(string[1]);
+              wDestinationFileFolder.setText(string[4]);
               wWildcard.setText(string[2]);
               wFields.remove(idx);
             }
