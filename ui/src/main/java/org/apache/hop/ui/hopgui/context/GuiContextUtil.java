@@ -23,11 +23,17 @@ import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.ui.core.dialog.ContextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.eclipse.swt.widgets.Shell;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GuiContextUtil {
 
@@ -167,14 +173,25 @@ public class GuiContextUtil {
         GuiAction selectedAction = contextDialog.open();
         shellDialogMap.remove(parent.getText());
         if (selectedAction != null) {
-          IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
-          actionLambda.executeAction(contextDialog.isShiftClicked(), contextDialog.isCtrlClicked());
+          final ContextDialog dialog = contextDialog;
+          HopGui.getInstance()
+              .getDisplay()
+              .asyncExec(
+                      () -> {
+                        try {
+                          IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
+                          actionLambda.executeAction(dialog.isShiftClicked(), dialog.isCtrlClicked());
+                        } catch (Exception e) {
+                          new ErrorDialog(parent, "Error", "An error occurred executing action", e);
+                        }
+                      });
+
         } else {
           return contextDialog.isFocusLost();
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(parent, "Error", "An error occurred executing action", e);
+      new ErrorDialog(parent, "Error", "An error occurred handling action selection", e);
     }
     return false;
   }
