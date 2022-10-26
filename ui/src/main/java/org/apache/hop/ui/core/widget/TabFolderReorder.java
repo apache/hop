@@ -17,10 +17,25 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.dnd.*;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.dnd.ByteArrayTransfer;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.DropTargetListener;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.TransferData;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
@@ -49,11 +64,24 @@ public class TabFolderReorder {
               dragImage.dispose();
               dragImage = null;
             }
-            GC gc = new GC(folder);
-            dragImage = new Image(Display.getCurrent(), columnBounds.width, columnBounds.height);
-            gc.copyArea(dragImage, columnBounds.x, columnBounds.y);
+            if (EnvironmentUtils.getInstance().isWeb()) {
+              dragImage = GuiResource.getInstance().getImageHop();
+            } else {
+              GC gc = null;
+              try {
+                gc = new GC(folder);
+                dragImage =
+                    new Image(Display.getCurrent(), columnBounds.width, columnBounds.height);
+                gc.copyArea(dragImage, columnBounds.x, columnBounds.y);
+                gc.dispose();
+              } finally {
+                if (gc != null) {
+                  gc.dispose();
+                }
+              }
+            }
+
             event.image = dragImage;
-            gc.dispose();
           }
 
           @Override
@@ -63,6 +91,9 @@ public class TabFolderReorder {
 
           @Override
           public void dragFinished(DragSourceEvent event) {
+            if (EnvironmentUtils.getInstance().isWeb()) {
+              return;
+            }
             if (dragImage != null) {
               dragImage.dispose();
               dragImage = null;
