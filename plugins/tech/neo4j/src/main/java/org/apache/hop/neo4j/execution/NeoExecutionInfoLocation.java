@@ -400,6 +400,9 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public void registerExecution(Execution execution) throws HopException {
     synchronized (this) {
       try {
+        assert execution.getName()!=null : "Please register executions with a name";
+        assert execution.getExecutionType()!=null : "Please register executions with an execution type";
+
         session.writeTransaction(transaction -> registerNeo4jExecution(transaction, execution));
       } catch (Exception e) {
         throw new HopException("Error registering execution in Neo4j", e);
@@ -609,6 +612,9 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public void updateExecutionState(ExecutionState executionState) throws HopException {
     synchronized (this) {
       try {
+        assert executionState.getName()!=null : "Please update execution states with a name";
+        assert executionState.getExecutionType()!=null : "Please update execution states with an execution type";
+
         session.writeTransaction(
             transaction -> updateNeo4jExecutionState(transaction, executionState));
       } catch (Exception e) {

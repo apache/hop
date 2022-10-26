@@ -29,7 +29,6 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.ui.core.PropsUi;
@@ -46,7 +45,11 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
-import org.apache.hop.ui.hopgui.perspective.*;
+import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
+import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.TabClosable;
+import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.eclipse.swt.SWT;
@@ -57,7 +60,9 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,10 +119,13 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
   public void activate() {
     hopGui.setActivePerspective(this);
 
-    // Select the active file if there's any.
+    // Select the active file if there's any and if it's not already selected.
     //
     if (activeItem != null) {
-      tabFolder.setSelection(activeItem.getTabItem());
+      CTabItem selection = tabFolder.getSelection();
+      if (activeItem.getTabItem() != selection) {
+        tabFolder.setSelection(activeItem.getTabItem());
+      }
     }
   }
 
@@ -234,6 +242,11 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
     tabItem.setImage(GuiResource.getInstance().getImagePipeline());
     HopGuiPipelineGraph pipelineGraph =
         new HopGuiPipelineGraph(tabFolder, hopGui, tabItem, this, pipelineMeta, pipelineFile);
+    // Set the tab name
+    //
+    updateTabLabel(tabItem, pipelineMeta.getFilename(), pipelineMeta.getName());
+
+    // Assign the control to the tab
     tabItem.setControl(pipelineGraph);
 
     // If it's a new pipeline, the file name will be null. So, ignore
@@ -242,9 +255,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
       hopGui.fileRefreshDelegate.register(
           HopVfs.getFileObject(pipelineMeta.getFilename()).getPublicURIString(), pipelineGraph);
     }
-    // Set the tab name
-    //
-    updateTabLabel(tabItem, pipelineMeta.getFilename(), pipelineMeta.getName());
 
     // Update the internal variables (file specific) in the pipeline graph variables
     //
@@ -572,13 +582,14 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
   }
 
   public TabItemHandler findPipeline(String logChannelId) {
-    // Go over all the pipeline graphs and see if there's one that has a IPipelineEngine with the given ID
+    // Go over all the pipeline graphs and see if there's one that has a IPipelineEngine with the
+    // given ID
     //
     for (TabItemHandler item : items) {
       if (item.getTypeHandler() instanceof HopGuiPipelineGraph) {
         HopGuiPipelineGraph graph = (HopGuiPipelineGraph) item.getTypeHandler();
         IPipelineEngine<PipelineMeta> pipeline = graph.getPipeline();
-        if (pipeline!=null) {
+        if (pipeline != null) {
           if (logChannelId.equals(pipeline.getLogChannelId())) {
             return item;
           }
@@ -595,7 +606,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
       if (item.getTypeHandler() instanceof HopGuiWorkflowGraph) {
         HopGuiWorkflowGraph graph = (HopGuiWorkflowGraph) item.getTypeHandler();
         IWorkflowEngine<WorkflowMeta> workflow = graph.getWorkflow();
-        if (workflow!=null) {
+        if (workflow != null) {
           if (logChannelId.equals(workflow.getLogChannelId())) {
             return item;
           }

@@ -25,16 +25,17 @@ import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.welcome.WelcomeDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.MessageBox;
@@ -92,29 +93,29 @@ public class WelcomeBeam {
 
   private static final String EXAMPLE1_NAME = "input-process-output.hpl";
   private static final String EXAMPLE1_FILE =
-      "config/projects/samples/beam/pipelines/input-process-output.hpl";
+      "${PROJECT_HOME}/beam/pipelines/input-process-output.hpl";
 
   @GuiWidgetElement(
       id = "WelcomeBeam.11000.example1",
       parentId = WELCOME_BEAM_PARENT_ID,
       type = GuiElementType.LINK,
       label =
-          "- A simple pipeline which read from and writes to a file: <a>"
-              + EXAMPLE1_NAME
-              + "</a>")
+          "- A simple pipeline which read from and writes to a file: <a>" + EXAMPLE1_NAME + "</a>")
   public void openBeamSample1(Event event) {
     openSampleFileEvent(event, EXAMPLE1_NAME, EXAMPLE1_FILE);
   }
 
   private static final String EXAMPLE2_NAME = "complex.hpl";
-  private static final String EXAMPLE2_FILE = "config/projects/samples/beam/pipelines/complex.hpl";
+  private static final String EXAMPLE2_FILE = "${PROJECT_HOME}/beam/pipelines/complex.hpl";
 
   @GuiWidgetElement(
       id = "WelcomeBeam.11000.example1",
       parentId = WELCOME_BEAM_PARENT_ID,
       type = GuiElementType.LINK,
       label =
-          "- Open a more complex pipeline showcasing the possibilities: <a>" + EXAMPLE2_NAME + "</a>")
+          "- Open a more complex pipeline showcasing the possibilities: <a>"
+              + EXAMPLE2_NAME
+              + "</a>")
   public void openBeamSample2(Event event) {
     openSampleFileEvent(event, EXAMPLE2_NAME, EXAMPLE2_FILE);
   }
@@ -131,10 +132,10 @@ public class WelcomeBeam {
               + "During the execution you can take a look in the <a>"
               + EI_PERSPECTIVE_NAME
               + "</a>.\n"
-              + "The results of the pipelines are written to the beam/output folder. "
-              + "You can reach those files from within the <a>"
+              + "The results of the pipelines are written to the beam/output folder in the form of CSV files. "
+              + "You can list and even open these files with the <a>"
               + EXP_PERSPECTIVE_NAME
-              + "</a>")
+              + "</a>.\n")
   public void runningSamples(Event event) {
     if (EI_PERSPECTIVE_NAME.equals(event.text)) {
       HopGui.getExecutionPerspective().activate();
@@ -153,7 +154,8 @@ public class WelcomeBeam {
 
         // Open a simple example
         //
-        HopGui.getInstance().fileDelegate.fileOpen(filename);
+        IVariables variables = HopGui.getInstance().getVariables();
+        HopGui.getInstance().fileDelegate.fileOpen(variables.resolve(filename));
       }
     } catch (Exception e) {
       new ErrorDialog(
@@ -164,7 +166,7 @@ public class WelcomeBeam {
   private void handleWebLinkEvent(Event event, String text, String url) {
     try {
       if (text.equals(event.text)) {
-        Program.launch(url);
+        EnvironmentUtils.getInstance().openUrl(url);
       }
     } catch (Exception e) {
       new ErrorDialog(HopGui.getInstance().getShell(), "Error", "Error opening link to " + url, e);

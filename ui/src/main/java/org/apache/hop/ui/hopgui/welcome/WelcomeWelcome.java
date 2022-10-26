@@ -26,6 +26,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -112,7 +113,7 @@ public class WelcomeWelcome {
   private void handleWebLinkEvent(Event event, String text, String url) {
     try {
       if (text.equals(event.text)) {
-        Program.launch(url);
+        EnvironmentUtils.getInstance().openUrl(url);
       }
     } catch (Exception e) {
       new ErrorDialog(HopGui.getInstance().getShell(), "Error", "Error opening link to " + url, e);

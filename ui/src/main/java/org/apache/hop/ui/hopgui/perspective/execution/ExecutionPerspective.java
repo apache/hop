@@ -521,17 +521,25 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
           // Display the executions
           //
           for (String id : ids) {
-            Execution execution = iLocation.getExecution(id);
-            if (execution != null) {
-              TreeItem executionItem = new TreeItem(locationItem, SWT.NONE);
-              switch (execution.getExecutionType()) {
-                case Pipeline:
-                  decoratePipelineTreeItem(executionItem, execution);
-                  break;
-                case Workflow:
-                  decorateWorkflowTreeItem(executionItem, execution);
-                  break;
+            try {
+              Execution execution = iLocation.getExecution(id);
+              if (execution != null) {
+                TreeItem executionItem = new TreeItem(locationItem, SWT.NONE);
+                switch (execution.getExecutionType()) {
+                  case Pipeline:
+                    decoratePipelineTreeItem(executionItem, execution);
+                    break;
+                  case Workflow:
+                    decorateWorkflowTreeItem(executionItem, execution);
+                    break;
+                }
               }
+            } catch(Exception e) {
+              TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
+              errorItem.setText("Error reading "+id+" (double click for details)");
+              errorItem.setForeground(GuiResource.getInstance().getColorRed());
+              errorItem.setData("error", e);
+              errorItem.setImage(GuiResource.getInstance().getImageError());
             }
           }
         } catch (Exception e) {
@@ -541,6 +549,7 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
           errorItem.setText("Not reachable (double click for details)");
           errorItem.setForeground(GuiResource.getInstance().getColorRed());
           errorItem.setData("error", e);
+          errorItem.setImage(GuiResource.getInstance().getImageError());
         }
       }
 

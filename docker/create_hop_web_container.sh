@@ -17,18 +17,25 @@
 # limitations under the License.
 #
 
-#set working dir to current location
+# set working dir to current location
+#
 cd "${0%/*}"
 
-#unzip files for docker image
-unzip ../assemblies/web/target/hop.war -d ../assemblies/web/target/webapp
-unzip ../assemblies/plugins/dist/target/hop-assemblies-*.zip -d ../assemblies/plugins/dist/target/
+# unzip files for docker image
+#
+unzip -qu ../assemblies/web/target/hop.war -d ../assemblies/web/target/webapp
+unzip -qu ../assemblies/plugins/dist/target/hop-assemblies-*.zip -d ../assemblies/plugins/dist/target/
 
-#copy recent changes in libraries...
+# copy recent changes in libraries...
+#
 cp ../core/target/hop-core-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
 cp ../engine/target/hop-engine-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
 cp ../ui/target/hop-ui-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
 cp ../rap/target/hop-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
+
+# copy recent changes to a few plugins
+#
+cp ../plugins/engines/beam/target/hop-plugins*.jar ../assemblies/plugins/dist/target/plugins/engines/beam/
 
 #build docker image
 docker build ../ -f Dockerfile.web -t hop-web
