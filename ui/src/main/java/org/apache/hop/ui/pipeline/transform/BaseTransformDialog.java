@@ -51,6 +51,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
@@ -639,7 +640,7 @@ public class BaseTransformDialog extends Dialog {
    * @param shell the new size
    */
   public static void setSize(Shell shell) {
-    setSize(shell, -1, -1, true);
+    setSize(shell, -1, -1, !EnvironmentUtils.getInstance().isWeb());
   }
 
   public static void setSize(Shell shell, int minWidth, int minHeight) {
