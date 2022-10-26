@@ -37,6 +37,7 @@ import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -348,7 +349,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
             logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
           }
         };
-    Display.getDefault().asyncExec(runnable);
+    HopGui.getInstance().getDisplay().asyncExec(runnable);
 
     Button getKeyButton = new Button(subShell, SWT.PUSH);
     getKeyButton.setText(BaseMessages.getString(PKG, "MultiMergeJoinDialog.KeyFields.Button"));

@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.transforms.kafka.consumer.KafkaConsumerInputMeta;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -77,7 +78,7 @@ public class KafkaDialogHelper {
     Map<String, String> config = getConfig(optionsTable);
     CompletableFuture.supplyAsync(() -> listTopics(directBootstrapServers, config))
         .thenAccept(
-            topicMap -> Display.getDefault().syncExec(() -> populateTopics(topicMap, current)));
+            topicMap -> HopGui.getInstance().getDisplay().syncExec(() -> populateTopics(topicMap, current)));
   }
 
   private void populateTopics(Map<String, List<PartitionInfo>> topicMap, String current) {

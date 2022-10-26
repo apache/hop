@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormLayout;
@@ -246,7 +247,7 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog implements
               }
 
               // Display in red missing field names
-              Display.getDefault()
+              HopGui.getInstance().getDisplay()
                   .asyncExec(
                       new Runnable() {
                         public void run() {

@@ -56,7 +56,7 @@ public class HopGuiFileRefreshDelegate {
                 if (fileName != null) {
                   IHopFileTypeHandler fileHandler = fileHandlerMap.get(fileName);
                   if (fileHandler != null) {
-                    Display.getDefault().asyncExec(fileHandler::reload);
+                    hopGui.getDisplay().asyncExec(fileHandler::reload);
                   }
                 }
               }

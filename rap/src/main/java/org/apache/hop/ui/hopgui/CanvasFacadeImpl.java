@@ -19,6 +19,8 @@ package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.SwtUniversalImage;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;

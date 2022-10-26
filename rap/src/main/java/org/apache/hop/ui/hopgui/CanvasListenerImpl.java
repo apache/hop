@@ -30,7 +30,7 @@ public class CanvasListenerImpl extends ClientListener implements ISingletonProv
     return SingletonUtil.getSessionInstance(CanvasListenerImpl.class);
   }
 
-  protected CanvasListenerImpl() {
+  public CanvasListenerImpl() {
     super(getText());
   }
 

@@ -42,6 +42,7 @@ import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.*;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
@@ -530,7 +531,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
               setComboBoxes();
               // Dislay in red missing field names
-              Display.getDefault()
+              HopGui.getInstance().getDisplay()
                   .asyncExec(
                       () -> {
                         if (!wReturn.isDisposed()) {

@@ -155,7 +155,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ScrollBar;
@@ -999,9 +998,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     final WorkflowHopMeta fSingleClickHop = singleClickHop;
 
     if (PropsUi.getInstance().useDoubleClick()) {
-      Display.getDefault()
+      hopGui
+          .getDisplay()
           .timerExec(
-              Display.getDefault().getDoubleClickTime(),
+              hopGui.getDisplay().getDoubleClickTime(),
               () ->
                   showContextDialog(
                       e,
