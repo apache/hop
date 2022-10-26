@@ -2887,7 +2887,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
-    CanvasFacade.setData(canvas, magnification, workflowMeta, HopGuiWorkflowGraph.class);
+    CanvasFacade.setData(canvas, magnification, workflowMeta, HopGuiWorkflowGraph.class, variables);
   }
 
   @Override

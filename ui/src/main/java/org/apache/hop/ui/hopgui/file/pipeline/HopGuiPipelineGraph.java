@@ -3414,7 +3414,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
-    CanvasFacade.setData(canvas, magnification, pipelineMeta, HopGuiPipelineGraph.class);
+    CanvasFacade.setData(canvas, magnification, pipelineMeta, HopGuiPipelineGraph.class, variables);
   }
 
   @Override
