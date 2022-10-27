@@ -29,7 +29,12 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.execution.*;
+import org.apache.hop.execution.ExecutionBuilder;
+import org.apache.hop.execution.ExecutionDataBuilder;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionStateBuilder;
+import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
@@ -40,14 +45,19 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.transform.IRowListener;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 
 @PipelineEnginePlugin(
     id = "Local",
@@ -98,7 +108,8 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
             "",
             new ArrayList<>(),
             createDefaultPipelineEngineRunConfiguration(),
-            null));
+            null,
+            false));
   }
 
   @Override

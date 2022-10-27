@@ -29,8 +29,13 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.execution.*;
-import org.apache.hop.execution.profiling.ExecutionDataProfile;
+import org.apache.hop.execution.ExecutionBuilder;
+import org.apache.hop.execution.ExecutionDataBuilder;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionStateBuilder;
+import org.apache.hop.execution.ExecutionType;
+import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.workflow.IActionListener;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -41,7 +46,11 @@ import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEnginePlugin;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @WorkflowEnginePlugin(
@@ -76,7 +85,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
   private void setDefaultRunConfiguration() {
     setWorkflowRunConfiguration(
         new WorkflowRunConfiguration(
-            "local", "", "", createDefaultWorkflowEngineRunConfiguration()));
+            "local", "", "", createDefaultWorkflowEngineRunConfiguration(), false));
   }
 
   @Override

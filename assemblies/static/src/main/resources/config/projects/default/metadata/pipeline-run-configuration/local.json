@@ -15,5 +15,6 @@
   "configurationVariables": [],
   "description": "",
   "executionInfoLocationName": "local-audit",
-  "dataProfile": "first-last"
+  "dataProfile": "first-last",
+  "defaultSelection": true
 }

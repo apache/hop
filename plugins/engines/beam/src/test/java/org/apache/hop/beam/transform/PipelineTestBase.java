@@ -17,13 +17,6 @@
 
 package org.apache.hop.beam.transform;
 
-import org.apache.beam.sdk.PipelineResult;
-import org.apache.beam.sdk.metrics.MetricQueryResults;
-import org.apache.beam.sdk.metrics.MetricResult;
-import org.apache.beam.sdk.metrics.MetricResults;
-import org.apache.beam.sdk.metrics.MetricsFilter;
-import org.apache.beam.sdk.options.PipelineOptions;
-import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.engines.direct.BeamDirectPipelineEngine;
@@ -31,7 +24,6 @@ import org.apache.hop.beam.engines.direct.BeamDirectPipelineRunConfiguration;
 import org.apache.hop.beam.engines.flink.BeamFlinkPipelineEngine;
 import org.apache.hop.beam.engines.spark.BeamSparkPipelineEngine;
 import org.apache.hop.beam.metadata.FileDefinition;
-import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
 import org.apache.hop.beam.transforms.bq.BeamBQInputMeta;
 import org.apache.hop.beam.transforms.bq.BeamBQOutputMeta;
 import org.apache.hop.beam.transforms.io.BeamInputMeta;
@@ -42,7 +34,6 @@ import org.apache.hop.beam.transforms.pubsub.BeamPublishMeta;
 import org.apache.hop.beam.transforms.pubsub.BeamSubscribeMeta;
 import org.apache.hop.beam.transforms.window.BeamTimestampMeta;
 import org.apache.hop.beam.transforms.window.BeamWindowMeta;
-import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
@@ -63,7 +54,13 @@ import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engine.*;
+import org.apache.hop.pipeline.engine.EngineMetrics;
+import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IEngineMetric;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
+import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
+import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.pipeline.transforms.constant.ConstantMeta;
 import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta;
@@ -188,7 +185,8 @@ public class PipelineTestBase {
             NAME_LOCATION,
             Collections.emptyList(),
             directRunConfiguration,
-            NAME_DATA_PROFILE);
+            NAME_DATA_PROFILE,
+            true);
     metadataProvider.getSerializer(PipelineRunConfiguration.class).save(runConfiguration);
 
     File inputFolder = new File("/tmp/customers/io");

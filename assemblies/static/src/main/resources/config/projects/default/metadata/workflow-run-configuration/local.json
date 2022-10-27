@@ -6,5 +6,6 @@
   },
   "name": "local",
   "description": "",
-  "executionInfoLocationName": "local-audit"
+  "executionInfoLocationName": "local-audit",
+  "defaultSelection": true
 }

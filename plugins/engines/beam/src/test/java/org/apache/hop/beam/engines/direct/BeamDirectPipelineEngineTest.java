@@ -44,7 +44,8 @@ public class BeamDirectPipelineEngineTest extends BeamBasePipelineEngineTest {
             "",
             Arrays.asList(new DescribedVariable("VAR1", "value1", "description1")),
             configuration,
-            null);
+            null,
+            false);
 
     metadataProvider.getSerializer(PipelineRunConfiguration.class).save(pipelineRunConfiguration);
 

@@ -48,11 +48,13 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import picocli.CommandLine;
@@ -60,7 +62,6 @@ import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -160,7 +161,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
           SerializableMetadataProvider exportedProvider = new SerializableMetadataProvider(json);
           metadataProvider.getProviders().add(exportedProvider);
 
-          System.out.println("===> Metadata provider is now: "+metadataProvider.getDescription());
+          System.out.println("===> Metadata provider is now: " + metadataProvider.getDescription());
         }
       }
 
@@ -228,6 +229,17 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // Overwrite if the user decided this
       //
       parseOptions(cmd, configuration, pipelineMeta);
+
+      // Do we have a default run configuration?
+      // That way the user doesn't have to specify the run configuration name
+      //
+      if (StringUtils.isEmpty(configuration.getRunConfiguration())) {
+        PipelineRunConfiguration defaultRunConfiguration =
+                PipelineRunConfiguration.findDefault(metadataProvider);
+        if (defaultRunConfiguration != null) {
+          configuration.setRunConfiguration(defaultRunConfiguration.getName());
+        }
+      }
 
       // Before running, do we print the options?
       //
@@ -304,6 +316,17 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // Overwrite the run configuration with optional command line options
       //
       parseOptions(cmd, configuration, workflowMeta);
+
+      // Do we have a default run configuration?
+      // That way the user doesn't have to specify the run configuration name
+      //
+      if (StringUtils.isEmpty(configuration.getRunConfiguration())) {
+        WorkflowRunConfiguration defaultRunConfiguration =
+                WorkflowRunConfiguration.findDefault(metadataProvider);
+        if (defaultRunConfiguration != null) {
+          configuration.setRunConfiguration(defaultRunConfiguration.getName());
+        }
+      }
 
       // Certain Hop plugins rely on this.  Meh.
       //
@@ -473,7 +496,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     //
     variables.setVariables(configuration.getVariablesMap());
 
-    // By default we use the value from the current variables map:
+    // By default, we use the value from the current variables map:
     //
     for (String key : namedParams.listParameters()) {
       String value = variables.getVariable(key);
@@ -509,8 +532,8 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     if (StringUtils.isNotEmpty(realFilename)) {
       log.logMinimal("OPTION: filename : '" + realFilename + "'");
     }
-    if (StringUtils.isNotEmpty(realRunConfigurationName)) {
-      log.logMinimal("OPTION: run configuration : '" + realRunConfigurationName + "'");
+    if (StringUtils.isNotEmpty(configuration.getRunConfiguration())) {
+      log.logMinimal("OPTION: run configuration : '" + configuration.getRunConfiguration() + "'");
     }
     log.logMinimal("OPTION: Logging level : " + configuration.getLogLevel().getDescription());
 

@@ -22,11 +22,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -42,7 +44,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -228,17 +234,30 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     Map<String, String> workflowUsageMap = null;
     String lastGlobalRunConfig =
         AuditManagerGuiUtil.getLastUsedValue(AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS);
-    String lastWorkflowRunConfig = null;
+    String selectedRunConfig = null;
     if (StringUtils.isNotEmpty(abstractMeta.getName())) {
       workflowUsageMap = AuditManagerGuiUtil.getUsageMap(MAP_TYPE_WORKFLOW_RUN_CONFIG_USAGE);
-      lastWorkflowRunConfig = workflowUsageMap.get(abstractMeta.getName());
+      selectedRunConfig = workflowUsageMap.get(abstractMeta.getName());
     }
 
-    wRunConfiguration.setText(Const.NVL(lastWorkflowRunConfig, ""));
+    if (StringUtils.isEmpty(selectedRunConfig)) {
+      // What is the default?
+      WorkflowRunConfiguration defaultRunConfig = null;
+      try {
+        defaultRunConfig = WorkflowRunConfiguration.findDefault(hopGui.getMetadataProvider());
+      } catch (HopException e) {
+        LogChannel.UI.logError("Error finding default workflow run configuration", e);
+      }
+      if (defaultRunConfig != null) {
+        selectedRunConfig = defaultRunConfig.getName();
+      }
+    }
 
-    if (StringUtils.isNotEmpty(lastWorkflowRunConfig)
+    wRunConfiguration.setText(Const.NVL(selectedRunConfig, ""));
+
+    if (StringUtils.isNotEmpty(selectedRunConfig)
         && StringUtils.isNotEmpty(lastGlobalRunConfig)
-        && !lastWorkflowRunConfig.equals(lastGlobalRunConfig)) {
+        && !selectedRunConfig.equals(lastGlobalRunConfig)) {
       wRunConfiguration
           .getLabelWidget()
           .setBackground(GuiResource.getInstance().getColorLightBlue());
@@ -397,7 +416,8 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
                 BaseMessages.getString(
                     PKG, "WorkflowExecutionConfigurationDialog.LocalRunConfiguration.Description"),
                 null,
-                localWorkflowRunConfiguration);
+                localWorkflowRunConfiguration,
+                true);
         prcSerializer.save(local);
 
         return local.getName();
@@ -414,7 +434,9 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     return null;
   }
 
-  /** @return the configuration */
+  /**
+   * @return the configuration
+   */
   public WorkflowExecutionConfiguration getConfiguration() {
     return (WorkflowExecutionConfiguration) configuration;
   }
