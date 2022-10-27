@@ -1,0 +1,12 @@
+FROM gcr.io/dataflow-templates-base/java11-template-launcher-base
+
+  ARG WORKDIR=/dataflow/template
+  RUN mkdir -p ${WORKDIR}
+  WORKDIR ${WORKDIR}
+
+  COPY ./assemblies/plugins/dist/target/hop-fatjar.jar .
+
+  ENV FLEX_TEMPLATE_JAVA_MAIN_CLASS="org.apache.hop.beam.run.MainDataflowTemplate"
+  ENV FLEX_TEMPLATE_JAVA_CLASSPATH="${WORKDIR}/*"
+
+  ENTRYPOINT ["/opt/google/dataflow/java_template_launcher"]
