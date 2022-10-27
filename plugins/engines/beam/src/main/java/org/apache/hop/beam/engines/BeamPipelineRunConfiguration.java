@@ -93,6 +93,8 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   public BeamPipelineRunConfiguration() {
     userAgent = "Hop";
+    streamingHopTransformsFlushInterval = "-1";
+    streamingHopTransformsBufferSize = "500";
   }
 
   public BeamPipelineRunConfiguration(String pluginId, String pluginName) {
