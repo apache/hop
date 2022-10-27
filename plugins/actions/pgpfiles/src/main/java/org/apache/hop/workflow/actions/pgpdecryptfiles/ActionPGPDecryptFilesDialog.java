@@ -528,20 +528,21 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
               false),
         };
 
-    colinf[0].setUsingVariables(true);
     colinf[0].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPDecryptFiles.Fields.SourceFileFolder.Tooltip"));
-    colinf[1].setUsingVariables(true);
     colinf[1].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPDecryptFiles.Fields.Wildcard.Tooltip"));
-
-    colinf[2].setUsingVariables(true);
     colinf[2].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPDecryptFiles.Fields.PassPhrase.Tooltip"));
-    colinf[2].setPasswordField(true);
-    colinf[3].setUsingVariables(true);
     colinf[3].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPDecryptFiles.Fields.DestinationFileFolder.Tooltip"));
+
+    colinf[0].setUsingVariables(true);
+    colinf[1].setUsingVariables(true);
+    colinf[2].setUsingVariables(true);
+    colinf[3].setUsingVariables(true);
+
+    colinf[2].setPasswordField(true);
 
     wFields =
         new TableView(
@@ -606,8 +607,8 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
             if (idx >= 0) {
               String[] string = wFields.getItem(idx);
               wSourceFileFolder.setText(string[0]);
-              wDestinationFileFolder.setText(string[1]);
-              wWildcard.setText(string[2]);
+              wDestinationFileFolder.setText(string[3]);
+              wWildcard.setText(string[1]);
               wFields.remove(idx);
             }
             wFields.removeEmptyRows();
