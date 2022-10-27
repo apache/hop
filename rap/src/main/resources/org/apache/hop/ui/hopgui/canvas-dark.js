@@ -41,7 +41,7 @@ let handleEvent = function (event) {
         const notes = event.widget.getData("notes");
         const props = event.widget.getData("props");
         const svg = event.widget.getData("svg");
-        const magnification = props.magnification;
+        const magnification = props.magnification/0.75;
         const gridSize = props.gridsize;
         const iconSize = props.iconsize;
 
@@ -88,12 +88,12 @@ let handleEvent = function (event) {
                 } else {
                     // Clear the canvas
                     gc.rect(0, 0, gc.canvas.width / magnification, gc.canvas.height / magnification);
-                    gc.fillStyle = 'dark-gray';
+                    gc.fillStyle = 'rgb(50, 50, 50)';
                     gc.fill();
 
                     // Draw grids
                     if (gridSize > 1) {
-                        gc.fillStyle = 'light-gray';
+                        gc.fillStyle = 'rgb(210, 210, 210)';
                         gc.beginPath();
                         gc.setLineDash([1, gridSize - 1]);
                         // vertical grid
@@ -108,7 +108,7 @@ let handleEvent = function (event) {
                         }
                         gc.stroke();
                         gc.setLineDash([]);
-                        gc.fillStyle = 'dark-gray';
+                        gc.fillStyle = 'rgb(50, 50, 50)';
                     }
 
                     // Draw hops
@@ -155,13 +155,13 @@ let handleEvent = function (event) {
                             gc.strokeStyle = 'rgb(61, 99, 128)'; //colorCrystalText
                         }
                         drawRoundRectangle(gc, x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8, false);
-                        gc.strokeStyle = 'light-gray';
+                        gc.strokeStyle = 'rgb(210, 210, 210)';
                         gc.lineWidth = 1;
 
                         // Draw node name
-                        gc.fillStyle = 'light-gray';
+                        gc.fillStyle = 'rgb(210, 210, 210)';
                         gc.fillText(key, x + iconSize / 2 - gc.measureText(key).width / 2, y + iconSize + 7);
-                        gc.fillStyle = 'dark-gray';
+                        gc.fillStyle = 'rgb(50, 50, 50)';
                     }
 
                     // Draw notes
