@@ -128,7 +128,7 @@ pipeline {
                     anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
             steps{
-                sh "./assemblies/client/target/hop/hop-conf.sh --generate-fat-jar=$(readlink -f ./assemblies/client/target/)/hop-fatjar.jar"
+                sh "./assemblies/client/target/hop/hop-conf.sh --generate-fat-jar=\$(readlink -f ./assemblies/client/target/)/hop-fatjar.jar"
             }
         }
         stage('Build Hop Docker Image') {
