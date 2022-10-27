@@ -43,6 +43,7 @@ Here is the documentation for the relevant plugins:
 * xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark pipeline engine]
 * xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Beam Flink pipeline engine]
 * xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Beam Dataflow pipeline engine]
+** xref:pipeline/beam/dataflowPipeline/google-dataflow-pipeline.adoc[Dataflow pipeline template]
 * xref:pipeline/pipeline-run-configurations/beam-direct-pipeline-engine.adoc[Beam Direct pipeline engine]
 
 [[supportedversions]]
