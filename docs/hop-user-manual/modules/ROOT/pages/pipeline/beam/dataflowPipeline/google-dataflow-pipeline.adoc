@@ -1,0 +1,51 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+[[DataflowPipeline]]
+:imagesdir: ../../../assets/images
+:description: This page explains how to use the Google Dataflow pipeline templates
+
+= Google Dataflow Pipeline (Template)
+
+Apache Hop pipelines can be scheduled and triggered in various ways. In this section we will walk through the steps needed to schedule a pipeline on Google Dataflow using https://cloud.google.com/dataflow/docs/concepts/dataflow-templates[Dataflow Templates]. Apache Hop uses a https://cloud.google.com/dataflow/docs/guides/templates/using-flex-templates[flex template] to launch a job on Google Dataflow.
+
+== Preparing your environment
+
+Before we can add a new pipeline in the Google Cloud Platform https://console.cloud.google.com/dataflow/pipelines[console] we need to create a Google Storage bucket that contains 3 types of files.
+
+==== Hop pipelines:
+The pipelines you created using the Hop Gui and wish to schedule in Google Dataflow.
+
+Tip:: You can also create a Hop project using a Google Storage bucket this way you can directly create and edit Hop pipelines in GS
+
+==== Hop Metadata:
+For the pipeline to be able to use Hop metadata objects and other run configurations we need to generate a hop metadata.json file.
+This file can be generated from the GUI under Tools -> Export metadata to JSON or using the export-metadata function from the xref:hop-tools/hop-conf/hop-conf.adoc[Hop conf] tool.
+
+==== Beam Flex template metadata file:
+The final part to get everything working is a metadata file used by Dataflow to stitch all the parts together. You can find the file you need xref:pipeline/beam/dataflowPipeline/hopFlexTemplateMetadata.json[here].
+
+Important:: You can change the docker image used in the metadata file
+
+
+== Creating a Dataflow pipeline
+Now we can go back to the https://console.cloud.google.com/dataflow/pipelines[console] and "Create data pipeline"
+
+image::beam/beam-dataflow-template.png[]
+
+When selecting the Beam Flex template metadata file you will notice required parameters showing up. You can then add the path yo yhe Hop metadata and Hop pipeline stored in cloud storage.
+
