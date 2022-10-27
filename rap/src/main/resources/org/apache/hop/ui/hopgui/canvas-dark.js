@@ -41,7 +41,7 @@ let handleEvent = function (event) {
         const notes = event.widget.getData("notes");
         const props = event.widget.getData("props");
         const svg = event.widget.getData("svg");
-        const magnification = props.magnification;
+        const magnification = props.magnification/0.75;
         const gridSize = props.gridsize;
         const iconSize = props.iconsize;
 
