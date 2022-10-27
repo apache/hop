@@ -154,27 +154,14 @@ pipeline {
                 anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
             steps {
-                echo 'Building Hop Web Docker Image'
+                echo 'Building Hop Web Docker Images'
 
                 withDockerRegistry([ credentialsId: "dockerhub-hop", url: "" ]) {
                     //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
                     sh "docker buildx create --name hop --use"
+                    //Base docker image
                     sh "docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t ${DOCKER_REPO_WEB}:${env.POM_VERSION} -t ${DOCKER_REPO_WEB}:Development --push"
-                    sh "docker buildx rm hop"
-                  }
-            }
-        }
-        stage('Build Hop Web Docker Image (Beam)') {
-            when {
-                branch 'master'
-                anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
-            }
-            steps {
-                echo 'Building Hop Web Docker Image'
-
-                withDockerRegistry([ credentialsId: "dockerhub-hop", url: "" ]) {
-                    //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
-                    sh "docker buildx create --name hop --use"
+                    //Image including fat-jar
                     sh "docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web-fatjar -t ${DOCKER_REPO_WEB}:${env.POM_VERSION}-beam -t ${DOCKER_REPO_WEB}:Development-beam --push"
                     sh "docker buildx rm hop"
                   }

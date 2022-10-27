@@ -45,7 +45,7 @@ COPY ./assemblies/web/target/webapp/ "${CATALINA_HOME}"/webapps/ROOT/
 COPY ./assemblies/plugins/dist/target/plugins "${CATALINA_HOME}"/plugins
 
 # Copy the fatjar to hop-web
-COPY ./assemblies/plugins/dist/target/hop-fatjar.jar /root/hop-fatjar.jar
+COPY ./assemblies/client/target/hop-fatjar.jar /root/hop-fatjar.jar
 
 COPY ./docker/resources/run-web.sh /tmp/
 
