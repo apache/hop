@@ -21,6 +21,9 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 public class CanvasListenerImpl implements ISingletonProvider, Listener {
+
+  public CanvasListenerImpl() {}
+
   @Override
   public Object getInstanceInternal() {
     return this;

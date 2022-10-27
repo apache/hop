@@ -34,13 +34,20 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Widget;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -92,7 +99,14 @@ public class WelcomeDialog {
       Label welcome = new Label(shell, SWT.CENTER);
       welcome.setText("Apache Hop");
       titleFont =
-          new Font(shell.getDisplay(), "Open Sans", (int) (15 * props.getZoomFactor()), SWT.NONE);
+          new Font(
+              shell.getDisplay(),
+              "Open Sans",
+              (int)
+                  (15
+                      * props.getZoomFactor()
+                      / (EnvironmentUtils.getInstance().isWeb() ? 0.75 : 1)),
+              SWT.NONE);
       welcome.setFont(titleFont);
       FormData fdWelcome = new FormData();
       fdWelcome.left = new FormAttachment(logoLabel, props.getMargin(), SWT.RIGHT);

@@ -159,7 +159,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     if (!leftAlignedLabel) {
       fdLabel.right = new FormAttachment(middle, negativeMargin ? -margin : 0);
     }
-    fdLabel.top = new FormAttachment(0, margin);
+    fdLabel.top = new FormAttachment(0, margin+(EnvironmentUtils.getInstance().isWeb()?3:0));
     wLabel.setLayoutData(fdLabel);
     wLabel.setText(labelText);
     wLabel.setToolTipText(toolTipText);

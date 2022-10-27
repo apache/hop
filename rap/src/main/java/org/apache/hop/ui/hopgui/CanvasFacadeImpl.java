@@ -18,29 +18,31 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.base.AbstractMeta;
-import org.apache.hop.core.SwtUniversalImage;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.PipelineSvgPainter;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.WorkflowSvgPainter;
 import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Display;
 
 public class CanvasFacadeImpl extends CanvasFacade {
 
   @Override
-  void setDataInternal(Canvas canvas, float magnification, AbstractMeta meta, Class type) {
+  void setDataInternal(
+      Canvas canvas, float magnification, AbstractMeta meta, Class<?> type, IVariables variables) {
     setDataCommon(canvas, magnification, meta);
     if (type == HopGuiWorkflowGraph.class) {
-      setDataWorkflow(canvas, magnification, meta);
+      setDataWorkflow(canvas, magnification, meta, variables);
     } else {
-      setDataPipeline(canvas, magnification, meta);
+      setDataPipeline(canvas, magnification, meta, variables);
     }
   }
 
@@ -71,11 +73,22 @@ public class CanvasFacadeImpl extends CanvasFacade {
     canvas.setData("notes", jsonNotes);
   }
 
-  private void setDataWorkflow(Canvas canvas, float magnification, AbstractMeta meta) {
+  private void setDataWorkflow(
+      Canvas canvas, float magnification, AbstractMeta meta, IVariables variables) {
     final int iconSize = HopGui.getInstance().getProps().getIconSize();
 
     WorkflowMeta workflowMeta = (WorkflowMeta) meta;
     JsonObject jsonNodes = new JsonObject();
+
+    try {
+      String svg = WorkflowSvgPainter.generateWorkflowSvg(workflowMeta, magnification, variables);
+      canvas.setData("svg", svg);
+    } catch (HopException e) {
+      LogChannel.UI.logError("Error generating workflow SVG", e);
+    }
+
+    // Store the individual SVG images of the actions as well
+    //
     workflowMeta
         .getActions()
         .forEach(
@@ -85,29 +98,6 @@ public class CanvasFacadeImpl extends CanvasFacade {
               jsonNode.add("y", actionMeta.getLocation().y);
               jsonNode.add("selected", actionMeta.isSelected());
 
-              // Translated from org.apache.hop.ui.hopgui.shared.SwtGc.drawActionIcon(int, int,
-              // ActionMeta, float)
-              SwtUniversalImage swtImage = null;
-
-              if (actionMeta.isMissing()) {
-                swtImage = GuiResource.getInstance().getSwtImageMissing();
-              } else {
-                String pluginId = actionMeta.getAction().getPluginId();
-                if (pluginId != null) {
-                  swtImage = GuiResource.getInstance().getImagesActions().get(pluginId);
-                }
-              }
-
-              if (swtImage == null) {
-                return;
-              }
-
-              int w = Math.round(iconSize * magnification);
-              int h = Math.round(iconSize * magnification);
-              Image image = swtImage.getAsBitmapForSize(Display.getCurrent(), w, h);
-              // Translated
-
-              jsonNode.add("img", image.internalImage.getResourceName());
               jsonNodes.add(actionMeta.getName(), jsonNode);
             });
     canvas.setData("nodes", jsonNodes);
@@ -123,11 +113,20 @@ public class CanvasFacadeImpl extends CanvasFacade {
     canvas.setData("hops", jsonHops);
   }
 
-  private void setDataPipeline(Canvas canvas, float magnification, AbstractMeta meta) {
+  private void setDataPipeline(
+      Canvas canvas, float magnification, AbstractMeta meta, IVariables variables) {
     final int iconSize = HopGui.getInstance().getProps().getIconSize();
 
     PipelineMeta pipelineMeta = (PipelineMeta) meta;
     JsonObject jsonNodes = new JsonObject();
+
+    try {
+      String svg = PipelineSvgPainter.generatePipelineSvg(pipelineMeta, magnification, variables);
+      canvas.setData("svg", svg);
+    } catch (HopException e) {
+      LogChannel.UI.logError("Error generating pipeline SVG", e);
+    }
+
     pipelineMeta
         .getTransforms()
         .forEach(
@@ -137,31 +136,6 @@ public class CanvasFacadeImpl extends CanvasFacade {
               jsonNode.add("y", transformMeta.getLocation().y);
               jsonNode.add("selected", transformMeta.isSelected());
 
-              // Translated from org.apache.hop.ui.hopgui.shared.SwtGc.drawTransformIcon(int, int,
-              // TransformMeta, float)
-              SwtUniversalImage swtImage = null;
-
-              if (transformMeta.isMissing()) {
-                swtImage = GuiResource.getInstance().getSwtImageMissing();
-              } else if (transformMeta.isDeprecated()) {
-                swtImage = GuiResource.getInstance().getSwtImageDeprecated();
-              } else {
-                String pluginId = transformMeta.getPluginId();
-                if (pluginId != null) {
-                  swtImage = GuiResource.getInstance().getImagesTransforms().get(pluginId);
-                }
-              }
-
-              if (swtImage == null) {
-                return;
-              }
-
-              int w = Math.round(iconSize * magnification);
-              int h = Math.round(iconSize * magnification);
-              Image image = swtImage.getAsBitmapForSize(Display.getCurrent(), w, h);
-              // Translated
-
-              jsonNode.add("img", image.internalImage.getResourceName());
               jsonNodes.add(transformMeta.getName(), jsonNode);
             });
     canvas.setData("nodes", jsonNodes);

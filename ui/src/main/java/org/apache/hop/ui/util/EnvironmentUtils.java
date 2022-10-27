@@ -16,17 +16,20 @@
  */
 package org.apache.hop.ui.util;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Shell;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -213,5 +216,24 @@ public class EnvironmentUtils {
 
   public String getHopWebTheme() {
     return System.getProperty("HOP_WEB_THEME");
+  }
+
+  public void openUrl(String url) throws HopException {
+    if (isWeb()) {
+      try {
+        Class<?> rwtClass = Class.forName("org.eclipse.rap.rwt.RWT");
+        Class<?> launcherClass = Class.forName("org.eclipse.rap.rwt.client.service.UrlLauncher");
+        Method getClient = rwtClass.getMethod("getClient");
+        Object client = getClient.invoke(null);
+        Method serviceMethod = client.getClass().getMethod("getService", Class.class);
+        Object launcher = serviceMethod.invoke(client, launcherClass);
+        Method openMethod = launcher.getClass().getMethod("openURL", String.class);
+        openMethod.invoke(launcher, url);
+      } catch (Exception e) {
+        throw new HopException("Error opening URL: " + url, e);
+      }
+    } else {
+      Program.launch(url);
+    }
   }
 }

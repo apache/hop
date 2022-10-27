@@ -870,7 +870,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
       if (StringUtils.isNotEmpty(filename)) {
         // It's hidden in another tab so to make sure, do it asynchronous
         //
-        Display.getDefault().asyncExec(() -> wFilename.setText(filename));
+        HopGui.getInstance().getDisplay().asyncExec(() -> wFilename.setText(filename));
       }
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error adding new Kafka pipeline", e);
@@ -924,7 +924,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
       // solution, by all
       // means go ahead and implement
       //
-      Display.getDefault().asyncExec(() -> wSubTransform.setText(current));
+      HopGui.getInstance().getDisplay().asyncExec(() -> wSubTransform.setText(current));
     } catch (HopException e) {
       log.logError("Error getting transform names from Kafka pipeline", e);
     }

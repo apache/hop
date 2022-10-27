@@ -445,7 +445,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       final HopDataOrchestrationPerspective perspective,
       final PipelineMeta pipelineMeta,
       final HopPipelineFileType<PipelineMeta> fileType) {
-    super(hopGui, parent, SWT.NONE, parentTabItem);
+    super(hopGui, parent, SWT.NO_BACKGROUND, parentTabItem);
     this.hopGui = hopGui;
     this.parentTabItem = parentTabItem;
     this.perspective = perspective;
@@ -543,10 +543,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     fdCanvas.bottom = new FormAttachment(100, 0);
     canvas.setLayoutData(fdCanvas);
 
-    sashForm.setWeights(
-        new int[] {
-          100,
-        });
+    sashForm.setWeights(100);
 
     toolTip = new ToolTip(getShell(), SWT.BALLOON);
     toolTip.setAutoHide(true);
@@ -1158,9 +1155,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     final PipelineHopMeta fSingleClickHop = singleClickHop;
 
     if (PropsUi.getInstance().useDoubleClick()) {
-      Display.getDefault()
+      hopGui
+          .getDisplay()
           .timerExec(
-              Display.getDefault().getDoubleClickTime(),
+              hopGui.getDisplay().getDoubleClickTime(),
               () ->
                   showActionDialog(
                       e,
@@ -3416,7 +3414,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
-    CanvasFacade.setData(canvas, magnification, pipelineMeta, HopGuiPipelineGraph.class);
+    CanvasFacade.setData(canvas, magnification, pipelineMeta, HopGuiPipelineGraph.class, variables);
   }
 
   @Override

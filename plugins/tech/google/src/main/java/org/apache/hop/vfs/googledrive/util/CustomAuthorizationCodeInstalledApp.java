@@ -41,7 +41,7 @@ public class CustomAuthorizationCodeInstalledApp extends AuthorizationCodeInstal
     HopGui hopGui = HopGui.getInstance();
     if (hopGui != null) {
 
-      Display.getDefault()
+      HopGui.getInstance().getDisplay()
           .syncExec(
               () -> {
                 Shell shell = hopGui.getShell();

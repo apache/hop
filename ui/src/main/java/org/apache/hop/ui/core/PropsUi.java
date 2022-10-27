@@ -34,9 +34,23 @@ import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,7 +105,7 @@ public class PropsUi extends Props {
     globalZoomFactor = Const.toDouble(getProperty(GLOBAL_ZOOMFACTOR, "1"), 1);
 
     if (EnvironmentUtils.getInstance().isWeb()) {
-      nativeZoomFactor = 1.0;
+      nativeZoomFactor = 1.0 / 0.75;
     } else {
       // Calculate the native default zoom factor...
       // We take the default font and render it, calculate the height.
