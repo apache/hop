@@ -23,7 +23,6 @@ import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -46,7 +45,8 @@ public class BeamSparkPipelineEngineTest extends BeamBasePipelineEngineTest {
             "",
             Arrays.asList(new DescribedVariable("VAR1", "spark1", "description1")),
             configuration,
-            null);
+            null,
+            false);
 
     metadataProvider.getSerializer(PipelineRunConfiguration.class).save(pipelineRunConfiguration);
 

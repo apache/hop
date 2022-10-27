@@ -41,7 +41,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -195,17 +199,30 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     Map<String, String> pipelineUsageMap = null;
     String lastGlobalRunConfig =
         AuditManagerGuiUtil.getLastUsedValue(AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS);
-    String lastPipelineRunConfig = null;
+    String selectedRunConfig = null;
     if (StringUtils.isNotEmpty(abstractMeta.getName())) {
       pipelineUsageMap = AuditManagerGuiUtil.getUsageMap(MAP_TYPE_PIPELINE_RUN_CONFIG_USAGE);
-      lastPipelineRunConfig = pipelineUsageMap.get(abstractMeta.getName());
+      selectedRunConfig = pipelineUsageMap.get(abstractMeta.getName());
     }
 
-    wRunConfiguration.setText(Const.NVL(lastPipelineRunConfig, ""));
+    if (StringUtils.isEmpty(selectedRunConfig)) {
+      // What is the default?
+      PipelineRunConfiguration defaultRunConfig = null;
+      try {
+        defaultRunConfig = PipelineRunConfiguration.findDefault(hopGui.getMetadataProvider());
+      } catch (HopException e) {
+        LogChannel.UI.logError("Error finding default pipeline run configuration", e);
+      }
+      if (defaultRunConfig != null) {
+        selectedRunConfig = defaultRunConfig.getName();
+      }
+    }
 
-    if (StringUtils.isNotEmpty(lastPipelineRunConfig)
+    wRunConfiguration.setText(Const.NVL(selectedRunConfig, ""));
+
+    if (StringUtils.isNotEmpty(selectedRunConfig)
         && StringUtils.isNotEmpty(lastGlobalRunConfig)
-        && !lastPipelineRunConfig.equals(lastGlobalRunConfig)) {
+        && !selectedRunConfig.equals(lastGlobalRunConfig)) {
       wRunConfiguration
           .getLabelWidget()
           .setBackground(GuiResource.getInstance().getColorLightBlue());
@@ -355,7 +372,8 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
                     PKG, "PipelineExecutionConfigurationDialog.LocalRunConfiguration.Description"),
                 new ArrayList<>(),
                 localPipelineRunConfiguration,
-                null);
+                null,
+                true);
         prcSerializer.save(local);
 
         return local.getName();

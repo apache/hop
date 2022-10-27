@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.config;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
@@ -25,6 +26,7 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,9 +44,7 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
 
   @HopMetadataProperty private String description;
 
-  /**
-   * The name of the location to send execution information to
-   */
+  /** The name of the location to send execution information to */
   @HopMetadataProperty private String executionInfoLocationName;
 
   @HopMetadataProperty private List<DescribedVariable> configurationVariables;
@@ -52,8 +52,10 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
   @HopMetadataProperty private IPipelineEngineRunConfiguration engineRunConfiguration;
 
   /** The name of an {@link ExecutionDataProfile} */
-  @HopMetadataProperty(key="dataProfile")
+  @HopMetadataProperty(key = "dataProfile")
   protected String executionDataProfileName;
+
+  @HopMetadataProperty protected boolean defaultSelection;
 
   public PipelineRunConfiguration() {
     configurationVariables = new ArrayList<>();
@@ -65,13 +67,15 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
       String executionInfoLocationName,
       List<DescribedVariable> configurationVariables,
       IPipelineEngineRunConfiguration engineRunConfiguration,
-      String executionDataProfileName) {
+      String executionDataProfileName,
+      boolean defaultSelection) {
     this.name = name;
     this.description = description;
     this.executionInfoLocationName = executionInfoLocationName;
     this.configurationVariables = configurationVariables;
     this.engineRunConfiguration = engineRunConfiguration;
     this.executionDataProfileName = executionDataProfileName;
+    this.defaultSelection = defaultSelection;
   }
 
   public PipelineRunConfiguration(PipelineRunConfiguration runConfiguration) {
@@ -84,6 +88,7 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
       this.engineRunConfiguration = runConfiguration.engineRunConfiguration.clone();
     }
     this.executionDataProfileName = runConfiguration.executionDataProfileName;
+    this.defaultSelection = runConfiguration.defaultSelection;
   }
 
   /**
@@ -95,7 +100,9 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -127,7 +134,9 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     return configurationVariables;
   }
 
-  /** @param configurationVariables The configurationVariables to set */
+  /**
+   * @param configurationVariables The configurationVariables to set
+   */
   public void setConfigurationVariables(List<DescribedVariable> configurationVariables) {
     this.configurationVariables = configurationVariables;
   }
@@ -141,7 +150,9 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     return engineRunConfiguration;
   }
 
-  /** @param engineRunConfiguration The engineRunConfiguration to set */
+  /**
+   * @param engineRunConfiguration The engineRunConfiguration to set
+   */
   public void setEngineRunConfiguration(IPipelineEngineRunConfiguration engineRunConfiguration) {
     this.engineRunConfiguration = engineRunConfiguration;
   }
@@ -164,11 +175,49 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     this.executionDataProfileName = executionDataProfileName;
   }
 
+  /**
+   * Gets defaultSelection
+   *
+   * @return value of defaultSelection
+   */
+  public boolean isDefaultSelection() {
+    return defaultSelection;
+  }
+
+  /**
+   * Sets defaultSelection
+   *
+   * @param defaultSelection value of defaultSelection
+   */
+  public void setDefaultSelection(boolean defaultSelection) {
+    this.defaultSelection = defaultSelection;
+  }
+
   public void applyToVariables(IVariables variables) {
     for (DescribedVariable vvd : configurationVariables) {
       if (StringUtils.isNotEmpty(vvd.getName())) {
         variables.setVariable(vvd.getName(), variables.resolve(vvd.getValue()));
       }
     }
+  }
+
+  /**
+   * Find the first default run configuration in the metadata and return it.
+   * Return null if there's no default.
+   *
+   * @param metadataProvider
+   * @return The default run configuration or null if none is specified.
+   * @throws HopException
+   */
+  public static final PipelineRunConfiguration findDefault(
+      IHopMetadataProvider metadataProvider) throws HopException {
+    for (PipelineRunConfiguration runConfiguration :
+        metadataProvider.getSerializer(PipelineRunConfiguration.class).loadAll()) {
+      if (runConfiguration.isDefaultSelection()) {
+        return runConfiguration;
+      }
+    }
+
+    return null;
   }
 }

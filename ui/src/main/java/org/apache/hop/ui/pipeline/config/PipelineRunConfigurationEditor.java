@@ -73,6 +73,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
   private Text wName;
   private Text wDescription;
+  private Button wDefault;
   private MetaSelectionLine<ExecutionInfoLocation> wExecutionInfoLocation;
   private MetaSelectionLine<ExecutionDataProfile> wProfile;
   private ComboVar wPluginType;
@@ -203,6 +204,24 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wDescription.setLayoutData(fdDescription);
     lastControl = wDescription;
 
+    Label wlDefault = new Label(wMainComp, SWT.RIGHT);
+    props.setLook(wlDefault);
+    wlDefault.setText(
+            BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.Default"));
+    FormData fdlDefault = new FormData();
+    fdlDefault.top = new FormAttachment(lastControl, margin * 2);
+    fdlDefault.left = new FormAttachment(0, 0); // First one in the left top corner
+    fdlDefault.right = new FormAttachment(middle, 0);
+    wlDefault.setLayoutData(fdlDefault);
+    wDefault = new Button(wMainComp, SWT.CHECK | SWT.LEFT );
+    props.setLook(wDefault);
+    FormData fdDefault = new FormData();
+    fdDefault.top = new FormAttachment(wlDefault, 0, SWT.CENTER);
+    fdDefault.left = new FormAttachment(middle, margin); // To the right of the label
+    fdDefault.right = new FormAttachment(100, 0);
+    wDefault.setLayoutData(fdDefault);
+    lastControl = wlDefault;
+
     // Which location should the execution information go to?
     //
     wExecutionInfoLocation =
@@ -218,7 +237,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
                 PKG, "PipelineRunConfigurationDialog.toolTip.ExecutionInfoLocation"));
     props.setLook(wExecutionInfoLocation);
     FormData fdExecutionInfoLocation = new FormData();
-    fdExecutionInfoLocation.top = new FormAttachment(lastControl, margin);
+    fdExecutionInfoLocation.top = new FormAttachment(lastControl, 2*margin);
     fdExecutionInfoLocation.left = new FormAttachment(0, 0); // To the right of the label
     fdExecutionInfoLocation.right = new FormAttachment(100, 0);
     wExecutionInfoLocation.setLayoutData(fdExecutionInfoLocation);
@@ -482,6 +501,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     wName.setText(Const.NVL(workingConfiguration.getName(), ""));
     wDescription.setText(Const.NVL(workingConfiguration.getDescription(), ""));
+    wDefault.setSelection(workingConfiguration.isDefaultSelection());
     try {
       wExecutionInfoLocation.fillItems();
     } catch (Exception e) {
@@ -526,6 +546,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     meta.setName(wName.getText());
     meta.setDescription(wDescription.getText());
+    meta.setDefaultSelection(wDefault.getSelection());
     meta.setExecutionInfoLocationName(wExecutionInfoLocation.getText());
 
     // Get the plugin specific information from the widgets on the screen
