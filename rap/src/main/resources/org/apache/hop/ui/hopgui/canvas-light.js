@@ -89,12 +89,12 @@ const handleEvent = function (event) {
             } else {
                 // Clear the canvas
                 gc.rect(0, 0, gc.canvas.width / magnification, gc.canvas.height / magnification);
-                gc.fillStyle = 'light-gray';
+                gc.fillStyle = 'rgb(210, 210, 210)';
                 gc.fill();
 
                 // Draw grids
                 if (gridSize > 1) {
-                    gc.fillStyle = 'dark-gray';
+                    gc.fillStyle = 'rgb(50, 50, 50)';
                     gc.beginPath();
                     gc.setLineDash([1, gridSize - 1]);
                     // vertical grid
@@ -109,7 +109,7 @@ const handleEvent = function (event) {
                     }
                     gc.stroke();
                     gc.setLineDash([]);
-                    gc.fillStyle = 'light-gray';
+                    gc.fillStyle = 'rgb(210, 210, 210)';
                 }
 
                 // Draw hops
@@ -157,13 +157,13 @@ const handleEvent = function (event) {
                         gc.strokeStyle = 'rgb(61, 99, 128)'; //colorCrystalText
                     }
                     drawRoundRectangle(gc, x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8, false);
-                    gc.strokeStyle = 'dark-gray';
+                    gc.strokeStyle = 'rgb(50, 50, 50)';
                     gc.lineWidth = 1;
 
                     // Draw node name
-                    gc.fillStyle = 'dark-gray';
+                    gc.fillStyle = 'rgb(50, 50, 50)';
                     gc.fillText(key, x + iconSize / 2 - gc.measureText(key).width / 2, y + iconSize + 7);
-                    gc.fillStyle = 'light-gray';
+                    gc.fillStyle = 'rgb(210, 210, 210)';
                 }
 
                 // Draw notes
