@@ -123,7 +123,7 @@ pipeline {
                 sh "unzip ./assemblies/plugins/dist/target/hop-assemblies-*.zip -d ./assemblies/plugins/dist/target/"
             }
         }
-        stage('Unzip Apache Hop'){
+        stage('Generate Hop fat jar'){
             when {
                     anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
