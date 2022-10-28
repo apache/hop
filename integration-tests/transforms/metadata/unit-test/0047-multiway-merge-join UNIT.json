@@ -1,0 +1,44 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Country_Code",
+          "data_set_field": "Country_Code"
+        },
+        {
+          "transform_field": "Country_Name",
+          "data_set_field": "Country_Name"
+        },
+        {
+          "transform_field": "IATA_Code",
+          "data_set_field": "IATA_Code"
+        },
+        {
+          "transform_field": "Airport_Name",
+          "data_set_field": "Airport_Name"
+        },
+        {
+          "transform_field": "Country_Code_1",
+          "data_set_field": "Country_Code_1"
+        }
+      ],
+      "field_order": [
+        "Country_Code"
+      ],
+      "data_set_name": "golden-multiway-join",
+      "transform_name": "Dummy (do nothing)"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0047-multiway-merge-join UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0047-multiway-merge-join.hpl",
+  "test_type": "UNIT_TEST"
+}

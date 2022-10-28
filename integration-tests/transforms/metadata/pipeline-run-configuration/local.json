@@ -2,9 +2,9 @@
   "engineRunConfiguration": {
     "Local": {
       "feedback_size": "50000",
-      "wait_time": "20",
       "sample_size": "100",
       "sample_type_in_gui": "First",
+      "wait_time": "20",
       "rowset_size": "10000",
       "safe_mode": false,
       "show_feedback": false,
@@ -13,7 +13,10 @@
       "transactional": false
     }
   },
+  "defaultSelection": true,
   "configurationVariables": [],
   "name": "local",
-  "description": "Runs your pipelines locally with the standard local Hop pipeline engine"
+  "description": "Runs your pipelines locally with the standard local Hop pipeline engine",
+  "dataProfile": "",
+  "executionInfoLocationName": ""
 }
