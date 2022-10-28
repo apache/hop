@@ -66,7 +66,6 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
   private boolean processFirstRow(MultiMergeJoinMeta smi, MultiMergeJoinData sdi)
       throws HopException {
 
-    PipelineMeta pipelineMeta = getPipelineMeta();
     PipelineHopMeta pipelineHopMeta;
 
     ITransformIOMeta transformIOMeta = meta.getTransformIOMeta();
@@ -90,7 +89,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
                 PKG, "MultiMergeJoin.Log.UnableToFindReferenceStream", inputTransformName));
       }
       // check the hop
-      pipelineHopMeta = pipelineMeta.findPipelineHop(fromTransformMeta, toTransformMeta, true);
+      pipelineHopMeta = getPipelineMeta().findPipelineHop(fromTransformMeta, toTransformMeta, true);
       // there is no hop: this is unexpected.
       if (pipelineHopMeta == null) {
         // should not arrive here, shoud typically have been caught by init.
@@ -112,7 +111,6 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
     }
 
     String keyField;
-    String[] keyFields;
 
     data.rowSets = new IRowSet[streamSize];
     IRowSet rowSet;
@@ -289,7 +287,12 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
         data.queue.clear();
         for (int i = 0; i < streamSize; i++) {
           while (data.rows[i] != null && !isStopped()) {
-            data.rows[i] = getRowFrom(data.rowSets[i]);
+            try{
+              data.rows[i] = getRowFrom(data.rowSets[i]);
+            }catch (Exception e){
+              //break loop
+              break;
+            }
           }
         }
         setOutputDone();
@@ -318,6 +321,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
             data.results.get(i).add(row);
           }
           if (isStopped()) {
+            setOutputDone();
             return false;
           }
           if (row != null) {
@@ -369,6 +373,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
           data.queue.add(data.queueEntries[index]);
         }
         if (isStopped()) {
+          setOutputDone();
           return false;
         }
       }

@@ -1,0 +1,48 @@
+{
+  "base_filename": "data-set-filename.csv",
+  "name": "golden-multiway-join",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 2,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Country_Code",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Country_Name",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 3,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "IATA_Code",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Airport_Name",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 2,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "Country_Code_1",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
