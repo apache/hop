@@ -1,40 +1,68 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.hop.projects.gui;
 
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.SwtUniversalImageSvg;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.svg.SvgCache;
+import org.apache.hop.core.svg.SvgCacheEntry;
+import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
+import org.apache.hop.projects.project.Project;
+import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.TabClosable;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.*;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 @GuiPlugin(description = "")
-public class ProjectsEnvironmentsDialog /*extends Dialog implements KeyListener*/ {
+public class ProjectsEnvironmentsDialog implements TabClosable {
 
-    private SashForm sashForm, rightSash;
-    private Tree projectsTree, environmentsTree;
-    private IVariables variables;
-    private List<String> projectNames;
+    private SashForm sashForm;
+    private Tree projectsTree;
     private PropsUi props;
-    private Composite envComp, projectsComp;
+//    private Composite envComp, projectsComp;
     private ToolBar projectToolbar, envToolbar;
     private GuiToolbarWidgets projectToolbarWidgets, envToolbarWidgets;
     public static final String CONFIG_PERSPECTIVE_PROJENV_TAB_ID = "config-perspective-project-tab-id";
@@ -46,9 +74,34 @@ public class ProjectsEnvironmentsDialog /*extends Dialog implements KeyListener*
     public static final String ID_TOOLBAR_ENVIRONMENT_EDIT = "toolbar-edit-env";
     public static final String ID_TOOLBAR_ENVIRONMENT_ADD = "toolbar-add-env";
     public static final String ID_TOOLBAR_ENVIRONMENT_DELETE = "toolbar-delete-env";
+    private HopGui hopGui;
+    private ProjectsConfig projectsConfig;
+    private List<String> envNames;
+    private int iconSize;
+    private Image folderImage, fileImage;
 
+    public ProjectsEnvironmentsDialog(){
 
-    public void editProject(){}
+        hopGui = HopGui.getInstance();
+        iconSize = (int) (PropsUi.getInstance().getZoomFactor() * 16);
+
+        try{
+            // folder icon for projects
+            SvgCacheEntry folderSvgCacheEntry = SvgCache.loadSvg(new SvgFile("ui/images/folder.svg", hopGui.getClass().getClassLoader().getParent()));
+            SwtUniversalImageSvg folderImageSvg = new SwtUniversalImageSvg(new SvgImage(folderSvgCacheEntry.getSvgDocument()));
+            folderImage = folderImageSvg.getAsBitmapForSize(hopGui.getDisplay(), iconSize, iconSize);
+
+            // file icon for environments
+            SvgCacheEntry fileSvgCacheEntry = SvgCache.loadSvg(new SvgFile("ui/images/file.svg", hopGui.getClass().getClassLoader()));
+            SwtUniversalImageSvg fileImageSvg = new SwtUniversalImageSvg(new SvgImage(fileSvgCacheEntry.getSvgDocument()));
+            fileImage = fileImageSvg.getAsBitmapForSize(hopGui.getDisplay(), iconSize, iconSize);
+        }catch(HopException e){
+            hopGui.getLog().logError("Error building projects and environments tree", e);
+        }
+
+        projectsConfig = ProjectsConfigSingleton.getConfig();
+        envNames = projectsConfig.listEnvironmentNames();
+    }
 
     @GuiTab(
             parentId = ConfigurationPerspective.CONFIG_PERSPECTIVE_TABS,
@@ -95,7 +148,7 @@ public class ProjectsEnvironmentsDialog /*extends Dialog implements KeyListener*
         projectToolbarWidgets.createToolbarWidgets(projectToolbar, ID_PROJECT_TOOLBAR);
         projectToolbar.pack();
 
-        getProjects();
+//        getProjects();
 
         projectsTree = new Tree(projectBrowser, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         props.setLook(projectsTree);
@@ -106,11 +159,23 @@ public class ProjectsEnvironmentsDialog /*extends Dialog implements KeyListener*
         fdTProjectBrowser.right = new FormAttachment(100, 0);
         fdTProjectBrowser.bottom = new FormAttachment(100, -margin);
         projectsTree.setLayoutData(fdTProjectBrowser);
-        for(int i=0; i < projectNames.size(); i++){
-            TreeItem item = new TreeItem(projectsTree, SWT.NONE);
-            item.setText(projectNames.get(i));
-        }
 
+        buildProjEnvTree();
+
+        // right hand side composite
+        CTabFolder projEnvTabs = new CTabFolder(sashForm, SWT.NONE);
+        FormLayout projEnvTabsLayout = new FormLayout();
+        projEnvTabsLayout.marginWidth= Const.FORM_MARGIN;
+        projEnvTabsLayout.marginHeight = Const.FORM_MARGIN;
+        projEnvTabs.setLayout(projEnvTabsLayout);
+        FormData fdProjEnvTabs = new FormData();
+        fdProjEnvTabs.left = new FormAttachment(0,0);
+        fdProjEnvTabs.top = new FormAttachment(0,0);
+        fdProjEnvTabs.right = new FormAttachment(100,0);
+        fdProjEnvTabs.bottom = new FormAttachment(100,0);
+        projEnvTabs.setLayoutData(fdProjEnvTabs);
+
+/*
         // right side panel
         rightSash = new SashForm(sashForm, SWT.VERTICAL);
         props.setLook(rightSash);
@@ -209,6 +274,7 @@ public class ProjectsEnvironmentsDialog /*extends Dialog implements KeyListener*
         envFdlName.top = new FormAttachment(0,margin);
         envWlName.setLayoutData(envFdlName);
         envComp.setLayout(envLayout);
+*/
 
         FormData fdSash = new FormData();
         fdSash.top = new FormAttachment(0, 0);
@@ -218,25 +284,45 @@ public class ProjectsEnvironmentsDialog /*extends Dialog implements KeyListener*
         sashForm.setLayoutData(fdSash);
 
         sashForm.setWeights(25, 75);
-        rightSash.setWeights(40, 60);
 
         projectsTree.addSelectionListener(
                 new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
-                        projectsComp.setVisible(true);
-                        envComp.setVisible(false);
-                        getEnvironments(projectsTree.getSelection()[0].getText());
+//                        projectsComp.setVisible(true);
+//                        envComp.setVisible(false);
                     }
                 }
         );
 
-        environmentsTree.addSelectionListener(
-                new SelectionAdapter() {
-                    @Override
-                    public void widgetSelected(SelectionEvent e) {
-                        projectsComp.setVisible(false);
-                        envComp.setVisible(true);
+        projectsTree.addMenuDetectListener(
+                event -> {
+                    if(projectsTree.getSelectionCount() < 1){
+                        return;
+                    }
+                    TreeItem treeItem = projectsTree.getSelection()[0];
+                    Image itemImage = treeItem.getImage();
+                    if(treeItem != null){
+                        Menu menu = new Menu(projectsTree);
+
+                        MenuItem editMenuItem = new MenuItem(menu, SWT.POP_UP);
+                        editMenuItem.setText("Edit");
+                        editMenuItem.addListener(SWT.Selection, e -> {
+                            if (itemImage.equals(folderImage)) {
+                                editSelectedProject();
+                            }else if(itemImage.equals(fileImage)){
+                                editSelectedEnvironment();
+                            }
+
+                        });
+
+                        MenuItem deleteMenuItem = new MenuItem(menu, SWT.POP_UP);
+                        deleteMenuItem.setText("Delete");
+                        deleteMenuItem.addListener(SWT.Selection, e -> {});
+
+                        projectsTree.setMenu(menu);
+                        menu.setVisible(true);
+
                     }
                 }
         );
@@ -295,27 +381,89 @@ public class ProjectsEnvironmentsDialog /*extends Dialog implements KeyListener*
     private void ok(){};
     private void cancel(){};
 
-    private List<String> getProjects(){
-        projectNames = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
-        return projectNames;
-    };
 
-    private List<String> getEnvironments(String projectName){
-        TreeItem[] envItems = environmentsTree.getItems();
-        for(TreeItem envItem : envItems){
-            envItem.dispose();
-        }
-        List<String> projEnvNames = new ArrayList<>();
-        ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-        List<String> envNames = ProjectsConfigSingleton.getConfig().listEnvironmentNames();
-        for(String envName : envNames){
-            LifecycleEnvironment environment = config.findEnvironment(envName);
-            if(environment.getProjectName().equals(projectName)){
-                TreeItem item = new TreeItem(environmentsTree, SWT.NONE);
-                item.setText(environment.getName());
-                projEnvNames.add(envName);
+    private void buildProjEnvTree(){
+        // build the list of parent and child project names
+        // only one level deep for now
+        List<String> projectConfigNames = projectsConfig.listProjectConfigNames();
+        HopGui hopGui = HopGui.getInstance();
+        MultiValuedMap<String, String> parentChildMap = new ArrayListValuedHashMap<>();
+        for(String projectConfigName : projectConfigNames){
+            ProjectConfig projectConfig = projectsConfig.findProjectConfig(projectConfigName);
+            try{
+                Project project = projectConfig.loadProject(hopGui.getVariables());
+                String parentProject = project.getParentProjectName();
+                if(!StringUtils.isEmpty(parentProject)){
+                    parentChildMap.put(project.getParentProjectName(), projectConfigName);
+                }else{
+                    parentChildMap.put(projectConfigName, "");
+                }
+            }catch(HopException e){
+                hopGui.getLog().logError("error processing " + projectConfigName);
             }
         }
-        return projEnvNames;
+        List<String> projectsList = new ArrayList<>(parentChildMap.keySet());
+        Collections.sort(projectsList);
+
+        for(String projectName : projectsList){
+            TreeItem projectItem = new TreeItem(projectsTree, SWT.NONE);
+            projectItem.setText(projectName);
+            projectItem.setImage(folderImage);
+            List<String> childProjectNames = (List<String>) parentChildMap.get(projectName);
+            if(childProjectNames.size() > 1){
+                for(String childProjectName : childProjectNames){
+                    if(!StringUtils.isEmpty(childProjectName )){
+                        TreeItem childProjectItem = new TreeItem(projectItem, SWT.NONE);
+                        childProjectItem.setText(childProjectName);
+                        childProjectItem.setImage(folderImage);
+                        addEnvTreeItems(childProjectItem, childProjectName);
+                    }
+                }
+            }
+            addEnvTreeItems(projectItem, projectName);
+        }
+    }
+
+    private void addEnvTreeItems(TreeItem projectItem, String projectName){
+        if(!envNames.isEmpty()){
+            for(String envName : envNames){
+                LifecycleEnvironment environment = projectsConfig.findEnvironment(envName);
+                if(environment.getProjectName().equals(projectName)){
+                    TreeItem envItem = new TreeItem(projectItem, SWT.NONE);
+                    envItem.setText(envName);
+                    envItem.setImage(fileImage);
+                }
+            }
+        }
+    }
+
+    private void editProject(){
+
+    }
+
+
+    @Override
+    public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
+
+    }
+
+    @Override
+    public List<CTabItem> getTabsToRight(CTabItem selectedTabItem) {
+        return TabClosable.super.getTabsToRight(selectedTabItem);
+    }
+
+    @Override
+    public List<CTabItem> getTabsToLeft(CTabItem selectedTabItem) {
+        return TabClosable.super.getTabsToLeft(selectedTabItem);
+    }
+
+    @Override
+    public List<CTabItem> getOtherTabs(CTabItem selectedTabItem) {
+        return TabClosable.super.getOtherTabs(selectedTabItem);
+    }
+
+    @Override
+    public CTabFolder getTabFolder() {
+        return null;
     }
 }
