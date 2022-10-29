@@ -198,9 +198,9 @@ public class ConfigurationPerspective implements IHopPerspective, TabClosable {
 
         GuiRegistry guiRegistry = GuiRegistry.getInstance();
         List<GuiTabItem> tabsList = guiRegistry.getGuiTabsMap().get(CONFIG_PERSPECTIVE_TABS);
-        tabsList.sort(Comparator.comparing(GuiTabItem::getId));
 
         if(tabsList != null){
+            tabsList.sort(Comparator.comparing(GuiTabItem::getId));
             for(GuiTabItem tabItem : tabsList){
                 try {
                     Object object = tabItem.getMethod().getDeclaringClass().getConstructor().newInstance();
