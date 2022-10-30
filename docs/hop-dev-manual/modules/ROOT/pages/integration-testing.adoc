@@ -71,7 +71,7 @@ important:: the project should have a workflow engine named `local`
 
 You can also run the integration tests on your local system.
 
-There are 2 ways the integration tests can be run oin your local system
+There are 2 ways the integration tests can be run on your local system
 
 === Docker Compose
 
