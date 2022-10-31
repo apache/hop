@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.mailinput;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
+
 import java.util.Iterator;
 
 public class BatchFolderIterator implements Iterator<Message> {

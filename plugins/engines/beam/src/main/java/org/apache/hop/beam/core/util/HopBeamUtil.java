@@ -20,7 +20,6 @@ package org.apache.hop.beam.core.util;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlHandlerCache;
 import org.apache.hop.metadata.api.IHopMetadataProvider;

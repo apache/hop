@@ -17,7 +17,12 @@
 
 package org.apache.hop.neo4j.shared;
 
-import org.apache.hop.core.search.*;
+import org.apache.hop.core.search.BaseMetadataSearchableAnalyser;
+import org.apache.hop.core.search.ISearchQuery;
+import org.apache.hop.core.search.ISearchResult;
+import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.search.ISearchableAnalyser;
+import org.apache.hop.core.search.SearchableAnalyserPlugin;
 
 import java.util.ArrayList;
 import java.util.List;

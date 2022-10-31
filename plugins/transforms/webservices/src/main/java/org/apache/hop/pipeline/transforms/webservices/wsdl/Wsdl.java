@@ -25,7 +25,13 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.http.auth.AuthenticationException;
 import org.w3c.dom.Document;
 
-import javax.wsdl.*;
+import javax.wsdl.Binding;
+import javax.wsdl.Definition;
+import javax.wsdl.Operation;
+import javax.wsdl.Port;
+import javax.wsdl.PortType;
+import javax.wsdl.Service;
+import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLLocator;
@@ -34,7 +40,11 @@ import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 /** Wsdl abstraction. */
 public final class Wsdl implements java.io.Serializable {

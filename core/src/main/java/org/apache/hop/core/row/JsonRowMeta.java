@@ -18,13 +18,10 @@
 
 package org.apache.hop.core.row;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 public class JsonRowMeta {
 

@@ -31,7 +31,11 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.apache.hop.www.*;
+import org.apache.hop.www.BaseHttpServlet;
+import org.apache.hop.www.HopServerPipelineStatus;
+import org.apache.hop.www.IHopServerPlugin;
+import org.apache.hop.www.PipelineMap;
+import org.apache.hop.www.WebServiceServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

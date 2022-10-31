@@ -47,11 +47,19 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.*;
+import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
+import org.apache.hop.pipeline.transform.errorhandling.CompositeFileErrorHandler;
+import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerContentLineNumber;
+import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerMissingFiles;
+import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.io.BufferedInputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Read all sorts of text files, convert them to rows and writes these to one or more output

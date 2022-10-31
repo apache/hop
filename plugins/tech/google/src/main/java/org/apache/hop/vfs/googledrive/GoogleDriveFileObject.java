@@ -39,7 +39,14 @@ import org.apache.commons.vfs2.provider.AbstractFileObject;
 import org.apache.hop.vfs.googledrive.config.GoogleDriveConfigSingleton;
 import org.apache.hop.vfs.googledrive.util.CustomDataStoreFactory;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

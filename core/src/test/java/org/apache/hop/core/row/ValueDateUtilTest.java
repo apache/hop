@@ -17,7 +17,6 @@
 
 package org.apache.hop.core.row;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;

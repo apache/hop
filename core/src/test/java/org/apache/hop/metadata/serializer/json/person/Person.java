@@ -24,7 +24,11 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.serializer.json.occupation.Occupation;
 import org.apache.hop.metadata.serializer.json.person.interest.IInterest;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @HopMetadata(key = "person", name = "A Person", description = "Description of the Person object")
 public class Person extends HopMetadataBase implements IHopMetadata {

@@ -35,7 +35,9 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class XmlHandlerUnitTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

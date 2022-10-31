@@ -33,7 +33,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import static org.apache.hop.git.HopDiff.*;
+import static org.apache.hop.git.HopDiff.ADDED;
+import static org.apache.hop.git.HopDiff.ATTR_GIT;
+import static org.apache.hop.git.HopDiff.ATTR_STATUS;
+import static org.apache.hop.git.HopDiff.CHANGED;
+import static org.apache.hop.git.HopDiff.REMOVED;
+import static org.apache.hop.git.HopDiff.UNCHANGED;
+import static org.apache.hop.git.HopDiff.compareActions;
+import static org.apache.hop.git.HopDiff.compareTransforms;
 import static org.junit.Assert.assertEquals;
 
 public class HopDiffTest {

@@ -17,7 +17,11 @@
 
 package org.apache.hop.core.row.value;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Classes annotated with "ValueMetaPlugin" are automatically recognized and registered as a new

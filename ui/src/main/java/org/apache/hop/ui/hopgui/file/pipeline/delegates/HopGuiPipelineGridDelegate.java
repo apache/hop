@@ -51,7 +51,12 @@ import org.eclipse.swt.widgets.ToolItem;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
 @GuiPlugin(description = "Pipeline Graph Grid Delegate")

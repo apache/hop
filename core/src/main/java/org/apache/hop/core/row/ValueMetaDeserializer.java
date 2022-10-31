@@ -29,7 +29,6 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.TimeZone;
 
 public class ValueMetaDeserializer extends JsonDeserializer<IValueMeta> {

@@ -40,7 +40,11 @@ import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerContentLi
 import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerMissingFiles;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /** This class contains base functionality for file-based input transforms. */
 public abstract class BaseFileInputTransform<

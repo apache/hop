@@ -17,7 +17,11 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** This marks a class as a Hop GUI Perspective */
 @Documented

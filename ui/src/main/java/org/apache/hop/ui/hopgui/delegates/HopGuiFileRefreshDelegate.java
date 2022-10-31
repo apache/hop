@@ -24,7 +24,6 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.eclipse.swt.widgets.Display;
 
 import java.util.HashMap;
 import java.util.Map;

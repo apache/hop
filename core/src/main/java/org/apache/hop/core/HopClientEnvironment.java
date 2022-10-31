@@ -23,7 +23,11 @@ import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointPluginType;
-import org.apache.hop.core.logging.*;
+import org.apache.hop.core.logging.ConsoleLoggingEventListener;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILoggingPlugin;
+import org.apache.hop.core.logging.LoggingPluginType;
+import org.apache.hop.core.logging.Slf4jLoggingEventListener;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -34,7 +38,10 @@ import org.apache.hop.core.vfs.plugin.VfsPluginType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This singleton is responsible for initializing the Hop client environment and remembering if it

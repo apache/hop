@@ -26,11 +26,20 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.*;
+import org.apache.hop.core.util.AbstractTransformMeta;
+import org.apache.hop.core.util.BooleanPluginProperty;
+import org.apache.hop.core.util.IntegerPluginProperty;
+import org.apache.hop.core.util.PluginMessages;
+import org.apache.hop.core.util.StringListPluginProperty;
+import org.apache.hop.core.util.StringPluginProperty;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 

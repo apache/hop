@@ -20,7 +20,6 @@ package org.apache.hop.ui.hopgui.perspective.execution;
 
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.DPoint;
-import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;

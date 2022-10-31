@@ -22,7 +22,6 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-import org.apache.hop.reflection.pipeline.meta.PipelineToLogLocation;
 
 import java.util.ArrayList;
 import java.util.List;

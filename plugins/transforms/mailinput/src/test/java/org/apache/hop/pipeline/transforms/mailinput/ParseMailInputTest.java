@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.mailinput;
 
+import jakarta.mail.Address;
+import jakarta.mail.Header;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -25,14 +29,15 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mailinput.MailInput.MessageParser;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.workflow.actions.getpop.MailConnection;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.mockito.AdditionalMatchers;
 import org.mockito.Mockito;
 
-import jakarta.mail.Address;
-import jakarta.mail.Header;
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;

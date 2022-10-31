@@ -20,7 +20,6 @@ package org.apache.hop.workflow;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
-import org.apache.hop.core.gui.Point;
 import org.apache.hop.workflow.action.ActionMeta;
 
 import java.util.List;

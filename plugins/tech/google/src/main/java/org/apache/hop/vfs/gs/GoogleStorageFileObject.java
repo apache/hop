@@ -19,7 +19,11 @@
 package org.apache.hop.vfs.gs;
 
 import com.google.api.gax.paging.Page;
-import com.google.cloud.storage.*;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.Storage.BlobListOption;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;

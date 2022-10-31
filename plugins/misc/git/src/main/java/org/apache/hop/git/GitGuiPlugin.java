@@ -35,18 +35,27 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.perspective.explorer.*;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerFilePaintListener;
+import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerRefreshListener;
+import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerRootChangedListener;
+import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerSelectionListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.apache.hop.ui.core.dialog.MessageBox;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @GuiPlugin
 public class GitGuiPlugin

@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.numberrange;
 
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+
 import java.util.Objects;
 
 /** Contains one rule for a number range */

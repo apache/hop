@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.hopgui;
 
-import static org.junit.Assert.*;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;

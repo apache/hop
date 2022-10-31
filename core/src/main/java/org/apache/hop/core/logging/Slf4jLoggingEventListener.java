@@ -26,7 +26,11 @@ import java.util.LinkedList;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.hop.core.logging.LoggingObjectType.*;
+import static org.apache.hop.core.logging.LoggingObjectType.ACTION;
+import static org.apache.hop.core.logging.LoggingObjectType.DATABASE;
+import static org.apache.hop.core.logging.LoggingObjectType.PIPELINE;
+import static org.apache.hop.core.logging.LoggingObjectType.TRANSFORM;
+import static org.apache.hop.core.logging.LoggingObjectType.WORKFLOW;
 
 public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
 

@@ -22,13 +22,22 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.history.*;
+import org.apache.hop.history.AuditEvent;
+import org.apache.hop.history.AuditList;
+import org.apache.hop.history.AuditState;
+import org.apache.hop.history.AuditStateMap;
+import org.apache.hop.history.IAuditManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The local audit manager stores its history in the hop home directory (~/.hop) under the history

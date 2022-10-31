@@ -24,7 +24,11 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class WorkflowActionWriteToLogLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionWriteToLog> {

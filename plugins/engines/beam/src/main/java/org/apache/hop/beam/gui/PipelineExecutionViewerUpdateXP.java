@@ -18,7 +18,6 @@
 
 package org.apache.hop.beam.gui;
 
-import org.apache.beam.runners.dataflow.DataflowPipelineJob;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.engines.dataflow.BeamDataFlowPipelineEngine;
 import org.apache.hop.core.exception.HopException;
@@ -27,7 +26,6 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionState;
-import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 
 @ExtensionPoint(

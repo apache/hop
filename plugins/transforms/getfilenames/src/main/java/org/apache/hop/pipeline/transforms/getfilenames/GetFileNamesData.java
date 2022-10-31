@@ -27,7 +27,11 @@ import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.text.*;
+import java.text.DateFormatSymbols;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipInputStream;

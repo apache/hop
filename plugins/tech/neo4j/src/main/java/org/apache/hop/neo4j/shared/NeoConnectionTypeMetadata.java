@@ -19,7 +19,6 @@ package org.apache.hop.neo4j.shared;
 
 import org.apache.hop.core.gui.plugin.ITypeMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
-import org.apache.hop.server.HopServer;
 
 public class NeoConnectionTypeMetadata implements ITypeMetadata {
   @Override

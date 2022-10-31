@@ -21,7 +21,10 @@ import org.apache.hop.databases.cassandra.util.CqlUtils;
 import org.apache.hop.databases.cassandra.util.Selector;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class CqlUtilsTest {
 

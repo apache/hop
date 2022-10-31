@@ -18,18 +18,14 @@
 
 package org.apache.hop.execution.sampler.plugins.last;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerPlugin;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.plugins.ExecutionDataSamplerBase;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 @GuiPlugin

@@ -20,7 +20,10 @@ package org.apache.hop.core.encryption;
 import org.apache.hop.core.exception.HopValueException;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for encryption, to make sure that encrypted password remain the same between versions.

@@ -24,7 +24,12 @@ import org.apache.hop.core.row.IRowMeta;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /** A collection of utilities to manipulate strings. */
 public class StringUtil {

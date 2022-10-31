@@ -19,7 +19,8 @@ package org.apache.hop.core;
 
 import org.apache.batik.ext.awt.RenderingHintsKeyExt;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.TreeMap;

@@ -30,7 +30,13 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.EngineComponent;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.IRowListener;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformFinishedListener;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.ITransformStartedListener;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.awt.event.ComponentListener;
 import java.util.Collections;

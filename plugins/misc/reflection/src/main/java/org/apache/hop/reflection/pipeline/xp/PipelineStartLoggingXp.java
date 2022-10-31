@@ -37,7 +37,6 @@ import org.apache.hop.reflection.pipeline.meta.PipelineLog;
 import org.apache.hop.reflection.pipeline.meta.PipelineToLogLocation;
 import org.apache.hop.reflection.pipeline.transform.PipelineLogging;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;

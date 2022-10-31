@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.getpop;
 
+import jakarta.mail.Flags.Flag;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
@@ -45,7 +46,6 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.w3c.dom.Node;
 
-import jakarta.mail.Flags.Flag;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

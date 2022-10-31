@@ -26,7 +26,11 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.sql.PreparedStatement;
 import java.sql.Savepoint;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 /** Storage class for table output transform. */
 public class TableOutputData extends BaseTransformData implements ITransformData {

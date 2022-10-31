@@ -21,7 +21,12 @@ import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
-import org.apache.hop.mongo.*;
+import org.apache.hop.mongo.AuthContext;
+import org.apache.hop.mongo.KerberosHelper;
+import org.apache.hop.mongo.MongoDbException;
+import org.apache.hop.mongo.MongoProp;
+import org.apache.hop.mongo.MongoProperties;
+import org.apache.hop.mongo.MongoUtilLogger;
 import org.apache.hop.mongo.wrapper.collection.KerberosMongoCollectionWrapper;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 

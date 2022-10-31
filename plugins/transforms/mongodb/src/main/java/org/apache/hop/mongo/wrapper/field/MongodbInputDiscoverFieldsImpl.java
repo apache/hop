@@ -17,7 +17,13 @@
 
 package org.apache.hop.mongo.wrapper.field;
 
-import com.mongodb.*;
+import com.mongodb.AggregationOptions;
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.Cursor;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
@@ -32,9 +38,21 @@ import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.pipeline.transforms.mongodbinput.DiscoverFieldsCallback;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputDiscoverFields;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputMeta;
-import org.bson.types.*;
+import org.bson.types.BSONTimestamp;
+import org.bson.types.Binary;
+import org.bson.types.Code;
+import org.bson.types.MaxKey;
+import org.bson.types.MinKey;
+import org.bson.types.ObjectId;
+import org.bson.types.Symbol;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverFields {
   private static final Class<?> PKG = MongodbInputDiscoverFieldsImpl.class; // For Translator

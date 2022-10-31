@@ -23,7 +23,6 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.vfs.googledrive.ui.GoogleAuthorizationDialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import java.io.IOException;

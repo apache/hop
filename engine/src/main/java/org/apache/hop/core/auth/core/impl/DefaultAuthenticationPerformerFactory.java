@@ -17,7 +17,11 @@
 
 package org.apache.hop.core.auth.core.impl;
 
-import org.apache.hop.core.auth.core.*;
+import org.apache.hop.core.auth.core.AuthenticationConsumerInvocationHandler;
+import org.apache.hop.core.auth.core.IAuthenticationConsumerFactory;
+import org.apache.hop.core.auth.core.IAuthenticationPerformer;
+import org.apache.hop.core.auth.core.IAuthenticationPerformerFactory;
+import org.apache.hop.core.auth.core.IAuthenticationProvider;
 
 public class DefaultAuthenticationPerformerFactory implements IAuthenticationPerformerFactory {
 

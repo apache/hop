@@ -32,7 +32,10 @@ import org.apache.hop.workflow.WorkflowPainterExtension;
 
 import java.util.Map;
 
-import static org.apache.hop.git.HopDiff.*;
+import static org.apache.hop.git.HopDiff.ADDED;
+import static org.apache.hop.git.HopDiff.ATTR_GIT_HOPS;
+import static org.apache.hop.git.HopDiff.CHANGED;
+import static org.apache.hop.git.HopDiff.REMOVED;
 
 @ExtensionPoint(
     id = "DrawDiffOnWorkflowHopExtensionPoint",

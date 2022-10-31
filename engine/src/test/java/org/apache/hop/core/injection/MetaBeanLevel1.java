@@ -17,7 +17,9 @@
 
 package org.apache.hop.core.injection;
 
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 @InjectionSupported(
     localizationPrefix = "",

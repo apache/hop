@@ -35,7 +35,9 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /** Regression test */
 public class PDI_11152_Test {
