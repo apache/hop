@@ -29,6 +29,8 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
+import org.apache.hop.core.gui.plugin.tab.GuiTab;
+import org.apache.hop.core.gui.plugin.tab.GuiTabItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.util.TranslateUtil;
@@ -53,7 +55,6 @@ public class GuiRegistry {
    * menu elements stored per ID.
    */
   private Map<String, Map<String, GuiMenuItem>> guiMenuMap;
-
   private Map<String, Map<String, GuiToolbarItem>> guiToolbarMap;
   private Map<String, Map<String, GuiElements>> dataElementsMap;
   private Map<String, List<KeyboardShortcut>> shortCutsMap;
@@ -61,6 +62,7 @@ public class GuiRegistry {
   private Map<String, List<GuiActionFilter>> contextActionFiltersMap;
   private Map<String, List<GuiCallbackMethod>> callbackMethodsMap;
   private Map<String, List<GuiElements>> compositeGuiElements;
+  private Map<String, List<GuiTabItem>> guiTabsMap;
 
   /**
    * The first entry in this map is the HopGui ID Then the maps found are GuiPlugin class names and
@@ -78,6 +80,7 @@ public class GuiRegistry {
     guiPluginObjectsMap = new HashMap<>();
     callbackMethodsMap = new HashMap<>();
     compositeGuiElements = new HashMap<>();
+    guiTabsMap = new HashMap<>();
   }
 
   public static final GuiRegistry getInstance() {
@@ -380,6 +383,22 @@ public class GuiRegistry {
     elements.add(child);
   }
 
+  /** Add a GUI element to the registry.
+   *
+   * @param guiPluginClassName
+   * @param method
+   * @param guiTab
+   * @param classLoader
+   */
+  public void addGuiTab(String guiPluginClassName, Method method, GuiTab guiTab, ClassLoader classLoader){
+    List<GuiTabItem> guiTabItemList =
+            guiTabsMap.computeIfAbsent(guiTab.parentId(), k -> new ArrayList<>());
+
+    GuiTabItem guiTabItem = new GuiTabItem(guiPluginClassName, guiTab, method, classLoader);
+
+    guiTabItemList.add(guiTabItem);
+  }
+
   /**
    * Add a GUI element to the registry. If there is no elements objects for the parent ID under
    * which the element belongs, one will be added.
@@ -419,6 +438,15 @@ public class GuiRegistry {
         guiElements.sortChildren();
       }
     }
+  }
+
+  public Map<String, List<GuiTabItem>> getGuiTabsMap(){
+    return guiTabsMap;
+  }
+
+  public List<GuiTabItem> findGuiTabItems(String parent){
+    List<GuiTabItem> guiTabItems = guiTabsMap.get(parent);
+    return guiTabItems;
   }
 
   public void addKeyboardShortcut(

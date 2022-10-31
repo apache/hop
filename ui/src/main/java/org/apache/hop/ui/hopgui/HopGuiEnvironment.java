@@ -30,6 +30,7 @@ import org.apache.hop.core.gui.plugin.callback.GuiCallback;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
+import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
@@ -148,8 +149,13 @@ public class HopGuiEnvironment extends HopClientEnvironment {
               guiRegistry.addCompositeGuiWidgetElement(guiWidgetElement, method, classLoader);
             } else {
               guiRegistry.addGuiWidgetElement(
-                  guiWidgetElement, method, guiPluginClassName, classLoader);
+                      guiWidgetElement, method, guiPluginClassName, classLoader);
             }
+          }
+
+          GuiTab guiTab = method.getAnnotation(GuiTab.class);
+          if(guiTab != null){
+            guiRegistry.addGuiTab(guiPluginClassName, method, guiTab, classLoader);
           }
         }
       }
