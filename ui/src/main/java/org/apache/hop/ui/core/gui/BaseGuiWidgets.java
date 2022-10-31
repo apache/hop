@@ -45,7 +45,7 @@ public class BaseGuiWidgets {
 
   /**
    * Let the GUI plugin system know that there is no need to instantiate new objects for the given
-   * class. Instead this object can be taken. Make sure to call dispose() to prevent a (slow) memory
+   * class. Instead, this object can be taken. Make sure to call dispose() to prevent a (slow) memory
    * leak. Call this method before creating the widgets themselves.
    *
    * @param guiPluginObject
@@ -69,7 +69,7 @@ public class BaseGuiWidgets {
     GuiRegistry.getInstance().removeGuiPluginObjects(hopGuiId, instanceId);
   }
 
-  protected Object findGuiPluginInstance(ClassLoader classLoader, String listenerClassName)
+  protected static Object findGuiPluginInstance(ClassLoader classLoader, String listenerClassName, String instanceId)
       throws Exception {
     try {
       // This is the class that owns the listener method
@@ -81,7 +81,7 @@ public class BaseGuiWidgets {
       if (guiPluginObject == null) {
         // Create a new instance
         //
-        guiPluginObject = classLoader.loadClass(listenerClassName).newInstance();
+        guiPluginObject = classLoader.loadClass(listenerClassName).getConstructor().newInstance();
 
         // Store it
         //
@@ -102,7 +102,7 @@ public class BaseGuiWidgets {
   protected String[] getComboItems(GuiToolbarItem toolbarItem) {
     try {
       Object singleton =
-          findGuiPluginInstance(toolbarItem.getClassLoader(), toolbarItem.getListenerClass());
+          findGuiPluginInstance(toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), instanceId);
       if (singleton == null) {
         LogChannel.UI.logError(
             "Could not get instance of class '"
@@ -178,7 +178,7 @@ public class BaseGuiWidgets {
     //
     return e -> {
       try {
-        Object singleton = findGuiPluginInstance(classLoader, listenerClassName);
+        Object singleton = findGuiPluginInstance(classLoader, listenerClassName, instanceId);
         Method listenerMethod = singleton.getClass().getDeclaredMethod(listenerMethodName);
         if (listenerMethod == null) {
           throw new HopException(

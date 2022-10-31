@@ -17,9 +17,18 @@
 
 package org.apache.hop.core.metrics;
 
-import org.apache.hop.core.logging.*;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.IMetrics;
+import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.logging.Metrics;
+import org.apache.hop.core.logging.MetricsRegistry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 public class MetricsUtil {
 

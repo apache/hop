@@ -24,7 +24,10 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -42,7 +45,13 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the FTP Put action settings */
 public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
@@ -116,7 +125,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     WorkflowMeta workflowMeta = getWorkflowMeta();
@@ -130,26 +139,26 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionFtpPut.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionFtpPut.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -170,17 +179,18 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // The tab folder between the name and the buttons
     //
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "ActionFtpPut.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -191,7 +201,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // START OF SERVER SETTINGS GROUP///
     // /
     Group wServerSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wServerSettings);
+    PropsUi.setLook(wServerSettings);
     wServerSettings.setText(BaseMessages.getString(PKG, "ActionFtpPut.ServerSettings.Group.Label"));
 
     FormLayout serverSettingsgroupLayout = new FormLayout();
@@ -203,14 +213,14 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // ServerName line
     Label wlServerName = new Label(wServerSettings, SWT.RIGHT);
     wlServerName.setText(BaseMessages.getString(PKG, "ActionFtpPut.Server.Label"));
-    props.setLook(wlServerName);
+    PropsUi.setLook(wlServerName);
     FormData fdlServerName = new FormData();
     fdlServerName.left = new FormAttachment(0, 0);
     fdlServerName.top = new FormAttachment(wName, margin);
     fdlServerName.right = new FormAttachment(middle, 0);
     wlServerName.setLayoutData(fdlServerName);
     wServerName = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wServerName);
+    PropsUi.setLook(wServerName);
     wServerName.addModifyListener(lsMod);
     FormData fdServerName = new FormData();
     fdServerName.left = new FormAttachment(middle, margin);
@@ -221,14 +231,14 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // ServerPort line
     Label wlServerPort = new Label(wServerSettings, SWT.RIGHT);
     wlServerPort.setText(BaseMessages.getString(PKG, "ActionFtpPut.Port.Label"));
-    props.setLook(wlServerPort);
+    PropsUi.setLook(wlServerPort);
     FormData fdlServerPort = new FormData();
     fdlServerPort.left = new FormAttachment(0, 0);
     fdlServerPort.top = new FormAttachment(wServerName, margin);
     fdlServerPort.right = new FormAttachment(middle, 0);
     wlServerPort.setLayoutData(fdlServerPort);
     wServerPort = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wServerPort);
+    PropsUi.setLook(wServerPort);
     wServerPort.setToolTipText(BaseMessages.getString(PKG, "ActionFtpPut.Port.Tooltip"));
     wServerPort.addModifyListener(lsMod);
     FormData fdServerPort = new FormData();
@@ -240,14 +250,14 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // UserName line
     Label wlUserName = new Label(wServerSettings, SWT.RIGHT);
     wlUserName.setText(BaseMessages.getString(PKG, "ActionFtpPut.Username.Label"));
-    props.setLook(wlUserName);
+    PropsUi.setLook(wlUserName);
     FormData fdlUserName = new FormData();
     fdlUserName.left = new FormAttachment(0, 0);
     fdlUserName.top = new FormAttachment(wServerPort, margin);
     fdlUserName.right = new FormAttachment(middle, 0);
     wlUserName.setLayoutData(fdlUserName);
     wUserName = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUserName);
+    PropsUi.setLook(wUserName);
     wUserName.addModifyListener(lsMod);
     FormData fdUserName = new FormData();
     fdUserName.left = new FormAttachment(middle, margin);
@@ -258,14 +268,14 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // Password line
     Label wlPassword = new Label(wServerSettings, SWT.RIGHT);
     wlPassword.setText(BaseMessages.getString(PKG, "ActionFtpPut.Password.Label"));
-    props.setLook(wlPassword);
+    PropsUi.setLook(wlPassword);
     FormData fdlPassword = new FormData();
     fdlPassword.left = new FormAttachment(0, 0);
     fdlPassword.top = new FormAttachment(wUserName, margin);
     fdlPassword.right = new FormAttachment(middle, 0);
     wlPassword.setLayoutData(fdlPassword);
     wPassword = new PasswordTextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPassword);
+    PropsUi.setLook(wPassword);
     wPassword.addModifyListener(lsMod);
     FormData fdPassword = new FormData();
     fdPassword.left = new FormAttachment(middle, margin);
@@ -283,7 +293,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
             BaseMessages.getString(PKG, "ActionFtpPut.ProxyHost.Tooltip"),
             false,
             false);
-    props.setLook(wProxyHost);
+    PropsUi.setLook(wProxyHost);
     wProxyHost.addModifyListener(lsMod);
     FormData fdProxyHost = new FormData();
     fdProxyHost.left = new FormAttachment(0, 0);
@@ -301,7 +311,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
             BaseMessages.getString(PKG, "ActionFtpPut.ProxyPort.Tooltip"),
             false,
             false);
-    props.setLook(wProxyPort);
+    PropsUi.setLook(wProxyPort);
     wProxyPort.addModifyListener(lsMod);
     FormData fdProxyPort = new FormData();
     fdProxyPort.left = new FormAttachment(0, 0);
@@ -319,7 +329,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
             BaseMessages.getString(PKG, "ActionFtpPut.ProxyUsername.Tooltip"),
             false,
             false);
-    props.setLook(wProxyUsername);
+    PropsUi.setLook(wProxyUsername);
     wProxyUsername.addModifyListener(lsMod);
     FormData fdProxyUsername = new FormData();
     fdProxyUsername.left = new FormAttachment(0, 0);
@@ -337,7 +347,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
             BaseMessages.getString(PKG, "ActionFtpPut.ProxyPassword.Tooltip"),
             true,
             false);
-    props.setLook(wProxyPassword);
+    PropsUi.setLook(wProxyPassword);
     wProxyPassword.addModifyListener(lsMod);
     FormData fdProxyPasswd = new FormData();
     fdProxyPasswd.left = new FormAttachment(0, 0);
@@ -348,7 +358,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // Test connection button
     Button wTest = new Button(wServerSettings, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "ActionFtpPut.TestConnection.Label"));
-    props.setLook(wTest);
+    PropsUi.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(BaseMessages.getString(PKG, "ActionFtpPut.TestConnection.Tooltip"));
     fdTest.top = new FormAttachment(wProxyPassword, margin);
@@ -369,7 +379,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // START OF Advanced SETTINGS GROUP///
     // /
     Group wAdvancedSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wAdvancedSettings);
+    PropsUi.setLook(wAdvancedSettings);
     wAdvancedSettings.setText(
         BaseMessages.getString(PKG, "ActionFtpPut.AdvancedSettings.Group.Label"));
     FormLayout advancedSettingsgroupLayout = new FormLayout();
@@ -380,14 +390,14 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // Binary mode selection...
     Label wlBinaryMode = new Label(wAdvancedSettings, SWT.RIGHT);
     wlBinaryMode.setText(BaseMessages.getString(PKG, "ActionFtpPut.BinaryMode.Label"));
-    props.setLook(wlBinaryMode);
+    PropsUi.setLook(wlBinaryMode);
     FormData fdlBinaryMode = new FormData();
     fdlBinaryMode.left = new FormAttachment(0, 0);
     fdlBinaryMode.top = new FormAttachment(wServerSettings, margin);
     fdlBinaryMode.right = new FormAttachment(middle, 0);
     wlBinaryMode.setLayoutData(fdlBinaryMode);
     wBinaryMode = new Button(wAdvancedSettings, SWT.CHECK);
-    props.setLook(wBinaryMode);
+    PropsUi.setLook(wBinaryMode);
     wBinaryMode.setToolTipText(BaseMessages.getString(PKG, "ActionFtpPut.BinaryMode.Tooltip"));
     FormData fdBinaryMode = new FormData();
     fdBinaryMode.left = new FormAttachment(middle, 0);
@@ -398,7 +408,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // TimeOut...
     Label wlTimeout = new Label(wAdvancedSettings, SWT.RIGHT);
     wlTimeout.setText(BaseMessages.getString(PKG, "ActionFtpPut.Timeout.Label"));
-    props.setLook(wlTimeout);
+    PropsUi.setLook(wlTimeout);
     FormData fdlTimeout = new FormData();
     fdlTimeout.left = new FormAttachment(0, 0);
     fdlTimeout.top = new FormAttachment(wlBinaryMode, 2 * margin);
@@ -410,7 +420,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
             wAdvancedSettings,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionFtpPut.Timeout.Tooltip"));
-    props.setLook(wTimeout);
+    PropsUi.setLook(wTimeout);
     wTimeout.setToolTipText(BaseMessages.getString(PKG, "ActionFtpPut.Timeout.Tooltip"));
     FormData fdTimeout = new FormData();
     fdTimeout.left = new FormAttachment(middle, 0);
@@ -421,7 +431,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // active connection?
     Label wlActive = new Label(wAdvancedSettings, SWT.RIGHT);
     wlActive.setText(BaseMessages.getString(PKG, "ActionFtpPut.ActiveConns.Label"));
-    props.setLook(wlActive);
+    PropsUi.setLook(wlActive);
     FormData fdlActive = new FormData();
     fdlActive.left = new FormAttachment(0, 0);
     fdlActive.top = new FormAttachment(wTimeout, margin);
@@ -429,7 +439,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     wlActive.setLayoutData(fdlActive);
     wActive = new Button(wAdvancedSettings, SWT.CHECK);
     wActive.setToolTipText(BaseMessages.getString(PKG, "ActionFtpPut.ActiveConns.Tooltip"));
-    props.setLook(wActive);
+    PropsUi.setLook(wActive);
     FormData fdActive = new FormData();
     fdActive.left = new FormAttachment(middle, 0);
     fdActive.top = new FormAttachment(wlActive, 0, SWT.CENTER);
@@ -443,7 +453,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     //
     Label wlControlEncoding = new Label(wAdvancedSettings, SWT.RIGHT);
     wlControlEncoding.setText(BaseMessages.getString(PKG, "ActionFtpPut.ControlEncoding.Label"));
-    props.setLook(wlControlEncoding);
+    PropsUi.setLook(wlControlEncoding);
     FormData fdlControlEncoding = new FormData();
     fdlControlEncoding.left = new FormAttachment(0, 0);
     fdlControlEncoding.top = new FormAttachment(wlActive, 2 * margin);
@@ -453,7 +463,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     wControlEncoding.setToolTipText(
         BaseMessages.getString(PKG, "ActionFtpPut.ControlEncoding.Tooltip"));
     wControlEncoding.setItems(encodings);
-    props.setLook(wControlEncoding);
+    PropsUi.setLook(wControlEncoding);
     FormData fdControlEncoding = new FormData();
     fdControlEncoding.left = new FormAttachment(middle, 0);
     fdControlEncoding.top = new FormAttachment(wlControlEncoding, 0, SWT.CENTER);
@@ -478,7 +488,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
 
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
     // ///////////////////////////////////////////////////////////
@@ -488,10 +498,11 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wFilesTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFilesTab.setFont(GuiResource.getInstance().getFontDefault());
     wFilesTab.setText(BaseMessages.getString(PKG, "ActionFtpPut.Tab.Files.Label"));
 
     Composite wFilesComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFilesComp);
+    PropsUi.setLook(wFilesComp);
 
     FormLayout filesLayout = new FormLayout();
     filesLayout.marginWidth = 3;
@@ -502,7 +513,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // START OF Source SETTINGS GROUP///
     // /
     Group wSourceSettings = new Group(wFilesComp, SWT.SHADOW_NONE);
-    props.setLook(wSourceSettings);
+    PropsUi.setLook(wSourceSettings);
     wSourceSettings.setText(BaseMessages.getString(PKG, "ActionFtpPut.SourceSettings.Group.Label"));
     FormLayout sourceSettinsgroupLayout = new FormLayout();
     sourceSettinsgroupLayout.marginWidth = 10;
@@ -512,7 +523,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // Local (source) directory line
     Label wlLocalDirectory = new Label(wSourceSettings, SWT.RIGHT);
     wlLocalDirectory.setText(BaseMessages.getString(PKG, "ActionFtpPut.LocalDir.Label"));
-    props.setLook(wlLocalDirectory);
+    PropsUi.setLook(wlLocalDirectory);
     FormData fdlLocalDirectory = new FormData();
     fdlLocalDirectory.left = new FormAttachment(0, 0);
     fdlLocalDirectory.top = new FormAttachment(0, margin);
@@ -521,7 +532,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
 
     // Browse folders button ...
     Button wbLocalDirectory = new Button(wSourceSettings, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbLocalDirectory);
+    PropsUi.setLook(wbLocalDirectory);
     wbLocalDirectory.setText(BaseMessages.getString(PKG, "ActionFtpPut.BrowseFolders.Label"));
     FormData fdbLocalDirectory = new FormData();
     fdbLocalDirectory.right = new FormAttachment(100, 0);
@@ -536,7 +547,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
             wSourceSettings,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionFtpPut.LocalDir.Tooltip"));
-    props.setLook(wLocalDirectory);
+    PropsUi.setLook(wLocalDirectory);
     wLocalDirectory.addModifyListener(lsMod);
     FormData fdLocalDirectory = new FormData();
     fdLocalDirectory.left = new FormAttachment(middle, 0);
@@ -547,7 +558,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // Wildcard line
     Label wlWildcard = new Label(wSourceSettings, SWT.RIGHT);
     wlWildcard.setText(BaseMessages.getString(PKG, "ActionFtpPut.Wildcard.Label"));
-    props.setLook(wlWildcard);
+    PropsUi.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
     fdlWildcard.top = new FormAttachment(wLocalDirectory, margin);
@@ -559,7 +570,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
             wSourceSettings,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionFtpPut.Wildcard.Tooltip"));
-    props.setLook(wWildcard);
+    PropsUi.setLook(wWildcard);
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment(middle, 0);
@@ -570,14 +581,14 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // Remove files after retrieval...
     Label wlRemove = new Label(wSourceSettings, SWT.RIGHT);
     wlRemove.setText(BaseMessages.getString(PKG, "ActionFtpPut.RemoveFiles.Label"));
-    props.setLook(wlRemove);
+    PropsUi.setLook(wlRemove);
     FormData fdlRemove = new FormData();
     fdlRemove.left = new FormAttachment(0, 0);
     fdlRemove.top = new FormAttachment(wWildcard, 2 * margin);
     fdlRemove.right = new FormAttachment(middle, -margin);
     wlRemove.setLayoutData(fdlRemove);
     wRemove = new Button(wSourceSettings, SWT.CHECK);
-    props.setLook(wRemove);
+    PropsUi.setLook(wRemove);
     wRemove.setToolTipText(BaseMessages.getString(PKG, "ActionFtpPut.RemoveFiles.Tooltip"));
     FormData fdRemove = new FormData();
     fdRemove.left = new FormAttachment(middle, 0);
@@ -588,7 +599,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // OnlyNew files after retrieval...
     Label wlOnlyNew = new Label(wSourceSettings, SWT.RIGHT);
     wlOnlyNew.setText(BaseMessages.getString(PKG, "ActionFtpPut.DontOverwrite.Label"));
-    props.setLook(wlOnlyNew);
+    PropsUi.setLook(wlOnlyNew);
     FormData fdlOnlyNew = new FormData();
     fdlOnlyNew.left = new FormAttachment(0, 0);
     fdlOnlyNew.top = new FormAttachment(wlRemove, 2 * margin);
@@ -596,7 +607,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     wlOnlyNew.setLayoutData(fdlOnlyNew);
     wOnlyNew = new Button(wSourceSettings, SWT.CHECK);
     wOnlyNew.setToolTipText(BaseMessages.getString(PKG, "ActionFtpPut.DontOverwrite.Tooltip"));
-    props.setLook(wOnlyNew);
+    PropsUi.setLook(wOnlyNew);
     FormData fdOnlyNew = new FormData();
     fdOnlyNew.left = new FormAttachment(middle, 0);
     fdOnlyNew.top = new FormAttachment(wlOnlyNew, 0, SWT.CENTER);
@@ -616,7 +627,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // START OF Target SETTINGS GROUP///
     // /
     Group wTargetSettings = new Group(wFilesComp, SWT.SHADOW_NONE);
-    props.setLook(wTargetSettings);
+    PropsUi.setLook(wTargetSettings);
     wTargetSettings.setText(BaseMessages.getString(PKG, "ActionFtpPut.TargetSettings.Group.Label"));
     FormLayout targetSettinsgroupLayout = new FormLayout();
     targetSettinsgroupLayout.marginWidth = 10;
@@ -626,7 +637,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // Remote Directory line
     Label wlRemoteDirectory = new Label(wTargetSettings, SWT.RIGHT);
     wlRemoteDirectory.setText(BaseMessages.getString(PKG, "ActionFtpPut.RemoteDir.Label"));
-    props.setLook(wlRemoteDirectory);
+    PropsUi.setLook(wlRemoteDirectory);
     FormData fdlRemoteDirectory = new FormData();
     fdlRemoteDirectory.left = new FormAttachment(0, 0);
     fdlRemoteDirectory.top = new FormAttachment(wSourceSettings, margin);
@@ -635,7 +646,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
 
     // Test remote folder button ...
     Button wbTestRemoteDirectoryExists = new Button(wTargetSettings, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTestRemoteDirectoryExists);
+    PropsUi.setLook(wbTestRemoteDirectoryExists);
     wbTestRemoteDirectoryExists.setText(
         BaseMessages.getString(PKG, "ActionFtpPut.TestFolderExists.Label"));
     FormData fdbTestRemoteDirectoryExists = new FormData();
@@ -651,7 +662,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
             wTargetSettings,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionFtpPut.RemoteDir.Tooltip"));
-    props.setLook(wRemoteDirectory);
+    PropsUi.setLook(wRemoteDirectory);
     wRemoteDirectory.addModifyListener(lsMod);
     FormData fdRemoteDirectory = new FormData();
     fdRemoteDirectory.left = new FormAttachment(middle, 0);
@@ -677,7 +688,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
 
     wFilesComp.layout();
     wFilesTab.setControl(wFilesComp);
-    props.setLook(wFilesComp);
+    PropsUi.setLook(wFilesComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Files TAB
@@ -687,10 +698,11 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // Start of Socks Proxy Tab
     // ///////////////////////////////////////////////////////////
     CTabItem wSocksProxyTab = new CTabItem(wTabFolder, SWT.NONE);
+    wSocksProxyTab.setFont(GuiResource.getInstance().getFontDefault());
     wSocksProxyTab.setText(BaseMessages.getString(PKG, "ActionFtpPut.Tab.Socks.Label"));
 
     Composite wSocksProxyComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wSocksProxyComp);
+    PropsUi.setLook(wSocksProxyComp);
 
     FormLayout soxProxyLayout = new FormLayout();
     soxProxyLayout.marginWidth = 3;
@@ -701,7 +713,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     // Start of Proxy Group
     // ////////////////////////////////////////////////////////
     Group wSocksProxy = new Group(wSocksProxyComp, SWT.SHADOW_NONE);
-    props.setLook(wSocksProxy);
+    PropsUi.setLook(wSocksProxy);
     wSocksProxy.setText(BaseMessages.getString(PKG, "ActionFtpPut.SocksProxy.Group.Label"));
 
     FormLayout socksProxyGroupLayout = new FormLayout();
@@ -719,7 +731,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
             BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyHost.Tooltip"),
             false,
             false);
-    props.setLook(wSocksProxyHost);
+    PropsUi.setLook(wSocksProxyHost);
     wSocksProxyHost.addModifyListener(lsMod);
     FormData fdSocksProxyHost = new FormData();
     fdSocksProxyHost.left = new FormAttachment(0, 0);
@@ -737,7 +749,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
             BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyPort.Tooltip"),
             false,
             false);
-    props.setLook(wSocksProxyPort);
+    PropsUi.setLook(wSocksProxyPort);
     wSocksProxyPort.addModifyListener(lsMod);
     FormData fdSocksProxyPort = new FormData();
     fdSocksProxyPort.left = new FormAttachment(0, 0);
@@ -755,7 +767,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
             BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyPassword.Tooltip"),
             false,
             false);
-    props.setLook(wSocksProxyUsername);
+    PropsUi.setLook(wSocksProxyUsername);
     wSocksProxyUsername.addModifyListener(lsMod);
     FormData fdSocksProxyUsername = new FormData();
     fdSocksProxyUsername.left = new FormAttachment(0, 0);
@@ -773,7 +785,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
             BaseMessages.getString(PKG, "ActionFtpPut.SocksProxyPassword.Tooltip"),
             true,
             false);
-    props.setLook(wSocksProxyPort);
+    PropsUi.setLook(wSocksProxyPort);
     wSocksProxyPassword.addModifyListener(lsMod);
     FormData fdSocksProxyPassword = new FormData();
     fdSocksProxyPassword.left = new FormAttachment(0, 0);
@@ -793,7 +805,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
 
     wSocksProxyComp.layout();
     wSocksProxyTab.setControl(wSocksProxyComp);
-    props.setLook(wSocksProxyComp);
+    PropsUi.setLook(wSocksProxyComp);
 
     // ////////////////////////////////////////////////////////
     // End of Socks Proxy Tab

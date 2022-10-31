@@ -24,8 +24,6 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -43,7 +41,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -139,7 +142,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     // What's the name
     //
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.name"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin * 2);
@@ -147,7 +150,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, margin); // To the right of the label
@@ -156,7 +159,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     Control lastControl = wName;
 
     Label wlDescription = new Label(parent, SWT.RIGHT);
-    props.setLook(wlDescription);
+    PropsUi.setLook(wlDescription);
     wlDescription.setText(
         BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.Description"));
     FormData fdlDescription = new FormData();
@@ -165,7 +168,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     fdlDescription.right = new FormAttachment(middle, 0);
     wlDescription.setLayoutData(fdlDescription);
     wDescription = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDescription);
+    PropsUi.setLook(wDescription);
     FormData fdDescription = new FormData();
     fdDescription.top = new FormAttachment(wlDescription, 0, SWT.CENTER);
     fdDescription.left = new FormAttachment(middle, margin); // To the right of the label
@@ -174,7 +177,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     lastControl = wDescription;
 
     Label wlDefault = new Label(parent, SWT.RIGHT);
-    props.setLook(wlDefault);
+    PropsUi.setLook(wlDefault);
     wlDefault.setText(
             BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.Default"));
     FormData fdlDefault = new FormData();
@@ -183,7 +186,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     fdlDefault.right = new FormAttachment(middle, 0);
     wlDefault.setLayoutData(fdlDefault);
     wDefault = new Button(parent, SWT.CHECK | SWT.LEFT );
-    props.setLook(wDefault);
+    PropsUi.setLook(wDefault);
     FormData fdDefault = new FormData();
     fdDefault.top = new FormAttachment(wlDefault, 0, SWT.CENTER);
     fdDefault.left = new FormAttachment(middle, margin); // To the right of the label
@@ -204,7 +207,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
                             PKG, "WorkflowRunConfigurationDialog.label.ExecutionInfoLocation"),
                     BaseMessages.getString(
                             PKG, "WorkflowRunConfigurationDialog.toolTip.ExecutionInfoLocation"));
-    props.setLook(wExecutionInfoLocation);
+    PropsUi.setLook(wExecutionInfoLocation);
     FormData fdExecutionInfoLocation = new FormData();
     fdExecutionInfoLocation.top = new FormAttachment(lastControl, 2*margin);
     fdExecutionInfoLocation.left = new FormAttachment(0, 0); // To the right of the label
@@ -215,7 +218,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     // What's the type of engine?
     //
     Label wlPluginType = new Label(parent, SWT.RIGHT);
-    props.setLook(wlPluginType);
+    PropsUi.setLook(wlPluginType);
     wlPluginType.setText(
         BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.EngineType"));
     FormData fdlPluginType = new FormData();
@@ -224,7 +227,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     fdlPluginType.right = new FormAttachment(middle, 0);
     wlPluginType.setLayoutData(fdlPluginType);
     wPluginType = new ComboVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPluginType);
+    PropsUi.setLook(wPluginType);
     wPluginType.setItems(getPluginTypes());
     FormData fdPluginType = new FormData();
     fdPluginType.top = new FormAttachment(wlPluginType, 0, SWT.CENTER);
@@ -236,7 +239,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     // Add a composite area
     //
     wPluginSpecificComp = new Composite(parent, SWT.BACKGROUND);
-    props.setLook(wPluginSpecificComp);
+    PropsUi.setLook(wPluginSpecificComp);
     wPluginSpecificComp.setLayout(new FormLayout());
     FormData fdPluginSpecificComp = new FormData();
     fdPluginSpecificComp.left = new FormAttachment(0, 0);

@@ -26,7 +26,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -36,8 +35,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -47,7 +48,12 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.io.InputStream;
 import java.util.List;
@@ -72,26 +78,26 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SASInputDialog.Dialog.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -99,7 +105,7 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -112,7 +118,7 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlAccField = new Label(shell, SWT.RIGHT);
     wlAccField.setText(BaseMessages.getString(PKG, "SASInputDialog.AcceptField.Label"));
-    props.setLook(wlAccField);
+    PropsUi.setLook(wlAccField);
     FormData fdlAccField = new FormData();
     fdlAccField.top = new FormAttachment(lastControl, margin);
     fdlAccField.left = new FormAttachment(0, 0);
@@ -120,7 +126,7 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
     wlAccField.setLayoutData(fdlAccField);
     wAccField = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wAccField.setToolTipText(BaseMessages.getString(PKG, "SASInputDialog.AcceptField.Tooltip"));
-    props.setLook(wAccField);
+    PropsUi.setLook(wAccField);
     FormData fdAccField = new FormData();
     fdAccField.top = new FormAttachment(lastControl, margin);
     fdAccField.left = new FormAttachment(middle, 0);
@@ -153,7 +159,7 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
 
     Label wlFields = new Label(shell, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "SASInputDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.top = new FormAttachment(lastControl, margin);
     fdlFields.left = new FormAttachment(0, 0);

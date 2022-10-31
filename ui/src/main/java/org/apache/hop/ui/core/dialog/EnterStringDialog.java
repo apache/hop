@@ -30,7 +30,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to enter a (single line) String. */
 public class EnterStringDialog extends Dialog {
@@ -105,11 +110,11 @@ public class EnterStringDialog extends Dialog {
     Control lastControl;
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL | SWT.SHEET);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
@@ -120,7 +125,7 @@ public class EnterStringDialog extends Dialog {
     // The String line...
     Label wlString = new Label(shell, SWT.NONE);
     wlString.setText(lineText);
-    props.setLook(wlString);
+    PropsUi.setLook(wlString);
     FormData fdlString = new FormData();
     fdlString.left = new FormAttachment(0, 0);
     fdlString.top = new FormAttachment(0, margin);
@@ -128,12 +133,12 @@ public class EnterStringDialog extends Dialog {
     if (allowVariables) {
       wStringVar = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
       wStringVar.setText(string);
-      props.setLook(wStringVar);
+      PropsUi.setLook(wStringVar);
       lastControl = wStringVar;
     } else {
       wString = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
       wString.setText(string);
-      props.setLook(wString);
+      PropsUi.setLook(wString);
       lastControl = wString;
     }
 

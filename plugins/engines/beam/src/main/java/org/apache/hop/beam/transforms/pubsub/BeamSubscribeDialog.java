@@ -25,6 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -32,7 +33,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class BeamSubscribeDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = BeamSubscribe.class; // For Translator
@@ -57,25 +63,25 @@ public class BeamSubscribeDialog extends BaseTransformDialog implements ITransfo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "BeamSubscribeDialog.DialogTitle"));
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -83,7 +89,7 @@ public class BeamSubscribeDialog extends BaseTransformDialog implements ITransfo
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -93,14 +99,14 @@ public class BeamSubscribeDialog extends BaseTransformDialog implements ITransfo
 
     Label wlSubscription = new Label(shell, SWT.RIGHT);
     wlSubscription.setText(BaseMessages.getString(PKG, "BeamSubscribeDialog.Subscription"));
-    props.setLook(wlSubscription);
+    PropsUi.setLook(wlSubscription);
     FormData fdlSubscription = new FormData();
     fdlSubscription.left = new FormAttachment(0, 0);
     fdlSubscription.top = new FormAttachment(lastControl, margin);
     fdlSubscription.right = new FormAttachment(middle, -margin);
     wlSubscription.setLayoutData(fdlSubscription);
     wSubscription = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSubscription);
+    PropsUi.setLook(wSubscription);
     FormData fdSubscription = new FormData();
     fdSubscription.left = new FormAttachment(middle, 0);
     fdSubscription.top = new FormAttachment(wlSubscription, 0, SWT.CENTER);
@@ -110,14 +116,14 @@ public class BeamSubscribeDialog extends BaseTransformDialog implements ITransfo
 
     Label wlTopic = new Label(shell, SWT.RIGHT);
     wlTopic.setText(BaseMessages.getString(PKG, "BeamSubscribeDialog.Topic"));
-    props.setLook(wlTopic);
+    PropsUi.setLook(wlTopic);
     FormData fdlTopic = new FormData();
     fdlTopic.left = new FormAttachment(0, 0);
     fdlTopic.top = new FormAttachment(lastControl, margin);
     fdlTopic.right = new FormAttachment(middle, -margin);
     wlTopic.setLayoutData(fdlTopic);
     wTopic = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTopic);
+    PropsUi.setLook(wTopic);
     FormData fdTopic = new FormData();
     fdTopic.left = new FormAttachment(middle, 0);
     fdTopic.top = new FormAttachment(wlTopic, 0, SWT.CENTER);
@@ -127,14 +133,14 @@ public class BeamSubscribeDialog extends BaseTransformDialog implements ITransfo
 
     Label wlMessageType = new Label(shell, SWT.RIGHT);
     wlMessageType.setText(BaseMessages.getString(PKG, "BeamSubscribeDialog.MessageType"));
-    props.setLook(wlMessageType);
+    PropsUi.setLook(wlMessageType);
     FormData fdlMessageType = new FormData();
     fdlMessageType.left = new FormAttachment(0, 0);
     fdlMessageType.top = new FormAttachment(lastControl, margin);
     fdlMessageType.right = new FormAttachment(middle, -margin);
     wlMessageType.setLayoutData(fdlMessageType);
     wMessageType = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMessageType);
+    PropsUi.setLook(wMessageType);
     wMessageType.setItems(BeamDefaults.PUBSUB_MESSAGE_TYPES);
     FormData fdMessageType = new FormData();
     fdMessageType.left = new FormAttachment(middle, 0);
@@ -145,14 +151,14 @@ public class BeamSubscribeDialog extends BaseTransformDialog implements ITransfo
 
     Label wlMessageField = new Label(shell, SWT.RIGHT);
     wlMessageField.setText(BaseMessages.getString(PKG, "BeamSubscribeDialog.MessageField"));
-    props.setLook(wlMessageField);
+    PropsUi.setLook(wlMessageField);
     FormData fdlMessageField = new FormData();
     fdlMessageField.left = new FormAttachment(0, 0);
     fdlMessageField.top = new FormAttachment(lastControl, margin);
     fdlMessageField.right = new FormAttachment(middle, -margin);
     wlMessageField.setLayoutData(fdlMessageField);
     wMessageField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMessageField);
+    PropsUi.setLook(wMessageField);
     FormData fdMessageField = new FormData();
     fdMessageField.left = new FormAttachment(middle, 0);
     fdMessageField.top = new FormAttachment(wlMessageField, 0, SWT.CENTER);

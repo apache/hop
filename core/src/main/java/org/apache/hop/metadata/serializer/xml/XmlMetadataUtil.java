@@ -23,15 +23,21 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metadata.api.*;
+import org.apache.hop.metadata.api.HopMetadataObject;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.w3c.dom.Node;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class XmlMetadataUtil {
   /**

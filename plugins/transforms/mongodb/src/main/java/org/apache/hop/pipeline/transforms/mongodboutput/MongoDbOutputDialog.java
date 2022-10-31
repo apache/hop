@@ -35,9 +35,11 @@ import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -51,7 +53,13 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +105,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
 
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, currentMeta);
 
     // used to listen to a text field (wTransformName)
@@ -106,14 +114,14 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     changed = currentMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons inherited from BaseTransformDialog
     wOk = new Button(shell, SWT.PUSH);
@@ -127,7 +135,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
 
     FormData fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -136,7 +144,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     wlTransformName.setLayoutData(fd);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
 
     // format the text field
@@ -149,13 +157,14 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     /** various UI bits and pieces for the dialog */
     // The tabs of the dialog
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // --- start of the options tab
     CTabItem wOutputOptionsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wOutputOptionsTab.setFont(GuiResource.getInstance().getFontDefault());
     wOutputOptionsTab.setText("Output options");
     Composite wOutputComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wOutputComp);
+    PropsUi.setLook(wOutputComp);
     FormLayout outputLayout = new FormLayout();
     outputLayout.marginWidth = 3;
     outputLayout.marginHeight = 3;
@@ -190,7 +199,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     collectionLab.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Collection.Label"));
     collectionLab.setToolTipText(
         BaseMessages.getString(PKG, "MongoDbOutputDialog.Collection.TipText"));
-    props.setLook(collectionLab);
+    PropsUi.setLook(collectionLab);
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
     fd.top = new FormAttachment(lastControl, margin);
@@ -198,7 +207,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     collectionLab.setLayoutData(fd);
 
     Button wbGetCollections = new Button(wOutputComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGetCollections);
+    PropsUi.setLook(wbGetCollections);
     wbGetCollections.setText(
         BaseMessages.getString(PKG, "MongoDbOutputDialog.GetCollections.Button"));
     fd = new FormData();
@@ -209,7 +218,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     wbGetCollections.addListener(SWT.Selection, e -> getCollectionNames(false));
 
     wCollectionField = new CCombo(wOutputComp, SWT.BORDER);
-    props.setLook(wCollectionField);
+    PropsUi.setLook(wCollectionField);
     wCollectionField.addModifyListener(
         e -> {
           currentMeta.setChanged();
@@ -226,7 +235,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     // batch insert line
     Label batchLab = new Label(wOutputComp, SWT.RIGHT);
     batchLab.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.BatchInsertSize.Label"));
-    props.setLook(batchLab);
+    PropsUi.setLook(batchLab);
     batchLab.setToolTipText(
         BaseMessages.getString(PKG, "MongoDbOutputDialog.BatchInsertSize.TipText"));
     fd = new FormData();
@@ -236,7 +245,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     batchLab.setLayoutData(fd);
 
     wBatchInsertSizeField = new TextVar(variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBatchInsertSizeField);
+    PropsUi.setLook(wBatchInsertSizeField);
     wBatchInsertSizeField.addModifyListener(lsMod);
     // set the tool tip to the contents with any env variables expanded
     wBatchInsertSizeField.addModifyListener(
@@ -253,7 +262,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     // truncate line
     Label truncateLab = new Label(wOutputComp, SWT.RIGHT);
     truncateLab.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Truncate.Label"));
-    props.setLook(truncateLab);
+    PropsUi.setLook(truncateLab);
     truncateLab.setToolTipText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Truncate.TipText"));
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -261,7 +270,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     fd.right = new FormAttachment(middle, -margin);
     truncateLab.setLayoutData(fd);
     wbTruncate = new Button(wOutputComp, SWT.CHECK);
-    props.setLook(wbTruncate);
+    PropsUi.setLook(wbTruncate);
     wbTruncate.setToolTipText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Truncate.TipText"));
     fd = new FormData();
     fd.right = new FormAttachment(100, 0);
@@ -274,7 +283,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     // update line
     Label updateLab = new Label(wOutputComp, SWT.RIGHT);
     updateLab.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Update.Label"));
-    props.setLook(updateLab);
+    PropsUi.setLook(updateLab);
     updateLab.setToolTipText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Update.TipText"));
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -282,7 +291,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     fd.right = new FormAttachment(middle, -margin);
     updateLab.setLayoutData(fd);
     wbUpdate = new Button(wOutputComp, SWT.CHECK);
-    props.setLook(wbUpdate);
+    PropsUi.setLook(wbUpdate);
     wbUpdate.setToolTipText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Update.TipText"));
     fd = new FormData();
     fd.right = new FormAttachment(100, 0);
@@ -315,7 +324,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     // upsert line
     Label upsertLab = new Label(wOutputComp, SWT.RIGHT);
     upsertLab.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Upsert.Label"));
-    props.setLook(upsertLab);
+    PropsUi.setLook(upsertLab);
     upsertLab.setToolTipText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Upsert.TipText"));
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -323,7 +332,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     fd.right = new FormAttachment(middle, -margin);
     upsertLab.setLayoutData(fd);
     wbUpsert = new Button(wOutputComp, SWT.CHECK);
-    props.setLook(wbUpsert);
+    PropsUi.setLook(wbUpsert);
     wbUpsert.setToolTipText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Upsert.TipText"));
     fd = new FormData();
     fd.right = new FormAttachment(100, 0);
@@ -335,7 +344,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     // multi line
     Label multiLab = new Label(wOutputComp, SWT.RIGHT);
     multiLab.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Multi.Label"));
-    props.setLook(multiLab);
+    PropsUi.setLook(multiLab);
     multiLab.setToolTipText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Multi.TipText"));
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -343,7 +352,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     fd.right = new FormAttachment(middle, -margin);
     multiLab.setLayoutData(fd);
     wbMulti = new Button(wOutputComp, SWT.CHECK);
-    props.setLook(wbMulti);
+    PropsUi.setLook(wbMulti);
     wbMulti.setToolTipText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Multi.TipText"));
     fd = new FormData();
     fd.right = new FormAttachment(100, 0);
@@ -356,7 +365,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     // modifier update
     Label modifierLab = new Label(wOutputComp, SWT.RIGHT);
     modifierLab.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Modifier.Label"));
-    props.setLook(modifierLab);
+    PropsUi.setLook(modifierLab);
     modifierLab.setToolTipText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Modifier.TipText"));
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -365,7 +374,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     modifierLab.setLayoutData(fd);
 
     wbModifierUpdate = new Button(wOutputComp, SWT.CHECK);
-    props.setLook(wbModifierUpdate);
+    PropsUi.setLook(wbModifierUpdate);
     wbModifierUpdate.setToolTipText(
         BaseMessages.getString(PKG, "MongoDbOutputDialog.Modifier.TipText"));
     fd = new FormData();
@@ -386,7 +395,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
 
     // retries stuff
     Label retriesLab = new Label(wOutputComp, SWT.RIGHT);
-    props.setLook(retriesLab);
+    PropsUi.setLook(retriesLab);
     retriesLab.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.WriteRetries.Label"));
     retriesLab.setToolTipText(
         BaseMessages.getString(PKG, "MongoDbOutputDialog.WriteRetries.TipText"));
@@ -397,7 +406,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     retriesLab.setLayoutData(fd);
 
     wWriteRetries = new TextVar(variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wWriteRetries);
+    PropsUi.setLook(wWriteRetries);
     fd = new FormData();
     fd.left = new FormAttachment(middle, 0);
     fd.top = new FormAttachment(retriesLab, 0, SWT.CENTER);
@@ -407,7 +416,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
         e -> wWriteRetries.setToolTipText(variables.resolve(wWriteRetries.getText())));
 
     Label retriesDelayLab = new Label(wOutputComp, SWT.RIGHT);
-    props.setLook(retriesDelayLab);
+    PropsUi.setLook(retriesDelayLab);
     retriesDelayLab.setText(
         BaseMessages.getString(PKG, "MongoDbOutputDialog.WriteRetriesDelay.Label"));
     fd = new FormData();
@@ -417,7 +426,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     retriesDelayLab.setLayoutData(fd);
 
     wWriteRetryDelay = new TextVar(variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wWriteRetryDelay);
+    PropsUi.setLook(wWriteRetryDelay);
     fd = new FormData();
     fd.left = new FormAttachment(middle, 0);
     fd.top = new FormAttachment(wWriteRetries, margin);
@@ -436,9 +445,10 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
 
     // --- start of the fields tab
     CTabItem wMongoFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wMongoFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wMongoFieldsTab.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.FieldsTab.TabTitle"));
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFieldsComp);
+    PropsUi.setLook(wFieldsComp);
     FormLayout filterLayout = new FormLayout();
     filterLayout.marginWidth = 3;
     filterLayout.marginHeight = 3;
@@ -490,7 +500,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
 
     // get fields but
     Button wbGetFields = new Button(wFieldsComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGetFields);
+    PropsUi.setLook(wbGetFields);
     wbGetFields.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.GetFieldsBut"));
     fd = new FormData();
     fd.bottom = new FormAttachment(100, -margin * 2);
@@ -499,7 +509,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     wbGetFields.addListener(SWT.Selection, e -> getFields());
 
     Button wbPreviewDocStruct = new Button(wFieldsComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbPreviewDocStruct);
+    PropsUi.setLook(wbPreviewDocStruct);
     wbPreviewDocStruct.setText(
         BaseMessages.getString(PKG, "MongoDbOutputDialog.PreviewDocStructBut"));
     fd = new FormData();
@@ -531,10 +541,11 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
 
     // indexes tab ------------------
     CTabItem wMongoIndexesTab = new CTabItem(wTabFolder, SWT.NONE);
+    wMongoIndexesTab.setFont(GuiResource.getInstance().getFontDefault());
     wMongoIndexesTab.setText(
         BaseMessages.getString(PKG, "MongoDbOutputDialog.IndexesTab.TabTitle"));
     Composite wIndexesComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wIndexesComp);
+    PropsUi.setLook(wIndexesComp);
     FormLayout indexesLayout = new FormLayout();
     indexesLayout.marginWidth = 3;
     indexesLayout.marginHeight = 3;
@@ -567,7 +578,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
 
     // get indexes but
     Button wbShowIndexes = new Button(wIndexesComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbShowIndexes);
+    PropsUi.setLook(wbShowIndexes);
     wbShowIndexes.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.ShowIndexesBut")); //
     fd = new FormData();
     fd.bottom = new FormAttachment(100, -margin * 2);

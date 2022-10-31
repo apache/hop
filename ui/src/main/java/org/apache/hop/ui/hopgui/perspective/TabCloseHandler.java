@@ -18,7 +18,6 @@
 package org.apache.hop.ui.hopgui.perspective;
 
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -27,8 +26,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-
-import java.util.List;
 
 public class TabCloseHandler {
 

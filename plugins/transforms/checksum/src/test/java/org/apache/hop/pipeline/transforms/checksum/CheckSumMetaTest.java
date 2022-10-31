@@ -27,7 +27,11 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidat
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 

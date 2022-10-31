@@ -24,7 +24,6 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;

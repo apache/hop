@@ -44,9 +44,9 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
-import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -58,7 +58,11 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.perspective.*;
+import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
+import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.TabClosable;
+import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.config.ExplorerPerspectiveConfigSingleton;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.ExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
@@ -66,15 +70,34 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.*;
+import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabFolder2Adapter;
+import org.eclipse.swt.custom.CTabFolderEvent;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 @HopPerspectivePlugin(
     id = "300-HopExplorerPerspective",
@@ -378,13 +401,13 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
-    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> updateSelection());
     tree.addListener(SWT.DefaultSelection, this::openFile);
-    PropsUi.getInstance().setLook(tree);
+    PropsUi.setLook(tree);
 
     FormData treeFormData = new FormData();
     treeFormData.left = new FormAttachment(0, 0);
@@ -557,7 +580,7 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
           }
         });
     tabFolder.addListener(SWT.Selection, this::handleTabSelectionEvent);
-    props.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
 
     // Show/Hide tree
     //
@@ -647,7 +670,7 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
     // Create tab item
     //
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
-    tabItem.setFont(tabFolder.getFont());
+    tabItem.setFont(GuiResource.getInstance().getFontDefault());
     tabItem.setText(Const.NVL(explorerFile.getName(), ""));
     if (explorerFile.getTabImage() != null) {
       tabItem.setImage(explorerFile.getTabImage());
@@ -677,10 +700,10 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
     //
     Composite composite = new Composite(tabFolder, SWT.NONE);
     FormLayout layoutComposite = new FormLayout();
-    layoutComposite.marginWidth = Const.FORM_MARGIN;
-    layoutComposite.marginHeight = Const.FORM_MARGIN;
+    layoutComposite.marginWidth = PropsUi.getFormMargin();
+    layoutComposite.marginHeight = PropsUi.getFormMargin();
     composite.setLayout(layoutComposite);
-    props.setLook(composite);
+    PropsUi.setLook(composite);
 
     IExplorerFileTypeHandler renderer = explorerFile.getFileTypeHandler();
     // This is usually done by the file type
@@ -701,7 +724,7 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
     fdArea.bottom = new FormAttachment(100, 0);
 
     area.setLayoutData(fdArea);
-    props.setLook(area);
+    PropsUi.setLook(area);
 
     tabItem.setControl(composite);
     tabItem.setData(explorerFile);

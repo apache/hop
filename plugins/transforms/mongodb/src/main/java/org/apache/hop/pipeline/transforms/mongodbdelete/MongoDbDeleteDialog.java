@@ -37,23 +37,42 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
-import org.apache.hop.ui.core.widget.*;
+import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 /** Dialog class for MongoDbDelete step */
 public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransformDialog {
@@ -96,7 +115,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
 
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, currentMeta);
 
     // used to listen to a text field (wTransformName)
@@ -105,20 +124,20 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     changed = currentMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "MongoDbDeleteDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     /** various UI bits and pieces for the dialog */
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "MongoDbDeleteDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
 
     FormData fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -127,7 +146,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     wlTransformName.setLayoutData(fd);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     Control lastControl = wTransformName;
 
@@ -140,14 +159,15 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
 
     // The tabs of the dialog
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // --- start of the options tab
     CTabItem wDeleteOptionsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wDeleteOptionsTab.setFont(GuiResource.getInstance().getFontDefault());
     wDeleteOptionsTab.setText(
         BaseMessages.getString(PKG, "MongoDbDeleteDialog.DeleteTab.TabTitle"));
     Composite wOutputComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wOutputComp);
+    PropsUi.setLook(wOutputComp);
     FormLayout outputLayout = new FormLayout();
     outputLayout.marginWidth = 3;
     outputLayout.marginHeight = 3;
@@ -183,7 +203,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
         BaseMessages.getString(PKG, "MongoDbDeleteDialog.Collection.Label")); // $NON-NLS-1$
     wlCollection.setToolTipText(
         BaseMessages.getString(PKG, "MongoDbDeleteDialog.Collection.TipText")); // $NON-NLS-1$
-    props.setLook(wlCollection);
+    PropsUi.setLook(wlCollection);
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
     fd.top = new FormAttachment(lastControl, margin);
@@ -191,7 +211,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     wlCollection.setLayoutData(fd);
 
     Button wbGetCollections = new Button(wOutputComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGetCollections);
+    PropsUi.setLook(wbGetCollections);
     wbGetCollections.setText(
         BaseMessages.getString(PKG, "MongoDbDeleteDialog.GetCollections.Button")); // $NON-NLS-1$
     fd = new FormData();
@@ -201,7 +221,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     wbGetCollections.addListener(SWT.Selection, e -> getCollectionNames());
 
     wCollection = new CCombo(wOutputComp, SWT.BORDER);
-    props.setLook(wCollection);
+    PropsUi.setLook(wCollection);
     wCollection.addListener(
         SWT.Modify,
         e -> {
@@ -216,7 +236,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
 
     // retries stuff
     Label retriesLab = new Label(wOutputComp, SWT.RIGHT);
-    props.setLook(retriesLab);
+    PropsUi.setLook(retriesLab);
     retriesLab.setText(
         BaseMessages.getString(PKG, "MongoDbDeleteDialog.WriteRetries.Label")); // $NON-NLS-1$
     retriesLab.setToolTipText(
@@ -228,7 +248,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     retriesLab.setLayoutData(fd);
 
     wtvWriteRetries = new TextVar(variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wtvWriteRetries);
+    PropsUi.setLook(wtvWriteRetries);
     fd = new FormData();
     fd.left = new FormAttachment(middle, 0);
     fd.top = new FormAttachment(wCollection, margin);
@@ -238,7 +258,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
         e -> wtvWriteRetries.setToolTipText(variables.resolve(wtvWriteRetries.getText())));
 
     Label retriesDelayLab = new Label(wOutputComp, SWT.RIGHT);
-    props.setLook(retriesDelayLab);
+    PropsUi.setLook(retriesDelayLab);
     retriesDelayLab.setText(
         BaseMessages.getString(PKG, "MongoDbDeleteDialog.WriteRetriesDelay.Label")); // $NON-NLS-1$
     fd = new FormData();
@@ -248,7 +268,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     retriesDelayLab.setLayoutData(fd);
 
     wtvWriteRetryDelay = new TextVar(variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wtvWriteRetryDelay);
+    PropsUi.setLook(wtvWriteRetryDelay);
     fd = new FormData();
     fd.left = new FormAttachment(middle, 0);
     fd.top = new FormAttachment(wtvWriteRetries, margin);
@@ -267,10 +287,11 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
 
     // --- start of the fields tab
     CTabItem mWQueryTab = new CTabItem(wTabFolder, SWT.NONE);
+    mWQueryTab.setFont(GuiResource.getInstance().getFontDefault());
     mWQueryTab.setText(
         BaseMessages.getString(PKG, "MongoDbDeleteDialog.QueryTab.TabTitle")); // $NON-NLS-1$
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFieldsComp);
+    PropsUi.setLook(wFieldsComp);
     FormLayout filterLayout = new FormLayout();
     filterLayout.marginWidth = 3;
     filterLayout.marginHeight = 3;
@@ -281,7 +302,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     useDefinedQueryLab.setText(BaseMessages.getString(PKG, "MongoDbDeleteDialog.useQuery.Label"));
     useDefinedQueryLab.setToolTipText(
         BaseMessages.getString(PKG, "MongoDbDeleteDialog.useQuery.TipText"));
-    props.setLook(useDefinedQueryLab);
+    PropsUi.setLook(useDefinedQueryLab);
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
     fd.top = new FormAttachment(0, margin);
@@ -289,7 +310,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     useDefinedQueryLab.setLayoutData(fd);
 
     wbUseJsonQuery = new Button(wFieldsComp, SWT.CHECK);
-    props.setLook(wbUseJsonQuery);
+    PropsUi.setLook(wbUseJsonQuery);
     wbUseJsonQuery.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -364,7 +385,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
 
     // get fields but
     wbGetFields = new Button(wFieldsComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGetFields);
+    PropsUi.setLook(wbGetFields);
     wbGetFields.setText(BaseMessages.getString(PKG, "MongoDbDeleteDialog.GetFieldsBut"));
     fd = new FormData();
     fd.bottom = new FormAttachment(100, -margin * 2);
@@ -380,7 +401,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
         });
 
     wbPreviewDocStruct = new Button(wFieldsComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbPreviewDocStruct);
+    PropsUi.setLook(wbPreviewDocStruct);
     wbPreviewDocStruct.setText(
         BaseMessages.getString(PKG, "MongoDbDeleteDialog.PreviewDocStructBut"));
     fd = new FormData();
@@ -409,14 +430,14 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     wlExecuteForEachRow = new Label(wFieldsComp, SWT.RIGHT);
     wlExecuteForEachRow.setText(
         BaseMessages.getString(PKG, "MongoDbDeleteDialog.execEachRow.Label"));
-    props.setLook(wlExecuteForEachRow);
+    PropsUi.setLook(wlExecuteForEachRow);
     fd = new FormData();
     fd.bottom = new FormAttachment(100, -margin * 2);
     fd.left = new FormAttachment(0, margin);
     wlExecuteForEachRow.setLayoutData(fd);
 
     wcbEcuteForEachRow = new Button(wFieldsComp, SWT.CHECK);
-    props.setLook(wcbEcuteForEachRow);
+    PropsUi.setLook(wcbEcuteForEachRow);
     wcbEcuteForEachRow.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -434,7 +455,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
             variables,
             wFieldsComp,
             SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wstJsonQueryView, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wstJsonQueryView, Props.WIDGET_STYLE_FIXED);
     wstJsonQueryView.addModifyListener(lsMod);
 
     fd = new FormData();

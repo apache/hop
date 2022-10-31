@@ -29,7 +29,11 @@ import org.junit.Test;
 import java.util.Date;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PDI_2875_Test {
   private static TransformMockHelper<TextFileInputMeta, TextFileInputData> smh;

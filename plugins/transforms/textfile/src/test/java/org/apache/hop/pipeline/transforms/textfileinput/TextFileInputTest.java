@@ -34,14 +34,23 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
-import org.apache.hop.pipeline.transforms.fileinput.*;
+import org.apache.hop.pipeline.transforms.fileinput.TextFileFilter;
+import org.apache.hop.pipeline.transforms.fileinput.TextFileFilterProcessor;
+import org.apache.hop.pipeline.transforms.fileinput.TextFileInput;
+import org.apache.hop.pipeline.transforms.fileinput.TextFileInputData;
+import org.apache.hop.pipeline.transforms.fileinput.TextFileInputMeta;
+import org.apache.hop.pipeline.transforms.fileinput.TextFileLine;
 import org.apache.hop.utils.TestUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 

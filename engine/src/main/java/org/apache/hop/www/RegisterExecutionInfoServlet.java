@@ -22,24 +22,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelFileWriter;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.util.FileUtil;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionState;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-import org.apache.hop.pipeline.PipelineConfiguration;
-import org.apache.hop.pipeline.PipelineExecutionConfiguration;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +36,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.UUID;
 
 @HopServerServlet(id = "registerExecInfo", name = "Register execution information")
 public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHopServerPlugin {

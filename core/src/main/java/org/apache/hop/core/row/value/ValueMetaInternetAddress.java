@@ -29,7 +29,11 @@ import org.apache.hop.core.variables.IVariables;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Date;
 
 @ValueMetaPlugin(

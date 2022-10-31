@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.hopgui.dialog;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.VariableScope;
@@ -30,9 +29,20 @@ import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.layout.*;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.Set;
 
@@ -71,10 +81,10 @@ public class AboutDialog extends Dialog {
     shell.setMinimumSize(450, 300);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
     shell.setLayout(formLayout);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     // Composite for logo, app name & version, and centering link
     Composite composite = new Composite(shell, SWT.NONE);
@@ -86,7 +96,7 @@ public class AboutDialog extends Dialog {
     GridLayout gridLayout = new GridLayout(2, false);
     gridLayout.marginWidth = 0;
     composite.setLayout(gridLayout);
-    props.setLook(composite);
+    PropsUi.setLook(composite);
 
     // Widget application logo
     Label wLogo = new Label(composite, SWT.CENTER);
@@ -100,25 +110,25 @@ public class AboutDialog extends Dialog {
     wName.setText("Apache Hop");
     wName.setFont(GuiResource.getInstance().getFontBold());
     wName.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
-    props.setLook(wName);
+    PropsUi.setLook(wName);
 
     // Widget application version
     Label wVersion = new Label(composite, SWT.CENTER);
     wVersion.setText(HopGui.class.getPackage().getImplementationVersion());
     wVersion.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
-    props.setLook(wVersion);
+    PropsUi.setLook(wVersion);
 
     Link wLink = new Link(composite, SWT.WRAP | SWT.MULTI);
     wLink.setText("<a href=\"https://hop.apache.org\">hop.apache.org</a>");
     wLink.addListener(SWT.Selection, e -> Program.launch("https://hop.apache.org"));
     wLink.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
-    props.setLook(wLink);
+    PropsUi.setLook(wLink);
 
     // Buttons
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk}, Const.MARGIN, null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk}, PropsUi.getMargin(), null);
 
     // Widget system properties
     Text wText =
@@ -126,12 +136,12 @@ public class AboutDialog extends Dialog {
             shell, SWT.READ_ONLY | SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     wText.setText(getProperties());
     FormData fdText = new FormData();
-    fdText.top = new FormAttachment(composite, Const.MARGIN);
+    fdText.top = new FormAttachment(composite, PropsUi.getMargin());
     fdText.left = new FormAttachment(0, 0);
     fdText.right = new FormAttachment(100, 0);
-    fdText.bottom = new FormAttachment(wOk, -Const.MARGIN);
+    fdText.bottom = new FormAttachment(wOk, -PropsUi.getMargin());
     wText.setLayoutData(fdText);
-    props.setLook(wText);
+    PropsUi.setLook(wText);
 
     // Detect [X] or ALT-F4 or something that kills this window...
     shell.addShellListener(

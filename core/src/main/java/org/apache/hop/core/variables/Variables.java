@@ -25,7 +25,12 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /** This class is an implementation of IVariables */
 public class Variables implements IVariables {

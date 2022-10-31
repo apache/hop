@@ -27,11 +27,28 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.DropTargetListener;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.layout.*;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Shell;
 
 import java.util.Stack;
 import java.util.StringTokenizer;
@@ -71,7 +88,7 @@ public class EnterOrderedListDialog extends Dialog {
     PropsUi props = PropsUi.getInstance();
 
     shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.setText(BaseMessages.getString(PKG, "EnterOrderedListDialog.Title"));
     shell.setMinimumSize(500, 380);
@@ -86,7 +103,7 @@ public class EnterOrderedListDialog extends Dialog {
     topLayout.marginWidth = LARGE_MARGIN;
     top.setLayout(topLayout);
     top.setLayoutData(new FormDataBuilder().top().bottom(100, -50).left().right(100, 0).result());
-    props.setLook(top);
+    PropsUi.setLook(top);
 
     Composite bottom = new Composite(shell, SWT.NONE);
     FormLayout bottomLayout = new FormLayout();
@@ -94,7 +111,7 @@ public class EnterOrderedListDialog extends Dialog {
     bottomLayout.marginWidth = LARGE_MARGIN;
     bottom.setLayout(bottomLayout);
     bottom.setLayoutData(new FormDataBuilder().top(top, 0).bottom().right().result());
-    props.setLook(bottom);
+    PropsUi.setLook(bottom);
 
     // *******************************************************************
     // LEFT PANE
@@ -104,14 +121,14 @@ public class EnterOrderedListDialog extends Dialog {
     leftPane.setLayout(new FormLayout());
     leftPane.setLayoutData(
         new FormDataBuilder().top().left().bottom(100, 0).right(50, -36).result());
-    props.setLook(leftPane);
+    PropsUi.setLook(leftPane);
 
     // Source list to the left...
     Label lblListSource = new Label(leftPane, SWT.NONE);
     lblListSource.setText(
         BaseMessages.getString(PKG, "EnterOrderedListDialog.AvailableItems.Label"));
     lblListSource.setLayoutData(new FormDataBuilder().top().left().result());
-    props.setLook(lblListSource);
+    PropsUi.setLook(lblListSource);
 
     wListSource = new List(leftPane, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
     wListSource.setLayoutData(
@@ -132,7 +149,7 @@ public class EnterOrderedListDialog extends Dialog {
             }
           }
         });
-    props.setLook(wListSource);
+    PropsUi.setLook(wListSource);
 
     // *******************************************************************
     // MIDDLE
@@ -142,11 +159,11 @@ public class EnterOrderedListDialog extends Dialog {
     middlePane.setLayout(new FormLayout());
     middlePane.setLayoutData(
         new FormDataBuilder().top().left(leftPane, -36).bottom(100, 0).right(50, 36).result());
-    props.setLook(middlePane);
+    PropsUi.setLook(middlePane);
 
     Label label = new Label(middlePane, SWT.NONE);
     label.setLayoutData(new FormDataBuilder().top().left().result());
-    props.setLook(label);
+    PropsUi.setLook(label);
 
     Composite gButtonGroup = new Composite(middlePane, SWT.NONE);
     RowLayout layout = new RowLayout();
@@ -164,7 +181,7 @@ public class EnterOrderedListDialog extends Dialog {
             .bottom(100, 0)
             .right(100, 0)
             .result());
-    props.setLook(gButtonGroup);
+    PropsUi.setLook(gButtonGroup);
 
     wButtonAdd = new Button(gButtonGroup, SWT.PUSH);
     wButtonAdd.setImage(GuiResource.getInstance().getImageAddSingle());
@@ -223,12 +240,12 @@ public class EnterOrderedListDialog extends Dialog {
     rightPane.setLayout(new FormLayout());
     rightPane.setLayoutData(
         new FormDataBuilder().top().left(middlePane, 0).bottom(100, 0).right(100, 0).result());
-    props.setLook(rightPane);
+    PropsUi.setLook(rightPane);
 
     Label lblListTarget = new Label(rightPane, SWT.NONE);
     lblListTarget.setText(BaseMessages.getString(PKG, "EnterOrderedListDialog.Selection.Label"));
     lblListTarget.setLayoutData(new FormDataBuilder().top().left().result());
-    props.setLook(lblListTarget);
+    PropsUi.setLook(lblListTarget);
 
     wListTarget = new List(rightPane, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
     wListTarget.setLayoutData(
@@ -250,7 +267,7 @@ public class EnterOrderedListDialog extends Dialog {
             }
           }
         });
-    props.setLook(wListTarget);
+    PropsUi.setLook(wListTarget);
 
     // *******************************************************************
     // THE BOTTOM BUTTONS...

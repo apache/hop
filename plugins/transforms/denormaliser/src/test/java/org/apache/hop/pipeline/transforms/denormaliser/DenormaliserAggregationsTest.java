@@ -26,7 +26,11 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Method;

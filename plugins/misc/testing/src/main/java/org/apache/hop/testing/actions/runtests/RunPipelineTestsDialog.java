@@ -23,9 +23,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.testing.PipelineUnitTest;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -38,7 +39,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
@@ -70,29 +76,29 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "RunPipelineTests.Name"));
 
     int middle = props.getMiddlePct();
-    int margin = (int) (Const.MARGIN * props.getZoomFactor());
+    int margin = (int) (PropsUi.getMargin() * props.getZoomFactor());
 
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText("Action name");
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
     fdName.top = new FormAttachment(0, margin);
@@ -104,7 +110,7 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     //
     Label wlTestNames = new Label(shell, SWT.LEFT);
     wlTestNames.setText("Names of the tests to execute:");
-    props.setLook(wlTestNames);
+    PropsUi.setLook(wlTestNames);
     FormData fdlTestNames = new FormData();
     fdlTestNames.left = new FormAttachment(0, 0);
     fdlTestNames.top = new FormAttachment(lastControl, 2 * margin);
@@ -142,7 +148,7 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     wTestNames =
         new TableView(
             variables, shell, SWT.BORDER, columnInfos, action.getTestNames().size(), null, props);
-    props.setLook(wTestNames);
+    PropsUi.setLook(wTestNames);
     FormData fdTestNames = new FormData();
     fdTestNames.left = new FormAttachment(0, 0);
     fdTestNames.right = new FormAttachment(100, 0);

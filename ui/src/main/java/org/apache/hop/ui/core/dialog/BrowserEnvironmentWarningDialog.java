@@ -33,10 +33,13 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
-import java.awt.*;
+import java.awt.Desktop;
 import java.net.URI;
 
 /** Dialog that shows a warning when the Browser Environment is not supported. */
@@ -49,7 +52,7 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
   private Text description;
   private Link link;
   private Button closeButton;
-  private final int margin = Const.FORM_MARGIN * 3; // 15
+  private final int margin = PropsUi.getFormMargin() * 3; // 15
   private final int padding = margin * 2; // 30
   private final int MAX_TEXT_WIDTH_UBUNTU = 418;
   private final int MAX_TEXT_WIDTH_WINDOWS = 286;
@@ -163,7 +166,7 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
     this.props = PropsUi.getInstance();
     Display display = this.getParent().getDisplay();
     shell = new Shell(this.getParent(), SWT.TITLE | SWT.APPLICATION_MODAL);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = margin;
@@ -194,7 +197,7 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
     warningIcon = new Label(shell, SWT.NONE);
     Image image = display.getSystemImage(SWT.ICON_WARNING);
     warningIcon.setImage(image);
-    props.setLook(warningIcon);
+    PropsUi.setLook(warningIcon);
     FormData fdIcon = new FormData();
     fdIcon.left = new FormAttachment(0, 0);
     fdIcon.top = new FormAttachment(0, 0);
@@ -215,7 +218,7 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
     fdlDesc.top = new FormAttachment(0, 0);
     fdlDesc.width = maxTextWidth;
     description.setLayoutData(fdlDesc);
-    props.setLook(description);
+    PropsUi.setLook(description);
   }
 
   private void setHelpLink(
@@ -233,7 +236,7 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
     fdlink.top = new FormAttachment(description, margin);
     fdlink.width = maxTextWidth;
     link.setLayoutData(fdlink);
-    props.setLook(link);
+    PropsUi.setLook(link);
 
     link.addListener(
         SWT.Selection,
@@ -256,7 +259,7 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
     fdbutton.top = new FormAttachment(link, padding);
     fdbutton.height = padding;
     closeButton.setLayoutData(fdbutton);
-    props.setLook(closeButton);
+    PropsUi.setLook(closeButton);
 
     // Add listeners
     closeButton.addListener(SWT.Selection, e -> close());

@@ -17,20 +17,25 @@
 
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.util.EnvironmentUtils;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolTip;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,17 +65,18 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   protected CTabItem parentTabItem;
 
-  protected Point offset;
+  protected DPoint offset;
   protected Point iconOffset;
   protected Point noteOffset;
 
-  protected ScrolledComposite wsCanvas;
   protected Canvas canvas;
 
   protected float magnification = 1.0f;
+  protected Rectangle viewPort;
+  protected Rectangle graphPort;
 
   private boolean changedState;
-  private Font defaultFont;
+  private final Font defaultFont;
 
   protected final String id;
 
@@ -82,12 +88,13 @@ public abstract class HopGuiAbstractGraph extends Composite {
    */
   protected Map<String, Object> stateMap;
 
-  protected boolean avoidScrollAdjusting;
-
   protected boolean viewDrag;
   protected Point viewDragStart;
-  protected int startHorizontalDragSelection;
-  protected int startVerticalDragSelection;
+  protected DPoint viewDragBaseOffset;
+  protected Point maximum;
+
+  protected boolean viewPortNavigation;
+  protected Point viewPortStart;
 
   public HopGuiAbstractGraph(HopGui hopGui, Composite parent, int style, CTabItem parentTabItem) {
     super(parent, style);
@@ -96,10 +103,11 @@ public abstract class HopGuiAbstractGraph extends Composite {
     this.variables = new Variables();
     this.variables.copyFrom(hopGui.getVariables());
     this.parentTabItem = parentTabItem;
-    defaultFont = parentTabItem.getFont();
-    changedState = false;
+    this.defaultFont = GuiResource.getInstance().getFontDefault();
+    this.changedState = false;
     this.id = UUID.randomUUID().toString();
     this.stateMap = new HashMap<>();
+    this.offset = new DPoint(0.0, 0.0);
   }
 
   protected Shell hopShell() {
@@ -108,25 +116,6 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   protected Display hopDisplay() {
     return hopGui.getDisplay();
-  }
-
-  protected abstract Point getOffset();
-
-  protected Point getOffset(Point thumb, Point area) {
-    Point p = new Point(0, 0);
-    ScrollBar horizontalScrollBar = wsCanvas.getHorizontalBar();
-    ScrollBar verticalScrollBar = wsCanvas.getVerticalBar();
-
-    Point sel = new Point(horizontalScrollBar.getSelection(), verticalScrollBar.getSelection());
-
-    if (thumb.x == 0 || thumb.y == 0) {
-      return p;
-    }
-    float cm = calculateCorrectedMagnification();
-    p.x = Math.round(-sel.x * area.x / thumb.x / cm);
-    p.y = Math.round(-sel.y * area.y / thumb.y / cm);
-
-    return p;
   }
 
   protected float calculateCorrectedMagnification() {
@@ -194,26 +183,24 @@ public abstract class HopGuiAbstractGraph extends Composite {
     zoomIn();
   }
 
-  @GuiKeyboardShortcut(control = true, key = '+')  
+  @GuiKeyboardShortcut(control = true, key = '+')
   public void zoomIn() {
     magnification += 0.1f;
     // Minimum 1000%
     if (magnification > 10f) {
       magnification = 10f;
     }
-    adjustScrolling();
     setZoomLabel();
     redraw();
   }
 
-  @GuiKeyboardShortcut(control = true, key = '-')  
+  @GuiKeyboardShortcut(control = true, key = '-')
   public void zoomOut() {
     magnification -= 0.1f;
     // Minimum 10%
     if (magnification < 0.1f) {
       magnification = 0.1f;
     }
-    adjustScrolling();
     setZoomLabel();
     redraw();
   }
@@ -221,32 +208,17 @@ public abstract class HopGuiAbstractGraph extends Composite {
   @GuiKeyboardShortcut(control = true, key = '0')
   public void zoom100Percent() {
     magnification = 1.0f;
-    adjustScrolling();
     setZoomLabel();
     redraw();
   }
 
   public Point screen2real(int x, int y) {
-    offset = getOffset();
     float correctedMagnification = calculateCorrectedMagnification();
-    Point real;
-    if (offset != null) {
-      real =
-          new Point(
-              Math.round((x / correctedMagnification - offset.x)),
-              Math.round((y / correctedMagnification - offset.y)));
-    } else {
-      real = new Point(x, y);
-    }
-
-    return real;
-  }
-
-  public Point real2screen(int x, int y) {
-    offset = getOffset();
-    Point screen = new Point(x + offset.x, y + offset.y);
-
-    return screen;
+    DPoint real =
+        new DPoint(
+            ((double) x - offset.x) / correctedMagnification - offset.x,
+            ((double) y - offset.y) / correctedMagnification - offset.y);
+    return real.toPoint();
   }
 
   @Override
@@ -268,7 +240,9 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return parentTabItem;
   }
 
-  /** @param parentTabItem The parentTabItem to set */
+  /**
+   * @param parentTabItem The parentTabItem to set
+   */
   public void setParentTabItem(CTabItem parentTabItem) {
     this.parentTabItem = parentTabItem;
   }
@@ -282,7 +256,9 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return parentComposite;
   }
 
-  /** @param parentComposite The parentComposite to set */
+  /**
+   * @param parentComposite The parentComposite to set
+   */
   public void setParentComposite(Composite parentComposite) {
     this.parentComposite = parentComposite;
   }
@@ -299,16 +275,8 @@ public abstract class HopGuiAbstractGraph extends Composite {
   public Map<String, Object> getStateProperties() {
     Map<String, Object> map = new HashMap<>();
     map.put(STATE_MAGNIFICATION, magnification);
-
-    ScrollBar horizontalScrollBar = wsCanvas.getHorizontalBar();
-    ScrollBar verticalScrollBar = wsCanvas.getVerticalBar();
-
-    map.put(
-        STATE_SCROLL_X_SELECTION,
-        horizontalScrollBar != null ? horizontalScrollBar.getSelection() : 0);
-
-    map.put(
-        STATE_SCROLL_Y_SELECTION, verticalScrollBar != null ? verticalScrollBar.getSelection() : 0);
+    map.put(STATE_SCROLL_X_SELECTION, offset.x);
+    map.put(STATE_SCROLL_Y_SELECTION, offset.y);
     return map;
   }
 
@@ -316,80 +284,18 @@ public abstract class HopGuiAbstractGraph extends Composite {
     Double fMagnification = (Double) stateProperties.get(STATE_MAGNIFICATION);
     magnification = fMagnification == null ? 1.0f : fMagnification.floatValue();
     setZoomLabel();
-    adjustScrolling();
 
-    ScrollBar horizontalScrollBar = wsCanvas.getHorizontalBar();
-    ScrollBar verticalScrollBar = wsCanvas.getVerticalBar();
-
-    Integer scrollXSelection = (Integer) stateProperties.get(STATE_SCROLL_X_SELECTION);
-    if (scrollXSelection != null && horizontalScrollBar != null) {
-      horizontalScrollBar.setSelection(scrollXSelection);
+    // Offsets used to be integers so don't automatically map to Double.
+    //
+    Object xOffset = stateProperties.get(STATE_SCROLL_X_SELECTION);
+    if (xOffset != null) {
+      offset.x = Double.parseDouble(xOffset.toString());
     }
-
-    Integer scrollYSelection = (Integer) stateProperties.get(STATE_SCROLL_Y_SELECTION);
-    if (scrollYSelection != null && verticalScrollBar != null) {
-      verticalScrollBar.setSelection(scrollYSelection);
+    Object yOffset = stateProperties.get(STATE_SCROLL_Y_SELECTION);
+    if (yOffset != null) {
+      offset.y = Double.parseDouble(yOffset.toString());
     }
-
     redraw();
-  }
-
-  public abstract void adjustScrolling();
-
-  protected void adjustScrolling(Point maximum) {
-    int newWidth = (int) (calculateCorrectedMagnification() * maximum.x);
-    int newHeight = (int) (calculateCorrectedMagnification() * maximum.y);
-    int horizontalPct = 1;
-    int verticalPct = 1;
-
-    Rectangle canvasBounds = wsCanvas.getBounds();
-    ScrollBar h = wsCanvas.getHorizontalBar();
-    ScrollBar v = wsCanvas.getVerticalBar();
-
-    if (canvasBounds.width == 0 || canvasBounds.height == 0) {
-      h.setVisible(false);
-      v.setVisible(false);
-      return;
-    }
-
-    if (h != null) {
-      horizontalPct = (int) Math.round(100.0 * h.getSelection() / 100.0);
-    }
-    if (v != null) {
-      verticalPct = (int) Math.round(100.0 * v.getSelection() / 100.0);
-    }
-
-    canvas.setSize(canvasBounds.width, canvasBounds.height);
-    if (h != null) {
-      h.setVisible(newWidth >= canvasBounds.width);
-    }
-    if (v != null) {
-      v.setVisible(newHeight >= canvasBounds.height);
-    }
-
-    int hThumb = (int) (100.0 * canvasBounds.width / newWidth);
-    int vThumb = (int) (100.0 * canvasBounds.height / newHeight);
-
-    if (h != null) {
-      h.setMinimum(1);
-      h.setMaximum(100);
-      h.setThumb(Math.min(hThumb, 100));
-      if (!EnvironmentUtils.getInstance().isWeb()) {
-        h.setPageIncrement(5);
-        h.setIncrement(1);
-      }
-      h.setSelection(horizontalPct);
-    }
-    if (v != null) {
-      v.setMinimum(1);
-      v.setMaximum(100);
-      v.setThumb(Math.min(vThumb, 100));
-      if (!EnvironmentUtils.getInstance().isWeb()) {
-        v.setPageIncrement(5);
-        v.setIncrement(1);
-      }
-      v.setSelection(verticalPct);
-    }
   }
 
   protected void showToolTip(org.eclipse.swt.graphics.Point location) {
@@ -399,54 +305,167 @@ public abstract class HopGuiAbstractGraph extends Composite {
     toolTip.setVisible(true);
   }
 
-  protected void setupDragView(int button, Point screenClick) {
-    viewDrag = button == 2; // Middle button
+  /**
+   * There are 2 ways to drag the view-port around. One way is to use the navigation rectangle at
+   * the bottom. The other way is to click-drag the background.
+   *
+   * @param button
+   * @param control
+   * @param screenClick
+   * @return
+   */
+  protected boolean setupDragView(int button, boolean control, Point screenClick) {
+    // See if this is a click on the navigation view inner rectangle with the goal of dragging it
+    // around a bit.
+    //
+    if (viewPort != null && viewPort.contains(screenClick)) {
+
+      viewPortNavigation = true;
+      viewPortStart = new Point(screenClick);
+      viewDragBaseOffset = new DPoint(offset);
+      return true;
+    }
+
+    // Middle button
+    // CTRL + left button
+    //
+    viewDrag = button == 2 || (control && button == 1);
     if (viewDrag) {
       viewDragStart = screenClick;
-      if (wsCanvas.getHorizontalBar() != null) {
-        startHorizontalDragSelection = wsCanvas.getHorizontalBar().getSelection();
-      } else {
-        startHorizontalDragSelection = -1;
-      }
-      if (wsCanvas.getVerticalBar() != null) {
-        startVerticalDragSelection = wsCanvas.getVerticalBar().getSelection();
-      } else {
-        startVerticalDragSelection = -1;
-      }
+      viewDragBaseOffset = new DPoint(offset);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Calculate the differences for the scrollbars. We take the system zoom factor and current
+   * magnification into account
+   */
+  protected void dragView(Point lastClick, Point moved) {
+    // The offset is in absolute numbers relative to the pipeline/workflow graph metadata.
+    // The screen coordinates need to be corrected.  If the image is zoomed in we need to move less.
+    //
+    double zoomFactor = PropsUi.getNativeZoomFactor() * Math.max(0.1, magnification);
+    double deltaX = (lastClick.x - moved.x) / zoomFactor;
+    double deltaY = (lastClick.y - moved.y) / zoomFactor;
+
+    offset.x = viewDragBaseOffset.x - deltaX;
+    offset.y = viewDragBaseOffset.y - deltaY;
+
+    validateOffset();
+
+    redraw();
+  }
+
+  public void validateOffset() {
+    double zoomFactor = PropsUi.getNativeZoomFactor() * Math.max(0.1, magnification);
+
+    // What's the size of the graph when painted on screen?
+    //
+    double graphWidth = maximum.x;
+    double graphHeight = maximum.y;
+
+    // We need to know the size of the screen.
+    //
+    Point area = getArea();
+    double viewWidth = area.x / zoomFactor;
+    double viewHeight = area.y / zoomFactor;
+
+    // As a percentage of the view area, how much can we go outside the graph area?
+    //
+    double overshootPct = 0.75;
+    double overshootWidth = viewWidth*overshootPct;
+    double overshootHeight = viewHeight*overshootPct;
+
+    // Let's not move the graph off the screen to the top/left
+    //
+    double minX = -graphWidth-overshootWidth;
+    if (offset.x < minX) {
+      offset.x = minX;
+    }
+    double minY = -graphHeight-overshootHeight;
+    if (offset.y < minY) {
+      offset.y = minY;
+    }
+
+    // Are we moving the graph too far down/right?
+    //
+    double maxX = overshootWidth;
+    if (offset.x > maxX) {
+      offset.x = maxX;
+    }
+    double maxY = overshootHeight;
+    if (offset.y > maxY) {
+      offset.y = maxY;
     }
   }
 
-  protected void dragView(Point lastClick, Point real) {
+  protected void dragViewPort(Point clickLocation) {
+    // The delta is calculated
+    //
+    double deltaX = clickLocation.x - viewPortStart.x;
+    double deltaY = clickLocation.y - viewPortStart.y;
 
-    /**
-     * Calculate the differences for the scrollbars. We take the system zoom factor and current
-     * magnification into account
-     */
-    int deltaX =
-        (int)
-            Math.round(
-                (lastClick.x - real.x)
-                    / (10.0 * PropsUi.getInstance().getZoomFactor())
-                    / Math.max(1.0, magnification));
-    int deltaY =
-        (int)
-            Math.round(
-                (lastClick.y - real.y)
-                    / (10.0 * PropsUi.getInstance().getZoomFactor())
-                    / Math.max(1.0, magnification));
+    // What's the wiggle room for the little rectangle in the bigger one?
+    //
+    int wiggleX = viewPort.width;
+    int wiggleY = viewPort.height;
 
-    ScrollBar h = wsCanvas.getHorizontalBar();
-    if (h != null && startHorizontalDragSelection > 0) {
-      int newSelection =
-          Math.max(h.getMinimum(), Math.min(startHorizontalDragSelection + deltaX, h.getMaximum()));
-      h.setSelection(newSelection);
-    }
-    ScrollBar v = wsCanvas.getVerticalBar();
-    if (v != null && startVerticalDragSelection > 0) {
-      int newSelection =
-          Math.max(v.getMinimum(), Math.min(startVerticalDragSelection + deltaY, v.getMaximum()));
-      v.setSelection(newSelection);
-    }
+    // What's that in percentages?  We draw the little rectangle at 25% size.
+    //
+    double deltaXPct = wiggleX == 0 ? 0 : deltaX / (wiggleX / 0.25);
+    double deltaYPct = wiggleY == 0 ? 0 : deltaY / (wiggleY / 0.25);
+
+    // The offset is then a matter of setting a percentage of the graph size
+    //
+    double deltaOffSetX = deltaXPct * maximum.x;
+    double deltaOffSetY = deltaYPct * maximum.y;
+
+    offset = new DPoint(viewDragBaseOffset.x - deltaOffSetX, viewDragBaseOffset.y - deltaOffSetY);
+
+    // Make sure we don't catapult the view somewhere we can't find the graph anymore.
+    //
+    validateOffset();
+    redraw();
+  }
+
+  @GuiKeyboardShortcut(key = SWT.HOME)
+  @GuiOsxKeyboardShortcut(key = SWT.HOME)
+  public void viewReset() {
+    offset = new DPoint(0.0, 0.0);
+    redraw();
+  }
+
+  @GuiKeyboardShortcut(key = SWT.ARROW_LEFT)
+  @GuiOsxKeyboardShortcut(key = SWT.ARROW_LEFT)
+  public void viewLeft() {
+    offset.x += 15 * magnification * PropsUi.getNativeZoomFactor();
+    validateOffset();
+    redraw();
+  }
+
+  @GuiKeyboardShortcut(key = SWT.ARROW_RIGHT)
+  @GuiOsxKeyboardShortcut(key = SWT.ARROW_RIGHT)
+  public void viewRight() {
+    offset.x -= 15 * magnification * PropsUi.getNativeZoomFactor();
+    validateOffset();
+    redraw();
+  }
+
+  @GuiKeyboardShortcut(key = SWT.ARROW_UP)
+  @GuiOsxKeyboardShortcut(key = SWT.ARROW_UP)
+  public void viewUp() {
+    offset.y += 15 * magnification * PropsUi.getNativeZoomFactor();
+    validateOffset();
+    redraw();
+  }
+
+  @GuiKeyboardShortcut(key = SWT.ARROW_DOWN)
+  @GuiOsxKeyboardShortcut(key = SWT.ARROW_DOWN)
+  public void viewDown() {
+    offset.y -= 15 * magnification * PropsUi.getNativeZoomFactor();
+    validateOffset();
     redraw();
   }
 
@@ -459,7 +478,9 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }
@@ -473,22 +494,64 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return stateMap;
   }
 
-  /** @param stateMap The stateMap to set */
+  /**
+   * @param stateMap The stateMap to set
+   */
   public void setStateMap(Map<String, Object> stateMap) {
     this.stateMap = stateMap;
   }
 
   /**
-   * Gets avoidScrollAdjusting
+   * Gets magnification
    *
-   * @return value of avoidScrollAdjusting
+   * @return value of magnification
    */
-  public boolean isAvoidScrollAdjusting() {
-    return avoidScrollAdjusting;
+  public float getMagnification() {
+    return magnification;
   }
 
-  /** @param avoidScrollAdjusting The avoidScrollAdjusting to set */
-  public void setAvoidScrollAdjusting(boolean avoidScrollAdjusting) {
-    this.avoidScrollAdjusting = avoidScrollAdjusting;
+  /**
+   * Sets magnification
+   *
+   * @param magnification value of magnification
+   */
+  public void setMagnification(float magnification) {
+    this.magnification = magnification;
+  }
+
+  /**
+   * Gets viewPort
+   *
+   * @return value of viewPort
+   */
+  public Rectangle getViewPort() {
+    return viewPort;
+  }
+
+  /**
+   * Sets viewPort
+   *
+   * @param viewPort value of viewPort
+   */
+  public void setViewPort(Rectangle viewPort) {
+    this.viewPort = viewPort;
+  }
+
+  /**
+   * Gets graphPort
+   *
+   * @return value of graphPort
+   */
+  public Rectangle getGraphPort() {
+    return graphPort;
+  }
+
+  /**
+   * Sets graphPort
+   *
+   * @param graphPort value of graphPort
+   */
+  public void setGraphPort(Rectangle graphPort) {
+    this.graphPort = graphPort;
   }
 }

@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -34,7 +35,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
@@ -62,20 +68,20 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "BeamKinesisProduceDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons go at the very bottom
     //
@@ -90,7 +96,7 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -98,7 +104,7 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -108,7 +114,7 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
 
     Label wlAccessKey = new Label(shell, SWT.RIGHT);
     wlAccessKey.setText(BaseMessages.getString(PKG, "BeamKinesisProduceDialog.AccessKey"));
-    props.setLook(wlAccessKey);
+    PropsUi.setLook(wlAccessKey);
     FormData fdlAccessKey = new FormData();
     fdlAccessKey.left = new FormAttachment(0, 0);
     fdlAccessKey.top = new FormAttachment(lastControl, margin);
@@ -116,7 +122,7 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
     wlAccessKey.setLayoutData(fdlAccessKey);
     wAccessKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wAccessKey.setEchoChar('*');
-    props.setLook(wAccessKey);
+    PropsUi.setLook(wAccessKey);
     FormData fdAccessKey = new FormData();
     fdAccessKey.left = new FormAttachment(middle, 0);
     fdAccessKey.top = new FormAttachment(wlAccessKey, 0, SWT.CENTER);
@@ -126,7 +132,7 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
 
     Label wlSecretKey = new Label(shell, SWT.RIGHT);
     wlSecretKey.setText(BaseMessages.getString(PKG, "BeamKinesisProduceDialog.SecretKey"));
-    props.setLook(wlSecretKey);
+    PropsUi.setLook(wlSecretKey);
     FormData fdlSecretKey = new FormData();
     fdlSecretKey.left = new FormAttachment(0, 0);
     fdlSecretKey.top = new FormAttachment(lastControl, margin);
@@ -134,7 +140,7 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
     wlSecretKey.setLayoutData(fdlSecretKey);
     wSecretKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSecretKey.setEchoChar('*');
-    props.setLook(wSecretKey);
+    PropsUi.setLook(wSecretKey);
     FormData fdSecretKey = new FormData();
     fdSecretKey.left = new FormAttachment(middle, 0);
     fdSecretKey.top = new FormAttachment(wlSecretKey, 0, SWT.CENTER);
@@ -144,14 +150,14 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
 
     Label wlStreamName = new Label(shell, SWT.RIGHT);
     wlStreamName.setText(BaseMessages.getString(PKG, "BeamKinesisProduceDialog.StreamName"));
-    props.setLook(wlStreamName);
+    PropsUi.setLook(wlStreamName);
     FormData fdlStreamName = new FormData();
     fdlStreamName.left = new FormAttachment(0, 0);
     fdlStreamName.top = new FormAttachment(lastControl, margin);
     fdlStreamName.right = new FormAttachment(middle, -margin);
     wlStreamName.setLayoutData(fdlStreamName);
     wStreamName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wStreamName);
+    PropsUi.setLook(wStreamName);
     FormData fdStreamName = new FormData();
     fdStreamName.left = new FormAttachment(middle, 0);
     fdStreamName.top = new FormAttachment(wlStreamName, 0, SWT.CENTER);
@@ -161,14 +167,14 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
 
     Label wlDataField = new Label(shell, SWT.RIGHT);
     wlDataField.setText(BaseMessages.getString(PKG, "BeamKinesisProduceDialog.DataField"));
-    props.setLook(wlDataField);
+    PropsUi.setLook(wlDataField);
     FormData fdlDataField = new FormData();
     fdlDataField.left = new FormAttachment(0, 0);
     fdlDataField.top = new FormAttachment(lastControl, margin);
     fdlDataField.right = new FormAttachment(middle, -margin);
     wlDataField.setLayoutData(fdlDataField);
     wDataField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDataField);
+    PropsUi.setLook(wDataField);
     FormData fdDataField = new FormData();
     fdDataField.left = new FormAttachment(middle, 0);
     fdDataField.top = new FormAttachment(wlDataField, 0, SWT.CENTER);
@@ -178,7 +184,7 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
 
     Label wlDataType = new Label(shell, SWT.RIGHT);
     wlDataType.setText(BaseMessages.getString(PKG, "BeamKinesisProduceDialog.DataType"));
-    props.setLook(wlDataType);
+    PropsUi.setLook(wlDataType);
     FormData fdlDataType = new FormData();
     fdlDataType.left = new FormAttachment(0, 0);
     fdlDataType.top = new FormAttachment(lastControl, margin);
@@ -189,7 +195,7 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
         new String[] {
           "String",
         }); // TODO add "Avro Record"
-    props.setLook(wDataType);
+    PropsUi.setLook(wDataType);
     FormData fdDataType = new FormData();
     fdDataType.left = new FormAttachment(middle, 0);
     fdDataType.top = new FormAttachment(wlDataType, 0, SWT.CENTER);
@@ -199,14 +205,14 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
 
     Label wlPartitionKey = new Label(shell, SWT.RIGHT);
     wlPartitionKey.setText(BaseMessages.getString(PKG, "BeamKinesisProduceDialog.PartitionKey"));
-    props.setLook(wlPartitionKey);
+    PropsUi.setLook(wlPartitionKey);
     FormData fdlPartitionKey = new FormData();
     fdlPartitionKey.left = new FormAttachment(0, 0);
     fdlPartitionKey.top = new FormAttachment(lastControl, margin);
     fdlPartitionKey.right = new FormAttachment(middle, -margin);
     wlPartitionKey.setLayoutData(fdlPartitionKey);
     wPartitionKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPartitionKey);
+    PropsUi.setLook(wPartitionKey);
     FormData fdPartitionKey = new FormData();
     fdPartitionKey.left = new FormAttachment(middle, 0);
     fdPartitionKey.top = new FormAttachment(wlPartitionKey, 0, SWT.CENTER);
@@ -216,7 +222,7 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
 
     Label wlConfigOptions = new Label(shell, SWT.RIGHT);
     wlConfigOptions.setText(BaseMessages.getString(PKG, "BeamKinesisProduceDialog.ConfigOptions"));
-    props.setLook(wlConfigOptions);
+    PropsUi.setLook(wlConfigOptions);
     FormData fdlConfigOptions = new FormData();
     fdlConfigOptions.left = new FormAttachment(0, 0);
     fdlConfigOptions.top = new FormAttachment(lastControl, margin);
@@ -241,7 +247,7 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog implements ITr
     wConfigOptions =
         new TableView(
             variables, shell, SWT.NONE, columns, input.getConfigOptions().size(), null, props);
-    props.setLook(wConfigOptions);
+    PropsUi.setLook(wConfigOptions);
     FormData fdConfigOptions = new FormData();
     fdConfigOptions.left = new FormAttachment(0, 0);
     fdConfigOptions.right = new FormAttachment(100, 0);

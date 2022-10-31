@@ -25,7 +25,11 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.junit.ClassRule;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class SwitchCaseMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

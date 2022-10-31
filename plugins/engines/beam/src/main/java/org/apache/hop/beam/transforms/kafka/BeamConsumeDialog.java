@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -34,7 +35,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
@@ -71,20 +77,20 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.DialogTitle"));
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = PropsUi.getMargin();
 
     // Buttons go at the very bottom
     //
@@ -99,7 +105,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -107,7 +113,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -117,14 +123,14 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
 
     Label wlBootstrapServers = new Label(shell, SWT.RIGHT);
     wlBootstrapServers.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.BootstrapServers"));
-    props.setLook(wlBootstrapServers);
+    PropsUi.setLook(wlBootstrapServers);
     FormData fdlBootstrapServers = new FormData();
     fdlBootstrapServers.left = new FormAttachment(0, 0);
     fdlBootstrapServers.top = new FormAttachment(lastControl, margin);
     fdlBootstrapServers.right = new FormAttachment(middle, -margin);
     wlBootstrapServers.setLayoutData(fdlBootstrapServers);
     wBootstrapServers = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBootstrapServers);
+    PropsUi.setLook(wBootstrapServers);
     FormData fdBootstrapServers = new FormData();
     fdBootstrapServers.left = new FormAttachment(middle, 0);
     fdBootstrapServers.top = new FormAttachment(wlBootstrapServers, 0, SWT.CENTER);
@@ -134,14 +140,14 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
 
     Label wlTopics = new Label(shell, SWT.RIGHT);
     wlTopics.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.Topics"));
-    props.setLook(wlTopics);
+    PropsUi.setLook(wlTopics);
     FormData fdlTopics = new FormData();
     fdlTopics.left = new FormAttachment(0, 0);
     fdlTopics.top = new FormAttachment(lastControl, margin);
     fdlTopics.right = new FormAttachment(middle, -margin);
     wlTopics.setLayoutData(fdlTopics);
     wTopics = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTopics);
+    PropsUi.setLook(wTopics);
     FormData fdTopics = new FormData();
     fdTopics.left = new FormAttachment(middle, 0);
     fdTopics.top = new FormAttachment(wlTopics, 0, SWT.CENTER);
@@ -151,14 +157,14 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
 
     Label wlGroupId = new Label(shell, SWT.RIGHT);
     wlGroupId.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.GroupId"));
-    props.setLook(wlGroupId);
+    PropsUi.setLook(wlGroupId);
     FormData fdlGroupId = new FormData();
     fdlGroupId.left = new FormAttachment(0, 0);
     fdlGroupId.top = new FormAttachment(lastControl, margin);
     fdlGroupId.right = new FormAttachment(middle, -margin);
     wlGroupId.setLayoutData(fdlGroupId);
     wGroupId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wGroupId);
+    PropsUi.setLook(wGroupId);
     FormData fdGroupId = new FormData();
     fdGroupId.left = new FormAttachment(middle, 0);
     fdGroupId.top = new FormAttachment(wlGroupId, 0, SWT.CENTER);
@@ -168,14 +174,14 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
 
     Label wlKeyField = new Label(shell, SWT.RIGHT);
     wlKeyField.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.KeyField"));
-    props.setLook(wlKeyField);
+    PropsUi.setLook(wlKeyField);
     FormData fdlKeyField = new FormData();
     fdlKeyField.left = new FormAttachment(0, 0);
     fdlKeyField.top = new FormAttachment(lastControl, margin);
     fdlKeyField.right = new FormAttachment(middle, -margin);
     wlKeyField.setLayoutData(fdlKeyField);
     wKeyField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wKeyField);
+    PropsUi.setLook(wKeyField);
     FormData fdKeyField = new FormData();
     fdKeyField.left = new FormAttachment(middle, 0);
     fdKeyField.top = new FormAttachment(wlKeyField, 0, SWT.CENTER);
@@ -185,14 +191,14 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
 
     Label wlMessageField = new Label(shell, SWT.RIGHT);
     wlMessageField.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.MessageField"));
-    props.setLook(wlMessageField);
+    PropsUi.setLook(wlMessageField);
     FormData fdlMessageField = new FormData();
     fdlMessageField.left = new FormAttachment(0, 0);
     fdlMessageField.top = new FormAttachment(lastControl, margin);
     fdlMessageField.right = new FormAttachment(middle, -margin);
     wlMessageField.setLayoutData(fdlMessageField);
     wMessageField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMessageField);
+    PropsUi.setLook(wMessageField);
     FormData fdMessageField = new FormData();
     fdMessageField.left = new FormAttachment(middle, 0);
     fdMessageField.top = new FormAttachment(wlMessageField, 0, SWT.CENTER);
@@ -202,7 +208,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
 
     Label wlMessageType = new Label(shell, SWT.RIGHT);
     wlMessageType.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.MessageType"));
-    props.setLook(wlMessageType);
+    PropsUi.setLook(wlMessageType);
     FormData fdlMessageType = new FormData();
     fdlMessageType.left = new FormAttachment(0, 0);
     fdlMessageType.top = new FormAttachment(lastControl, margin);
@@ -210,7 +216,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     wlMessageType.setLayoutData(fdlMessageType);
     wMessageType = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wMessageType.setItems(new String[] { "String", "Avro Record" });
-    props.setLook(wMessageType);
+    PropsUi.setLook(wMessageType);
     FormData fdMessageType = new FormData();
     fdMessageType.left = new FormAttachment(middle, 0);
     fdMessageType.top = new FormAttachment(wlMessageType, 0, SWT.CENTER);
@@ -220,14 +226,14 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
 
     Label wlSchemaRegistryUrl = new Label(shell, SWT.RIGHT);
     wlSchemaRegistryUrl.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.SchemaRegistryUrl"));
-    props.setLook(wlSchemaRegistryUrl);
+    PropsUi.setLook(wlSchemaRegistryUrl);
     FormData fdlSchemaRegistryUrl = new FormData();
     fdlSchemaRegistryUrl.left = new FormAttachment(0, 0);
     fdlSchemaRegistryUrl.top = new FormAttachment(lastControl, margin);
     fdlSchemaRegistryUrl.right = new FormAttachment(middle, -margin);
     wlSchemaRegistryUrl.setLayoutData(fdlSchemaRegistryUrl);
     wSchemaRegistryUrl = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSchemaRegistryUrl);
+    PropsUi.setLook(wSchemaRegistryUrl);
     FormData fdSchemaRegistryUrl = new FormData();
     fdSchemaRegistryUrl.left = new FormAttachment(middle, 0);
     fdSchemaRegistryUrl.top = new FormAttachment(wlSchemaRegistryUrl, 0, SWT.CENTER);
@@ -237,14 +243,14 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
 
     Label wlSchemaRegistrySubject = new Label(shell, SWT.RIGHT);
     wlSchemaRegistrySubject.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.SchemaRegistrySubject"));
-    props.setLook(wlSchemaRegistrySubject);
+    PropsUi.setLook(wlSchemaRegistrySubject);
     FormData fdlSchemaRegistrySubject = new FormData();
     fdlSchemaRegistrySubject.left = new FormAttachment(0, 0);
     fdlSchemaRegistrySubject.top = new FormAttachment(lastControl, margin);
     fdlSchemaRegistrySubject.right = new FormAttachment(middle, -margin);
     wlSchemaRegistrySubject.setLayoutData(fdlSchemaRegistrySubject);
     wSchemaRegistrySubject = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSchemaRegistrySubject);
+    PropsUi.setLook(wSchemaRegistrySubject);
     FormData fdSchemaRegistrySubject = new FormData();
     fdSchemaRegistrySubject.left = new FormAttachment(middle, 0);
     fdSchemaRegistrySubject.top = new FormAttachment(wlSchemaRegistrySubject, 0, SWT.CENTER);
@@ -254,14 +260,14 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     
     Label wlUseProcessingTime = new Label(shell, SWT.RIGHT);
     wlUseProcessingTime.setText(BaseMessages.getString(PKG, "BeamProduceDialog.UseProcessingTime"));
-    props.setLook(wlUseProcessingTime);
+    PropsUi.setLook(wlUseProcessingTime);
     FormData fdlUseProcessingTime = new FormData();
     fdlUseProcessingTime.left = new FormAttachment(0, 0);
     fdlUseProcessingTime.top = new FormAttachment(lastControl, margin);
     fdlUseProcessingTime.right = new FormAttachment(middle, -margin);
     wlUseProcessingTime.setLayoutData(fdlUseProcessingTime);
     wUseProcessingTime = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wUseProcessingTime);
+    PropsUi.setLook(wUseProcessingTime);
     FormData fdUseProcessingTime = new FormData();
     fdUseProcessingTime.left = new FormAttachment(middle, 0);
     fdUseProcessingTime.top = new FormAttachment(wlUseProcessingTime, 0, SWT.CENTER);
@@ -271,14 +277,14 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
 
     Label wlUseLogAppendTime = new Label(shell, SWT.RIGHT);
     wlUseLogAppendTime.setText(BaseMessages.getString(PKG, "BeamProduceDialog.UseLogAppendTime"));
-    props.setLook(wlUseLogAppendTime);
+    PropsUi.setLook(wlUseLogAppendTime);
     FormData fdlUseLogAppendTime = new FormData();
     fdlUseLogAppendTime.left = new FormAttachment(0, 0);
     fdlUseLogAppendTime.top = new FormAttachment(lastControl, 2 * margin);
     fdlUseLogAppendTime.right = new FormAttachment(middle, -margin);
     wlUseLogAppendTime.setLayoutData(fdlUseLogAppendTime);
     wUseLogAppendTime = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wUseLogAppendTime);
+    PropsUi.setLook(wUseLogAppendTime);
     FormData fdUseLogAppendTime = new FormData();
     fdUseLogAppendTime.left = new FormAttachment(middle, 0);
     fdUseLogAppendTime.top = new FormAttachment(wlUseLogAppendTime, 0, SWT.CENTER);
@@ -288,14 +294,14 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
 
     Label wlUseCreateTime = new Label(shell, SWT.RIGHT);
     wlUseCreateTime.setText(BaseMessages.getString(PKG, "BeamProduceDialog.UseCreateTime"));
-    props.setLook(wlUseCreateTime);
+    PropsUi.setLook(wlUseCreateTime);
     FormData fdlUseCreateTime = new FormData();
     fdlUseCreateTime.left = new FormAttachment(0, 0);
     fdlUseCreateTime.top = new FormAttachment(lastControl, 2 * margin);
     fdlUseCreateTime.right = new FormAttachment(middle, -margin);
     wlUseCreateTime.setLayoutData(fdlUseCreateTime);
     wUseCreateTime = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wUseCreateTime);
+    PropsUi.setLook(wUseCreateTime);
     FormData fdUseCreateTime = new FormData();
     fdUseCreateTime.left = new FormAttachment(middle, 0);
     fdUseCreateTime.top = new FormAttachment(wlUseCreateTime, 0, SWT.CENTER);
@@ -306,14 +312,14 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     Label wlRestrictToCommitted = new Label(shell, SWT.RIGHT);
     wlRestrictToCommitted.setText(
         BaseMessages.getString(PKG, "BeamProduceDialog.RestrictToCommitted"));
-    props.setLook(wlRestrictToCommitted);
+    PropsUi.setLook(wlRestrictToCommitted);
     FormData fdlRestrictToCommitted = new FormData();
     fdlRestrictToCommitted.left = new FormAttachment(0, 0);
     fdlRestrictToCommitted.top = new FormAttachment(lastControl, 2 * margin);
     fdlRestrictToCommitted.right = new FormAttachment(middle, -margin);
     wlRestrictToCommitted.setLayoutData(fdlRestrictToCommitted);
     wRestrictToCommitted = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wRestrictToCommitted);
+    PropsUi.setLook(wRestrictToCommitted);
     FormData fdRestrictToCommitted = new FormData();
     fdRestrictToCommitted.left = new FormAttachment(middle, 0);
     fdRestrictToCommitted.top = new FormAttachment(wlRestrictToCommitted, 0, SWT.CENTER);
@@ -324,14 +330,14 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     Label wlAllowCommitConsumed = new Label(shell, SWT.RIGHT);
     wlAllowCommitConsumed.setText(
         BaseMessages.getString(PKG, "BeamProduceDialog.AllowCommitConsumed"));
-    props.setLook(wlAllowCommitConsumed);
+    PropsUi.setLook(wlAllowCommitConsumed);
     FormData fdlAllowCommitConsumed = new FormData();
     fdlAllowCommitConsumed.left = new FormAttachment(0, 0);
     fdlAllowCommitConsumed.top = new FormAttachment(lastControl, 2 * margin);
     fdlAllowCommitConsumed.right = new FormAttachment(middle, -margin);
     wlAllowCommitConsumed.setLayoutData(fdlAllowCommitConsumed);
     wAllowCommitConsumed = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wAllowCommitConsumed);
+    PropsUi.setLook(wAllowCommitConsumed);
     FormData fdAllowCommitConsumed = new FormData();
     fdAllowCommitConsumed.left = new FormAttachment(middle, 0);
     fdAllowCommitConsumed.top = new FormAttachment(wlAllowCommitConsumed, 0, SWT.CENTER);
@@ -341,7 +347,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
 
     Label wlConfigOptions = new Label(shell, SWT.LEFT);
     wlConfigOptions.setText(BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions"));
-    props.setLook(wlConfigOptions);
+    PropsUi.setLook(wlConfigOptions);
     FormData fdlConfigOptions = new FormData();
     fdlConfigOptions.left = new FormAttachment(0, 0);
     fdlConfigOptions.top = new FormAttachment(lastControl, 2 * margin);
@@ -371,7 +377,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     wConfigOptions =
         new TableView(
             variables, shell, SWT.NONE, columns, input.getConfigOptions().size(), null, props);
-    props.setLook(wConfigOptions);
+    PropsUi.setLook(wConfigOptions);
     FormData fdConfigOptions = new FormData();
     fdConfigOptions.left = new FormAttachment(0, 0);
     fdConfigOptions.right = new FormAttachment(100, 0);

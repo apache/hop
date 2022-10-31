@@ -44,7 +44,16 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.fileinput.text.DirectoryDialogButtonListenerFactory;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterListDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -57,12 +66,23 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -202,7 +222,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     lsMod =
@@ -213,8 +233,8 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ExcelInputDialog.DialogTitle"));
@@ -237,7 +257,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -245,7 +265,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -257,7 +277,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlStatusMessage = new Label(shell, SWT.RIGHT);
     wlStatusMessage.setText("(This Space To Let)");
     wlStatusMessage.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_RED));
-    props.setLook(wlStatusMessage);
+    PropsUi.setLook(wlStatusMessage);
     FormData fdlStatusMessage = new FormData();
     fdlStatusMessage.left = new FormAttachment(0, 0);
     fdlStatusMessage.top = new FormAttachment(wlTransformName, margin);
@@ -266,16 +286,17 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     // Tabs
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     //
     // START OF FILE TAB /
     //
     wFileTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFileTab.setFont(GuiResource.getInstance().getFontDefault());
     wFileTab.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FileTab.TabTitle"));
 
     Composite wFileComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFileComp);
+    PropsUi.setLook(wFileComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -286,7 +307,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     Label wlSpreadSheetType = new Label(wFileComp, SWT.RIGHT);
     wlSpreadSheetType.setText(
         BaseMessages.getString(PKG, "ExcelInputDialog.SpreadSheetType.Label"));
-    props.setLook(wlSpreadSheetType);
+    PropsUi.setLook(wlSpreadSheetType);
     FormData fdlSpreadSheetType = new FormData();
     fdlSpreadSheetType.left = new FormAttachment(0, 0);
     fdlSpreadSheetType.right = new FormAttachment(middle, -margin);
@@ -295,7 +316,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlSpreadSheetType.setLayoutData(fdlSpreadSheetType);
     wSpreadSheetType = new CCombo(wFileComp, SWT.BORDER | SWT.READ_ONLY);
     wSpreadSheetType.setEditable(true);
-    props.setLook(wSpreadSheetType);
+    PropsUi.setLook(wSpreadSheetType);
     wSpreadSheetType.addModifyListener(lsMod);
     FormData fdSpreadSheetType = new FormData();
     fdSpreadSheetType.left = new FormAttachment(middle, 0);
@@ -309,7 +330,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // Filename line
     wlFilename = new Label(wFileComp, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(wSpreadSheetType, margin);
@@ -317,7 +338,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlFilename.setLayoutData(fdlFilename);
 
     wbbFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -327,7 +348,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wbbFilename.setLayoutData(fdbFilename);
 
     wbaFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbaFilename);
+    PropsUi.setLook(wbaFilename);
     wbaFilename.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FilenameAdd.Button"));
     wbaFilename.setToolTipText(BaseMessages.getString(PKG, "ExcelInputDialog.FilenameAdd.Tooltip"));
     FormData fdbaFilename = new FormData();
@@ -336,7 +357,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wbaFilename.setLayoutData(fdbaFilename);
 
     wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -346,14 +367,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wlFilemask = new Label(wFileComp, SWT.RIGHT);
     wlFilemask.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Filemask.Label"));
-    props.setLook(wlFilemask);
+    PropsUi.setLook(wlFilemask);
     FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
     fdlFilemask.top = new FormAttachment(wFilename, margin);
     fdlFilemask.right = new FormAttachment(middle, -margin);
     wlFilemask.setLayoutData(fdlFilemask);
     wFilemask = new Text(wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilemask);
+    PropsUi.setLook(wFilemask);
     wFilemask.addModifyListener(lsMod);
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
@@ -364,14 +385,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlExcludeFilemask = new Label(wFileComp, SWT.RIGHT);
     wlExcludeFilemask.setText(
         BaseMessages.getString(PKG, "ExcelInputDialog.ExcludeFilemask.Label"));
-    props.setLook(wlExcludeFilemask);
+    PropsUi.setLook(wlExcludeFilemask);
     FormData fdlExcludeFilemask = new FormData();
     fdlExcludeFilemask.left = new FormAttachment(0, 0);
     fdlExcludeFilemask.top = new FormAttachment(wFilemask, margin);
     fdlExcludeFilemask.right = new FormAttachment(middle, -margin);
     wlExcludeFilemask.setLayoutData(fdlExcludeFilemask);
     wExcludeFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wExcludeFilemask);
+    PropsUi.setLook(wExcludeFilemask);
     wExcludeFilemask.addModifyListener(lsMod);
     FormData fdExcludeFilemask = new FormData();
     fdExcludeFilemask.left = new FormAttachment(middle, 0);
@@ -382,7 +403,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // Filename list line
     wlFilenameList = new Label(wFileComp, SWT.RIGHT);
     wlFilenameList.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FilenameList.Label"));
-    props.setLook(wlFilenameList);
+    PropsUi.setLook(wlFilenameList);
     FormData fdlFilenameList = new FormData();
     fdlFilenameList.left = new FormAttachment(0, 0);
     fdlFilenameList.top = new FormAttachment(wExcludeFilemask, margin);
@@ -391,7 +412,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     // Buttons to the right of the screen...
     wbdFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdFilename);
+    PropsUi.setLook(wbdFilename);
     wbdFilename.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FilenameDelete.Button"));
     wbdFilename.setToolTipText(
         BaseMessages.getString(PKG, "ExcelInputDialog.FilenameDelete.Tooltip"));
@@ -401,7 +422,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wbdFilename.setLayoutData(fdbdFilename);
 
     wbeFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeFilename);
+    PropsUi.setLook(wbeFilename);
     wbeFilename.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FilenameEdit.Button"));
     wbeFilename.setToolTipText(
         BaseMessages.getString(PKG, "ExcelInputDialog.FilenameEdit.Tooltip"));
@@ -412,7 +433,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wbeFilename.setLayoutData(fdbeFilename);
 
     wbShowFiles = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbShowFiles);
+    PropsUi.setLook(wbShowFiles);
     wbShowFiles.setText(BaseMessages.getString(PKG, "ExcelInputDialog.ShowFiles.Button"));
     FormData fdbShowFiles = new FormData();
     fdbShowFiles.left = new FormAttachment(middle, 0);
@@ -427,13 +448,13 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     acceptingLayout.marginWidth = 3;
     acceptingLayout.marginHeight = 3;
     gAccepting.setLayout(acceptingLayout);
-    props.setLook(gAccepting);
+    PropsUi.setLook(gAccepting);
 
     // Accept filenames from previous transforms?
     //
     Label wlAccFilenames = new Label(gAccepting, SWT.RIGHT);
     wlAccFilenames.setText(BaseMessages.getString(PKG, "ExcelInputDialog.AcceptFilenames.Label"));
-    props.setLook(wlAccFilenames);
+    PropsUi.setLook(wlAccFilenames);
     FormData fdlAccFilenames = new FormData();
     fdlAccFilenames.top = new FormAttachment(0, margin);
     fdlAccFilenames.left = new FormAttachment(0, 0);
@@ -442,7 +463,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wAccFilenames = new Button(gAccepting, SWT.CHECK);
     wAccFilenames.setToolTipText(
         BaseMessages.getString(PKG, "ExcelInputDialog.AcceptFilenames.Tooltip"));
-    props.setLook(wAccFilenames);
+    PropsUi.setLook(wAccFilenames);
     FormData fdAccFilenames = new FormData();
     fdAccFilenames.top = new FormAttachment(wlAccFilenames, 0, SWT.CENTER);
     fdAccFilenames.left = new FormAttachment(middle, 0);
@@ -460,7 +481,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // Which transform to read from?
     wlAccTransform = new Label(gAccepting, SWT.RIGHT);
     wlAccTransform.setText(BaseMessages.getString(PKG, "ExcelInputDialog.AcceptTransform.Label"));
-    props.setLook(wlAccTransform);
+    PropsUi.setLook(wlAccTransform);
     FormData fdlAccTransform = new FormData();
     fdlAccTransform.top = new FormAttachment(wAccFilenames, margin);
     fdlAccTransform.left = new FormAttachment(0, 0);
@@ -469,7 +490,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wAccTransform = new CCombo(gAccepting, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wAccTransform.setToolTipText(
         BaseMessages.getString(PKG, "ExcelInputDialog.AcceptTransform.Tooltip"));
-    props.setLook(wAccTransform);
+    PropsUi.setLook(wAccTransform);
     FormData fdAccTransform = new FormData();
     fdAccTransform.top = new FormAttachment(wAccFilenames, margin);
     fdAccTransform.left = new FormAttachment(middle, 0);
@@ -480,7 +501,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     //
     wlAccField = new Label(gAccepting, SWT.RIGHT);
     wlAccField.setText(BaseMessages.getString(PKG, "ExcelInputDialog.AcceptField.Label"));
-    props.setLook(wlAccField);
+    PropsUi.setLook(wlAccField);
     FormData fdlAccField = new FormData();
     fdlAccField.top = new FormAttachment(wAccTransform, margin);
     fdlAccField.left = new FormAttachment(0, 0);
@@ -503,7 +524,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wAccField.setItems(previousFields.getFieldNames());
     wAccField.setToolTipText(BaseMessages.getString(PKG, "ExcelInputDialog.AcceptField.Tooltip"));
 
-    props.setLook(wAccField);
+    PropsUi.setLook(wAccField);
     FormData fdAccField = new FormData();
     fdAccField.top = new FormAttachment(wAccTransform, margin);
     fdAccField.left = new FormAttachment(middle, 0);
@@ -564,7 +585,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
             input.getFileName().length,
             lsMod,
             props);
-    props.setLook(wFilenameList);
+    PropsUi.setLook(wFilenameList);
     FormData fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment(middle, 0);
     fdFilenameList.right = new FormAttachment(wbdFilename, -margin);
@@ -589,10 +610,11 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // START OF SHEET TAB /
     //
     wSheetTab = new CTabItem(wTabFolder, SWT.NONE);
+    wSheetTab.setFont(GuiResource.getInstance().getFontDefault());
     wSheetTab.setText(BaseMessages.getString(PKG, "ExcelInputDialog.SheetsTab.TabTitle"));
 
     Composite wSheetComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wSheetComp);
+    PropsUi.setLook(wSheetComp);
 
     FormLayout sheetLayout = new FormLayout();
     sheetLayout.marginWidth = 3;
@@ -600,7 +622,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wSheetComp.setLayout(sheetLayout);
 
     Button wbGetSheets = new Button(wSheetComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGetSheets);
+    PropsUi.setLook(wbGetSheets);
     wbGetSheets.setText(BaseMessages.getString(PKG, "ExcelInputDialog.GetSheets.Button"));
     FormData fdbGetSheets = new FormData();
     fdbGetSheets.left = new FormAttachment(middle, 0);
@@ -609,7 +631,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     Label wlSheetnameList = new Label(wSheetComp, SWT.RIGHT);
     wlSheetnameList.setText(BaseMessages.getString(PKG, "ExcelInputDialog.SheetNameList.Label"));
-    props.setLook(wlSheetnameList);
+    PropsUi.setLook(wlSheetnameList);
     FormData fdlSheetnameList = new FormData();
     fdlSheetnameList.left = new FormAttachment(0, 0);
     fdlSheetnameList.top = new FormAttachment(wFilename, margin);
@@ -642,7 +664,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
             input.getSheetName().length,
             lsMod,
             props);
-    props.setLook(wSheetnameList);
+    PropsUi.setLook(wSheetnameList);
     fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment(middle, 0);
     fdFilenameList.right = new FormAttachment(100, 0);
@@ -669,6 +691,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // START OF CONTENT TAB/
     // /
     CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
+    wContentTab.setFont(GuiResource.getInstance().getFontDefault());
     wContentTab.setText(BaseMessages.getString(PKG, "ExcelInputDialog.ContentTab.TabTitle"));
 
     FormLayout contentLayout = new FormLayout();
@@ -676,20 +699,20 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     contentLayout.marginHeight = 3;
 
     Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wContentComp);
+    PropsUi.setLook(wContentComp);
     wContentComp.setLayout(contentLayout);
 
     // Header checkbox
     Label wlHeader = new Label(wContentComp, SWT.RIGHT);
     wlHeader.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Header.Label"));
-    props.setLook(wlHeader);
+    PropsUi.setLook(wlHeader);
     FormData fdlHeader = new FormData();
     fdlHeader.left = new FormAttachment(0, 0);
     fdlHeader.top = new FormAttachment(0, 0);
     fdlHeader.right = new FormAttachment(middle, -margin);
     wlHeader.setLayoutData(fdlHeader);
     wHeader = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wHeader);
+    PropsUi.setLook(wHeader);
     FormData fdHeader = new FormData();
     fdHeader.left = new FormAttachment(middle, 0);
     fdHeader.top = new FormAttachment(wlHeader, 0, SWT.CENTER);
@@ -706,14 +729,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     Label wlNoEmpty = new Label(wContentComp, SWT.RIGHT);
     wlNoEmpty.setText(BaseMessages.getString(PKG, "ExcelInputDialog.NoEmpty.Label"));
-    props.setLook(wlNoEmpty);
+    PropsUi.setLook(wlNoEmpty);
     FormData fdlNoEmpty = new FormData();
     fdlNoEmpty.left = new FormAttachment(0, 0);
     fdlNoEmpty.top = new FormAttachment(wHeader, margin);
     fdlNoEmpty.right = new FormAttachment(middle, -margin);
     wlNoEmpty.setLayoutData(fdlNoEmpty);
     wNoEmpty = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wNoEmpty);
+    PropsUi.setLook(wNoEmpty);
     wNoEmpty.setToolTipText(BaseMessages.getString(PKG, "ExcelInputDialog.NoEmpty.Tooltip"));
     FormData fdNoEmpty = new FormData();
     fdNoEmpty.left = new FormAttachment(middle, 0);
@@ -724,14 +747,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     Label wlStopOnEmpty = new Label(wContentComp, SWT.RIGHT);
     wlStopOnEmpty.setText(BaseMessages.getString(PKG, "ExcelInputDialog.StopOnEmpty.Label"));
-    props.setLook(wlStopOnEmpty);
+    PropsUi.setLook(wlStopOnEmpty);
     FormData fdlStopOnEmpty = new FormData();
     fdlStopOnEmpty.left = new FormAttachment(0, 0);
     fdlStopOnEmpty.top = new FormAttachment(wNoEmpty, margin);
     fdlStopOnEmpty.right = new FormAttachment(middle, -margin);
     wlStopOnEmpty.setLayoutData(fdlStopOnEmpty);
     wStopOnEmpty = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wStopOnEmpty);
+    PropsUi.setLook(wStopOnEmpty);
     wStopOnEmpty.setToolTipText(
         BaseMessages.getString(PKG, "ExcelInputDialog.StopOnEmpty.Tooltip"));
     FormData fdStopOnEmpty = new FormData();
@@ -743,14 +766,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     Label wlLimit = new Label(wContentComp, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Limit.Label"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.top = new FormAttachment(wStopOnEmpty, margin);
     fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
@@ -760,7 +783,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     Label wlEncoding = new Label(wContentComp, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Encoding.Label"));
-    props.setLook(wlEncoding);
+    PropsUi.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment(0, 0);
     fdlEncoding.top = new FormAttachment(wLimit, margin);
@@ -768,7 +791,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
     wEncoding.setEditable(true);
-    props.setLook(wEncoding);
+    PropsUi.setLook(wEncoding);
     wEncoding.addModifyListener(lsMod);
     FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment(middle, 0);
@@ -794,7 +817,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // START OF AddFileResult GROUP
     //
     Group wAddFileResult = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wAddFileResult);
+    PropsUi.setLook(wAddFileResult);
     wAddFileResult.setText(BaseMessages.getString(PKG, "ExcelInputDialog.AddFileResult.Label"));
 
     FormLayout addFileResultgroupLayout = new FormLayout();
@@ -804,14 +827,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     Label wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "ExcelInputDialog.AddResult.Label"));
-    props.setLook(wlAddResult);
+    PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
     fdlAddResult.top = new FormAttachment(wEncoding, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(wAddFileResult, SWT.CHECK);
-    props.setLook(wAddResult);
+    PropsUi.setLook(wAddResult);
     wAddResult.setToolTipText(BaseMessages.getString(PKG, "ExcelInputDialog.AddResult.Tooltip"));
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment(middle, 0);
@@ -849,17 +872,18 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // Fields tab...
     //
     wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wFieldsTab.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FieldsTab.TabTitle"));
 
     FormLayout fieldsLayout = new FormLayout();
-    fieldsLayout.marginWidth = Const.FORM_MARGIN;
-    fieldsLayout.marginHeight = Const.FORM_MARGIN;
+    fieldsLayout.marginWidth = PropsUi.getFormMargin();
+    fieldsLayout.marginHeight = PropsUi.getFormMargin();
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     wFieldsComp.setLayout(fieldsLayout);
 
     wbGetFields = new Button(wFieldsComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGetFields);
+    PropsUi.setLook(wbGetFields);
     wbGetFields.setText(BaseMessages.getString(PKG, "ExcelInputDialog.GetFields.Button"));
 
     setButtonPositions(new Button[] {wbGetFields}, margin, null);
@@ -942,7 +966,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wFieldsComp.layout();
     wFieldsTab.setControl(wFieldsComp);
-    props.setLook(wFieldsComp);
+    PropsUi.setLook(wFieldsComp);
 
     addAdditionalFieldsTab();
 
@@ -1436,6 +1460,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // START OF ERROR TAB /
     // /
     CTabItem wErrorTab = new CTabItem(wTabFolder, SWT.NONE);
+    wErrorTab.setFont(GuiResource.getInstance().getFontDefault());
     wErrorTab.setText(BaseMessages.getString(PKG, "ExcelInputDialog.ErrorTab.TabTitle"));
 
     FormLayout errorLayout = new FormLayout();
@@ -1443,7 +1468,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     errorLayout.marginHeight = 3;
 
     Composite wErrorComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wErrorComp);
+    PropsUi.setLook(wErrorComp);
     wErrorComp.setLayout(errorLayout);
 
     // ERROR HANDLING...
@@ -1451,14 +1476,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // ERROR HANDLING...
     Label wlStrictTypes = new Label(wErrorComp, SWT.RIGHT);
     wlStrictTypes.setText(BaseMessages.getString(PKG, "ExcelInputDialog.StrictTypes.Label"));
-    props.setLook(wlStrictTypes);
+    PropsUi.setLook(wlStrictTypes);
     FormData fdlStrictTypes = new FormData();
     fdlStrictTypes.left = new FormAttachment(0, 0);
     fdlStrictTypes.top = new FormAttachment(0, margin);
     fdlStrictTypes.right = new FormAttachment(middle, -margin);
     wlStrictTypes.setLayoutData(fdlStrictTypes);
     wStrictTypes = new Button(wErrorComp, SWT.CHECK);
-    props.setLook(wStrictTypes);
+    PropsUi.setLook(wStrictTypes);
     wStrictTypes.setToolTipText(
         BaseMessages.getString(PKG, "ExcelInputDialog.StrictTypes.Tooltip"));
     FormData fdStrictTypes = new FormData();
@@ -1471,14 +1496,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // ErrorIgnored?
     Label wlErrorIgnored = new Label(wErrorComp, SWT.RIGHT);
     wlErrorIgnored.setText(BaseMessages.getString(PKG, "ExcelInputDialog.ErrorIgnored.Label"));
-    props.setLook(wlErrorIgnored);
+    PropsUi.setLook(wlErrorIgnored);
     FormData fdlErrorIgnored = new FormData();
     fdlErrorIgnored.left = new FormAttachment(0, 0);
     fdlErrorIgnored.top = new FormAttachment(previous, margin);
     fdlErrorIgnored.right = new FormAttachment(middle, -margin);
     wlErrorIgnored.setLayoutData(fdlErrorIgnored);
     wErrorIgnored = new Button(wErrorComp, SWT.CHECK);
-    props.setLook(wErrorIgnored);
+    PropsUi.setLook(wErrorIgnored);
     wErrorIgnored.setToolTipText(
         BaseMessages.getString(PKG, "ExcelInputDialog.ErrorIgnored.Tooltip"));
     FormData fdErrorIgnored = new FormData();
@@ -1498,14 +1523,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // Skip error lines?
     wlSkipErrorLines = new Label(wErrorComp, SWT.RIGHT);
     wlSkipErrorLines.setText(BaseMessages.getString(PKG, "ExcelInputDialog.SkipErrorLines.Label"));
-    props.setLook(wlSkipErrorLines);
+    PropsUi.setLook(wlSkipErrorLines);
     FormData fdlSkipErrorLines = new FormData();
     fdlSkipErrorLines.left = new FormAttachment(0, 0);
     fdlSkipErrorLines.top = new FormAttachment(previous, margin);
     fdlSkipErrorLines.right = new FormAttachment(middle, -margin);
     wlSkipErrorLines.setLayoutData(fdlSkipErrorLines);
     wSkipErrorLines = new Button(wErrorComp, SWT.CHECK);
-    props.setLook(wSkipErrorLines);
+    PropsUi.setLook(wSkipErrorLines);
     wSkipErrorLines.setToolTipText(
         BaseMessages.getString(PKG, "ExcelInputDialog.SkipErrorLines.Tooltip"));
     FormData fdSkipErrorLines = new FormData();
@@ -1521,7 +1546,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // WarningDestDir line
     wlWarningDestDir = new Label(wErrorComp, SWT.RIGHT);
     wlWarningDestDir.setText(BaseMessages.getString(PKG, "ExcelInputDialog.WarningDestDir.Label"));
-    props.setLook(wlWarningDestDir);
+    PropsUi.setLook(wlWarningDestDir);
     FormData fdlWarningDestDir = new FormData();
     fdlWarningDestDir.left = new FormAttachment(0, 0);
     fdlWarningDestDir.top = new FormAttachment(previous, margin * 4);
@@ -1529,7 +1554,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlWarningDestDir.setLayoutData(fdlWarningDestDir);
 
     wbbWarningDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbWarningDestDir);
+    PropsUi.setLook(wbbWarningDestDir);
     wbbWarningDestDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbWarningDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.BrowseForDir"));
     FormData fdbWarningDestDir = new FormData();
@@ -1538,7 +1563,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wbbWarningDestDir.setLayoutData(fdbWarningDestDir);
 
     wbvWarningDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbvWarningDestDir);
+    PropsUi.setLook(wbvWarningDestDir);
     wbvWarningDestDir.setText(BaseMessages.getString(PKG, "System.Button.Variable"));
     wbvWarningDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.VariableToDir"));
     FormData fdbvWarningDestDir = new FormData();
@@ -1547,7 +1572,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wbvWarningDestDir.setLayoutData(fdbvWarningDestDir);
 
     wWarningExt = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wWarningExt);
+    PropsUi.setLook(wWarningExt);
     wWarningExt.addModifyListener(lsMod);
     FormData fdWarningDestExt = new FormData();
     fdWarningDestExt.left = new FormAttachment(wbvWarningDestDir, -150);
@@ -1557,14 +1582,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wlWarningExt = new Label(wErrorComp, SWT.RIGHT);
     wlWarningExt.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
-    props.setLook(wlWarningExt);
+    PropsUi.setLook(wlWarningExt);
     FormData fdlWarningDestExt = new FormData();
     fdlWarningDestExt.top = new FormAttachment(previous, margin * 4);
     fdlWarningDestExt.right = new FormAttachment(wWarningExt, -margin);
     wlWarningExt.setLayoutData(fdlWarningDestExt);
 
     wWarningDestDir = new TextVar(variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wWarningDestDir);
+    PropsUi.setLook(wWarningDestDir);
     wWarningDestDir.addModifyListener(lsMod);
     FormData fdWarningDestDir = new FormData();
     fdWarningDestDir.left = new FormAttachment(middle, 0);
@@ -1589,7 +1614,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // ErrorDestDir line
     wlErrorDestDir = new Label(wErrorComp, SWT.RIGHT);
     wlErrorDestDir.setText(BaseMessages.getString(PKG, "ExcelInputDialog.ErrorDestDir.Label"));
-    props.setLook(wlErrorDestDir);
+    PropsUi.setLook(wlErrorDestDir);
     FormData fdlErrorDestDir = new FormData();
     fdlErrorDestDir.left = new FormAttachment(0, 0);
     fdlErrorDestDir.top = new FormAttachment(previous, margin);
@@ -1597,7 +1622,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlErrorDestDir.setLayoutData(fdlErrorDestDir);
 
     wbbErrorDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbErrorDestDir);
+    PropsUi.setLook(wbbErrorDestDir);
     wbbErrorDestDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbErrorDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.BrowseForDir"));
     FormData fdbErrorDestDir = new FormData();
@@ -1606,7 +1631,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wbbErrorDestDir.setLayoutData(fdbErrorDestDir);
 
     wbvErrorDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbvErrorDestDir);
+    PropsUi.setLook(wbvErrorDestDir);
     wbvErrorDestDir.setText(BaseMessages.getString(PKG, "System.Button.Variable"));
     wbvErrorDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.VariableToDir"));
     FormData fdbvErrorDestDir = new FormData();
@@ -1615,7 +1640,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wbvErrorDestDir.setLayoutData(fdbvErrorDestDir);
 
     wErrorExt = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrorExt);
+    PropsUi.setLook(wErrorExt);
     wErrorExt.addModifyListener(lsMod);
     FormData fdErrorDestExt = new FormData();
     fdErrorDestExt.left = new FormAttachment(wbvErrorDestDir, -150);
@@ -1625,14 +1650,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wlErrorExt = new Label(wErrorComp, SWT.RIGHT);
     wlErrorExt.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
-    props.setLook(wlErrorExt);
+    PropsUi.setLook(wlErrorExt);
     FormData fdlErrorDestExt = new FormData();
     fdlErrorDestExt.top = new FormAttachment(previous, margin);
     fdlErrorDestExt.right = new FormAttachment(wErrorExt, -margin);
     wlErrorExt.setLayoutData(fdlErrorDestExt);
 
     wErrorDestDir = new TextVar(variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrorDestDir);
+    PropsUi.setLook(wErrorDestDir);
     wErrorDestDir.addModifyListener(lsMod);
     FormData fdErrorDestDir = new FormData();
     fdErrorDestDir.left = new FormAttachment(middle, 0);
@@ -1657,7 +1682,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // LineNrDestDir line
     wlLineNrDestDir = new Label(wErrorComp, SWT.RIGHT);
     wlLineNrDestDir.setText(BaseMessages.getString(PKG, "ExcelInputDialog.LineNrDestDir.Label"));
-    props.setLook(wlLineNrDestDir);
+    PropsUi.setLook(wlLineNrDestDir);
     FormData fdlLineNrDestDir = new FormData();
     fdlLineNrDestDir.left = new FormAttachment(0, 0);
     fdlLineNrDestDir.top = new FormAttachment(previous, margin);
@@ -1665,7 +1690,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlLineNrDestDir.setLayoutData(fdlLineNrDestDir);
 
     wbbLineNrDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbLineNrDestDir);
+    PropsUi.setLook(wbbLineNrDestDir);
     wbbLineNrDestDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbLineNrDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.BrowseForDir"));
     FormData fdbLineNrDestDir = new FormData();
@@ -1674,7 +1699,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wbbLineNrDestDir.setLayoutData(fdbLineNrDestDir);
 
     wbvLineNrDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbvLineNrDestDir);
+    PropsUi.setLook(wbvLineNrDestDir);
     wbvLineNrDestDir.setText(BaseMessages.getString(PKG, "System.Button.Variable"));
     wbvLineNrDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.VariableToDir"));
     FormData fdbvLineNrDestDir = new FormData();
@@ -1683,7 +1708,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wbvLineNrDestDir.setLayoutData(fdbvLineNrDestDir);
 
     wLineNrExt = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLineNrExt);
+    PropsUi.setLook(wLineNrExt);
     wLineNrExt.addModifyListener(lsMod);
     FormData fdLineNrDestExt = new FormData();
     fdLineNrDestExt.left = new FormAttachment(wbvLineNrDestDir, -150);
@@ -1693,14 +1718,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wlLineNrExt = new Label(wErrorComp, SWT.RIGHT);
     wlLineNrExt.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
-    props.setLook(wlLineNrExt);
+    PropsUi.setLook(wlLineNrExt);
     FormData fdlLineNrDestExt = new FormData();
     fdlLineNrDestExt.top = new FormAttachment(previous, margin);
     fdlLineNrDestExt.right = new FormAttachment(wLineNrExt, -margin);
     wlLineNrExt.setLayoutData(fdlLineNrDestExt);
 
     wLineNrDestDir = new TextVar(variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLineNrDestDir);
+    PropsUi.setLook(wLineNrDestDir);
     wLineNrDestDir.addModifyListener(lsMod);
     FormData fdLineNrDestDir = new FormData();
     fdLineNrDestDir.left = new FormAttachment(middle, 0);
@@ -1909,7 +1934,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
       }
       for (int j = 0; j < fields.size(); j++) {
         IValueMeta field = fields.getValueMeta(j);
-        wFields.add(new String[] {field.getName(), field.getTypeDesc(), "", "", "none", "N"});
+        wFields.add(field.getName(), field.getTypeDesc(), "", "", "none", "N");
       }
       wFields.removeEmptyRows();
       wFields.setRowNums();
@@ -2120,11 +2145,12 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // START OF ADDITIONAL FIELDS TAB /
     //
     CTabItem wAdditionalFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdditionalFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdditionalFieldsTab.setText(
         BaseMessages.getString(PKG, "ExcelInputDialog.AdditionalFieldsTab.TabTitle"));
 
     Composite wAdditionalFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wAdditionalFieldsComp);
+    PropsUi.setLook(wAdditionalFieldsComp);
 
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = 3;
@@ -2134,14 +2160,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     Label wlInclFilenameField = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlInclFilenameField.setText(
         BaseMessages.getString(PKG, "ExcelInputDialog.InclFilenameField.Label"));
-    props.setLook(wlInclFilenameField);
+    PropsUi.setLook(wlInclFilenameField);
     FormData fdlInclFilenameField = new FormData();
     fdlInclFilenameField.left = new FormAttachment(0, 0);
     fdlInclFilenameField.top = new FormAttachment(wTransformName, margin);
     fdlInclFilenameField.right = new FormAttachment(middle, -margin);
     wlInclFilenameField.setLayoutData(fdlInclFilenameField);
     wInclFilenameField = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclFilenameField);
+    PropsUi.setLook(wInclFilenameField);
     wInclFilenameField.addModifyListener(lsMod);
     FormData fdInclFilenameField = new FormData();
     fdInclFilenameField.left = new FormAttachment(middle, 0);
@@ -2152,14 +2178,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     Label wlInclSheetnameField = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlInclSheetnameField.setText(
         BaseMessages.getString(PKG, "ExcelInputDialog.InclSheetnameField.Label"));
-    props.setLook(wlInclSheetnameField);
+    PropsUi.setLook(wlInclSheetnameField);
     FormData fdlInclSheetnameField = new FormData();
     fdlInclSheetnameField.left = new FormAttachment(0, 0);
     fdlInclSheetnameField.top = new FormAttachment(wInclFilenameField, margin);
     fdlInclSheetnameField.right = new FormAttachment(middle, -margin);
     wlInclSheetnameField.setLayoutData(fdlInclSheetnameField);
     wInclSheetnameField = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclSheetnameField);
+    PropsUi.setLook(wInclSheetnameField);
     wInclSheetnameField.addModifyListener(lsMod);
     FormData fdInclSheetnameField = new FormData();
     fdInclSheetnameField.left = new FormAttachment(middle, 0);
@@ -2170,14 +2196,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     Label wlInclSheetRownumField = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlInclSheetRownumField.setText(
         BaseMessages.getString(PKG, "ExcelInputDialog.InclSheetRownumField.Label"));
-    props.setLook(wlInclSheetRownumField);
+    PropsUi.setLook(wlInclSheetRownumField);
     FormData fdlInclSheetRownumField = new FormData();
     fdlInclSheetRownumField.left = new FormAttachment(0, 0);
     fdlInclSheetRownumField.top = new FormAttachment(wInclSheetnameField, margin);
     fdlInclSheetRownumField.right = new FormAttachment(middle, -margin);
     wlInclSheetRownumField.setLayoutData(fdlInclSheetRownumField);
     wInclSheetRownumField = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclSheetRownumField);
+    PropsUi.setLook(wInclSheetRownumField);
     wInclSheetRownumField.addModifyListener(lsMod);
     FormData fdInclSheetRownumField = new FormData();
     fdInclSheetRownumField.left = new FormAttachment(middle, 0);
@@ -2188,14 +2214,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     Label wlInclRownumField = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlInclRownumField.setText(
         BaseMessages.getString(PKG, "ExcelInputDialog.InclRownumField.Label"));
-    props.setLook(wlInclRownumField);
+    PropsUi.setLook(wlInclRownumField);
     FormData fdlInclRownumField = new FormData();
     fdlInclRownumField.left = new FormAttachment(0, 0);
     fdlInclRownumField.top = new FormAttachment(wInclSheetRownumField, margin);
     fdlInclRownumField.right = new FormAttachment(middle, -margin);
     wlInclRownumField.setLayoutData(fdlInclRownumField);
     wInclRownumField = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclRownumField);
+    PropsUi.setLook(wInclRownumField);
     wInclRownumField.addModifyListener(lsMod);
     FormData fdInclRownumField = new FormData();
     fdInclRownumField.left = new FormAttachment(middle, 0);
@@ -2207,7 +2233,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     Label wlShortFileFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlShortFileFieldName.setText(
         BaseMessages.getString(PKG, "ExcelInputDialog.ShortFileFieldName.Label"));
-    props.setLook(wlShortFileFieldName);
+    PropsUi.setLook(wlShortFileFieldName);
     FormData fdlShortFileFieldName = new FormData();
     fdlShortFileFieldName.left = new FormAttachment(0, 0);
     fdlShortFileFieldName.top = new FormAttachment(wInclRownumField, margin);
@@ -2215,7 +2241,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlShortFileFieldName.setLayoutData(fdlShortFileFieldName);
 
     wShortFileFieldName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wShortFileFieldName);
+    PropsUi.setLook(wShortFileFieldName);
     wShortFileFieldName.addModifyListener(lsMod);
     FormData fdShortFileFieldName = new FormData();
     fdShortFileFieldName.left = new FormAttachment(middle, 0);
@@ -2227,7 +2253,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     Label wlExtensionFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlExtensionFieldName.setText(
         BaseMessages.getString(PKG, "ExcelInputDialog.ExtensionFieldName.Label"));
-    props.setLook(wlExtensionFieldName);
+    PropsUi.setLook(wlExtensionFieldName);
     FormData fdlExtensionFieldName = new FormData();
     fdlExtensionFieldName.left = new FormAttachment(0, 0);
     fdlExtensionFieldName.top = new FormAttachment(wShortFileFieldName, margin);
@@ -2235,7 +2261,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlExtensionFieldName.setLayoutData(fdlExtensionFieldName);
 
     wExtensionFieldName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wExtensionFieldName);
+    PropsUi.setLook(wExtensionFieldName);
     wExtensionFieldName.addModifyListener(lsMod);
     FormData fdExtensionFieldName = new FormData();
     fdExtensionFieldName.left = new FormAttachment(middle, 0);
@@ -2246,7 +2272,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // PathFieldName line
     Label wlPathFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlPathFieldName.setText(BaseMessages.getString(PKG, "ExcelInputDialog.PathFieldName.Label"));
-    props.setLook(wlPathFieldName);
+    PropsUi.setLook(wlPathFieldName);
     FormData fdlPathFieldName = new FormData();
     fdlPathFieldName.left = new FormAttachment(0, 0);
     fdlPathFieldName.top = new FormAttachment(wExtensionFieldName, margin);
@@ -2254,7 +2280,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlPathFieldName.setLayoutData(fdlPathFieldName);
 
     wPathFieldName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPathFieldName);
+    PropsUi.setLook(wPathFieldName);
     wPathFieldName.addModifyListener(lsMod);
     FormData fdPathFieldName = new FormData();
     fdPathFieldName.left = new FormAttachment(middle, 0);
@@ -2265,7 +2291,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // SizeFieldName line
     Label wlSizeFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlSizeFieldName.setText(BaseMessages.getString(PKG, "ExcelInputDialog.SizeFieldName.Label"));
-    props.setLook(wlSizeFieldName);
+    PropsUi.setLook(wlSizeFieldName);
     FormData fdlSizeFieldName = new FormData();
     fdlSizeFieldName.left = new FormAttachment(0, 0);
     fdlSizeFieldName.top = new FormAttachment(wPathFieldName, margin);
@@ -2273,7 +2299,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlSizeFieldName.setLayoutData(fdlSizeFieldName);
 
     wSizeFieldName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSizeFieldName);
+    PropsUi.setLook(wSizeFieldName);
     wSizeFieldName.addModifyListener(lsMod);
     FormData fdSizeFieldName = new FormData();
     fdSizeFieldName.left = new FormAttachment(middle, 0);
@@ -2284,7 +2310,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // IsHiddenName line
     Label wlIsHiddenName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlIsHiddenName.setText(BaseMessages.getString(PKG, "ExcelInputDialog.IsHiddenName.Label"));
-    props.setLook(wlIsHiddenName);
+    PropsUi.setLook(wlIsHiddenName);
     FormData fdlIsHiddenName = new FormData();
     fdlIsHiddenName.left = new FormAttachment(0, 0);
     fdlIsHiddenName.top = new FormAttachment(wSizeFieldName, margin);
@@ -2292,7 +2318,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlIsHiddenName.setLayoutData(fdlIsHiddenName);
 
     wIsHiddenName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wIsHiddenName);
+    PropsUi.setLook(wIsHiddenName);
     wIsHiddenName.addModifyListener(lsMod);
     FormData fdIsHiddenName = new FormData();
     fdIsHiddenName.left = new FormAttachment(middle, 0);
@@ -2304,7 +2330,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     Label wlLastModificationTimeName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlLastModificationTimeName.setText(
         BaseMessages.getString(PKG, "ExcelInputDialog.LastModificationTimeName.Label"));
-    props.setLook(wlLastModificationTimeName);
+    PropsUi.setLook(wlLastModificationTimeName);
     FormData fdlLastModificationTimeName = new FormData();
     fdlLastModificationTimeName.left = new FormAttachment(0, 0);
     fdlLastModificationTimeName.top = new FormAttachment(wIsHiddenName, margin);
@@ -2312,7 +2338,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlLastModificationTimeName.setLayoutData(fdlLastModificationTimeName);
 
     wLastModificationTimeName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLastModificationTimeName);
+    PropsUi.setLook(wLastModificationTimeName);
     wLastModificationTimeName.addModifyListener(lsMod);
     FormData fdLastModificationTimeName = new FormData();
     fdLastModificationTimeName.left = new FormAttachment(middle, 0);
@@ -2323,7 +2349,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // UriName line
     Label wlUriName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlUriName.setText(BaseMessages.getString(PKG, "ExcelInputDialog.UriName.Label"));
-    props.setLook(wlUriName);
+    PropsUi.setLook(wlUriName);
     FormData fdlUriName = new FormData();
     fdlUriName.left = new FormAttachment(0, 0);
     fdlUriName.top = new FormAttachment(wLastModificationTimeName, margin);
@@ -2331,7 +2357,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlUriName.setLayoutData(fdlUriName);
 
     wUriName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUriName);
+    PropsUi.setLook(wUriName);
     wUriName.addModifyListener(lsMod);
     FormData fdUriName = new FormData();
     fdUriName.left = new FormAttachment(middle, 0);
@@ -2342,7 +2368,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // RootUriName line
     Label wlRootUriName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlRootUriName.setText(BaseMessages.getString(PKG, "ExcelInputDialog.RootUriName.Label"));
-    props.setLook(wlRootUriName);
+    PropsUi.setLook(wlRootUriName);
     FormData fdlRootUriName = new FormData();
     fdlRootUriName.left = new FormAttachment(0, 0);
     fdlRootUriName.top = new FormAttachment(wUriName, margin);
@@ -2350,7 +2376,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlRootUriName.setLayoutData(fdlRootUriName);
 
     wRootUriName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRootUriName);
+    PropsUi.setLook(wRootUriName);
     wRootUriName.addModifyListener(lsMod);
     FormData fdRootUriName = new FormData();
     fdRootUriName.left = new FormAttachment(middle, 0);

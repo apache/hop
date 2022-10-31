@@ -30,7 +30,12 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -40,7 +45,11 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 // TODO correct sizing of window
 
@@ -125,35 +134,35 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, inputMeta);
 
     ModifyListener lsMod = e -> inputMeta.setChanged();
     changed = inputMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Shell.Text"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Transform name line
     //
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -186,7 +195,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
       //
       Label wlFilename = new Label(shell, SWT.RIGHT);
       wlFilename.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Filename.Label"));
-      props.setLook(wlFilename);
+      PropsUi.setLook(wlFilename);
       FormData fdlFilename = new FormData();
       fdlFilename.top = new FormAttachment(lastControl, margin);
       fdlFilename.left = new FormAttachment(0, 0);
@@ -194,7 +203,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
       wlFilename.setLayoutData(fdlFilename);
       wFilenameCombo = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
       wFilenameCombo.setItems(previousFields.getFieldNames());
-      props.setLook(wFilenameCombo);
+      PropsUi.setLook(wFilenameCombo);
       wFilenameCombo.addModifyListener(lsMod);
       FormData fdFilename = new FormData();
       fdFilename.top = new FormAttachment(lastControl, margin);
@@ -208,7 +217,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
       // The filename browse button
       //
       wbbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-      props.setLook(wbbFilename);
+      PropsUi.setLook(wbbFilename);
       wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
       wbbFilename.setToolTipText(
           BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -221,14 +230,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
       //
       Label wlFilename = new Label(shell, SWT.RIGHT);
       wlFilename.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Filename.Label"));
-      props.setLook(wlFilename);
+      PropsUi.setLook(wlFilename);
       FormData fdlFilename = new FormData();
       fdlFilename.top = new FormAttachment(lastControl, margin);
       fdlFilename.left = new FormAttachment(0, 0);
       fdlFilename.right = new FormAttachment(middle, -margin);
       wlFilename.setLayoutData(fdlFilename);
       wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wFilename);
+      PropsUi.setLook(wFilename);
       wFilename.addModifyListener(lsMod);
       FormData fdFilename = new FormData();
       fdFilename.top = new FormAttachment(lastControl, margin);
@@ -241,14 +250,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label lblAcceptingFilenames = new Label(shell, SWT.RIGHT);
     lblAcceptingFilenames.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.SourceStreamField.Label"));
-    props.setLook(lblAcceptingFilenames);
+    PropsUi.setLook(lblAcceptingFilenames);
     FormData fdlAcceptingFilenames = new FormData();
     fdlAcceptingFilenames.left = new FormAttachment(0, 0);
     fdlAcceptingFilenames.top = new FormAttachment(lastControl, margin);
     fdlAcceptingFilenames.right = new FormAttachment(middle, -margin);
     lblAcceptingFilenames.setLayoutData(fdlAcceptingFilenames);
     cbFromSource = new Button(shell, SWT.CHECK);
-    props.setLook(cbFromSource);
+    PropsUi.setLook(cbFromSource);
     fdlAcceptingFilenames = new FormData();
     fdlAcceptingFilenames.left = new FormAttachment(middle, 0);
     fdlAcceptingFilenames.top = new FormAttachment(lblAcceptingFilenames, 0, SWT.CENTER);
@@ -259,14 +268,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label lblAcceptingField = new Label(shell, SWT.RIGHT);
     lblAcceptingField.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.SourceField.Label"));
-    props.setLook(lblAcceptingField);
+    PropsUi.setLook(lblAcceptingField);
     FormData fdlAcceptingField = new FormData();
     fdlAcceptingField.left = new FormAttachment(0, 0);
     fdlAcceptingField.top = new FormAttachment(lastControl, 2 * margin);
     fdlAcceptingField.right = new FormAttachment(middle, -margin);
     lblAcceptingField.setLayoutData(fdlAcceptingField);
     cbSourceField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(cbSourceField);
+    PropsUi.setLook(cbSourceField);
     cbSourceField.addModifyListener(lsMod);
     fdlAcceptingField = new FormData();
     fdlAcceptingField.left = new FormAttachment(middle, 0);
@@ -280,14 +289,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     //
     Label wlAddResult = new Label(shell, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.AddResult.Label"));
-    props.setLook(wlAddResult);
+    PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
     fdlAddResult.top = new FormAttachment(lastControl, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(shell, SWT.CHECK);
-    props.setLook(wAddResult);
+    PropsUi.setLook(wAddResult);
     wAddResult.setToolTipText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.AddResult.Tooltip"));
     FormData fdAddResult = new FormData();
@@ -300,14 +309,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     //
     Label wlRowsToSkip = new Label(shell, SWT.RIGHT);
     wlRowsToSkip.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.RowsToSkip.Label"));
-    props.setLook(wlRowsToSkip);
+    PropsUi.setLook(wlRowsToSkip);
     FormData fdlRowsToSkip = new FormData();
     fdlRowsToSkip.left = new FormAttachment(0, 0);
     fdlRowsToSkip.top = new FormAttachment(lastControl, 2 * margin);
     fdlRowsToSkip.right = new FormAttachment(middle, -margin);
     wlRowsToSkip.setLayoutData(fdlRowsToSkip);
     wRowsToSkip = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRowsToSkip);
+    PropsUi.setLook(wRowsToSkip);
     wRowsToSkip.addModifyListener(lsMod);
     FormData fdRowsToSkip = new FormData();
     fdRowsToSkip.left = new FormAttachment(middle, 0);
@@ -320,14 +329,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     //
     Label wlLimit = new Label(shell, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Limit.Label"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.top = new FormAttachment(lastControl, margin);
     fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
@@ -341,14 +350,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlDefaultStringLen = new Label(shell, SWT.RIGHT);
     wlDefaultStringLen.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.DefaultStringLen.Label"));
-    props.setLook(wlDefaultStringLen);
+    PropsUi.setLook(wlDefaultStringLen);
     FormData fdlDefaultStringLen = new FormData();
     fdlDefaultStringLen.left = new FormAttachment(0, 0);
     fdlDefaultStringLen.top = new FormAttachment(lastControl, margin);
     fdlDefaultStringLen.right = new FormAttachment(middle, -margin);
     wlDefaultStringLen.setLayoutData(fdlDefaultStringLen);
     wDefaultStringLen = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDefaultStringLen);
+    PropsUi.setLook(wDefaultStringLen);
     wDefaultStringLen.addModifyListener(lsMod);
     FormData fdDefaultStringLen = new FormData();
     fdDefaultStringLen.left = new FormAttachment(middle, 0);
@@ -361,14 +370,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     //
     Label wlEncoding = new Label(shell, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Encoding.Label"));
-    props.setLook(wlEncoding);
+    PropsUi.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment(0, 0);
     fdlEncoding.top = new FormAttachment(lastControl, margin);
     fdlEncoding.right = new FormAttachment(middle, -margin);
     wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wEncoding);
+    PropsUi.setLook(wEncoding);
     wEncoding.addModifyListener(lsMod);
     FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment(middle, 0);
@@ -382,14 +391,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlEnableNamespaces = new Label(shell, SWT.RIGHT);
     wlEnableNamespaces.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.EnableNamespaces.Label"));
-    props.setLook(wlEnableNamespaces);
+    PropsUi.setLook(wlEnableNamespaces);
     FormData fdlEnableNamespaces = new FormData();
     fdlEnableNamespaces.left = new FormAttachment(0, 0);
     fdlEnableNamespaces.top = new FormAttachment(lastControl, margin);
     fdlEnableNamespaces.right = new FormAttachment(middle, -margin);
     wlEnableNamespaces.setLayoutData(fdlEnableNamespaces);
     wEnableNamespaces = new Button(shell, SWT.CHECK);
-    props.setLook(wEnableNamespaces);
+    PropsUi.setLook(wEnableNamespaces);
     wEnableNamespaces.setToolTipText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.EnableNamespaces.Tooltip"));
     FormData fdEnableNamespaces = new FormData();
@@ -402,14 +411,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     //
     Label wlEnableTrim = new Label(shell, SWT.RIGHT);
     wlEnableTrim.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.EnableTrim.Label"));
-    props.setLook(wlEnableTrim);
+    PropsUi.setLook(wlEnableTrim);
     FormData fdlEnableTrim = new FormData();
     fdlEnableTrim.left = new FormAttachment(0, 0);
     fdlEnableTrim.top = new FormAttachment(lastControl, 2 * margin);
     fdlEnableTrim.right = new FormAttachment(middle, -margin);
     wlEnableTrim.setLayoutData(fdlEnableTrim);
     wEnableTrim = new Button(shell, SWT.CHECK);
-    props.setLook(wEnableTrim);
+    PropsUi.setLook(wEnableTrim);
     wEnableTrim.setToolTipText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.EnableTrim.Tooltip"));
     FormData fdEnableTrim = new FormData();
@@ -423,14 +432,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeFilename = new Label(shell, SWT.RIGHT);
     wlIncludeFilename.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeFilename.Label"));
-    props.setLook(wlIncludeFilename);
+    PropsUi.setLook(wlIncludeFilename);
     FormData fdlIncludeFilename = new FormData();
     fdlIncludeFilename.top = new FormAttachment(lastControl, margin);
     fdlIncludeFilename.left = new FormAttachment(0, 0);
     fdlIncludeFilename.right = new FormAttachment(middle, -margin);
     wlIncludeFilename.setLayoutData(fdlIncludeFilename);
     wIncludeFilename = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeFilename);
+    PropsUi.setLook(wIncludeFilename);
     FormData fdIncludeFilename = new FormData();
     fdIncludeFilename.top = new FormAttachment(wlIncludeFilename, 0, SWT.CENTER);
     fdIncludeFilename.left = new FormAttachment(middle, 0);
@@ -440,13 +449,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     //
     Label wlFilenameField = new Label(shell, SWT.RIGHT);
     wlFilenameField.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlFilenameField);
+    PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.top = new FormAttachment(lastControl, margin);
     fdlFilenameField.left = new FormAttachment(wIncludeFilename, margin);
     wlFilenameField.setLayoutData(fdlFilenameField);
     wFilenameField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilenameField);
+    PropsUi.setLook(wFilenameField);
     wFilenameField.addModifyListener(lsMod);
     FormData fdFilenameField = new FormData();
     fdFilenameField.top = new FormAttachment(lastControl, margin);
@@ -460,14 +469,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeRowNumber = new Label(shell, SWT.RIGHT);
     wlIncludeRowNumber.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeRowNumber.Label"));
-    props.setLook(wlIncludeRowNumber);
+    PropsUi.setLook(wlIncludeRowNumber);
     FormData fdlIncludeRowNumber = new FormData();
     fdlIncludeRowNumber.top = new FormAttachment(lastControl, margin);
     fdlIncludeRowNumber.left = new FormAttachment(0, 0);
     fdlIncludeRowNumber.right = new FormAttachment(middle, -margin);
     wlIncludeRowNumber.setLayoutData(fdlIncludeRowNumber);
     wIncludeRowNumber = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeRowNumber);
+    PropsUi.setLook(wIncludeRowNumber);
     FormData fdIncludeRowNumber = new FormData();
     fdIncludeRowNumber.top = new FormAttachment(wlIncludeRowNumber, 0, SWT.CENTER);
     fdIncludeRowNumber.left = new FormAttachment(middle, 0);
@@ -477,13 +486,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     //
     Label wlRowNumberField = new Label(shell, SWT.RIGHT);
     wlRowNumberField.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlRowNumberField);
+    PropsUi.setLook(wlRowNumberField);
     FormData fdlRowNumberField = new FormData();
     fdlRowNumberField.top = new FormAttachment(lastControl, margin);
     fdlRowNumberField.left = new FormAttachment(wIncludeRowNumber, margin);
     wlRowNumberField.setLayoutData(fdlRowNumberField);
     wRowNumberField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRowNumberField);
+    PropsUi.setLook(wRowNumberField);
     wRowNumberField.addModifyListener(lsMod);
     FormData fdRowNumberField = new FormData();
     fdRowNumberField.top = new FormAttachment(lastControl, margin);
@@ -497,14 +506,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeXmlDataTypeNumeric = new Label(shell, SWT.RIGHT);
     wlIncludeXmlDataTypeNumeric.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeXmlDataTypeNumeric.Label"));
-    props.setLook(wlIncludeXmlDataTypeNumeric);
+    PropsUi.setLook(wlIncludeXmlDataTypeNumeric);
     FormData fdlIncludeXmlDataTypeNumeric = new FormData();
     fdlIncludeXmlDataTypeNumeric.top = new FormAttachment(lastControl, margin);
     fdlIncludeXmlDataTypeNumeric.left = new FormAttachment(0, 0);
     fdlIncludeXmlDataTypeNumeric.right = new FormAttachment(middle, -margin);
     wlIncludeXmlDataTypeNumeric.setLayoutData(fdlIncludeXmlDataTypeNumeric);
     wIncludeXmlDataTypeNumeric = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeXmlDataTypeNumeric);
+    PropsUi.setLook(wIncludeXmlDataTypeNumeric);
     FormData fdIncludeXmlDataTypeNumeric = new FormData();
     fdIncludeXmlDataTypeNumeric.top =
         new FormAttachment(wlIncludeXmlDataTypeNumeric, 0, SWT.CENTER);
@@ -516,13 +525,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlXmlDataTypeNumericField = new Label(shell, SWT.RIGHT);
     wlXmlDataTypeNumericField.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlXmlDataTypeNumericField);
+    PropsUi.setLook(wlXmlDataTypeNumericField);
     FormData fdlXmlDataTypeNumericField = new FormData();
     fdlXmlDataTypeNumericField.top = new FormAttachment(lastControl, margin);
     fdlXmlDataTypeNumericField.left = new FormAttachment(wIncludeXmlDataTypeNumeric, margin);
     wlXmlDataTypeNumericField.setLayoutData(fdlXmlDataTypeNumericField);
     wXmlDataTypeNumericField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXmlDataTypeNumericField);
+    PropsUi.setLook(wXmlDataTypeNumericField);
     wXmlDataTypeNumericField.addModifyListener(lsMod);
     FormData fdXmlDataTypeNumericField = new FormData();
     fdXmlDataTypeNumericField.top = new FormAttachment(lastControl, margin);
@@ -536,14 +545,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeXmlDataTypeDescription = new Label(shell, SWT.RIGHT);
     wlIncludeXmlDataTypeDescription.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeXmlDataTypeDescription.Label"));
-    props.setLook(wlIncludeXmlDataTypeDescription);
+    PropsUi.setLook(wlIncludeXmlDataTypeDescription);
     FormData fdlIncludeXmlDataTypeDescription = new FormData();
     fdlIncludeXmlDataTypeDescription.top = new FormAttachment(lastControl, margin);
     fdlIncludeXmlDataTypeDescription.left = new FormAttachment(0, 0);
     fdlIncludeXmlDataTypeDescription.right = new FormAttachment(middle, -margin);
     wlIncludeXmlDataTypeDescription.setLayoutData(fdlIncludeXmlDataTypeDescription);
     wIncludeXmlDataTypeDescription = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeXmlDataTypeDescription);
+    PropsUi.setLook(wIncludeXmlDataTypeDescription);
     FormData fdIncludeXmlDataTypeDescription = new FormData();
     fdIncludeXmlDataTypeDescription.top =
         new FormAttachment(wlIncludeXmlDataTypeDescription, 0, SWT.CENTER);
@@ -555,14 +564,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlXmlDataTypeDescriptionField = new Label(shell, SWT.RIGHT);
     wlXmlDataTypeDescriptionField.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlXmlDataTypeDescriptionField);
+    PropsUi.setLook(wlXmlDataTypeDescriptionField);
     FormData fdlXmlDataTypeDescriptionField = new FormData();
     fdlXmlDataTypeDescriptionField.top = new FormAttachment(lastControl, margin);
     fdlXmlDataTypeDescriptionField.left =
         new FormAttachment(wIncludeXmlDataTypeDescription, margin);
     wlXmlDataTypeDescriptionField.setLayoutData(fdlXmlDataTypeDescriptionField);
     wXmlDataTypeDescriptionField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXmlDataTypeDescriptionField);
+    PropsUi.setLook(wXmlDataTypeDescriptionField);
     wXmlDataTypeDescriptionField.addModifyListener(lsMod);
     FormData fdXmlDataTypeDescriptionField = new FormData();
     fdXmlDataTypeDescriptionField.top = new FormAttachment(lastControl, margin);
@@ -576,14 +585,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeXmlLocationLine = new Label(shell, SWT.RIGHT);
     wlIncludeXmlLocationLine.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeXmlLocationLine.Label"));
-    props.setLook(wlIncludeXmlLocationLine);
+    PropsUi.setLook(wlIncludeXmlLocationLine);
     FormData fdlIncludeXmlLocationLine = new FormData();
     fdlIncludeXmlLocationLine.top = new FormAttachment(lastControl, margin);
     fdlIncludeXmlLocationLine.left = new FormAttachment(0, 0);
     fdlIncludeXmlLocationLine.right = new FormAttachment(middle, -margin);
     wlIncludeXmlLocationLine.setLayoutData(fdlIncludeXmlLocationLine);
     wIncludeXmlLocationLine = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeXmlLocationLine);
+    PropsUi.setLook(wIncludeXmlLocationLine);
     FormData fdIncludeXmlLocationLine = new FormData();
     fdIncludeXmlLocationLine.top = new FormAttachment(wlIncludeXmlLocationLine, 0, SWT.CENTER);
     fdIncludeXmlLocationLine.left = new FormAttachment(middle, 0);
@@ -594,13 +603,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlXmlLocationLineField = new Label(shell, SWT.RIGHT);
     wlXmlLocationLineField.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlXmlLocationLineField);
+    PropsUi.setLook(wlXmlLocationLineField);
     FormData fdlXmlLocationLineField = new FormData();
     fdlXmlLocationLineField.top = new FormAttachment(lastControl, margin);
     fdlXmlLocationLineField.left = new FormAttachment(wIncludeXmlLocationLine, margin);
     wlXmlLocationLineField.setLayoutData(fdlXmlLocationLineField);
     wXmlLocationLineField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXmlLocationLineField);
+    PropsUi.setLook(wXmlLocationLineField);
     wXmlLocationLineField.addModifyListener(lsMod);
     FormData fdXmlLocationLineField = new FormData();
     fdXmlLocationLineField.top = new FormAttachment(lastControl, margin);
@@ -614,14 +623,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeXmlLocationColumn = new Label(shell, SWT.RIGHT);
     wlIncludeXmlLocationColumn.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeXmlLocationColumn.Label"));
-    props.setLook(wlIncludeXmlLocationColumn);
+    PropsUi.setLook(wlIncludeXmlLocationColumn);
     FormData fdlIncludeXmlLocationColumn = new FormData();
     fdlIncludeXmlLocationColumn.top = new FormAttachment(lastControl, margin);
     fdlIncludeXmlLocationColumn.left = new FormAttachment(0, 0);
     fdlIncludeXmlLocationColumn.right = new FormAttachment(middle, -margin);
     wlIncludeXmlLocationColumn.setLayoutData(fdlIncludeXmlLocationColumn);
     wIncludeXmlLocationColumn = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeXmlLocationColumn);
+    PropsUi.setLook(wIncludeXmlLocationColumn);
     FormData fdIncludeXmlLocationColumn = new FormData();
     fdIncludeXmlLocationColumn.top = new FormAttachment(wlIncludeXmlLocationColumn, 0, SWT.CENTER);
     fdIncludeXmlLocationColumn.left = new FormAttachment(middle, 0);
@@ -632,13 +641,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlXmlLocationColumnField = new Label(shell, SWT.RIGHT);
     wlXmlLocationColumnField.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlXmlLocationColumnField);
+    PropsUi.setLook(wlXmlLocationColumnField);
     FormData fdlXmlLocationColumnField = new FormData();
     fdlXmlLocationColumnField.top = new FormAttachment(lastControl, margin);
     fdlXmlLocationColumnField.left = new FormAttachment(wIncludeXmlLocationColumn, margin);
     wlXmlLocationColumnField.setLayoutData(fdlXmlLocationColumnField);
     wXmlLocationColumnField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXmlLocationColumnField);
+    PropsUi.setLook(wXmlLocationColumnField);
     wXmlLocationColumnField.addModifyListener(lsMod);
     FormData fdXmlLocationColumnField = new FormData();
     fdXmlLocationColumnField.top = new FormAttachment(lastControl, margin);
@@ -652,14 +661,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeXmlElementID = new Label(shell, SWT.RIGHT);
     wlIncludeXmlElementID.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeXmlElementID.Label"));
-    props.setLook(wlIncludeXmlElementID);
+    PropsUi.setLook(wlIncludeXmlElementID);
     FormData fdlIncludeXmlElementID = new FormData();
     fdlIncludeXmlElementID.top = new FormAttachment(lastControl, margin);
     fdlIncludeXmlElementID.left = new FormAttachment(0, 0);
     fdlIncludeXmlElementID.right = new FormAttachment(middle, -margin);
     wlIncludeXmlElementID.setLayoutData(fdlIncludeXmlElementID);
     wIncludeXmlElementID = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeXmlElementID);
+    PropsUi.setLook(wIncludeXmlElementID);
     FormData fdIncludeXmlElementID = new FormData();
     fdIncludeXmlElementID.top = new FormAttachment(wlIncludeXmlElementID, 0, SWT.CENTER);
     fdIncludeXmlElementID.left = new FormAttachment(middle, 0);
@@ -670,13 +679,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlXmlElementIDField = new Label(shell, SWT.RIGHT);
     wlXmlElementIDField.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlXmlElementIDField);
+    PropsUi.setLook(wlXmlElementIDField);
     FormData fdlXmlElementIDField = new FormData();
     fdlXmlElementIDField.top = new FormAttachment(lastControl, margin);
     fdlXmlElementIDField.left = new FormAttachment(wIncludeXmlElementID, margin);
     wlXmlElementIDField.setLayoutData(fdlXmlElementIDField);
     wXmlElementIDField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXmlElementIDField);
+    PropsUi.setLook(wXmlElementIDField);
     wXmlElementIDField.addModifyListener(lsMod);
     FormData fdXmlElementIDField = new FormData();
     fdXmlElementIDField.top = new FormAttachment(lastControl, margin);
@@ -690,14 +699,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeXmlParentElementID = new Label(shell, SWT.RIGHT);
     wlIncludeXmlParentElementID.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeXmlParentElementID.Label"));
-    props.setLook(wlIncludeXmlParentElementID);
+    PropsUi.setLook(wlIncludeXmlParentElementID);
     FormData fdlIncludeXmlParentElementID = new FormData();
     fdlIncludeXmlParentElementID.top = new FormAttachment(lastControl, margin);
     fdlIncludeXmlParentElementID.left = new FormAttachment(0, 0);
     fdlIncludeXmlParentElementID.right = new FormAttachment(middle, -margin);
     wlIncludeXmlParentElementID.setLayoutData(fdlIncludeXmlParentElementID);
     wIncludeXmlParentElementID = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeXmlParentElementID);
+    PropsUi.setLook(wIncludeXmlParentElementID);
     FormData fdIncludeXmlParentElementID = new FormData();
     fdIncludeXmlParentElementID.top =
         new FormAttachment(wlIncludeXmlParentElementID, 0, SWT.CENTER);
@@ -709,13 +718,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlXmlParentElementIDField = new Label(shell, SWT.RIGHT);
     wlXmlParentElementIDField.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlXmlParentElementIDField);
+    PropsUi.setLook(wlXmlParentElementIDField);
     FormData fdlXmlParentElementIDField = new FormData();
     fdlXmlParentElementIDField.top = new FormAttachment(lastControl, margin);
     fdlXmlParentElementIDField.left = new FormAttachment(wIncludeXmlParentElementID, margin);
     wlXmlParentElementIDField.setLayoutData(fdlXmlParentElementIDField);
     wXmlParentElementIDField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXmlParentElementIDField);
+    PropsUi.setLook(wXmlParentElementIDField);
     wXmlParentElementIDField.addModifyListener(lsMod);
     FormData fdXmlParentElementIDField = new FormData();
     fdXmlParentElementIDField.top = new FormAttachment(lastControl, margin);
@@ -729,14 +738,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeXmlElementLevel = new Label(shell, SWT.RIGHT);
     wlIncludeXmlElementLevel.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeXmlElementLevel.Label"));
-    props.setLook(wlIncludeXmlElementLevel);
+    PropsUi.setLook(wlIncludeXmlElementLevel);
     FormData fdlIncludeXmlElementLevel = new FormData();
     fdlIncludeXmlElementLevel.top = new FormAttachment(lastControl, margin);
     fdlIncludeXmlElementLevel.left = new FormAttachment(0, 0);
     fdlIncludeXmlElementLevel.right = new FormAttachment(middle, -margin);
     wlIncludeXmlElementLevel.setLayoutData(fdlIncludeXmlElementLevel);
     wIncludeXmlElementLevel = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeXmlElementLevel);
+    PropsUi.setLook(wIncludeXmlElementLevel);
     FormData fdIncludeXmlElementLevel = new FormData();
     fdIncludeXmlElementLevel.top = new FormAttachment(wlIncludeXmlElementLevel, 0, SWT.CENTER);
     fdIncludeXmlElementLevel.left = new FormAttachment(middle, 0);
@@ -747,13 +756,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlXmlElementLevelField = new Label(shell, SWT.RIGHT);
     wlXmlElementLevelField.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlXmlElementLevelField);
+    PropsUi.setLook(wlXmlElementLevelField);
     FormData fdlXmlElementLevelField = new FormData();
     fdlXmlElementLevelField.top = new FormAttachment(lastControl, margin);
     fdlXmlElementLevelField.left = new FormAttachment(wIncludeXmlElementLevel, margin);
     wlXmlElementLevelField.setLayoutData(fdlXmlElementLevelField);
     wXmlElementLevelField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXmlElementLevelField);
+    PropsUi.setLook(wXmlElementLevelField);
     wXmlElementLevelField.addModifyListener(lsMod);
     FormData fdXmlElementLevelField = new FormData();
     fdXmlElementLevelField.top = new FormAttachment(lastControl, margin);
@@ -767,14 +776,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeXmlPath = new Label(shell, SWT.RIGHT);
     wlIncludeXmlPath.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeXmlPath.Label"));
-    props.setLook(wlIncludeXmlPath);
+    PropsUi.setLook(wlIncludeXmlPath);
     FormData fdlIncludeXmlPath = new FormData();
     fdlIncludeXmlPath.top = new FormAttachment(lastControl, margin);
     fdlIncludeXmlPath.left = new FormAttachment(0, 0);
     fdlIncludeXmlPath.right = new FormAttachment(middle, -margin);
     wlIncludeXmlPath.setLayoutData(fdlIncludeXmlPath);
     wIncludeXmlPath = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeXmlPath);
+    PropsUi.setLook(wIncludeXmlPath);
     FormData fdIncludeXmlPath = new FormData();
     fdIncludeXmlPath.top = new FormAttachment(wlIncludeXmlPath, 0, SWT.CENTER);
     fdIncludeXmlPath.left = new FormAttachment(middle, 0);
@@ -784,13 +793,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     //
     Label wlXmlPathField = new Label(shell, SWT.RIGHT);
     wlXmlPathField.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlXmlPathField);
+    PropsUi.setLook(wlXmlPathField);
     FormData fdlXmlPathField = new FormData();
     fdlXmlPathField.top = new FormAttachment(lastControl, margin);
     fdlXmlPathField.left = new FormAttachment(wIncludeXmlPath, margin);
     wlXmlPathField.setLayoutData(fdlXmlPathField);
     wXmlPathField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXmlPathField);
+    PropsUi.setLook(wXmlPathField);
     wXmlPathField.addModifyListener(lsMod);
     FormData fdXmlPathField = new FormData();
     fdXmlPathField.top = new FormAttachment(lastControl, margin);
@@ -804,14 +813,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeXmlParentPath = new Label(shell, SWT.RIGHT);
     wlIncludeXmlParentPath.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeXmlParentPath.Label"));
-    props.setLook(wlIncludeXmlParentPath);
+    PropsUi.setLook(wlIncludeXmlParentPath);
     FormData fdlIncludeXmlParentPath = new FormData();
     fdlIncludeXmlParentPath.top = new FormAttachment(lastControl, margin);
     fdlIncludeXmlParentPath.left = new FormAttachment(0, 0);
     fdlIncludeXmlParentPath.right = new FormAttachment(middle, -margin);
     wlIncludeXmlParentPath.setLayoutData(fdlIncludeXmlParentPath);
     wIncludeXmlParentPath = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeXmlParentPath);
+    PropsUi.setLook(wIncludeXmlParentPath);
     FormData fdIncludeXmlParentPath = new FormData();
     fdIncludeXmlParentPath.top = new FormAttachment(wlIncludeXmlParentPath, 0, SWT.CENTER);
     fdIncludeXmlParentPath.left = new FormAttachment(middle, 0);
@@ -822,13 +831,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlXmlParentPathField = new Label(shell, SWT.RIGHT);
     wlXmlParentPathField.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlXmlParentPathField);
+    PropsUi.setLook(wlXmlParentPathField);
     FormData fdlXmlParentPathField = new FormData();
     fdlXmlParentPathField.top = new FormAttachment(lastControl, margin);
     fdlXmlParentPathField.left = new FormAttachment(wIncludeXmlParentPath, margin);
     wlXmlParentPathField.setLayoutData(fdlXmlParentPathField);
     wXmlParentPathField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXmlParentPathField);
+    PropsUi.setLook(wXmlParentPathField);
     wXmlParentPathField.addModifyListener(lsMod);
     FormData fdXmlParentPathField = new FormData();
     fdXmlParentPathField.top = new FormAttachment(lastControl, margin);
@@ -842,14 +851,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeXmlDataName = new Label(shell, SWT.RIGHT);
     wlIncludeXmlDataName.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeXmlDataName.Label"));
-    props.setLook(wlIncludeXmlDataName);
+    PropsUi.setLook(wlIncludeXmlDataName);
     FormData fdlIncludeXmlDataName = new FormData();
     fdlIncludeXmlDataName.top = new FormAttachment(lastControl, margin);
     fdlIncludeXmlDataName.left = new FormAttachment(0, 0);
     fdlIncludeXmlDataName.right = new FormAttachment(middle, -margin);
     wlIncludeXmlDataName.setLayoutData(fdlIncludeXmlDataName);
     wIncludeXmlDataName = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeXmlDataName);
+    PropsUi.setLook(wIncludeXmlDataName);
     FormData fdIncludeXmlDataName = new FormData();
     fdIncludeXmlDataName.top = new FormAttachment(wlIncludeXmlDataName, 0, SWT.CENTER);
     fdIncludeXmlDataName.left = new FormAttachment(middle, 0);
@@ -859,13 +868,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     //
     Label wlXmlDataNameField = new Label(shell, SWT.RIGHT);
     wlXmlDataNameField.setText(BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlXmlDataNameField);
+    PropsUi.setLook(wlXmlDataNameField);
     FormData fdlXmlDataNameField = new FormData();
     fdlXmlDataNameField.top = new FormAttachment(lastControl, margin);
     fdlXmlDataNameField.left = new FormAttachment(wIncludeXmlDataName, margin);
     wlXmlDataNameField.setLayoutData(fdlXmlDataNameField);
     wXmlDataNameField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXmlDataNameField);
+    PropsUi.setLook(wXmlDataNameField);
     wXmlDataNameField.addModifyListener(lsMod);
     FormData fdXmlDataNameField = new FormData();
     fdXmlDataNameField.top = new FormAttachment(lastControl, margin);
@@ -879,14 +888,14 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlIncludeXmlDataValue = new Label(shell, SWT.RIGHT);
     wlIncludeXmlDataValue.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.IncludeXmlDataValue.Label"));
-    props.setLook(wlIncludeXmlDataValue);
+    PropsUi.setLook(wlIncludeXmlDataValue);
     FormData fdlIncludeXmlDataValue = new FormData();
     fdlIncludeXmlDataValue.top = new FormAttachment(lastControl, margin);
     fdlIncludeXmlDataValue.left = new FormAttachment(0, 0);
     fdlIncludeXmlDataValue.right = new FormAttachment(middle, -margin);
     wlIncludeXmlDataValue.setLayoutData(fdlIncludeXmlDataValue);
     wIncludeXmlDataValue = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeXmlDataValue);
+    PropsUi.setLook(wIncludeXmlDataValue);
     FormData fdIncludeXmlDataValue = new FormData();
     fdIncludeXmlDataValue.top = new FormAttachment(wlIncludeXmlDataValue, 0, SWT.CENTER);
     fdIncludeXmlDataValue.left = new FormAttachment(middle, 0);
@@ -897,13 +906,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     Label wlXmlDataValueField = new Label(shell, SWT.RIGHT);
     wlXmlDataValueField.setText(
         BaseMessages.getString(PKG, "XMLInputStreamDialog.Fieldname.Label"));
-    props.setLook(wlXmlDataValueField);
+    PropsUi.setLook(wlXmlDataValueField);
     FormData fdlXmlDataValueField = new FormData();
     fdlXmlDataValueField.top = new FormAttachment(lastControl, margin);
     fdlXmlDataValueField.left = new FormAttachment(wIncludeXmlDataValue, margin);
     wlXmlDataValueField.setLayoutData(fdlXmlDataValueField);
     wXmlDataValueField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXmlDataValueField);
+    PropsUi.setLook(wXmlDataValueField);
     wXmlDataValueField.addModifyListener(lsMod);
     FormData fdXmlDataValueField = new FormData();
     fdXmlDataValueField.top = new FormAttachment(lastControl, margin);

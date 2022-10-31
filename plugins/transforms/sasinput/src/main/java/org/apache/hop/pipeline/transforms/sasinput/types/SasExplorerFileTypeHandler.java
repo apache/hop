@@ -57,7 +57,7 @@ public class SasExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     //
     //
     Text wText = new Text(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-    PropsUi.getInstance().setLook(wText, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wText, Props.WIDGET_STYLE_FIXED);
     wText.setEditable(false);
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(0, 0);

@@ -27,7 +27,13 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
@@ -40,7 +46,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG =
@@ -65,7 +75,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod =
@@ -78,14 +88,14 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "GetLoggingInfoDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Some buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);
@@ -107,7 +117,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     // Transform name line
     Label wlTransformname = new Label(shell, SWT.RIGHT);
     wlTransformname.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformname);
+    PropsUi.setLook(wlTransformname);
     FormData fdlTransformname = new FormData();
     fdlTransformname.left = new FormAttachment(0, 0);
     fdlTransformname.right = new FormAttachment(middle, -margin);
@@ -115,7 +125,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     wlTransformname.setLayoutData(fdlTransformname);
     wTransformname = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformname.setText(transformName);
-    props.setLook(wTransformname);
+    PropsUi.setLook(wTransformname);
     wTransformname.addModifyListener(lsMod);
     FormData fdTransformname = new FormData();
     fdTransformname.left = new FormAttachment(middle, 0);
@@ -125,7 +135,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "GetLoggingInfoDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wTransformname, margin);

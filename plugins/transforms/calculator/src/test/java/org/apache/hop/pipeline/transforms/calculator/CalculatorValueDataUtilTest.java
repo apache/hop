@@ -25,7 +25,11 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueDataUtil;
-import org.apache.hop.core.row.value.*;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaBinary;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.CalculationType;
@@ -40,8 +44,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CalculatorValueDataUtilTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

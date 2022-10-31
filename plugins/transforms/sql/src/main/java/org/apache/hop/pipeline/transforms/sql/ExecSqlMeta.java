@@ -17,7 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.sql;
 
-import org.apache.hop.core.*;
+import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;

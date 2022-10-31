@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.getfilesrowcount;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -30,7 +29,15 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -40,12 +47,21 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = GetFilesRowsCountMeta.class; // For Translator
@@ -101,15 +117,15 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.DialogTitle"));
@@ -133,7 +149,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -141,7 +157,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -150,16 +166,17 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF FILE TAB ///
     // ////////////////////////
     CTabItem wFileTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFileTab.setFont(GuiResource.getInstance().getFontDefault());
     wFileTab.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.File.Tab"));
 
     Composite wFileComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFileComp);
+    PropsUi.setLook(wFileComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -171,7 +188,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // ///////////////////////////////
 
     Group wOriginFiles = new Group(wFileComp, SWT.SHADOW_NONE);
-    props.setLook(wOriginFiles);
+    PropsUi.setLook(wOriginFiles);
     wOriginFiles.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.wOriginFiles.Label"));
 
     FormLayout originFilesgroupLayout = new FormLayout();
@@ -182,7 +199,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // Is Filename defined in a Field
     Label wlFileField = new Label(wOriginFiles, SWT.RIGHT);
     wlFileField.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FileField.Label"));
-    props.setLook(wlFileField);
+    PropsUi.setLook(wlFileField);
     FormData fdlFileField = new FormData();
     fdlFileField.left = new FormAttachment(0, -margin);
     fdlFileField.top = new FormAttachment(0, margin);
@@ -190,7 +207,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wlFileField.setLayoutData(fdlFileField);
 
     wFileField = new Button(wOriginFiles, SWT.CHECK);
-    props.setLook(wFileField);
+    PropsUi.setLook(wFileField);
     wFileField.setToolTipText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FileField.Tooltip"));
     FormData fdFileField = new FormData();
@@ -211,7 +228,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wlFilenameField = new Label(wOriginFiles, SWT.RIGHT);
     wlFilenameField.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FilenameField.Label"));
-    props.setLook(wlFilenameField);
+    PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, -margin);
     fdlFilenameField.top = new FormAttachment(wFileField, margin);
@@ -220,7 +237,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
 
     wFilenameField = new CCombo(wOriginFiles, SWT.BORDER | SWT.READ_ONLY);
     wFilenameField.setEditable(true);
-    props.setLook(wFilenameField);
+    PropsUi.setLook(wFilenameField);
     wFilenameField.addModifyListener(lsMod);
     FormData fdFilenameField = new FormData();
     fdFilenameField.left = new FormAttachment(middle, -margin);
@@ -255,7 +272,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // Filename line
     wlFilename = new Label(wFileComp, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(wOriginFiles, margin);
@@ -263,7 +280,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wlFilename.setLayoutData(fdlFilename);
 
     wbbFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FilenameBrowse.Button"));
     wbbFilename.setToolTipText(
@@ -274,7 +291,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wbbFilename.setLayoutData(fdbFilename);
 
     wbaFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbaFilename);
+    PropsUi.setLook(wbaFilename);
     wbaFilename.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FilenameAdd.Button"));
     wbaFilename.setToolTipText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FilenameAdd.Tooltip"));
@@ -284,7 +301,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wbaFilename.setLayoutData(fdbaFilename);
 
     wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -294,14 +311,14 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
 
     wlFilemask = new Label(wFileComp, SWT.RIGHT);
     wlFilemask.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.RegExp.Label"));
-    props.setLook(wlFilemask);
+    PropsUi.setLook(wlFilemask);
     FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
     fdlFilemask.top = new FormAttachment(wFilename, margin);
     fdlFilemask.right = new FormAttachment(middle, -margin);
     wlFilemask.setLayoutData(fdlFilemask);
     wFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilemask);
+    PropsUi.setLook(wFilemask);
     wFilemask.addModifyListener(lsMod);
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
@@ -312,14 +329,14 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wlExcludeFilemask = new Label(wFileComp, SWT.RIGHT);
     wlExcludeFilemask.setText(
         BaseMessages.getString(PKG, "GetFilesRowsDialog.ExcludeFilemask.Label"));
-    props.setLook(wlExcludeFilemask);
+    PropsUi.setLook(wlExcludeFilemask);
     FormData fdlExcludeFilemask = new FormData();
     fdlExcludeFilemask.left = new FormAttachment(0, 0);
     fdlExcludeFilemask.top = new FormAttachment(wFilemask, margin);
     fdlExcludeFilemask.right = new FormAttachment(middle, -margin);
     wlExcludeFilemask.setLayoutData(fdlExcludeFilemask);
     wExcludeFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wExcludeFilemask);
+    PropsUi.setLook(wExcludeFilemask);
     wExcludeFilemask.addModifyListener(lsMod);
     FormData fdExcludeFilemask = new FormData();
     fdExcludeFilemask.left = new FormAttachment(middle, 0);
@@ -331,7 +348,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wlFilenameList = new Label(wFileComp, SWT.RIGHT);
     wlFilenameList.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FilenameList.Label"));
-    props.setLook(wlFilenameList);
+    PropsUi.setLook(wlFilenameList);
     FormData fdlFilenameList = new FormData();
     fdlFilenameList.left = new FormAttachment(0, 0);
     fdlFilenameList.top = new FormAttachment(wExcludeFilemask, margin);
@@ -340,7 +357,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
 
     // Buttons to the right of the screen...
     wbdFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdFilename);
+    PropsUi.setLook(wbdFilename);
     wbdFilename.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FilenameRemove.Button"));
     wbdFilename.setToolTipText(
@@ -351,7 +368,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wbdFilename.setLayoutData(fdbdFilename);
 
     wbeFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeFilename);
+    PropsUi.setLook(wbeFilename);
     wbeFilename.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FilenameEdit.Button"));
     wbeFilename.setToolTipText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.FilenameEdit.Tooltip"));
@@ -362,7 +379,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wbeFilename.setLayoutData(fdbeFilename);
 
     wbShowFiles = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbShowFiles);
+    PropsUi.setLook(wbShowFiles);
     wbShowFiles.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.ShowFiles.Button"));
     FormData fdbShowFiles = new FormData();
     fdbShowFiles.left = new FormAttachment(middle, 0);
@@ -414,7 +431,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
             2,
             lsMod,
             props);
-    props.setLook(wFilenameList);
+    PropsUi.setLook(wFilenameList);
 
     FormData fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment(middle, 0);
@@ -441,6 +458,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // START OF CONTENT TAB///
     // /
     CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
+    wContentTab.setFont(GuiResource.getInstance().getFontDefault());
     wContentTab.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.Content.Tab"));
 
     FormLayout contentLayout = new FormLayout();
@@ -448,7 +466,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     contentLayout.marginHeight = 3;
 
     Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wContentComp);
+    PropsUi.setLook(wContentComp);
     wContentComp.setLayout(contentLayout);
 
     // /////////////////////////////////
@@ -456,7 +474,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // /////////////////////////////////
 
     Group wFilesCountFieldGroup = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wFilesCountFieldGroup);
+    PropsUi.setLook(wFilesCountFieldGroup);
     wFilesCountFieldGroup.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.Group.CountFilesFieldGroup.Label"));
 
@@ -468,7 +486,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     Label wlRowsCountField = new Label(wFilesCountFieldGroup, SWT.RIGHT);
     wlRowsCountField.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.RowsCountField.Label"));
-    props.setLook(wlRowsCountField);
+    PropsUi.setLook(wlRowsCountField);
     FormData fdlRowsCountField = new FormData();
     fdlRowsCountField.left = new FormAttachment(wInclFilesCount, margin);
     fdlRowsCountField.top = new FormAttachment(0, margin);
@@ -476,7 +494,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wlRowsCountField.setLayoutData(fdlRowsCountField);
     wRowsCountField =
         new TextVar(variables, wFilesCountFieldGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRowsCountField);
+    PropsUi.setLook(wRowsCountField);
     wRowsCountField.setToolTipText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.RowsCountField.Tooltip"));
     wRowsCountField.addModifyListener(lsMod);
@@ -501,7 +519,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // /////////////////////////////////
 
     Group wRowSeparatorGroup = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wRowSeparatorGroup);
+    PropsUi.setLook(wRowSeparatorGroup);
     wRowSeparatorGroup.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.Group.RowSeparator.Label"));
 
@@ -513,14 +531,14 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     Label wlRowSeparatorFormat = new Label(wRowSeparatorGroup, SWT.RIGHT);
     wlRowSeparatorFormat.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.RowSeparatorFormat.Label"));
-    props.setLook(wlRowSeparatorFormat);
+    PropsUi.setLook(wlRowSeparatorFormat);
     FormData fdlRowSeparatorFormat = new FormData();
     fdlRowSeparatorFormat.left = new FormAttachment(0, 0);
     fdlRowSeparatorFormat.top = new FormAttachment(wFilesCountFieldGroup, margin);
     fdlRowSeparatorFormat.right = new FormAttachment(middle, -margin);
     wlRowSeparatorFormat.setLayoutData(fdlRowSeparatorFormat);
     wRowSeparatorFormat = new CCombo(wRowSeparatorGroup, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wRowSeparatorFormat);
+    PropsUi.setLook(wRowSeparatorFormat);
     wRowSeparatorFormat.add(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.RowSeparatorFormat.CR.Label"));
     wRowSeparatorFormat.add(
@@ -550,14 +568,14 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wlRowSeparator = new Label(wRowSeparatorGroup, SWT.RIGHT);
     wlRowSeparator.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.RowSeparator.Label"));
-    props.setLook(wlRowSeparator);
+    PropsUi.setLook(wlRowSeparator);
     FormData fdlRowSeparator = new FormData();
     fdlRowSeparator.left = new FormAttachment(wInclFilesCount, margin);
     fdlRowSeparator.top = new FormAttachment(wRowSeparatorFormat, margin);
     fdlRowSeparator.right = new FormAttachment(middle, -margin);
     wlRowSeparator.setLayoutData(fdlRowSeparator);
     wRowSeparator = new TextVar(variables, wRowSeparatorGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRowSeparator);
+    PropsUi.setLook(wRowSeparator);
     wRowSeparator.setToolTipText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.RowSeparator.Tooltip"));
     wRowSeparator.addModifyListener(lsMod);
@@ -569,14 +587,14 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
 
     Label wlSmartCount = new Label(wRowSeparatorGroup, SWT.RIGHT);
     wlSmartCount.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.SmartCount.Label"));
-    props.setLook(wlSmartCount);
+    PropsUi.setLook(wlSmartCount);
     FormData fdlSmartCount = new FormData();
     fdlSmartCount.left = new FormAttachment(0, 0);
     fdlSmartCount.top = new FormAttachment(wRowSeparator, margin);
     fdlSmartCount.right = new FormAttachment(middle, -margin);
     wlSmartCount.setLayoutData(fdlSmartCount);
     wSmartCount = new Button(wRowSeparatorGroup, SWT.CHECK);
-    props.setLook(wSmartCount);
+    PropsUi.setLook(wSmartCount);
     wSmartCount.setToolTipText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.SmartCount.Tooltip"));
     FormData fdSmartCount = new FormData();
@@ -606,7 +624,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // /////////////////////////////////
 
     Group wAdditionalGroup = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wAdditionalGroup);
+    PropsUi.setLook(wAdditionalGroup);
     wAdditionalGroup.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.Group.AdditionalGroup.Label"));
 
@@ -618,14 +636,14 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     Label wlInclFilesCount = new Label(wAdditionalGroup, SWT.RIGHT);
     wlInclFilesCount.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.InclCountFiles.Label"));
-    props.setLook(wlInclFilesCount);
+    PropsUi.setLook(wlInclFilesCount);
     FormData fdlInclFilesCount = new FormData();
     fdlInclFilesCount.left = new FormAttachment(0, 0);
     fdlInclFilesCount.top = new FormAttachment(wRowSeparatorGroup, margin);
     fdlInclFilesCount.right = new FormAttachment(middle, -margin);
     wlInclFilesCount.setLayoutData(fdlInclFilesCount);
     wInclFilesCount = new Button(wAdditionalGroup, SWT.CHECK);
-    props.setLook(wInclFilesCount);
+    PropsUi.setLook(wInclFilesCount);
     wInclFilesCount.setToolTipText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.InclCountFiles.Tooltip"));
     FormData fdFilesCount = new FormData();
@@ -636,14 +654,14 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wlInclFilesCountField = new Label(wAdditionalGroup, SWT.RIGHT);
     wlInclFilesCountField.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.InclCountFilesField.Label"));
-    props.setLook(wlInclFilesCountField);
+    PropsUi.setLook(wlInclFilesCountField);
     FormData fdlInclFilesCountField = new FormData();
     fdlInclFilesCountField.left = new FormAttachment(wInclFilesCount, margin);
     fdlInclFilesCountField.top = new FormAttachment(wRowSeparatorGroup, margin);
     wlInclFilesCountField.setLayoutData(fdlInclFilesCountField);
     wInclFilesCountField =
         new TextVar(variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclFilesCountField);
+    PropsUi.setLook(wInclFilesCountField);
     wInclFilesCountField.addModifyListener(lsMod);
     FormData fdInclFilesCountField = new FormData();
     fdInclFilesCountField.left = new FormAttachment(wlInclFilesCountField, margin);
@@ -666,7 +684,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // ///////////////////////////////
 
     Group wAddFileResult = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wAddFileResult);
+    PropsUi.setLook(wAddFileResult);
     wAddFileResult.setText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.wAddFileResult.Label"));
 
@@ -677,14 +695,14 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
 
     Label wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "GetFilesRowsCountDialog.AddResult.Label"));
-    props.setLook(wlAddResult);
+    PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
     fdlAddResult.top = new FormAttachment(wAdditionalGroup, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(wAddFileResult, SWT.CHECK);
-    props.setLook(wAddResult);
+    PropsUi.setLook(wAddResult);
     wAddResult.setToolTipText(
         BaseMessages.getString(PKG, "GetFilesRowsCountDialog.AddResult.Tooltip"));
     FormData fdAddResult = new FormData();

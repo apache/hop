@@ -19,9 +19,9 @@ package org.apache.hop.git.model;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
 
 public abstract class VCS {
 

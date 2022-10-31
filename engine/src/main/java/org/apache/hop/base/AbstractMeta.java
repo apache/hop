@@ -34,16 +34,26 @@ import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.listeners.ICurrentDirectoryChangedListener;
 import org.apache.hop.core.listeners.IFilenameChangedListener;
 import org.apache.hop.core.listeners.INameChangedListener;
-import org.apache.hop.core.parameters.*;
+import org.apache.hop.core.parameters.DuplicateParamException;
+import org.apache.hop.core.parameters.INamedParameterDefinitions;
+import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.parameters.NamedParameters;
+import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.AbstractMetaInfo;
 import org.apache.hop.server.HopServer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractMeta

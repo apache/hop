@@ -22,7 +22,11 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 import javax.xml.stream.XMLStreamWriter;
-import java.text.*;
+import java.text.DateFormatSymbols;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.zip.ZipOutputStream;
 
 public class XmlOutputData extends BaseTransformData implements ITransformData {

@@ -17,7 +17,11 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import org.apache.hop.mongo.*;
+import org.apache.hop.mongo.MongoDbException;
+import org.apache.hop.mongo.MongoProp;
+import org.apache.hop.mongo.MongoProperties;
+import org.apache.hop.mongo.MongoUtilLogger;
+import org.apache.hop.mongo.Util;
 
 import java.lang.reflect.Proxy;
 

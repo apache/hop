@@ -30,7 +30,11 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.IRowListener;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -40,7 +44,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /** Base class for all tests for BaseFileInput transforms. */
 @Ignore("No tests in abstract base class")

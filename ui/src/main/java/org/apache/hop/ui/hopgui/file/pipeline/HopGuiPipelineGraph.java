@@ -117,6 +117,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
@@ -158,7 +159,6 @@ import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
-import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
@@ -166,9 +166,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -179,7 +176,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -190,8 +186,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -210,7 +204,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -303,8 +296,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public IPipelineEngine<PipelineMeta> pipeline;
 
   private final HopDataOrchestrationPerspective perspective;
-
-  private final Composite mainComposite;
 
   private ToolBar toolBar;
   private GuiToolbarWidgets toolBarWidgets;
@@ -493,7 +484,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // The main composite contains the graph view, but if needed also
     // a view with an extra tab containing log, etc.
     //
-    mainComposite = new Composite(this, SWT.NONE);
+    Composite mainComposite = new Composite(this, SWT.NONE);
     mainComposite.setBackground(GuiResource.getInstance().getColorOrange());
     mainComposite.setLayout(new FormLayout());
     FormData fdMainComposite = new FormData();
@@ -516,21 +507,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // Add a canvas below it, use up all space initially
     //
-    wsCanvas =
-        new ScrolledComposite(
-            sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND | SWT.BORDER);
-    wsCanvas.setAlwaysShowScrollBars(true);
-    wsCanvas.setExpandHorizontal(true);
-    wsCanvas.setExpandVertical(true);
-    wsCanvas.setLayout(new FormLayout());
-    FormData fdsCanvas = new FormData();
-    fdsCanvas.left = new FormAttachment(0, 0);
-    fdsCanvas.top = new FormAttachment(0, 0);
-    fdsCanvas.right = new FormAttachment(100, 0);
-    fdsCanvas.bottom = new FormAttachment(100, 0);
-    wsCanvas.setLayoutData(fdsCanvas);
-
-    canvas = new Canvas(wsCanvas, SWT.NO_BACKGROUND);
+    canvas = new Canvas(sashForm, SWT.NO_BACKGROUND | SWT.BORDER);
     Listener listener = CanvasListener.getInstance();
     canvas.addListener(SWT.MouseDown, listener);
     canvas.addListener(SWT.MouseMove, listener);
@@ -555,25 +532,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     remarks = new ArrayList<>();
     impact = new ArrayList<>();
     impactFinished = false;
-
-    ScrollBar horizontalBar = wsCanvas.getHorizontalBar();
-    ScrollBar verticalBar = wsCanvas.getVerticalBar();
-
-    horizontalBar.setMinimum(1);
-    horizontalBar.setMaximum(100);
-    horizontalBar.setVisible(true);
-    verticalBar.setMinimum(1);
-    verticalBar.setMaximum(100);
-    verticalBar.setVisible(true);
-    if (!EnvironmentUtils.getInstance().isWeb()) {
-      horizontalBar.setIncrement(5);
-      verticalBar.setIncrement(5);
-    }
-
-    if (OsHelper.isWindows()) {
-      horizontalBar.addListener(SWT.Selection, e -> canvas.redraw());
-      verticalBar.addListener(SWT.Selection, e -> canvas.redraw());
-    }
 
     setVisible(true);
     newProps();
@@ -604,30 +562,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Scrolled composite ...
     //
     canvas.pack();
-    Rectangle bounds = canvas.getBounds();
-
-    wsCanvas.setContent(canvas);
-    wsCanvas.setExpandHorizontal(true);
-    wsCanvas.setExpandVertical(true);
-    wsCanvas.setMinWidth(bounds.width);
-    wsCanvas.setMinHeight(bounds.height);
-
-    wsCanvas.addControlListener(
-        new ControlAdapter() {
-          @Override
-          public void controlResized(ControlEvent e) {
-            new Thread(
-                    () -> {
-                      try {
-                        Thread.sleep(250);
-                      } catch (Exception e1) {
-                        // ignore
-                      }
-                      getDisplay().asyncExec(() -> adjustScrolling());
-                    })
-                .start();
-          }
-        });
 
     // Update menu, toolbar, force redraw canvas
     //
@@ -720,8 +654,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     Point real = screen2real(e.x, e.y);
     lastClick = new Point(real.x, real.y);
 
-    setupDragView(e.button, new Point(e.x, e.y));
-
     // Hide the tooltip!
     hideToolTips();
 
@@ -793,6 +725,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             return;
           }
 
+          if (candidate != null) {
+            /** Avoid duplicate pop-up for hop handling as candidate is never null? */
+            if (!OsHelper.isMac()) {
+              addCandidateAsHop(e.x, e.y);
+            }
+          }
+
           transformMeta = (TransformMeta) areaOwner.getOwner();
           currentTransform = transformMeta;
 
@@ -800,13 +739,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             listener.onUpdateSelection(currentTransform);
           }
 
-          if (candidate != null) {
-            /** Avoid duplicate pop-up for hop handling as candidate is never null? */
-            if (!OsHelper.isMac()) {
-              addCandidateAsHop(e.x, e.y);
-            }
-            avoidContextDialog = true;
-          }
           // ALT-Click: edit error handling
           //
           if (e.button == 1 && alt && transformMeta.supportsErrorHandling()) {
@@ -876,10 +808,28 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           clickedPipelineHop = hop;
         }
       } else {
+        // If we're dragging a candidate hop around and click on the background it simply needs to
+        // go away.
+        //
+        if (startHopTransform != null) {
+          startHopTransform = null;
+          candidate = null;
+          lastClick = null;
+          avoidContextDialog = true;
+          redraw();
+          return;
+        }
+
+        // Dragging on the background?
+        // See if we're dragging around the view-port over the pipeline graph.
+        //
+        if (setupDragView(e.button, control, new Point(e.x, e.y))) {
+          return;
+        }
+
         // No area-owner & no hop means : background click:
         //
         canvas.setData("mode", "select");
-        startHopTransform = null;
         if (!control && e.button == 1) {
           selectionRegion = new org.apache.hop.core.gui.Rectangle(real.x, real.y, 0, 0);
         }
@@ -907,6 +857,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (EnvironmentUtils.getInstance().isWeb()) {
       // RAP does not support certain mouse events.
       mouseMove(e);
+    }
+
+    if (viewPortNavigation || viewDrag) {
+      viewDrag = false;
+      viewPortNavigation = false;
+      viewPortStart = null;
+      return;
     }
 
     boolean control = (e.stateMask & SWT.MOD1) != 0;
@@ -995,7 +952,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         selectInRect(pipelineMeta, selectionRegion);
       }
       selectionRegion = null;
-      avoidScrollAdjusting = true;
       updateGui();
     } else {
       // Clicked on an icon?
@@ -1065,7 +1021,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         startHopTransform = null;
         endHopLocation = null;
 
-        avoidScrollAdjusting = true;
         updateGui();
       } else {
         // Notes?
@@ -1426,6 +1381,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     toolTip.setVisible(false);
 
+    // Check to see if we're navigating with the view port
+    //
+    if (viewPortNavigation) {
+      dragViewPort(new Point(e.x, e.y));
+      return;
+    }
+
     Point real = screen2real(e.x, e.y);
 
     currentMouseX = real.x;
@@ -1632,7 +1594,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseHover(MouseEvent e) {
-
     boolean tip = true;
 
     toolTip.setVisible(false);
@@ -1888,7 +1849,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void addToolBar() {
-
     try {
       // Create a new toolbar at the top of the main composite...
       //
@@ -1902,7 +1862,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       layoutData.right = new FormAttachment(100, 0);
       toolBar.setLayoutData(layoutData);
       toolBar.pack();
-      PropsUi.getInstance().setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+      PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
       // enable / disable the icons in the toolbar too.
       //
@@ -1954,17 +1914,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           SWT.YES | SWT.ICON_ERROR);
     }
 
-    adjustScrolling();
-
     canvas.setFocus();
     redraw();
-  }
-
-  @Override
-  public void adjustScrolling() {
-    // What's the new canvas size?
-    //
-    adjustScrolling(pipelineMeta.getMaximum());
   }
 
   protected void hideToolTips() {
@@ -2057,40 +2008,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
-  public String[] getDropStrings(String str, String sep) {
-    StringTokenizer strtok = new StringTokenizer(str, sep);
-    String[] retval = new String[strtok.countTokens()];
-    int i = 0;
-    while (strtok.hasMoreElements()) {
-      retval[i] = strtok.nextToken();
-      i++;
-    }
-    return retval;
-  }
-
-  public Point getRealPosition(Composite canvas, int x, int y) {
-    Point p = new Point(0, 0);
-    Composite follow = canvas;
-    while (follow != null) {
-      org.eclipse.swt.graphics.Point loc = follow.getLocation();
-      Point xy = new Point(loc.x, loc.y);
-      p.x += xy.x;
-      p.y += xy.y;
-      follow = follow.getParent();
-    }
-
-    int offsetX = -16;
-    int offsetY = -64;
-    if (Const.isOSX()) {
-      offsetX = -2;
-      offsetY = -24;
-    }
-    p.x = x - p.x + offsetX;
-    p.y = y - p.y + offsetY;
-
-    return screen2real(p.x, p.y);
-  }
-
   /**
    * See if location (x,y) is on a line between two transforms: the hop!
    *
@@ -2141,7 +2058,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private int[] getLine(TransformMeta fs, TransformMeta ts) {
     Point from = fs.getLocation();
     Point to = ts.getLocation();
-    offset = getOffset();
 
     int x1 = from.x + iconSize / 2;
     int y1 = from.y + iconSize / 2;
@@ -2818,7 +2734,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       pipelineMeta.addNote(npi);
       hopGui.undoDelegate.addUndoNew(
           pipelineMeta, new NotePadMeta[] {npi}, new int[] {pipelineMeta.indexOfNote(npi)});
-      adjustScrolling();
       updateGui();
     }
   }
@@ -2859,7 +2774,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             true,
             new Point(currentMouseX, currentMouseY));
     PropsUi.setLocation(transformMeta, currentMouseX, currentMouseY);
-    adjustScrolling();
     updateGui();
   }
 
@@ -3353,10 +3267,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     try {
       PropsUi propsUi = PropsUi.getInstance();
 
+      // Can we determine the maximum while drawing?
+      //
+      maximum = pipelineMeta.getMaximum();
       int gridSize = propsUi.isShowCanvasGridEnabled() ? propsUi.getCanvasGridSize() : 1;
-
-      ScrollBar horizontalScrollBar = wsCanvas.getHorizontalBar();
-      ScrollBar verticalScrollBar = wsCanvas.getVerticalBar();
 
       PipelinePainter pipelinePainter =
           new PipelinePainter(
@@ -3364,8 +3278,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               variables,
               pipelineMeta,
               new Point(width, height),
-              horizontalScrollBar == null ? null : new SwtScrollBar(horizontalScrollBar),
-              verticalScrollBar == null ? null : new SwtScrollBar(verticalScrollBar),
+              offset,
               candidate,
               selectionRegion,
               areaOwners,
@@ -3381,11 +3294,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               !propsUi.useDoubleClick(),
               stateMap);
 
-      // correct the magnification with the overall zoom factor
-      //
-      float correctedMagnification = (float) (magnificationFactor * propsUi.getZoomFactor());
-
-      pipelinePainter.setMagnification(correctedMagnification);
+      pipelinePainter.setMagnification((float) (magnification * PropsUi.getNativeZoomFactor()));
       pipelinePainter.setTransformLogMap(transformLogMap);
       pipelinePainter.setStartHopTransform(startHopTransform);
       pipelinePainter.setEndHopLocation(endHopLocation);
@@ -3393,19 +3302,30 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       pipelinePainter.setEndHopTransform(endHopTransform);
       pipelinePainter.setCandidateHopType(candidateHopType);
       pipelinePainter.setStartErrorHopTransform(startErrorHopTransform);
+      pipelinePainter.setMaximum(maximum);
+      pipelinePainter.setShowingNavigationView(true);
+      pipelinePainter.setScreenMagnification(magnification);
 
       try {
         pipelinePainter.drawPipelineImage();
+
+        // Keep the rectangles of the navigation view around
+        //
+        this.viewPort = pipelinePainter.getViewPort();
+        this.graphPort = pipelinePainter.getGraphPort();
 
         if (pipelineMeta.isEmpty()) {
           SvgFile svgFile =
               new SvgFile(
                   BasePropertyHandler.getProperty("PipelineCanvas_image"),
                   getClass().getClassLoader());
-          gc.drawImage(svgFile, 200, 200, 32, 40, gc.getMagnification(), 0);
-          gc.setBackground(IGc.EColor.BACKGROUND);
+          gc.setTransform(0.0f, 0.0f, (float) (magnification * PropsUi.getNativeZoomFactor()));
+          gc.drawImage(svgFile, 150, 150, 32, 40, gc.getMagnification(), 0);
           gc.drawText(
-              BaseMessages.getString(PKG, "PipelineGraph.NewPipelineBackgroundMessage"), 260, 220);
+              BaseMessages.getString(PKG, "PipelineGraph.NewPipelineBackgroundMessage"),
+              155,
+              125,
+              true);
         }
 
       } catch (Exception e) {
@@ -3414,15 +3334,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
-    CanvasFacade.setData(canvas, magnification, pipelineMeta, HopGuiPipelineGraph.class, variables);
-  }
-
-  @Override
-  protected Point getOffset() {
-    Point area = getArea();
-    Point max = pipelineMeta.getMaximum();
-    Point thumb = getThumb(area, max);
-    return getOffset(thumb, area);
+    CanvasFacade.setData(
+        canvas, magnification, offset, pipelineMeta, HopGuiPipelineGraph.class, variables);
   }
 
   private void editTransform(TransformMeta transformMeta) {
@@ -3552,8 +3465,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // label = "Snap to grid",
       toolTip = "i18n::PipelineGraph.Toolbar.SnapToGrid.Tooltip",
       image = "ui/images/snap-to-grid.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.HOME)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.HOME)
+  //  @GuiKeyboardShortcut(control = true, key = SWT.HOME)
+  //  @GuiOsxKeyboardShortcut(command = true, key = SWT.HOME)
   public void snapToGrid() {
     snapToGrid(ConstUi.GRID_SIZE);
   }
@@ -3567,8 +3480,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_ALIGN_LEFT,
       toolTip = "i18n::PipelineGraph.Toolbar.AlignLeft.Tooltip",
       image = "ui/images/align-left.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
+  //  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
+  //  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
   public void alignLeft() {
     createSnapAllignDistribute().allignleft();
   }
@@ -3578,8 +3491,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_ALIGN_RIGHT,
       toolTip = "i18n::PipelineGraph.Toolbar.AlignRight.Tooltip",
       image = "ui/images/align-right.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_RIGHT)
+  //  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
+  //  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_RIGHT)
   public void alignRight() {
     createSnapAllignDistribute().allignright();
   }
@@ -3589,8 +3502,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_ALIGN_TOP,
       toolTip = "i18n::PipelineGraph.Toolbar.AlignTop.Tooltip",
       image = "ui/images/align-top.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
+  //  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
+  //  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
   public void alignTop() {
     createSnapAllignDistribute().alligntop();
   }
@@ -3601,8 +3514,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // label = "Bottom-align selected transforms",
       toolTip = "i18n::PipelineGraph.Toolbar.AlignBottom.Tooltip",
       image = "ui/images/align-bottom.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_DOWN)
+  //  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
+  //  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_DOWN)
   public void alignBottom() {
     createSnapAllignDistribute().allignbottom();
   }
@@ -3613,8 +3526,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // label = "Horizontally distribute selected transforms",
       toolTip = "i18n::PipelineGraph.Toolbar.DistributeHorizontal.Tooltip",
       image = "ui/images/distribute-horizontally.svg")
-  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
-  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
+  //  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
+  //  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   public void distributeHorizontal() {
     createSnapAllignDistribute().distributehorizontal();
   }
@@ -3625,8 +3538,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // label = "Vertically distribute selected transforms",
       toolTip = "i18n::PipelineGraph.Toolbar.DistributeVertical.Tooltip",
       image = "ui/images/distribute-vertically.svg")
-  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
-  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
+  //  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
+  //  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
   public void distributeVertical() {
     createSnapAllignDistribute().distributevertical();
   }
@@ -4145,7 +4058,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Add a tab folder ...
     //
     extraViewTabFolder = new CTabFolder(sashForm, SWT.MULTI);
-    hopGui.getProps().setLook(extraViewTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(extraViewTabFolder, Props.WIDGET_STYLE_TAB);
 
     extraViewTabFolder.addMouseListener(
         new MouseAdapter() {
@@ -4171,7 +4084,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     ToolBar extraViewToolBar = new ToolBar(extraViewTabFolder, SWT.FLAT);
     extraViewTabFolder.setTopRight(extraViewToolBar, SWT.RIGHT);
-    props.setLook(extraViewToolBar);
+    PropsUi.setLook(extraViewToolBar);
 
     minMaxItem = new ToolItem(extraViewToolBar, SWT.PUSH);
     minMaxItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
@@ -5104,7 +5017,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     lastChained = newTransform;
-    adjustScrolling();
 
     if (shift) {
       editTransform(newTransform);
@@ -5267,11 +5179,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
               hopGui.setUndoMenu(pipelineMeta);
               hopGui.handleFileCapabilities(fileType, pipelineMeta.hasChanged(), running, paused);
-
-              if (!avoidScrollAdjusting) {
-                avoidScrollAdjusting = false;
-                adjustScrolling();
-              }
 
               try {
                 ExtensionPointHandler.callExtensionPoint(

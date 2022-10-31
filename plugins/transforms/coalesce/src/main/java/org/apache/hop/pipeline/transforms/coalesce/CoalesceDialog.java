@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterOrderedListDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -42,7 +43,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,13 +77,13 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
     shell.setText(BaseMessages.getString(PKG, "CoalesceDialog.Shell.Title"));
     shell.setMinimumSize(500, 300);
     setShellImage(shell, input);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
     shell.setLayout(formLayout);
 
     int middle = props.getMiddlePct();
@@ -101,14 +106,14 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
     wlTransformName.setLayoutData(new FormDataBuilder().right(middle, -margin).result());
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     wTransformName.addListener(SWT.Modify, e -> input.setChanged());
     wTransformName.setLayoutData(
         new FormDataBuilder().left(wlTransformName, 0).top(wlTransformName, 0, SWT.CENTER).right().result());
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
 
     // Treat empty strings as nulls
     //
@@ -117,12 +122,12 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
     wEmptyStrings.setLayoutData(
         new FormDataBuilder().left(0, 0).top(wTransformName, margin * 2).result());
     wEmptyStrings.addListener(SWT.Selection, e -> input.setChanged());
-    props.setLook(wEmptyStrings);
+    PropsUi.setLook(wEmptyStrings);
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "CoalesceDialog.Fields.Label"));
     wlFields.setLayoutData(new FormDataBuilder().left().top(wEmptyStrings, margin * 2).result());
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
 
     SelectionAdapter pathSelection =
         new SelectionAdapter() {
@@ -196,7 +201,7 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
         new FormDataBuilder()
             .left()
             .right(100, 0)
-            .top(wlFields, Const.MARGIN)
+            .top(wlFields, PropsUi.getMargin())
             .bottom(wOk, margin * 2)
             .result());
 

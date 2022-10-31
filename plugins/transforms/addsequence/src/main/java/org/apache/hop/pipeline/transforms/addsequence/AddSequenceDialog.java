@@ -26,9 +26,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -39,7 +41,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class AddSequenceDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AddSequenceMeta.class; // For Translator
@@ -87,15 +93,15 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "AddSequenceDialog.Shell.Title"));
@@ -106,7 +112,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "AddSequenceDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -114,7 +120,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -125,7 +131,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     // Valuename line
     Label wlValuename = new Label(shell, SWT.RIGHT);
     wlValuename.setText(BaseMessages.getString(PKG, "AddSequenceDialog.Valuename.Label"));
-    props.setLook(wlValuename);
+    PropsUi.setLook(wlValuename);
     FormData fdlValuename = new FormData();
     fdlValuename.left = new FormAttachment(0, 0);
     fdlValuename.top = new FormAttachment(wTransformName, margin);
@@ -133,7 +139,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wlValuename.setLayoutData(fdlValuename);
     wValuename = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wValuename.setText("");
-    props.setLook(wValuename);
+    PropsUi.setLook(wValuename);
     wValuename.addModifyListener(lsMod);
     FormData fdValuename = new FormData();
     fdValuename.left = new FormAttachment(middle, 0);
@@ -147,7 +153,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     databaseLayout.marginHeight = margin;
     databaseLayout.marginWidth = margin;
     gDatabase.setLayout(databaseLayout);
-    props.setLook(gDatabase);
+    PropsUi.setLook(gDatabase);
     FormData fdDatabase = new FormData();
     fdDatabase.left = new FormAttachment(0, 0);
     fdDatabase.right = new FormAttachment(100, 0);
@@ -156,14 +162,14 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
 
     Label wlUseDatabase = new Label(gDatabase, SWT.RIGHT);
     wlUseDatabase.setText(BaseMessages.getString(PKG, "AddSequenceDialog.UseDatabase.Label"));
-    props.setLook(wlUseDatabase);
+    PropsUi.setLook(wlUseDatabase);
     FormData fdlUseDatabase = new FormData();
     fdlUseDatabase.left = new FormAttachment(0, 0);
     fdlUseDatabase.top = new FormAttachment(0, 0);
     fdlUseDatabase.right = new FormAttachment(middle, -margin);
     wlUseDatabase.setLayoutData(fdlUseDatabase);
     wUseDatabase = new Button(gDatabase, SWT.CHECK);
-    props.setLook(wUseDatabase);
+    PropsUi.setLook(wUseDatabase);
     wUseDatabase.setToolTipText(
         BaseMessages.getString(PKG, "AddSequenceDialog.UseDatabase.Tooltip"));
     FormData fdUseDatabase = new FormData();
@@ -187,7 +193,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     // Schema line...
     wlSchema = new Label(gDatabase, SWT.RIGHT);
     wlSchema.setText(BaseMessages.getString(PKG, "AddSequenceDialog.TargetSchema.Label"));
-    props.setLook(wlSchema);
+    PropsUi.setLook(wlSchema);
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
@@ -195,7 +201,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wlSchema.setLayoutData(fdlSchema);
 
     wbSchema = new Button(gDatabase, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSchema);
+    PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, "AddSequenceDialog.GetSchemas.Label"));
     FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
@@ -203,7 +209,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wbSchema.setLayoutData(fdbSchema);
 
     wSchema = new TextVar(variables, gDatabase, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSchema);
+    PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsMod);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
@@ -214,7 +220,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     // Seqname line
     wlSeqname = new Label(gDatabase, SWT.RIGHT);
     wlSeqname.setText(BaseMessages.getString(PKG, "AddSequenceDialog.Seqname.Label"));
-    props.setLook(wlSeqname);
+    PropsUi.setLook(wlSeqname);
     FormData fdlSeqname = new FormData();
     fdlSeqname.left = new FormAttachment(0, 0);
     fdlSeqname.right = new FormAttachment(middle, -margin);
@@ -222,7 +228,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wlSeqname.setLayoutData(fdlSeqname);
 
     wbSequence = new Button(gDatabase, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSequence);
+    PropsUi.setLook(wbSequence);
     wbSequence.setText(BaseMessages.getString(PKG, "AddSequenceDialog.GetSequences.Label"));
     FormData fdbSequence = new FormData();
     fdbSequence.right = new FormAttachment(100, -margin);
@@ -231,7 +237,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
 
     wSeqname = new TextVar(variables, gDatabase, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSeqname.setText("");
-    props.setLook(wSeqname);
+    PropsUi.setLook(wSeqname);
     wSeqname.addModifyListener(lsMod);
     FormData fdSeqname = new FormData();
     fdSeqname.left = new FormAttachment(middle, 0);
@@ -245,7 +251,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     counterLayout.marginHeight = margin;
     counterLayout.marginWidth = margin;
     gCounter.setLayout(counterLayout);
-    props.setLook(gCounter);
+    PropsUi.setLook(gCounter);
     FormData fdCounter = new FormData();
     fdCounter.left = new FormAttachment(0, 0);
     fdCounter.right = new FormAttachment(100, 0);
@@ -254,14 +260,14 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
 
     Label wlUseCounter = new Label(gCounter, SWT.RIGHT);
     wlUseCounter.setText(BaseMessages.getString(PKG, "AddSequenceDialog.UseCounter.Label"));
-    props.setLook(wlUseCounter);
+    PropsUi.setLook(wlUseCounter);
     FormData fdlUseCounter = new FormData();
     fdlUseCounter.left = new FormAttachment(0, 0);
     fdlUseCounter.top = new FormAttachment(wSeqname, margin);
     fdlUseCounter.right = new FormAttachment(middle, -margin);
     wlUseCounter.setLayoutData(fdlUseCounter);
     wUseCounter = new Button(gCounter, SWT.CHECK);
-    props.setLook(wUseCounter);
+    PropsUi.setLook(wUseCounter);
     wUseCounter.setToolTipText(BaseMessages.getString(PKG, "AddSequenceDialog.UseCounter.Tooltip"));
     FormData fdUseCounter = new FormData();
     fdUseCounter.left = new FormAttachment(middle, 0);
@@ -280,7 +286,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     // CounterName line
     wlCounterName = new Label(gCounter, SWT.RIGHT);
     wlCounterName.setText(BaseMessages.getString(PKG, "AddSequenceDialog.CounterName.Label"));
-    props.setLook(wlCounterName);
+    PropsUi.setLook(wlCounterName);
     FormData fdlCounterName = new FormData();
     fdlCounterName.left = new FormAttachment(0, 0);
     fdlCounterName.right = new FormAttachment(middle, -margin);
@@ -288,7 +294,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wlCounterName.setLayoutData(fdlCounterName);
     wCounterName = new Text(gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wCounterName.setText("");
-    props.setLook(wCounterName);
+    PropsUi.setLook(wCounterName);
     wCounterName.addModifyListener(lsMod);
     FormData fdCounterName = new FormData();
     fdCounterName.left = new FormAttachment(middle, 0);
@@ -299,7 +305,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     // StartAt line
     wlStartAt = new Label(gCounter, SWT.RIGHT);
     wlStartAt.setText(BaseMessages.getString(PKG, "AddSequenceDialog.StartAt.Label"));
-    props.setLook(wlStartAt);
+    PropsUi.setLook(wlStartAt);
     FormData fdlStartAt = new FormData();
     fdlStartAt.left = new FormAttachment(0, 0);
     fdlStartAt.right = new FormAttachment(middle, -margin);
@@ -307,7 +313,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wlStartAt.setLayoutData(fdlStartAt);
     wStartAt = new TextVar(variables, gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wStartAt.setText("");
-    props.setLook(wStartAt);
+    PropsUi.setLook(wStartAt);
     wStartAt.addModifyListener(lsMod);
     FormData fdStartAt = new FormData();
     fdStartAt.left = new FormAttachment(middle, 0);
@@ -318,7 +324,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     // IncrBy line
     wlIncrBy = new Label(gCounter, SWT.RIGHT);
     wlIncrBy.setText(BaseMessages.getString(PKG, "AddSequenceDialog.IncrBy.Label"));
-    props.setLook(wlIncrBy);
+    PropsUi.setLook(wlIncrBy);
     FormData fdlIncrBy = new FormData();
     fdlIncrBy.left = new FormAttachment(0, 0);
     fdlIncrBy.right = new FormAttachment(middle, -margin);
@@ -326,7 +332,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wlIncrBy.setLayoutData(fdlIncrBy);
     wIncrBy = new TextVar(variables, gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wIncrBy.setText("");
-    props.setLook(wIncrBy);
+    PropsUi.setLook(wIncrBy);
     wIncrBy.addModifyListener(lsMod);
     FormData fdIncrBy = new FormData();
     fdIncrBy.left = new FormAttachment(middle, 0);
@@ -337,7 +343,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     // MaxVal line
     wlMaxVal = new Label(gCounter, SWT.RIGHT);
     wlMaxVal.setText(BaseMessages.getString(PKG, "AddSequenceDialog.MaxVal.Label"));
-    props.setLook(wlMaxVal);
+    PropsUi.setLook(wlMaxVal);
     FormData fdlMaxVal = new FormData();
     fdlMaxVal.left = new FormAttachment(0, 0);
     fdlMaxVal.right = new FormAttachment(middle, -margin);
@@ -345,7 +351,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wlMaxVal.setLayoutData(fdlMaxVal);
     wMaxVal = new TextVar(variables, gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wMaxVal.setText("");
-    props.setLook(wMaxVal);
+    PropsUi.setLook(wMaxVal);
     wMaxVal.addModifyListener(lsMod);
     FormData fdMaxVal = new FormData();
     fdMaxVal.left = new FormAttachment(middle, 0);

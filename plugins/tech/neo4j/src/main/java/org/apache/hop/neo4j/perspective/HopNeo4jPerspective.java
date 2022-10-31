@@ -174,7 +174,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     errorLineBackground = new Color(hopGui.getDisplay(), 201, 232, 251);
 
     composite = new Composite(parent, SWT.NONE);
-    props.setLook(composite);
+    PropsUi.setLook(composite);
     FormLayout layout = new FormLayout();
     layout.marginLeft = props.getMargin();
     layout.marginTop = props.getMargin();
@@ -194,7 +194,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     // Add a simple label to test
     //
     Label wlInfo = new Label(composite, SWT.LEFT);
-    props.setLook(wlInfo);
+    PropsUi.setLook(wlInfo);
     wlInfo.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Shell.Title"));
     wlInfo.setFont(GuiResource.getInstance().getFontBold());
     FormData fdInfo = new FormData();
@@ -205,7 +205,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     Control lastControl = wlInfo;
 
     Label wlSep1 = new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL);
-    props.setLook(wlSep1);
+    PropsUi.setLook(wlSep1);
     FormData fdlSep1 = new FormData();
     fdlSep1.left = new FormAttachment(0, 0);
     fdlSep1.right = new FormAttachment(100, 0);
@@ -214,7 +214,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     lastControl = wlSep1;
 
     Label wlUsedConnection = new Label(composite, SWT.LEFT);
-    props.setLook(wlUsedConnection);
+    PropsUi.setLook(wlUsedConnection);
     wlUsedConnection.setText(
         BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Neo4J.Logging.Path.Label"));
     FormData fdlLoggingConnection = new FormData();
@@ -223,7 +223,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     wlUsedConnection.setLayoutData(fdlLoggingConnection);
     wUsedConnection = new Text(composite, SWT.SINGLE | SWT.BORDER);
     wUsedConnection.setEditable(false);
-    props.setLook(wUsedConnection);
+    PropsUi.setLook(wUsedConnection);
     wUsedConnection.setText(
         BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Neo4J.Logging.Path.Label"));
     wUsedConnection.setFont(GuiResource.getInstance().getFontBold());
@@ -237,7 +237,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     // The search query
     //
     Label wlExecutions = new Label(composite, SWT.LEFT);
-    props.setLook(wlExecutions);
+    PropsUi.setLook(wlExecutions);
     wlExecutions.setText(
         BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.PipelineActionName.Label"));
     FormData fdlExecutions = new FormData();
@@ -247,7 +247,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     lastControl = wlExecutions;
 
     wExecutions = new Combo(composite, SWT.BORDER | SWT.SINGLE);
-    props.setLook(wExecutions);
+    PropsUi.setLook(wExecutions);
     wExecutions.setFont(GuiResource.getInstance().getFontBold());
     FormData fdSearchString = new FormData();
     fdSearchString.left = new FormAttachment(0, 0);
@@ -258,7 +258,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     wExecutions.addListener(SWT.Selection, this::search);
 
     Label wlAmount = new Label(composite, SWT.LEFT);
-    props.setLook(wlAmount);
+    PropsUi.setLook(wlAmount);
     wlAmount.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.ShowLast.Label"));
     FormData fdlAmount = new FormData();
     fdlAmount.left = new FormAttachment(wExecutions, 2 * margin);
@@ -266,7 +266,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     wlAmount.setLayoutData(fdlAmount);
 
     wAmount = new Combo(composite, SWT.BORDER | SWT.SINGLE);
-    props.setLook(wAmount);
+    PropsUi.setLook(wAmount);
     wAmount.setItems("50", "100", "250", "500", "1000");
     wAmount.setText("50");
     FormData fdAmount = new FormData();
@@ -280,7 +280,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     wOnlyRoot = new Button(composite, SWT.CHECK);
     wOnlyRoot.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.OnlyRoot.Label"));
     wOnlyRoot.setSelection(true); // default is to limit the amount of entries
-    props.setLook(wOnlyRoot);
+    PropsUi.setLook(wOnlyRoot);
     FormData fdOnlyRoot = new FormData();
     fdOnlyRoot.left = new FormAttachment(wAmount, margin);
     fdOnlyRoot.top = new FormAttachment(lastControl, margin);
@@ -290,7 +290,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     lastControl = wExecutions;
 
     Button wbSearch = new Button(composite, SWT.PUSH);
-    props.setLook(wbSearch);
+    PropsUi.setLook(wbSearch);
     wbSearch.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Search.Button"));
     FormData fdbSearch = new FormData();
     fdbSearch.left = new FormAttachment(0, 0);
@@ -300,7 +300,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     lastControl = wExecutions;
 
     Button wbOpen = new Button(composite, SWT.PUSH);
-    props.setLook(wbOpen);
+    PropsUi.setLook(wbOpen);
     wbOpen.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Open.Button"));
     FormData fdbOpen = new FormData();
     fdbOpen.left = new FormAttachment(50, 0);
@@ -309,7 +309,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     wbOpen.addListener(SWT.Selection, this::open);
 
     SashForm sashForm = new SashForm(composite, SWT.VERTICAL);
-    props.setLook(sashForm);
+    PropsUi.setLook(sashForm);
     FormData fdSashForm = new FormData();
     fdSashForm.left = new FormAttachment(0, 0);
     fdSashForm.top = new FormAttachment(wbSearch, margin);
@@ -386,7 +386,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
             0,
             null,
             props);
-    props.setLook(wResults);
+    PropsUi.setLook(wResults);
     wResults.setReadonly(true);
     FormData fdResults = new FormData();
     fdResults.left = new FormAttachment(0, 0);
@@ -398,7 +398,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     wResults.table.addListener(SWT.Selection, this::analyze);
 
     tabFolder = new CTabFolder(sashForm, SWT.MULTI | SWT.BORDER);
-    props.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment(0, 0);
     fdLabel.right = new FormAttachment(100, 0);
@@ -407,18 +407,20 @@ public class HopNeo4jPerspective implements IHopPerspective {
     tabFolder.setLayoutData(fdLabel);
 
     CTabItem loggingTab = new CTabItem(tabFolder, SWT.NONE);
+    loggingTab.setFont(GuiResource.getInstance().getFontDefault());
     loggingTab.setImage(GuiResource.getInstance().getImageShowLog());
     loggingTab.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Logging.Tab"));
     wLogging = new Text(tabFolder, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wLogging);
+    PropsUi.setLook(wLogging);
     wLogging.setFont(GuiResource.getInstance().getFontFixed());
     loggingTab.setControl(wLogging);
 
     CTabItem lineageTab = new CTabItem(tabFolder, SWT.NONE);
+    lineageTab.setFont(GuiResource.getInstance().getFontDefault());
     lineageTab.setImage(lineageImage);
     lineageTab.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.PathError.Tab"));
     wTree = new Tree(tabFolder, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wTree);
+    PropsUi.setLook(wTree);
     wTree.setHeaderVisible(true);
     lineageTab.setControl(wTree);
     {
@@ -458,10 +460,11 @@ public class HopNeo4jPerspective implements IHopPerspective {
     }
 
     CTabItem cypherTab = new CTabItem(tabFolder, SWT.NONE);
+    cypherTab.setFont(GuiResource.getInstance().getFontDefault());
     cypherTab.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Cypher.Tab"));
     cypherTab.setImage(neo4jImage);
     wCypher = new Text(tabFolder, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wCypher);
+    PropsUi.setLook(wCypher);
     wCypher.setFont(GuiResource.getInstance().getFontFixed());
     cypherTab.setControl(wCypher);
 

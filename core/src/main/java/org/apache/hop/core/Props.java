@@ -39,6 +39,10 @@ public class Props implements Cloneable {
 
   private static final String STRING_USER_PREFERENCES = "User preferences";
 
+  public static final String STRING_FONT_DEFAULT_NAME = "FontDefaultName";
+  public static final String STRING_FONT_DEFAULT_SIZE = "FontDefaultSize";
+  public static final String STRING_FONT_DEFAULT_STYLE = "FontDefaultStyle";
+
   public static final String STRING_FONT_FIXED_NAME = "FontFixedName";
   public static final String STRING_FONT_FIXED_SIZE = "FontFixedSize";
   public static final String STRING_FONT_FIXED_STYLE = "FontFixedStyle";

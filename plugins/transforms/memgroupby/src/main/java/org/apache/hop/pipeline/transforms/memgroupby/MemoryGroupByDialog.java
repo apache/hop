@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -40,10 +41,17 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class MemoryGroupByDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = MemoryGroupByMeta.class; // For Translator
@@ -73,7 +81,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -87,8 +95,8 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     backupChanged = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "MemoryGroupByDialog.Shell.Title"));
@@ -99,7 +107,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "MemoryGroupByDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -107,7 +115,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -122,7 +130,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
         BaseMessages.getString(PKG, "MemoryGroupByDialog.AlwaysAddResult.Label"));
     wlAlwaysAddResult.setToolTipText(
         BaseMessages.getString(PKG, "MemoryGroupByDialog.AlwaysAddResult.ToolTip"));
-    props.setLook(wlAlwaysAddResult);
+    PropsUi.setLook(wlAlwaysAddResult);
     FormData fdlAlwaysAddResult = new FormData();
     fdlAlwaysAddResult.left = new FormAttachment(0, 0);
     fdlAlwaysAddResult.top = new FormAttachment(wTransformName, margin);
@@ -131,7 +139,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     wAlwaysAddResult = new Button(shell, SWT.CHECK);
     wAlwaysAddResult.setToolTipText(
         BaseMessages.getString(PKG, "MemoryGroupByDialog.AlwaysAddResult.ToolTip"));
-    props.setLook(wAlwaysAddResult);
+    PropsUi.setLook(wAlwaysAddResult);
     FormData fdAlwaysAddResult = new FormData();
     fdAlwaysAddResult.left = new FormAttachment(middle, 0);
     fdAlwaysAddResult.top = new FormAttachment(wlAlwaysAddResult, 0, SWT.CENTER);
@@ -141,7 +149,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
 
     Label wlGroup = new Label(shell, SWT.NONE);
     wlGroup.setText(BaseMessages.getString(PKG, "MemoryGroupByDialog.Group.Label"));
-    props.setLook(wlGroup);
+    PropsUi.setLook(wlGroup);
     FormData fdlGroup = new FormData();
     fdlGroup.left = new FormAttachment(0, 0);
     fdlGroup.top = new FormAttachment(wlAlwaysAddResult, 2 * margin);
@@ -185,7 +193,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     // THE Aggregate fields
     Label wlAgg = new Label(shell, SWT.NONE);
     wlAgg.setText(BaseMessages.getString(PKG, "MemoryGroupByDialog.Aggregates.Label"));
-    props.setLook(wlAgg);
+    PropsUi.setLook(wlAgg);
     FormData fdlAgg = new FormData();
     fdlAgg.left = new FormAttachment(0, 0);
     fdlAgg.top = new FormAttachment(wGroup, margin);

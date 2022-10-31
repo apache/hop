@@ -17,16 +17,12 @@
 
 package org.apache.hop.www;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.execution.Execution;
-import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionInfoLocation;
-import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 

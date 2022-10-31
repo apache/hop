@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.flattener;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -26,6 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -40,7 +40,11 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class FlattenerDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = FlattenerMeta.class; // For Translator
@@ -64,15 +68,15 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "FlattenerDialog.Shell.Title"));
@@ -92,7 +96,7 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "FlattenerDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -100,7 +104,7 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -111,14 +115,14 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
     // Key field...
     Label wlField = new Label(shell, SWT.RIGHT);
     wlField.setText(BaseMessages.getString(PKG, "FlattenerDialog.FlattenField.Label"));
-    props.setLook(wlField);
+    PropsUi.setLook(wlField);
     FormData fdlField = new FormData();
     fdlField.left = new FormAttachment(0, 0);
     fdlField.right = new FormAttachment(middle, -margin);
     fdlField.top = new FormAttachment(wTransformName, margin);
     wlField.setLayoutData(fdlField);
     wField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wField);
+    PropsUi.setLook(wField);
     wField.addModifyListener(lsMod);
     FormData fdField = new FormData();
     fdField.left = new FormAttachment(middle, 0);
@@ -142,7 +146,7 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "FlattenerDialog.TargetField.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wField, margin);

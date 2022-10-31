@@ -17,7 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.salesforce;
 
-import com.sforce.soap.partner.*;
+import com.sforce.soap.partner.DeleteResult;
+import com.sforce.soap.partner.DeletedRecord;
+import com.sforce.soap.partner.DescribeGlobalResult;
+import com.sforce.soap.partner.DescribeGlobalSObjectResult;
+import com.sforce.soap.partner.DescribeSObjectResult;
+import com.sforce.soap.partner.Field;
+import com.sforce.soap.partner.FieldType;
+import com.sforce.soap.partner.GetDeletedResult;
+import com.sforce.soap.partner.GetUpdatedResult;
+import com.sforce.soap.partner.GetUserInfoResult;
+import com.sforce.soap.partner.LoginResult;
+import com.sforce.soap.partner.PartnerConnection;
+import com.sforce.soap.partner.QueryResult;
+import com.sforce.soap.partner.SaveResult;
+import com.sforce.soap.partner.UpsertResult;
 import com.sforce.soap.partner.fault.ExceptionCode;
 import com.sforce.soap.partner.fault.LoginFault;
 import com.sforce.soap.partner.sobject.SObject;
@@ -40,7 +54,13 @@ import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 public class SalesforceConnection {
   private static final FieldType ID_FIELD_TYPE = FieldType.id;

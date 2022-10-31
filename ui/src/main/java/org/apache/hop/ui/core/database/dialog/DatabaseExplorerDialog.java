@@ -21,7 +21,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.database.*;
+import org.apache.hop.core.database.Catalog;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabaseMetaInformation;
+import org.apache.hop.core.database.Schema;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -35,7 +39,12 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -46,7 +55,17 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -157,18 +176,18 @@ public class DatabaseExplorerDialog extends Dialog {
     } else {
       shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     }
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageDatabase());
 
     shell.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Title", dbMeta.toString()));
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
 
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Main buttons at the bottom
     //
@@ -203,14 +222,14 @@ public class DatabaseExplorerDialog extends Dialog {
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
-    PropsUi.getInstance().setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     addRightButtons();
     refreshButtons(null);
 
     // Tree
     wTree = new Tree(shell, SWT.SINGLE | SWT.BORDER /*| (multiple?SWT.CHECK:SWT.NONE)*/);
-    props.setLook(wTree);
+    PropsUi.setLook(wTree);
     FormData fdTree = new FormData();
     fdTree.left = new FormAttachment(0, 0); // To the right of the label
     fdTree.top = new FormAttachment(toolBar, margin);
@@ -258,7 +277,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
   private void addRightButtons() {
     buttonsComposite = new Composite(shell, SWT.NONE);
-    props.setLook(buttonsComposite);
+    PropsUi.setLook(buttonsComposite);
     buttonsComposite.setLayout(new FormLayout());
 
     activeSchemaTable = null;

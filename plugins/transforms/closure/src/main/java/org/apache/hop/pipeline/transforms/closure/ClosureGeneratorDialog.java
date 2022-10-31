@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.closure;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -27,6 +26,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -67,15 +67,15 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.Shell.Title"));
@@ -87,7 +87,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     //
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -95,7 +95,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -107,7 +107,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     //
     Label wlParent = new Label(shell, SWT.RIGHT);
     wlParent.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.ParentField.Label"));
-    props.setLook(wlParent);
+    PropsUi.setLook(wlParent);
     FormData fdlParent = new FormData();
     fdlParent.left = new FormAttachment(0, 0);
     fdlParent.right = new FormAttachment(middle, -margin);
@@ -115,7 +115,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     wlParent.setLayoutData(fdlParent);
 
     wParent = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wParent);
+    PropsUi.setLook(wParent);
     wParent.addModifyListener(lsMod);
     FormData fdParent = new FormData();
     fdParent.left = new FormAttachment(middle, 0);
@@ -127,7 +127,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     //
     Label wlChild = new Label(shell, SWT.RIGHT);
     wlChild.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.ChildField.Label"));
-    props.setLook(wlChild);
+    PropsUi.setLook(wlChild);
     FormData fdlChild = new FormData();
     fdlChild.left = new FormAttachment(0, 0);
     fdlChild.right = new FormAttachment(middle, -margin);
@@ -135,7 +135,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     wlChild.setLayoutData(fdlChild);
 
     wChild = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wChild);
+    PropsUi.setLook(wChild);
     wChild.addModifyListener(lsMod);
     FormData fdChild = new FormData();
     fdChild.left = new FormAttachment(middle, 0);
@@ -147,7 +147,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     //
     Label wlDistance = new Label(shell, SWT.RIGHT);
     wlDistance.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.DistanceField.Label"));
-    props.setLook(wlDistance);
+    PropsUi.setLook(wlDistance);
     FormData fdlDistance = new FormData();
     fdlDistance.left = new FormAttachment(0, 0);
     fdlDistance.right = new FormAttachment(middle, -margin);
@@ -155,7 +155,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     wlDistance.setLayoutData(fdlDistance);
 
     wDistance = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDistance);
+    PropsUi.setLook(wDistance);
     wDistance.addModifyListener(lsMod);
     FormData fdDistance = new FormData();
     fdDistance.left = new FormAttachment(middle, 0);
@@ -167,7 +167,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     //
     Label wlRootZero = new Label(shell, SWT.RIGHT);
     wlRootZero.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.RootZero.Label"));
-    props.setLook(wlRootZero);
+    PropsUi.setLook(wlRootZero);
     FormData fdlRootZero = new FormData();
     fdlRootZero.left = new FormAttachment(0, 0);
     fdlRootZero.right = new FormAttachment(middle, -margin);
@@ -175,7 +175,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     wlRootZero.setLayoutData(fdlRootZero);
 
     wRootZero = new Button(shell, SWT.CHECK);
-    props.setLook(wRootZero);
+    PropsUi.setLook(wRootZero);
     FormData fdRootZero = new FormData();
     fdRootZero.left = new FormAttachment(middle, 0);
     fdRootZero.right = new FormAttachment(100, 0);

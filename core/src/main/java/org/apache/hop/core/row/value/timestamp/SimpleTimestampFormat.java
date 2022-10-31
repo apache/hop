@@ -19,7 +19,13 @@ package org.apache.hop.core.row.value.timestamp;
 
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
-import java.text.*;
+import java.text.AttributedCharacterIterator;
+import java.text.DateFormatSymbols;
+import java.text.DecimalFormat;
+import java.text.FieldPosition;
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 

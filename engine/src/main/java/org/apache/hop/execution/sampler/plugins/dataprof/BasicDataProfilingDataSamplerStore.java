@@ -19,7 +19,11 @@
 package org.apache.hop.execution.sampler.plugins.dataprof;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.row.*;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionDataSetMeta;

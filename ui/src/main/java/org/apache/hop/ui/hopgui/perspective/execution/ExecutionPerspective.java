@@ -24,7 +24,6 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.variables.IVariables;
@@ -42,6 +41,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
@@ -56,20 +56,38 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.perspective.*;
+import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
+import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.TabClosable;
+import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.*;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabFolder2Adapter;
+import org.eclipse.swt.custom.CTabFolderEvent;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @HopPerspectivePlugin(
     id = "150-HopExecutionPerspective",
@@ -77,7 +95,7 @@ import java.util.List;
     description = "i18n::ExecutionPerspective.Description",
     image = "ui/images/location.svg")
 @GuiPlugin
-public class ExecutionPerspective implements IHopPerspective , TabClosable {
+public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   public static final Class<?> PKG = ExecutionPerspective.class; // i18n
   private static final String EXECUTION_PERSPECTIVE_TREE = "Execution perspective tree";
@@ -203,7 +221,7 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
-    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
@@ -216,7 +234,7 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
           }
         });
 
-    PropsUi.getInstance().setLook(tree);
+    PropsUi.setLook(tree);
 
     FormData treeFormData = new FormData();
     treeFormData.left = new FormAttachment(0, 0);
@@ -240,7 +258,7 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
             onTabClose(event);
           }
         });
-    props.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
 
     // Show/Hide tree
     //
@@ -271,6 +289,7 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
     // Create tab item
     //
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
+    tabItem.setFont(GuiResource.getInstance().getFontDefault());
     tabItem.setText(viewer.getName());
     tabItem.setImage(viewer.getTitleImage());
     tabItem.setToolTipText(viewer.getTitleToolTip());
@@ -498,58 +517,69 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
       for (ExecutionInfoLocation location : locations) {
         IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
-        // Initialize the location first...
-        //
-        iLocation.initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
-
-        // Keep the location around to close at the next refresh.
-        //
-        locationMap.put(location.getName(), location);
-
-        TreeItem locationItem = new TreeItem(tree, SWT.NONE);
-        locationItem.setText(0, Const.NVL(location.getName(), ""));
-        locationItem.setImage(GuiResource.getInstance().getImageLocation());
-        TreeMemory.getInstance().storeExpanded(EXECUTION_PERSPECTIVE_TREE, locationItem, true);
-        locationItem.setData(location);
-
         try {
-
-          // Get the data in the location
+          // Initialize the location first...
           //
-          List<String> ids = iLocation.getExecutionIds(false, 100);
+          iLocation.initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
 
-          // Display the executions
+          // Keep the location around to close at the next refresh.
           //
-          for (String id : ids) {
-            try {
-              Execution execution = iLocation.getExecution(id);
-              if (execution != null) {
-                TreeItem executionItem = new TreeItem(locationItem, SWT.NONE);
-                switch (execution.getExecutionType()) {
-                  case Pipeline:
-                    decoratePipelineTreeItem(executionItem, execution);
-                    break;
-                  case Workflow:
-                    decorateWorkflowTreeItem(executionItem, execution);
-                    break;
+          locationMap.put(location.getName(), location);
+
+          TreeItem locationItem = new TreeItem(tree, SWT.NONE);
+          locationItem.setText(0, Const.NVL(location.getName(), ""));
+          locationItem.setImage(GuiResource.getInstance().getImageLocation());
+          TreeMemory.getInstance().storeExpanded(EXECUTION_PERSPECTIVE_TREE, locationItem, true);
+          locationItem.setData(location);
+
+          try {
+
+            // Get the data in the location
+            //
+            List<String> ids = iLocation.getExecutionIds(false, 100);
+
+            // Display the executions
+            //
+            for (String id : ids) {
+              try {
+                Execution execution = iLocation.getExecution(id);
+                if (execution != null) {
+                  TreeItem executionItem = new TreeItem(locationItem, SWT.NONE);
+                  switch (execution.getExecutionType()) {
+                    case Pipeline:
+                      decoratePipelineTreeItem(executionItem, execution);
+                      break;
+                    case Workflow:
+                      decorateWorkflowTreeItem(executionItem, execution);
+                      break;
+                  }
                 }
+              } catch (Exception e) {
+                TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
+                errorItem.setText("Error reading " + id + " (double click for details)");
+                errorItem.setForeground(GuiResource.getInstance().getColorRed());
+                errorItem.setData("error", e);
+                errorItem.setImage(GuiResource.getInstance().getImageError());
               }
-            } catch(Exception e) {
-              TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
-              errorItem.setText("Error reading "+id+" (double click for details)");
-              errorItem.setForeground(GuiResource.getInstance().getColorRed());
-              errorItem.setData("error", e);
-              errorItem.setImage(GuiResource.getInstance().getImageError());
             }
+          } catch (Exception e) {
+            // Error contacting location
+            //
+            TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
+            errorItem.setText("Not reachable (double click for details)");
+            errorItem.setForeground(GuiResource.getInstance().getColorRed());
+            errorItem.setData("error", e);
+            errorItem.setImage(GuiResource.getInstance().getImageError());
           }
         } catch (Exception e) {
-          // Error contacting location
+          // We couldn't initialize a location
           //
-          TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
-          errorItem.setText("Not reachable (double click for details)");
-          errorItem.setForeground(GuiResource.getInstance().getColorRed());
-          errorItem.setData("error", e);
-          errorItem.setImage(GuiResource.getInstance().getImageError());
+          TreeItem locationItem = new TreeItem(tree, SWT.NONE);
+          locationItem.setText(
+              0, Const.NVL(location.getName(), "") + " (error: double click for details)");
+          locationItem.setForeground(GuiResource.getInstance().getColorRed());
+          locationItem.setImage(GuiResource.getInstance().getImageLocation());
+          locationItem.setData("error", e);
         }
       }
 
@@ -639,22 +669,22 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
       if (itemData instanceof ExecutionInfoLocation) {
         // Delete the whole location
         //
-        MessageBox box = new MessageBox(getShell(), SWT.APPLICATION_MODAL | SWT.NO|SWT.YES);
+        MessageBox box = new MessageBox(getShell(), SWT.APPLICATION_MODAL | SWT.NO | SWT.YES);
         box.setText("Confirm delete");
         box.setMessage("Are you sure you want to delete all information in this location?");
         int answer = box.open();
-        if ((answer&SWT.YES)==0) {
+        if ((answer & SWT.YES) == 0) {
           return;
         }
 
         ExecutionInfoLocation location = (ExecutionInfoLocation) itemData;
         IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
         List<String> executionIds = iLocation.getExecutionIds(false, 0);
-        for (int i=executionIds.size()-1;i>=0;i--) {
+        for (int i = executionIds.size() - 1; i >= 0; i--) {
           iLocation.deleteExecution(executionIds.get(i));
         }
         refresh();
-      } else if(itemData instanceof Execution) {
+      } else if (itemData instanceof Execution) {
         // Delete one execution: do not ask for confirmation
         //
         Execution execution = (Execution) itemData;

@@ -30,9 +30,11 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.TableView;
@@ -50,7 +52,12 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -161,7 +168,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, mappingMeta);
 
     lsMod = e -> mappingMeta.setChanged();
@@ -192,12 +199,12 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     fdlicon.top = new FormAttachment(0, 0);
     fdlicon.right = new FormAttachment(100, 0);
     wicon.setLayoutData(fdlicon);
-    props.setLook(wicon);
+    PropsUi.setLook(wicon);
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(wicon, 0, SWT.CENTER);
@@ -206,7 +213,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.right = new FormAttachment(wicon, -margin);
@@ -222,7 +229,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     spacer.setLayoutData(fdSpacer);
 
     Label wlPath = new Label(shell, SWT.RIGHT);
-    props.setLook(wlPath);
+    PropsUi.setLook(wlPath);
     wlPath.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.Pipeline.Label"));
     FormData fdlTransformation = new FormData();
     fdlTransformation.left = new FormAttachment(0, 0);
@@ -231,7 +238,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     wlPath.setLayoutData(fdlTransformation);
 
     Button wbBrowse = new Button(shell, SWT.PUSH);
-    props.setLook(wbBrowse);
+    PropsUi.setLook(wbBrowse);
     wbBrowse.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.Browse.Label"));
     FormData fdBrowse = new FormData();
     fdBrowse.right = new FormAttachment(100, 0);
@@ -240,7 +247,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     wbBrowse.addListener(SWT.Selection, e -> selectFilePipeline());
 
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPath);
+    PropsUi.setLook(wPath);
     FormData fdTransformation = new FormData();
     fdTransformation.left = new FormAttachment(wlPath, margin);
     fdTransformation.top = new FormAttachment(wlPath, 0, SWT.CENTER);
@@ -252,7 +259,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     // streams
     //
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
     wTabFolder.setUnselectedCloseVisible(true);
 
     Label hSpacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
@@ -370,12 +377,13 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
   private void addParametersTab(final MappingParameters parameters) {
 
     CTabItem wParametersTab = new CTabItem(wTabFolder, SWT.NONE);
+    wParametersTab.setFont(GuiResource.getInstance().getFontDefault());
     wParametersTab.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.Parameters.Title"));
     wParametersTab.setToolTipText(
         BaseMessages.getString(PKG, "SimpleMappingDialog.Parameters.Tooltip"));
 
     Composite wParametersComposite = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wParametersComposite);
+    PropsUi.setLook(wParametersComposite);
 
     FormLayout parameterTabLayout = new FormLayout();
     parameterTabLayout.marginWidth = 15;
@@ -386,7 +394,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     //
     Button wInheritAll = new Button(wParametersComposite, SWT.CHECK);
     wInheritAll.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.Parameters.InheritAll"));
-    props.setLook(wInheritAll);
+    PropsUi.setLook(wInheritAll);
     FormData fdInheritAll = new FormData();
     fdInheritAll.bottom = new FormAttachment(100, 0);
     fdInheritAll.left = new FormAttachment(0, 0);
@@ -423,7 +431,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
             lsMod,
             props,
             false);
-    props.setLook(wMappingParameters);
+    PropsUi.setLook(wMappingParameters);
     FormData fdMappings = new FormData();
     fdMappings.left = new FormAttachment(0, 0);
     fdMappings.right = new FormAttachment(100, 0);
@@ -511,10 +519,11 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     } else {
       wTab = new CTabItem(wTabFolder, SWT.CLOSE, index);
     }
+    wTab.setFont(GuiResource.getInstance().getFontDefault());
     setMappingDefinitionTabNameAndToolTip(wTab, tabTitle, tabTooltip, definition, input);
 
     Composite wInputComposite = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wInputComposite);
+    PropsUi.setLook(wInputComposite);
 
     FormLayout tabLayout = new FormLayout();
     tabLayout.marginWidth = 15;
@@ -525,7 +534,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     // fields for the source and target transforms.
     //
     final Button wbEnterMapping = new Button(wInputComposite, SWT.PUSH);
-    props.setLook(wbEnterMapping);
+    PropsUi.setLook(wbEnterMapping);
     if (input) {
       wbEnterMapping.setText(
           BaseMessages.getString(PKG, "SimpleMappingDialog.button.EnterMapping"));
@@ -553,7 +562,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
             lsMod,
             props,
             false);
-    props.setLook(wFieldMappings);
+    PropsUi.setLook(wFieldMappings);
     FormData fdMappings = new FormData();
     fdMappings.left = new FormAttachment(0);
     fdMappings.right = new FormAttachment(100);
@@ -641,7 +650,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
 
     if (input) {
       Button wRenameOutput = new Button(wInputComposite, SWT.CHECK);
-      props.setLook(wRenameOutput);
+      PropsUi.setLook(wRenameOutput);
       wRenameOutput.setText(
           BaseMessages.getString(PKG, "SimpleMappingDialog.input.RenamingOnOutput"));
       FormData fdRenameOutput = new FormData();

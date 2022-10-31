@@ -29,7 +29,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 public class TreeToolbar extends Composite {
 
@@ -58,7 +62,7 @@ public class TreeToolbar extends Composite {
     sep3.setLayoutData(fdSep3);
 
     ToolBar treeTb = new ToolBar(this, SWT.HORIZONTAL | SWT.FLAT);
-    props.setLook(treeTb, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(treeTb, Props.WIDGET_STYLE_TOOLBAR);
     /*
      This contains a map with all the unnamed pipeline (just a filename)
     */
@@ -77,7 +81,7 @@ public class TreeToolbar extends Composite {
     treeTb.setLayoutData(fdTreeToolbar);
 
     ToolBar selectionFilterTb = new ToolBar(this, SWT.HORIZONTAL | SWT.FLAT);
-    props.setLook(selectionFilterTb, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(selectionFilterTb, Props.WIDGET_STYLE_TOOLBAR);
 
     ToolItem clearSelectionFilter = new ToolItem(selectionFilterTb, SWT.PUSH);
     clearSelectionFilter.setImage(GuiResource.getInstance().getImageClearText());

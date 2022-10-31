@@ -30,7 +30,11 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -73,17 +77,17 @@ public class ProgressMonitorDialog {
         new Shell(parent, SWT.RESIZE | SWT.APPLICATION_MODAL | (cancelable ? SWT.CLOSE : SWT.NONE));
     shell.setText(BaseMessages.getString(PKG, "ProgressMonitorDialog.Shell.Title"));
     shell.setImage(GuiResource.getInstance().getImageHopUi());
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     display = shell.getDisplay();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginTop = Const.FORM_MARGIN;
-    formLayout.marginLeft = Const.FORM_MARGIN;
-    formLayout.marginRight = Const.FORM_MARGIN;
-    formLayout.marginBottom = Const.FORM_MARGIN;
+    formLayout.marginTop = PropsUi.getFormMargin();
+    formLayout.marginLeft = PropsUi.getFormMargin();
+    formLayout.marginRight = PropsUi.getFormMargin();
+    formLayout.marginBottom = PropsUi.getFormMargin();
 
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     shell.setLayout(formLayout);
 
@@ -92,7 +96,7 @@ public class ProgressMonitorDialog {
     //
     Label wlImage = new Label(shell, SWT.NONE);
     wlImage.setImage(GuiResource.getInstance().getImageHopUi());
-    props.setLook(wlImage);
+    PropsUi.setLook(wlImage);
     FormData fdlImage = new FormData();
     fdlImage.right = new FormAttachment(100, 0);
     fdlImage.top = new FormAttachment(0, 0);
@@ -100,7 +104,7 @@ public class ProgressMonitorDialog {
 
     wlTask = new Label(shell, SWT.LEFT);
     wlTask.setText(BaseMessages.getString(PKG, "ProgressMonitorDialog.InitialTaskLabel"));
-    props.setLook(wlTask);
+    PropsUi.setLook(wlTask);
     FormData fdlTask = new FormData();
     fdlTask.left = new FormAttachment(0, 0);
     fdlTask.top = new FormAttachment(0, 0);
@@ -109,7 +113,7 @@ public class ProgressMonitorDialog {
 
     wlSubTask = new Label(shell, SWT.LEFT);
     wlSubTask.setText(BaseMessages.getString(PKG, "ProgressMonitorDialog.InitialSubTaskLabel"));
-    props.setLook(wlSubTask);
+    PropsUi.setLook(wlSubTask);
     FormData fdlSubTask = new FormData();
     fdlSubTask.left = new FormAttachment(0, 0);
     fdlSubTask.top = new FormAttachment(wlTask, margin);

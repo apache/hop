@@ -23,7 +23,10 @@ import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.ResourceReference;
 
 import java.util.List;

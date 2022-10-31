@@ -28,7 +28,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.LabelCombo;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -43,7 +46,12 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.Arrays;
 
@@ -88,7 +96,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -102,8 +110,8 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
@@ -126,7 +134,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "TableCompareDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -134,7 +142,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -144,13 +152,14 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
 
     ScrolledComposite sc = new ScrolledComposite(shell, SWT.H_SCROLL | SWT.V_SCROLL);
     CTabFolder wTabFolder = new CTabFolder(sc, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // /////////////////////////////
     // START OF REFERENCE TAB
     // /////////////////////////////
 
     CTabItem wReferenceTab = new CTabItem(wTabFolder, SWT.NONE);
+    wReferenceTab.setFont(GuiResource.getInstance().getFontDefault());
     wReferenceTab.setText(
         BaseMessages.getString(PKG, "TableComparisonDialog.ReferenceTab.TabTitle"));
 
@@ -159,7 +168,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     referenceLayout.marginHeight = 3;
 
     Composite wReferenceComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wReferenceComp);
+    PropsUi.setLook(wReferenceComp);
     wReferenceComp.setLayout(referenceLayout);
 
 
@@ -183,7 +192,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
             wReferenceComp,
             BaseMessages.getString(PKG, "TableCompareDialog.ReferenceSchemaField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.ReferenceSchemaField.Tooltip"));
-    props.setLook(wReferenceSchema);
+    PropsUi.setLook(wReferenceSchema);
     FormData fdReferenceSchema = new FormData();
     fdReferenceSchema.left = new FormAttachment(0, 0);
     fdReferenceSchema.top = new FormAttachment(lastControl, margin);
@@ -196,7 +205,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
             wReferenceComp,
             BaseMessages.getString(PKG, "TableCompareDialog.ReferenceTableField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.ReferenceTableField.Tooltip"));
-    props.setLook(wReferenceTable);
+    PropsUi.setLook(wReferenceTable);
     FormData fdReferenceTable = new FormData();
     fdReferenceTable.left = new FormAttachment(0, 0);
     fdReferenceTable.top = new FormAttachment(lastControl, margin);
@@ -222,6 +231,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     // /////////////////////////////
 
     CTabItem wComparisonTab = new CTabItem(wTabFolder, SWT.NONE);
+    wComparisonTab.setFont(GuiResource.getInstance().getFontDefault());
     wComparisonTab.setText(
         BaseMessages.getString(PKG, "TableComparisonDialog.ComparisonTab.TabTitle"));
 
@@ -231,7 +241,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
 
     Composite wComparisonComp = new Composite(wTabFolder, SWT.NONE);
     wComparisonComp.setLayout(comparisonLayout);
-    props.setLook(wComparisonComp);
+    PropsUi.setLook(wComparisonComp);
 
     // Comparison DB + schema + table
     DatabaseMeta compDatabaseMeta =
@@ -252,7 +262,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
             wComparisonComp,
             BaseMessages.getString(PKG, "TableCompareDialog.CompareSchemaField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.CompareSchemaField.Tooltip"));
-    props.setLook(wCompareSchema);
+    PropsUi.setLook(wCompareSchema);
     FormData fdCompareSchema = new FormData();
     fdCompareSchema.left = new FormAttachment(0, 0);
     fdCompareSchema.top = new FormAttachment(lastControl, margin);
@@ -265,7 +275,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
             wComparisonComp,
             BaseMessages.getString(PKG, "TableCompareDialog.CompareTableField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.CompareTableField.Tooltip"));
-    props.setLook(wCompareTable);
+    PropsUi.setLook(wCompareTable);
     FormData fdCompareTable = new FormData();
     fdCompareTable.left = new FormAttachment(0, 0);
     fdCompareTable.top = new FormAttachment(lastControl, margin);
@@ -291,6 +301,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     // /////////////////////////////
 
     CTabItem wOtherFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wOtherFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wOtherFieldsTab.setText(
         BaseMessages.getString(PKG, "TableComparisonDialog.OtherFieldsTab.TabTitle"));
 
@@ -299,7 +310,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     otherFieldsLayout.marginHeight = 3;
 
     Composite wOtherFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wOtherFieldsComp);
+    PropsUi.setLook(wOtherFieldsComp);
     wOtherFieldsComp.setLayout(otherFieldsLayout);
 
     wKeyFields =
@@ -307,7 +318,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
             wOtherFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.KeyFieldsField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.KeyFieldsField.Tooltip"));
-    props.setLook(wKeyFields);
+    PropsUi.setLook(wKeyFields);
     FormData fdKeyFields = new FormData();
     fdKeyFields.left = new FormAttachment(0, 0);
     fdKeyFields.top = new FormAttachment(0, margin);
@@ -320,7 +331,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
             wOtherFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.ExcludeFieldsField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.ExcludeFieldsField.Tooltip"));
-    props.setLook(wExcludeFields);
+    PropsUi.setLook(wExcludeFields);
     FormData fdExcludeFields = new FormData();
     fdExcludeFields.left = new FormAttachment(0, 0);
     fdExcludeFields.top = new FormAttachment(lastControl, margin);
@@ -333,7 +344,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
             wOtherFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.KeyDescField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.KeyDescField.Tooltip"));
-    props.setLook(wKeyDesc);
+    PropsUi.setLook(wKeyDesc);
     FormData fdKeyDesc = new FormData();
     fdKeyDesc.left = new FormAttachment(0, 0);
     fdKeyDesc.top = new FormAttachment(lastControl, margin * 3);
@@ -346,7 +357,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
             wOtherFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.ReferenceValueField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.ReferenceValueField.Tooltip"));
-    props.setLook(wReferenceValue);
+    PropsUi.setLook(wReferenceValue);
     FormData fdReferenceValue = new FormData();
     fdReferenceValue.left = new FormAttachment(0, 0);
     fdReferenceValue.top = new FormAttachment(lastControl, margin);
@@ -359,7 +370,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
             wOtherFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.CompareValueField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.CompareValueField.Tooltip"));
-    props.setLook(wCompareValue);
+    PropsUi.setLook(wCompareValue);
     FormData fdCompareValue = new FormData();
     fdCompareValue.left = new FormAttachment(0, 0);
     fdCompareValue.top = new FormAttachment(lastControl, margin);
@@ -385,6 +396,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     // /////////////////////////////
 
     CTabItem wAdditionalFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdditionalFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdditionalFieldsTab.setText(
         BaseMessages.getString(PKG, "TableComparisonDialog.AdditionalFieldsTab.TabTitle"));
 
@@ -393,7 +405,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     additionalFieldsLayout.marginHeight = 3;
 
     Composite wAdditionalFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wAdditionalFieldsComp);
+    PropsUi.setLook(wAdditionalFieldsComp);
     wAdditionalFieldsComp.setLayout(additionalFieldsLayout);
 
     // The nr of errors field
@@ -403,7 +415,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
                 wAdditionalFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsField.Tooltip"));
-    props.setLook(wNrErrors);
+    PropsUi.setLook(wNrErrors);
     FormData fdNrErrors = new FormData();
     fdNrErrors.left = new FormAttachment(0, 0);
     fdNrErrors.top = new FormAttachment(0, margin * 3);
@@ -418,7 +430,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
                 wAdditionalFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.NrRecordsReferenceField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.NrRecordsReferenceField.Tooltip"));
-    props.setLook(wNrRecordsReference);
+    PropsUi.setLook(wNrRecordsReference);
     FormData fdNrRecordsReference = new FormData();
     fdNrRecordsReference.left = new FormAttachment(0, 0);
     fdNrRecordsReference.top = new FormAttachment(lastControl, margin);
@@ -433,7 +445,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
                 wAdditionalFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.NrRecordsCompareField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.NrRecordsCompareField.Tooltip"));
-    props.setLook(wNrRecordsCompare);
+    PropsUi.setLook(wNrRecordsCompare);
     FormData fdNrRecordsCompare = new FormData();
     fdNrRecordsCompare.left = new FormAttachment(0, 0);
     fdNrRecordsCompare.top = new FormAttachment(lastControl, margin);
@@ -448,7 +460,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
                 wAdditionalFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsLeftJoinField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsLeftJoinField.Tooltip"));
-    props.setLook(wNrErrorsLeftJoin);
+    PropsUi.setLook(wNrErrorsLeftJoin);
     FormData fdNrErrorsLeftJoin = new FormData();
     fdNrErrorsLeftJoin.left = new FormAttachment(0, 0);
     fdNrErrorsLeftJoin.top = new FormAttachment(lastControl, margin);
@@ -463,7 +475,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
                 wAdditionalFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsInnerJoinField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsInnerJoinField.Tooltip"));
-    props.setLook(wNrErrorsInnerJoin);
+    PropsUi.setLook(wNrErrorsInnerJoin);
     FormData fdNrErrorsInnerJoin = new FormData();
     fdNrErrorsInnerJoin.left = new FormAttachment(0, 0);
     fdNrErrorsInnerJoin.top = new FormAttachment(lastControl, margin);
@@ -478,7 +490,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
                 wAdditionalFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsRightJoinField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsRightJoinField.Tooltip"));
-    props.setLook(wNrErrorsRightJoin);
+    PropsUi.setLook(wNrErrorsRightJoin);
     FormData fdNrErrorsRightJoin = new FormData();
     fdNrErrorsRightJoin.left = new FormAttachment(0, 0);
     fdNrErrorsRightJoin.top = new FormAttachment(lastControl, margin);

@@ -22,6 +22,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
@@ -113,7 +114,7 @@ public class DrawInputDataSetOnTransformExtensionPoint
             point.y,
             textExtent.x,
             textExtent.y,
-            new Point(0, 0),
+            new DPoint(0, 0),
             DataSetConst.AREA_DRAWN_INPUT_DATA_SET,
             transformMeta.getName()));
   }

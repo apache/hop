@@ -33,7 +33,12 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 import javax.xml.transform.dom.DOMSource;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public abstract class HopImportBase implements IHopImport {

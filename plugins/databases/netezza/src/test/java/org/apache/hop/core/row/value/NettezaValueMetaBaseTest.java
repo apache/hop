@@ -28,7 +28,11 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.netezza.NetezzaDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.mockito.Spy;
 
 import java.sql.PreparedStatement;
@@ -39,7 +43,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class NettezaValueMetaBaseTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

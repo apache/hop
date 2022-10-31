@@ -50,7 +50,18 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -353,7 +364,7 @@ public abstract class BaseDialog extends Dialog {
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener(
         new ShellAdapter() {

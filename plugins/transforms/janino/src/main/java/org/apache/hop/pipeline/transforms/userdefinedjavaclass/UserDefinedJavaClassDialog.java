@@ -42,7 +42,13 @@ import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaCl
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassDef.ClassType;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
 import org.apache.hop.ui.core.ConstUi;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -52,8 +58,18 @@ import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.*;
-import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabFolder2Adapter;
+import org.eclipse.swt.custom.CTabFolderEvent;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.TreeEditor;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -61,15 +77,30 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 public class UserDefinedJavaClassDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
@@ -175,15 +206,15 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Shell.Title"));
@@ -208,7 +239,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -216,7 +247,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -229,18 +260,18 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     // Top sash form
     //
     Composite wTop = new Composite(wSash, SWT.NONE);
-    props.setLook(wTop);
+    PropsUi.setLook(wTop);
 
     FormLayout topLayout = new FormLayout();
-    topLayout.marginWidth = Const.FORM_MARGIN;
-    topLayout.marginHeight = Const.FORM_MARGIN;
+    topLayout.marginWidth = PropsUi.getFormMargin();
+    topLayout.marginHeight = PropsUi.getFormMargin();
     wTop.setLayout(topLayout);
 
     // Script line
     Label wlScriptFunctions = new Label(wTop, SWT.NONE);
     wlScriptFunctions.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ClassesAndSnippits.Label"));
-    props.setLook(wlScriptFunctions);
+    PropsUi.setLook(wlScriptFunctions);
     FormData fdlScriptFunctions = new FormData();
     fdlScriptFunctions.left = new FormAttachment(0, 0);
     fdlScriptFunctions.top = new FormAttachment(0, 0);
@@ -248,7 +279,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
     // Tree View Test
     wTree = new Tree(wTop, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wTree);
+    PropsUi.setLook(wTree);
     FormData fdlTree = new FormData();
     fdlTree.left = new FormAttachment(0, 0);
     fdlTree.top = new FormAttachment(wlScriptFunctions, margin);
@@ -259,7 +290,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     // Script line
     Label wlScript = new Label(wTop, SWT.NONE);
     wlScript.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Class.Label"));
-    props.setLook(wlScript);
+    PropsUi.setLook(wlScript);
     FormData fdlScript = new FormData();
     fdlScript.left = new FormAttachment(wTree, margin);
     fdlScript.top = new FormAttachment(0, 0);
@@ -268,7 +299,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     wlPosition = new Label(wTop, SWT.NONE);
     wlPosition.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Position.Label", 1, 1));
-    props.setLook(wlPosition);
+    PropsUi.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(wTree, margin);
     fdlPosition.right = new FormAttachment(30, 0);
@@ -288,7 +319,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     Text wlHelpLabel = new Text(wTop, SWT.V_SCROLL | SWT.LEFT);
     wlHelpLabel.setEditable(false);
     wlHelpLabel.setText("Help");
-    props.setLook(wlHelpLabel);
+    PropsUi.setLook(wlHelpLabel);
     FormData fdHelpLabel = new FormData();
     fdHelpLabel.left = new FormAttachment(wlPosition, margin);
     fdHelpLabel.top = new FormAttachment(folder, margin);
@@ -309,7 +340,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     // streams
     //
     wTabFolder = new CTabFolder(wSash, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
     wTabFolder.setUnselectedCloseVisible(false);
 
     FormData fdTabFolder = new FormData();
@@ -543,21 +574,22 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
   private void addFieldsTab() {
     fieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    fieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     fieldsTab.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Fields.Title"));
     fieldsTab.setToolTipText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Fields.TooltipText"));
 
     Composite wBottom = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wBottom);
+    PropsUi.setLook(wBottom);
     fieldsTab.setControl(wBottom);
     FormLayout bottomLayout = new FormLayout();
-    bottomLayout.marginWidth = Const.FORM_MARGIN;
-    bottomLayout.marginHeight = Const.FORM_MARGIN;
+    bottomLayout.marginWidth = PropsUi.getFormMargin();
+    bottomLayout.marginHeight = PropsUi.getFormMargin();
     wBottom.setLayout(bottomLayout);
 
     Label wlFields = new Label(wBottom, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(0, 0);
@@ -566,7 +598,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     wClearResultFields = new Button(wBottom, SWT.CHECK);
     wClearResultFields.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ClearResultFields.Label"));
-    props.setLook(wClearResultFields);
+    PropsUi.setLook(wClearResultFields);
     FormData fdClearResultFields = new FormData();
     fdClearResultFields.right = new FormAttachment(100, 0);
     fdClearResultFields.top = new FormAttachment(0, 0);
@@ -621,22 +653,23 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
   private void addInfoTab() {
     CTabItem infoTab = new CTabItem(wTabFolder, SWT.NONE);
+    infoTab.setFont(GuiResource.getInstance().getFontDefault());
     infoTab.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Info.Title"));
     infoTab.setToolTipText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Info.TooltipText"));
 
     Composite wBottom = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wBottom);
+    PropsUi.setLook(wBottom);
     infoTab.setControl(wBottom);
     FormLayout bottomLayout = new FormLayout();
-    bottomLayout.marginWidth = Const.FORM_MARGIN;
-    bottomLayout.marginHeight = Const.FORM_MARGIN;
+    bottomLayout.marginWidth = PropsUi.getFormMargin();
+    bottomLayout.marginHeight = PropsUi.getFormMargin();
     wBottom.setLayout(bottomLayout);
 
     Label wlFields = new Label(wBottom, SWT.NONE);
     wlFields.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.InfoTransforms.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(0, 0);
@@ -687,22 +720,23 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
   private void addTargetTab() {
     CTabItem targetTab = new CTabItem(wTabFolder, SWT.NONE);
+    targetTab.setFont(GuiResource.getInstance().getFontDefault());
     targetTab.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Target.Title"));
     targetTab.setToolTipText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Target.TooltipText"));
 
     Composite wBottom = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wBottom);
+    PropsUi.setLook(wBottom);
     targetTab.setControl(wBottom);
     FormLayout bottomLayout = new FormLayout();
-    bottomLayout.marginWidth = Const.FORM_MARGIN;
-    bottomLayout.marginHeight = Const.FORM_MARGIN;
+    bottomLayout.marginWidth = PropsUi.getFormMargin();
+    bottomLayout.marginHeight = PropsUi.getFormMargin();
     wBottom.setLayout(bottomLayout);
 
     Label wlFields = new Label(wBottom, SWT.NONE);
     wlFields.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.TargetTransforms.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(0, 0);
@@ -753,22 +787,23 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
   private void addParametersTab() {
     CTabItem parametersTab = new CTabItem(wTabFolder, SWT.NONE);
+    parametersTab.setFont(GuiResource.getInstance().getFontDefault());
     parametersTab.setText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Parameters.Title"));
     parametersTab.setToolTipText(
         BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Tabs.Parameters.TooltipText"));
 
     Composite wBottom = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wBottom);
+    PropsUi.setLook(wBottom);
     parametersTab.setControl(wBottom);
     FormLayout bottomLayout = new FormLayout();
-    bottomLayout.marginWidth = Const.FORM_MARGIN;
-    bottomLayout.marginHeight = Const.FORM_MARGIN;
+    bottomLayout.marginWidth = PropsUi.getFormMargin();
+    bottomLayout.marginHeight = PropsUi.getFormMargin();
     wBottom.setLayout(bottomLayout);
 
     Label wlFields = new Label(wBottom, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Parameters.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(0, 0);
@@ -828,6 +863,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
   private void addCtab(String tabName, String tabCode, TabAddActions tabType) {
     CTabItem item = new CTabItem(folder, SWT.CLOSE);
+    item.setFont(GuiResource.getInstance().getFontDefault());
 
     switch (tabType) {
       case ADD_DEFAULT:
@@ -846,7 +882,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
       wScript.setText(snippitsHelper.getDefaultCode());
     }
 
-    props.setLook(wScript, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
     Listener listener = e -> setPosition(wScript);
     wScript.addListener(SWT.Modify, listener);
     wScript.addListener(SWT.KeyDown, listener);

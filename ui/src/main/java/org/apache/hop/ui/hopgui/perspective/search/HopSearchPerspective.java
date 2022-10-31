@@ -21,7 +21,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.search.*;
+import org.apache.hop.core.search.ISearchResult;
+import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.search.ISearchableAnalyser;
+import org.apache.hop.core.search.ISearchablesLocation;
+import org.apache.hop.core.search.SearchQuery;
+import org.apache.hop.core.search.SearchableAnalyserPluginType;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -41,10 +46,20 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TableItem;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 @HopPerspectivePlugin(
     id = "400-HopSearchPerspective",
@@ -153,7 +168,7 @@ public class HopSearchPerspective implements IHopPerspective {
     PropsUi props = PropsUi.getInstance();
 
     composite = new Composite(parent, SWT.NONE);
-    props.setLook(composite);
+    PropsUi.setLook(composite);
     FormLayout layout = new FormLayout();
     layout.marginLeft = props.getMargin();
     layout.marginTop = props.getMargin();
@@ -173,7 +188,7 @@ public class HopSearchPerspective implements IHopPerspective {
     // Add a simple label to test
     //
     Label wlInfo = new Label(composite, SWT.LEFT);
-    props.setLook(wlInfo);
+    PropsUi.setLook(wlInfo);
     wlInfo.setText(BaseMessages.getString(PKG, "HopSearchPerspective.Header.Description.Text"));
     wlInfo.setFont(GuiResource.getInstance().getFontBold());
     FormData fdInfo = new FormData();
@@ -184,7 +199,7 @@ public class HopSearchPerspective implements IHopPerspective {
     Control lastControl = wlInfo;
 
     Label wlSep1 = new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL);
-    props.setLook(wlSep1);
+    PropsUi.setLook(wlSep1);
     FormData fdlSep1 = new FormData();
     fdlSep1.left = new FormAttachment(0, 0);
     fdlSep1.right = new FormAttachment(100, 0);
@@ -195,7 +210,7 @@ public class HopSearchPerspective implements IHopPerspective {
     // The location
     //
     Label wlLocations = new Label(composite, SWT.LEFT);
-    props.setLook(wlLocations);
+    PropsUi.setLook(wlLocations);
     wlLocations.setText(BaseMessages.getString(PKG, "HopSearchPerspective.Label.Location"));
     FormData fdlLocations = new FormData();
     fdlLocations.left = new FormAttachment(0, 0);
@@ -204,7 +219,7 @@ public class HopSearchPerspective implements IHopPerspective {
     lastControl = wlLocations;
 
     wLocations = new Combo(composite, SWT.BORDER);
-    props.setLook(wLocations);
+    PropsUi.setLook(wLocations);
     FormData fdLocations = new FormData();
     fdLocations.left = new FormAttachment(0, 0);
     fdLocations.top = new FormAttachment(lastControl, margin);
@@ -215,7 +230,7 @@ public class HopSearchPerspective implements IHopPerspective {
     // The search query
     //
     Label wlSearchString = new Label(composite, SWT.LEFT);
-    props.setLook(wlSearchString);
+    PropsUi.setLook(wlSearchString);
     wlSearchString.setText(
         BaseMessages.getString(PKG, "HopSearchPerspective.SearchStringOptions.Description"));
     FormData fdlSearchString = new FormData();
@@ -224,7 +239,7 @@ public class HopSearchPerspective implements IHopPerspective {
     wlSearchString.setLayoutData(fdlSearchString);
 
     wCaseSensitive = new Button(composite, SWT.CHECK);
-    props.setLook(wCaseSensitive);
+    PropsUi.setLook(wCaseSensitive);
     wCaseSensitive.setText(
         BaseMessages.getString(PKG, "HopSearchPerspective.SearchStringOptions.Option1.Label"));
     FormData fdCaseSensitive = new FormData();
@@ -233,7 +248,7 @@ public class HopSearchPerspective implements IHopPerspective {
     wCaseSensitive.setLayoutData(fdCaseSensitive);
 
     wRegEx = new Button(composite, SWT.CHECK);
-    props.setLook(wRegEx);
+    PropsUi.setLook(wRegEx);
     wRegEx.setText(
         BaseMessages.getString(PKG, "HopSearchPerspective.SearchStringOptions.Option2.Label"));
     FormData fdRegEx = new FormData();
@@ -243,7 +258,7 @@ public class HopSearchPerspective implements IHopPerspective {
     lastControl = wCaseSensitive;
 
     wSearchString = new Combo(composite, SWT.BORDER | SWT.SINGLE);
-    props.setLook(wSearchString);
+    PropsUi.setLook(wSearchString);
     wSearchString.setFont(GuiResource.getInstance().getFontBold());
     FormData fdSearchString = new FormData();
     fdSearchString.left = new FormAttachment(0, 0);
@@ -254,7 +269,7 @@ public class HopSearchPerspective implements IHopPerspective {
     lastControl = wSearchString;
 
     Button wbSearch = new Button(composite, SWT.PUSH);
-    props.setLook(wbSearch);
+    PropsUi.setLook(wbSearch);
     wbSearch.setText(BaseMessages.getString(PKG, "HopSearchPerspective.Search.Button.Label"));
     FormData fdbSearch = new FormData();
     fdbSearch.left = new FormAttachment(0, 0);
@@ -264,7 +279,7 @@ public class HopSearchPerspective implements IHopPerspective {
     lastControl = wbSearch;
 
     Button wbOpen = new Button(composite, SWT.PUSH);
-    props.setLook(wbOpen);
+    PropsUi.setLook(wbOpen);
     wbOpen.setText(BaseMessages.getString(PKG, "HopSearchPerspective.Open.Button.Label"));
     FormData fdbOpen = new FormData();
     fdbOpen.left = new FormAttachment(50, 0);
@@ -322,7 +337,7 @@ public class HopSearchPerspective implements IHopPerspective {
             0,
             null,
             props);
-    props.setLook(wResults);
+    PropsUi.setLook(wResults);
     wResults.setReadonly(true);
     FormData fdResults = new FormData();
     fdResults.left = new FormAttachment(0, 0);

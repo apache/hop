@@ -23,7 +23,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /** Old code, copied from {@linkplain DatabaseLookup} */
 public class DefaultCache implements DatabaseLookupData.ICache {

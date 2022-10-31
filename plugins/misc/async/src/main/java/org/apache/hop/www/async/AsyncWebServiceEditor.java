@@ -30,14 +30,17 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
-import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.www.service.WebServiceEditor;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 
 /**
  * Editor that allows you to change Asynchronous Web Service metadata
@@ -72,11 +75,11 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     fdlIcon.top = new FormAttachment(0, 0);
     fdlIcon.right = new FormAttachment(100, 0);
     wIcon.setLayoutData(fdlIcon);
-    props.setLook(wIcon);
+    PropsUi.setLook(wIcon);
 
     // What's the name
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText("Name");
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(wIcon, margin);
@@ -84,7 +87,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, margin);
@@ -102,7 +105,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     // Enabled?
     //
     Label wlEnabled = new Label(parent, SWT.RIGHT);
-    props.setLook(wlEnabled);
+    PropsUi.setLook(wlEnabled);
     wlEnabled.setText("Enabled?");
     FormData fdlEnabled = new FormData();
     fdlEnabled.left = new FormAttachment(0, 0);
@@ -110,7 +113,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     fdlEnabled.top = new FormAttachment(lastControl, margin);
     wlEnabled.setLayoutData(fdlEnabled);
     wEnabled = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wEnabled);
+    PropsUi.setLook(wEnabled);
     FormData fdEnabled = new FormData();
     fdEnabled.left = new FormAttachment(middle, margin);
     fdEnabled.right = new FormAttachment(100, 0);
@@ -119,7 +122,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     lastControl = wlEnabled;
 
     Label wlFilename = new Label(parent, SWT.RIGHT);
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     wlFilename.setText("Filename");
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -128,7 +131,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wlFilename.setLayoutData(fdlFilename);
 
     Button wbbFilename = new Button(parent, SWT.PUSH);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbbFilename = new FormData();
     fdbbFilename.right = new FormAttachment(100, 0);
@@ -137,7 +140,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wbbFilename.addListener(SWT.Selection, e -> selectWorkflowFilename(parent));
 
     Button wbnFilename = new Button(parent, SWT.PUSH);
-    props.setLook(wbnFilename);
+    PropsUi.setLook(wbnFilename);
     wbnFilename.setText(BaseMessages.getString(PKG, "System.Button.New"));
     FormData fdbnFilename = new FormData();
     fdbnFilename.right = new FormAttachment(wbbFilename, -margin);
@@ -146,7 +149,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wbnFilename.addListener(SWT.Selection, e -> createWorkflowFile(parent));
 
     Button wboFilename = new Button(parent, SWT.PUSH);
-    props.setLook(wboFilename);
+    PropsUi.setLook(wboFilename);
     wboFilename.setText(BaseMessages.getString(PKG, "System.Button.Open"));
     FormData fdboFilename = new FormData();
     fdboFilename.right = new FormAttachment(wbnFilename, -margin);
@@ -155,7 +158,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wboFilename.addListener(SWT.Selection, e -> openWorkflowFile(parent));
 
     wFilename = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, margin);
     fdFilename.right = new FormAttachment(wboFilename, -margin);
@@ -166,7 +169,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     // Status variables
     //
     Label wlStatusVars = new Label(parent, SWT.RIGHT);
-    props.setLook(wlStatusVars);
+    PropsUi.setLook(wlStatusVars);
     wlStatusVars.setText("Status variables (, separated)");
     FormData fdlStatusVars = new FormData();
     fdlStatusVars.left = new FormAttachment(0, 0);
@@ -174,7 +177,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     fdlStatusVars.top = new FormAttachment(lastControl, 2 * margin);
     wlStatusVars.setLayoutData(fdlStatusVars);
     wStatusVars = new TextVar(manager.getVariables(), parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wStatusVars);
+    PropsUi.setLook(wStatusVars);
     FormData fdStatusVars = new FormData();
     fdStatusVars.left = new FormAttachment(middle, margin);
     fdStatusVars.right = new FormAttachment(100, 0);
@@ -185,7 +188,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     // Status variables
     //
     Label wlContentVar = new Label(parent, SWT.RIGHT);
-    props.setLook(wlContentVar);
+    PropsUi.setLook(wlContentVar);
     wlContentVar.setText("Content variable");
     FormData fdlContentVar = new FormData();
     fdlContentVar.left = new FormAttachment(0, 0);
@@ -193,7 +196,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     fdlContentVar.top = new FormAttachment(lastControl, 2 * margin);
     wlContentVar.setLayoutData(fdlContentVar);
     wContentVar = new TextVar(manager.getVariables(), parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wContentVar);
+    PropsUi.setLook(wContentVar);
     FormData fdContentVar = new FormData();
     fdContentVar.left = new FormAttachment(middle, margin);
     fdContentVar.right = new FormAttachment(100, 0);

@@ -31,8 +31,10 @@ import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -43,7 +45,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -73,7 +74,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
   protected void optionsSectionControls() {
 
     wlLogLevel = new Label(gDetails, SWT.NONE);
-    props.setLook(wlLogLevel);
+    PropsUi.setLook(wlLogLevel);
     wlLogLevel.setText(
         BaseMessages.getString(PKG, "PipelineExecutionConfigurationDialog.LogLevel.Label"));
     wlLogLevel.setToolTipText(
@@ -86,7 +87,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     wLogLevel = new CCombo(gDetails, SWT.READ_ONLY | SWT.BORDER);
     wLogLevel.setToolTipText(
         BaseMessages.getString(PKG, "PipelineExecutionConfigurationDialog.LogLevel.Tooltip"));
-    props.setLook(wLogLevel);
+    PropsUi.setLook(wLogLevel);
     FormData fdLogLevel = new FormData();
     fdLogLevel.top = new FormAttachment(wlLogLevel, -2, SWT.TOP);
     fdLogLevel.right = new FormAttachment(100, 0);
@@ -99,7 +100,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
         BaseMessages.getString(PKG, "PipelineExecutionConfigurationDialog.ClearLog.Label"));
     wClearLog.setToolTipText(
         BaseMessages.getString(PKG, "PipelineExecutionConfigurationDialog.ClearLog.Tooltip"));
-    props.setLook(wClearLog);
+    PropsUi.setLook(wClearLog);
     FormData fdClearLog = new FormData();
     fdClearLog.top = new FormAttachment(wLogLevel, 10);
     fdClearLog.left = new FormAttachment(0, 0);
@@ -154,7 +155,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
             runConfigTooltip,
             true);
     wRunConfigurationControl = wRunConfiguration;
-    props.setLook(wRunConfiguration);
+    PropsUi.setLook(wRunConfiguration);
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.right = new FormAttachment(100, 0);
     fdRunConfiguration.top = new FormAttachment(0, props.getMargin());

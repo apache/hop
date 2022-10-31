@@ -19,11 +19,22 @@ package org.apache.hop.core.util;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /** Test class for StringEvaluator functionality. */
 public class StringEvaluatorTest {

@@ -25,7 +25,12 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -141,9 +146,7 @@ public class TextVar extends Composite {
     this.insertTextInterface = insertTextInterface;
     this.variables = variables;
 
-    PropsUi props = PropsUi.getInstance();
-
-    props.setLook(this);
+    PropsUi.setLook(this);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
@@ -156,7 +159,7 @@ public class TextVar extends Composite {
     // Add the variable $ image on the top right of the control
     //
     Label wImage = new Label(this, SWT.NONE);
-    props.setLook(wImage);
+    PropsUi.setLook(wImage);
     wImage.setImage(GuiResource.getInstance().getImageVariable());
     wImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.InsertVariable"));
     FormData fdlImage = new FormData();
@@ -166,6 +169,7 @@ public class TextVar extends Composite {
 
     // add a text field on it...
     wText = new Text(this, flags);
+    PropsUi.setLook(wText);
     FormData fdText = new FormData();
     fdText.top = new FormAttachment(0, 0);
     fdText.left = new FormAttachment(0, 0);

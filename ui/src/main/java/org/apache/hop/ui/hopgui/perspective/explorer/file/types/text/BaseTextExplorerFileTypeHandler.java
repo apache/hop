@@ -53,7 +53,7 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     // Render the file by simply showing the file content as a text widget...
     //
     wText = new Text(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-    PropsUi.getInstance().setLook(wText, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wText, Props.WIDGET_STYLE_FIXED);
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(0, 0);
     fdText.right = new FormAttachment(100, 0);

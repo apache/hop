@@ -17,13 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.cubeoutput;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -66,15 +66,15 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "CubeOutputDialog.Shell.Text"));
@@ -85,7 +85,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "CubeOutputDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -93,7 +93,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -104,14 +104,14 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     // Filename line
     Label wlFilename = new Label(shell, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "CubeOutputDialog.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(wTransformName, margin + 5);
     fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
     Button wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbFilename);
+    PropsUi.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "CubeOutputDialog.Browse.Button"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
@@ -119,7 +119,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     wbFilename.setLayoutData(fdbFilename);
 
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -131,7 +131,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     Label wlDoNotOpenNewFileInit = new Label(shell, SWT.RIGHT);
     wlDoNotOpenNewFileInit.setText(
         BaseMessages.getString(PKG, "CubeOutputDialog.DoNotOpenNewFileInit.Label"));
-    props.setLook(wlDoNotOpenNewFileInit);
+    PropsUi.setLook(wlDoNotOpenNewFileInit);
     FormData fdlDoNotOpenNewFileInit = new FormData();
     fdlDoNotOpenNewFileInit.left = new FormAttachment(0, 0);
     fdlDoNotOpenNewFileInit.top = new FormAttachment(wFilename, 2 * margin);
@@ -140,7 +140,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     wDoNotOpenNewFileInit = new Button(shell, SWT.CHECK);
     wDoNotOpenNewFileInit.setToolTipText(
         BaseMessages.getString(PKG, "CubeOutputDialog.DoNotOpenNewFileInit.Tooltip"));
-    props.setLook(wDoNotOpenNewFileInit);
+    PropsUi.setLook(wDoNotOpenNewFileInit);
     FormData fdDoNotOpenNewFileInit = new FormData();
     fdDoNotOpenNewFileInit.left = new FormAttachment(middle, 0);
     fdDoNotOpenNewFileInit.top = new FormAttachment(wlDoNotOpenNewFileInit, 0, SWT.CENTER);
@@ -157,7 +157,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     // Add File to the result files name
     Label wlAddToResult = new Label(shell, SWT.RIGHT);
     wlAddToResult.setText(BaseMessages.getString(PKG, "CubeOutputDialog.AddFileToResult.Label"));
-    props.setLook(wlAddToResult);
+    PropsUi.setLook(wlAddToResult);
     FormData fdlAddToResult = new FormData();
     fdlAddToResult.left = new FormAttachment(0, 0);
     fdlAddToResult.top = new FormAttachment(wDoNotOpenNewFileInit, margin);
@@ -166,7 +166,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     wAddToResult = new Button(shell, SWT.CHECK);
     wAddToResult.setToolTipText(
         BaseMessages.getString(PKG, "CubeOutputDialog.AddFileToResult.Tooltip"));
-    props.setLook(wAddToResult);
+    PropsUi.setLook(wAddToResult);
     FormData fdAddToResult = new FormData();
     fdAddToResult.left = new FormAttachment(middle, 0);
     fdAddToResult.top = new FormAttachment(wlAddToResult, 0, SWT.CENTER);

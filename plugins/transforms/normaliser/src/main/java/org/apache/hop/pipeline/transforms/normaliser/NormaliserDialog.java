@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -37,10 +38,17 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class NormaliserDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = NormaliserMeta.class; // For Translator
@@ -73,15 +81,15 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "NormaliserDialog.Shell.Title"));
@@ -104,7 +112,7 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "NormaliserDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -112,7 +120,7 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -123,7 +131,7 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     // Typefield line
     Label wlTypefield = new Label(shell, SWT.RIGHT);
     wlTypefield.setText(BaseMessages.getString(PKG, "NormaliserDialog.TypeField.Label"));
-    props.setLook(wlTypefield);
+    PropsUi.setLook(wlTypefield);
     FormData fdlTypefield = new FormData();
     fdlTypefield.left = new FormAttachment(0, 0);
     fdlTypefield.right = new FormAttachment(middle, -margin);
@@ -131,7 +139,7 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     wlTypefield.setLayoutData(fdlTypefield);
     wTypefield = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTypefield.setText("");
-    props.setLook(wTypefield);
+    PropsUi.setLook(wTypefield);
     wTypefield.addModifyListener(lsMod);
     FormData fdTypefield = new FormData();
     fdTypefield.left = new FormAttachment(middle, 0);
@@ -141,7 +149,7 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "NormaliserDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wTypefield, margin);

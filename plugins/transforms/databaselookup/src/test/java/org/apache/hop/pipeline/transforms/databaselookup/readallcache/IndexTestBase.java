@@ -27,7 +27,9 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * This is a base class for several similar cases. All of them are checking how indexes work with

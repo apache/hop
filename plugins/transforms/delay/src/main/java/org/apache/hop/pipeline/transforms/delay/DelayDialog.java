@@ -17,13 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.delay;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -56,15 +56,15 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "DelayDialog.Shell.Title"));
@@ -75,7 +75,7 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "DelayDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -83,7 +83,7 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -98,7 +98,7 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
             shell,
             BaseMessages.getString(PKG, "DelayDialog.Timeout.Label"),
             BaseMessages.getString(PKG, "DelayDialog.Timeout.Tooltip"));
-    props.setLook(wTimeout);
+    PropsUi.setLook(wTimeout);
     wTimeout.addModifyListener(lsMod);
     FormData fdTimeout = new FormData();
     fdTimeout.left = new FormAttachment(0, -margin);
@@ -115,7 +115,7 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
     wScaleTime.add(BaseMessages.getString(PKG, "DelayDialog.MnScaleTime.Label"));
     wScaleTime.add(BaseMessages.getString(PKG, "DelayDialog.HrScaleTime.Label"));
     wScaleTime.select(0); // +1: starts at -1
-    props.setLook(wScaleTime);
+    PropsUi.setLook(wScaleTime);
     FormData fdScaleTime = new FormData();
     fdScaleTime.left = new FormAttachment(middle, 0);
     fdScaleTime.top = new FormAttachment(wTimeout, margin);

@@ -16,7 +16,6 @@
  */
 package org.apache.hop.ui.pipeline.transforms.missing;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -114,19 +113,19 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
 
     shell = new Shell(shellParent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON | SWT.APPLICATION_MODAL);
 
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginLeft = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginLeft = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setText(BaseMessages.getString(PKG, "MissingPipelineDialog.MissingPlugins"));
     shell.setLayout(formLayout);
 
     Label image = new Label(shell, SWT.NONE);
-    props.setLook(image);
+    PropsUi.setLook(image);
     Image icon = display.getSystemImage(SWT.ICON_QUESTION);
     image.setImage(icon);
     FormData imageData = new FormData();
@@ -136,7 +135,7 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
     image.setLayoutData(imageData);
 
     Label error = new Label(shell, SWT.WRAP);
-    props.setLook(error);
+    PropsUi.setLook(error);
     error.setText(getErrorMessage(missingPipeline, mode));
     FormData errorData = new FormData();
     errorData.left = new FormAttachment(image, 5);
@@ -145,13 +144,13 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
     error.setLayoutData(errorData);
 
     Label separator = new Label(shell, SWT.WRAP);
-    props.setLook(separator);
+    PropsUi.setLook(separator);
     FormData separatorData = new FormData();
     separatorData.top = new FormAttachment(error, 10);
     separator.setLayoutData(separatorData);
 
     Button closeButton = new Button(shell, SWT.PUSH);
-    props.setLook(closeButton);
+    PropsUi.setLook(closeButton);
     FormData fdClose = new FormData();
     fdClose.right = new FormAttachment(98);
     fdClose.top = new FormAttachment(separator);
@@ -168,7 +167,7 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
     FormData fdSearch = new FormData();
     if (this.mode == MISSING_PIPELINE_TRANSFORMS) {
       Button openButton = new Button(shell, SWT.PUSH);
-      props.setLook(openButton);
+      PropsUi.setLook(openButton);
       FormData fdOpen = new FormData();
       fdOpen.right = new FormAttachment(closeButton, -5);
       fdOpen.bottom = new FormAttachment(closeButton, 0, SWT.BOTTOM);
@@ -189,7 +188,7 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
     }
 
     Button searchButton = new Button(shell, SWT.PUSH);
-    props.setLook(searchButton);
+    PropsUi.setLook(searchButton);
     searchButton.setText(BaseMessages.getString(PKG, "MissingPipelineDialog.SearchMarketplace"));
     searchButton.setLayoutData(fdSearch);
     searchButton.addSelectionListener(

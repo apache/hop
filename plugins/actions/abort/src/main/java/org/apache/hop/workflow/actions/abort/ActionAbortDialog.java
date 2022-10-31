@@ -17,11 +17,12 @@
 
 package org.apache.hop.workflow.actions.abort;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -33,8 +34,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.*;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 
 /** This dialog allows you to edit a Action Abort object. */
@@ -65,34 +72,34 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = (ModifyEvent e) -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
-    formLayout.spacing = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
+    formLayout.spacing = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionAbortDialog.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionAbortDialog.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -103,7 +110,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     // Message line
     Label wlMessageAbort = new Label(shell, SWT.RIGHT);
     wlMessageAbort.setText(BaseMessages.getString(PKG, "ActionAbortDialog.MessageAbort.Label"));
-    props.setLook(wlMessageAbort);
+    PropsUi.setLook(wlMessageAbort);
     FormData fdlMessageAbort = new FormData();
     fdlMessageAbort.left = new FormAttachment(0, 0);
     fdlMessageAbort.right = new FormAttachment(middle, 0);
@@ -111,7 +118,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     wlMessageAbort.setLayoutData(fdlMessageAbort);
 
     wMessageAbort = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMessageAbort);
+    PropsUi.setLook(wMessageAbort);
     wMessageAbort.setToolTipText(
         BaseMessages.getString(PKG, "ActionAbortDialog.MessageAbort.Tooltip"));
     wMessageAbort.addModifyListener(lsMod);
@@ -125,7 +132,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     // Always log rows
     wAlwaysLogRows = new Button(shell, SWT.CHECK);
     wAlwaysLogRows.setSelection(true);
-    props.setLook(wAlwaysLogRows);
+    PropsUi.setLook(wAlwaysLogRows);
     wAlwaysLogRows.setText(BaseMessages.getString(PKG, "ActionAbortDialog.AlwaysLogRows.Label"));
     wAlwaysLogRows.setToolTipText(
         BaseMessages.getString(PKG, "ActionAbortDialog.AlwaysLogRows.Tooltip"));

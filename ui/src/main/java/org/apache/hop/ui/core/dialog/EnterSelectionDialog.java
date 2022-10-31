@@ -36,7 +36,15 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -155,7 +163,7 @@ public class EnterSelectionDialog extends Dialog {
                 | SWT.RESIZE
                 | SWT.MIN
                 | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 15;
@@ -169,11 +177,11 @@ public class EnterSelectionDialog extends Dialog {
 
     if (quickSearch) {
       ToolBar treeTb = new ToolBar(shell, SWT.HORIZONTAL | SWT.FLAT);
-      props.setLook(treeTb);
+      PropsUi.setLook(treeTb);
 
       ToolItem wfilter = new ToolItem(treeTb, SWT.SEPARATOR);
       searchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL);
-      props.setLook(searchText);
+      PropsUi.setLook(searchText);
       searchText.setToolTipText(
           BaseMessages.getString(PKG, "EnterSelectionDialog.FilterString.ToolTip"));
       wfilter.setControl(searchText);
@@ -201,7 +209,7 @@ public class EnterSelectionDialog extends Dialog {
       treeTb.setLayoutData(fd);
 
       Label wlFilter = new Label(shell, SWT.RIGHT);
-      props.setLook(wlFilter);
+      PropsUi.setLook(wlFilter);
       wlFilter.setText(BaseMessages.getString(PKG, "EnterSelectionDialog.FilterString.Label"));
       FormData fdlFilter = new FormData();
       fdlFilter.top = new FormAttachment(0, 5);
@@ -219,7 +227,7 @@ public class EnterSelectionDialog extends Dialog {
       // From transform line
       wlSelection = new Label(shell, SWT.NONE);
       wlSelection.setText(lineText);
-      props.setLook(wlSelection);
+      PropsUi.setLook(wlSelection);
       fdlSelection = new FormData();
       fdlSelection.left = new FormAttachment(0, 0);
       fdlSelection.top = new FormAttachment(treeTb, 10);
@@ -227,7 +235,7 @@ public class EnterSelectionDialog extends Dialog {
       // From transform line
       wlSelection = new Label(shell, SWT.NONE);
       wlSelection.setText(lineText);
-      props.setLook(wlSelection);
+      PropsUi.setLook(wlSelection);
       fdlSelection = new FormData();
       fdlSelection.left = new FormAttachment(0, 0);
     }
@@ -248,9 +256,9 @@ public class EnterSelectionDialog extends Dialog {
       wSelection.select(selectedNrs);
     }
     if (fixed) {
-      props.setLook(wSelection, Props.WIDGET_STYLE_FIXED);
+      PropsUi.setLook(wSelection, Props.WIDGET_STYLE_FIXED);
     } else {
-      props.setLook(wSelection);
+      PropsUi.setLook(wSelection);
     }
 
     ArrayList<Button> buttons = new ArrayList<>();
@@ -293,7 +301,7 @@ public class EnterSelectionDialog extends Dialog {
       if (!Utils.isEmpty(constant)) {
         wConstantValue.setText(constant);
       }
-      props.setLook(wConstantValue);
+      PropsUi.setLook(wConstantValue);
       FormData fdConstantValue = new FormData();
       fdConstantValue.left = new FormAttachment(0, 0);
       fdConstantValue.bottom = new FormAttachment(wOk, -10);
@@ -301,7 +309,7 @@ public class EnterSelectionDialog extends Dialog {
       wConstantValue.setLayoutData(fdConstantValue);
 
       wbUseConstant = new Button(shell, SWT.CHECK);
-      props.setLook(wbUseConstant);
+      PropsUi.setLook(wbUseConstant);
       wbUseConstant.setText(BaseMessages.getString(PKG, "EnterSelectionDialog.UseConstant.Label"));
       wbUseConstant.setSelection(!Utils.isEmpty(constant));
       nextControl = wbUseConstant;
@@ -363,11 +371,11 @@ public class EnterSelectionDialog extends Dialog {
                 | (modal ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE)
                 | SWT.MIN
                 | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(shellText);
@@ -375,7 +383,7 @@ public class EnterSelectionDialog extends Dialog {
 
     wlSelection = new Label(shell, SWT.NONE);
     wlSelection.setText(lineText);
-    props.setLook(wlSelection);
+    PropsUi.setLook(wlSelection);
     fdlSelection = new FormData();
     fdlSelection.left = new FormAttachment(0, 10);
     fdlSelection.top = new FormAttachment(0, 10);

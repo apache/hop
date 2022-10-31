@@ -34,9 +34,11 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -50,11 +52,21 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class SelectValuesDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
@@ -98,7 +110,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     SelectionListener lsSel =
@@ -113,8 +125,8 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Shell.Label"));
@@ -125,7 +137,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "SelectValuesDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -133,7 +145,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -154,17 +166,18 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
 
     // The folders!
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF SELECT TAB ///
     // ////////////////////////
 
     CTabItem wSelectTab = new CTabItem(wTabFolder, SWT.NONE);
+    wSelectTab.setFont(GuiResource.getInstance().getFontDefault());
     wSelectTab.setText(BaseMessages.getString(PKG, "SelectValuesDialog.SelectTab.TabItem"));
 
     Composite wSelectComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wSelectComp);
+    PropsUi.setLook(wSelectComp);
 
     FormLayout selectLayout = new FormLayout();
     selectLayout.marginWidth = margin;
@@ -173,7 +186,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
 
     Label wlUnspecified = new Label(wSelectComp, SWT.RIGHT);
     wlUnspecified.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Unspecified.Label"));
-    props.setLook(wlUnspecified);
+    PropsUi.setLook(wlUnspecified);
     FormData fdlUnspecified = new FormData();
     fdlUnspecified.left = new FormAttachment(0, 0);
     fdlUnspecified.right = new FormAttachment(middle, 0);
@@ -181,7 +194,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     wlUnspecified.setLayoutData(fdlUnspecified);
 
     wUnspecified = new Button(wSelectComp, SWT.CHECK);
-    props.setLook(wUnspecified);
+    PropsUi.setLook(wUnspecified);
     FormData fdUnspecified = new FormData();
     fdUnspecified.left = new FormAttachment(middle, margin);
     fdUnspecified.right = new FormAttachment(100, 0);
@@ -191,7 +204,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
 
     Label wlFields = new Label(wSelectComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(0, 0);
@@ -277,6 +290,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     // START OF REMOVE TAB
     // ///////////////////////////////////////////////////////////
     CTabItem wRemoveTab = new CTabItem(wTabFolder, SWT.NONE);
+    wRemoveTab.setFont(GuiResource.getInstance().getFontDefault());
     wRemoveTab.setText(BaseMessages.getString(PKG, "SelectValuesDialog.RemoveTab.TabItem"));
 
     FormLayout contentLayout = new FormLayout();
@@ -284,12 +298,12 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     contentLayout.marginHeight = margin;
 
     Composite wRemoveComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wRemoveComp);
+    PropsUi.setLook(wRemoveComp);
     wRemoveComp.setLayout(contentLayout);
 
     Label wlRemove = new Label(wRemoveComp, SWT.NONE);
     wlRemove.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Remove.Label"));
-    props.setLook(wlRemove);
+    PropsUi.setLook(wlRemove);
     FormData fdlRemove = new FormData();
     fdlRemove.left = new FormAttachment(0, 0);
     fdlRemove.top = new FormAttachment(0, 0);
@@ -350,10 +364,11 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     // ////////////////////////
 
     CTabItem wMetaTab = new CTabItem(wTabFolder, SWT.NONE);
+    wMetaTab.setFont(GuiResource.getInstance().getFontDefault());
     wMetaTab.setText(BaseMessages.getString(PKG, "SelectValuesDialog.MetaTab.TabItem"));
 
     Composite wMetaComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wMetaComp);
+    PropsUi.setLook(wMetaComp);
 
     FormLayout metaLayout = new FormLayout();
     metaLayout.marginWidth = margin;
@@ -362,7 +377,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
 
     Label wlMeta = new Label(wMetaComp, SWT.NONE);
     wlMeta.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Meta.Label"));
-    props.setLook(wlMeta);
+    PropsUi.setLook(wlMeta);
     FormData fdlMeta = new FormData();
     fdlMeta.left = new FormAttachment(0, 0);
     fdlMeta.top = new FormAttachment(0, 0);

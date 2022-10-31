@@ -64,7 +64,7 @@ public class DetailsDialog {
     shell.setLayout(new FormLayout());
 
     Button wClose = new Button(shell, SWT.PUSH);
-    props.setLook(wClose);
+    PropsUi.setLook(wClose);
     wClose.setText(BaseMessages.getString("System.Button.Close"));
     wClose.addListener(SWT.Selection, e -> close());
     BaseTransformDialog.positionBottomButtons(
@@ -72,11 +72,11 @@ public class DetailsDialog {
         new Button[] {
           wClose,
         },
-        Const.MARGIN,
+        PropsUi.getMargin(),
         null);
 
     Label wLabel = new Label(shell, SWT.LEFT);
-    props.setLook(wLabel);
+    PropsUi.setLook(wLabel);
     wLabel.setText(Const.NVL(message, ""));
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment(0, 0);
@@ -85,14 +85,14 @@ public class DetailsDialog {
     wLabel.setLayoutData(fdLabel);
 
     Text wDetails = new Text(shell, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wDetails);
+    PropsUi.setLook(wDetails);
     wDetails.setText(Const.NVL(details, ""));
     wDetails.setSelection(details.length());
     FormData fdDetails = new FormData();
     fdDetails.left = new FormAttachment(0, 0);
     fdDetails.right = new FormAttachment(100, 0);
-    fdDetails.top = new FormAttachment(wLabel, Const.MARGIN);
-    fdDetails.bottom = new FormAttachment(wClose, -2 * Const.MARGIN);
+    fdDetails.top = new FormAttachment(wLabel, PropsUi.getMargin());
+    fdDetails.bottom = new FormAttachment(wClose, -2 * PropsUi.getMargin());
     wDetails.setLayoutData(fdDetails);
 
     BaseDialog.defaultShellHandling(shell, c -> close(), c -> close());

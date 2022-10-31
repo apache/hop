@@ -88,7 +88,20 @@ public class ConstUi {
   public static final int SMALL_MARGIN = 5;
 
   /** margin between points of controls */
-  public static final int MEDUIM_MARGIN = 10;
+  public static final int MEDIUM_MARGIN = 10;
+
+  /**
+   * This is the global zoom factor. When set it takes precedence over what is entered in the GUI
+   * options. A number smaller than 1 makes everything smaller. A factor larger than 1 makes the UI
+   * widgets look bigger.
+   */
+  public static final String HOP_GUI_ZOOM_FACTOR = "HOP_GUI_ZOOM_FACTOR";
+
+  /**
+   * This option allows you to hide the menu bar from Hop GUI. Set the value of this variable to Y
+   * and see it go away.
+   */
+  public static final String HOP_GUI_HIDE_MENU = "HOP_GUI_HIDE_MENU";
 
   /**
    * Determine the level of where the TreeItem is position in a tree.

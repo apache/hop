@@ -18,6 +18,7 @@
 package org.apache.hop.core.search;
 
 import org.apache.hop.core.variables.DescribedVariable;
+
 import java.util.ArrayList;
 import java.util.List;
 

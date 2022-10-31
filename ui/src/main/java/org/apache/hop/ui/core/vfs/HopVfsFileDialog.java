@@ -35,7 +35,6 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
@@ -45,6 +44,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.IDirectoryDialog;
 import org.apache.hop.ui.core.dialog.IFileDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -59,20 +59,48 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.TreeEditor;
-import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.*;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @GuiPlugin(description = "Allows you to browse to local or VFS locations")
 public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
@@ -237,7 +265,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   @Override
   public String open() {
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.addShellListener(
         new ShellAdapter() {
@@ -249,8 +277,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     instance = this;
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
     shell.setLayout(formLayout);
 
     if (text != null) {
@@ -274,11 +302,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     // On top there are the navigation
     //
     Composite navigateComposite = new Composite(shell, SWT.NONE);
-    props.setLook(navigateComposite);
+    PropsUi.setLook(navigateComposite);
     GridLayout gridLayout = new GridLayout((browsingDirectories) ? 2 : 3, false);
     gridLayout.marginWidth = 0;
     navigateComposite.setLayout(gridLayout);
-    props.setLook(navigateComposite);
+    PropsUi.setLook(navigateComposite);
 
     FormData fdNavigationForm = new FormData();
     fdNavigationForm.left = new FormAttachment(0, 0);
@@ -290,7 +318,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     //
     ToolBar navigateToolBar = new ToolBar(navigateComposite, SWT.LEFT | SWT.HORIZONTAL);
     navigateToolBar.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
-    props.setLook(navigateToolBar);
+    PropsUi.setLook(navigateToolBar);
 
     navigateToolbarWidgets = new GuiToolbarWidgets();
     navigateToolbarWidgets.registerGuiPluginObject(this);
@@ -300,7 +328,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     wFilename = new TextVar(variables, navigateComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFilename.addListener(SWT.DefaultSelection, e -> enteredFilenameOrFolder());
     wFilename.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
 
     if (!browsingDirectories) {
       wFilters = new Combo(navigateComposite, SWT.SINGLE | SWT.BORDER);
@@ -308,7 +336,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       wFilters.select(0);
       wFilters.addListener(SWT.Selection, this::fileFilterSelected);
       wFilters.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false));
-      props.setLook(wFilters);
+      PropsUi.setLook(wFilters);
     }
 
     // Above this we have a sash form
@@ -321,13 +349,13 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     fdSashForm.bottom = new FormAttachment(wOk, (int) (-props.getMargin() * props.getZoomFactor()));
     sashForm.setLayoutData(fdSashForm);
 
-    props.setLook(sashForm);
+    PropsUi.setLook(sashForm);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // On the left there are the bookmarks
     //
     Composite bookmarksComposite = new Composite(sashForm, SWT.BORDER);
-    props.setLook(bookmarksComposite);
+    PropsUi.setLook(bookmarksComposite);
     bookmarksComposite.setLayout(new FormLayout());
 
     // Above the bookmarks a toolbar with add, delete
@@ -339,7 +367,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     fdBookmarksToolBar.top = new FormAttachment(0, 0);
     fdBookmarksToolBar.right = new FormAttachment(100, 0);
     bookmarksToolBar.setLayoutData(fdBookmarksToolBar);
-    props.setLook(bookmarksToolBar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(bookmarksToolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     bookmarksToolbarWidgets = new GuiToolbarWidgets();
     bookmarksToolbarWidgets.registerGuiPluginObject(this);
@@ -349,7 +377,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     // Below that we have a list with all the bookmarks in them
     //
     wBookmarks = new List(bookmarksComposite, SWT.SINGLE | SWT.LEFT | SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wBookmarks);
+    PropsUi.setLook(wBookmarks);
     FormData fdBookmarks = new FormData();
     fdBookmarks.left = new FormAttachment(0, 0);
     fdBookmarks.right = new FormAttachment(100, 0);
@@ -437,7 +465,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     // On the right there is a folder and files browser
     //
     Composite browserComposite = new Composite(sashForm, SWT.BORDER);
-    props.setLook(browserComposite);
+    PropsUi.setLook(browserComposite);
     browserComposite.setLayout(new FormLayout());
 
     FormData fdTreeComposite = new FormData();
@@ -455,7 +483,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     fdBrowserToolBar.top = new FormAttachment(0, 0);
     fdBrowserToolBar.right = new FormAttachment(100, 0);
     browserToolBar.setLayoutData(fdBrowserToolBar);
-    props.setLook(browserToolBar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(browserToolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     browserToolbarWidgets = new GuiToolbarWidgets();
     browserToolbarWidgets.registerGuiPluginObject(this);
@@ -465,7 +493,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     SashForm browseSash = new SashForm(browserComposite, SWT.VERTICAL);
 
     wBrowser = new Tree(browseSash, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wBrowser);
+    PropsUi.setLook(wBrowser);
     wBrowser.setHeaderVisible(true);
     wBrowser.setLinesVisible(false); // TODO needed?
 
@@ -519,7 +547,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     // Put file details or message/logging label at the bottom...
     //
     wDetails = new Text(browseSash, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
-    props.setLook(wDetails);
+    PropsUi.setLook(wDetails);
 
     FormData fdBrowseSash = new FormData();
     fdBrowseSash.left = new FormAttachment(0, 0);

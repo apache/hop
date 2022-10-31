@@ -22,8 +22,11 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -42,7 +45,12 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Zip File action settings. */
 public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
@@ -137,21 +145,21 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionZipFile.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons go at the very bottom
     //
@@ -166,14 +174,14 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // ZipFilename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionZipFile.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -182,17 +190,18 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "ActionZipFile.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -204,7 +213,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // START OF SourceFile GROUP///
     // /
     Group wSourceFiles = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wSourceFiles);
+    PropsUi.setLook(wSourceFiles);
     wSourceFiles.setText(BaseMessages.getString(PKG, "ActionZipFile.SourceFiles.Group.Label"));
 
     FormLayout groupLayout = new FormLayout();
@@ -217,14 +226,14 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // Result from previous?
     Label wlGetFromPrevious = new Label(wSourceFiles, SWT.RIGHT);
     wlGetFromPrevious.setText(BaseMessages.getString(PKG, "ActionZipFile.getFromPrevious.Label"));
-    props.setLook(wlGetFromPrevious);
+    PropsUi.setLook(wlGetFromPrevious);
     FormData fdlGetFromPrevious = new FormData();
     fdlGetFromPrevious.left = new FormAttachment(0, 0);
     fdlGetFromPrevious.top = new FormAttachment(wName, margin);
     fdlGetFromPrevious.right = new FormAttachment(middle, -margin);
     wlGetFromPrevious.setLayoutData(fdlGetFromPrevious);
     wGetFromPrevious = new Button(wSourceFiles, SWT.CHECK);
-    props.setLook(wGetFromPrevious);
+    PropsUi.setLook(wGetFromPrevious);
     wGetFromPrevious.setToolTipText(
         BaseMessages.getString(PKG, "ActionZipFile.getFromPrevious.Tooltip"));
     FormData fdGetFromPrevious = new FormData();
@@ -244,7 +253,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // TargetDirectory line
     wlSourceDirectory = new Label(wSourceFiles, SWT.RIGHT);
     wlSourceDirectory.setText(BaseMessages.getString(PKG, "ActionZipFile.SourceDir.Label"));
-    props.setLook(wlSourceDirectory);
+    PropsUi.setLook(wlSourceDirectory);
     FormData fdlSourceDirectory = new FormData();
     fdlSourceDirectory.left = new FormAttachment(0, 0);
     fdlSourceDirectory.top = new FormAttachment(wlGetFromPrevious, 2 * margin);
@@ -253,7 +262,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
     // Browse folders button ...
     wbSourceDirectory = new Button(wSourceFiles, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSourceDirectory);
+    PropsUi.setLook(wbSourceDirectory);
     wbSourceDirectory.setText(BaseMessages.getString(PKG, "ActionZipFile.BrowseFolders.Label"));
     FormData fdbSourceDirectory = new FormData();
     fdbSourceDirectory.right = new FormAttachment(100, 0);
@@ -264,7 +273,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
     // Browse Destination file browse button ...
     wbSourceFile = new Button(wSourceFiles, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSourceFile);
+    PropsUi.setLook(wbSourceFile);
     wbSourceFile.setText(BaseMessages.getString(PKG, "ActionZipFile.BrowseFiles.Label"));
     FormData fdbSourceFile = new FormData();
     fdbSourceFile.right = new FormAttachment(wbSourceDirectory, -margin);
@@ -282,7 +291,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
             wSourceFiles,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionZipFile.SourceDir.Tooltip"));
-    props.setLook(wSourceDirectory);
+    PropsUi.setLook(wSourceDirectory);
     wSourceDirectory.addModifyListener(lsMod);
     FormData fdSourceDirectory = new FormData();
     fdSourceDirectory.left = new FormAttachment(middle, 0);
@@ -293,7 +302,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // Wildcard line
     wlWildcard = new Label(wSourceFiles, SWT.RIGHT);
     wlWildcard.setText(BaseMessages.getString(PKG, "ActionZipFile.Wildcard.Label"));
-    props.setLook(wlWildcard);
+    PropsUi.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
     fdlWildcard.top = new FormAttachment(wSourceDirectory, margin);
@@ -305,7 +314,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
             wSourceFiles,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionZipFile.Wildcard.Tooltip"));
-    props.setLook(wWildcard);
+    PropsUi.setLook(wWildcard);
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment(middle, 0);
@@ -316,7 +325,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // Wildcard to exclude
     wlWildcardExclude = new Label(wSourceFiles, SWT.RIGHT);
     wlWildcardExclude.setText(BaseMessages.getString(PKG, "ActionZipFile.WildcardExclude.Label"));
-    props.setLook(wlWildcardExclude);
+    PropsUi.setLook(wlWildcardExclude);
     FormData fdlWildcardExclude = new FormData();
     fdlWildcardExclude.left = new FormAttachment(0, 0);
     fdlWildcardExclude.top = new FormAttachment(wWildcard, margin);
@@ -328,7 +337,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
             wSourceFiles,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionZipFile.WildcardExclude.Tooltip"));
-    props.setLook(wWildcardExclude);
+    PropsUi.setLook(wWildcardExclude);
     wWildcardExclude.addModifyListener(lsMod);
     FormData fdWildcardExclude = new FormData();
     fdWildcardExclude.left = new FormAttachment(middle, 0);
@@ -341,14 +350,14 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     Label wlIncludeSubfolders = new Label(wSourceFiles, SWT.RIGHT);
     wlIncludeSubfolders.setText(
         BaseMessages.getString(PKG, "ActionZipFile.IncludeSubfolders.Label"));
-    props.setLook(wlIncludeSubfolders);
+    PropsUi.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
     fdlIncludeSubfolders.left = new FormAttachment(0, 0);
     fdlIncludeSubfolders.top = new FormAttachment(wWildcardExclude, margin);
     fdlIncludeSubfolders.right = new FormAttachment(middle, -margin);
     wlIncludeSubfolders.setLayoutData(fdlIncludeSubfolders);
     wIncludeSubfolders = new Button(wSourceFiles, SWT.CHECK);
-    props.setLook(wIncludeSubfolders);
+    PropsUi.setLook(wIncludeSubfolders);
     wIncludeSubfolders.setToolTipText(
         BaseMessages.getString(PKG, "ActionZipFile.IncludeSubfolders.Tooltip"));
     FormData fdIncludeSubfolders = new FormData();
@@ -378,7 +387,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // START OF ZipFile GROUP///
     // /
     Group wZipFile = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wZipFile);
+    PropsUi.setLook(wZipFile);
     wZipFile.setText(BaseMessages.getString(PKG, "ActionZipFile.ZipFile.Group.Label"));
 
     FormLayout groupLayoutzipfile = new FormLayout();
@@ -390,21 +399,21 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // ZipFilename line
     wlZipFilename = new Label(wZipFile, SWT.RIGHT);
     wlZipFilename.setText(BaseMessages.getString(PKG, "ActionZipFile.ZipFilename.Label"));
-    props.setLook(wlZipFilename);
+    PropsUi.setLook(wlZipFilename);
     FormData fdlZipFilename = new FormData();
     fdlZipFilename.left = new FormAttachment(0, 0);
     fdlZipFilename.top = new FormAttachment(wSourceFiles, margin);
     fdlZipFilename.right = new FormAttachment(middle, -margin);
     wlZipFilename.setLayoutData(fdlZipFilename);
     wbZipFilename = new Button(wZipFile, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbZipFilename);
+    PropsUi.setLook(wbZipFilename);
     wbZipFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbZipFilename = new FormData();
     fdbZipFilename.right = new FormAttachment(100, 0);
     fdbZipFilename.top = new FormAttachment(wSourceFiles, 0);
     wbZipFilename.setLayoutData(fdbZipFilename);
     wZipFilename = new TextVar(variables, wZipFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wZipFilename);
+    PropsUi.setLook(wZipFilename);
     wZipFilename.addModifyListener(lsMod);
     FormData fdZipFilename = new FormData();
     fdZipFilename.left = new FormAttachment(middle, 0);
@@ -431,7 +440,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     Label wlCreateParentFolder = new Label(wZipFile, SWT.RIGHT);
     wlCreateParentFolder.setText(
         BaseMessages.getString(PKG, "ActionZipFile.CreateParentFolder.Label"));
-    props.setLook(wlCreateParentFolder);
+    PropsUi.setLook(wlCreateParentFolder);
     FormData fdlCreateParentFolder = new FormData();
     fdlCreateParentFolder.left = new FormAttachment(0, 0);
     fdlCreateParentFolder.top = new FormAttachment(wZipFilename, margin);
@@ -440,7 +449,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wCreateParentFolder = new Button(wZipFile, SWT.CHECK);
     wCreateParentFolder.setToolTipText(
         BaseMessages.getString(PKG, "ActionZipFile.CreateParentFolder.Tooltip"));
-    props.setLook(wCreateParentFolder);
+    PropsUi.setLook(wCreateParentFolder);
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment(middle, 0);
     fdCreateParentFolder.top = new FormAttachment(wlCreateParentFolder, 0, SWT.CENTER);
@@ -457,14 +466,14 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // Create multi-part file?
     wlAddDate = new Label(wZipFile, SWT.RIGHT);
     wlAddDate.setText(BaseMessages.getString(PKG, "ActionZipFile.AddDate.Label"));
-    props.setLook(wlAddDate);
+    PropsUi.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment(0, 0);
     fdlAddDate.top = new FormAttachment(wlCreateParentFolder, 2 * margin);
     fdlAddDate.right = new FormAttachment(middle, -margin);
     wlAddDate.setLayoutData(fdlAddDate);
     wAddDate = new Button(wZipFile, SWT.CHECK);
-    props.setLook(wAddDate);
+    PropsUi.setLook(wAddDate);
     wAddDate.setToolTipText(BaseMessages.getString(PKG, "ActionZipFile.AddDate.Tooltip"));
     FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment(middle, 0);
@@ -482,14 +491,14 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // Create multi-part file?
     wlAddTime = new Label(wZipFile, SWT.RIGHT);
     wlAddTime.setText(BaseMessages.getString(PKG, "ActionZipFile.AddTime.Label"));
-    props.setLook(wlAddTime);
+    PropsUi.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
     fdlAddTime.top = new FormAttachment(wlAddDate, 2 * margin);
     fdlAddTime.right = new FormAttachment(middle, -margin);
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(wZipFile, SWT.CHECK);
-    props.setLook(wAddTime);
+    PropsUi.setLook(wAddTime);
     wAddTime.setToolTipText(BaseMessages.getString(PKG, "ActionZipFile.AddTime.Tooltip"));
     FormData fdAddTime = new FormData();
     fdAddTime.left = new FormAttachment(middle, 0);
@@ -507,14 +516,14 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // Specify date time format?
     Label wlSpecifyFormat = new Label(wZipFile, SWT.RIGHT);
     wlSpecifyFormat.setText(BaseMessages.getString(PKG, "ActionZipFile.SpecifyFormat.Label"));
-    props.setLook(wlSpecifyFormat);
+    PropsUi.setLook(wlSpecifyFormat);
     FormData fdlSpecifyFormat = new FormData();
     fdlSpecifyFormat.left = new FormAttachment(0, 0);
     fdlSpecifyFormat.top = new FormAttachment(wlAddTime, 2 * margin);
     fdlSpecifyFormat.right = new FormAttachment(middle, -margin);
     wlSpecifyFormat.setLayoutData(fdlSpecifyFormat);
     wSpecifyFormat = new Button(wZipFile, SWT.CHECK);
-    props.setLook(wSpecifyFormat);
+    PropsUi.setLook(wSpecifyFormat);
     wSpecifyFormat.setToolTipText(
         BaseMessages.getString(PKG, "ActionZipFile.SpecifyFormat.Tooltip"));
     FormData fdSpecifyFormat = new FormData();
@@ -537,7 +546,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // DateTimeFormat
     wlDateTimeFormat = new Label(wZipFile, SWT.RIGHT);
     wlDateTimeFormat.setText(BaseMessages.getString(PKG, "ActionZipFile.DateTimeFormat.Label"));
-    props.setLook(wlDateTimeFormat);
+    PropsUi.setLook(wlDateTimeFormat);
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment(0, 0);
     fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
@@ -545,7 +554,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wlDateTimeFormat.setLayoutData(fdlDateTimeFormat);
     wDateTimeFormat = new CCombo(wZipFile, SWT.BORDER | SWT.READ_ONLY);
     wDateTimeFormat.setEditable(true);
-    props.setLook(wDateTimeFormat);
+    PropsUi.setLook(wDateTimeFormat);
     wDateTimeFormat.addModifyListener(lsMod);
     FormData fdDateTimeFormat = new FormData();
     fdDateTimeFormat.left = new FormAttachment(middle, 0);
@@ -557,7 +566,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     }
 
     wbShowFiles = new Button(wZipFile, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbShowFiles);
+    PropsUi.setLook(wbShowFiles);
     wbShowFiles.setText(BaseMessages.getString(PKG, "ActionZipFile.ShowFile.Button"));
     FormData fdbShowFiles = new FormData();
     fdbShowFiles.left = new FormAttachment(middle, 0);
@@ -617,7 +626,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -628,10 +637,11 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdvancedTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdvancedTab.setText(BaseMessages.getString(PKG, "ActionZipFile.Tab.Advanced.Label"));
 
     Composite wAdvancedComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wAdvancedComp);
+    PropsUi.setLook(wAdvancedComp);
 
     FormLayout advancedLayout = new FormLayout();
     advancedLayout.marginWidth = 3;
@@ -642,7 +652,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // START OF Settings GROUP
     //
     Group wSettings = new Group(wAdvancedComp, SWT.SHADOW_NONE);
-    props.setLook(wSettings);
+    PropsUi.setLook(wSettings);
     wSettings.setText(BaseMessages.getString(PKG, "ActionZipFile.Advanced.Group.Label"));
     FormLayout groupLayoutSettings = new FormLayout();
     groupLayoutSettings.marginWidth = 10;
@@ -652,7 +662,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // Compression Rate
     Label wlCompressionRate = new Label(wSettings, SWT.RIGHT);
     wlCompressionRate.setText(BaseMessages.getString(PKG, "ActionZipFile.CompressionRate.Label"));
-    props.setLook(wlCompressionRate);
+    PropsUi.setLook(wlCompressionRate);
     FormData fdlCompressionRate = new FormData();
     fdlCompressionRate.left = new FormAttachment(0, -margin);
     fdlCompressionRate.right = new FormAttachment(middle, -margin);
@@ -669,7 +679,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
         BaseMessages.getString(PKG, "ActionZipFile.BEST_SPEED_CompressionRate.Label"));
     wCompressionRate.select(1); // +1: starts at -1
 
-    props.setLook(wCompressionRate);
+    PropsUi.setLook(wCompressionRate);
     FormData fdCompressionRate = new FormData();
     fdCompressionRate.left = new FormAttachment(middle, 0);
     fdCompressionRate.top = new FormAttachment(wZipFile, margin);
@@ -679,7 +689,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // If File Exists
     Label wlIfFileExists = new Label(wSettings, SWT.RIGHT);
     wlIfFileExists.setText(BaseMessages.getString(PKG, "ActionZipFile.IfZipFileExists.Label"));
-    props.setLook(wlIfFileExists);
+    PropsUi.setLook(wlIfFileExists);
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, -margin);
     fdlIfFileExists.right = new FormAttachment(middle, -margin);
@@ -694,7 +704,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wIfFileExists.add(BaseMessages.getString(PKG, "ActionZipFile.Fail_IfFileExists.Label"));
     wIfFileExists.select(3); // +1: starts at -1
 
-    props.setLook(wIfFileExists);
+    PropsUi.setLook(wIfFileExists);
     FormData fdIfFileExists = new FormData();
     fdIfFileExists.left = new FormAttachment(middle, 0);
     fdIfFileExists.top = new FormAttachment(wCompressionRate, margin);
@@ -704,7 +714,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // After Zipping
     Label wlAfterZip = new Label(wSettings, SWT.RIGHT);
     wlAfterZip.setText(BaseMessages.getString(PKG, "ActionZipFile.AfterZip.Label"));
-    props.setLook(wlAfterZip);
+    PropsUi.setLook(wlAfterZip);
     FormData fdlAfterZip = new FormData();
     fdlAfterZip.left = new FormAttachment(0, -margin);
     fdlAfterZip.right = new FormAttachment(middle, -margin);
@@ -717,7 +727,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
     wAfterZip.select(0); // +1: starts at -1
 
-    props.setLook(wAfterZip);
+    PropsUi.setLook(wAfterZip);
     FormData fdAfterZip = new FormData();
     fdAfterZip.left = new FormAttachment(middle, 0);
     fdAfterZip.top = new FormAttachment(wIfFileExists, margin);
@@ -735,7 +745,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // moveTo Directory
     wlMovetoDirectory = new Label(wSettings, SWT.RIGHT);
     wlMovetoDirectory.setText(BaseMessages.getString(PKG, "ActionZipFile.MovetoDirectory.Label"));
-    props.setLook(wlMovetoDirectory);
+    PropsUi.setLook(wlMovetoDirectory);
     FormData fdlMovetoDirectory = new FormData();
     fdlMovetoDirectory.left = new FormAttachment(0, 0);
     fdlMovetoDirectory.top = new FormAttachment(wAfterZip, margin);
@@ -744,7 +754,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
     // Browse folders button ...
     wbMovetoDirectory = new Button(wSettings, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbMovetoDirectory);
+    PropsUi.setLook(wbMovetoDirectory);
     wbMovetoDirectory.setText(BaseMessages.getString(PKG, "ActionZipFile.BrowseFolders.Label"));
     FormData fdbMovetoDirectory = new FormData();
     fdbMovetoDirectory.right = new FormAttachment(100, 0);
@@ -759,7 +769,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
             wSettings,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionZipFile.MovetoDirectory.Tooltip"));
-    props.setLook(wMovetoDirectory);
+    PropsUi.setLook(wMovetoDirectory);
     wMovetoDirectory.addModifyListener(lsMod);
     FormData fdMovetoDirectory = new FormData();
     fdMovetoDirectory.left = new FormAttachment(middle, 0);
@@ -771,14 +781,14 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wlCreateMoveToDirectory = new Label(wSettings, SWT.RIGHT);
     wlCreateMoveToDirectory.setText(
         BaseMessages.getString(PKG, "ActionZipFile.createMoveToDirectory.Label"));
-    props.setLook(wlCreateMoveToDirectory);
+    PropsUi.setLook(wlCreateMoveToDirectory);
     FormData fdlCreateMoveToDirectory = new FormData();
     fdlCreateMoveToDirectory.left = new FormAttachment(0, 0);
     fdlCreateMoveToDirectory.top = new FormAttachment(wMovetoDirectory, margin);
     fdlCreateMoveToDirectory.right = new FormAttachment(middle, -margin);
     wlCreateMoveToDirectory.setLayoutData(fdlCreateMoveToDirectory);
     wCreateMoveToDirectory = new Button(wSettings, SWT.CHECK);
-    props.setLook(wCreateMoveToDirectory);
+    PropsUi.setLook(wCreateMoveToDirectory);
     wCreateMoveToDirectory.setToolTipText(
         BaseMessages.getString(PKG, "ActionZipFile.createMoveToDirectory.Tooltip"));
     FormData fdCreateMoveToDirectory = new FormData();
@@ -797,14 +807,14 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     Label wlStoredSourcePathDepth = new Label(wSettings, SWT.RIGHT);
     wlStoredSourcePathDepth.setText(
         BaseMessages.getString(PKG, "ActionZipFile.StoredSourcePathDepth.Label"));
-    props.setLook(wlStoredSourcePathDepth);
+    PropsUi.setLook(wlStoredSourcePathDepth);
     FormData fdlStoredSourcePathDepth = new FormData();
     fdlStoredSourcePathDepth.left = new FormAttachment(0, 0);
     fdlStoredSourcePathDepth.top = new FormAttachment(wlCreateMoveToDirectory, 2 * margin);
     fdlStoredSourcePathDepth.right = new FormAttachment(middle, -margin);
     wlStoredSourcePathDepth.setLayoutData(fdlStoredSourcePathDepth);
     wStoredSourcePathDepth = new ComboVar(variables, wSettings, SWT.SINGLE | SWT.BORDER);
-    props.setLook(wStoredSourcePathDepth);
+    PropsUi.setLook(wStoredSourcePathDepth);
     wStoredSourcePathDepth.setToolTipText(
         BaseMessages.getString(PKG, "ActionZipFile.StoredSourcePathDepth.Tooltip"));
     FormData fdStoredSourcePathDepth = new FormData();
@@ -839,7 +849,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // START OF LOGGING GROUP///
     // /
     Group wFileResult = new Group(wAdvancedComp, SWT.SHADOW_NONE);
-    props.setLook(wFileResult);
+    PropsUi.setLook(wFileResult);
     wFileResult.setText(BaseMessages.getString(PKG, "ActionZipFile.FileResult.Group.Label"));
 
     FormLayout groupLayoutresult = new FormLayout();
@@ -852,14 +862,14 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     // Add File to result
     Label wlAddFileToResult = new Label(wFileResult, SWT.RIGHT);
     wlAddFileToResult.setText(BaseMessages.getString(PKG, "ActionZipFile.AddFileToResult.Label"));
-    props.setLook(wlAddFileToResult);
+    PropsUi.setLook(wlAddFileToResult);
     FormData fdlAddFileToResult = new FormData();
     fdlAddFileToResult.left = new FormAttachment(0, 0);
     fdlAddFileToResult.top = new FormAttachment(wSettings, margin);
     fdlAddFileToResult.right = new FormAttachment(middle, -margin);
     wlAddFileToResult.setLayoutData(fdlAddFileToResult);
     wAddFileToResult = new Button(wFileResult, SWT.CHECK);
-    props.setLook(wAddFileToResult);
+    PropsUi.setLook(wAddFileToResult);
     wAddFileToResult.setToolTipText(
         BaseMessages.getString(PKG, "ActionZipFile.AddFileToResult.Tooltip"));
     FormData fdAddFileToResult = new FormData();
@@ -893,7 +903,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
     wAdvancedComp.layout();
     wAdvancedTab.setControl(wAdvancedComp);
-    props.setLook(wAdvancedComp);
+    PropsUi.setLook(wAdvancedComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Advanced TAB

@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.webserviceavailable;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -26,6 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -69,7 +69,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -77,8 +77,8 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "WebServiceAvailableDialog.Shell.Title"));
@@ -90,7 +90,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "WebServiceAvailableDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -98,7 +98,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -109,7 +109,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     // filename field
     Label wlURL = new Label(shell, SWT.RIGHT);
     wlURL.setText(BaseMessages.getString(PKG, "WebServiceAvailableDialog.URL.Label"));
-    props.setLook(wlURL);
+    PropsUi.setLook(wlURL);
     FormData fdlURL = new FormData();
     fdlURL.left = new FormAttachment(0, 0);
     fdlURL.right = new FormAttachment(middle, -margin);
@@ -118,7 +118,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
 
     wURL = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
     wURL.setEditable(true);
-    props.setLook(wURL);
+    PropsUi.setLook(wURL);
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(middle, 0);
@@ -142,7 +142,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     Label wlConnectTimeOut = new Label(shell, SWT.RIGHT);
     wlConnectTimeOut.setText(
         BaseMessages.getString(PKG, "WebServiceAvailableDialog.ConnectTimeOut.Label"));
-    props.setLook(wlConnectTimeOut);
+    PropsUi.setLook(wlConnectTimeOut);
     FormData fdlConnectTimeOut = new FormData();
     fdlConnectTimeOut.left = new FormAttachment(0, 0);
     fdlConnectTimeOut.top = new FormAttachment(wURL, margin);
@@ -152,7 +152,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wConnectTimeOut = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wConnectTimeOut.setToolTipText(
         BaseMessages.getString(PKG, "WebServiceAvailableDialog.ConnectTimeOut.Tooltip"));
-    props.setLook(wConnectTimeOut);
+    PropsUi.setLook(wConnectTimeOut);
     wConnectTimeOut.addModifyListener(lsMod);
     FormData fdConnectTimeOut = new FormData();
     fdConnectTimeOut.left = new FormAttachment(middle, 0);
@@ -168,7 +168,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     Label wlReadTimeOut = new Label(shell, SWT.RIGHT);
     wlReadTimeOut.setText(
         BaseMessages.getString(PKG, "WebServiceAvailableDialog.ReadTimeOut.Label"));
-    props.setLook(wlReadTimeOut);
+    PropsUi.setLook(wlReadTimeOut);
     FormData fdlReadTimeOut = new FormData();
     fdlReadTimeOut.left = new FormAttachment(0, 0);
     fdlReadTimeOut.top = new FormAttachment(wConnectTimeOut, margin);
@@ -178,7 +178,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wReadTimeOut = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wReadTimeOut.setToolTipText(
         BaseMessages.getString(PKG, "WebServiceAvailableDialog.ReadTimeOut.Tooltip"));
-    props.setLook(wReadTimeOut);
+    PropsUi.setLook(wReadTimeOut);
     wReadTimeOut.addModifyListener(lsMod);
     FormData fdReadTimeOut = new FormData();
     fdReadTimeOut.left = new FormAttachment(middle, 0);
@@ -193,7 +193,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     // Result fieldname ...
     Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "WebServiceAvailableDialog.ResultField.Label"));
-    props.setLook(wlResult);
+    PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
@@ -203,7 +203,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wResult = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wResult.setToolTipText(
         BaseMessages.getString(PKG, "WebServiceAvailableDialog.ResultField.Tooltip"));
-    props.setLook(wResult);
+    PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);

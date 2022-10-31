@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.filelocked;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -26,6 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -67,7 +67,7 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -75,8 +75,8 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "FileLockedDialog.Shell.Title"));
@@ -87,7 +87,7 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "FileLockedDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -95,7 +95,7 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -106,7 +106,7 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     // filename field
     Label wlFileName = new Label(shell, SWT.RIGHT);
     wlFileName.setText(BaseMessages.getString(PKG, "FileLockedDialog.FileName.Label"));
-    props.setLook(wlFileName);
+    PropsUi.setLook(wlFileName);
     FormData fdlFileName = new FormData();
     fdlFileName.left = new FormAttachment(0, 0);
     fdlFileName.right = new FormAttachment(middle, -margin);
@@ -115,7 +115,7 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
 
     wFileName = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
     wFileName.setEditable(true);
-    props.setLook(wFileName);
+    PropsUi.setLook(wFileName);
     wFileName.addModifyListener(lsMod);
     FormData fdfileName = new FormData();
     fdfileName.left = new FormAttachment(middle, 0);
@@ -138,7 +138,7 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     // Result fieldname ...
     Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "FileLockedDialog.ResultField.Label"));
-    props.setLook(wlResult);
+    PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
@@ -147,7 +147,7 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
 
     wResult = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wResult.setToolTipText(BaseMessages.getString(PKG, "FileLockedDialog.ResultField.Tooltip"));
-    props.setLook(wResult);
+    PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
@@ -158,14 +158,14 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     // Add filename to result filenames?
     Label wlAddResult = new Label(shell, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "FileLockedDialog.AddResult.Label"));
-    props.setLook(wlAddResult);
+    PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
     fdlAddResult.top = new FormAttachment(wResult, 2 * margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(shell, SWT.CHECK);
-    props.setLook(wAddResult);
+    PropsUi.setLook(wAddResult);
     wAddResult.setToolTipText(BaseMessages.getString(PKG, "FileLockedDialog.AddResult.Tooltip"));
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment(middle, 0);

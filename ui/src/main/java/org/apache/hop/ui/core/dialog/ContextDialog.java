@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -46,11 +47,31 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.*;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
 
 @GuiPlugin(description = "This dialog presents you all the actions you can take in a given context")
 public class ContextDialog extends Dialog {
@@ -157,7 +178,9 @@ public class ContextDialog extends Dialog {
       return category;
     }
 
-    /** @param category The category to set */
+    /**
+     * @param category The category to set
+     */
     public void setCategory(String category) {
       this.category = category;
     }
@@ -171,7 +194,9 @@ public class ContextDialog extends Dialog {
       return order;
     }
 
-    /** @param order The order to set */
+    /**
+     * @param order The order to set
+     */
     public void setOrder(String order) {
       this.order = order;
     }
@@ -185,7 +210,9 @@ public class ContextDialog extends Dialog {
       return collapsed;
     }
 
-    /** @param collapsed The collapsed to set */
+    /**
+     * @param collapsed The collapsed to set
+     */
     public void setCollapsed(boolean collapsed) {
       this.collapsed = collapsed;
     }
@@ -247,7 +274,9 @@ public class ContextDialog extends Dialog {
       return selected;
     }
 
-    /** @param selected The selected to set */
+    /**
+     * @param selected The selected to set
+     */
     public void setSelected(boolean selected) {
       this.selected = selected;
     }
@@ -261,7 +290,9 @@ public class ContextDialog extends Dialog {
       return areaOwner;
     }
 
-    /** @param areaOwner The areaOwner to set */
+    /**
+     * @param areaOwner The areaOwner to set
+     */
     public void setAreaOwner(AreaOwner areaOwner) {
       this.areaOwner = areaOwner;
     }
@@ -283,7 +314,7 @@ public class ContextDialog extends Dialog {
     // Make the icons a bit smaller to fit more
     //
     iconSize = (int) Math.round(props.getZoomFactor() * props.getIconSize() * 0.75);
-    margin = (int) (Const.MARGIN * props.getZoomFactor());
+    margin = (int) (PropsUi.getMargin() * props.getZoomFactor());
     highlightColor = new Color(parent.getDisplay(), props.contrastColor(201, 232, 251));
   }
 
@@ -346,7 +377,7 @@ public class ContextDialog extends Dialog {
     //
     Composite searchComposite = new Composite(shell, SWT.NONE);
     searchComposite.setLayout(new GridLayout(3, false));
-    props.setLook(searchComposite, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(searchComposite, Props.WIDGET_STYLE_TOOLBAR);
     FormData fdlSearchComposite = new FormData();
     fdlSearchComposite.top = new FormAttachment(0, 0);
     fdlSearchComposite.left = new FormAttachment(0, 0);
@@ -355,7 +386,7 @@ public class ContextDialog extends Dialog {
 
     Label wlSearch = new Label(searchComposite, SWT.LEFT);
     wlSearch.setText(BaseMessages.getString(PKG, "ContextDialog.Search.Label.Text"));
-    props.setLook(wlSearch, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(wlSearch, Props.WIDGET_STYLE_TOOLBAR);
 
     wSearch =
         new Text(
@@ -370,7 +401,7 @@ public class ContextDialog extends Dialog {
     toolBarWidgets.registerGuiPluginObject(this);
     toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
     toolBar.pack();
-    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     recallToolbarSettings();
 
@@ -378,23 +409,23 @@ public class ContextDialog extends Dialog {
     //
     Composite wTooltipComposite = new Composite(shell, SWT.NONE);
     GridLayout gdlTooltipComposite = new GridLayout(1, false);
-    gdlTooltipComposite.marginLeft = Const.FORM_MARGIN;
-    gdlTooltipComposite.marginRight = Const.FORM_MARGIN;
-    gdlTooltipComposite.marginTop = Const.FORM_MARGIN;
-    gdlTooltipComposite.marginBottom = Const.FORM_MARGIN;
+    gdlTooltipComposite.marginLeft = PropsUi.getFormMargin();
+    gdlTooltipComposite.marginRight = PropsUi.getFormMargin();
+    gdlTooltipComposite.marginTop = PropsUi.getFormMargin();
+    gdlTooltipComposite.marginBottom = PropsUi.getFormMargin();
     wTooltipComposite.setLayout(new GridLayout(1, false));
-    props.setLook(wTooltipComposite, Props.WIDGET_STYLE_TOOLBAR);
-    
+    PropsUi.setLook(wTooltipComposite, Props.WIDGET_STYLE_TOOLBAR);
+
     FormData fdlTooltip = new FormData();
     fdlTooltip.left = new FormAttachment(0, 0);
     fdlTooltip.right = new FormAttachment(100, 0);
-    fdlTooltip.top = new FormAttachment(100, - (int) (props.getZoomFactor() * 50));
+    fdlTooltip.top = new FormAttachment(100, -(int) (props.getZoomFactor() * 50));
     fdlTooltip.bottom = new FormAttachment(100, 0);
     wTooltipComposite.setLayoutData(fdlTooltip);
-    
+
     wlTooltip = new Label(wTooltipComposite, SWT.LEFT);
     wlTooltip.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-    props.setLook(wlTooltip, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(wlTooltip, Props.WIDGET_STYLE_TOOLBAR);
 
     // The rest of the dialog is used to draw the actions...
     //
@@ -409,9 +440,9 @@ public class ContextDialog extends Dialog {
     wScrolledComposite.setLayoutData(fdCanvas);
     wScrolledComposite.setExpandHorizontal(true);
 
-    itemsFont = wCanvas.getFont();
+    itemsFont = GuiResource.getInstance().getFontDefault();
 
-    int fontHeight = wCanvas.getFont().getFontData()[0].getHeight() + 1;
+    int fontHeight = itemsFont.getFontData()[0].getHeight() + 1;
     headerFont =
         new Font(
             getParent().getDisplay(),
@@ -431,11 +462,11 @@ public class ContextDialog extends Dialog {
       /*Adapt to the monitor */
       Monitor monitor = shell.getMonitor();
       boolean fitOtherMonitors = false;
-      for(Monitor monitorCheck : shell.getDisplay().getMonitors()) {
+      for (Monitor monitorCheck : shell.getDisplay().getMonitors()) {
         org.eclipse.swt.graphics.Rectangle displayPositionCheck = monitorCheck.getBounds();
         if (((location.x - displayPositionCheck.x) <= monitorCheck.getClientArea().width - width)
-            && (location.y - displayPositionCheck.y <= monitorCheck.getClientArea().height - height)
-                ) {
+            && (location.y - displayPositionCheck.y
+                <= monitorCheck.getClientArea().height - height)) {
           fitOtherMonitors = true;
           break;
         }
@@ -444,6 +475,13 @@ public class ContextDialog extends Dialog {
         }
       }
       org.eclipse.swt.graphics.Rectangle displayPosition = monitor.getBounds();
+      // Make sure the dialog fits on the display
+      if (width>displayPosition.width) {
+        width=displayPosition.width;
+      }
+      if (height>displayPosition.height) {
+        height=displayPosition.height;
+      }
       if (!fitOtherMonitors) {
         if ((location.x - displayPosition.x) > monitor.getClientArea().width - width)
           location.x = (monitor.getClientArea().width + displayPosition.x) - width;
@@ -636,7 +674,8 @@ public class ContextDialog extends Dialog {
     // Close the dialog window
     shell.close();
 
-    // Do not dispose item images. They are cached by GuiResource so that they're only ever loaded once.
+    // Do not dispose item images. They are cached by GuiResource so that they're only ever loaded
+    // once.
     // There's no need to keep re-loading all the time.
     // Previously this cache was not functional so that we needed to dispose here.
 
@@ -841,7 +880,7 @@ public class ContextDialog extends Dialog {
                   y,
                   categoryExtent.x,
                   categoryExtent.y,
-                  new Point(0, 0),
+                  new DPoint(0, 0),
                   OwnerType.CATEGORY,
                   categoryAndOrder));
           y += categoryExtent.y + yMargin;
@@ -934,7 +973,7 @@ public class ContextDialog extends Dialog {
                     y,
                     width,
                     height,
-                    new Point(0, 0),
+                    new DPoint(0, 0),
                     OwnerType.ITEM,
                     item);
             areaOwners.add(areaOwner);
@@ -1324,7 +1363,9 @@ public class ContextDialog extends Dialog {
     return shiftClicked;
   }
 
-  /** @param shiftClicked The shiftClicked to set */
+  /**
+   * @param shiftClicked The shiftClicked to set
+   */
   public void setShiftClicked(boolean shiftClicked) {
     this.shiftClicked = shiftClicked;
   }
@@ -1338,7 +1379,9 @@ public class ContextDialog extends Dialog {
     return ctrlClicked;
   }
 
-  /** @param ctrlClicked The ctrlClicked to set */
+  /**
+   * @param ctrlClicked The ctrlClicked to set
+   */
   public void setCtrlClicked(boolean ctrlClicked) {
     this.ctrlClicked = ctrlClicked;
   }
@@ -1352,7 +1395,9 @@ public class ContextDialog extends Dialog {
     return focusLost;
   }
 
-  /** @param focusLost The focusLost to set */
+  /**
+   * @param focusLost The focusLost to set
+   */
   public void setFocusLost(boolean focusLost) {
     this.focusLost = focusLost;
   }

@@ -24,7 +24,12 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.SqlScriptStatement;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.logging.*;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -33,19 +38,24 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.List;
@@ -88,12 +98,12 @@ public class SqlEditor {
 
   public void open() {
     shell = new Shell(parentShell, style);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageDatabase());
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SQLEditor.Title"));
@@ -124,7 +134,7 @@ public class SqlEditor {
     // Script line
     Label wlScript = new Label(shell, SWT.NONE);
     wlScript.setText(BaseMessages.getString(PKG, "SQLEditor.Editor.Label"));
-    props.setLook(wlScript);
+    PropsUi.setLook(wlScript);
 
     FormData fdlScript = new FormData();
     fdlScript.left = new FormAttachment(0, 0);
@@ -134,7 +144,7 @@ public class SqlEditor {
         new StyledTextComp(
             this.variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wScript.setText("");
-    props.setLook(wScript, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
     FormData fdScript = new FormData();
     fdScript.left = new FormAttachment(0, 0);
     fdScript.top = new FormAttachment(wlScript, margin);
@@ -188,7 +198,7 @@ public class SqlEditor {
 
     wlPosition = new Label(shell, SWT.NONE);
     wlPosition.setText(BaseMessages.getString(PKG, "SQLEditor.LineNr.Label", "0"));
-    props.setLook(wlPosition);
+    PropsUi.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);
     fdlPosition.top = new FormAttachment(wScript, margin);

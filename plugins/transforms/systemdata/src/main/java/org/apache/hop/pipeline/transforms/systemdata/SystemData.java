@@ -32,8 +32,11 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.time.Instant;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
 
 /** Get information from the System or the supervising pipeline. */
 public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {

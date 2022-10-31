@@ -29,12 +29,12 @@ import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.debug.PipelineDebugDialog;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
 
 import java.util.ArrayList;
 import java.util.HashMap;

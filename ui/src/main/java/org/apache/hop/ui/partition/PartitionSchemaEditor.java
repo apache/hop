@@ -32,7 +32,11 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,8 +73,8 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     int margin = props.getMargin();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     // The rest stays above the buttons, so we added those first...
 
@@ -82,11 +86,11 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     fdlicon.top = new FormAttachment(0, 0);
     fdlicon.right = new FormAttachment(100, 0);
     wIcon.setLayoutData(fdlicon);
-    props.setLook(wIcon);
+    PropsUi.setLook(wIcon);
 
     // What's the name
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "PartitionSchemaDialog.PartitionName.Label"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, 0);
@@ -94,7 +98,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     wlName.setLayoutData(fdlName);
 
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, margin);
     fdName.left = new FormAttachment(0, 0);
@@ -111,7 +115,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     // Is the schema defined dynamically using the number?
     //
     wDynamic = new Button(parent, SWT.CHECK);
-    props.setLook(wDynamic);
+    PropsUi.setLook(wDynamic);
     wDynamic.setText(BaseMessages.getString(PKG, "PartitionSchemaDialog.Dynamic.Label"));
     wDynamic.setToolTipText(BaseMessages.getString(PKG, "PartitionSchemaDialog.Dynamic.Tooltip"));
     FormData fdDynamic = new FormData();
@@ -127,7 +131,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     // The number of partitions
     //
     Label wlNumber = new Label(parent, SWT.LEFT);
-    props.setLook(wlNumber);
+    PropsUi.setLook(wlNumber);
     wlNumber.setText(BaseMessages.getString(PKG, "PartitionSchemaDialog.Number.Label"));
     FormData fdlNumber = new FormData();
     fdlNumber.top = new FormAttachment(wDynamic, 15);
@@ -141,7 +145,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
             parent,
             SWT.LEFT | SWT.BORDER | SWT.SINGLE,
             BaseMessages.getString(PKG, "PartitionSchemaDialog.Number.Tooltip"));
-    props.setLook(wNumber);
+    PropsUi.setLook(wNumber);
     FormData fdNumber = new FormData();
     fdNumber.top = new FormAttachment(wlNumber, margin);
     fdNumber.left = new FormAttachment(0, 0);
@@ -151,7 +155,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     // Schema list:
     wlPartitions = new Label(parent, SWT.LEFT);
     wlPartitions.setText(BaseMessages.getString(PKG, "PartitionSchemaDialog.Partitions.Label"));
-    props.setLook(wlPartitions);
+    PropsUi.setLook(wlPartitions);
     FormData fdlPartitions = new FormData();
     fdlPartitions.left = new FormAttachment(0, 0);
     fdlPartitions.right = new FormAttachment(100, 0);
@@ -175,7 +179,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
             1,
             null,
             props);
-    props.setLook(wPartitions);
+    PropsUi.setLook(wPartitions);
     FormData fdPartitions = new FormData();
     fdPartitions.left = new FormAttachment(0, 0);
     fdPartitions.right = new FormAttachment(100, 0);

@@ -36,7 +36,11 @@ import org.neo4j.driver.Result;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /** Get information from the System or the supervising pipeline. */
 public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLoggingInfoData> {

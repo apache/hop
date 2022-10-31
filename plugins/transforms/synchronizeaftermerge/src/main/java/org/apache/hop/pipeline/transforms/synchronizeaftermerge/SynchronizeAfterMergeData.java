@@ -25,7 +25,11 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.sql.PreparedStatement;
 import java.sql.Savepoint;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 /** Performs an insert/update/delete depending on the value of a field. */
 public class SynchronizeAfterMergeData extends BaseTransformData implements ITransformData {

@@ -25,6 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -32,7 +33,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class BeamWindowDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = BeamWindowDialog.class; // For Translator
@@ -59,25 +65,25 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "BeamWindowDialog.DialogTitle"));
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -85,7 +91,7 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -95,14 +101,14 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
 
     Label wlWindowType = new Label(shell, SWT.RIGHT);
     wlWindowType.setText(BaseMessages.getString(PKG, "BeamWindowDialog.WindowType"));
-    props.setLook(wlWindowType);
+    PropsUi.setLook(wlWindowType);
     FormData fdlWindowType = new FormData();
     fdlWindowType.left = new FormAttachment(0, 0);
     fdlWindowType.top = new FormAttachment(lastControl, margin);
     fdlWindowType.right = new FormAttachment(middle, -margin);
     wlWindowType.setLayoutData(fdlWindowType);
     wWindowType = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wWindowType);
+    PropsUi.setLook(wWindowType);
     wWindowType.setItems(BeamDefaults.WINDOW_TYPES);
     FormData fdWindowType = new FormData();
     fdWindowType.left = new FormAttachment(middle, 0);
@@ -113,14 +119,14 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
 
     Label wlDuration = new Label(shell, SWT.RIGHT);
     wlDuration.setText(BaseMessages.getString(PKG, "BeamWindowDialog.Duration"));
-    props.setLook(wlDuration);
+    PropsUi.setLook(wlDuration);
     FormData fdlDuration = new FormData();
     fdlDuration.left = new FormAttachment(0, 0);
     fdlDuration.top = new FormAttachment(lastControl, margin);
     fdlDuration.right = new FormAttachment(middle, -margin);
     wlDuration.setLayoutData(fdlDuration);
     wDuration = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDuration);
+    PropsUi.setLook(wDuration);
     FormData fdDuration = new FormData();
     fdDuration.left = new FormAttachment(middle, 0);
     fdDuration.top = new FormAttachment(wlDuration, 0, SWT.CENTER);
@@ -130,14 +136,14 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
 
     Label wlEvery = new Label(shell, SWT.RIGHT);
     wlEvery.setText(BaseMessages.getString(PKG, "BeamWindowDialog.Every"));
-    props.setLook(wlEvery);
+    PropsUi.setLook(wlEvery);
     FormData fdlEvery = new FormData();
     fdlEvery.left = new FormAttachment(0, 0);
     fdlEvery.top = new FormAttachment(lastControl, margin);
     fdlEvery.right = new FormAttachment(middle, -margin);
     wlEvery.setLayoutData(fdlEvery);
     wEvery = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wEvery);
+    PropsUi.setLook(wEvery);
     FormData fdEvery = new FormData();
     fdEvery.left = new FormAttachment(middle, 0);
     fdEvery.top = new FormAttachment(wlEvery, 0, SWT.CENTER);
@@ -147,14 +153,14 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
 
     Label wlStartTimeField = new Label(shell, SWT.RIGHT);
     wlStartTimeField.setText(BaseMessages.getString(PKG, "BeamWindowDialog.StartTimeField"));
-    props.setLook(wlStartTimeField);
+    PropsUi.setLook(wlStartTimeField);
     FormData fdlStartTimeField = new FormData();
     fdlStartTimeField.left = new FormAttachment(0, 0);
     fdlStartTimeField.top = new FormAttachment(lastControl, margin);
     fdlStartTimeField.right = new FormAttachment(middle, -margin);
     wlStartTimeField.setLayoutData(fdlStartTimeField);
     wStartTimeField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wStartTimeField);
+    PropsUi.setLook(wStartTimeField);
     FormData fdStartTimeField = new FormData();
     fdStartTimeField.left = new FormAttachment(middle, 0);
     fdStartTimeField.top = new FormAttachment(wlStartTimeField, 0, SWT.CENTER);
@@ -164,14 +170,14 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
 
     Label wlEndTimeField = new Label(shell, SWT.RIGHT);
     wlEndTimeField.setText(BaseMessages.getString(PKG, "BeamWindowDialog.EndTimeField"));
-    props.setLook(wlEndTimeField);
+    PropsUi.setLook(wlEndTimeField);
     FormData fdlEndTimeField = new FormData();
     fdlEndTimeField.left = new FormAttachment(0, 0);
     fdlEndTimeField.top = new FormAttachment(lastControl, margin);
     fdlEndTimeField.right = new FormAttachment(middle, -margin);
     wlEndTimeField.setLayoutData(fdlEndTimeField);
     wEndTimeField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wEndTimeField);
+    PropsUi.setLook(wEndTimeField);
     FormData fdEndTimeField = new FormData();
     fdEndTimeField.left = new FormAttachment(middle, 0);
     fdEndTimeField.top = new FormAttachment(wlEndTimeField, 0, SWT.CENTER);
@@ -181,14 +187,14 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
 
     Label wlMaxTimeField = new Label(shell, SWT.RIGHT);
     wlMaxTimeField.setText(BaseMessages.getString(PKG, "BeamWindowDialog.MaxTimeField"));
-    props.setLook(wlMaxTimeField);
+    PropsUi.setLook(wlMaxTimeField);
     FormData fdlMaxTimeField = new FormData();
     fdlMaxTimeField.left = new FormAttachment(0, 0);
     fdlMaxTimeField.top = new FormAttachment(lastControl, margin);
     fdlMaxTimeField.right = new FormAttachment(middle, -margin);
     wlMaxTimeField.setLayoutData(fdlMaxTimeField);
     wMaxTimeField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMaxTimeField);
+    PropsUi.setLook(wMaxTimeField);
     FormData fdMaxTimeField = new FormData();
     fdMaxTimeField.left = new FormAttachment(middle, 0);
     fdMaxTimeField.top = new FormAttachment(wlMaxTimeField, 0, SWT.CENTER);

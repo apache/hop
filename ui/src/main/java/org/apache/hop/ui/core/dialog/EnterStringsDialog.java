@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
@@ -35,7 +34,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 /** Shows a dialog that allows you to enter values for a number of strings. */
 public class EnterStringsDialog extends Dialog {
@@ -73,11 +76,11 @@ public class EnterStringsDialog extends Dialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(title);
@@ -97,7 +100,7 @@ public class EnterStringsDialog extends Dialog {
     // Message line
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(message);
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(0, margin);

@@ -33,11 +33,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class HopWeb implements ApplicationConfiguration {
+
+  public static final String HOP_WEB_THEME = "HOP_WEB_THEME";
 
   @Override
   public void configure(Application application) {
@@ -62,7 +64,7 @@ public class HopWeb implements ApplicationConfiguration {
             return new ByteArrayInputStream(outputStream.toByteArray());
           }
         });
-    Arrays.asList("org/apache/hop/ui/hopgui/clipboard.js").stream()
+    Stream.of("org/apache/hop/ui/hopgui/clipboard.js")
         .forEach(
             str ->
                 application.addResource(
@@ -80,7 +82,7 @@ public class HopWeb implements ApplicationConfiguration {
     application.addStyleSheet("dark", "org/apache/hop/ui/hopgui/dark-mode.css");
     application.addStyleSheet("light", "org/apache/hop/ui/hopgui/light-mode.css");
 
-    String themeId = System.getProperty("HOP_WEB_THEME", "dark");
+    String themeId = System.getProperty(HOP_WEB_THEME, "light");
     if ("dark".equalsIgnoreCase(themeId)) {
       themeId = "dark";
       PropsUi.getInstance().setDarkMode(true);
@@ -104,5 +106,6 @@ public class HopWeb implements ApplicationConfiguration {
     //
     System.out.println("HOP_CONFIG_FOLDER: " + Const.HOP_CONFIG_FOLDER);
     System.out.println("HOP_AUDIT_FOLDER: " + Const.HOP_AUDIT_FOLDER);
+    System.out.println("HOP_GUI_ZOOM_FACTOR: " + System.getProperty("HOP_GUI_ZOOM_FACTOR"));
   }
 }

@@ -38,7 +38,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /** Dialog to enter a Hop Value */
 public class EnterValueDialog extends Dialog {
@@ -81,12 +85,12 @@ public class EnterValueDialog extends Dialog {
             SWT.DIALOG_TRIM
                 | SWT.RESIZE
                 | (modalDialog ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE));
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "EnterValueDialog.Title"));
@@ -100,7 +104,7 @@ public class EnterValueDialog extends Dialog {
      */
     Label wlValueType = new Label(shell, SWT.RIGHT);
     wlValueType.setText(BaseMessages.getString(PKG, "EnterValueDialog.Type.Label"));
-    props.setLook(wlValueType);
+    PropsUi.setLook(wlValueType);
     FormData fdlValueType = new FormData();
     fdlValueType.left = new FormAttachment(0, 0);
     fdlValueType.right = new FormAttachment(middle, -margin);
@@ -108,7 +112,7 @@ public class EnterValueDialog extends Dialog {
     wlValueType.setLayoutData(fdlValueType);
     wValueType = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
     wValueType.setItems(ValueMetaFactory.getValueMetaNames());
-    props.setLook(wValueType);
+    PropsUi.setLook(wValueType);
     FormData fdValueType = new FormData();
     fdValueType.left = new FormAttachment(middle, 0);
     fdValueType.top = new FormAttachment(0, margin);
@@ -119,14 +123,14 @@ public class EnterValueDialog extends Dialog {
     // Value line
     Label wlInputString = new Label(shell, SWT.RIGHT);
     wlInputString.setText(BaseMessages.getString(PKG, "EnterValueDialog.Value.Label"));
-    props.setLook(wlInputString);
+    PropsUi.setLook(wlInputString);
     FormData fdlInputString = new FormData();
     fdlInputString.left = new FormAttachment(0, 0);
     fdlInputString.right = new FormAttachment(middle, -margin);
     fdlInputString.top = new FormAttachment(wValueType, margin);
     wlInputString.setLayoutData(fdlInputString);
     wInputString = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInputString);
+    PropsUi.setLook(wInputString);
     FormData fdInputString = new FormData();
     fdInputString.left = new FormAttachment(middle, 0);
     fdInputString.top = new FormAttachment(wValueType, margin);
@@ -136,14 +140,14 @@ public class EnterValueDialog extends Dialog {
     // Format mask
     Label wlFormat = new Label(shell, SWT.RIGHT);
     wlFormat.setText(BaseMessages.getString(PKG, "EnterValueDialog.ConversionFormat.Label"));
-    props.setLook(wlFormat);
+    PropsUi.setLook(wlFormat);
     FormData fdlFormat = new FormData();
     fdlFormat.left = new FormAttachment(0, 0);
     fdlFormat.right = new FormAttachment(middle, -margin);
     fdlFormat.top = new FormAttachment(wInputString, margin);
     wlFormat.setLayoutData(fdlFormat);
     wFormat = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFormat);
+    PropsUi.setLook(wFormat);
     FormData fdFormat = new FormData();
     fdFormat.left = new FormAttachment(middle, 0);
     fdFormat.right = new FormAttachment(100, -margin);
@@ -153,14 +157,14 @@ public class EnterValueDialog extends Dialog {
     // Length line
     Label wlLength = new Label(shell, SWT.RIGHT);
     wlLength.setText(BaseMessages.getString(PKG, "EnterValueDialog.Length.Label"));
-    props.setLook(wlLength);
+    PropsUi.setLook(wlLength);
     FormData fdlLength = new FormData();
     fdlLength.left = new FormAttachment(0, 0);
     fdlLength.right = new FormAttachment(middle, -margin);
     fdlLength.top = new FormAttachment(wFormat, margin);
     wlLength.setLayoutData(fdlLength);
     wLength = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLength);
+    PropsUi.setLook(wLength);
     FormData fdLength = new FormData();
     fdLength.left = new FormAttachment(middle, 0);
     fdLength.right = new FormAttachment(100, -margin);
@@ -170,14 +174,14 @@ public class EnterValueDialog extends Dialog {
     // Precision line
     Label wlPrecision = new Label(shell, SWT.RIGHT);
     wlPrecision.setText(BaseMessages.getString(PKG, "EnterValueDialog.Precision.Label"));
-    props.setLook(wlPrecision);
+    PropsUi.setLook(wlPrecision);
     FormData fdlPrecision = new FormData();
     fdlPrecision.left = new FormAttachment(0, 0);
     fdlPrecision.right = new FormAttachment(middle, -margin);
     fdlPrecision.top = new FormAttachment(wLength, margin);
     wlPrecision.setLayoutData(fdlPrecision);
     wPrecision = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPrecision);
+    PropsUi.setLook(wPrecision);
     FormData fdPrecision = new FormData();
     fdPrecision.left = new FormAttachment(middle, 0);
     fdPrecision.right = new FormAttachment(100, -margin);

@@ -33,7 +33,12 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.splunk.SplunkConnection;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -47,11 +52,21 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.*;
+import java.util.Set;
 
 public class SplunkInputDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -83,7 +98,7 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout shellLayout = new FormLayout();
@@ -105,7 +120,7 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     wScrolledComposite.setLayoutData(fdSComposite);
 
     Composite wComposite = new Composite(wScrolledComposite, SWT.NONE);
-    props.setLook(wComposite);
+    PropsUi.setLook(wComposite);
     FormData fdComposite = new FormData();
     fdComposite.left = new FormAttachment(0, 0);
     fdComposite.right = new FormAttachment(100, 0);
@@ -114,12 +129,12 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     wComposite.setLayoutData(fdComposite);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
     wComposite.setLayout(formLayout);
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Some buttons at the bottom
     wOk = new Button(wComposite, SWT.PUSH);
@@ -137,14 +152,14 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     //
     Label wlTransformName = new Label(wComposite, SWT.RIGHT);
     wlTransformName.setText("Transform name");
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -162,7 +177,7 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
             SWT.SINGLE | SWT.LEFT,
             "Splunk Connection",
             "Select, create or edit a Splunk Connection");
-    props.setLook(wConnection);
+    PropsUi.setLook(wConnection);
     wConnection.addModifyListener(lsMod);
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
@@ -173,7 +188,7 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
 
     Label wlQuery = new Label(wComposite, SWT.LEFT);
     wlQuery.setText("Query:");
-    props.setLook(wlQuery);
+    PropsUi.setLook(wlQuery);
     FormData fdlQuery = new FormData();
     fdlQuery.left = new FormAttachment(0, 0);
     fdlQuery.right = new FormAttachment(middle, -margin);
@@ -181,7 +196,7 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
     wlQuery.setLayoutData(fdlQuery);
     wQuery = new Text(wComposite, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wQuery.setFont(GuiResource.getInstance().getFontFixed());
-    props.setLook(wQuery);
+    PropsUi.setLook(wQuery);
     wQuery.addModifyListener(lsMod);
     FormData fdQuery = new FormData();
     fdQuery.left = new FormAttachment(0, 0);
@@ -208,7 +223,7 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
 
     Label wlReturns = new Label(wComposite, SWT.LEFT);
     wlReturns.setText("Returns");
-    props.setLook(wlReturns);
+    PropsUi.setLook(wlReturns);
     FormData fdlReturns = new FormData();
     fdlReturns.left = new FormAttachment(0, 0);
     fdlReturns.right = new FormAttachment(middle, -margin);
@@ -233,7 +248,7 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
             input.getReturnValues().size(),
             lsMod,
             props);
-    props.setLook(wReturns);
+    PropsUi.setLook(wReturns);
     wReturns.addModifyListener(lsMod);
     FormData fdReturns = new FormData();
     fdReturns.left = new FormAttachment(0, 0);

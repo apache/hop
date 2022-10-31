@@ -27,18 +27,29 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ExecSqlRowMeta.class; // For Translator
@@ -75,7 +86,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -89,8 +100,8 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ExecSqlRowDialog.Shell.Label"));
@@ -101,7 +112,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "ExecSqlRowDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -109,7 +120,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -125,14 +136,14 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     // Commit line
     Label wlCommit = new Label(shell, SWT.RIGHT);
     wlCommit.setText(BaseMessages.getString(PKG, "ExecSqlRowDialog.Commit.Label"));
-    props.setLook(wlCommit);
+    PropsUi.setLook(wlCommit);
     FormData fdlCommit = new FormData();
     fdlCommit.left = new FormAttachment(0, 0);
     fdlCommit.top = new FormAttachment(wConnection, margin);
     fdlCommit.right = new FormAttachment(middle, -margin);
     wlCommit.setLayoutData(fdlCommit);
     wCommit = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCommit);
+    PropsUi.setLook(wCommit);
     wCommit.addModifyListener(lsMod);
     FormData fdCommit = new FormData();
     fdCommit.left = new FormAttachment(middle, 0);
@@ -143,7 +154,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     Label wlSendOneStatement = new Label(shell, SWT.RIGHT);
     wlSendOneStatement.setText(
         BaseMessages.getString(PKG, "ExecSqlRowDialog.SendOneStatement.Label"));
-    props.setLook(wlSendOneStatement);
+    PropsUi.setLook(wlSendOneStatement);
     FormData fdlSendOneStatement = new FormData();
     fdlSendOneStatement.left = new FormAttachment(0, 0);
     fdlSendOneStatement.top = new FormAttachment(wCommit, margin);
@@ -152,7 +163,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     wSendOneStatement = new Button(shell, SWT.CHECK);
     wSendOneStatement.setToolTipText(
         BaseMessages.getString(PKG, "ExecSqlRowDialog.SendOneStatement.Tooltip"));
-    props.setLook(wSendOneStatement);
+    PropsUi.setLook(wSendOneStatement);
     FormData fdSendOneStatement = new FormData();
     fdSendOneStatement.left = new FormAttachment(middle, 0);
     fdSendOneStatement.top = new FormAttachment(wlSendOneStatement, 0, SWT.CENTER);
@@ -169,7 +180,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     // SQLFieldName field
     Label wlSqlFieldName = new Label(shell, SWT.RIGHT);
     wlSqlFieldName.setText(BaseMessages.getString(PKG, "ExecSqlRowDialog.SQLFieldName.Label"));
-    props.setLook(wlSqlFieldName);
+    PropsUi.setLook(wlSqlFieldName);
     FormData fdlSqlFieldName = new FormData();
     fdlSqlFieldName.left = new FormAttachment(0, 0);
     fdlSqlFieldName.right = new FormAttachment(middle, -margin);
@@ -177,7 +188,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     wlSqlFieldName.setLayoutData(fdlSqlFieldName);
     wSqlFieldName = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
     wSqlFieldName.setEditable(true);
-    props.setLook(wSqlFieldName);
+    PropsUi.setLook(wSqlFieldName);
     wSqlFieldName.addModifyListener(lsMod);
     FormData fdSqlFieldName = new FormData();
     fdSqlFieldName.left = new FormAttachment(middle, 0);
@@ -203,7 +214,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
 
     Label wlSqlFromFile = new Label(shell, SWT.RIGHT);
     wlSqlFromFile.setText(BaseMessages.getString(PKG, "ExecSqlRowDialog.SQLFromFile.Label"));
-    props.setLook(wlSqlFromFile);
+    PropsUi.setLook(wlSqlFromFile);
     FormData fdlSqlFromFile = new FormData();
     fdlSqlFromFile.left = new FormAttachment(0, 0);
     fdlSqlFromFile.top = new FormAttachment(wSqlFieldName, margin);
@@ -212,7 +223,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     wSqlFromFile = new Button(shell, SWT.CHECK);
     wSqlFromFile.setToolTipText(
         BaseMessages.getString(PKG, "ExecSqlRowDialog.SQLFromFile.Tooltip"));
-    props.setLook(wSqlFromFile);
+    PropsUi.setLook(wSqlFromFile);
     FormData fdSqlFromFile = new FormData();
     fdSqlFromFile.left = new FormAttachment(middle, 0);
     fdSqlFromFile.top = new FormAttachment(wlSqlFromFile, 0, SWT.CENTER);
@@ -231,7 +242,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     // ///////////////////////////////
 
     Group wAdditionalFields = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(wAdditionalFields);
+    PropsUi.setLook(wAdditionalFields);
     wAdditionalFields.setText(
         BaseMessages.getString(PKG, "ExecSqlRowDialog.wAdditionalFields.Label"));
 
@@ -243,14 +254,14 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     // insert field
     Label wlInsertField = new Label(wAdditionalFields, SWT.RIGHT);
     wlInsertField.setText(BaseMessages.getString(PKG, "ExecSqlRowDialog.InsertField.Label"));
-    props.setLook(wlInsertField);
+    PropsUi.setLook(wlInsertField);
     FormData fdlInsertField = new FormData();
     fdlInsertField.left = new FormAttachment(0, margin);
     fdlInsertField.right = new FormAttachment(middle, -margin);
     fdlInsertField.top = new FormAttachment(wSqlFromFile, margin);
     wlInsertField.setLayoutData(fdlInsertField);
     wInsertField = new Text(wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInsertField);
+    PropsUi.setLook(wInsertField);
     wInsertField.addModifyListener(lsMod);
     FormData fdInsertField = new FormData();
     fdInsertField.left = new FormAttachment(middle, 0);
@@ -261,14 +272,14 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     // Update field
     Label wlUpdateField = new Label(wAdditionalFields, SWT.RIGHT);
     wlUpdateField.setText(BaseMessages.getString(PKG, "ExecSqlRowDialog.UpdateField.Label"));
-    props.setLook(wlUpdateField);
+    PropsUi.setLook(wlUpdateField);
     FormData fdlUpdateField = new FormData();
     fdlUpdateField.left = new FormAttachment(0, margin);
     fdlUpdateField.right = new FormAttachment(middle, -margin);
     fdlUpdateField.top = new FormAttachment(wInsertField, margin);
     wlUpdateField.setLayoutData(fdlUpdateField);
     wUpdateField = new Text(wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUpdateField);
+    PropsUi.setLook(wUpdateField);
     wUpdateField.addModifyListener(lsMod);
     FormData fdUpdateField = new FormData();
     fdUpdateField.left = new FormAttachment(middle, 0);
@@ -279,14 +290,14 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     // Delete field
     Label wlDeleteField = new Label(wAdditionalFields, SWT.RIGHT);
     wlDeleteField.setText(BaseMessages.getString(PKG, "ExecSqlRowDialog.DeleteField.Label"));
-    props.setLook(wlDeleteField);
+    PropsUi.setLook(wlDeleteField);
     FormData fdlDeleteField = new FormData();
     fdlDeleteField.left = new FormAttachment(0, margin);
     fdlDeleteField.right = new FormAttachment(middle, -margin);
     fdlDeleteField.top = new FormAttachment(wUpdateField, margin);
     wlDeleteField.setLayoutData(fdlDeleteField);
     wDeleteField = new Text(wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDeleteField);
+    PropsUi.setLook(wDeleteField);
     wDeleteField.addModifyListener(lsMod);
     FormData fdDeleteField = new FormData();
     fdDeleteField.left = new FormAttachment(middle, 0);
@@ -297,14 +308,14 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     // Read field
     Label wlReadField = new Label(wAdditionalFields, SWT.RIGHT);
     wlReadField.setText(BaseMessages.getString(PKG, "ExecSqlRowDialog.ReadField.Label"));
-    props.setLook(wlReadField);
+    PropsUi.setLook(wlReadField);
     FormData fdlReadField = new FormData();
     fdlReadField.left = new FormAttachment(0, 0);
     fdlReadField.right = new FormAttachment(middle, -margin);
     fdlReadField.top = new FormAttachment(wDeleteField, margin);
     wlReadField.setLayoutData(fdlReadField);
     wReadField = new Text(wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wReadField);
+    PropsUi.setLook(wReadField);
     wReadField.addModifyListener(lsMod);
     FormData fdReadField = new FormData();
     fdReadField.left = new FormAttachment(middle, 0);

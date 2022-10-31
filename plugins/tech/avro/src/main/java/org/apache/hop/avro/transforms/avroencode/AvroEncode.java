@@ -76,7 +76,7 @@ public class AvroEncode extends BaseTransform<AvroEncodeMeta, AvroEncodeData> {
       String documentation = resolve(meta.getDocumentation());
 
       data.avroSchema =
-          meta.createAvroSchema(
+          AvroEncodeMeta.createAvroSchema(
               schemaName, namespace, documentation, getInputRowMeta(), meta.getSourceFields());
 
       if (log.isDetailed()) {

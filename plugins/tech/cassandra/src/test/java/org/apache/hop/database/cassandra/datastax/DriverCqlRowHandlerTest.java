@@ -17,7 +17,12 @@
  */
 package org.apache.hop.database.cassandra.datastax;
 
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.ColumnDefinitions;
+import com.datastax.driver.core.DataType;
+import com.datastax.driver.core.LocalDate;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;

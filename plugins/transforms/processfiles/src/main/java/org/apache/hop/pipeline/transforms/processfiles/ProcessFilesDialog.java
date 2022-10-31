@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.processfiles;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -26,17 +25,26 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class ProcessFilesDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ProcessFilesMeta.class; // For Translator
@@ -74,7 +82,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -90,8 +98,8 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ProcessFilesDialog.Shell.Title"));
@@ -102,7 +110,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "ProcessFilesDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -110,7 +118,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -123,7 +131,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     // ///////////////////////////////
 
     Group wSettingsGroup = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(wSettingsGroup);
+    PropsUi.setLook(wSettingsGroup);
     wSettingsGroup.setText(BaseMessages.getString(PKG, "ProcessFilesDialog.wSettingsGroup.Label"));
 
     FormLayout settingGroupLayout = new FormLayout();
@@ -134,7 +142,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     // Operation
     Label wlOperation = new Label(wSettingsGroup, SWT.RIGHT);
     wlOperation.setText(BaseMessages.getString(PKG, "ProcessFilesDialog.Operation.Label"));
-    props.setLook(wlOperation);
+    PropsUi.setLook(wlOperation);
     FormData fdlOperation = new FormData();
     fdlOperation.left = new FormAttachment(0, 0);
     fdlOperation.right = new FormAttachment(middle, -margin);
@@ -142,7 +150,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wlOperation.setLayoutData(fdlOperation);
 
     wOperation = new CCombo(wSettingsGroup, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wOperation);
+    PropsUi.setLook(wOperation);
     wOperation.addModifyListener(lsMod);
     FormData fdOperation = new FormData();
     fdOperation.left = new FormAttachment(middle, 0);
@@ -162,14 +170,14 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wlCreateParentFolder = new Label(wSettingsGroup, SWT.RIGHT);
     wlCreateParentFolder.setText(
         BaseMessages.getString(PKG, "ProcessFilesDialog.CreateParentFolder.Label"));
-    props.setLook(wlCreateParentFolder);
+    PropsUi.setLook(wlCreateParentFolder);
     FormData fdlCreateParentFolder = new FormData();
     fdlCreateParentFolder.left = new FormAttachment(0, 0);
     fdlCreateParentFolder.top = new FormAttachment(wOperation, margin);
     fdlCreateParentFolder.right = new FormAttachment(middle, -margin);
     wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
     wCreateParentFolder = new Button(wSettingsGroup, SWT.CHECK);
-    props.setLook(wCreateParentFolder);
+    PropsUi.setLook(wCreateParentFolder);
     wCreateParentFolder.setToolTipText(
         BaseMessages.getString(PKG, "ProcessFilesDialog.CreateParentFolder.Tooltip"));
     wCreateParentFolder.addSelectionListener(lsButtonChanged);
@@ -182,14 +190,14 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wlOverwriteTarget = new Label(wSettingsGroup, SWT.RIGHT);
     wlOverwriteTarget.setText(
         BaseMessages.getString(PKG, "ProcessFilesDialog.OverwriteTarget.Label"));
-    props.setLook(wlOverwriteTarget);
+    PropsUi.setLook(wlOverwriteTarget);
     FormData fdlOverwriteTarget = new FormData();
     fdlOverwriteTarget.left = new FormAttachment(0, 0);
     fdlOverwriteTarget.top = new FormAttachment(wCreateParentFolder, margin);
     fdlOverwriteTarget.right = new FormAttachment(middle, -margin);
     wlOverwriteTarget.setLayoutData(fdlOverwriteTarget);
     wOverwriteTarget = new Button(wSettingsGroup, SWT.CHECK);
-    props.setLook(wOverwriteTarget);
+    PropsUi.setLook(wOverwriteTarget);
     wOverwriteTarget.setToolTipText(
         BaseMessages.getString(PKG, "ProcessFilesDialog.OverwriteTarget.Tooltip"));
     wOverwriteTarget.addSelectionListener(lsButtonChanged);
@@ -201,14 +209,14 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     // Add Target filename to result filenames?
     wlAddResult = new Label(wSettingsGroup, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "ProcessFilesDialog.AddResult.Label"));
-    props.setLook(wlAddResult);
+    PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
     fdlAddResult.top = new FormAttachment(wOverwriteTarget, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(wSettingsGroup, SWT.CHECK);
-    props.setLook(wAddResult);
+    PropsUi.setLook(wAddResult);
     wAddResult.setToolTipText(BaseMessages.getString(PKG, "ProcessFilesDialog.AddResult.Tooltip"));
     wAddResult.addSelectionListener(lsButtonChanged);
     FormData fdAddResult = new FormData();
@@ -219,14 +227,14 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     // Simulation mode ON?
     Label wlSimulate = new Label(wSettingsGroup, SWT.RIGHT);
     wlSimulate.setText(BaseMessages.getString(PKG, "ProcessFilesDialog.Simulate.Label"));
-    props.setLook(wlSimulate);
+    PropsUi.setLook(wlSimulate);
     FormData fdlSimulate = new FormData();
     fdlSimulate.left = new FormAttachment(0, 0);
     fdlSimulate.top = new FormAttachment(wAddResult, margin);
     fdlSimulate.right = new FormAttachment(middle, -margin);
     wlSimulate.setLayoutData(fdlSimulate);
     wSimulate = new Button(wSettingsGroup, SWT.CHECK);
-    props.setLook(wSimulate);
+    PropsUi.setLook(wSimulate);
     wSimulate.setToolTipText(BaseMessages.getString(PKG, "ProcessFilesDialog.Simulate.Tooltip"));
     wSimulate.addSelectionListener(lsButtonChanged);
     FormData fdSimulate = new FormData();
@@ -248,7 +256,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     Label wlSourceFileNameField = new Label(shell, SWT.RIGHT);
     wlSourceFileNameField.setText(
         BaseMessages.getString(PKG, "ProcessFilesDialog.SourceFileNameField.Label"));
-    props.setLook(wlSourceFileNameField);
+    PropsUi.setLook(wlSourceFileNameField);
     FormData fdlSourceFileNameField = new FormData();
     fdlSourceFileNameField.left = new FormAttachment(0, 0);
     fdlSourceFileNameField.right = new FormAttachment(middle, -margin);
@@ -256,7 +264,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wlSourceFileNameField.setLayoutData(fdlSourceFileNameField);
 
     wSourceFileNameField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wSourceFileNameField);
+    PropsUi.setLook(wSourceFileNameField);
     wSourceFileNameField.setEditable(true);
     wSourceFileNameField.addModifyListener(lsMod);
     FormData fdSourceFileNameField = new FormData();
@@ -284,7 +292,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wlTargetFileNameField = new Label(shell, SWT.RIGHT);
     wlTargetFileNameField.setText(
         BaseMessages.getString(PKG, "ProcessFilesDialog.TargetFileNameField.Label"));
-    props.setLook(wlTargetFileNameField);
+    PropsUi.setLook(wlTargetFileNameField);
     FormData fdlTargetFileNameField = new FormData();
     fdlTargetFileNameField.left = new FormAttachment(0, 0);
     fdlTargetFileNameField.right = new FormAttachment(middle, -margin);
@@ -293,7 +301,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
 
     wTargetFileNameField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
     wTargetFileNameField.setEditable(true);
-    props.setLook(wTargetFileNameField);
+    PropsUi.setLook(wTargetFileNameField);
     wTargetFileNameField.addModifyListener(lsMod);
     FormData fdTargetFileNameField = new FormData();
     fdTargetFileNameField.left = new FormAttachment(middle, 0);

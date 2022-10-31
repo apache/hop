@@ -30,7 +30,13 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class contains the basic information on a database connection. It is not intended to be used

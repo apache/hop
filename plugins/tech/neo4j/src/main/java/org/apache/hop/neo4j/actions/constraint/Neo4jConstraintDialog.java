@@ -23,9 +23,10 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -40,7 +41,12 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
@@ -70,32 +76,32 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, meta);
 
     ModifyListener lsMod = e -> meta.setChanged();
     changed = meta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "Neo4jConstraintDialog.Dialog.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "Neo4jConstraintDialog.ActionName.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -113,7 +119,7 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "Neo4jConstraintDialog.NeoConnection.Label"),
             BaseMessages.getString(PKG, "Neo4jConstraintDialog.NeoConnection.Tooltip"));
-    props.setLook(wConnection);
+    PropsUi.setLook(wConnection);
     wConnection.addModifyListener(lsMod);
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
@@ -137,7 +143,7 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
 
     Label wlUpdates = new Label(shell, SWT.LEFT);
     wlUpdates.setText(BaseMessages.getString(PKG, "Neo4jConstraintDialog.ConstraintUpdates.Label"));
-    props.setLook(wlUpdates);
+    PropsUi.setLook(wlUpdates);
     FormData fdlCypher = new FormData();
     fdlCypher.left = new FormAttachment(0, 0);
     fdlCypher.right = new FormAttachment(100, 0);
@@ -187,7 +193,7 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
             false,
             null,
             props);
-    props.setLook(wUpdates);
+    PropsUi.setLook(wUpdates);
     wUpdates.addModifyListener(lsMod);
     FormData fdCypher = new FormData();
     fdCypher.left = new FormAttachment(0, 0);

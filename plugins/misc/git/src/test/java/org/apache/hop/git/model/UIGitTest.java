@@ -45,8 +45,16 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 public class UIGitTest extends RepositoryTestCase {
   private Git git;
@@ -160,7 +168,7 @@ public class UIGitTest extends RepositoryTestCase {
     // Change
     a.renameTo(new File(git.getRepository().getWorkTree(), "a2.hpl"));
     b.delete();
-    FileUtils.writeStringToFile(c, "A change");
+    FileUtils.writeStringToFile(c, "A change", "UTF-8");
 
     // Test for unstaged
     unStagedObjects = uiGit.getUnstagedFiles();
@@ -209,13 +217,13 @@ public class UIGitTest extends RepositoryTestCase {
 
     // put some file in the source repo and sync
     File sourceFile = new File(db2.getWorkTree(), "SomeFile.txt");
-    FileUtils.writeStringToFile(sourceFile, "Hello world");
+    FileUtils.writeStringToFile(sourceFile, "Hello world", "UTF-8");
     git2.add().addFilepattern("SomeFile.txt").call();
     git2.commit().setMessage("Initial commit for source").call();
     PullResult pullResult = git.pull().call();
 
     // change the source file
-    FileUtils.writeStringToFile(sourceFile, "Another change");
+    FileUtils.writeStringToFile(sourceFile, "Another change", "UTF-8");
     git2.add().addFilepattern("SomeFile.txt").call();
     git2.commit().setMessage("Some change in remote").call();
     git2.close();
@@ -231,18 +239,18 @@ public class UIGitTest extends RepositoryTestCase {
 
     // put some file in the source repo and sync
     File sourceFile = new File(db2.getWorkTree(), "SomeFile.txt");
-    FileUtils.writeStringToFile(sourceFile, "Hello world");
+    FileUtils.writeStringToFile(sourceFile, "Hello world", "UTF-8");
     git2.add().addFilepattern("SomeFile.txt").call();
     git2.commit().setMessage("Initial commit for source").call();
     git.pull().call();
 
     // change the source file
-    FileUtils.writeStringToFile(sourceFile, "Another change");
+    FileUtils.writeStringToFile(sourceFile, "Another change", "UTF-8");
     git2.add().addFilepattern("SomeFile.txt").call();
     git2.commit().setMessage("Some change in remote").call();
 
     File targetFile = new File(db.getWorkTree(), "OtherFile.txt");
-    FileUtils.writeStringToFile(targetFile, "Unconflicting change");
+    FileUtils.writeStringToFile(targetFile, "Unconflicting change", "UTF-8");
     git.add().addFilepattern("OtherFile.txt").call();
     git.commit().setMessage("Unconflicting change in local").call();
 
@@ -250,12 +258,12 @@ public class UIGitTest extends RepositoryTestCase {
 
     //  Change at local
     targetFile = new File(db.getWorkTree(), "SomeFile.txt");
-    FileUtils.writeStringToFile(targetFile, "Another change\nChange A");
+    FileUtils.writeStringToFile(targetFile, "Another change\nChange A", "UTF-8");
     git.add().addFilepattern("SomeFile.txt").call();
     git.commit().setMessage("Change A at local").call();
 
     //  Change the source file in a way that conflicts with the change at local
-    FileUtils.writeStringToFile(sourceFile, "Another change\nChange B");
+    FileUtils.writeStringToFile(sourceFile, "Another change\nChange B", "UTF-8");
     git2.add().addFilepattern("SomeFile.txt").call();
     git2.commit().setMessage("Change B at remote").call();
 
@@ -380,7 +388,7 @@ public class UIGitTest extends RepositoryTestCase {
     assertEquals(diff, diff2);
 
     // Add another line
-    FileUtils.writeStringToFile(file, "second commit");
+    FileUtils.writeStringToFile(file, "second commit", "UTF-8");
     git.add().addFilepattern("Test.txt").call();
     RevCommit commit2 = git.commit().setMessage("second commit").call();
 
@@ -429,11 +437,11 @@ public class UIGitTest extends RepositoryTestCase {
     RevCommit commit = git.commit().setMessage("initial commit").call();
 
     // Add some change
-    FileUtils.writeStringToFile(file, "Change");
-    assertEquals("Change", FileUtils.readFileToString(file));
+    FileUtils.writeStringToFile(file, "Change", "UTF-8");
+    assertEquals("Change", FileUtils.readFileToString(file, "UTF-8"));
 
     uiGit.revertPath(file.getName());
-    assertEquals("Hello world", FileUtils.readFileToString(file));
+    assertEquals("Hello world", FileUtils.readFileToString(file, "UTF-8"));
   }
 
   @Test

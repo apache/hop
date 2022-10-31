@@ -121,7 +121,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
           new CLabel(parent, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
       label.setText(Const.NVL(toolbarItem.getLabel(), ""));
       label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
-      props.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
+      PropsUi.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
       label.pack();
       labelSeparator.setWidth(label.getSize().x);
       labelSeparator.setControl(label);
@@ -136,8 +136,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         CLabel label =
             new CLabel(parent, SWT.CENTER | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
         label.setText(Const.NVL(toolbarItem.getLabel(), ""));
-        label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));        
-        props.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
+        label.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
+        PropsUi.setLook(label, Props.WIDGET_STYLE_TOOLBAR);
         label.pack();
         labelSeparator.setWidth(label.getSize().x);
         labelSeparator.setControl(label);
@@ -177,7 +177,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             new Combo(parent, SWT.SINGLE | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
         combo.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
         combo.setItems(getComboItems(toolbarItem));
-        props.setLook(combo);
+        PropsUi.setLook(combo);
         combo.pack();
         comboSeparator.setWidth(
             calculateComboWidth(combo)
@@ -192,7 +192,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         combo.addListener(SWT.DefaultSelection, listener);
         toolItemMap.put(toolbarItem.getId(), comboSeparator);
         widgetsMap.put(toolbarItem.getId(), combo);
-        props.setLook(combo, Props.WIDGET_STYLE_TOOLBAR);
+        PropsUi.setLook(combo, Props.WIDGET_STYLE_TOOLBAR);
         break;
 
       case CHECKBOX:
@@ -201,7 +201,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             new Button(parent, SWT.CHECK | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
         checkbox.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
         checkbox.setText(Const.NVL(toolbarItem.getLabel(), ""));
-        props.setLook(checkbox);
+        PropsUi.setLook(checkbox);
         checkbox.pack();
         checkboxSeparator.setWidth(
             checkbox.getSize().x
@@ -222,22 +222,24 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     }
   }
 
-/**
- * See if there's a shortcut worth mentioning and add it to tooltip...
- * 
- * @param toolItem
- * @param guiToolbarItem
- */
-  private void setToolItemKeyboardShortcut(ToolItem toolItem, GuiToolbarItem guiToolbarItem) {    
+  /**
+   * See if there's a shortcut worth mentioning and add it to tooltip...
+   *
+   * @param toolItem
+   * @param guiToolbarItem
+   */
+  private void setToolItemKeyboardShortcut(ToolItem toolItem, GuiToolbarItem guiToolbarItem) {
     KeyboardShortcut shortcut =
         GuiRegistry.getInstance()
             .findKeyboardShortcut(
-                guiToolbarItem.getListenerClass(), guiToolbarItem.getListenerMethod(), Const.isOSX());
+                guiToolbarItem.getListenerClass(),
+                guiToolbarItem.getListenerMethod(),
+                Const.isOSX());
     if (shortcut != null) {
-      toolItem.setToolTipText(toolItem.getToolTipText()+" ("+shortcut.toString()+')');
+      toolItem.setToolTipText(toolItem.getToolTipText() + " (" + shortcut.toString() + ')');
     }
   }
-  
+
   private void setImages(
       ToolItem item, ClassLoader classLoader, String location, String disabledLocation) {
     GuiResource gr = GuiResource.getInstance();
@@ -245,7 +247,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     int height = ConstUi.SMALL_ICON_SIZE;
 
     if (StringUtils.isNotEmpty(location)) {
-      item.setImage(gr.getImage(location, classLoader, width, height));
+      Image enabledImage = gr.getImage(location, classLoader, width, height);
+      item.setImage(enabledImage);
 
       Image disabledImage;
       if (StringUtils.isNotEmpty(disabledLocation)) {
@@ -366,7 +369,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     return widgetsMap;
   }
 
-  /** @param widgetsMap The widgetsMap to set */
+  /**
+   * @param widgetsMap The widgetsMap to set
+   */
   public void setWidgetsMap(Map<String, Control> widgetsMap) {
     this.widgetsMap = widgetsMap;
   }
@@ -380,7 +385,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     return toolItemMap;
   }
 
-  /** @param toolItemMap The toolItemMap to set */
+  /**
+   * @param toolItemMap The toolItemMap to set
+   */
   public void setToolItemMap(Map<String, ToolItem> toolItemMap) {
     this.toolItemMap = toolItemMap;
   }
@@ -394,7 +401,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     return guiToolBarMap;
   }
 
-  /** @param guiToolBarMap The guiToolBarMap to set */
+  /**
+   * @param guiToolBarMap The guiToolBarMap to set
+   */
   public void setGuiToolBarMap(Map<String, GuiToolbarItem> guiToolBarMap) {
     this.guiToolBarMap = guiToolBarMap;
   }

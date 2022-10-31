@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -70,15 +71,15 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "BlockingTransformDialog.Shell.Title"));
@@ -90,7 +91,7 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "BlockingTransformDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -98,7 +99,7 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -109,14 +110,14 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     // Update the dimension?
     Label wlPassAllRows = new Label(shell, SWT.RIGHT);
     wlPassAllRows.setText(BaseMessages.getString(PKG, "BlockingTransformDialog.PassAllRows.Label"));
-    props.setLook(wlPassAllRows);
+    PropsUi.setLook(wlPassAllRows);
     FormData fdlUpdate = new FormData();
     fdlUpdate.left = new FormAttachment(0, 0);
     fdlUpdate.right = new FormAttachment(middle, -margin);
     fdlUpdate.top = new FormAttachment(wTransformName, margin);
     wlPassAllRows.setLayoutData(fdlUpdate);
     wPassAllRows = new Button(shell, SWT.CHECK);
-    props.setLook(wPassAllRows);
+    PropsUi.setLook(wPassAllRows);
     FormData fdUpdate = new FormData();
     fdUpdate.left = new FormAttachment(middle, 0);
     fdUpdate.top = new FormAttachment(wlPassAllRows, 0, SWT.CENTER);
@@ -136,7 +137,7 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     // Temp directory for sorting
     wlSpoolDir = new Label(shell, SWT.RIGHT);
     wlSpoolDir.setText(BaseMessages.getString(PKG, "BlockingTransformDialog.SpoolDir.Label"));
-    props.setLook(wlSpoolDir);
+    PropsUi.setLook(wlSpoolDir);
     FormData fdlSpoolDir = new FormData();
     fdlSpoolDir.left = new FormAttachment(0, 0);
     fdlSpoolDir.right = new FormAttachment(middle, -margin);
@@ -144,7 +145,7 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     wlSpoolDir.setLayoutData(fdlSpoolDir);
 
     wbSpoolDir = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSpoolDir);
+    PropsUi.setLook(wbSpoolDir);
     wbSpoolDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSpoolDir = new FormData();
     fdbSpoolDir.right = new FormAttachment(100, 0);
@@ -152,7 +153,7 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     wbSpoolDir.setLayoutData(fdbSpoolDir);
 
     wSpoolDir = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSpoolDir);
+    PropsUi.setLook(wSpoolDir);
     wSpoolDir.addModifyListener(lsMod);
     FormData fdSpoolDir = new FormData();
     fdSpoolDir.left = new FormAttachment(middle, 0);
@@ -170,14 +171,14 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     // Prefix of temporary file
     wlPrefix = new Label(shell, SWT.RIGHT);
     wlPrefix.setText(BaseMessages.getString(PKG, "BlockingTransformDialog.Prefix.Label"));
-    props.setLook(wlPrefix);
+    PropsUi.setLook(wlPrefix);
     FormData fdlPrefix = new FormData();
     fdlPrefix.left = new FormAttachment(0, 0);
     fdlPrefix.right = new FormAttachment(middle, -margin);
     fdlPrefix.top = new FormAttachment(wbSpoolDir, margin * 2);
     wlPrefix.setLayoutData(fdlPrefix);
     wPrefix = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPrefix);
+    PropsUi.setLook(wPrefix);
     wPrefix.addModifyListener(lsMod);
     FormData fdPrefix = new FormData();
     fdPrefix.left = new FormAttachment(middle, 0);
@@ -188,14 +189,14 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     // Maximum number of lines to keep in memory before using temporary files
     wlCacheSize = new Label(shell, SWT.RIGHT);
     wlCacheSize.setText(BaseMessages.getString(PKG, "BlockingTransformDialog.CacheSize.Label"));
-    props.setLook(wlCacheSize);
+    PropsUi.setLook(wlCacheSize);
     FormData fdlCacheSize = new FormData();
     fdlCacheSize.left = new FormAttachment(0, 0);
     fdlCacheSize.right = new FormAttachment(middle, -margin);
     fdlCacheSize.top = new FormAttachment(wPrefix, margin * 2);
     wlCacheSize.setLayoutData(fdlCacheSize);
     wCacheSize = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCacheSize);
+    PropsUi.setLook(wCacheSize);
     wCacheSize.addModifyListener(lsMod);
     FormData fdCacheSize = new FormData();
     fdCacheSize.left = new FormAttachment(middle, 0);
@@ -206,14 +207,14 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     // Using compression for temporary files?
     wlCompress = new Label(shell, SWT.RIGHT);
     wlCompress.setText(BaseMessages.getString(PKG, "BlockingTransformDialog.Compress.Label"));
-    props.setLook(wlCompress);
+    PropsUi.setLook(wlCompress);
     FormData fdlCompress = new FormData();
     fdlCompress.left = new FormAttachment(0, 0);
     fdlCompress.right = new FormAttachment(middle, -margin);
     fdlCompress.top = new FormAttachment(wCacheSize, margin * 2);
     wlCompress.setLayoutData(fdlCompress);
     wCompress = new Button(shell, SWT.CHECK);
-    props.setLook(wCompress);
+    PropsUi.setLook(wCompress);
     FormData fdCompress = new FormData();
     fdCompress.left = new FormAttachment(middle, 0);
     fdCompress.top = new FormAttachment(wlCompress, 0, SWT.CENTER);

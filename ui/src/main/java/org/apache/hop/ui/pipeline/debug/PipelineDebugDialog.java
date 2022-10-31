@@ -46,7 +46,15 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -106,12 +114,12 @@ public class PipelineDebugDialog extends Dialog {
         new Shell(
             parent,
             SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImagePipeline());
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "PipelineDebugDialog.Shell.Title"));
@@ -217,7 +225,7 @@ public class PipelineDebugDialog extends Dialog {
     // selected transform...
     //
     wComposite = new Composite(shell, SWT.BORDER);
-    props.setLook(wComposite);
+    PropsUi.setLook(wComposite);
 
     FormData fdComposite = new FormData();
     fdComposite.left = new FormAttachment(middle, 0);
@@ -228,8 +236,8 @@ public class PipelineDebugDialog extends Dialog {
 
     // Give the composite a layout...
     FormLayout compositeLayout = new FormLayout();
-    compositeLayout.marginWidth = Const.FORM_MARGIN;
-    compositeLayout.marginHeight = Const.FORM_MARGIN;
+    compositeLayout.marginWidth = PropsUi.getFormMargin();
+    compositeLayout.marginHeight = PropsUi.getFormMargin();
     wComposite.setLayout(compositeLayout);
 
     getData();
@@ -402,7 +410,7 @@ public class PipelineDebugDialog extends Dialog {
     // Do we retrieve the first rows passing?
     //
     wFirstRows = new Button(wComposite, SWT.CHECK);
-    props.setLook(wFirstRows);
+    PropsUi.setLook(wFirstRows);
     wFirstRows.setText(BaseMessages.getString(PKG, "PipelineDebugDialog.FirstRows.Label"));
     wFirstRows.setToolTipText(BaseMessages.getString(PKG, "PipelineDebugDialog.FirstRows.ToolTip"));
     FormData fdFirstRows = new FormData();
@@ -414,7 +422,7 @@ public class PipelineDebugDialog extends Dialog {
     // Do we pause on break point, when the condition is met?
     //
     wPauseBreakPoint = new Button(wComposite, SWT.CHECK);
-    props.setLook(wPauseBreakPoint);
+    PropsUi.setLook(wPauseBreakPoint);
     wPauseBreakPoint.setText(
         BaseMessages.getString(PKG, "PipelineDebugDialog.PauseBreakPoint.Label"));
     wPauseBreakPoint.setToolTipText(
@@ -445,7 +453,7 @@ public class PipelineDebugDialog extends Dialog {
     }
 
     Label wlCondition = new Label(wComposite, SWT.RIGHT);
-    props.setLook(wlCondition);
+    PropsUi.setLook(wlCondition);
     wlCondition.setText(BaseMessages.getString(PKG, "PipelineDebugDialog.Condition.Label"));
     wlCondition.setToolTipText(
         BaseMessages.getString(PKG, "PipelineDebugDialog.Condition.ToolTip"));
@@ -469,7 +477,7 @@ public class PipelineDebugDialog extends Dialog {
     // Add a "clear" button at the bottom on the left...
     //
     Button wClear = new Button(wComposite, SWT.PUSH);
-    props.setLook(wClear);
+    PropsUi.setLook(wClear);
     wClear.setText(BaseMessages.getString(PKG, "PipelineDebugDialog.Clear.Label"));
     wClear.setToolTipText(BaseMessages.getString(PKG, "PipelineDebugDialog.Clear.ToolTip"));
     FormData fdClear = new FormData();

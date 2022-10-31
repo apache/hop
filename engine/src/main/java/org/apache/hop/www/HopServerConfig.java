@@ -23,7 +23,11 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.logging.*;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -35,7 +39,11 @@ import org.apache.hop.server.HopServer;
 import org.w3c.dom.Node;
 
 import java.net.SocketException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public class HopServerConfig implements IXml {

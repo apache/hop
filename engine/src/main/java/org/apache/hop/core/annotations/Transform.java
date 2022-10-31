@@ -17,7 +17,11 @@
 
 package org.apache.hop.core.annotations;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * An alternate way of defining transforms. Classes annotated with "Transform" are automatically

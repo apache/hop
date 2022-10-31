@@ -33,6 +33,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineSvgPainter;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -46,7 +47,6 @@ import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowSvgPainter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
 
 import java.io.File;
 import java.io.OutputStream;

@@ -110,7 +110,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.*;
+import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.BIT_STATUS_SUM;
+import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.FINISHED;
+import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.INITIALIZING;
+import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.PAUSED;
+import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.PREPARING;
+import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.RUNNING;
+import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.STOPPED;
 
 /**
  * This class represents the information and operations associated with the execution of a Pipeline.

@@ -17,13 +17,13 @@
 
 package org.apache.hop.ui.pipeline.dialog;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.eclipse.swt.SWT;
@@ -35,7 +35,11 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 
 public class PipelineHopDialog extends Dialog {
   private static final Class<?> PKG = PipelineDialog.class; // For Translator
@@ -65,15 +69,15 @@ public class PipelineHopDialog extends Dialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHop());
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "PipelineHopDialog.Shell.Label"));
@@ -85,7 +89,7 @@ public class PipelineHopDialog extends Dialog {
     // From transform line
     Label wlFrom = new Label(shell, SWT.RIGHT);
     wlFrom.setText(BaseMessages.getString(PKG, "PipelineHopDialog.FromTransform.Label"));
-    props.setLook(wlFrom);
+    PropsUi.setLook(wlFrom);
     FormData fdlFrom = new FormData();
     fdlFrom.left = new FormAttachment(0, 0);
     fdlFrom.right = new FormAttachment(middle, -margin);
@@ -93,7 +97,7 @@ public class PipelineHopDialog extends Dialog {
     wlFrom.setLayoutData(fdlFrom);
     wFrom = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFrom.setText(BaseMessages.getString(PKG, "PipelineHopDialog.FromTransformDropdownList.Label"));
-    props.setLook(wFrom);
+    PropsUi.setLook(wFrom);
 
     for (int i = 0; i < pipelineMeta.nrTransforms(); i++) {
       TransformMeta transformMeta = pipelineMeta.getTransform(i);
@@ -110,7 +114,7 @@ public class PipelineHopDialog extends Dialog {
     // To line
     Label wlTo = new Label(shell, SWT.RIGHT);
     wlTo.setText(BaseMessages.getString(PKG, "PipelineHopDialog.TargetTransform.Label"));
-    props.setLook(wlTo);
+    PropsUi.setLook(wlTo);
     FormData fdlTo = new FormData();
     fdlTo.left = new FormAttachment(0, 0);
     fdlTo.right = new FormAttachment(middle, -margin);
@@ -118,7 +122,7 @@ public class PipelineHopDialog extends Dialog {
     wlTo.setLayoutData(fdlTo);
     wTo = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
     wTo.setText(BaseMessages.getString(PKG, "PipelineHopDialog.TargetTransformDropdownList.Label"));
-    props.setLook(wTo);
+    PropsUi.setLook(wTo);
 
     for (int i = 0; i < pipelineMeta.nrTransforms(); i++) {
       TransformMeta transformMeta = pipelineMeta.getTransform(i);
@@ -135,14 +139,14 @@ public class PipelineHopDialog extends Dialog {
     // Enabled?
     Label wlEnabled = new Label(shell, SWT.RIGHT);
     wlEnabled.setText(BaseMessages.getString(PKG, "PipelineHopDialog.EnableHop.Label"));
-    props.setLook(wlEnabled);
+    PropsUi.setLook(wlEnabled);
     FormData fdlEnabled = new FormData();
     fdlEnabled.left = new FormAttachment(0, 0);
     fdlEnabled.right = new FormAttachment(middle, -margin);
     fdlEnabled.top = new FormAttachment(wlTo, margin * 5);
     wlEnabled.setLayoutData(fdlEnabled);
     wEnabled = new Button(shell, SWT.CHECK);
-    props.setLook(wEnabled);
+    PropsUi.setLook(wEnabled);
     FormData fdEnabled = new FormData();
     fdEnabled.left = new FormAttachment(middle, 0);
     fdEnabled.top = new FormAttachment(wlTo, margin * 5);

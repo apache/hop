@@ -26,6 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -40,7 +41,12 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class NumberRangeDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = NumberRangeMeta.class; // For Translator
@@ -63,15 +69,15 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "NumberRangeDialog.Title"));
@@ -128,7 +134,7 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
   private void createRulesTable(ModifyListener lsMod) {
     Label rulesLable = new Label(shell, SWT.NONE);
     rulesLable.setText(BaseMessages.getString(PKG, "NumberRangeDialog.Ranges"));
-    props.setLook(rulesLable);
+    PropsUi.setLook(rulesLable);
     FormData lableFormData = new FormData();
     lableFormData.left = new FormAttachment(0, 0);
     lableFormData.right = new FormAttachment(props.getMiddlePct(), -props.getMargin());
@@ -174,7 +180,7 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     // Value line
     Label lable = new Label(shell, SWT.RIGHT);
     lable.setText(lableText);
-    props.setLook(lable);
+    PropsUi.setLook(lable);
     FormData lableFormData = new FormData();
     lableFormData.left = new FormAttachment(0, 0);
     lableFormData.right = new FormAttachment(props.getMiddlePct(), -props.getMargin());
@@ -187,7 +193,7 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     lable.setLayoutData(lableFormData);
 
     Text control = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(control);
+    PropsUi.setLook(control);
     control.addModifyListener(lsMod);
     FormData widgetFormData = new FormData();
     widgetFormData.left = new FormAttachment(props.getMiddlePct(), 0);
@@ -207,7 +213,7 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     // Value line
     Label lable = new Label(shell, SWT.RIGHT);
     lable.setText(lableText);
-    props.setLook(lable);
+    PropsUi.setLook(lable);
     FormData lableFormData = new FormData();
     lableFormData.left = new FormAttachment(0, 0);
     lableFormData.right = new FormAttachment(props.getMiddlePct(), -props.getMargin());
@@ -220,7 +226,7 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     lable.setLayoutData(lableFormData);
 
     CCombo control = new CCombo(shell, SWT.BORDER);
-    props.setLook(control);
+    PropsUi.setLook(control);
     control.addModifyListener(lsMod);
     FormData widgetFormData = new FormData();
     widgetFormData.left = new FormAttachment(props.getMiddlePct(), 0);

@@ -37,9 +37,11 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -50,8 +52,18 @@ import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.*;
-import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabFolder2Adapter;
+import org.eclipse.swt.custom.CTabFolderEvent;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.TreeEditor;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -59,16 +71,39 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
-import org.mozilla.javascript.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
+import org.mozilla.javascript.CompilerEnvirons;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.ErrorReporter;
+import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.JavaScriptException;
+import org.mozilla.javascript.NodeTransformer;
+import org.mozilla.javascript.Parser;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.ast.ScriptNode;
 import org.mozilla.javascript.tools.ToolErrorReporter;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.*;
+import java.util.Vector;
 
 public class ScriptValuesDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
@@ -171,15 +206,15 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.Shell.Title"));
@@ -207,7 +242,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -215,7 +250,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -228,18 +263,18 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     // Top sash form
     //
     Composite wTop = new Composite(wSash, SWT.NONE);
-    props.setLook(wTop);
+    PropsUi.setLook(wTop);
 
     FormLayout topLayout = new FormLayout();
-    topLayout.marginWidth = Const.FORM_MARGIN;
-    topLayout.marginHeight = Const.FORM_MARGIN;
+    topLayout.marginWidth = PropsUi.getFormMargin();
+    topLayout.marginHeight = PropsUi.getFormMargin();
     wTop.setLayout(topLayout);
 
     // Script line
     Label wlScriptFunctions = new Label(wTop, SWT.NONE);
     wlScriptFunctions.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.JavascriptFunctions.Label"));
-    props.setLook(wlScriptFunctions);
+    PropsUi.setLook(wlScriptFunctions);
     FormData fdlScriptFunctions = new FormData();
     fdlScriptFunctions.left = new FormAttachment(0, 0);
     fdlScriptFunctions.top = new FormAttachment(0, 0);
@@ -247,7 +282,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
 
     // Tree View Test
     wTree = new Tree(wTop, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wTree);
+    PropsUi.setLook(wTree);
     FormData fdlTree = new FormData();
     fdlTree.left = new FormAttachment(0, 0);
     fdlTree.top = new FormAttachment(wlScriptFunctions, margin);
@@ -259,7 +294,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     //
     Label wlScript = new Label(wTop, SWT.NONE);
     wlScript.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.Javascript.Label"));
-    props.setLook(wlScript);
+    PropsUi.setLook(wlScript);
     FormData fdlScript = new FormData();
     fdlScript.left = new FormAttachment(wTree, margin);
     fdlScript.top = new FormAttachment(0, 0);
@@ -272,7 +307,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     Label wlOptimizationLevel = new Label(wTop, SWT.NONE);
     wlOptimizationLevel.setText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.OptimizationLevel.Label"));
-    props.setLook(wlOptimizationLevel);
+    PropsUi.setLook(wlOptimizationLevel);
     FormData fdlOptimizationLevel = new FormData();
     fdlOptimizationLevel.left = new FormAttachment(wTree, margin * 2);
     fdlOptimizationLevel.bottom = new FormAttachment(100, -margin);
@@ -281,7 +316,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     wOptimizationLevel = new TextVar(variables, wTop, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wOptimizationLevel.setToolTipText(
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.OptimizationLevel.Tooltip"));
-    props.setLook(wOptimizationLevel);
+    PropsUi.setLook(wOptimizationLevel);
     FormData fdOptimizationLevel = new FormData();
     fdOptimizationLevel.left = new FormAttachment(wlOptimizationLevel, margin);
     fdOptimizationLevel.top = new FormAttachment(wlOptimizationLevel, 0, SWT.CENTER);
@@ -293,7 +328,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     //
     wlPosition = new Label(wTop, SWT.LEFT);
     wlPosition.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.Position.Label", 1, 1));
-    props.setLook(wlPosition);
+    PropsUi.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(wTree, 2 * margin);
     fdlPosition.right = new FormAttachment(100, 0);
@@ -318,11 +353,11 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     wTop.setLayoutData(fdTop);
 
     Composite wBottom = new Composite(wSash, SWT.NONE);
-    props.setLook(wBottom);
+    PropsUi.setLook(wBottom);
 
     FormLayout bottomLayout = new FormLayout();
-    bottomLayout.marginWidth = Const.FORM_MARGIN;
-    bottomLayout.marginHeight = Const.FORM_MARGIN;
+    bottomLayout.marginWidth = PropsUi.getFormMargin();
+    bottomLayout.marginHeight = PropsUi.getFormMargin();
     wBottom.setLayout(bottomLayout);
 
     Label wSeparator = new Label(wBottom, SWT.SEPARATOR | SWT.HORIZONTAL);
@@ -334,7 +369,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
 
     Label wlFields = new Label(wBottom, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wSeparator, 0);
@@ -550,6 +585,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
 
   private void addCtab(String cScriptName, String strScript, int iType) {
     CTabItem item = new CTabItem(folder, SWT.CLOSE);
+    item.setFont(GuiResource.getInstance().getFontDefault());
 
     switch (iType) {
       case ADD_DEFAULT:
@@ -571,7 +607,7 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
               + Const.CR);
     }
 
-    props.setLook(wScript, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
 
     Listener listener = e -> setPosition(wScript);
     wScript.addListener(SWT.Modify, listener);

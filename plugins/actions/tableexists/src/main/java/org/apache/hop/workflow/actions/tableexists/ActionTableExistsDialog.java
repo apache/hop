@@ -24,10 +24,12 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -43,7 +45,10 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /**
  * This dialog allows you to edit the Table Exists action settings. (select the connection and the
@@ -78,33 +83,33 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionTableExists.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionTableExists.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -118,7 +123,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     // Schema name line
     Label wlSchemaname = new Label(shell, SWT.RIGHT);
     wlSchemaname.setText(BaseMessages.getString(PKG, "ActionTableExists.Schemaname.Label"));
-    props.setLook(wlSchemaname);
+    PropsUi.setLook(wlSchemaname);
     FormData fdlSchemaname = new FormData();
     fdlSchemaname.left = new FormAttachment(0, 0);
     fdlSchemaname.right = new FormAttachment(middle, -margin);
@@ -126,7 +131,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     wlSchemaname.setLayoutData(fdlSchemaname);
 
     Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSchema);
+    PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
@@ -141,7 +146,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
         });
 
     wSchemaname = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSchemaname);
+    PropsUi.setLook(wSchemaname);
     wSchemaname.addModifyListener(lsMod);
     FormData fdSchemaname = new FormData();
     fdSchemaname.left = new FormAttachment(middle, 0);
@@ -152,7 +157,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     // Table name line
     Label wlTablename = new Label(shell, SWT.RIGHT);
     wlTablename.setText(BaseMessages.getString(PKG, "ActionTableExists.Tablename.Label"));
-    props.setLook(wlTablename);
+    PropsUi.setLook(wlTablename);
     FormData fdlTablename = new FormData();
     fdlTablename.left = new FormAttachment(0, 0);
     fdlTablename.right = new FormAttachment(middle, -margin);
@@ -160,7 +165,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     wlTablename.setLayoutData(fdlTablename);
 
     Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTable);
+    PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
@@ -175,7 +180,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
         });
 
     wTablename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTablename);
+    PropsUi.setLook(wTablename);
     wTablename.addModifyListener(lsMod);
     FormData fdTablename = new FormData();
     fdTablename.left = new FormAttachment(middle, 0);

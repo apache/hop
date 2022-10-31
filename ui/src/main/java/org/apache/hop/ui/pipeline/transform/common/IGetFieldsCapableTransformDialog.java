@@ -19,18 +19,21 @@ package org.apache.hop.ui.pipeline.transform.common;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.BaseMessageDialog;
 import org.apache.hop.ui.core.widget.TableView;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

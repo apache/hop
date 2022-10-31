@@ -18,7 +18,6 @@
 package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Condition;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
@@ -57,13 +56,13 @@ public class EnterConditionDialog extends Dialog {
   public Condition open() {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setText(BaseMessages.getString(PKG, "EnterConditionDialog.Title"));
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     int margin = props.getMargin() * 2;
 
@@ -71,7 +70,7 @@ public class EnterConditionDialog extends Dialog {
 
     // Condition widget
     wCond = new ConditionEditor(shell, SWT.NONE, condition, fields);
-    props.setLook(wCond, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wCond, Props.WIDGET_STYLE_FIXED);
 
     if (!getData()) {
       return null;

@@ -35,7 +35,12 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
@@ -87,7 +92,7 @@ public class TransformErrorMetaDialog extends Dialog {
   public boolean open() {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     ModifyListener lsMod = e -> transformErrorMeta.setChanged();
 
@@ -95,8 +100,8 @@ public class TransformErrorMetaDialog extends Dialog {
     int margin = props.getMargin();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setText(BaseMessages.getString(PKG, "BaseTransformDialog.ErrorHandling.Title.Label"));
     shell.setImage(GuiResource.getInstance().getImagePipeline());
@@ -117,12 +122,12 @@ public class TransformErrorMetaDialog extends Dialog {
     // The rest stays above the buttons...
 
     Composite composite = new Composite(shell, SWT.NONE);
-    props.setLook(composite);
+    PropsUi.setLook(composite);
     composite.setLayout(new FormLayout());
 
     // What's the source transform
     Label wlSourceTransform = new Label(composite, SWT.RIGHT);
-    props.setLook(wlSourceTransform);
+    PropsUi.setLook(wlSourceTransform);
     wlSourceTransform.setText(
         BaseMessages.getString(PKG, "BaseTransformDialog.ErrorHandling.TransformName.Label"));
     FormData fdlSourceTransform = new FormData();
@@ -132,7 +137,7 @@ public class TransformErrorMetaDialog extends Dialog {
     wlSourceTransform.setLayoutData(fdlSourceTransform);
 
     wSourceTransform = new Text(composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSourceTransform);
+    PropsUi.setLook(wSourceTransform);
     wSourceTransform.addModifyListener(lsMod);
     FormData fdSourceTransform = new FormData();
     fdSourceTransform.top = new FormAttachment(0, 0);
@@ -143,7 +148,7 @@ public class TransformErrorMetaDialog extends Dialog {
 
     // What's the target transform
     Label wlTargetTransform = new Label(composite, SWT.RIGHT);
-    props.setLook(wlTargetTransform);
+    PropsUi.setLook(wlTargetTransform);
     wlTargetTransform.setText(
         BaseMessages.getString(PKG, "BaseTransformDialog.ErrorHandling.TargetTransform.Label"));
     FormData fdlTargetTransform = new FormData();
@@ -153,7 +158,7 @@ public class TransformErrorMetaDialog extends Dialog {
     wlTargetTransform.setLayoutData(fdlTargetTransform);
 
     wTargetTransform = new CCombo(composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTargetTransform);
+    PropsUi.setLook(wTargetTransform);
     wTargetTransform.addModifyListener(lsMod);
     FormData fdTargetTransform = new FormData();
     fdTargetTransform.top = new FormAttachment(wSourceTransform, margin);
@@ -166,7 +171,7 @@ public class TransformErrorMetaDialog extends Dialog {
 
     // is the error handling enabled?
     Label wlEnabled = new Label(composite, SWT.RIGHT);
-    props.setLook(wlEnabled);
+    PropsUi.setLook(wlEnabled);
     wlEnabled.setText(
         BaseMessages.getString(PKG, "BaseTransformDialog.ErrorHandling.Enable.Label"));
     FormData fdlEnabled = new FormData();
@@ -176,7 +181,7 @@ public class TransformErrorMetaDialog extends Dialog {
     wlEnabled.setLayoutData(fdlEnabled);
 
     wEnabled = new Button(composite, SWT.CHECK);
-    props.setLook(wEnabled);
+    PropsUi.setLook(wEnabled);
     FormData fdEnabled = new FormData();
     fdEnabled.top = new FormAttachment(wTargetTransform, margin);
     fdEnabled.left = new FormAttachment(middle, 0); // To the right of the label
@@ -184,7 +189,7 @@ public class TransformErrorMetaDialog extends Dialog {
 
     // What's the field for the nr of errors
     Label wlNrErrors = new Label(composite, SWT.RIGHT);
-    props.setLook(wlNrErrors);
+    PropsUi.setLook(wlNrErrors);
     wlNrErrors.setText(
         BaseMessages.getString(PKG, "BaseTransformDialog.ErrorHandling.NrErrField.Label"));
     FormData fdlNrErrors = new FormData();
@@ -194,7 +199,7 @@ public class TransformErrorMetaDialog extends Dialog {
     wlNrErrors.setLayoutData(fdlNrErrors);
 
     wNrErrors = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wNrErrors);
+    PropsUi.setLook(wNrErrors);
     wNrErrors.addModifyListener(lsMod);
     FormData fdNrErrors = new FormData();
     fdNrErrors.top = new FormAttachment(wEnabled, margin * 2);
@@ -204,7 +209,7 @@ public class TransformErrorMetaDialog extends Dialog {
 
     // What's the field for the error descriptions
     Label wlErrDesc = new Label(composite, SWT.RIGHT);
-    props.setLook(wlErrDesc);
+    PropsUi.setLook(wlErrDesc);
     wlErrDesc.setText(
         BaseMessages.getString(PKG, "BaseTransformDialog.ErrorHandling.ErrDescField.Label"));
     FormData fdlErrDesc = new FormData();
@@ -214,7 +219,7 @@ public class TransformErrorMetaDialog extends Dialog {
     wlErrDesc.setLayoutData(fdlErrDesc);
 
     wErrDesc = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrDesc);
+    PropsUi.setLook(wErrDesc);
     wErrDesc.addModifyListener(lsMod);
     FormData fdErrDesc = new FormData();
     fdErrDesc.top = new FormAttachment(wNrErrors, margin);
@@ -226,7 +231,7 @@ public class TransformErrorMetaDialog extends Dialog {
     Label wlErrFields = new Label(composite, SWT.RIGHT);
     wlErrFields.setText(
         BaseMessages.getString(PKG, "BaseTransformDialog.ErrorHandling.ErrFieldName.Label"));
-    props.setLook(wlErrFields);
+    PropsUi.setLook(wlErrFields);
     FormData fdlErrFields = new FormData();
     fdlErrFields.top = new FormAttachment(wErrDesc, margin);
     fdlErrFields.left = new FormAttachment(0, 0);
@@ -234,7 +239,7 @@ public class TransformErrorMetaDialog extends Dialog {
     wlErrFields.setLayoutData(fdlErrFields);
 
     wErrFields = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrFields);
+    PropsUi.setLook(wErrFields);
     wErrFields.addModifyListener(lsMod);
     FormData fdErrFields = new FormData();
     fdErrFields.top = new FormAttachment(wErrDesc, margin);
@@ -246,7 +251,7 @@ public class TransformErrorMetaDialog extends Dialog {
     Label wlErrCodes = new Label(composite, SWT.RIGHT);
     wlErrCodes.setText(
         BaseMessages.getString(PKG, "BaseTransformDialog.ErrorHandling.ErrCodeFieldName.Label"));
-    props.setLook(wlErrCodes);
+    PropsUi.setLook(wlErrCodes);
     FormData fdlErrCodes = new FormData();
     fdlErrCodes.top = new FormAttachment(wErrFields, margin);
     fdlErrCodes.left = new FormAttachment(0, 0);
@@ -254,7 +259,7 @@ public class TransformErrorMetaDialog extends Dialog {
     wlErrCodes.setLayoutData(fdlErrCodes);
 
     wErrCodes = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrCodes);
+    PropsUi.setLook(wErrCodes);
     wErrCodes.addModifyListener(lsMod);
     FormData fdErrCodes = new FormData();
     fdErrCodes.top = new FormAttachment(wErrFields, margin);
@@ -266,7 +271,7 @@ public class TransformErrorMetaDialog extends Dialog {
     Label wlMaxErrors = new Label(composite, SWT.RIGHT);
     wlMaxErrors.setText(
         BaseMessages.getString(PKG, "BaseTransformDialog.ErrorHandling.MaxErr.Label"));
-    props.setLook(wlMaxErrors);
+    PropsUi.setLook(wlMaxErrors);
     FormData fdlMaxErrors = new FormData();
     fdlMaxErrors.top = new FormAttachment(wErrCodes, margin);
     fdlMaxErrors.left = new FormAttachment(0, 0);
@@ -274,7 +279,7 @@ public class TransformErrorMetaDialog extends Dialog {
     wlMaxErrors.setLayoutData(fdlMaxErrors);
 
     wMaxErrors = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMaxErrors);
+    PropsUi.setLook(wMaxErrors);
     wMaxErrors.addModifyListener(lsMod);
     FormData fdMaxErrors = new FormData();
     fdMaxErrors.top = new FormAttachment(wErrCodes, margin);
@@ -286,7 +291,7 @@ public class TransformErrorMetaDialog extends Dialog {
     Label wlMaxPct = new Label(composite, SWT.RIGHT);
     wlMaxPct.setText(
         BaseMessages.getString(PKG, "BaseTransformDialog.ErrorHandling.MaxPctErr.Label"));
-    props.setLook(wlMaxPct);
+    PropsUi.setLook(wlMaxPct);
     FormData fdlMaxPct = new FormData();
     fdlMaxPct.top = new FormAttachment(wMaxErrors, margin);
     fdlMaxPct.left = new FormAttachment(0, 0);
@@ -294,7 +299,7 @@ public class TransformErrorMetaDialog extends Dialog {
     wlMaxPct.setLayoutData(fdlMaxPct);
 
     wMaxPct = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMaxPct);
+    PropsUi.setLook(wMaxPct);
     wMaxPct.addModifyListener(lsMod);
     FormData fdMaxPct = new FormData();
     fdMaxPct.top = new FormAttachment(wMaxErrors, margin);
@@ -306,7 +311,7 @@ public class TransformErrorMetaDialog extends Dialog {
     Label wlMinPctRows = new Label(composite, SWT.RIGHT);
     wlMinPctRows.setText(
         BaseMessages.getString(PKG, "BaseTransformDialog.ErrorHandling.MinErr.Label"));
-    props.setLook(wlMinPctRows);
+    PropsUi.setLook(wlMinPctRows);
     FormData fdlMinPctRows = new FormData();
     fdlMinPctRows.top = new FormAttachment(wMaxPct, margin);
     fdlMinPctRows.left = new FormAttachment(0, 0);
@@ -314,7 +319,7 @@ public class TransformErrorMetaDialog extends Dialog {
     wlMinPctRows.setLayoutData(fdlMinPctRows);
 
     wMinPctRows = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMinPctRows);
+    PropsUi.setLook(wMinPctRows);
     wMinPctRows.addModifyListener(lsMod);
     FormData fdMinPctRows = new FormData();
     fdMinPctRows.top = new FormAttachment(wMaxPct, margin);

@@ -28,20 +28,29 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class TableExistsDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TableExistsMeta.class; // For Translator
@@ -67,7 +76,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -75,8 +84,8 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "TableExistsDialog.Shell.Title"));
@@ -87,7 +96,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "TableExistsDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -95,7 +104,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -112,7 +121,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     // Schema name
     Label wlSchemaname = new Label(shell, SWT.RIGHT);
     wlSchemaname.setText(BaseMessages.getString(PKG, "TableExistsDialog.Schemaname.Label"));
-    props.setLook(wlSchemaname);
+    PropsUi.setLook(wlSchemaname);
     FormData fdlSchemaname = new FormData();
     fdlSchemaname.left = new FormAttachment(0, 0);
     fdlSchemaname.right = new FormAttachment(middle, -margin);
@@ -120,7 +129,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     wlSchemaname.setLayoutData(fdlSchemaname);
 
     Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSchema);
+    PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
@@ -135,7 +144,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
         });
 
     wSchemaname = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSchemaname);
+    PropsUi.setLook(wSchemaname);
     wSchemaname.setToolTipText(BaseMessages.getString(PKG, "TableExistsDialog.Schemaname.Tooltip"));
     wSchemaname.addModifyListener(lsMod);
     FormData fdSchemaname = new FormData();
@@ -146,7 +155,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
 
     Label wlTableName = new Label(shell, SWT.RIGHT);
     wlTableName.setText(BaseMessages.getString(PKG, "TableExistsDialog.TableName.Label"));
-    props.setLook(wlTableName);
+    PropsUi.setLook(wlTableName);
     FormData fdlTableName = new FormData();
     fdlTableName.left = new FormAttachment(0, 0);
     fdlTableName.right = new FormAttachment(middle, -margin);
@@ -154,7 +163,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     wlTableName.setLayoutData(fdlTableName);
 
     wTableName = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wTableName);
+    PropsUi.setLook(wTableName);
     wTableName.addModifyListener(lsMod);
     FormData fdTableName = new FormData();
     fdTableName.left = new FormAttachment(middle, 0);
@@ -181,7 +190,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     // Result fieldname ...
     Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "TableExistsDialog.ResultField.Label"));
-    props.setLook(wlResult);
+    PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
@@ -189,7 +198,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     wlResult.setLayoutData(fdlResult);
     wResult = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wResult.setToolTipText(BaseMessages.getString(PKG, "TableExistsDialog.ResultField.Tooltip"));
-    props.setLook(wResult);
+    PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);

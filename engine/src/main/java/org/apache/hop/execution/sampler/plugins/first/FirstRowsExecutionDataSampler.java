@@ -18,7 +18,6 @@
 
 package org.apache.hop.execution.sampler.plugins.first;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;

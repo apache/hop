@@ -27,29 +27,56 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
 import org.apache.hop.neo4j.model.GraphPropertyType;
 import org.apache.hop.neo4j.shared.NeoConnection;
-import org.apache.hop.neo4j.transforms.cypherbuilder.operation.*;
+import org.apache.hop.neo4j.transforms.cypherbuilder.operation.BaseOperation;
+import org.apache.hop.neo4j.transforms.cypherbuilder.operation.CreateOperation;
+import org.apache.hop.neo4j.transforms.cypherbuilder.operation.DeleteOperation;
+import org.apache.hop.neo4j.transforms.cypherbuilder.operation.EdgeMatchOperation;
+import org.apache.hop.neo4j.transforms.cypherbuilder.operation.IOperation;
+import org.apache.hop.neo4j.transforms.cypherbuilder.operation.MatchOperation;
+import org.apache.hop.neo4j.transforms.cypherbuilder.operation.MergeOperation;
+import org.apache.hop.neo4j.transforms.cypherbuilder.operation.OperationFactory;
+import org.apache.hop.neo4j.transforms.cypherbuilder.operation.OperationType;
+import org.apache.hop.neo4j.transforms.cypherbuilder.operation.OrderByOperation;
+import org.apache.hop.neo4j.transforms.cypherbuilder.operation.ReturnOperation;
+import org.apache.hop.neo4j.transforms.cypherbuilder.operation.SetOperation;
 import org.apache.hop.neo4j.transforms.output.Neo4JOutputDialog;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.*;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.*;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,14 +132,14 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     shell.setLayout(createFormLayout());
     shell.setText(BaseMessages.getString(PKG, "CypherBuilder.Transform.Name"));
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = PropsUi.getMargin();
 
     // Buttons go at the bottom...
     //
@@ -131,14 +158,14 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
     //
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText("Transform name");
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, 0);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -146,7 +173,7 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
     wTransformName.setLayoutData(fdTransformName);
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     addOptionsTab();
     addParametersTab();
@@ -172,11 +199,12 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
 
   private void addOptionsTab() {
     CTabItem wOptionsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wOptionsTab.setFont(GuiResource.getInstance().getFontDefault());
     wOptionsTab.setText(BaseMessages.getString(PKG, "CypherBuilderDialog.Tab.Options.Label"));
     wOptionsTab.setToolTipText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Tab.Options.ToolTip"));
     Composite wOptionsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wOptionsComp);
+    PropsUi.setLook(wOptionsComp);
     wOptionsComp.setLayout(new FormLayout());
 
     wConnection =
@@ -188,7 +216,7 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             "Neo4j Connection",
             "The name of the Neo4j connection to use");
-    props.setLook(wConnection);
+    PropsUi.setLook(wConnection);
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
     fdConnection.right = new FormAttachment(100, 0);
@@ -203,14 +231,14 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
 
     Label wlBatchSize = new Label(wOptionsComp, SWT.RIGHT);
     wlBatchSize.setText("Batch size (rows)");
-    props.setLook(wlBatchSize);
+    PropsUi.setLook(wlBatchSize);
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
     fdlBatchSize.right = new FormAttachment(middle, -margin);
     fdlBatchSize.top = new FormAttachment(lastControl, 2 * margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
     wBatchSize = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBatchSize);
+    PropsUi.setLook(wBatchSize);
     FormData fdBatchSize = new FormData();
     fdBatchSize.left = new FormAttachment(middle, 0);
     fdBatchSize.right = new FormAttachment(100, 0);
@@ -223,14 +251,14 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
     wlUnwindAlias.setText("Unwind map alias");
     wlUnwindAlias.setToolTipText(
         "Set this to enable UNWIND style cypher building.  The map is called $rows so you can call this row");
-    props.setLook(wlUnwindAlias);
+    PropsUi.setLook(wlUnwindAlias);
     FormData fdlUnwindAlias = new FormData();
     fdlUnwindAlias.left = new FormAttachment(0, 0);
     fdlUnwindAlias.right = new FormAttachment(middle, -margin);
     fdlUnwindAlias.top = new FormAttachment(lastControl, 2 * margin);
     wlUnwindAlias.setLayoutData(fdlUnwindAlias);
     wUnwindAlias = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUnwindAlias);
+    PropsUi.setLook(wUnwindAlias);
     FormData fdUnwindAlias = new FormData();
     fdUnwindAlias.left = new FormAttachment(middle, 0);
     fdUnwindAlias.right = new FormAttachment(100, 0);
@@ -243,14 +271,14 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
     wlRetries.setText("Maximum retries");
     wlRetries.setToolTipText(
         "This is the maximum number of times a transaction will be re-tried on the database before giving up.");
-    props.setLook(wlRetries);
+    PropsUi.setLook(wlRetries);
     FormData fdlRetries = new FormData();
     fdlRetries.left = new FormAttachment(0, 0);
     fdlRetries.right = new FormAttachment(middle, -margin);
     fdlRetries.top = new FormAttachment(lastControl, 2 * margin);
     wlRetries.setLayoutData(fdlRetries);
     wRetries = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRetries);
+    PropsUi.setLook(wRetries);
     FormData fdRetries = new FormData();
     fdRetries.left = new FormAttachment(middle, 0);
     fdRetries.right = new FormAttachment(100, 0);
@@ -264,11 +292,12 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
 
   private void addParametersTab() {
     CTabItem wParametersTab = new CTabItem(wTabFolder, SWT.NONE);
+    wParametersTab.setFont(GuiResource.getInstance().getFontDefault());
     wParametersTab.setText(BaseMessages.getString(PKG, "CypherBuilderDialog.Tab.Parameters.Label"));
     wParametersTab.setToolTipText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Tab.Parameters.ToolTip"));
     Composite wParametersComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wParametersComp);
+    PropsUi.setLook(wParametersComp);
     wParametersComp.setLayout(createFormLayout());
 
     // Get the input field names...
@@ -293,7 +322,7 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
 
     Label wlParameters = new Label(wParametersComp, SWT.LEFT);
     wlParameters.setText("Parameters: (NOTE that parameters for labels are not supported)");
-    props.setLook(wlParameters);
+    PropsUi.setLook(wlParameters);
     FormData fdlParameters = new FormData();
     fdlParameters.left = new FormAttachment(0, 0);
     fdlParameters.right = new FormAttachment(100, 0);
@@ -337,7 +366,7 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
             input.getParameters().size(),
             null,
             props);
-    props.setLook(wParameters);
+    PropsUi.setLook(wParameters);
     FormData fdParameters = new FormData();
     fdParameters.left = new FormAttachment(0, 0);
     fdParameters.right = new FormAttachment(wbGetParameters, -margin);
@@ -351,6 +380,7 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
 
   private void addOperationsTab() {
     CTabItem wOperationsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wOperationsTab.setFont(GuiResource.getInstance().getFontDefault());
     wOperationsTab.setText(BaseMessages.getString(PKG, "CypherBuilderDialog.Tab.Operations.Label"));
     wOperationsTab.setToolTipText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Tab.Operations.ToolTip"));
@@ -358,7 +388,7 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
     wOperationsTab.setControl(sashForm);
 
     Composite wOperationsComp = new Composite(sashForm, SWT.NONE);
-    props.setLook(wOperationsComp);
+    PropsUi.setLook(wOperationsComp);
     wOperationsComp.setLayout(createFormLayout());
     FormData fdOperationsComp = new FormData();
     fdOperationsComp.left = new FormAttachment(0, 0);
@@ -372,7 +402,7 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
     // A toolbar:
     //
     ToolBar wOperationsBar = new ToolBar(wOperationsComp, SWT.FLAT);
-    props.setLook(wOperationsBar);
+    PropsUi.setLook(wOperationsBar);
     FormData fdOperationsBar = new FormData();
     fdOperationsBar.top = new FormAttachment(0, 0);
     fdOperationsBar.left = new FormAttachment(0, 0);
@@ -408,7 +438,7 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
     // Below that toolbar we have the list of operations
     //
     wOperationsList = new org.eclipse.swt.widgets.List(wOperationsComp, SWT.SINGLE | SWT.BORDER|SWT.V_SCROLL);
-    props.setLook(wOperationsList);
+    PropsUi.setLook(wOperationsList);
     FormData fdOperationsList = new FormData();
     fdOperationsList.left = new FormAttachment(0, 0);
     fdOperationsList.right = new FormAttachment(100, 0);
@@ -426,7 +456,7 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
     fdOperationComp.bottom = new FormAttachment(100, 0);
     wOperationComp.setLayoutData(fdOperationComp);
     wOperationComp.setLayout(createFormLayout());
-    props.setLook(wOperationsComp);
+    PropsUi.setLook(wOperationsComp);
     wOperationsComp.setBackground(GuiResource.getInstance().getColorBackground());
 
     sashForm.setWeights(20, 80);
@@ -1284,17 +1314,18 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
 
   private void addCypherTab() {
     CTabItem wCypherTab = new CTabItem(wTabFolder, SWT.NONE);
+    wCypherTab.setFont(GuiResource.getInstance().getFontDefault());
     wCypherTab.setText(BaseMessages.getString(PKG, "CypherBuilderDialog.Tab.Cypher.Label"));
     wCypherTab.setToolTipText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Tab.Cypher.ToolTip"));
     Composite wCypherComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wCypherComp);
+    PropsUi.setLook(wCypherComp);
     wCypherComp.setLayout(createFormLayout());
 
     wCypher =
         new Text(wCypherComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wCypher.setFont(GuiResource.getInstance().getFontFixed());
-    props.setLook(wCypher);
+    PropsUi.setLook(wCypher);
     FormData fdCypher = new FormData();
     fdCypher.left = new FormAttachment(0, 0);
     fdCypher.right = new FormAttachment(100, 0);
@@ -1332,10 +1363,10 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
 
   private Layout createFormLayout() {
     FormLayout formLayout = new FormLayout();
-    formLayout.marginLeft = Const.FORM_MARGIN;
-    formLayout.marginRight = Const.FORM_MARGIN;
-    formLayout.marginTop = Const.FORM_MARGIN;
-    formLayout.marginBottom = Const.FORM_MARGIN;
+    formLayout.marginLeft = PropsUi.getFormMargin();
+    formLayout.marginRight = PropsUi.getFormMargin();
+    formLayout.marginTop = PropsUi.getFormMargin();
+    formLayout.marginBottom = PropsUi.getFormMargin();
     return formLayout;
   }
 

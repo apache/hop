@@ -18,6 +18,7 @@
 package org.apache.hop.core.variables;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
+
 import java.util.Objects;
 
 public class DescribedVariable {

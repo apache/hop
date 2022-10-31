@@ -25,6 +25,7 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -39,7 +40,15 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -195,25 +204,25 @@ public abstract class ConfigurationDialog extends Dialog {
   protected void mainLayout(String shellTitle, Image img) {
     display = parent.getDisplay();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(img);
     shell.setText(shellTitle);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN * 2;
-    formLayout.marginHeight = Const.FORM_MARGIN * 2;
+    formLayout.marginWidth = PropsUi.getFormMargin() * 2;
+    formLayout.marginHeight = PropsUi.getFormMargin() * 2;
     shell.setLayout(formLayout);
   }
 
   protected void optionsSectionLayout(Class<?> PKG, String prefix) {
     gDetails = new Group(shell, SWT.SHADOW_ETCHED_IN);
     gDetails.setText(BaseMessages.getString(PKG, prefix + ".DetailsGroup.Label"));
-    props.setLook(gDetails);
+    PropsUi.setLook(gDetails);
 
     // The layout
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN * 2;
-    formLayout.marginHeight = Const.FORM_MARGIN * 2;
+    formLayout.marginWidth = PropsUi.getFormMargin() * 2;
+    formLayout.marginHeight = PropsUi.getFormMargin() * 2;
     gDetails.setLayout(formLayout);
     fdDetails = new FormData();
     fdDetails.top = new FormAttachment(wRunConfigurationControl, 15);
@@ -228,7 +237,7 @@ public abstract class ConfigurationDialog extends Dialog {
   protected void parametersSectionLayout(Class<?> PKG, String prefix) {
 
     CTabFolder tabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
     FormData fdTabFolder = new FormData();
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.left = new FormAttachment(0, 0);
@@ -238,9 +247,10 @@ public abstract class ConfigurationDialog extends Dialog {
 
     // Parameters
     CTabItem tbtmParameters = new CTabItem(tabFolder, SWT.NONE);
+    tbtmParameters.setFont(GuiResource.getInstance().getFontDefault());
     tbtmParameters.setText(BaseMessages.getString(PKG, prefix + ".Params.Label"));
     Composite parametersComposite = new Composite(tabFolder, SWT.NONE);
-    props.setLook(parametersComposite);
+    PropsUi.setLook(parametersComposite);
 
     parametersComposite.setLayout(new FormLayout());
     tbtmParameters.setControl(parametersComposite);
@@ -292,10 +302,11 @@ public abstract class ConfigurationDialog extends Dialog {
 
     // Variables
     CTabItem tbtmVariables = new CTabItem(tabFolder, SWT.NONE);
+    tbtmVariables.setFont(GuiResource.getInstance().getFontDefault());
     tbtmVariables.setText(BaseMessages.getString(PKG, prefix + ".Variables.Label"));
 
     Composite variablesComposite = new Composite(tabFolder, SWT.NONE);
-    props.setLook(variablesComposite);
+    PropsUi.setLook(variablesComposite);
     variablesComposite.setLayout(new FormLayout());
     tbtmVariables.setControl(variablesComposite);
 
@@ -370,7 +381,7 @@ public abstract class ConfigurationDialog extends Dialog {
     alwaysShowOption = new Button(shell, SWT.CHECK);
     alwaysShowOption.setText(alwaysShowOptionLabel);
     alwaysShowOption.setToolTipText(alwaysShowOptionTooltip);
-    props.setLook(alwaysShowOption);
+    PropsUi.setLook(alwaysShowOption);
     alwaysShowOption.setSelection(abstractMeta.isAlwaysShowRunOptions());
 
     FormData fdAlwaysShowOption = new FormData();

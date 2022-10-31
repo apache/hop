@@ -45,7 +45,12 @@ import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileCSVImportProgressDialog;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
@@ -60,12 +65,21 @@ import org.apache.hop.ui.pipeline.transform.common.IGetFieldsCapableTransformDia
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -119,7 +133,7 @@ public class CsvInputDialog extends BaseTransformDialog
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, inputMeta);
 
     ModifyListener lsMod = e -> inputMeta.setChanged();
@@ -130,8 +144,8 @@ public class CsvInputDialog extends BaseTransformDialog
     previewBusy = new AtomicBoolean(false);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "CsvInputDialog.Shell.Title"));
@@ -143,14 +157,14 @@ public class CsvInputDialog extends BaseTransformDialog
     //
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "CsvInputDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -182,7 +196,7 @@ public class CsvInputDialog extends BaseTransformDialog
       //
       Label wlFilename = new Label(shell, SWT.RIGHT);
       wlFilename.setText(BaseMessages.getString(PKG, "CsvInputDialog.FilenameField.Label"));
-      props.setLook(wlFilename);
+      PropsUi.setLook(wlFilename);
       FormData fdlFilename = new FormData();
       fdlFilename.top = new FormAttachment(lastControl, margin);
       fdlFilename.left = new FormAttachment(0, 0);
@@ -190,7 +204,7 @@ public class CsvInputDialog extends BaseTransformDialog
       wlFilename.setLayoutData(fdlFilename);
       wFilenameField = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
       wFilenameField.setItems(previousFields.getFieldNames());
-      props.setLook(wFilenameField);
+      PropsUi.setLook(wFilenameField);
       wFilenameField.addModifyListener(lsMod);
       FormData fdFilename = new FormData();
       fdFilename.top = new FormAttachment(lastControl, margin);
@@ -204,14 +218,14 @@ public class CsvInputDialog extends BaseTransformDialog
       Label wlIncludeFilename = new Label(shell, SWT.RIGHT);
       wlIncludeFilename.setText(
           BaseMessages.getString(PKG, "CsvInputDialog.IncludeFilenameField.Label"));
-      props.setLook(wlIncludeFilename);
+      PropsUi.setLook(wlIncludeFilename);
       FormData fdlIncludeFilename = new FormData();
       fdlIncludeFilename.top = new FormAttachment(lastControl, margin);
       fdlIncludeFilename.left = new FormAttachment(0, 0);
       fdlIncludeFilename.right = new FormAttachment(middle, -margin);
       wlIncludeFilename.setLayoutData(fdlIncludeFilename);
       wIncludeFilename = new Button(shell, SWT.CHECK);
-      props.setLook(wIncludeFilename);
+      PropsUi.setLook(wIncludeFilename);
       wFilenameField.addModifyListener(lsMod);
       FormData fdIncludeFilename = new FormData();
       fdIncludeFilename.top = new FormAttachment(wlIncludeFilename, 0, SWT.CENTER);
@@ -226,7 +240,7 @@ public class CsvInputDialog extends BaseTransformDialog
       // The filename browse button
       //
       wbbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-      props.setLook(wbbFilename);
+      PropsUi.setLook(wbbFilename);
       wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
       wbbFilename.setToolTipText(
           BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -239,14 +253,14 @@ public class CsvInputDialog extends BaseTransformDialog
       //
       Label wlFilename = new Label(shell, SWT.RIGHT);
       wlFilename.setText(BaseMessages.getString(PKG, "CsvInputDialog.Filename.Label"));
-      props.setLook(wlFilename);
+      PropsUi.setLook(wlFilename);
       FormData fdlFilename = new FormData();
       fdlFilename.top = new FormAttachment(lastControl, margin);
       fdlFilename.left = new FormAttachment(0, 0);
       fdlFilename.right = new FormAttachment(middle, -margin);
       wlFilename.setLayoutData(fdlFilename);
       wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wFilename);
+      PropsUi.setLook(wFilename);
       wFilename.addModifyListener(lsMod);
       FormData fdFilename = new FormData();
       fdFilename.top = new FormAttachment(lastControl, margin);
@@ -259,21 +273,21 @@ public class CsvInputDialog extends BaseTransformDialog
     // delimiter
     Label wlDelimiter = new Label(shell, SWT.RIGHT);
     wlDelimiter.setText(BaseMessages.getString(PKG, "CsvInputDialog.Delimiter.Label"));
-    props.setLook(wlDelimiter);
+    PropsUi.setLook(wlDelimiter);
     FormData fdlDelimiter = new FormData();
     fdlDelimiter.top = new FormAttachment(lastControl, margin);
     fdlDelimiter.left = new FormAttachment(0, 0);
     fdlDelimiter.right = new FormAttachment(middle, -margin);
     wlDelimiter.setLayoutData(fdlDelimiter);
     Button wbDelimiter = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbDelimiter);
+    PropsUi.setLook(wbDelimiter);
     wbDelimiter.setText(BaseMessages.getString(PKG, "CsvInputDialog.Delimiter.Button"));
     FormData fdbDelimiter = new FormData();
     fdbDelimiter.top = new FormAttachment(lastControl, margin);
     fdbDelimiter.right = new FormAttachment(100, 0);
     wbDelimiter.setLayoutData(fdbDelimiter);
     wDelimiter = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDelimiter);
+    PropsUi.setLook(wDelimiter);
     wDelimiter.addModifyListener(lsMod);
     FormData fdDelimiter = new FormData();
     fdDelimiter.top = new FormAttachment(lastControl, margin);
@@ -286,14 +300,14 @@ public class CsvInputDialog extends BaseTransformDialog
     // enclosure
     Label wlEnclosure = new Label(shell, SWT.RIGHT);
     wlEnclosure.setText(BaseMessages.getString(PKG, "CsvInputDialog.Enclosure.Label"));
-    props.setLook(wlEnclosure);
+    PropsUi.setLook(wlEnclosure);
     FormData fdlEnclosure = new FormData();
     fdlEnclosure.top = new FormAttachment(lastControl, margin);
     fdlEnclosure.left = new FormAttachment(0, 0);
     fdlEnclosure.right = new FormAttachment(middle, -margin);
     wlEnclosure.setLayoutData(fdlEnclosure);
     wEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wEnclosure);
+    PropsUi.setLook(wEnclosure);
     wEnclosure.addModifyListener(lsMod);
     FormData fdEnclosure = new FormData();
     fdEnclosure.top = new FormAttachment(lastControl, margin);
@@ -307,14 +321,14 @@ public class CsvInputDialog extends BaseTransformDialog
     //
     Label wlBufferSize = new Label(shell, SWT.RIGHT);
     wlBufferSize.setText(BaseMessages.getString(PKG, "CsvInputDialog.BufferSize.Label"));
-    props.setLook(wlBufferSize);
+    PropsUi.setLook(wlBufferSize);
     FormData fdlBufferSize = new FormData();
     fdlBufferSize.top = new FormAttachment(lastControl, margin);
     fdlBufferSize.left = new FormAttachment(0, 0);
     fdlBufferSize.right = new FormAttachment(middle, -margin);
     wlBufferSize.setLayoutData(fdlBufferSize);
     wBufferSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBufferSize);
+    PropsUi.setLook(wBufferSize);
     wBufferSize.addModifyListener(lsMod);
     FormData fdBufferSize = new FormData();
     fdBufferSize.top = new FormAttachment(lastControl, margin);
@@ -327,14 +341,14 @@ public class CsvInputDialog extends BaseTransformDialog
     //
     Label wlLazyConversion = new Label(shell, SWT.RIGHT);
     wlLazyConversion.setText(BaseMessages.getString(PKG, "CsvInputDialog.LazyConversion.Label"));
-    props.setLook(wlLazyConversion);
+    PropsUi.setLook(wlLazyConversion);
     FormData fdlLazyConversion = new FormData();
     fdlLazyConversion.top = new FormAttachment(lastControl, margin);
     fdlLazyConversion.left = new FormAttachment(0, 0);
     fdlLazyConversion.right = new FormAttachment(middle, -margin);
     wlLazyConversion.setLayoutData(fdlLazyConversion);
     wLazyConversion = new Button(shell, SWT.CHECK);
-    props.setLook(wLazyConversion);
+    PropsUi.setLook(wLazyConversion);
     FormData fdLazyConversion = new FormData();
     fdLazyConversion.top = new FormAttachment(wlLazyConversion, 0, SWT.CENTER);
     fdLazyConversion.left = new FormAttachment(middle, 0);
@@ -346,14 +360,14 @@ public class CsvInputDialog extends BaseTransformDialog
     //
     Label wlHeaderPresent = new Label(shell, SWT.RIGHT);
     wlHeaderPresent.setText(BaseMessages.getString(PKG, "CsvInputDialog.HeaderPresent.Label"));
-    props.setLook(wlHeaderPresent);
+    PropsUi.setLook(wlHeaderPresent);
     FormData fdlHeaderPresent = new FormData();
     fdlHeaderPresent.top = new FormAttachment(lastControl, margin);
     fdlHeaderPresent.left = new FormAttachment(0, 0);
     fdlHeaderPresent.right = new FormAttachment(middle, -margin);
     wlHeaderPresent.setLayoutData(fdlHeaderPresent);
     wHeaderPresent = new Button(shell, SWT.CHECK);
-    props.setLook(wHeaderPresent);
+    PropsUi.setLook(wHeaderPresent);
     FormData fdHeaderPresent = new FormData();
     fdHeaderPresent.top = new FormAttachment(wlHeaderPresent, 0, SWT.CENTER);
     fdHeaderPresent.left = new FormAttachment(middle, 0);
@@ -363,14 +377,14 @@ public class CsvInputDialog extends BaseTransformDialog
 
     Label wlAddResult = new Label(shell, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "CsvInputDialog.AddResult.Label"));
-    props.setLook(wlAddResult);
+    PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
     fdlAddResult.top = new FormAttachment(lastControl, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(shell, SWT.CHECK);
-    props.setLook(wAddResult);
+    PropsUi.setLook(wAddResult);
     wAddResult.setToolTipText(BaseMessages.getString(PKG, "CsvInputDialog.AddResult.Tooltip"));
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment(middle, 0);
@@ -382,14 +396,14 @@ public class CsvInputDialog extends BaseTransformDialog
     //
     Label wlRowNumField = new Label(shell, SWT.RIGHT);
     wlRowNumField.setText(BaseMessages.getString(PKG, "CsvInputDialog.RowNumField.Label"));
-    props.setLook(wlRowNumField);
+    PropsUi.setLook(wlRowNumField);
     FormData fdlRowNumField = new FormData();
     fdlRowNumField.top = new FormAttachment(lastControl, margin);
     fdlRowNumField.left = new FormAttachment(0, 0);
     fdlRowNumField.right = new FormAttachment(middle, -margin);
     wlRowNumField.setLayoutData(fdlRowNumField);
     wRowNumField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRowNumField);
+    PropsUi.setLook(wRowNumField);
     wRowNumField.addModifyListener(lsMod);
     FormData fdRowNumField = new FormData();
     fdRowNumField.top = new FormAttachment(wlRowNumField, 0, SWT.CENTER);
@@ -403,14 +417,14 @@ public class CsvInputDialog extends BaseTransformDialog
     wlRunningInParallel = new Label(shell, SWT.RIGHT);
     wlRunningInParallel.setText(
         BaseMessages.getString(PKG, "CsvInputDialog.RunningInParallel.Label"));
-    props.setLook(wlRunningInParallel);
+    PropsUi.setLook(wlRunningInParallel);
     FormData fdlRunningInParallel = new FormData();
     fdlRunningInParallel.top = new FormAttachment(lastControl, margin);
     fdlRunningInParallel.left = new FormAttachment(0, 0);
     fdlRunningInParallel.right = new FormAttachment(middle, -margin);
     wlRunningInParallel.setLayoutData(fdlRunningInParallel);
     wRunningInParallel = new Button(shell, SWT.CHECK);
-    props.setLook(wRunningInParallel);
+    PropsUi.setLook(wRunningInParallel);
     FormData fdRunningInParallel = new FormData();
     fdRunningInParallel.top = new FormAttachment(wlRunningInParallel, 0, SWT.CENTER);
     fdRunningInParallel.left = new FormAttachment(middle, 0);
@@ -421,14 +435,14 @@ public class CsvInputDialog extends BaseTransformDialog
     //
     Label wlNewlinePossible = new Label(shell, SWT.RIGHT);
     wlNewlinePossible.setText(BaseMessages.getString(PKG, "CsvInputDialog.NewlinePossible.Label"));
-    props.setLook(wlNewlinePossible);
+    PropsUi.setLook(wlNewlinePossible);
     FormData fdlNewlinePossible = new FormData();
     fdlNewlinePossible.top = new FormAttachment(lastControl, margin);
     fdlNewlinePossible.left = new FormAttachment(0, 0);
     fdlNewlinePossible.right = new FormAttachment(middle, -margin);
     wlNewlinePossible.setLayoutData(fdlNewlinePossible);
     wNewlinePossible = new Button(shell, SWT.CHECK);
-    props.setLook(wNewlinePossible);
+    PropsUi.setLook(wNewlinePossible);
     FormData fdNewlinePossible = new FormData();
     fdNewlinePossible.top = new FormAttachment(wlNewlinePossible, 0, SWT.CENTER);
     fdNewlinePossible.left = new FormAttachment(middle, 0);
@@ -452,14 +466,14 @@ public class CsvInputDialog extends BaseTransformDialog
     // Encoding
     Label wlEncoding = new Label(shell, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "CsvInputDialog.Encoding.Label"));
-    props.setLook(wlEncoding);
+    PropsUi.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.top = new FormAttachment(lastControl, margin);
     fdlEncoding.left = new FormAttachment(0, 0);
     fdlEncoding.right = new FormAttachment(middle, -margin);
     wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wEncoding);
+    PropsUi.setLook(wEncoding);
     wEncoding.addModifyListener(lsMod);
     FormData fdEncoding = new FormData();
     fdEncoding.top = new FormAttachment(wlEncoding, 0, SWT.CENTER);

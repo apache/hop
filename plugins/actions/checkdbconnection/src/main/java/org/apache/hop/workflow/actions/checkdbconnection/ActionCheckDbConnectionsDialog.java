@@ -22,7 +22,9 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -37,7 +39,12 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
@@ -67,21 +74,21 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = (ModifyEvent e) -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionCheckDbConnections.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     //
@@ -96,14 +103,14 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionCheckDbConnections.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -113,7 +120,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wName, 2 * margin);
@@ -121,7 +128,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
     // Buttons to the right of the screen...
     Button wbGetConnections = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGetConnections);
+    PropsUi.setLook(wbGetConnections);
     wbGetConnections.setText(
         BaseMessages.getString(PKG, "ActionCheckDbConnections.GetConnections"));
     wbGetConnections.setToolTipText(
@@ -133,7 +140,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
     // Buttons to the right of the screen...
     Button wbdSourceFileFolder = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdSourceFileFolder);
+    PropsUi.setLook(wbdSourceFileFolder);
     wbdSourceFileFolder.setText(
         BaseMessages.getString(PKG, "ActionCheckDbConnections.DeleteEntry"));
     wbdSourceFileFolder.setToolTipText(

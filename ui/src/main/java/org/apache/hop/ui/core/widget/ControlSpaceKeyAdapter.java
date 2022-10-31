@@ -21,23 +21,36 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.VariableScope;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolTip;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 public class ControlSpaceKeyAdapter extends KeyAdapter {
 
@@ -131,7 +144,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       shell.setLocation(location.x, location.y + bounds.height);
       shell.setLayout(new FormLayout());
       final List list = new List(shell, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
-      props.setLook(list);
+      PropsUi.setLook(list);
       list.setLayoutData(new FormDataBuilder().fullSize().result());
       list.setItems(getVariableNames(variables));
       final ToolTip toolTip = new ToolTip(list.getShell(), SWT.BALLOON);

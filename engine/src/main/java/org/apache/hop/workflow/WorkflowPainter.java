@@ -22,12 +22,17 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.*;
+import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
+import org.apache.hop.core.gui.BasePainter;
+import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IGc.EColor;
 import org.apache.hop.core.gui.IGc.EFont;
 import org.apache.hop.core.gui.IGc.EImage;
 import org.apache.hop.core.gui.IGc.ELineStyle;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -53,8 +58,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       IVariables variables,
       WorkflowMeta workflowMeta,
       Point area,
-      IScrollBar hori,
-      IScrollBar vert,
+      DPoint offset,
       WorkflowHopMeta candidate,
       Rectangle selrect,
       List<AreaOwner> areaOwners,
@@ -70,8 +74,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
         variables,
         workflowMeta,
         area,
-        hori,
-        vert,
+        offset,
         selrect,
         areaOwners,
         iconSize,
@@ -87,13 +90,6 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
   }
 
   public void drawWorkflow() throws HopException {
-
-    Point max = workflowMeta.getMaximum();
-    Point thumb = getThumb(area, max);
-    if (offset == null) {
-      offset = getOffset(thumb, area);
-    }
-
     // Make sure the canvas is scaled 100%
     gc.setTransform(0.0f, 0.0f, 1.0f);
     // First clear the image in the background color
@@ -103,9 +99,13 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     // Draw the pipeline onto the image
     //
     gc.setAlpha(255);
-    gc.setTransform(translationX, translationY, magnification);
-
+    gc.setTransform((float)offset.x, (float)offset.y, magnification);
     drawActions();
+
+    // Draw the navigation view in native pixels to make calculation a bit easier.
+    //
+    gc.setTransform(0.0f, 0.0f, 1.0f);
+    drawNavigationView();
 
     gc.dispose();
   }
@@ -206,15 +206,15 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       gc.setForeground(EColor.RED);
       Point n = noInputAction.getLocation();
       gc.drawLine(
-          offset.x + n.x - 5,
-          offset.y + n.y - 5,
-          offset.x + n.x + iconSize + 5,
-          offset.y + n.y + iconSize + 5);
+          round(offset.x + n.x - 5),
+          round(offset.y + n.y - 5),
+          round(offset.x + n.x + iconSize + 5),
+          round(offset.y + n.y + iconSize + 5));
       gc.drawLine(
-          offset.x + n.x - 5,
-          offset.y + n.y + iconSize + 5,
-          offset.x + n.x + iconSize + 5,
-          offset.y + n.y - 5);
+              round(offset.x + n.x - 5),
+              round(offset.y + n.y + iconSize + 5),
+              round(offset.x + n.x + iconSize + 5),
+              round(offset.y + n.y - 5));
     }
 
     try {

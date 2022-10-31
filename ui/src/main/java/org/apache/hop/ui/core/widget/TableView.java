@@ -31,7 +31,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.variables.IVariables;
@@ -39,24 +38,62 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterConditionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.TableEditor;
-import org.eclipse.swt.dnd.*;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 /** Widget to display or modify data, displayed in a Table format. */
 public class TableView extends Composite {
@@ -294,7 +331,7 @@ public class TableView extends Composite {
 
     // Create table, add columns & rows...
     table = new Table(this, style | SWT.MULTI);
-    props.setLook(table, Props.WIDGET_STYLE_TABLE);
+    PropsUi.setLook(table, Props.WIDGET_STYLE_TABLE);
     table.setLinesVisible(true);
 
     FormData fdTable = new FormData();
@@ -2340,7 +2377,7 @@ public class TableView extends Composite {
         textWidget.addListener(SWT.KeyUp, lsKeyUp);
       }
     }
-    props.setLook(text, Props.WIDGET_STYLE_TABLE);
+    PropsUi.setLook(text, Props.WIDGET_STYLE_TABLE);
 
     // There's an issue with Hop web when editing in a table
     // The text is white on a white background for some reason
@@ -2489,7 +2526,7 @@ public class TableView extends Composite {
       } else {
         comboVar.setItems(opt);
       }
-      props.setLook(comboVar, Props.WIDGET_STYLE_TABLE);
+      PropsUi.setLook(comboVar, Props.WIDGET_STYLE_TABLE);
       fixWebLook(comboVar.getCComboWidget());
       comboVar.addTraverseListener(lsTraverse);
       comboVar.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
@@ -2520,7 +2557,7 @@ public class TableView extends Composite {
       safelyDisposeControl(combo);
       String cellValue = item.getText(colNr);
       combo = new Combo(table, columnInfo.isReadOnly() ? SWT.READ_ONLY : SWT.NONE);
-      props.setLook(combo, Props.WIDGET_STYLE_TABLE);
+      PropsUi.setLook(combo, Props.WIDGET_STYLE_TABLE);
       fixWebLook(combo);
       combo.addTraverseListener(lsTraverse);
       combo.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
@@ -2571,7 +2608,7 @@ public class TableView extends Composite {
     }
 
     button = new Button(table, SWT.PUSH);
-    props.setLook(button, Props.WIDGET_STYLE_TABLE);
+    PropsUi.setLook(button, Props.WIDGET_STYLE_TABLE);
     String buttonText = columns[colNr - 1].getButtonText();
     if (buttonText != null) {
       button.setText(buttonText);

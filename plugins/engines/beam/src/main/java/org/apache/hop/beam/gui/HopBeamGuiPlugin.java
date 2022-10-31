@@ -18,29 +18,22 @@
 package org.apache.hop.beam.gui;
 
 import org.apache.beam.runners.dataflow.DataflowPipelineJob;
-import org.apache.beam.sdk.PipelineResult;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.engines.dataflow.BeamDataFlowPipelineEngine;
 import org.apache.hop.beam.pipeline.fatjar.FatJarBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRunnableWithProgress;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.extension.ExtensionPoint;
-import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -51,7 +44,6 @@ import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import java.io.File;
@@ -73,7 +65,8 @@ public class HopBeamGuiPlugin {
       "40210-menu-tools-export-metadata";
   public static final String TOOLBAR_ID_VISIT_GCP_DATAFLOW =
       "HopGuiPipelineGraph-ToolBar-10450-VisitGcpDataflow";
-  public static final String TOOLBAR_ID_PIPELINE_EXECUTION_VIEWER_VISIT_GCP_DATAFLOW = "PipelineExecutionViewer-Toolbar-20000-VisitGcpDataflow";
+  public static final String TOOLBAR_ID_PIPELINE_EXECUTION_VIEWER_VISIT_GCP_DATAFLOW =
+      "PipelineExecutionViewer-Toolbar-20000-VisitGcpDataflow";
 
   private static HopBeamGuiPlugin instance;
 
@@ -94,6 +87,7 @@ public class HopBeamGuiPlugin {
       id = ID_MAIN_MENU_TOOLS_FAT_JAR,
       label = "i18n::BeamGuiPlugin.Menu.GenerateFatJar.Text",
       parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID,
+      image = "beam-logo.svg",
       separator = true)
   public void menuToolsFatJar() {
     HopGui hopGui = HopGui.getInstance();
@@ -167,6 +161,7 @@ public class HopBeamGuiPlugin {
       id = ID_MAIN_MENU_TOOLS_EXPORT_METADATA,
       label = "i18n::BeamGuiPlugin.Menu.ExportMetadata.Text",
       parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID,
+      image = "beam-logo.svg",
       separator = true)
   public void menuToolsExportMetadata() {
     HopGui hopGui = HopGui.getInstance();

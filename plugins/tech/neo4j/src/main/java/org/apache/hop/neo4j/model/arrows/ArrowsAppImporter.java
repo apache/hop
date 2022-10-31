@@ -19,7 +19,11 @@ package org.apache.hop.neo4j.model.arrows;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.neo4j.model.*;
+import org.apache.hop.neo4j.model.GraphModel;
+import org.apache.hop.neo4j.model.GraphNode;
+import org.apache.hop.neo4j.model.GraphProperty;
+import org.apache.hop.neo4j.model.GraphPropertyType;
+import org.apache.hop.neo4j.model.GraphRelationship;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;

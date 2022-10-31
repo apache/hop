@@ -17,7 +17,9 @@
 package org.apache.hop.core.injection.inheritance;
 
 import org.apache.hop.core.injection.Injection;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 public class MetaBeanParentItem extends BaseTransformMeta<ITransform, ITransformData> {
   @Injection(name = "BASE_ITEM_NAME")

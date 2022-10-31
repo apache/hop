@@ -54,7 +54,7 @@ public class CheckBoxVar extends Composite {
       final IVariables variables, final Composite composite, int flags, String variable) {
     super(composite, SWT.NONE);
 
-    props.setLook(this);
+    PropsUi.setLook(this);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
@@ -66,7 +66,7 @@ public class CheckBoxVar extends Composite {
 
     // add a text field on it...
     wBox = new Button(this, flags);
-    props.setLook(wBox);
+    PropsUi.setLook(wBox);
     wText = new TextVar(variables, this, flags | SWT.NO_BACKGROUND);
     wText
         .getTextWidget()

@@ -23,7 +23,11 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;

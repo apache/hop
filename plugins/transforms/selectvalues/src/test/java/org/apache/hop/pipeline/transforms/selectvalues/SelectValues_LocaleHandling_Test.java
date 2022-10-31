@@ -26,14 +26,21 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.selectvalues.SelectValuesMeta.SelectField;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /** Note: In Europe (e.g. in UK), week starts on Monday. In USA, it starts on Sunday. */
 public class SelectValues_LocaleHandling_Test {

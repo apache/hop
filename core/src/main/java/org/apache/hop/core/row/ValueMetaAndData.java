@@ -19,7 +19,16 @@ package org.apache.hop.core.row;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.value.*;
+import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaBinary;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaSerializable;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 

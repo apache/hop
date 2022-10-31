@@ -18,7 +18,6 @@
 
 package org.apache.hop.databases.hive;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
@@ -34,19 +33,24 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.databases.hive.HiveDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.sql.*;
-import java.util.Properties;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class HiveValueMetaBaseTest {
   protected static final String TEST_NAME = "TEST_NAME";

@@ -28,7 +28,9 @@ import java.util.function.Function;
 
 import static org.apache.hop.core.logging.LogLevel.BASIC;
 import static org.apache.hop.core.logging.LogLevel.ERROR;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Slf4jLoggingEventListenerTest {

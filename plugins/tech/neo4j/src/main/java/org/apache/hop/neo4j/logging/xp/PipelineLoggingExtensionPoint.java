@@ -41,7 +41,11 @@ import org.neo4j.driver.Transaction;
 import org.neo4j.driver.TransactionWork;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @ExtensionPoint(
     id = "PipelineLoggingExtensionPoint",

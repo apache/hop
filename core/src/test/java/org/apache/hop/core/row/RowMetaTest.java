@@ -21,16 +21,34 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.value.*;
+import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.w3c.dom.Document;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.spy;
 
 public class RowMetaTest {

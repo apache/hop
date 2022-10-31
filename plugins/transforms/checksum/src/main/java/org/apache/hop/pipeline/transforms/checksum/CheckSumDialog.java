@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -41,10 +42,18 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class CheckSumDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CheckSumDialog.class; // For Translator
@@ -76,15 +85,15 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "CheckSumDialog.Shell.Title"));
@@ -95,7 +104,7 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "CheckSumDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -103,7 +112,7 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -114,7 +123,7 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     // Type
     Label wlType = new Label(shell, SWT.RIGHT);
     wlType.setText(BaseMessages.getString(PKG, "CheckSumDialog.Type.Label"));
-    props.setLook(wlType);
+    PropsUi.setLook(wlType);
     FormData fdlType = new FormData();
     fdlType.left = new FormAttachment(0, 0);
     fdlType.right = new FormAttachment(middle, -margin);
@@ -123,7 +132,7 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     wType = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wType.setItems(CheckSumMeta.CheckSumType.getDescriptions());
     wType.select(0);
-    props.setLook(wType);
+    PropsUi.setLook(wType);
     FormData fdType = new FormData();
     fdType.left = new FormAttachment(middle, 0);
     fdType.top = new FormAttachment(wTransformName, margin);
@@ -141,7 +150,7 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     // ResultType
     wlResultType = new Label(shell, SWT.RIGHT);
     wlResultType.setText(BaseMessages.getString(PKG, "CheckSumDialog.ResultType.Label"));
-    props.setLook(wlResultType);
+    PropsUi.setLook(wlResultType);
     FormData fdlResultType = new FormData();
     fdlResultType.left = new FormAttachment(0, 0);
     fdlResultType.right = new FormAttachment(middle, -margin);
@@ -150,7 +159,7 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     wResultType = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wResultType.setItems(CheckSumMeta.ResultType.getDescriptions());
     wResultType.select(0);
-    props.setLook(wResultType);
+    PropsUi.setLook(wResultType);
     FormData fdResultType = new FormData();
     fdResultType.left = new FormAttachment(middle, 0);
     fdResultType.top = new FormAttachment(wType, 2 * margin);
@@ -168,14 +177,14 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     // Result line...
     Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "CheckSumDialog.Result.Label"));
-    props.setLook(wlResult);
+    PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
     fdlResult.top = new FormAttachment(wResultType, margin * 2);
     wlResult.setLayoutData(fdlResult);
     wResult = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wResult);
+    PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
@@ -195,7 +204,7 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     // Table with fields
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "CheckSumDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wResult, margin);

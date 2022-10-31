@@ -22,8 +22,10 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.databases.cassandra.metadata.CassandraConnection;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -38,7 +40,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class ExecCqlDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ExecCqlDialog.class; // For Translator
@@ -68,29 +74,29 @@ public class ExecCqlDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, execCql);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ExecCqlDialog.Dialog.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ExecCqlDialog.ActionName.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
     fdName.top = new FormAttachment(0, margin);
@@ -107,7 +113,7 @@ public class ExecCqlDialog extends ActionDialog implements IActionDialog {
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ExecCqlDialog.NeoConnection.Label"),
             BaseMessages.getString(PKG, "ExecCqlDialog.NeoConnection.Tooltip"));
-    props.setLook(wConnection);
+    PropsUi.setLook(wConnection);
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
     fdConnection.right = new FormAttachment(100, 0);
@@ -130,14 +136,14 @@ public class ExecCqlDialog extends ActionDialog implements IActionDialog {
 
     Label wlReplaceVariables = new Label(shell, SWT.LEFT);
     wlReplaceVariables.setText(BaseMessages.getString(PKG, "ExecCqlDialog.ReplaceVariables.Label"));
-    props.setLook(wlReplaceVariables);
+    PropsUi.setLook(wlReplaceVariables);
     FormData fdlReplaceVariables = new FormData();
     fdlReplaceVariables.left = new FormAttachment(0, 0);
     fdlReplaceVariables.right = new FormAttachment(middle, -margin);
     fdlReplaceVariables.bottom = new FormAttachment(wOk, -margin * 2);
     wlReplaceVariables.setLayoutData(fdlReplaceVariables);
     wReplaceVariables = new Button(shell, SWT.CHECK | SWT.BORDER);
-    props.setLook(wReplaceVariables);
+    PropsUi.setLook(wReplaceVariables);
     FormData fdReplaceVariables = new FormData();
     fdReplaceVariables.left = new FormAttachment(middle, 0);
     fdReplaceVariables.right = new FormAttachment(100, 0);
@@ -146,7 +152,7 @@ public class ExecCqlDialog extends ActionDialog implements IActionDialog {
 
     Label wlScript = new Label(shell, SWT.LEFT);
     wlScript.setText(BaseMessages.getString(PKG, "ExecCqlDialog.CypherScript.Label"));
-    props.setLook(wlScript);
+    PropsUi.setLook(wlScript);
     FormData fdlCypher = new FormData();
     fdlCypher.left = new FormAttachment(0, 0);
     fdlCypher.right = new FormAttachment(100, 0);
@@ -156,7 +162,7 @@ public class ExecCqlDialog extends ActionDialog implements IActionDialog {
         new TextVar(
             variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wScript.getTextWidget().setFont(GuiResource.getInstance().getFontFixed());
-    props.setLook(wScript);
+    PropsUi.setLook(wScript);
     FormData fdCypher = new FormData();
     fdCypher.left = new FormAttachment(0, 0);
     fdCypher.right = new FormAttachment(100, 0);

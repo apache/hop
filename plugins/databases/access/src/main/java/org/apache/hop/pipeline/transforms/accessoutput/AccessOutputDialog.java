@@ -29,6 +29,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -72,18 +73,18 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setMinimumSize(340, 340);
     setShellImage(shell, input);
 
     backupChanged = input.hasChanged();
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "AccessOutputDialog.DialogTitle"));
@@ -91,7 +92,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     // Transform name line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, 0);
@@ -100,7 +101,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addListener(SWT.Modify, e -> input.setChanged());
     wTransformName.addListener(SWT.DefaultSelection, e -> ok());
     FormData fdTransformName = new FormData();
@@ -112,7 +113,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     // Filename line
     Label wlFileName = new Label(shell, SWT.RIGHT);
     wlFileName.setText(BaseMessages.getString(PKG, "AccessOutputDialog.Filename.Label"));
-    props.setLook(wlFileName);
+    PropsUi.setLook(wlFileName);
     FormData fdlFileName = new FormData();
     fdlFileName.left = new FormAttachment(0, 0);
     fdlFileName.top = new FormAttachment(wTransformName, margin);
@@ -120,7 +121,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wlFileName.setLayoutData(fdlFileName);
 
     Button wbbFileName = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbFileName);
+    PropsUi.setLook(wbbFileName);
     wbbFileName.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbFileName.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -133,7 +134,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wFileName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFileName.setToolTipText(BaseMessages.getString(PKG, "AccessOutputDialog.Filename.Tooltip"));
     wFileName.addListener(SWT.Modify, e -> input.setChanged());
-    props.setLook(wFileName);
+    PropsUi.setLook(wFileName);
 
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, margin);
@@ -146,7 +147,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wlCreateFile.setText(BaseMessages.getString(PKG, "AccessOutputDialog.CreateFile.Label"));
     wlCreateFile.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.CreateFile.Tooltip"));
-    props.setLook(wlCreateFile);
+    PropsUi.setLook(wlCreateFile);
     FormData fdlCreateFile = new FormData();
     fdlCreateFile.left = new FormAttachment(0, 0);
     fdlCreateFile.top = new FormAttachment(wFileName, margin);
@@ -155,7 +156,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wCreateFile = new Button(shell, SWT.CHECK);
     wCreateFile.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.CreateFile.Tooltip"));
-    props.setLook(wCreateFile);
+    PropsUi.setLook(wCreateFile);
     FormData fdCreateFile = new FormData();
     fdCreateFile.left = new FormAttachment(middle, margin);
     fdCreateFile.top = new FormAttachment(wFileName, margin);
@@ -167,7 +168,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     Label wlWaitFirstRowToCreateFile = new Label(shell, SWT.RIGHT);
     wlWaitFirstRowToCreateFile.setText(
         BaseMessages.getString(PKG, "AccessOutputDialog.WaitFirstRowToCreateFile.Label"));
-    props.setLook(wlWaitFirstRowToCreateFile);
+    PropsUi.setLook(wlWaitFirstRowToCreateFile);
     FormData fdlWaitFirstRowToCreateFile = new FormData();
     fdlWaitFirstRowToCreateFile.left = new FormAttachment(0, 0);
     fdlWaitFirstRowToCreateFile.top = new FormAttachment(wCreateFile, margin);
@@ -176,7 +177,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wWaitFirstRowToCreateFile = new Button(shell, SWT.CHECK);
     wWaitFirstRowToCreateFile.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.WaitFirstRowToCreateFile.Tooltip"));
-    props.setLook(wWaitFirstRowToCreateFile);
+    PropsUi.setLook(wWaitFirstRowToCreateFile);
     FormData fdWaitFirstRowToCreateFile = new FormData();
     fdWaitFirstRowToCreateFile.left = new FormAttachment(middle, margin);
     fdWaitFirstRowToCreateFile.top = new FormAttachment(wCreateFile, margin);
@@ -188,7 +189,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
 
     Label wlTablename = new Label(shell, SWT.RIGHT);
     wlTablename.setText(BaseMessages.getString(PKG, "AccessOutputDialog.TargetTable.Label"));
-    props.setLook(wlTablename);
+    PropsUi.setLook(wlTablename);
     FormData fdlTablename = new FormData();
     fdlTablename.left = new FormAttachment(0, 0);
     fdlTablename.top = new FormAttachment(wWaitFirstRowToCreateFile, margin);
@@ -196,7 +197,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wlTablename.setLayoutData(fdlTablename);
 
     Button wbbTableName = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbTableName);
+    PropsUi.setLook(wbbTableName);
     wbbTableName.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbTableName.addListener(SWT.Selection, e -> onSelectTableName());
     FormData fdbTablename = new FormData();
@@ -207,7 +208,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wTableName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTableName.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.TargetTable.Tooltip"));
-    props.setLook(wTableName);
+    PropsUi.setLook(wTableName);
     FormData fdTablename = new FormData();
     fdTablename.left = new FormAttachment(middle, margin);
     fdTablename.right = new FormAttachment(wbbTableName, -margin);
@@ -219,7 +220,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wlCreateTable.setText(BaseMessages.getString(PKG, "AccessOutputDialog.CreateTable.Label"));
     wlCreateTable.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.CreateTable.Tooltip"));
-    props.setLook(wlCreateTable);
+    PropsUi.setLook(wlCreateTable);
     FormData fdlCreateTable = new FormData();
     fdlCreateTable.left = new FormAttachment(0, 0);
     fdlCreateTable.top = new FormAttachment(wTableName, margin);
@@ -228,7 +229,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wCreateTable = new Button(shell, SWT.CHECK);
     wCreateTable.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.CreateTable.Tooltip"));
-    props.setLook(wCreateTable);
+    PropsUi.setLook(wCreateTable);
     FormData fdCreateTable = new FormData();
     fdCreateTable.left = new FormAttachment(middle, margin);
     fdCreateTable.top = new FormAttachment(wTableName, margin);
@@ -241,7 +242,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wlTruncateTable.setText(BaseMessages.getString(PKG, "AccessOutputDialog.TruncateTable.Label"));
     wlTruncateTable.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.TruncateTable.Tooltip"));
-    props.setLook(wlTruncateTable);
+    PropsUi.setLook(wlTruncateTable);
     FormData fdlTruncateTable = new FormData();
     fdlTruncateTable.left = new FormAttachment(0, 0);
     fdlTruncateTable.top = new FormAttachment(wCreateTable, margin);
@@ -250,7 +251,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wTruncateTable = new Button(shell, SWT.CHECK);
     wTruncateTable.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.TruncateTable.Tooltip"));
-    props.setLook(wTruncateTable);
+    PropsUi.setLook(wTruncateTable);
     FormData fdTruncateTable = new FormData();
     fdTruncateTable.left = new FormAttachment(middle, margin);
     fdTruncateTable.top = new FormAttachment(wCreateTable, margin);
@@ -261,7 +262,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     // The commit size...
     Label wlCommitSize = new Label(shell, SWT.RIGHT);
     wlCommitSize.setText(BaseMessages.getString(PKG, "AccessOutputDialog.CommitSize.Label"));
-    props.setLook(wlCommitSize);
+    PropsUi.setLook(wlCommitSize);
     FormData fdlCommitSize = new FormData();
     fdlCommitSize.left = new FormAttachment(0, 0);
     fdlCommitSize.top = new FormAttachment(wTruncateTable, margin);
@@ -271,7 +272,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wCommitSize = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wCommitSize.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputDialog.CommitSize.Tooltip"));
-    props.setLook(wCommitSize);
+    PropsUi.setLook(wCommitSize);
     FormData fdCommitSize = new FormData();
     fdCommitSize.left = new FormAttachment(middle, margin);
     fdCommitSize.right = new FormAttachment(100, 0);
@@ -283,7 +284,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     Label wlAddToResultFile = new Label(shell, SWT.RIGHT);
     wlAddToResultFile.setText(
         BaseMessages.getString(PKG, "AccessOutputMeta.AddToResultFile.Label"));
-    props.setLook(wlAddToResultFile);
+    PropsUi.setLook(wlAddToResultFile);
     FormData fdlAddToResultFile = new FormData();
     fdlAddToResultFile.left = new FormAttachment(0, 0);
     fdlAddToResultFile.top = new FormAttachment(wCommitSize, 2 * margin);
@@ -292,7 +293,7 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
     wAddToResultFile = new Button(shell, SWT.CHECK);
     wAddToResultFile.setToolTipText(
         BaseMessages.getString(PKG, "AccessOutputMeta.AddToResultFile.Tooltip"));
-    props.setLook(wAddToResultFile);
+    PropsUi.setLook(wAddToResultFile);
     FormData fdAddToResultFile = new FormData();
     fdAddToResultFile.left = new FormAttachment(middle, margin);
     fdAddToResultFile.top = new FormAttachment(wCommitSize, 2 * margin);

@@ -20,7 +20,6 @@ package org.apache.hop.core.row;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 

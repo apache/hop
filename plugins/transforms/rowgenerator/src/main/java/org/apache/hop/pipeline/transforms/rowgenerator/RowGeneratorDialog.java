@@ -28,21 +28,30 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class RowGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = RowGeneratorMeta.class; // For Translator
@@ -76,12 +85,12 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "RowGeneratorDialog.DialogTitle"));
@@ -92,7 +101,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     // Filename line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -100,7 +109,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
@@ -110,14 +119,14 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     wlLimit = new Label(shell, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "RowGeneratorDialog.Limit.Label"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.right = new FormAttachment(middle, -margin);
     fdlLimit.top = new FormAttachment(lastControl, margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
     fdLimit.top = new FormAttachment(lastControl, margin);
@@ -127,14 +136,14 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     Label wlNeverEnding = new Label(shell, SWT.RIGHT);
     wlNeverEnding.setText(BaseMessages.getString(PKG, "RowGeneratorDialog.NeverEnding.Label"));
-    props.setLook(wlNeverEnding);
+    PropsUi.setLook(wlNeverEnding);
     FormData fdlNeverEnding = new FormData();
     fdlNeverEnding.left = new FormAttachment(0, 0);
     fdlNeverEnding.right = new FormAttachment(middle, -margin);
     fdlNeverEnding.top = new FormAttachment(lastControl, margin);
     wlNeverEnding.setLayoutData(fdlNeverEnding);
     wNeverEnding = new Button(shell, SWT.CHECK);
-    props.setLook(wNeverEnding);
+    PropsUi.setLook(wNeverEnding);
     wNeverEnding.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -151,14 +160,14 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     wlInterval = new Label(shell, SWT.RIGHT);
     wlInterval.setText(BaseMessages.getString(PKG, "RowGeneratorDialog.Interval.Label"));
-    props.setLook(wlInterval);
+    PropsUi.setLook(wlInterval);
     FormData fdlInterval = new FormData();
     fdlInterval.left = new FormAttachment(0, 0);
     fdlInterval.right = new FormAttachment(middle, -margin);
     fdlInterval.top = new FormAttachment(lastControl, margin);
     wlInterval.setLayoutData(fdlInterval);
     wInterval = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInterval);
+    PropsUi.setLook(wInterval);
     FormData fdInterval = new FormData();
     fdInterval.left = new FormAttachment(middle, 0);
     fdInterval.top = new FormAttachment(lastControl, margin);
@@ -168,14 +177,14 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     wlRowTimeField = new Label(shell, SWT.RIGHT);
     wlRowTimeField.setText(BaseMessages.getString(PKG, "RowGeneratorDialog.RowTimeField.Label"));
-    props.setLook(wlRowTimeField);
+    PropsUi.setLook(wlRowTimeField);
     FormData fdlRowTimeField = new FormData();
     fdlRowTimeField.left = new FormAttachment(0, 0);
     fdlRowTimeField.right = new FormAttachment(middle, -margin);
     fdlRowTimeField.top = new FormAttachment(lastControl, margin);
     wlRowTimeField.setLayoutData(fdlRowTimeField);
     wRowTimeField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRowTimeField);
+    PropsUi.setLook(wRowTimeField);
     FormData fdRowTimeField = new FormData();
     fdRowTimeField.left = new FormAttachment(middle, 0);
     fdRowTimeField.top = new FormAttachment(lastControl, margin);
@@ -185,14 +194,14 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     wlLastTimeField = new Label(shell, SWT.RIGHT);
     wlLastTimeField.setText(BaseMessages.getString(PKG, "RowGeneratorDialog.LastTimeField.Label"));
-    props.setLook(wlLastTimeField);
+    PropsUi.setLook(wlLastTimeField);
     FormData fdlLastTimeField = new FormData();
     fdlLastTimeField.left = new FormAttachment(0, 0);
     fdlLastTimeField.right = new FormAttachment(middle, -margin);
     fdlLastTimeField.top = new FormAttachment(lastControl, margin);
     wlLastTimeField.setLayoutData(fdlLastTimeField);
     wLastTimeField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLastTimeField);
+    PropsUi.setLook(wLastTimeField);
     FormData fdLastTimeField = new FormData();
     fdLastTimeField.left = new FormAttachment(middle, 0);
     fdLastTimeField.top = new FormAttachment(lastControl, margin);
@@ -214,7 +223,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "RowGeneratorDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(lastControl, margin);

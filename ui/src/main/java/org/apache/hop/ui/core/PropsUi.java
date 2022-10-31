@@ -60,12 +60,9 @@ import java.util.Map;
  * fonts, positions of windows, etc.
  */
 public class PropsUi extends Props {
-
   private static final String OS = System.getProperty("os.name").toLowerCase();
 
   private static double nativeZoomFactor;
-
-  private static double globalZoomFactor;
 
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =
       "ShowCopyOrDistributeWarning";
@@ -73,6 +70,8 @@ public class PropsUi extends Props {
   private static final String SHOW_TOOL_TIPS = "ShowToolTips";
 
   private static final String SHOW_HELP_TOOL_TIPS = "ShowHelpToolTips";
+
+  private static final String HIDE_MENU_BAR = "HideMenuBar";
 
   private static final String CANVAS_GRID_SIZE = "CanvasGridSize";
 
@@ -102,10 +101,22 @@ public class PropsUi extends Props {
   private PropsUi() {
     super();
 
-    globalZoomFactor = Const.toDouble(getProperty(GLOBAL_ZOOMFACTOR, "1"), 1);
+    // If the zoom factor is set with variable HOP_GUI_ZOOM_FACTOR we set this first.
+    //
+    String hopGuiZoomFactor = System.getProperty(ConstUi.HOP_GUI_ZOOM_FACTOR);
+    if (StringUtils.isNotEmpty(hopGuiZoomFactor)) {
+      setProperty(GLOBAL_ZOOMFACTOR, hopGuiZoomFactor);
+    }
 
+    reCalculateNativeZoomFactor();
+
+    setDefault();
+  }
+
+  public void reCalculateNativeZoomFactor() {
+    double globalZoom = getGlobalZoomFactor();
     if (EnvironmentUtils.getInstance().isWeb()) {
-      nativeZoomFactor = 1.0 / 0.75;
+      nativeZoomFactor = globalZoom / 0.75;
     } else {
       // Calculate the native default zoom factor...
       // We take the default font and render it, calculate the height.
@@ -113,16 +124,12 @@ public class PropsUi extends Props {
       //
       org.eclipse.swt.graphics.Point extent =
           TextSizeUtilFacade.textExtent("The quick brown fox jumped over the lazy dog!");
-      nativeZoomFactor =
-          ((double) extent.y / (double) ConstUi.SMALL_ICON_SIZE) * getGlobalZoomFactor();
+      nativeZoomFactor = ((double) extent.y / (double) ConstUi.SMALL_ICON_SIZE) * globalZoom;
     }
-
-    setDefault();
   }
 
   @Override
   public void setDefault() {
-
     super.setDefault();
     Display display = Display.getCurrent();
 
@@ -183,15 +190,20 @@ public class PropsUi extends Props {
     }
 
     if (display != null) {
-      FontData fontData = getFixedFont();
+
+      FontData fontData = getDefaultFont();
+      setProperty(STRING_FONT_DEFAULT_NAME, fontData.getName());
+      setProperty(STRING_FONT_DEFAULT_SIZE, "" + fontData.getHeight());
+      setProperty(STRING_FONT_DEFAULT_STYLE, "" + fontData.getStyle());
+
+      fontData = getFixedFont();
       setProperty(STRING_FONT_FIXED_NAME, fontData.getName());
       setProperty(STRING_FONT_FIXED_SIZE, "" + fontData.getHeight());
       setProperty(STRING_FONT_FIXED_STYLE, "" + fontData.getStyle());
 
       fontData = getGraphFont();
-      int graphFontSize = (int) Math.round(fontData.getHeight() * getNativeZoomFactor());
       setProperty(STRING_FONT_GRAPH_NAME, fontData.getName());
-      setProperty(STRING_FONT_GRAPH_SIZE, "" + graphFontSize);
+      setProperty(STRING_FONT_GRAPH_SIZE, "" + fontData.getHeight());
       setProperty(STRING_FONT_GRAPH_STYLE, "" + fontData.getStyle());
 
       fontData = getNoteFont();
@@ -238,7 +250,18 @@ public class PropsUi extends Props {
 
   public FontData getDefaultFont() {
     FontData def = getDefaultFontData();
-    return def;
+
+    String name = getProperty(STRING_FONT_DEFAULT_NAME, def.getName());
+    int size = Const.toInt(getProperty(STRING_FONT_DEFAULT_SIZE), def.getHeight());
+    int style = Const.toInt(getProperty(STRING_FONT_DEFAULT_STYLE), def.getStyle());
+
+    return new FontData(name, size, style);
+  }
+
+  public void setDefaultFont(FontData fd) {
+    setProperty(STRING_FONT_DEFAULT_NAME, fd.getName());
+    setProperty(STRING_FONT_DEFAULT_SIZE, "" + fd.getHeight());
+    setProperty(STRING_FONT_DEFAULT_STYLE, "" + fd.getStyle());
   }
 
   public void setGraphFont(FontData fd) {
@@ -251,16 +274,10 @@ public class PropsUi extends Props {
     FontData def = getDefaultFontData();
 
     String name = getProperty(STRING_FONT_GRAPH_NAME, def.getName());
-
     int size = Const.toInt(getProperty(STRING_FONT_GRAPH_SIZE), def.getHeight());
-
-    // Correct the size with the native zoom factor...
-    //
-    int correctedSize = (int) Math.round(size / PropsUi.getNativeZoomFactor());
-
     int style = Const.toInt(getProperty(STRING_FONT_GRAPH_STYLE), def.getStyle());
 
-    return new FontData(name, correctedSize, style);
+    return new FontData(name, size, style);
   }
 
   public void setNoteFont(FontData fd) {
@@ -273,11 +290,8 @@ public class PropsUi extends Props {
     FontData def = getDefaultFontData();
 
     String name = getProperty(STRING_FONT_NOTE_NAME, def.getName());
-    String ssize = getProperty(STRING_FONT_NOTE_SIZE);
-    String sstyle = getProperty(STRING_FONT_NOTE_STYLE);
-
-    int size = Const.toInt(ssize, def.getHeight());
-    int style = Const.toInt(sstyle, def.getStyle());
+    int size = Const.toInt(getProperty(STRING_FONT_NOTE_SIZE), def.getHeight());
+    int style = Const.toInt(getProperty(STRING_FONT_NOTE_STYLE), def.getStyle());
 
     return new FontData(name, size, style);
   }
@@ -295,12 +309,7 @@ public class PropsUi extends Props {
   }
 
   public double getZoomFactor() {
-    String zoomFactorString = getProperty(STRING_ZOOM_FACTOR);
-    if (StringUtils.isNotEmpty(zoomFactorString)) {
-      return Const.toDouble(zoomFactorString, nativeZoomFactor);
-    } else {
-      return nativeZoomFactor;
-    }
+    return getNativeZoomFactor();
   }
 
   /**
@@ -308,8 +317,9 @@ public class PropsUi extends Props {
    *
    * @return
    */
-  public int getMargin() {
-    return (int) Math.round(getZoomFactor() * Const.MARGIN);
+  /** The margin between the different dialog components & widgets */
+  public static int getMargin() {
+    return (int) Math.round(4 * getNativeZoomFactor());
   }
 
   public void setLineWidth(int width) {
@@ -373,9 +383,16 @@ public class PropsUi extends Props {
     setProperty(STRING_MIDDLE_PCT, "" + pct);
   }
 
+  /** The percentage of the width of screen where we consider the middle of a dialog. */
   public int getMiddlePct() {
-    return Const.toInt(getProperty(STRING_MIDDLE_PCT), Const.MIDDLE_PCT);
+    return Const.toInt(getProperty(STRING_MIDDLE_PCT), 35);
   }
+
+  /** The horizontal and vertical margin of a dialog box. */
+  public static int getFormMargin() {
+    return (int) Math.round(5 * getNativeZoomFactor());
+  }
+
 
   public void setScreen(WindowProperty windowProperty) {
     AuditManager.storeState(
@@ -472,7 +489,7 @@ public class PropsUi extends Props {
     }
   }
 
-  public void setLook(Control widget) {
+  public static void setLook(Control widget) {
     setLook(widget, WIDGET_STYLE_DEFAULT);
 
     if (widget instanceof Composite) {
@@ -482,9 +499,20 @@ public class PropsUi extends Props {
     }
   }
 
-  public void setLook(final Control control, int style) {
+  public static void setLook(Composite shell) {
+    setLook(shell, WIDGET_STYLE_DEFAULT);
+    for (Control child : shell.getChildren()) {
+      setLook(child);
+    }
+  }
+
+  public static void setLook(Button button) {
+    button.setFont(GuiResource.getInstance().getFontDefault());
+  }
+
+  public static void setLook(final Control control, int style) {
     final GuiResource gui = GuiResource.getInstance();
-    Font font = null;
+    Font font = gui.getFontDefault();
     Color background = null;
     Color foreground = null;
 
@@ -492,7 +520,7 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_DEFAULT:
         background = gui.getColorWhite();
         foreground = gui.getColorBlack();
-        font = null;
+        font = gui.getFontDefault();
 
         if (control instanceof Group && OS.contains("mac")) {
           control.addPaintListener(
@@ -503,7 +531,7 @@ public class PropsUi extends Props {
                     2, 0, control.getBounds().width - 8, control.getBounds().height - 20);
               });
         } else if (control instanceof Combo) {
-          if (Const.isWindows() && isDarkMode()) {
+          if (Const.isWindows() && PropsUi.getInstance().isDarkMode()) {
             background = gui.getColorBackground();
           } else {
             return; // Just keep the default
@@ -536,7 +564,7 @@ public class PropsUi extends Props {
         break;
       case WIDGET_STYLE_TOOLBAR:
         foreground = gui.getColorBlack();
-        if (isDarkMode()) {
+        if (PropsUi.getInstance().isDarkMode()) {
           background = gui.getColorLightGray();
         } else {
           background = gui.getColorDemoGray();
@@ -670,6 +698,15 @@ public class PropsUi extends Props {
 
   public boolean isShowingHelpToolTips() {
     return YES.equalsIgnoreCase(getProperty(SHOW_HELP_TOOL_TIPS, YES));
+  }
+
+  public void setHidingMenuBar(boolean show) {
+    setProperty(HIDE_MENU_BAR, show ? YES : NO);
+  }
+
+  public boolean isHidingMenuBar() {
+    return YES.equalsIgnoreCase(
+        System.getProperty(ConstUi.HOP_GUI_HIDE_MENU, getProperty(HIDE_MENU_BAR, YES)));
   }
 
   public void setShowingHelpToolTips(boolean show) {
@@ -859,8 +896,8 @@ public class PropsUi extends Props {
     this.contrastingColors = contrastingColors;
   }
 
-  public static double getGlobalZoomFactor() {
-    return globalZoomFactor;
+  public double getGlobalZoomFactor() {
+    return Const.toDouble(getProperty(GLOBAL_ZOOMFACTOR, "1.0"), 1.0);
   }
 
   public void setGlobalZoomFactor(double globalZoomFactor) {

@@ -17,7 +17,11 @@
 
 package org.apache.hop.core.util;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 public class EnvUtil {
   private static Properties env = null;

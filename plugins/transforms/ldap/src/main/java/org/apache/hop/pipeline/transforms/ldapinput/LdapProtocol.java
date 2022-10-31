@@ -26,7 +26,11 @@ import org.apache.hop.i18n.BaseMessages;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
 
 /** Class encapsulating Ldap protocol configuration */
 public class LdapProtocol {

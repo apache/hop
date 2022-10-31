@@ -32,7 +32,11 @@ import org.apache.hop.ui.core.PropsUi;
 
 import java.util.Map;
 
-import static org.apache.hop.git.HopDiff.*;
+import static org.apache.hop.git.HopDiff.ADDED;
+import static org.apache.hop.git.HopDiff.ATTR_GIT_HOPS;
+import static org.apache.hop.git.HopDiff.CHANGED;
+import static org.apache.hop.git.HopDiff.REMOVED;
+import static org.apache.hop.git.HopDiff.getPipelineHopName;
 
 @ExtensionPoint(
     id = "DrawDiffOnPipelineHopExtensionPoint",

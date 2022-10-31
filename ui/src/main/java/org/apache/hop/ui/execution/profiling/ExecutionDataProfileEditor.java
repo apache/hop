@@ -35,13 +35,16 @@ import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -96,7 +99,7 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     // What's the name
     //
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "ExecutionDataProfileEditor.label.name"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin * 2);
@@ -104,7 +107,7 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, margin); // To the right of the label
@@ -113,7 +116,7 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     Control lastControl = wName;
 
     Label wlDescription = new Label(parent, SWT.RIGHT);
-    props.setLook(wlDescription);
+    PropsUi.setLook(wlDescription);
     wlDescription.setText(
         BaseMessages.getString(PKG, "ExecutionDataProfileEditor.label.description"));
     FormData fdlDescription = new FormData();
@@ -122,7 +125,7 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     fdlDescription.right = new FormAttachment(middle, 0);
     wlDescription.setLayoutData(fdlDescription);
     wDescription = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDescription);
+    PropsUi.setLook(wDescription);
     FormData fdDescription = new FormData();
     fdDescription.top = new FormAttachment(wlDescription, 0, SWT.CENTER);
     fdDescription.left = new FormAttachment(middle, margin); // To the right of the label
@@ -131,7 +134,7 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     lastControl = wDescription;
 
     Label wlSamplers = new Label(parent, SWT.LEFT);
-    props.setLook(wlSamplers);
+    PropsUi.setLook(wlSamplers);
     wlSamplers.setText(BaseMessages.getString(PKG, "ExecutionDataProfileEditor.label.Samplers"));
     FormData fdlSamplers = new FormData();
     fdlSamplers.top = new FormAttachment(lastControl, margin * 2);
@@ -159,7 +162,7 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     lastControl = wSamplersToolBar;
 
     wSamplers = new org.eclipse.swt.widgets.List(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSamplers);
+    PropsUi.setLook(wSamplers);
     FormData fdSamplers = new FormData();
     fdSamplers.top = new FormAttachment(lastControl, margin);
     fdSamplers.left = new FormAttachment(0, 0); // To the right of the label
@@ -171,7 +174,7 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     // Add a composite area
     //
     wPluginSpecificComp = new Composite(parent, SWT.BACKGROUND);
-    props.setLook(wPluginSpecificComp);
+    PropsUi.setLook(wPluginSpecificComp);
     wPluginSpecificComp.setLayout(new FormLayout());
     FormData fdPluginSpecificComp = new FormData();
     fdPluginSpecificComp.left = new FormAttachment(lastControl, margin);

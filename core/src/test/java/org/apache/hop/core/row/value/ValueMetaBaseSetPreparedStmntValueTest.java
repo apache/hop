@@ -17,7 +17,6 @@
 
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -37,7 +36,9 @@ import java.util.Date;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ValueMetaBaseSetPreparedStmntValueTest {
 

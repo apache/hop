@@ -2527,3 +2527,8 @@ Shell.jface_contentProposalPopup, Shell.jface_infoPopupDialog {
     padding: 0;
     box-shadow: 0 0 4px #ababab;
 }
+
+canvas {
+    width: 2000px;
+    height: 2000px;
+}

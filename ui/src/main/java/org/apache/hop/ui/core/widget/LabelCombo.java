@@ -41,7 +41,7 @@ public class LabelCombo extends Composite {
 
   public LabelCombo(Composite composite, int flags, String labelText, String toolTipText) {
     super(composite, SWT.NONE);
-    props.setLook(this);
+    PropsUi.setLook(this);
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
@@ -67,7 +67,7 @@ public class LabelCombo extends Composite {
     wCombo.setToolTipText(toolTipText);
 
     wLabel = new Label(this, SWT.RIGHT);
-    props.setLook(wLabel);
+    PropsUi.setLook(wLabel);
     wLabel.setText(labelText);
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment(0, 0);

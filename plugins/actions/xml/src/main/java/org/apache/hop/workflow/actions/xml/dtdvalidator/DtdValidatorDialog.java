@@ -17,12 +17,12 @@
 
 package org.apache.hop.workflow.actions.xml.dtdvalidator;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -37,7 +37,10 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the DTD Validator job entry settings. */
 public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
@@ -83,33 +86,33 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionDTDValidator.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionDTDValidator.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -120,21 +123,21 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     // XML Filename
     Label wlxmlFilename = new Label(shell, SWT.RIGHT);
     wlxmlFilename.setText(BaseMessages.getString(PKG, "ActionDTDValidator.xmlFilename.Label"));
-    props.setLook(wlxmlFilename);
+    PropsUi.setLook(wlxmlFilename);
     FormData fdlxmlFilename = new FormData();
     fdlxmlFilename.left = new FormAttachment(0, 0);
     fdlxmlFilename.top = new FormAttachment(wName, margin);
     fdlxmlFilename.right = new FormAttachment(middle, -margin);
     wlxmlFilename.setLayoutData(fdlxmlFilename);
     Button wbxmlFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbxmlFilename);
+    PropsUi.setLook(wbxmlFilename);
     wbxmlFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbxmlFilename = new FormData();
     fdbxmlFilename.right = new FormAttachment(100, 0);
     fdbxmlFilename.top = new FormAttachment(wName, 0);
     wbxmlFilename.setLayoutData(fdbxmlFilename);
     wxmlFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wxmlFilename);
+    PropsUi.setLook(wxmlFilename);
     wxmlFilename.addModifyListener(lsMod);
     FormData fdxmlFilename = new FormData();
     fdxmlFilename.left = new FormAttachment(middle, 0);
@@ -145,36 +148,29 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     // Whenever something changes, set the tooltip to the expanded version:
     wxmlFilename.addModifyListener(
         e -> wxmlFilename.setToolTipText(variables.resolve(wxmlFilename.getText())));
-
-    wbxmlFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.xml;*.XML", "*"});
-            if (wxmlFilename.getText() != null) {
-              dialog.setFileName(variables.resolve(wxmlFilename.getText()));
-            }
-            dialog.setFilterNames(FILETYPES_XML);
-            if (dialog.open() != null) {
-              wxmlFilename.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
+    wbxmlFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wxmlFilename,
+                variables,
+                new String[] {"*.xml;*.XML", "*"},
+                FILETYPES_XML,
+                true));
 
     // DTD Intern ?
     // Intern DTD
     Label wlDTDIntern = new Label(shell, SWT.RIGHT);
     wlDTDIntern.setText(BaseMessages.getString(PKG, "ActionDTDValidator.DTDIntern.Label"));
-    props.setLook(wlDTDIntern);
+    PropsUi.setLook(wlDTDIntern);
     FormData fdlDTDIntern = new FormData();
     fdlDTDIntern.left = new FormAttachment(0, 0);
     fdlDTDIntern.top = new FormAttachment(wxmlFilename, margin);
     fdlDTDIntern.right = new FormAttachment(middle, -margin);
     wlDTDIntern.setLayoutData(fdlDTDIntern);
     wDTDIntern = new Button(shell, SWT.CHECK);
-    props.setLook(wDTDIntern);
+    PropsUi.setLook(wDTDIntern);
     wDTDIntern.setToolTipText(BaseMessages.getString(PKG, "ActionDTDValidator.DTDIntern.Tooltip"));
     FormData fdDTDIntern = new FormData();
     fdDTDIntern.left = new FormAttachment(middle, 0);
@@ -193,21 +189,21 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     // DTD Filename
     wldtdFilename = new Label(shell, SWT.RIGHT);
     wldtdFilename.setText(BaseMessages.getString(PKG, "ActionDTDValidator.DTDFilename.Label"));
-    props.setLook(wldtdFilename);
+    PropsUi.setLook(wldtdFilename);
     FormData fdldtdFilename = new FormData();
     fdldtdFilename.left = new FormAttachment(0, 0);
     fdldtdFilename.top = new FormAttachment(wlDTDIntern, 2 * margin);
     fdldtdFilename.right = new FormAttachment(middle, -margin);
     wldtdFilename.setLayoutData(fdldtdFilename);
     wbdtdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdtdFilename);
+    PropsUi.setLook(wbdtdFilename);
     wbdtdFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbdtdFilename = new FormData();
     fdbdtdFilename.right = new FormAttachment(100, 0);
     fdbdtdFilename.top = new FormAttachment(wldtdFilename, 0, SWT.CENTER);
     wbdtdFilename.setLayoutData(fdbdtdFilename);
     wdtdFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wdtdFilename);
+    PropsUi.setLook(wdtdFilename);
     wdtdFilename.addModifyListener(lsMod);
     FormData fddtdFilename = new FormData();
     fddtdFilename.left = new FormAttachment(middle, 0);
@@ -218,23 +214,16 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     // Whenever something changes, set the tooltip to the expanded version:
     wdtdFilename.addModifyListener(
         e -> wdtdFilename.setToolTipText(variables.resolve(wdtdFilename.getText())));
-
-    wbdtdFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.dtd;*.DTD", "*"});
-            if (wdtdFilename.getText() != null) {
-              dialog.setFileName(variables.resolve(wdtdFilename.getText()));
-            }
-            dialog.setFilterNames(FILETYPES_DTD);
-            if (dialog.open() != null) {
-              wdtdFilename.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
+    wbdtdFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wdtdFilename,
+                variables,
+                new String[] {"*.dtd;*.DTD", "*"},
+                FILETYPES_DTD,
+                true));
 
     // Buttons go at the very bottom
     //

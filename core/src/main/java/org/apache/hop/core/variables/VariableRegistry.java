@@ -30,6 +30,7 @@ import org.jboss.jandex.FieldInfo;
 import org.jboss.jandex.IndexView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;

@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.execution;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -26,17 +25,13 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
-import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -45,7 +40,11 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -134,7 +133,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     wMainSComp.setLayout(new FillLayout());
 
     Composite wMainComp = new Composite(wMainSComp, SWT.NONE);
-    props.setLook(wMainComp);
+    PropsUi.setLook(wMainComp);
 
     FormLayout mainLayout = new FormLayout();
     mainLayout.marginWidth = 3;
@@ -146,7 +145,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     // What's the name
     //
     Label wlName = new Label(wMainComp, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "ExecutionInfoLocationEditor.label.name"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin * 2);
@@ -154,7 +153,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
     wName = new Text(wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, margin); // To the right of the label
@@ -163,7 +162,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     Control lastControl = wName;
 
     Label wlDescription = new Label(wMainComp, SWT.RIGHT);
-    props.setLook(wlDescription);
+    PropsUi.setLook(wlDescription);
     wlDescription.setText(
         BaseMessages.getString(PKG, "ExecutionInfoLocationEditor.label.description"));
     FormData fdlDescription = new FormData();
@@ -172,7 +171,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     fdlDescription.right = new FormAttachment(middle, 0);
     wlDescription.setLayoutData(fdlDescription);
     wDescription = new Text(wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDescription);
+    PropsUi.setLook(wDescription);
     FormData fdDescription = new FormData();
     fdDescription.top = new FormAttachment(wlDescription, 0, SWT.CENTER);
     fdDescription.left = new FormAttachment(middle, margin); // To the right of the label
@@ -181,7 +180,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     lastControl = wDescription;
 
     Label wlDataLoggingDelay = new Label(wMainComp, SWT.RIGHT);
-    props.setLook(wlDataLoggingDelay);
+    PropsUi.setLook(wlDataLoggingDelay);
     wlDataLoggingDelay.setText(
         BaseMessages.getString(PKG, "ExecutionInfoLocationEditor.label.DataLoggingDelay"));
     FormData fdlDataLoggingDelay = new FormData();
@@ -190,7 +189,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     fdlDataLoggingDelay.right = new FormAttachment(middle, 0);
     wlDataLoggingDelay.setLayoutData(fdlDataLoggingDelay);
     wDataLoggingDelay = new Text(wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDataLoggingDelay);
+    PropsUi.setLook(wDataLoggingDelay);
     FormData fdDataLoggingDelay = new FormData();
     fdDataLoggingDelay.top = new FormAttachment(wlDataLoggingDelay, 0, SWT.CENTER);
     fdDataLoggingDelay.left = new FormAttachment(middle, margin); // To the right of the label
@@ -199,7 +198,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     lastControl = wDataLoggingDelay;
 
     Label wlDataLoggingInterval = new Label(wMainComp, SWT.RIGHT);
-    props.setLook(wlDataLoggingInterval);
+    PropsUi.setLook(wlDataLoggingInterval);
     wlDataLoggingInterval.setText(
         BaseMessages.getString(PKG, "ExecutionInfoLocationEditor.label.DataLoggingInterval"));
     FormData fdlDataLoggingInterval = new FormData();
@@ -208,7 +207,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     fdlDataLoggingInterval.right = new FormAttachment(middle, 0);
     wlDataLoggingInterval.setLayoutData(fdlDataLoggingInterval);
     wDataLoggingInterval = new Text(wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDataLoggingInterval);
+    PropsUi.setLook(wDataLoggingInterval);
     FormData fdDataLoggingInterval = new FormData();
     fdDataLoggingInterval.top = new FormAttachment(wlDataLoggingInterval, 0, SWT.CENTER);
     fdDataLoggingInterval.left = new FormAttachment(middle, margin); // To the right of the label
@@ -219,7 +218,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     // What's the type of location plugin?
     //
     Label wlPluginType = new Label(wMainComp, SWT.RIGHT);
-    props.setLook(wlPluginType);
+    PropsUi.setLook(wlPluginType);
     wlPluginType.setText(
         BaseMessages.getString(PKG, "ExecutionInfoLocationEditor.label.locationType"));
     FormData fdlPluginType = new FormData();
@@ -229,7 +228,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     wlPluginType.setLayoutData(fdlPluginType);
     wPluginType =
         new ComboVar(manager.getVariables(), wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPluginType);
+    PropsUi.setLook(wPluginType);
     wPluginType.setItems(getPluginTypes());
     FormData fdPluginType = new FormData();
     fdPluginType.top = new FormAttachment(wlPluginType, 0, SWT.CENTER);
@@ -241,7 +240,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     // Add a composite area
     //
     wPluginSpecificComp = new Composite(wMainComp, SWT.BACKGROUND);
-    props.setLook(wPluginSpecificComp);
+    PropsUi.setLook(wPluginSpecificComp);
     wPluginSpecificComp.setLayout(new FormLayout());
     FormData fdPluginSpecificComp = new FormData();
     fdPluginSpecificComp.left = new FormAttachment(0, 0);

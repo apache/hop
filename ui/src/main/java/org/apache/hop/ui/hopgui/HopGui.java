@@ -36,13 +36,18 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.logging.*;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchableProvider;
 import org.apache.hop.core.search.ISearchablesLocation;
+import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -61,13 +66,23 @@ import org.apache.hop.ui.core.bus.HopGuiEventsHandler;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.HopDescribedVariablesDialog;
-import org.apache.hop.ui.core.gui.*;
+import org.apache.hop.ui.core.gui.GuiMenuWidgets;
+import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.context.menu.MenuContextHandler;
 import org.apache.hop.ui.hopgui.context.metadata.MetadataContext;
-import org.apache.hop.ui.hopgui.delegates.*;
+import org.apache.hop.ui.hopgui.delegates.HopGuiAuditDelegate;
+import org.apache.hop.ui.hopgui.delegates.HopGuiContextDelegate;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileRefreshDelegate;
+import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
 import org.apache.hop.ui.hopgui.dialog.AboutDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -96,15 +111,28 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.*;
+import java.util.Locale;
+import java.util.UUID;
 
 @GuiPlugin(description = "The main hop graphical user interface")
 public class HopGui
@@ -156,6 +184,7 @@ public class HopGui
 
   // The main toolbar IDs
   public static final String ID_MAIN_TOOLBAR = "HopGui-Toolbar";
+  public static final String ID_MAIN_TOOLBAR_MENU = "toolbar-10000-menu";
   public static final String ID_MAIN_TOOLBAR_NEW = "toolbar-10010-new";
   public static final String ID_MAIN_TOOLBAR_OPEN = "toolbar-10020-open";
   public static final String ID_MAIN_TOOLBAR_SAVE = "toolbar-10040-save";
@@ -396,8 +425,11 @@ public class HopGui
     // See if we need to show the Welcome dialog
     //
 
-    boolean doNotShowWelcomeDialog = HopConfig.readOptionBoolean(WelcomeDialog.HOP_CONFIG_NO_SHOW_OPTION, false);;
-    doNotShowWelcomeDialog|=Const.toBoolean(variables.getVariable(WelcomeDialog.VARIABLE_HOP_NO_WELCOME_DIALOG));
+    boolean doNotShowWelcomeDialog =
+        HopConfig.readOptionBoolean(WelcomeDialog.HOP_CONFIG_NO_SHOW_OPTION, false);
+    ;
+    doNotShowWelcomeDialog |=
+        Const.toBoolean(variables.getVariable(WelcomeDialog.VARIABLE_HOP_NO_WELCOME_DIALOG));
     if (!doNotShowWelcomeDialog) {
       new WelcomeDialog().open();
     }
@@ -524,18 +556,41 @@ public class HopGui
   }
 
   private void addMainMenu() {
-    mainMenu = new Menu(shell, SWT.BAR);
 
     mainMenuWidgets = new GuiMenuWidgets();
     mainMenuWidgets.registerGuiPluginObject(this);
+
+    mainMenu = new Menu(shell, SWT.BAR);
     mainMenuWidgets.createMenuWidgets(ID_MAIN_MENU, shell, mainMenu);
 
     if (EnvironmentUtils.getInstance().isWeb()) {
       mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_EXIT, false);
     }
 
+    // We build the menu items but don't attach them to the shell.
+    // This preserves the shortcuts of the menu items.
+    //
+    if (props.isHidingMenuBar()) {
+      return;
+    }
+
     shell.setMenuBar(mainMenu);
     setUndoMenu(null);
+  }
+
+  /** A toolbar which shows all the menu item options in a context dialog. */
+  @GuiToolbarElement(
+      root = ID_MAIN_TOOLBAR,
+      id = ID_MAIN_TOOLBAR_MENU,
+      image = "ui/images/logo_bw.svg",
+      toolTip = "i18n::HopGui.Menu")
+  public void menu() {
+    GuiContextUtil.getInstance()
+        .handleActionSelection(
+            shell,
+            "Menu actions...",
+            null,
+            new MenuContextHandler(ID_MAIN_MENU, mainMenuWidgets));
   }
 
   @GuiMenuElement(
@@ -642,6 +697,7 @@ public class HopGui
       id = ID_MAIN_MENU_FILE_CLOSE,
       label = "i18n::HopGui.Menu.File.Close",
       parentId = ID_MAIN_MENU_FILE,
+      image = "ui/images/close.svg",
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'w')
   @GuiOsxKeyboardShortcut(command = true, key = 'w')
@@ -653,7 +709,8 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_FILE_CLOSE_ALL,
       label = "i18n::HopGui.Menu.File.Close.All",
-      parentId = ID_MAIN_MENU_FILE)
+      parentId = ID_MAIN_MENU_FILE,
+      image = "ui/images/close.svg")
   @GuiKeyboardShortcut(control = true, shift = true, key = 'w')
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'w')
   public void menuFileCloseAll() {
@@ -667,6 +724,7 @@ public class HopGui
       id = ID_MAIN_MENU_FILE_EXIT,
       label = "i18n::HopGui.Menu.File.Quit",
       parentId = ID_MAIN_MENU_FILE,
+      image = "ui/images/close-panel.svg",
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'q')
   @GuiOsxKeyboardShortcut(command = true, key = 'q')
@@ -719,6 +777,7 @@ public class HopGui
       id = ID_MAIN_MENU_EDIT_SELECT_ALL,
       label = "i18n::HopGui.Menu.Edit.SelectAll",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      image = "ui/images/add_all.svg",
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'a')
   @GuiOsxKeyboardShortcut(command = true, key = 'a')
@@ -730,7 +789,8 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_UNSELECT_ALL,
       label = "i18n::HopGui.Menu.Edit.ClearSelection",
-      parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      image = "ui/images/cancel.svg")
   @GuiKeyboardShortcut(key = SWT.ESC)
   @GuiOsxKeyboardShortcut(key = SWT.ESC)
   public void menuEditUnselectAll() {
@@ -806,6 +866,7 @@ public class HopGui
       id = ID_MAIN_MENU_EDIT_NAV_PREV,
       label = "i18n::HopGui.Menu.Edit.Navigate.Previous",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      image = "ui/images/arrow-left.svg",
       separator = true)
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_LEFT)
   public void menuEditNavigatePreviousFile() {
@@ -816,7 +877,8 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_NAV_NEXT,
       label = "i18n::HopGui.Menu.Edit.Navigate.Next",
-      parentId = ID_MAIN_MENU_EDIT_PARENT_ID)
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      image = "ui/images/arrow-right.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   public void menuEditNavigateNextFile() {
     getActivePerspective().navigateToNextFile();
@@ -907,10 +969,16 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_TOOLS_OPTIONS,
       label = "i18n::HopGui.Menu.Edit.Options",
-      parentId = ID_MAIN_MENU_TOOLS_PARENT_ID)
+      parentId = ID_MAIN_MENU_TOOLS_PARENT_ID,
+      image = "ui/images/settings.svg")
   public void menuToolsOptions() {
     if (new EnterOptionsDialog(getShell()).open() != null) {
       try {
+        // Clear the images cache
+        SvgCache.getInstance().clear();
+        // Re-load icons
+        GuiResource.getInstance().reload();
+        // Save the configuration to disk
         HopConfig.getInstance().saveToFile();
       } catch (Exception e) {
         new ErrorDialog(
@@ -928,7 +996,8 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_TOOLS_SYSPROPS,
       label = "i18n::HopGui.Menu.Tools.EditConfigVariables",
-      parentId = ID_MAIN_MENU_TOOLS_PARENT_ID)
+      parentId = ID_MAIN_MENU_TOOLS_PARENT_ID,
+      image = "ui/images/settings.svg")
   public void menuToolsEditConfigVariables() {
     List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
     String message = "Editing file: " + HopConfig.getInstance().getConfigFilename();
@@ -955,7 +1024,8 @@ public class HopGui
       id = ID_MAIN_MENU_TOOLS_DATABASE_CLEAR_CACHE,
       label = "i18n::HopGui.Menu.Tools.DatabaseClearCache",
       parentId = ID_MAIN_MENU_TOOLS_PARENT_ID,
-      separator = true)
+      separator = true,
+      image = "ui/images/database.svg")
   public void menuToolsDatabaseClearCache() {
     DbCache.getInstance().clear(null);
   }
@@ -973,7 +1043,8 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_HELP_ABOUT,
       label = "i18n::HopGui.Menu.Help.About",
-      parentId = ID_MAIN_MENU_HELP_PARENT_ID)
+      parentId = ID_MAIN_MENU_HELP_PARENT_ID,
+      image = "ui/images/help.svg")
   public void menuHelpAbout() {
     AboutDialog dialog = new AboutDialog(getShell());
     dialog.open();
@@ -986,7 +1057,7 @@ public class HopGui
     fdToolBar.top = new FormAttachment(0, 0);
     fdToolBar.right = new FormAttachment(100, 0);
     mainToolbar.setLayoutData(fdToolBar);
-    props.setLook(mainToolbar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(mainToolbar, Props.WIDGET_STYLE_TOOLBAR);
 
     mainToolbarWidgets = new GuiToolbarWidgets();
     mainToolbarWidgets.registerGuiPluginObject(this);
@@ -1008,7 +1079,7 @@ public class HopGui
     mainHopGuiComposite.setLayoutData(formData);
 
     perspectivesToolbar = new ToolBar(mainHopGuiComposite, SWT.WRAP | SWT.RIGHT | SWT.VERTICAL);
-    props.setLook(perspectivesToolbar, PropsUi.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(perspectivesToolbar, PropsUi.WIDGET_STYLE_TOOLBAR);
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.top = new FormAttachment(0, 0);
@@ -1497,7 +1568,7 @@ public class HopGui
 
   public static ExplorerPerspective getExplorerPerspective() {
     return (ExplorerPerspective)
-            HopGui.getInstance().getPerspectiveManager().findPerspective(ExplorerPerspective.class);
+        HopGui.getInstance().getPerspectiveManager().findPerspective(ExplorerPerspective.class);
   }
 
   /**

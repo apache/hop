@@ -32,7 +32,12 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.text.DateFormat;

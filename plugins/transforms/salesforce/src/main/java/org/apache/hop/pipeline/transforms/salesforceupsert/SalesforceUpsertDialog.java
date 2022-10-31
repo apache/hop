@@ -34,11 +34,17 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnectionUtils;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformDialog;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.*;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -47,15 +53,28 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
@@ -108,7 +127,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -128,19 +147,19 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SalesforceUpsertDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -148,7 +167,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -157,16 +176,17 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF FILE TAB ///
     // ////////////////////////
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "SalesforceUpsertDialog.General.Tab"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -178,7 +198,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     // ///////////////////////////////
 
     Group wConnectionGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wConnectionGroup);
+    PropsUi.setLook(wConnectionGroup);
     wConnectionGroup.setText(
         BaseMessages.getString(PKG, "SalesforceUpsertDialog.ConnectionGroup.Label"));
 
@@ -194,7 +214,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
             wConnectionGroup,
             BaseMessages.getString(PKG, "SalesforceUpsertDialog.URL.Label"),
             BaseMessages.getString(PKG, "SalesforceUpsertDialog.URL.Tooltip"));
-    props.setLook(wURL);
+    PropsUi.setLook(wURL);
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(0, 0);
@@ -209,7 +229,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
             wConnectionGroup,
             BaseMessages.getString(PKG, "SalesforceUpsertDialog.User.Label"),
             BaseMessages.getString(PKG, "SalesforceUpsertDialog.User.Tooltip"));
-    props.setLook(wUserName);
+    PropsUi.setLook(wUserName);
     wUserName.addModifyListener(lsMod);
     FormData fdUserName = new FormData();
     fdUserName.left = new FormAttachment(0, 0);
@@ -225,7 +245,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
             BaseMessages.getString(PKG, "SalesforceUpsertDialog.Password.Label"),
             BaseMessages.getString(PKG, "SalesforceUpsertDialog.Password.Tooltip"),
             true);
-    props.setLook(wPassword);
+    PropsUi.setLook(wPassword);
     wPassword.addModifyListener(lsMod);
     FormData fdPassword = new FormData();
     fdPassword.left = new FormAttachment(0, 0);
@@ -236,7 +256,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     // Test Salesforce connection button
     Button wTest = new Button(wConnectionGroup, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "SalesforceUpsertDialog.TestConnection.Label"));
-    props.setLook(wTest);
+    PropsUi.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceUpsertDialog.TestConnection.Tooltip"));
@@ -259,7 +279,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     // ///////////////////////////////
 
     Group wSettingsGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wSettingsGroup);
+    PropsUi.setLook(wSettingsGroup);
     wSettingsGroup.setText(
         BaseMessages.getString(PKG, "SalesforceUpsertDialog.SettingsGroup.Label"));
 
@@ -271,14 +291,14 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     // Timeout
     Label wlTimeOut = new Label(wSettingsGroup, SWT.RIGHT);
     wlTimeOut.setText(BaseMessages.getString(PKG, "SalesforceUpsertDialog.TimeOut.Label"));
-    props.setLook(wlTimeOut);
+    PropsUi.setLook(wlTimeOut);
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, 0);
     fdlTimeOut.top = new FormAttachment(wSettingsGroup, margin);
     fdlTimeOut.right = new FormAttachment(middle, -margin);
     wlTimeOut.setLayoutData(fdlTimeOut);
     wTimeOut = new TextVar(variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTimeOut);
+    PropsUi.setLook(wTimeOut);
     wTimeOut.addModifyListener(lsMod);
     FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment(middle, 0);
@@ -290,14 +310,14 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     Label wlUseCompression = new Label(wSettingsGroup, SWT.RIGHT);
     wlUseCompression.setText(
         BaseMessages.getString(PKG, "SalesforceUpsertDialog.UseCompression.Label"));
-    props.setLook(wlUseCompression);
+    PropsUi.setLook(wlUseCompression);
     FormData fdlUseCompression = new FormData();
     fdlUseCompression.left = new FormAttachment(0, 0);
     fdlUseCompression.top = new FormAttachment(wTimeOut, margin);
     fdlUseCompression.right = new FormAttachment(middle, -margin);
     wlUseCompression.setLayoutData(fdlUseCompression);
     wUseCompression = new Button(wSettingsGroup, SWT.CHECK);
-    props.setLook(wUseCompression);
+    PropsUi.setLook(wUseCompression);
     wUseCompression.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceUpsertDialog.UseCompression.Tooltip"));
     FormData fdUseCompression = new FormData();
@@ -310,7 +330,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     Label wlRollbackAllChangesOnError = new Label(wSettingsGroup, SWT.RIGHT);
     wlRollbackAllChangesOnError.setText(
         BaseMessages.getString(PKG, "SalesforceUpsertDialog.RollbackAllChangesOnError.Label"));
-    props.setLook(wlRollbackAllChangesOnError);
+    PropsUi.setLook(wlRollbackAllChangesOnError);
     FormData fdlRollbackAllChangesOnError = new FormData();
     fdlRollbackAllChangesOnError.left = new FormAttachment(0, 0);
     fdlRollbackAllChangesOnError.top = new FormAttachment(wUseCompression, margin);
@@ -318,7 +338,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wlRollbackAllChangesOnError.setLayoutData(fdlRollbackAllChangesOnError);
     wRollbackAllChangesOnError = new Button(wSettingsGroup, SWT.CHECK);
     wRollbackAllChangesOnError.addSelectionListener(new ComponentSelectionListener(input));
-    props.setLook(wRollbackAllChangesOnError);
+    PropsUi.setLook(wRollbackAllChangesOnError);
     wRollbackAllChangesOnError.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceUpsertDialog.RollbackAllChangesOnError.Tooltip"));
     FormData fdRollbackAllChangesOnError = new FormData();
@@ -330,14 +350,14 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     // BatchSize value
     Label wlBatchSize = new Label(wSettingsGroup, SWT.RIGHT);
     wlBatchSize.setText(BaseMessages.getString(PKG, "SalesforceUpsertDialog.Limit.Label"));
-    props.setLook(wlBatchSize);
+    PropsUi.setLook(wlBatchSize);
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
     fdlBatchSize.top = new FormAttachment(wRollbackAllChangesOnError, margin);
     fdlBatchSize.right = new FormAttachment(middle, -margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
     wBatchSize = new TextVar(variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBatchSize);
+    PropsUi.setLook(wBatchSize);
     wBatchSize.addModifyListener(lsMod);
     FormData fdBatchSize = new FormData();
     fdBatchSize.left = new FormAttachment(middle, 0);
@@ -348,7 +368,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     // Module
     Label wlModule = new Label(wSettingsGroup, SWT.RIGHT);
     wlModule.setText(BaseMessages.getString(PKG, "SalesforceUpsertDialog.Module.Label"));
-    props.setLook(wlModule);
+    PropsUi.setLook(wlModule);
     FormData fdlModule = new FormData();
     fdlModule.left = new FormAttachment(0, 0);
     fdlModule.top = new FormAttachment(wBatchSize, margin);
@@ -356,7 +376,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wlModule.setLayoutData(fdlModule);
     wModule = new ComboVar(variables, wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wModule.setEditable(true);
-    props.setLook(wModule);
+    PropsUi.setLook(wModule);
     wModule.addModifyListener(lsTableMod);
     wModule.addSelectionListener(lsSelection);
     FormData fdModule = new FormData();
@@ -388,7 +408,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     // Upsert Field
     Label wlUpsertField = new Label(wSettingsGroup, SWT.RIGHT);
     wlUpsertField.setText(BaseMessages.getString(PKG, "SalesforceUpsertDialog.Upsert.Label"));
-    props.setLook(wlUpsertField);
+    PropsUi.setLook(wlUpsertField);
     FormData fdlUpsertField = new FormData();
     fdlUpsertField.left = new FormAttachment(0, 0);
     fdlUpsertField.top = new FormAttachment(wModule, margin);
@@ -396,7 +416,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wlUpsertField.setLayoutData(fdlUpsertField);
     wUpsertField = new CCombo(wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wUpsertField.setEditable(true);
-    props.setLook(wUpsertField);
+    PropsUi.setLook(wUpsertField);
     wUpsertField.addModifyListener(lsMod);
     FormData fdUpsertField = new FormData();
     fdUpsertField.left = new FormAttachment(middle, 0);
@@ -429,7 +449,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     // ///////////////////////////////
 
     Group wOutFieldsGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wOutFieldsGroup);
+    PropsUi.setLook(wOutFieldsGroup);
     wOutFieldsGroup.setText(
         BaseMessages.getString(PKG, "SalesforceUpsertDialog.OutFieldsGroup.Label"));
 
@@ -442,7 +462,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     Label wlSalesforceIDFieldName = new Label(wOutFieldsGroup, SWT.RIGHT);
     wlSalesforceIDFieldName.setText(
         BaseMessages.getString(PKG, "SalesforceUpsertDialog.SalesforceIDFieldName.Label"));
-    props.setLook(wlSalesforceIDFieldName);
+    PropsUi.setLook(wlSalesforceIDFieldName);
     FormData fdlSalesforceIDFieldName = new FormData();
     fdlSalesforceIDFieldName.left = new FormAttachment(0, 0);
     fdlSalesforceIDFieldName.top = new FormAttachment(wSettingsGroup, margin);
@@ -450,7 +470,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wlSalesforceIDFieldName.setLayoutData(fdlSalesforceIDFieldName);
     wSalesforceIDFieldName =
         new TextVar(variables, wOutFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSalesforceIDFieldName);
+    PropsUi.setLook(wSalesforceIDFieldName);
     wSalesforceIDFieldName.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceUpsertDialog.SalesforceIDFieldName.Tooltip"));
     wSalesforceIDFieldName.addModifyListener(lsMod);
@@ -473,7 +493,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     // THE UPDATE/INSERT TABLE
     Label wlReturn = new Label(wGeneralComp, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "SalesforceUpsertDialog.UpdateFields.Label"));
-    props.setLook(wlReturn);
+    PropsUi.setLook(wlReturn);
     FormData fdlReturn = new FormData();
     fdlReturn.left = new FormAttachment(0, 0);
     fdlReturn.top = new FormAttachment(wOutFieldsGroup, margin);

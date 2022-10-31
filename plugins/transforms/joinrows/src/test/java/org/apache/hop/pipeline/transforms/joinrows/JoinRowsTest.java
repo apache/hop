@@ -20,7 +20,12 @@ package org.apache.hop.pipeline.transforms.joinrows;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.logging.*;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILogChannelFactory;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -42,7 +47,10 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class JoinRowsTest {
 

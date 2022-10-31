@@ -18,7 +18,6 @@
 package org.apache.hop.vfs.googledrive.ui;
 
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver;
-import org.apache.hop.core.Const;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -26,11 +25,23 @@ import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.vfs.googledrive.util.CustomLocalServerReceiver;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class GoogleAuthorizationDialog extends Dialog {
 
@@ -71,12 +82,12 @@ public class GoogleAuthorizationDialog extends Dialog {
     dialog.setText(title);
     dialog.setImage(logo);
     PropsUi props = PropsUi.getInstance();
-    props.setLook(dialog);
+    PropsUi.setLook(dialog);
     dialog.setSize(width, height);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     dialog.setLayout(formLayout);
 
@@ -95,7 +106,7 @@ public class GoogleAuthorizationDialog extends Dialog {
       helpLabel.setText("Help");
       helpLabel.setEditable(false);
 
-      props.setLook(helpLabel);
+      PropsUi.setLook(helpLabel);
       helpLabel.setFont(new Font(display, "Open Sans Regular", 11, SWT.NORMAL));
       helpLabel.setForeground(new Color(display, props.contrastColor(0, 94, 170)));
       FormData helpLabelFormData = new FormData();

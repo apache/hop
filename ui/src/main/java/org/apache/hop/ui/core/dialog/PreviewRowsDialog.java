@@ -43,7 +43,11 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,12 +153,12 @@ public class PreviewRowsDialog {
     shell = new Shell(parentShell, style);
     PropsUi props = PropsUi.getInstance();
 
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     if (title == null) {
       title = BaseMessages.getString(PKG, "PreviewRowsDialog.Title");
@@ -252,7 +256,7 @@ public class PreviewRowsDialog {
     if (wlFields == null) {
       wlFields = new Label(shell, SWT.LEFT);
       wlFields.setText(message);
-      props.setLook(wlFields);
+      PropsUi.setLook(wlFields);
       FormData fdlFields = new FormData();
       fdlFields.left = new FormAttachment(0, 0);
       fdlFields.right = new FormAttachment(100, 0);

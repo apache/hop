@@ -21,7 +21,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -34,7 +36,10 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the webservice available action. */
 public class ActionWebServiceAvailableDialog extends ActionDialog implements IActionDialog {
@@ -66,33 +71,33 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionWebServiceAvailable.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionWebServiceAvailable.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -103,7 +108,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     // URL line
     Label wlURL = new Label(shell, SWT.RIGHT);
     wlURL.setText(BaseMessages.getString(PKG, "ActionWebServiceAvailable.URL.Label"));
-    props.setLook(wlURL);
+    PropsUi.setLook(wlURL);
     FormData fdlURL = new FormData();
     fdlURL.left = new FormAttachment(0, 0);
     fdlURL.top = new FormAttachment(wName, margin);
@@ -111,7 +116,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     wlURL.setLayoutData(fdlURL);
 
     wURL = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wURL);
+    PropsUi.setLook(wURL);
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(middle, 0);
@@ -126,7 +131,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     Label wlConnectTimeOut = new Label(shell, SWT.RIGHT);
     wlConnectTimeOut.setText(
         BaseMessages.getString(PKG, "ActionWebServiceAvailable.ConnectTimeOut.Label"));
-    props.setLook(wlConnectTimeOut);
+    PropsUi.setLook(wlConnectTimeOut);
     FormData fdlConnectTimeOut = new FormData();
     fdlConnectTimeOut.left = new FormAttachment(0, 0);
     fdlConnectTimeOut.top = new FormAttachment(wURL, margin);
@@ -136,7 +141,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     wConnectTimeOut = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wConnectTimeOut.setToolTipText(
         BaseMessages.getString(PKG, "ActionWebServiceAvailable.ConnectTimeOut.Tooltip"));
-    props.setLook(wConnectTimeOut);
+    PropsUi.setLook(wConnectTimeOut);
     wConnectTimeOut.addModifyListener(lsMod);
     FormData fdConnectTimeOut = new FormData();
     fdConnectTimeOut.left = new FormAttachment(middle, 0);
@@ -152,7 +157,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     Label wlReadTimeOut = new Label(shell, SWT.RIGHT);
     wlReadTimeOut.setText(
         BaseMessages.getString(PKG, "ActionWebServiceAvailable.ReadTimeOut.Label"));
-    props.setLook(wlReadTimeOut);
+    PropsUi.setLook(wlReadTimeOut);
     FormData fdlReadTimeOut = new FormData();
     fdlReadTimeOut.left = new FormAttachment(0, 0);
     fdlReadTimeOut.top = new FormAttachment(wConnectTimeOut, margin);
@@ -162,7 +167,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     wReadTimeOut = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wReadTimeOut.setToolTipText(
         BaseMessages.getString(PKG, "ActionWebServiceAvailable.ReadTimeOut.Tooltip"));
-    props.setLook(wReadTimeOut);
+    PropsUi.setLook(wReadTimeOut);
     wReadTimeOut.addModifyListener(lsMod);
     FormData fdReadTimeOut = new FormData();
     fdReadTimeOut.left = new FormAttachment(middle, 0);

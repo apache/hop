@@ -28,9 +28,10 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -46,7 +47,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -79,7 +79,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
         BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.LogLevel.Label"));
     wlLogLevel.setToolTipText(
         BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.LogLevel.Tooltip"));
-    props.setLook(wlLogLevel);
+    PropsUi.setLook(wlLogLevel);
     FormData fdlLogLevel = new FormData();
     fdlLogLevel.top = new FormAttachment(0, 0);
     fdlLogLevel.left = new FormAttachment(0, 0);
@@ -88,7 +88,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     wLogLevel = new CCombo(gDetails, SWT.READ_ONLY | SWT.BORDER);
     wLogLevel.setToolTipText(
         BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.LogLevel.Tooltip"));
-    props.setLook(wLogLevel);
+    PropsUi.setLook(wLogLevel);
     FormData fdLogLevel = new FormData();
     fdLogLevel.top = new FormAttachment(wlLogLevel, -2, SWT.TOP);
     fdLogLevel.right = new FormAttachment(100, 0);
@@ -101,7 +101,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
         BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.ClearLog.Label"));
     wClearLog.setToolTipText(
         BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.ClearLog.Tooltip"));
-    props.setLook(wClearLog);
+    PropsUi.setLook(wClearLog);
     FormData fdClearLog = new FormData();
     fdClearLog.top = new FormAttachment(wLogLevel, 10);
     fdClearLog.left = new FormAttachment(0, 0);
@@ -112,7 +112,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
         BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.StartCopy.Label"));
     wlStartAction.setToolTipText(
         BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.StartCopy.Tooltip"));
-    props.setLook(wlStartAction);
+    PropsUi.setLook(wlStartAction);
     FormData fdlStartAction = new FormData();
     fdlStartAction.top = new FormAttachment(wClearLog, 10);
     fdlStartAction.left = new FormAttachment(0, 0);
@@ -121,7 +121,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     wStartAction = new CCombo(gDetails, SWT.READ_ONLY | SWT.BORDER);
     wStartAction.setToolTipText(
         BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.StartCopy.Tooltip"));
-    props.setLook(wStartAction);
+    PropsUi.setLook(wStartAction);
     FormData fdStartJobCombo = new FormData();
     fdStartJobCombo.top = new FormAttachment(wlStartAction, 0, SWT.CENTER);
     fdStartJobCombo.left = new FormAttachment(wlStartAction, props.getMargin());
@@ -185,7 +185,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
             runConfigTooltip,
             true);
     wRunConfigurationControl = wRunConfiguration;
-    props.setLook(wRunConfiguration);
+    PropsUi.setLook(wRunConfiguration);
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.right = new FormAttachment(100, 0);
     fdRunConfiguration.top = new FormAttachment(0, props.getMargin());

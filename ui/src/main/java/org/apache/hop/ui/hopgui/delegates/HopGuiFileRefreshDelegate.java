@@ -24,7 +24,6 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.eclipse.swt.widgets.Display;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +55,9 @@ public class HopGuiFileRefreshDelegate {
                 if (fileName != null) {
                   IHopFileTypeHandler fileHandler = fileHandlerMap.get(fileName);
                   if (fileHandler != null) {
-                    hopGui.getDisplay().asyncExec(fileHandler::reload);
+                    if (!hopGui.getDisplay().isDisposed()) {
+                      hopGui.getDisplay().asyncExec(fileHandler::reload);
+                    }
                   }
                 }
               }

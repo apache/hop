@@ -34,7 +34,11 @@ import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 
-import javax.xml.transform.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;

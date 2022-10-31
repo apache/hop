@@ -75,7 +75,7 @@ public class TopicSelection extends Composite {
     this.setLayout(topicSelectionLayout);
 
     wTopicGroup = new Group(this, SWT.SHADOW_ETCHED_IN);
-    props.setLook(wTopicGroup);
+    PropsUi.setLook(wTopicGroup);
     wTopicGroup.setText(topicGroupLabel);
 
     FormLayout topicGroupLayout = new FormLayout();
@@ -92,8 +92,8 @@ public class TopicSelection extends Composite {
 
     wTopicFromText = new Button(wTopicGroup, SWT.RADIO);
     wTopicFromField = new Button(wTopicGroup, SWT.RADIO);
-    props.setLook(wTopicFromText);
-    props.setLook(wTopicFromField);
+    PropsUi.setLook(wTopicFromText);
+    PropsUi.setLook(wTopicFromField);
 
     SelectionAdapter selectionListener =
         new SelectionAdapter() {
@@ -140,7 +140,7 @@ public class TopicSelection extends Composite {
 
     wlTopic = new Label(wTopicGroup, SWT.LEFT);
     wlTopic.setLayoutData(fdTopicEntry);
-    props.setLook(wlTopic);
+    PropsUi.setLook(wlTopic);
 
     FormData formData = new FormData();
     formData.top = new FormAttachment(wlTopic, 5);

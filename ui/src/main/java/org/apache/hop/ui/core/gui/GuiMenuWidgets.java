@@ -19,12 +19,10 @@ package org.apache.hop.ui.core.gui;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.ui.core.ConstUi;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -33,18 +31,24 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /** This class contains the widgets for Menu Bars */
 public class GuiMenuWidgets extends BaseGuiWidgets {
 
   private Map<String, MenuItem> menuItemMap;
   private Map<String, KeyboardShortcut> shortcutMap;
+  private Map<String, Boolean> menuEnabledMap;
 
   public GuiMenuWidgets() {
     super(UUID.randomUUID().toString());
     this.menuItemMap = new HashMap<>();
     this.shortcutMap = new HashMap<>();
+    this.menuEnabledMap = new HashMap<>();
   }
 
   public void createMenuWidgets(String root, Shell shell, Menu parent) {
@@ -114,20 +118,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
           SWT.Selection,
           e -> {
             try {
-
-              Object singleton =
-                  findGuiPluginInstance(
-                      guiMenuItem.getClassLoader(), guiMenuItem.getListenerClassName());
-
-              Method menuMethod = singleton.getClass().getMethod(guiMenuItem.getListenerMethod());
-              if (menuMethod == null) {
-                throw new HopException(
-                    "Unable to find method "
-                        + guiMenuItem.getListenerMethod()
-                        + " in singleton "
-                        + guiMenuItem.getListenerClassName());
-              }
-              menuMethod.invoke(singleton);
+              executeMenuItem(guiMenuItem, instanceId);
             } catch (Exception ex) {
               System.err.println(
                   "Unable to call method "
@@ -141,9 +132,10 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
           });
 
       menuItemMap.put(guiMenuItem.getId(), menuItem);
+      menuEnabledMap.put(guiMenuItem.getId(), true);
 
     } else {
-      // We have a bunch of children so we want to create a new drop-down menu in the parent menu
+      // We have a bunch of children, so we want to create a new drop-down menu in the parent menu
       //
       Menu menu = parentMenu;
       if (guiMenuItem.getId() != null) {
@@ -157,6 +149,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
         menu = new Menu(shell, SWT.DROP_DOWN);
         menuItem.setMenu(menu);
         menuItemMap.put(guiMenuItem.getId(), menuItem);
+        menuEnabledMap.put(guiMenuItem.getId(), true);
       }
 
       // Add the children to this menu...
@@ -170,6 +163,14 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
         addMenuWidgets(root, shell, menu, child);
       }
     }
+  }
+
+  public static void executeMenuItem(GuiMenuItem guiMenuItem, String instanceId) throws Exception {
+    Object parentObject =
+        findGuiPluginInstance(
+            guiMenuItem.getClassLoader(), guiMenuItem.getListenerClassName(), instanceId);
+    Method menuMethod = parentObject.getClass().getMethod(guiMenuItem.getListenerMethod());
+    menuMethod.invoke(parentObject);
   }
 
   private void setMenuItemKeyboardShortcut(MenuItem menuItem, GuiMenuItem guiMenuItem) {
@@ -302,10 +303,10 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
    */
   public MenuItem enableMenuItem(String id, boolean enabled) {
     MenuItem menuItem = menuItemMap.get(id);
-    if (menuItem == null || menuItem.isDisposed()) {
-      return null;
+    if (menuItem != null && !menuItem.isDisposed()) {
+      menuItem.setEnabled(enabled);
     }
-    menuItem.setEnabled(enabled);
+    menuEnabledMap.put(id, enabled);
     return menuItem;
   }
 
@@ -335,14 +336,13 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
   public MenuItem enableMenuItem(
       IHopFileType fileType, String id, String permission, boolean active) {
     MenuItem menuItem = menuItemMap.get(id);
-    if (menuItem == null || menuItem.isDisposed()) {
-      return null;
-    }
+
     boolean hasCapability = fileType.hasCapability(permission);
     boolean enable = hasCapability && active;
-    if (enable != menuItem.isEnabled()) {
+    if (menuItem!=null && enable != menuItem.isEnabled()) {
       menuItem.setEnabled(enable);
     }
+    menuEnabledMap.put(id, enable);
     return menuItem;
   }
 
@@ -355,8 +355,46 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
     return menuItemMap;
   }
 
-  /** @param menuItemMap The menuItemMap to set */
+  /**
+   * @param menuItemMap The menuItemMap to set
+   */
   public void setMenuItemMap(Map<String, MenuItem> menuItemMap) {
     this.menuItemMap = menuItemMap;
+  }
+
+  /**
+   * Gets shortcutMap
+   *
+   * @return value of shortcutMap
+   */
+  public Map<String, KeyboardShortcut> getShortcutMap() {
+    return shortcutMap;
+  }
+
+  /**
+   * Sets shortcutMap
+   *
+   * @param shortcutMap value of shortcutMap
+   */
+  public void setShortcutMap(Map<String, KeyboardShortcut> shortcutMap) {
+    this.shortcutMap = shortcutMap;
+  }
+
+  /**
+   * Gets menuEnabledMap
+   *
+   * @return value of menuEnabledMap
+   */
+  public Map<String, Boolean> getMenuEnabledMap() {
+    return menuEnabledMap;
+  }
+
+  /**
+   * Sets menuEnabledMap
+   *
+   * @param menuEnabledMap value of menuEnabledMap
+   */
+  public void setMenuEnabledMap(Map<String, Boolean> menuEnabledMap) {
+    this.menuEnabledMap = menuEnabledMap;
   }
 }

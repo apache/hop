@@ -21,7 +21,12 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.core.search.*;
+import org.apache.hop.core.search.BaseSearchableAnalyser;
+import org.apache.hop.core.search.ISearchQuery;
+import org.apache.hop.core.search.ISearchResult;
+import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.search.ISearchableAnalyser;
+import org.apache.hop.core.search.SearchableAnalyserPlugin;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 

@@ -42,7 +42,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.dom4j.*;
+import org.dom4j.Element;
+import org.dom4j.ElementHandler;
+import org.dom4j.ElementPath;
+import org.dom4j.Namespace;
+import org.dom4j.Node;
+import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 import org.dom4j.tree.AbstractNode;
 

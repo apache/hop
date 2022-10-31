@@ -17,13 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.metastructure;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -74,27 +74,27 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "TransformMetaStructureDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -102,7 +102,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -114,14 +114,14 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlOutputRowcount = new Label(shell, SWT.RIGHT);
     wlOutputRowcount.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureDialog.outputRowcount.Label"));
-    props.setLook(wlOutputRowcount);
+    PropsUi.setLook(wlOutputRowcount);
     FormData fdlOutputRowcount = new FormData();
     fdlOutputRowcount.left = new FormAttachment(0, 0);
     fdlOutputRowcount.top = new FormAttachment(wTransformName, margin);
     fdlOutputRowcount.right = new FormAttachment(middle, -margin);
     wlOutputRowcount.setLayoutData(fdlOutputRowcount);
     wOutputRowcount = new Button(shell, SWT.CHECK);
-    props.setLook(wOutputRowcount);
+    PropsUi.setLook(wOutputRowcount);
     FormData fdOutputRowcount = new FormData();
     fdOutputRowcount.left = new FormAttachment(middle, 0);
     fdOutputRowcount.top = new FormAttachment(wlOutputRowcount, 0, SWT.CENTER);
@@ -149,7 +149,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlRowCountField = new Label(shell, SWT.RIGHT);
     wlRowCountField.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureDialog.RowcountField.Label"));
-    props.setLook(wlRowCountField);
+    PropsUi.setLook(wlRowCountField);
     FormData fdlRowCountField = new FormData();
     fdlRowCountField.left = new FormAttachment(0, 0);
     fdlRowCountField.right = new FormAttachment(middle, -margin);
@@ -157,7 +157,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     wlRowCountField.setLayoutData(fdlRowCountField);
 
     wRowCountField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRowCountField);
+    PropsUi.setLook(wRowCountField);
     wRowCountField.addModifyListener(lsMod);
     FormData fdRowCountField = new FormData();
     fdRowCountField.left = new FormAttachment(middle, 0);
@@ -170,14 +170,14 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlIncludePosition = new Label(shell, SWT.RIGHT);
     wlIncludePosition.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureDialog.includePosition.Label"));
-    props.setLook(wlIncludePosition);
+    PropsUi.setLook(wlIncludePosition);
     FormData fdlIncludePosition = new FormData();
     fdlIncludePosition.left = new FormAttachment(0, 0);
     fdlIncludePosition.top = new FormAttachment(wlRowCountField, margin);
     fdlIncludePosition.right = new FormAttachment(middle, -margin);
     wlIncludePosition.setLayoutData(fdlIncludePosition);
     wIncludePosition = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludePosition);
+    PropsUi.setLook(wIncludePosition);
     FormData fdIncludePosition = new FormData();
     fdIncludePosition.left = new FormAttachment(middle, 0);
     fdIncludePosition.top = new FormAttachment(wlIncludePosition, 0, SWT.CENTER);
@@ -205,7 +205,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlPositionField = new Label(shell, SWT.RIGHT);
     wlPositionField.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureMeta.PositionField.Label"));
-    props.setLook(wlPositionField);
+    PropsUi.setLook(wlPositionField);
     FormData fdlPositionField = new FormData();
     fdlPositionField.left = new FormAttachment(0, 0);
     fdlPositionField.right = new FormAttachment(middle, -margin);
@@ -213,7 +213,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     wlPositionField.setLayoutData(fdlPositionField);
 
     wPositionField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPositionField);
+    PropsUi.setLook(wPositionField);
     wPositionField.addModifyListener(lsMod);
     FormData fdPositionField = new FormData();
     fdPositionField.left = new FormAttachment(middle, 0);
@@ -226,14 +226,14 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlIncludeFieldname = new Label(shell, SWT.RIGHT);
     wlIncludeFieldname.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureDialog.includeFieldname.Label"));
-    props.setLook(wlIncludeFieldname);
+    PropsUi.setLook(wlIncludeFieldname);
     FormData fdlIncludeFieldname = new FormData();
     fdlIncludeFieldname.left = new FormAttachment(0, 0);
     fdlIncludeFieldname.top = new FormAttachment(wlPositionField, margin);
     fdlIncludeFieldname.right = new FormAttachment(middle, -margin);
     wlIncludeFieldname.setLayoutData(fdlIncludeFieldname);
     wIncludeFieldname = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeFieldname);
+    PropsUi.setLook(wIncludeFieldname);
     FormData fdIncludeFieldname = new FormData();
     fdIncludeFieldname.left = new FormAttachment(middle, 0);
     fdIncludeFieldname.top = new FormAttachment(wlIncludeFieldname, 0, SWT.CENTER);
@@ -262,7 +262,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlFieldnameField = new Label(shell, SWT.RIGHT);
     wlFieldnameField.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureMeta.FieldnameField.Label"));
-    props.setLook(wlFieldnameField);
+    PropsUi.setLook(wlFieldnameField);
     FormData fdlFieldnameField = new FormData();
     fdlFieldnameField.left = new FormAttachment(0, 0);
     fdlFieldnameField.right = new FormAttachment(middle, -margin);
@@ -270,7 +270,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     wlFieldnameField.setLayoutData(fdlFieldnameField);
 
     wFieldnameField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFieldnameField);
+    PropsUi.setLook(wFieldnameField);
     wFieldnameField.addModifyListener(lsMod);
     FormData fdFieldnameField = new FormData();
     fdFieldnameField.left = new FormAttachment(middle, 0);
@@ -283,14 +283,14 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlIncludeComment = new Label(shell, SWT.RIGHT);
     wlIncludeComment.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureDialog.includeComments.Label"));
-    props.setLook(wlIncludeComment);
+    PropsUi.setLook(wlIncludeComment);
     FormData fdlIncludeComment = new FormData();
     fdlIncludeComment.left = new FormAttachment(0, 0);
     fdlIncludeComment.top = new FormAttachment(wlFieldnameField, margin);
     fdlIncludeComment.right = new FormAttachment(middle, -margin);
     wlIncludeComment.setLayoutData(fdlIncludeComment);
     wIncludeComments = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeComments);
+    PropsUi.setLook(wIncludeComments);
     FormData fdIncludeComment = new FormData();
     fdIncludeComment.left = new FormAttachment(middle, 0);
     fdIncludeComment.top = new FormAttachment(wlIncludeComment, 0, SWT.CENTER);
@@ -319,7 +319,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlCommentsField = new Label(shell, SWT.RIGHT);
     wlCommentsField.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureMeta.CommentsField.Label"));
-    props.setLook(wlCommentsField);
+    PropsUi.setLook(wlCommentsField);
     FormData fdlCommentsField = new FormData();
     fdlCommentsField.left = new FormAttachment(0, 0);
     fdlCommentsField.right = new FormAttachment(middle, -margin);
@@ -327,7 +327,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     wlCommentsField.setLayoutData(fdlCommentsField);
 
     wCommentsField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCommentsField);
+    PropsUi.setLook(wCommentsField);
     wCommentsField.addModifyListener(lsMod);
     FormData fdCommentsField = new FormData();
     fdCommentsField.left = new FormAttachment(middle, 0);
@@ -340,14 +340,14 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlIncludeType = new Label(shell, SWT.RIGHT);
     wlIncludeType.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureDialog.includeType.Label"));
-    props.setLook(wlIncludeType);
+    PropsUi.setLook(wlIncludeType);
     FormData fdlIncludeType = new FormData();
     fdlIncludeType.left = new FormAttachment(0, 0);
     fdlIncludeType.top = new FormAttachment(wlCommentsField, margin);
     fdlIncludeType.right = new FormAttachment(middle, -margin);
     wlIncludeType.setLayoutData(fdlIncludeType);
     wIncludeType = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeType);
+    PropsUi.setLook(wIncludeType);
     FormData fdIncludeType = new FormData();
     fdIncludeType.left = new FormAttachment(middle, 0);
     fdIncludeType.top = new FormAttachment(wlIncludeType, 0, SWT.CENTER);
@@ -375,7 +375,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     // Type Field
     Label wlTypeField = new Label(shell, SWT.RIGHT);
     wlTypeField.setText(BaseMessages.getString(PKG, "TransformMetaStructureMeta.TypeField.Label"));
-    props.setLook(wlTypeField);
+    PropsUi.setLook(wlTypeField);
     FormData fdlTypeField = new FormData();
     fdlTypeField.left = new FormAttachment(0, 0);
     fdlTypeField.right = new FormAttachment(middle, -margin);
@@ -383,7 +383,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     wlTypeField.setLayoutData(fdlTypeField);
 
     wTypeField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTypeField);
+    PropsUi.setLook(wTypeField);
     wTypeField.addModifyListener(lsMod);
     FormData fdTypeField = new FormData();
     fdTypeField.left = new FormAttachment(middle, 0);
@@ -396,14 +396,14 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlIncludeLength = new Label(shell, SWT.RIGHT);
     wlIncludeLength.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureDialog.includeLength.Label"));
-    props.setLook(wlIncludeLength);
+    PropsUi.setLook(wlIncludeLength);
     FormData fdlIncludeLength = new FormData();
     fdlIncludeLength.left = new FormAttachment(0, 0);
     fdlIncludeLength.top = new FormAttachment(wlTypeField, margin);
     fdlIncludeLength.right = new FormAttachment(middle, -margin);
     wlIncludeLength.setLayoutData(fdlIncludeLength);
     wIncludeLength = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeLength);
+    PropsUi.setLook(wIncludeLength);
     FormData fdIncludeLength = new FormData();
     fdIncludeLength.left = new FormAttachment(middle, 0);
     fdIncludeLength.top = new FormAttachment(wlIncludeLength, 0, SWT.CENTER);
@@ -432,7 +432,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlLengthField = new Label(shell, SWT.RIGHT);
     wlLengthField.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureMeta.LengthField.Label"));
-    props.setLook(wlLengthField);
+    PropsUi.setLook(wlLengthField);
     FormData fdlLengthField = new FormData();
     fdlLengthField.left = new FormAttachment(0, 0);
     fdlLengthField.right = new FormAttachment(middle, -margin);
@@ -440,7 +440,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     wlLengthField.setLayoutData(fdlLengthField);
 
     wLengthField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLengthField);
+    PropsUi.setLook(wLengthField);
     wLengthField.addModifyListener(lsMod);
     FormData fdLengthField = new FormData();
     fdLengthField.left = new FormAttachment(middle, 0);
@@ -453,14 +453,14 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlIncludePrecision = new Label(shell, SWT.RIGHT);
     wlIncludePrecision.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureDialog.includePrecision.Label"));
-    props.setLook(wlIncludePrecision);
+    PropsUi.setLook(wlIncludePrecision);
     FormData fdlIncludePrecision = new FormData();
     fdlIncludePrecision.left = new FormAttachment(0, 0);
     fdlIncludePrecision.top = new FormAttachment(wlLengthField, margin);
     fdlIncludePrecision.right = new FormAttachment(middle, -margin);
     wlIncludePrecision.setLayoutData(fdlIncludePrecision);
     wIncludePrecision = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludePrecision);
+    PropsUi.setLook(wIncludePrecision);
     FormData fdIncludePrecision = new FormData();
     fdIncludePrecision.left = new FormAttachment(middle, 0);
     fdIncludePrecision.top = new FormAttachment(wlIncludePrecision, 0, SWT.CENTER);
@@ -489,7 +489,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlPrecisionField = new Label(shell, SWT.RIGHT);
     wlPrecisionField.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureMeta.PrecisionField.Label"));
-    props.setLook(wlPrecisionField);
+    PropsUi.setLook(wlPrecisionField);
     FormData fdlPrecisionField = new FormData();
     fdlPrecisionField.left = new FormAttachment(0, 0);
     fdlPrecisionField.right = new FormAttachment(middle, -margin);
@@ -497,7 +497,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     wlPrecisionField.setLayoutData(fdlPrecisionField);
 
     wPrecisionField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPrecisionField);
+    PropsUi.setLook(wPrecisionField);
     wPrecisionField.addModifyListener(lsMod);
     FormData fdPrecisionField = new FormData();
     fdPrecisionField.left = new FormAttachment(middle, 0);
@@ -510,14 +510,14 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlIncludeOrigin = new Label(shell, SWT.RIGHT);
     wlIncludeOrigin.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureDialog.includeOrigin.Label"));
-    props.setLook(wlIncludeOrigin);
+    PropsUi.setLook(wlIncludeOrigin);
     FormData fdlIncludeOrigin = new FormData();
     fdlIncludeOrigin.left = new FormAttachment(0, 0);
     fdlIncludeOrigin.top = new FormAttachment(wlPrecisionField, margin);
     fdlIncludeOrigin.right = new FormAttachment(middle, -margin);
     wlIncludeOrigin.setLayoutData(fdlIncludeOrigin);
     wIncludeOrigin = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeOrigin);
+    PropsUi.setLook(wIncludeOrigin);
     FormData fdIncludeOrigin = new FormData();
     fdIncludeOrigin.left = new FormAttachment(middle, 0);
     fdIncludeOrigin.top = new FormAttachment(wlIncludeOrigin, 0, SWT.CENTER);
@@ -545,7 +545,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     Label wlOriginField = new Label(shell, SWT.RIGHT);
     wlOriginField.setText(
         BaseMessages.getString(PKG, "TransformMetaStructureMeta.OriginField.Label"));
-    props.setLook(wlOriginField);
+    PropsUi.setLook(wlOriginField);
     FormData fdlOriginField = new FormData();
     fdlOriginField.left = new FormAttachment(0, 0);
     fdlOriginField.right = new FormAttachment(middle, -margin);
@@ -553,7 +553,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     wlOriginField.setLayoutData(fdlOriginField);
 
     wOriginField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wOriginField);
+    PropsUi.setLook(wOriginField);
     wOriginField.addModifyListener(lsMod);
     FormData fdOriginField = new FormData();
     fdOriginField.left = new FormAttachment(middle, 0);

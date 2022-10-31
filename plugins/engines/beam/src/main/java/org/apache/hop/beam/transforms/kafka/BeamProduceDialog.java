@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -33,7 +34,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
@@ -61,20 +67,20 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "BeamProduceDialog.DialogTitle"));
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = PropsUi.getMargin();
 
     // Buttons go at the very bottom
     //
@@ -90,7 +96,7 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -98,7 +104,7 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -108,14 +114,14 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
 
     Label wlBootstrapServers = new Label(shell, SWT.RIGHT);
     wlBootstrapServers.setText(BaseMessages.getString(PKG, "BeamProduceDialog.BootstrapServers"));
-    props.setLook(wlBootstrapServers);
+    PropsUi.setLook(wlBootstrapServers);
     FormData fdlBootstrapServers = new FormData();
     fdlBootstrapServers.left = new FormAttachment(0, 0);
     fdlBootstrapServers.top = new FormAttachment(lastControl, margin);
     fdlBootstrapServers.right = new FormAttachment(middle, -margin);
     wlBootstrapServers.setLayoutData(fdlBootstrapServers);
     wBootstrapServers = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBootstrapServers);
+    PropsUi.setLook(wBootstrapServers);
     FormData fdBootstrapServers = new FormData();
     fdBootstrapServers.left = new FormAttachment(middle, 0);
     fdBootstrapServers.top = new FormAttachment(wlBootstrapServers, 0, SWT.CENTER);
@@ -125,14 +131,14 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
 
     Label wlTopic = new Label(shell, SWT.RIGHT);
     wlTopic.setText(BaseMessages.getString(PKG, "BeamProduceDialog.Topic"));
-    props.setLook(wlTopic);
+    PropsUi.setLook(wlTopic);
     FormData fdlTopic = new FormData();
     fdlTopic.left = new FormAttachment(0, 0);
     fdlTopic.top = new FormAttachment(lastControl, margin);
     fdlTopic.right = new FormAttachment(middle, -margin);
     wlTopic.setLayoutData(fdlTopic);
     wTopic = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTopic);
+    PropsUi.setLook(wTopic);
     FormData fdTopic = new FormData();
     fdTopic.left = new FormAttachment(middle, 0);
     fdTopic.top = new FormAttachment(wlTopic, 0, SWT.CENTER);
@@ -142,14 +148,14 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
 
     Label wlKeyField = new Label(shell, SWT.RIGHT);
     wlKeyField.setText(BaseMessages.getString(PKG, "BeamProduceDialog.KeyField"));
-    props.setLook(wlKeyField);
+    PropsUi.setLook(wlKeyField);
     FormData fdlKeyField = new FormData();
     fdlKeyField.left = new FormAttachment(0, 0);
     fdlKeyField.top = new FormAttachment(lastControl, margin);
     fdlKeyField.right = new FormAttachment(middle, -margin);
     wlKeyField.setLayoutData(fdlKeyField);
     wKeyField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wKeyField);
+    PropsUi.setLook(wKeyField);
     FormData fdKeyField = new FormData();
     fdKeyField.left = new FormAttachment(middle, 0);
     fdKeyField.top = new FormAttachment(wlKeyField, 0, SWT.CENTER);
@@ -159,14 +165,14 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
 
     Label wlMessageField = new Label(shell, SWT.RIGHT);
     wlMessageField.setText(BaseMessages.getString(PKG, "BeamProduceDialog.MessageField"));
-    props.setLook(wlMessageField);
+    PropsUi.setLook(wlMessageField);
     FormData fdlMessageField = new FormData();
     fdlMessageField.left = new FormAttachment(0, 0);
     fdlMessageField.top = new FormAttachment(lastControl, margin);
     fdlMessageField.right = new FormAttachment(middle, -margin);
     wlMessageField.setLayoutData(fdlMessageField);
     wMessageField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMessageField);
+    PropsUi.setLook(wMessageField);
     FormData fdMessageField = new FormData();
     fdMessageField.left = new FormAttachment(middle, 0);
     fdMessageField.top = new FormAttachment(wlMessageField, 0, SWT.CENTER);
@@ -196,7 +202,7 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     wConfigOptions =
             new TableView(
                     variables, shell, SWT.NONE, columns, input.getConfigOptions().size(), null, props);
-    props.setLook(wConfigOptions);
+    PropsUi.setLook(wConfigOptions);
     FormData fdConfigOptions = new FormData();
     fdConfigOptions.left = new FormAttachment(0, 0);
     fdConfigOptions.right = new FormAttachment(100, 0);

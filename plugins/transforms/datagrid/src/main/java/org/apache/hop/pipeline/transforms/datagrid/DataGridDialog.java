@@ -29,10 +29,12 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
@@ -47,7 +49,14 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,15 +91,15 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "DataGridDialog.DialogTitle"));
@@ -101,7 +110,7 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
     // Filename line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -109,7 +118,7 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -129,17 +138,18 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
     setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null); // At the very bottom
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // //////////////////////
     // START OF META TAB ///
     // //////////////////////
 
     CTabItem wMetaTab = new CTabItem(wTabFolder, SWT.NONE);
+    wMetaTab.setFont(GuiResource.getInstance().getFontDefault());
     wMetaTab.setText(BaseMessages.getString(PKG, "DataGridDialog.Meta.Label"));
 
     Composite wMetaComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wMetaComp);
+    PropsUi.setLook(wMetaComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -219,10 +229,11 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
     // //////////////////////
 
     CTabItem wDataTab = new CTabItem(wTabFolder, SWT.NONE);
+    wDataTab.setFont(GuiResource.getInstance().getFontDefault());
     wDataTab.setText(BaseMessages.getString(PKG, "DataGridDialog.Data.Label"));
 
     wDataComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wDataComp);
+    PropsUi.setLook(wDataComp);
 
     FormLayout filesettingLayout = new FormLayout();
     filesettingLayout.marginWidth = 3;

@@ -30,14 +30,25 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -75,18 +86,18 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
 
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "CassandraInputDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons go at the bottom
     //
@@ -105,7 +116,7 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "CassandraInputDialog.transformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -114,7 +125,7 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     FormData fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
@@ -131,7 +142,7 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
             SWT.NONE,
             BaseMessages.getString(PKG, "CassandraInputDialog.Connection.Label"),
             BaseMessages.getString(PKG, "CassandraInputDialog.Connection.Tooltip"));
-    props.setLook(wConnection);
+    PropsUi.setLook(wConnection);
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
     fdConnection.right = new FormAttachment(100, 0);
@@ -146,7 +157,7 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
 
     // max length line
     Label wlMaxLength = new Label(shell, SWT.RIGHT);
-    props.setLook(wlMaxLength);
+    PropsUi.setLook(wlMaxLength);
     wlMaxLength.setText(
         BaseMessages.getString(PKG, "CassandraInputDialog.TransportMaxLength.Label"));
     FormData fdlMaxLength = new FormData();
@@ -156,7 +167,7 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
     wlMaxLength.setLayoutData(fdlMaxLength);
 
     wMaxLength = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMaxLength);
+    PropsUi.setLook(wMaxLength);
     wMaxLength.addModifyListener(
         e -> wMaxLength.setToolTipText(variables.resolve(wMaxLength.getText())));
     FormData fdMaxLength = new FormData();
@@ -167,7 +178,7 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
 
     // execute for each row
     Label wlExecuteForEach = new Label(shell, SWT.RIGHT);
-    props.setLook(wlExecuteForEach);
+    PropsUi.setLook(wlExecuteForEach);
     wlExecuteForEach.setText(
         BaseMessages.getString(PKG, "CassandraInputDialog.ExecuteForEachRow.Label"));
     FormData fdlExecuteForEach = new FormData();
@@ -177,7 +188,7 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
     wlExecuteForEach.setLayoutData(fdlExecuteForEach);
 
     wExecuteForEachRow = new Button(shell, SWT.CHECK);
-    props.setLook(wExecuteForEachRow);
+    PropsUi.setLook(wExecuteForEachRow);
     FormData fdExecuteForEach = new FormData();
     fdExecuteForEach.right = new FormAttachment(100, 0);
     fdExecuteForEach.left = new FormAttachment(middle, 0);
@@ -186,7 +197,7 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
 
     // position label
     wlPosition = new Label(shell, SWT.NONE);
-    props.setLook(wlPosition);
+    PropsUi.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);
     fdlPosition.right = new FormAttachment(middle, -margin);
@@ -195,7 +206,7 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
 
     Button wbShowSchema = new Button(shell, SWT.PUSH);
     wbShowSchema.setText(BaseMessages.getString(PKG, "CassandraInputDialog.Schema.Button"));
-    props.setLook(wbShowSchema);
+    PropsUi.setLook(wbShowSchema);
     FormData fdbShowSchema = new FormData();
     fdbShowSchema.right = new FormAttachment(100, 0);
     fdbShowSchema.bottom = new FormAttachment(wOk, -margin);
@@ -204,7 +215,7 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
 
     // cql stuff
     Label wlCql = new Label(shell, SWT.NONE);
-    props.setLook(wlCql);
+    PropsUi.setLook(wlCql);
     wlCql.setText(BaseMessages.getString(PKG, "CassandraInputDialog.CQL.Label"));
     FormData fdlCql = new FormData();
     fdlCql.left = new FormAttachment(0, 0);
@@ -215,7 +226,7 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
     wCql =
         new StyledTextComp(
             variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wCql, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wCql, Props.WIDGET_STYLE_FIXED);
     FormData fdCql = new FormData();
     fdCql.left = new FormAttachment(0, 0);
     fdCql.top = new FormAttachment(wlCql, margin);

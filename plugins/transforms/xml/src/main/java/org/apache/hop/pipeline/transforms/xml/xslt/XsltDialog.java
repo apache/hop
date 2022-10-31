@@ -28,8 +28,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.TableView;
@@ -47,10 +49,19 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class XsltDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = XsltMeta.class; // For Translator
@@ -94,21 +105,21 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "XsltDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     //
@@ -123,7 +134,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     // Filename line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "XsltDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -131,7 +142,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -140,17 +151,18 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "XsltDialog.GeneralTab.TabTitle"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -160,7 +172,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     // FieldName to evaluate
     Label wlField = new Label(wGeneralComp, SWT.RIGHT);
     wlField.setText(BaseMessages.getString(PKG, "XsltDialog.Field.Label"));
-    props.setLook(wlField);
+    PropsUi.setLook(wlField);
     FormData fdlField = new FormData();
     fdlField.left = new FormAttachment(0, 0);
     fdlField.top = new FormAttachment(wTransformName, 2 * margin);
@@ -168,7 +180,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wlField.setLayoutData(fdlField);
     wField = new CCombo(wGeneralComp, SWT.BORDER | SWT.READ_ONLY);
     wField.setEditable(true);
-    props.setLook(wField);
+    PropsUi.setLook(wField);
     wField.addModifyListener(lsMod);
     FormData fdField = new FormData();
     fdField.left = new FormAttachment(middle, margin);
@@ -198,7 +210,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     //
 
     Group wOutputField = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wOutputField);
+    PropsUi.setLook(wOutputField);
     wOutputField.setText(BaseMessages.getString(PKG, "XsltDialog.ResultField.Group.Label"));
 
     FormLayout outputfieldgroupLayout = new FormLayout();
@@ -213,7 +225,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
             wOutputField,
             BaseMessages.getString(PKG, "XsltDialog.ResultField.Label"),
             BaseMessages.getString(PKG, "XsltDialog.ResultField.Tooltip"));
-    props.setLook(wResultField);
+    PropsUi.setLook(wResultField);
     wResultField.addModifyListener(lsMod);
     FormData fdResultField = new FormData();
     fdResultField.left = new FormAttachment(0, 0);
@@ -237,7 +249,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     //
 
     Group wXSLFileGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wXSLFileGroup);
+    PropsUi.setLook(wXSLFileGroup);
     wXSLFileGroup.setText(BaseMessages.getString(PKG, "XsltDialog.XSL.Group.Label"));
 
     FormLayout xslFileGroupLayout = new FormLayout();
@@ -248,14 +260,14 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     // Is XSL source defined in a Field?
     Label wlXSLFileField = new Label(wXSLFileGroup, SWT.RIGHT);
     wlXSLFileField.setText(BaseMessages.getString(PKG, "XsltDialog.XSLFilenameFileField.Label"));
-    props.setLook(wlXSLFileField);
+    PropsUi.setLook(wlXSLFileField);
     FormData fdlXSLFileField = new FormData();
     fdlXSLFileField.left = new FormAttachment(0, 0);
     fdlXSLFileField.top = new FormAttachment(0, 0);
     fdlXSLFileField.right = new FormAttachment(middle, -margin);
     wlXSLFileField.setLayoutData(fdlXSLFileField);
     wXSLFileField = new Button(wXSLFileGroup, SWT.CHECK);
-    props.setLook(wXSLFileField);
+    PropsUi.setLook(wXSLFileField);
     wXSLFileField.setToolTipText(
         BaseMessages.getString(PKG, "XsltDialog.XSLFilenameFileField.Tooltip"));
     FormData fdXSLFileField = new FormData();
@@ -276,7 +288,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     // If XSL File name defined in a Field
     wlXSLField = new Label(wXSLFileGroup, SWT.RIGHT);
     wlXSLField.setText(BaseMessages.getString(PKG, "XsltDialog.XSLFilenameField.Label"));
-    props.setLook(wlXSLField);
+    PropsUi.setLook(wlXSLField);
     FormData fdlXSLField = new FormData();
     fdlXSLField.left = new FormAttachment(0, 0);
     fdlXSLField.top = new FormAttachment(wXSLFileField, margin);
@@ -284,7 +296,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wlXSLField.setLayoutData(fdlXSLField);
     wXSLField = new CCombo(wXSLFileGroup, SWT.BORDER | SWT.READ_ONLY);
     wXSLField.setEditable(true);
-    props.setLook(wXSLField);
+    PropsUi.setLook(wXSLField);
     wXSLField.addModifyListener(lsMod);
     FormData fdXSLField = new FormData();
     fdXSLField.left = new FormAttachment(middle, margin);
@@ -311,14 +323,14 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     // Is XSL field defined in a Field is a file?
     wlXSLFieldIsAFile = new Label(wXSLFileGroup, SWT.RIGHT);
     wlXSLFieldIsAFile.setText(BaseMessages.getString(PKG, "XsltDialog.XSLFieldIsAFile.Label"));
-    props.setLook(wlXSLFieldIsAFile);
+    PropsUi.setLook(wlXSLFieldIsAFile);
     FormData fdlXSLFieldIsAFile = new FormData();
     fdlXSLFieldIsAFile.left = new FormAttachment(0, 0);
     fdlXSLFieldIsAFile.top = new FormAttachment(wXSLField, margin);
     fdlXSLFieldIsAFile.right = new FormAttachment(middle, -margin);
     wlXSLFieldIsAFile.setLayoutData(fdlXSLFieldIsAFile);
     wXSLFieldIsAFile = new Button(wXSLFileGroup, SWT.CHECK);
-    props.setLook(wXSLFieldIsAFile);
+    PropsUi.setLook(wXSLFieldIsAFile);
     wXSLFieldIsAFile.setToolTipText(
         BaseMessages.getString(PKG, "XsltDialog.XSLFieldIsAFile.Tooltip"));
     FormData fdXSLFieldIsAFile = new FormData();
@@ -336,7 +348,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     // XSL Filename
     wlFilename = new Label(wXSLFileGroup, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "XsltDialog.XSLFilename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlXSLFilename = new FormData();
     fdlXSLFilename.left = new FormAttachment(0, 0);
     fdlXSLFilename.top = new FormAttachment(wXSLFieldIsAFile, 2 * margin);
@@ -344,7 +356,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wlFilename.setLayoutData(fdlXSLFilename);
 
     wbbFilename = new Button(wXSLFileGroup, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "XsltDialog.FilenameBrowse.Button"));
     wbbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -354,7 +366,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wbbFilename.setLayoutData(fdbXSLFilename);
 
     wXSLFilename = new TextVar(variables, wXSLFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXSLFilename);
+    PropsUi.setLook(wXSLFilename);
     wXSLFilename.addModifyListener(lsMod);
     FormData fdXSLFilename = new FormData();
     fdXSLFilename.left = new FormAttachment(middle, margin);
@@ -365,7 +377,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     // XSLTFactory
     Label wlXSLTFactory = new Label(wXSLFileGroup, SWT.RIGHT);
     wlXSLTFactory.setText(BaseMessages.getString(PKG, "XsltDialog.XSLTFactory.Label"));
-    props.setLook(wlXSLTFactory);
+    PropsUi.setLook(wlXSLTFactory);
     FormData fdlXSLTFactory = new FormData();
     fdlXSLTFactory.left = new FormAttachment(0, 0);
     fdlXSLTFactory.top = new FormAttachment(wXSLFilename, 2 * margin);
@@ -373,7 +385,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wlXSLTFactory.setLayoutData(fdlXSLTFactory);
     wXSLTFactory = new CCombo(wXSLFileGroup, SWT.BORDER | SWT.READ_ONLY);
     wXSLTFactory.setEditable(true);
-    props.setLook(wXSLTFactory);
+    PropsUi.setLook(wXSLTFactory);
     wXSLTFactory.addModifyListener(lsMod);
     FormData fdXSLTFactory = new FormData();
     fdXSLTFactory.left = new FormAttachment(middle, margin);
@@ -402,7 +414,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
 
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -411,20 +423,21 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     // Additional tab...
     //
     CTabItem wAdditionalTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdditionalTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdditionalTab.setText(BaseMessages.getString(PKG, "XsltDialog.AdvancedTab.Title"));
 
     FormLayout addLayout = new FormLayout();
-    addLayout.marginWidth = Const.FORM_MARGIN;
-    addLayout.marginHeight = Const.FORM_MARGIN;
+    addLayout.marginWidth = PropsUi.getFormMargin();
+    addLayout.marginHeight = PropsUi.getFormMargin();
 
     Composite wAdditionalComp = new Composite(wTabFolder, SWT.NONE);
     wAdditionalComp.setLayout(addLayout);
-    props.setLook(wAdditionalComp);
+    PropsUi.setLook(wAdditionalComp);
 
     // Output properties
     Label wlOutputProperties = new Label(wAdditionalComp, SWT.NONE);
     wlOutputProperties.setText(BaseMessages.getString(PKG, "XsltDialog.OutputProperties.Label"));
-    props.setLook(wlOutputProperties);
+    PropsUi.setLook(wlOutputProperties);
     FormData fdlOutputProperties = new FormData();
     fdlOutputProperties.left = new FormAttachment(0, 0);
     fdlOutputProperties.top = new FormAttachment(0, margin);
@@ -467,7 +480,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
 
     Label wlFields = new Label(wAdditionalComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "XsltDialog.Parameters.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wOutputProperties, 2 * margin);
@@ -560,33 +573,18 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
         e -> wXSLFilename.setToolTipText(variables.resolve(wXSLFilename.getText())));
 
     // Listen to the Browse... button
-    wbbFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.xsl;*.XSL", "*.xslt;.*XSLT", "*"});
-            if (wXSLFilename.getText() != null) {
-              String fname = variables.resolve(wXSLFilename.getText());
-              dialog.setFileName(fname);
-            }
-
-            dialog.setFilterNames(
-                new String[] {
-                  BaseMessages.getString(PKG, "XsltDialog.FileType"),
-                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
-                });
-
-            if (dialog.open() != null) {
-              String str =
-                  dialog.getFilterPath()
-                      + System.getProperty("file.separator")
-                      + dialog.getFileName();
-              wXSLFilename.setText(str);
-            }
-          }
-        });
+    wbbFilename.addListener(
+        SWT.Selection,
+        e -> BaseDialog.presentFileDialog(
+            shell,
+            wXSLFilename,
+            variables,
+            new String[] {"*.xsl;*.XSL", "*.xslt;.*XSLT", "*"},
+            new String[] {
+              BaseMessages.getString(PKG, "XsltDialog.FileType"),
+              BaseMessages.getString(PKG, "System.FileType.AllFiles")
+            },
+            true));
 
     wTabFolder.setSelection(0);
 

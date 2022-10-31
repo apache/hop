@@ -88,6 +88,7 @@ public class HopGuiWorkflowGridDelegate {
     }
 
     workflowGridTab = new CTabItem(workflowGraph.extraViewTabFolder, SWT.NONE);
+    workflowGridTab.setFont(GuiResource.getInstance().getFontDefault());
     workflowGridTab.setImage(GuiResource.getInstance().getImageShowGrid());
     workflowGridTab.setText(BaseMessages.getString(PKG, "HopGui.WorkflowGraph.GridTab.Name"));
 

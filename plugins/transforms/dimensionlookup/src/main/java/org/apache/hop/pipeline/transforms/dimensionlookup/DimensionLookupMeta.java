@@ -17,11 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
-import org.apache.hop.core.*;
+import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.IProvidesModelerMeta;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.*;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -45,7 +53,11 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * WANTED: Interconnected Dynamic Lookups --> http://www.datawarehouse.com/article/?articleId=5354

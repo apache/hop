@@ -51,7 +51,12 @@ import org.eclipse.swt.widgets.ToolItem;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
 @GuiPlugin(description = "Pipeline Graph Grid Delegate")
@@ -121,6 +126,7 @@ public class HopGuiPipelineGridDelegate {
     }
 
     pipelineGridTab = new CTabItem(pipelineGraph.extraViewTabFolder, SWT.NONE);
+    pipelineGridTab.setFont(GuiResource.getInstance().getFontDefault());
     pipelineGridTab.setImage(GuiResource.getInstance().getImageShowGrid());
     pipelineGridTab.setText(BaseMessages.getString(PKG, "HopGui.PipelineGraph.GridTab.Name"));
 
@@ -282,7 +288,7 @@ public class HopGuiPipelineGridDelegate {
     fdToolBar.top = new FormAttachment(0, 0);
     fdToolBar.right = new FormAttachment(100, 0);
     toolbar.setLayoutData(fdToolBar);
-    hopGui.getProps().setLook(toolbar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolbar, Props.WIDGET_STYLE_TOOLBAR);
 
     toolbarWidget = new GuiToolbarWidgets();
     toolbarWidget.registerGuiPluginObject(this);

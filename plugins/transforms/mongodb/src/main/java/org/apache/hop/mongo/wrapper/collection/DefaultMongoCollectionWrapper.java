@@ -16,7 +16,13 @@
  */
 package org.apache.hop.mongo.wrapper.collection;
 
-import com.mongodb.*;
+import com.mongodb.AggregationOptions;
+import com.mongodb.BasicDBObject;
+import com.mongodb.Cursor;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.WriteResult;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.wrapper.cursor.DefaultCursorWrapper;
 import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;

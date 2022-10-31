@@ -31,9 +31,11 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -49,10 +51,17 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class DBProcDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DBProcMeta.class; // For Translator
@@ -87,7 +96,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -103,8 +112,8 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "DBProcDialog.Shell.Title"));
@@ -132,7 +141,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "DBProcDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -140,7 +149,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -205,7 +214,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
 
     Label wlProcName = new Label(shell, SWT.RIGHT);
     wlProcName.setText(BaseMessages.getString(PKG, "DBProcDialog.ProcedureName.Label"));
-    props.setLook(wlProcName);
+    PropsUi.setLook(wlProcName);
     FormData fdlProcName = new FormData();
     fdlProcName.left = new FormAttachment(0, 0);
     fdlProcName.right = new FormAttachment(middle, -margin);
@@ -213,7 +222,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     wlProcName.setLayoutData(fdlProcName);
 
     wProcName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wProcName);
+    PropsUi.setLook(wProcName);
     wProcName.addModifyListener(lsMod);
     FormData fdProcName = new FormData();
     fdProcName.left = new FormAttachment(middle, 0);
@@ -225,7 +234,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     Label wlAutoCommit = new Label(shell, SWT.RIGHT);
     wlAutoCommit.setText(BaseMessages.getString(PKG, "DBProcDialog.AutoCommit.Label"));
     wlAutoCommit.setToolTipText(BaseMessages.getString(PKG, "DBProcDialog.AutoCommit.Tooltip"));
-    props.setLook(wlAutoCommit);
+    PropsUi.setLook(wlAutoCommit);
     FormData fdlAutoCommit = new FormData();
     fdlAutoCommit.left = new FormAttachment(0, 0);
     fdlAutoCommit.top = new FormAttachment(wProcName, margin);
@@ -233,7 +242,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     wlAutoCommit.setLayoutData(fdlAutoCommit);
     wAutoCommit = new Button(shell, SWT.CHECK);
     wAutoCommit.setToolTipText(BaseMessages.getString(PKG, "DBProcDialog.AutoCommit.Tooltip"));
-    props.setLook(wAutoCommit);
+    PropsUi.setLook(wAutoCommit);
     FormData fdAutoCommit = new FormData();
     fdAutoCommit.left = new FormAttachment(middle, 0);
     fdAutoCommit.top = new FormAttachment(wlAutoCommit, 0, SWT.CENTER);
@@ -244,14 +253,14 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     // Result line...
     Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "DBProcDialog.Result.Label"));
-    props.setLook(wlResult);
+    PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
     fdlResult.top = new FormAttachment(wAutoCommit, margin * 2);
     wlResult.setLayoutData(fdlResult);
     wResult = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wResult);
+    PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
@@ -262,14 +271,14 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     // ResultType line
     Label wlResultType = new Label(shell, SWT.RIGHT);
     wlResultType.setText(BaseMessages.getString(PKG, "DBProcDialog.ResultType.Label"));
-    props.setLook(wlResultType);
+    PropsUi.setLook(wlResultType);
     FormData fdlResultType = new FormData();
     fdlResultType.left = new FormAttachment(0, 0);
     fdlResultType.right = new FormAttachment(middle, -margin);
     fdlResultType.top = new FormAttachment(wResult, margin);
     wlResultType.setLayoutData(fdlResultType);
     wResultType = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wResultType);
+    PropsUi.setLook(wResultType);
     String[] types = ValueMetaFactory.getValueMetaNames();
     for (String type : types) {
       wResultType.add(type);
@@ -284,7 +293,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "DBProcDialog.Parameters.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wResultType, margin);

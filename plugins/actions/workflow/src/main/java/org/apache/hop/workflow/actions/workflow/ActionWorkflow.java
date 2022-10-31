@@ -18,7 +18,12 @@
 package org.apache.hop.workflow.actions.workflow;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.*;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -50,7 +55,11 @@ import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Recursive definition of a Workflow. This transform means that an entire Workflow has to be

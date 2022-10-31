@@ -41,7 +41,6 @@ import org.monetdb.mcl.io.BufferedMCLWriter;
 import org.monetdb.mcl.net.MapiSocket;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 

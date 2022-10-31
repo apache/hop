@@ -18,7 +18,6 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder.operation;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.neo4j.transforms.cypherbuilder.Parameter;
 import org.apache.hop.neo4j.transforms.cypherbuilder.Property;

@@ -20,7 +20,13 @@ package org.apache.hop.mongo;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadPreference;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A container for all properties associated with a MongoClientWrapper, including properties for

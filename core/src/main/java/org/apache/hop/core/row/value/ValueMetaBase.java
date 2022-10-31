@@ -19,11 +19,14 @@
 package org.apache.hop.core.row.value;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeId;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.exception.*;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopEofException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IValueMeta;
@@ -36,15 +39,37 @@ import org.apache.hop.i18n.BaseMessages;
 import org.json.simple.JSONObject;
 import org.w3c.dom.Node;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
-import java.sql.*;
-import java.text.*;
+import java.sql.Blob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.text.Collator;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.*;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.TimeZone;
 
 public class ValueMetaBase implements IValueMeta {
 

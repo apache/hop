@@ -27,7 +27,6 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.plugins.IPlugin;

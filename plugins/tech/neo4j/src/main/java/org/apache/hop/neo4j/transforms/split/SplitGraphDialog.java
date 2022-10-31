@@ -25,9 +25,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -37,7 +37,12 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class SplitGraphDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -68,7 +73,7 @@ public class SplitGraphDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout shellLayout = new FormLayout();
@@ -90,7 +95,7 @@ public class SplitGraphDialog extends BaseTransformDialog implements ITransformD
     wScrolledComposite.setLayoutData(fdSComposite);
 
     Composite wComposite = new Composite(wScrolledComposite, SWT.NONE);
-    props.setLook(wComposite);
+    PropsUi.setLook(wComposite);
     FormData fdComposite = new FormData();
     fdComposite.left = new FormAttachment(0, 0);
     fdComposite.right = new FormAttachment(100, 0);
@@ -99,25 +104,25 @@ public class SplitGraphDialog extends BaseTransformDialog implements ITransformD
     wComposite.setLayoutData(fdComposite);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
     wComposite.setLayout(formLayout);
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Transform name line
     //
     Label wlTransformName = new Label(wComposite, SWT.RIGHT);
     wlTransformName.setText("Transform name");
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -137,7 +142,7 @@ public class SplitGraphDialog extends BaseTransformDialog implements ITransformD
     //
     Label wlGraphField = new Label(wComposite, SWT.RIGHT);
     wlGraphField.setText("Graph field ");
-    props.setLook(wlGraphField);
+    PropsUi.setLook(wlGraphField);
     FormData fdlGraphField = new FormData();
     fdlGraphField.left = new FormAttachment(0, 0);
     fdlGraphField.right = new FormAttachment(middle, -margin);
@@ -145,7 +150,7 @@ public class SplitGraphDialog extends BaseTransformDialog implements ITransformD
     wlGraphField.setLayoutData(fdlGraphField);
     wGraphField = new CCombo(wComposite, SWT.CHECK | SWT.BORDER);
     wGraphField.setItems(fieldnames);
-    props.setLook(wGraphField);
+    PropsUi.setLook(wGraphField);
     FormData fdGraphField = new FormData();
     fdGraphField.left = new FormAttachment(middle, 0);
     fdGraphField.right = new FormAttachment(100, 0);
@@ -157,14 +162,14 @@ public class SplitGraphDialog extends BaseTransformDialog implements ITransformD
     //
     Label wlTypeField = new Label(wComposite, SWT.RIGHT);
     wlTypeField.setText("Type output field (Node/Relationship) ");
-    props.setLook(wlTypeField);
+    PropsUi.setLook(wlTypeField);
     FormData fdlTypeField = new FormData();
     fdlTypeField.left = new FormAttachment(0, 0);
     fdlTypeField.right = new FormAttachment(middle, -margin);
     fdlTypeField.top = new FormAttachment(lastControl, 2 * margin);
     wlTypeField.setLayoutData(fdlTypeField);
     wTypeField = new TextVar(variables, wComposite, SWT.CHECK | SWT.BORDER);
-    props.setLook(wTypeField);
+    PropsUi.setLook(wTypeField);
     FormData fdTypeField = new FormData();
     fdTypeField.left = new FormAttachment(middle, 0);
     fdTypeField.right = new FormAttachment(100, 0);
@@ -176,14 +181,14 @@ public class SplitGraphDialog extends BaseTransformDialog implements ITransformD
     //
     Label wlIdField = new Label(wComposite, SWT.RIGHT);
     wlIdField.setText("ID output field ");
-    props.setLook(wlIdField);
+    PropsUi.setLook(wlIdField);
     FormData fdlIdField = new FormData();
     fdlIdField.left = new FormAttachment(0, 0);
     fdlIdField.right = new FormAttachment(middle, -margin);
     fdlIdField.top = new FormAttachment(lastControl, 2 * margin);
     wlIdField.setLayoutData(fdlIdField);
     wIdField = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wIdField);
+    PropsUi.setLook(wIdField);
     wIdField.addModifyListener(lsMod);
     FormData fdIdField = new FormData();
     fdIdField.left = new FormAttachment(middle, 0);
@@ -196,14 +201,14 @@ public class SplitGraphDialog extends BaseTransformDialog implements ITransformD
     //
     Label wlPropertySetField = new Label(wComposite, SWT.RIGHT);
     wlPropertySetField.setText("Property set output field ");
-    props.setLook(wlPropertySetField);
+    PropsUi.setLook(wlPropertySetField);
     FormData fdlPropertySetField = new FormData();
     fdlPropertySetField.left = new FormAttachment(0, 0);
     fdlPropertySetField.right = new FormAttachment(middle, -margin);
     fdlPropertySetField.top = new FormAttachment(lastControl, 2 * margin);
     wlPropertySetField.setLayoutData(fdlPropertySetField);
     wPropertySetField = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPropertySetField);
+    PropsUi.setLook(wPropertySetField);
     wPropertySetField.addModifyListener(lsMod);
     FormData fdPropertySetField = new FormData();
     fdPropertySetField.left = new FormAttachment(middle, 0);

@@ -20,7 +20,11 @@ package org.apache.hop.ui.core.gui;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.plugin.*;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiElements;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.ITypeFilename;
+import org.apache.hop.core.gui.plugin.ITypeMetadata;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
@@ -34,10 +38,16 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Text;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -142,7 +152,7 @@ public class GuiCompositeWidgets {
           && elementType != GuiElementType.BUTTON
           && elementType != GuiElementType.LINK) {
         label = new Label(parent, SWT.RIGHT | SWT.SINGLE);
-        props.setLook(label);
+        PropsUi.setLook(label);
         label.setText(Const.NVL(guiElements.getLabel(), ""));
         if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
           label.setToolTipText(guiElements.getToolTip());
@@ -154,7 +164,7 @@ public class GuiCompositeWidgets {
         } else {
           fdLabel.top = new FormAttachment(lastControl, props.getMargin() + extraVerticalMargin);
         }
-        fdLabel.right = new FormAttachment(Const.MIDDLE_PCT, 0);
+        fdLabel.right = new FormAttachment(props.getMiddlePct(), 0);
         label.setLayoutData(fdLabel);
         labelsMap.put(guiElements.getId(), label);
       }
@@ -226,13 +236,13 @@ public class GuiCompositeWidgets {
     }
     if (guiElements.isVariablesEnabled()) {
       ComboVar comboVar = new ComboVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-      props.setLook(comboVar);
+      PropsUi.setLook(comboVar);
       widgetsMap.put(guiElements.getId(), comboVar);
       comboVar.setItems(comboItems);
       control = comboVar;
     } else {
       Combo combo = new Combo(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-      props.setLook(combo);
+      PropsUi.setLook(combo);
       combo.setItems(comboItems);
       widgetsMap.put(guiElements.getId(), combo);
       control = combo;
@@ -285,7 +295,7 @@ public class GuiCompositeWidgets {
       Control lastControl) {
 
     Button button = new Button(parent, SWT.PUSH);
-    props.setLook(button);
+    PropsUi.setLook(button);
     button.setText(Const.NVL(guiElements.getLabel(), ""));
     if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
       button.setToolTipText(guiElements.getToolTip());
@@ -331,7 +341,7 @@ public class GuiCompositeWidgets {
       Control lastControl) {
 
     Link link = new Link(parent, SWT.NONE);
-    props.setLook(link);
+    PropsUi.setLook(link);
     link.setText(Const.NVL(guiElements.getLabel(), ""));
     if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
       link.setToolTipText(guiElements.getToolTip());
@@ -408,7 +418,7 @@ public class GuiCompositeWidgets {
       Composite parent, GuiElements guiElements, PropsUi props, Control lastControl, Label label) {
     Control control;
     Button button = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(button);
+    PropsUi.setLook(button);
     widgetsMap.put(guiElements.getId(), button);
     addModifyListener(button, guiElements.getId());
     control = button;
@@ -443,7 +453,7 @@ public class GuiCompositeWidgets {
 
     if (guiElements.isVariablesEnabled()) {
       TextVar textVar = new TextVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-      props.setLook(textVar);
+      PropsUi.setLook(textVar);
       if (guiElements.isPassword()) {
         textVar.setEchoChar('*');
       }
@@ -453,7 +463,7 @@ public class GuiCompositeWidgets {
       text = textVar.getTextWidget();
     } else {
       text = new Text(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-      props.setLook(text);
+      PropsUi.setLook(text);
       if (guiElements.isPassword()) {
         text.setEchoChar('*');
       }
@@ -575,7 +585,7 @@ public class GuiCompositeWidgets {
       PropsUi props, Control lastControl, Label label, Control control, Control rightControl) {
     FormData fdControl = new FormData();
     if (label != null) {
-      fdControl.left = new FormAttachment(Const.MIDDLE_PCT, props.getMargin());
+      fdControl.left = new FormAttachment(props.getMiddlePct(), props.getMargin());
       if (rightControl == null) {
         fdControl.right = new FormAttachment(100, 0);
       } else {
@@ -583,7 +593,7 @@ public class GuiCompositeWidgets {
       }
       fdControl.top = new FormAttachment(label, 0, SWT.CENTER);
     } else {
-      fdControl.left = new FormAttachment(Const.MIDDLE_PCT, props.getMargin());
+      fdControl.left = new FormAttachment(props.getMiddlePct(), props.getMargin());
       if (rightControl == null) {
         fdControl.right = new FormAttachment(100, 0);
       } else {

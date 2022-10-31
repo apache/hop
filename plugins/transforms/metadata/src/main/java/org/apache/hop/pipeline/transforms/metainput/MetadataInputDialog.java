@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -41,7 +42,12 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class MetadataInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = MetadataInputMeta.class; // For Translator
@@ -70,15 +76,15 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "MetadataInput.Transform.Name"));
@@ -93,7 +99,7 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
     // TransformName line
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -101,7 +107,7 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     FormData fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -114,14 +120,14 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
     //
     Label wlProvider = new Label(shell, SWT.RIGHT);
     wlProvider.setText(BaseMessages.getString(PKG, "MetadataInputDialog.ProviderField.Label"));
-    props.setLook(wlProvider);
+    PropsUi.setLook(wlProvider);
     FormData fdlProvider = new FormData();
     fdlProvider.left = new FormAttachment(0, 0);
     fdlProvider.right = new FormAttachment(middle, -margin);
     fdlProvider.top = new FormAttachment(lastControl, margin);
     wlProvider.setLayoutData(fdlProvider);
     wProvider = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wProvider);
+    PropsUi.setLook(wProvider);
     wProvider.addModifyListener(lsMod);
     FormData fdProvider = new FormData();
     fdProvider.left = new FormAttachment(middle, 0);
@@ -134,14 +140,14 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
     //
     Label wlTypeKey = new Label(shell, SWT.RIGHT);
     wlTypeKey.setText(BaseMessages.getString(PKG, "MetadataInputDialog.TypeKeyField.Label"));
-    props.setLook(wlTypeKey);
+    PropsUi.setLook(wlTypeKey);
     FormData fdlTypeKey = new FormData();
     fdlTypeKey.left = new FormAttachment(0, 0);
     fdlTypeKey.right = new FormAttachment(middle, -margin);
     fdlTypeKey.top = new FormAttachment(lastControl, margin);
     wlTypeKey.setLayoutData(fdlTypeKey);
     wTypeKey = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTypeKey);
+    PropsUi.setLook(wTypeKey);
     wTypeKey.addModifyListener(lsMod);
     FormData fdTypeKey = new FormData();
     fdTypeKey.left = new FormAttachment(middle, 0);
@@ -154,14 +160,14 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
     //
     Label wlTypeName = new Label(shell, SWT.RIGHT);
     wlTypeName.setText(BaseMessages.getString(PKG, "MetadataInputDialog.TypeNameField.Label"));
-    props.setLook(wlTypeName);
+    PropsUi.setLook(wlTypeName);
     FormData fdlTypeName = new FormData();
     fdlTypeName.left = new FormAttachment(0, 0);
     fdlTypeName.right = new FormAttachment(middle, -margin);
     fdlTypeName.top = new FormAttachment(lastControl, margin);
     wlTypeName.setLayoutData(fdlTypeName);
     wTypeName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTypeName);
+    PropsUi.setLook(wTypeName);
     wTypeName.addModifyListener(lsMod);
     FormData fdTypeName = new FormData();
     fdTypeName.left = new FormAttachment(middle, 0);
@@ -175,14 +181,14 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
     Label wlTypeDescription = new Label(shell, SWT.RIGHT);
     wlTypeDescription.setText(
         BaseMessages.getString(PKG, "MetadataInputDialog.TypeDescriptionField.Label"));
-    props.setLook(wlTypeDescription);
+    PropsUi.setLook(wlTypeDescription);
     FormData fdlTypeDescription = new FormData();
     fdlTypeDescription.left = new FormAttachment(0, 0);
     fdlTypeDescription.right = new FormAttachment(middle, -margin);
     fdlTypeDescription.top = new FormAttachment(lastControl, margin);
     wlTypeDescription.setLayoutData(fdlTypeDescription);
     wTypeDescription = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTypeDescription);
+    PropsUi.setLook(wTypeDescription);
     wTypeDescription.addModifyListener(lsMod);
     FormData fdTypeDescription = new FormData();
     fdTypeDescription.left = new FormAttachment(middle, 0);
@@ -195,14 +201,14 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
     //
     Label wlTypeClass = new Label(shell, SWT.RIGHT);
     wlTypeClass.setText(BaseMessages.getString(PKG, "MetadataInputDialog.TypeClassField.Label"));
-    props.setLook(wlTypeClass);
+    PropsUi.setLook(wlTypeClass);
     FormData fdlTypeClass = new FormData();
     fdlTypeClass.left = new FormAttachment(0, 0);
     fdlTypeClass.right = new FormAttachment(middle, -margin);
     fdlTypeClass.top = new FormAttachment(lastControl, margin);
     wlTypeClass.setLayoutData(fdlTypeClass);
     wTypeClass = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTypeClass);
+    PropsUi.setLook(wTypeClass);
     wTypeClass.addModifyListener(lsMod);
     FormData fdTypeClass = new FormData();
     fdTypeClass.left = new FormAttachment(middle, 0);
@@ -215,14 +221,14 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
     //
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "MetadataInputDialog.NameField.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(lastControl, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -235,14 +241,14 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
     //
     Label wlJson = new Label(shell, SWT.RIGHT);
     wlJson.setText(BaseMessages.getString(PKG, "MetadataInputDialog.JsonField.Label"));
-    props.setLook(wlJson);
+    PropsUi.setLook(wlJson);
     FormData fdlJson = new FormData();
     fdlJson.left = new FormAttachment(0, 0);
     fdlJson.right = new FormAttachment(middle, -margin);
     fdlJson.top = new FormAttachment(lastControl, margin);
     wlJson.setLayoutData(fdlJson);
     wJson = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wJson);
+    PropsUi.setLook(wJson);
     wJson.addModifyListener(lsMod);
     FormData fdJson = new FormData();
     fdJson.left = new FormAttachment(middle, 0);
@@ -267,7 +273,7 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
 
     Label wlTypeFilters = new Label(shell, SWT.NONE);
     wlTypeFilters.setText(BaseMessages.getString(PKG, "MetadataInputDialog.TypeFilters.Label"));
-    props.setLook(wlTypeFilters);
+    PropsUi.setLook(wlTypeFilters);
     FormData fdlTypeFilters = new FormData();
     fdlTypeFilters.left = new FormAttachment(0, 0);
     fdlTypeFilters.top = new FormAttachment(lastControl, margin);

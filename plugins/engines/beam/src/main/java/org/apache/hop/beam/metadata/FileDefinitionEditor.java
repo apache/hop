@@ -29,7 +29,11 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
@@ -55,14 +59,14 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
 
     PropsUi props = PropsUi.getInstance();
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN + 2;
+    int margin = PropsUi.getMargin() + 2;
 
     Control lastControl;
 
     // The name
     //
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "FileDefinitionDialog.Name.Label"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin);
@@ -70,7 +74,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, 0); // To the right of the label
@@ -81,7 +85,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
     // The description
     //
     Label wlDescription = new Label(parent, SWT.RIGHT);
-    props.setLook(wlDescription);
+    PropsUi.setLook(wlDescription);
     wlDescription.setText(BaseMessages.getString(PKG, "FileDefinitionDialog.Description.Label"));
     FormData fdlDescription = new FormData();
     fdlDescription.top = new FormAttachment(lastControl, margin);
@@ -89,7 +93,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
     fdlDescription.right = new FormAttachment(middle, -margin);
     wlDescription.setLayoutData(fdlDescription);
     wDescription = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDescription);
+    PropsUi.setLook(wDescription);
     FormData fdDescription = new FormData();
     fdDescription.top = new FormAttachment(wlDescription, 0, SWT.CENTER);
     fdDescription.left = new FormAttachment(middle, 0); // To the right of the label
@@ -100,7 +104,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
     // Separator
     //
     Label wlSeparator = new Label(parent, SWT.RIGHT);
-    props.setLook(wlSeparator);
+    PropsUi.setLook(wlSeparator);
     wlSeparator.setText(BaseMessages.getString(PKG, "FileDefinitionDialog.Separator.Label"));
     FormData fdlSeparator = new FormData();
     fdlSeparator.top = new FormAttachment(lastControl, margin);
@@ -108,7 +112,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
     fdlSeparator.right = new FormAttachment(middle, -margin);
     wlSeparator.setLayoutData(fdlSeparator);
     wSeparator = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSeparator);
+    PropsUi.setLook(wSeparator);
     FormData fdSeparator = new FormData();
     fdSeparator.top = new FormAttachment(wlSeparator, 0, SWT.CENTER);
     fdSeparator.left = new FormAttachment(middle, 0); // To the right of the label
@@ -119,7 +123,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
     // Enclosure
     //
     Label wlEnclosure = new Label(parent, SWT.RIGHT);
-    props.setLook(wlEnclosure);
+    PropsUi.setLook(wlEnclosure);
     wlEnclosure.setText(BaseMessages.getString(PKG, "FileDefinitionDialog.Enclosure.Label"));
     FormData fdlEnclosure = new FormData();
     fdlEnclosure.top = new FormAttachment(lastControl, margin);
@@ -127,7 +131,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
     fdlEnclosure.right = new FormAttachment(middle, -margin);
     wlEnclosure.setLayoutData(fdlEnclosure);
     wEnclosure = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wEnclosure);
+    PropsUi.setLook(wEnclosure);
     FormData fdEnclosure = new FormData();
     fdEnclosure.top = new FormAttachment(wlEnclosure, 0, SWT.CENTER);
     fdEnclosure.left = new FormAttachment(middle, 0); // To the right of the label
@@ -138,7 +142,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
     // Fields...
     //
     Label wlFields = new Label(parent, SWT.LEFT);
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     wlFields.setText(BaseMessages.getString(PKG, "FileDefinitionDialog.Fields.Label"));
     FormData fdlFields = new FormData();
     fdlFields.top = new FormAttachment(lastControl, margin);
@@ -183,7 +187,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
             this.getMetadata().getFieldDefinitions().size(),
             null,
             props);
-    props.setLook(wFields);
+    PropsUi.setLook(wFields);
     FormData fdFields = new FormData();
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.left = new FormAttachment(0, 0); // First one in the left top corner

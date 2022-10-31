@@ -23,8 +23,10 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.xml.xslt.XsltMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -44,7 +46,13 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the XSLT job entry settings. */
 public class XsltDialog extends ActionDialog implements IActionDialog {
@@ -107,21 +115,21 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionXSLT.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons go at the very bottom
     //
@@ -136,14 +144,14 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionXSLT.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -152,17 +160,18 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "ActionXSLT.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -174,7 +183,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // START OF LOGGING GROUP///
     // /
     Group wFiles = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wFiles);
+    PropsUi.setLook(wFiles);
     wFiles.setText(BaseMessages.getString(PKG, "ActionXSLT.Files.Group.Label"));
 
     FormLayout groupLayout = new FormLayout();
@@ -185,14 +194,14 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     Label wlPrevious = new Label(wFiles, SWT.RIGHT);
     wlPrevious.setText(BaseMessages.getString(PKG, "ActionXSLT.Previous.Label"));
-    props.setLook(wlPrevious);
+    PropsUi.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
     fdlPrevious.top = new FormAttachment(wName, margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wFiles, SWT.CHECK);
-    props.setLook(wPrevious);
+    PropsUi.setLook(wPrevious);
     wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionXSLT.Previous.ToolTip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
@@ -211,21 +220,21 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // Filename 1 line
     wlxmlFilename = new Label(wFiles, SWT.RIGHT);
     wlxmlFilename.setText(BaseMessages.getString(PKG, "ActionXSLT.xmlFilename.Label"));
-    props.setLook(wlxmlFilename);
+    PropsUi.setLook(wlxmlFilename);
     FormData fdlxmlFilename = new FormData();
     fdlxmlFilename.left = new FormAttachment(0, 0);
     fdlxmlFilename.top = new FormAttachment(wlPrevious, 2 * margin);
     fdlxmlFilename.right = new FormAttachment(middle, -margin);
     wlxmlFilename.setLayoutData(fdlxmlFilename);
     wbxmlFilename = new Button(wFiles, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbxmlFilename);
+    PropsUi.setLook(wbxmlFilename);
     wbxmlFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbxmlFilename = new FormData();
     fdbxmlFilename.right = new FormAttachment(100, 0);
     fdbxmlFilename.top = new FormAttachment(wlPrevious, 2 * margin);
     wbxmlFilename.setLayoutData(fdbxmlFilename);
     wxmlFilename = new TextVar(variables, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wxmlFilename);
+    PropsUi.setLook(wxmlFilename);
     wxmlFilename.addModifyListener(lsMod);
     FormData fdxmlFilename = new FormData();
     fdxmlFilename.left = new FormAttachment(middle, 0);
@@ -236,42 +245,35 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // Whenever something changes, set the tooltip to the expanded version:
     wxmlFilename.addModifyListener(
         e -> wxmlFilename.setToolTipText(variables.resolve(wxmlFilename.getText())));
-
-    wbxmlFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.xml;*.XML", "*"});
-            if (wxmlFilename.getText() != null) {
-              dialog.setFileName(variables.resolve(wxmlFilename.getText()));
-            }
-            dialog.setFilterNames(FILETYPES_XML);
-            if (dialog.open() != null) {
-              wxmlFilename.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
+    wbxmlFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wxmlFilename,
+                variables,
+                new String[] {"*.xml;*.XML", "*"},
+                FILETYPES_XML,
+                true));
 
     // Filename 2 line
     wlxslFilename = new Label(wFiles, SWT.RIGHT);
     wlxslFilename.setText(BaseMessages.getString(PKG, "ActionXSLT.xslFilename.Label"));
-    props.setLook(wlxslFilename);
+    PropsUi.setLook(wlxslFilename);
     FormData fdlxslFilename = new FormData();
     fdlxslFilename.left = new FormAttachment(0, 0);
     fdlxslFilename.top = new FormAttachment(wxmlFilename, margin);
     fdlxslFilename.right = new FormAttachment(middle, -margin);
     wlxslFilename.setLayoutData(fdlxslFilename);
     wbxslFilename = new Button(wFiles, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbxslFilename);
+    PropsUi.setLook(wbxslFilename);
     wbxslFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbxslFilename = new FormData();
     fdbxslFilename.right = new FormAttachment(100, 0);
     fdbxslFilename.top = new FormAttachment(wxmlFilename, 0);
     wbxslFilename.setLayoutData(fdbxslFilename);
     wxslFilename = new TextVar(variables, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wxslFilename);
+    PropsUi.setLook(wxslFilename);
     wxslFilename.addModifyListener(lsMod);
     FormData fdxslFilename = new FormData();
     fdxslFilename.left = new FormAttachment(middle, 0);
@@ -282,57 +284,32 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // Whenever something changes, set the tooltip to the expanded version:
     wxslFilename.addModifyListener(
         e -> wxslFilename.setToolTipText(variables.resolve(wxslFilename.getText())));
-
-    wbxslFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.xsl;*.XSL", "*.xslt;*.XSLT", "*"});
-            if (wxslFilename.getText() != null) {
-              dialog.setFileName(variables.resolve(wxslFilename.getText()));
-            }
-            dialog.setFilterNames(FILETYPES_XSL);
-            if (dialog.open() != null) {
-              wxslFilename.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
+    wbxslFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wxslFilename,
+                variables,
+                new String[] {"*.xsl;*.XSL", "*.xslt;*.XSLT", "*"},
+                FILETYPES_XSL,
+                true));
 
     // Browse Source folders button ...
     Button wbOutputDirectory = new Button(wFiles, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbOutputDirectory);
+    PropsUi.setLook(wbOutputDirectory);
     wbOutputDirectory.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbOutputDirectory = new FormData();
     fdbOutputDirectory.right = new FormAttachment(100, 0);
     fdbOutputDirectory.top = new FormAttachment(wXSLTFactory, margin);
     wbOutputDirectory.setLayoutData(fdbOutputDirectory);
-
-    wbOutputDirectory.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            DirectoryDialog ddialog = new DirectoryDialog(shell, SWT.OPEN);
-            if (wOutputFilename.getText() != null) {
-              ddialog.setFilterPath(variables.resolve(wOutputFilename.getText()));
-            }
-
-            // Calling open() will open and run the dialog.
-            // It will return the selected directory, or
-            // null if user cancels
-            String dir = ddialog.open();
-            if (dir != null) {
-              // Set the text box to the new selection
-              wOutputFilename.setText(dir);
-            }
-          }
-        });
+    wbOutputDirectory.addListener(
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wOutputFilename, variables));
 
     // OutputFilename
     wlOutputFilename = new Label(wFiles, SWT.RIGHT);
     wlOutputFilename.setText(BaseMessages.getString(PKG, "ActionXSLT.OutputFilename.Label"));
-    props.setLook(wlOutputFilename);
+    PropsUi.setLook(wlOutputFilename);
     FormData fdlOutputFilename = new FormData();
     fdlOutputFilename.left = new FormAttachment(0, 0);
     fdlOutputFilename.top = new FormAttachment(wxslFilename, margin);
@@ -341,34 +318,17 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     // Browse folders button ...
     wbMovetoDirectory = new Button(wFiles, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbMovetoDirectory);
+    PropsUi.setLook(wbMovetoDirectory);
     wbMovetoDirectory.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbMovetoDirectory = new FormData();
     fdbMovetoDirectory.right = new FormAttachment(100, 0);
     fdbMovetoDirectory.top = new FormAttachment(wxslFilename, margin);
     wbMovetoDirectory.setLayoutData(fdbMovetoDirectory);
-    wbMovetoDirectory.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            DirectoryDialog ddialog = new DirectoryDialog(shell, SWT.OPEN);
-            if (wOutputFilename.getText() != null) {
-              ddialog.setFilterPath(variables.resolve(wOutputFilename.getText()));
-            }
-
-            // Calling open() will open and run the dialog.
-            // It will return the selected directory, or
-            // null if user cancels
-            String dir = ddialog.open();
-            if (dir != null) {
-              // Set the text box to the new selection
-              wOutputFilename.setText(dir);
-            }
-          }
-        });
+    wbMovetoDirectory.addListener(
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wOutputFilename, variables));
 
     wOutputFilename = new TextVar(variables, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wOutputFilename);
+    PropsUi.setLook(wOutputFilename);
     wOutputFilename.addModifyListener(lsMod);
     FormData fdOutputFilename = new FormData();
     fdOutputFilename.left = new FormAttachment(middle, 0);
@@ -394,7 +354,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // START OF FILE RESULT GROUP///
     // /
     Group wFileResult = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wFileResult);
+    PropsUi.setLook(wFileResult);
     wFileResult.setText(BaseMessages.getString(PKG, "ActionXSLT.FileResult.Group.Settings.Label"));
 
     FormLayout groupFilesResultLayout = new FormLayout();
@@ -406,7 +366,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // XSLTFactory
     Label wlXSLTFactory = new Label(wFileResult, SWT.RIGHT);
     wlXSLTFactory.setText(BaseMessages.getString(PKG, "ActionXSLT.XSLTFactory.Label"));
-    props.setLook(wlXSLTFactory);
+    PropsUi.setLook(wlXSLTFactory);
     FormData fdlXSLTFactory = new FormData();
     fdlXSLTFactory.left = new FormAttachment(0, 0);
     fdlXSLTFactory.top = new FormAttachment(wFiles, margin);
@@ -414,7 +374,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wlXSLTFactory.setLayoutData(fdlXSLTFactory);
     wXSLTFactory = new CCombo(wFileResult, SWT.BORDER | SWT.READ_ONLY);
     wXSLTFactory.setEditable(true);
-    props.setLook(wXSLTFactory);
+    PropsUi.setLook(wXSLTFactory);
     wXSLTFactory.addModifyListener(lsMod);
     FormData fdXSLTFactory = new FormData();
     fdXSLTFactory.left = new FormAttachment(middle, 0);
@@ -427,7 +387,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // IF File Exists
     Label wlIfFileExists = new Label(wFileResult, SWT.RIGHT);
     wlIfFileExists.setText(BaseMessages.getString(PKG, "ActionXSLT.IfFileExists.Label"));
-    props.setLook(wlIfFileExists);
+    PropsUi.setLook(wlIfFileExists);
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
     fdlIfFileExists.right = new FormAttachment(middle, -margin);
@@ -439,7 +399,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wIfFileExists.add(BaseMessages.getString(PKG, "ActionXSLT.Fail_IfFileExists.Label"));
     wIfFileExists.select(1); // +1: starts at -1
 
-    props.setLook(wIfFileExists);
+    PropsUi.setLook(wIfFileExists);
     FormData fdIfFileExists = new FormData();
     fdIfFileExists.left = new FormAttachment(middle, 0);
     fdIfFileExists.top = new FormAttachment(wXSLTFactory, margin);
@@ -455,14 +415,14 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // Add file to result
     Label wlAddFileToResult = new Label(wFileResult, SWT.RIGHT);
     wlAddFileToResult.setText(BaseMessages.getString(PKG, "ActionXSLT.AddFileToResult.Label"));
-    props.setLook(wlAddFileToResult);
+    PropsUi.setLook(wlAddFileToResult);
     FormData fdlAddFileToResult = new FormData();
     fdlAddFileToResult.left = new FormAttachment(0, 0);
     fdlAddFileToResult.top = new FormAttachment(wIfFileExists, margin);
     fdlAddFileToResult.right = new FormAttachment(middle, -margin);
     wlAddFileToResult.setLayoutData(fdlAddFileToResult);
     wAddFileToResult = new Button(wFileResult, SWT.CHECK);
-    props.setLook(wAddFileToResult);
+    PropsUi.setLook(wAddFileToResult);
     wAddFileToResult.setToolTipText(
         BaseMessages.getString(PKG, "ActionXSLT.AddFileToResult.Tooltip"));
     FormData fdAddFileToResult = new FormData();
@@ -496,7 +456,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -507,10 +467,11 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdvancedTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdvancedTab.setText(BaseMessages.getString(PKG, "ActionXSLT.Tab.Advanced.Label"));
 
     Composite wAdvancedComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wAdvancedComp);
+    PropsUi.setLook(wAdvancedComp);
 
     FormLayout advancedLayout = new FormLayout();
     advancedLayout.marginWidth = 3;
@@ -520,7 +481,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // Output properties
     Label wlOutputProperties = new Label(wAdvancedComp, SWT.NONE);
     wlOutputProperties.setText(BaseMessages.getString(PKG, "XsltDialog.OutputProperties.Label"));
-    props.setLook(wlOutputProperties);
+    PropsUi.setLook(wlOutputProperties);
     FormData fdlOutputProperties = new FormData();
     fdlOutputProperties.left = new FormAttachment(0, 0);
     fdlOutputProperties.top = new FormAttachment(0, margin);
@@ -563,7 +524,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     Label wlFields = new Label(wAdvancedComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "XsltDialog.Parameters.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wOutputProperties, 2 * margin);
@@ -610,7 +571,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     wAdvancedComp.layout();
     wAdvancedTab.setControl(wAdvancedComp);
-    props.setLook(wAdvancedComp);
+    PropsUi.setLook(wAdvancedComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Advanced TAB

@@ -21,7 +21,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -39,7 +41,12 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Set variables action settings. */
 public class ActionSetVariablesDialog extends ActionDialog implements IActionDialog {
@@ -74,21 +81,21 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionSetVariables.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons go at the very bottom
     //
@@ -103,14 +110,14 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionSetVariables.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -119,7 +126,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     wName.setLayoutData(fdName);
 
     Group gFilename = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(gFilename);
+    PropsUi.setLook(gFilename);
     gFilename.setText(BaseMessages.getString(PKG, "ActionSetVariables.FilenameGroup.Label"));
 
     FormLayout groupFilenameLayout = new FormLayout();
@@ -130,14 +137,14 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     // Name line
     Label wlFilename = new Label(gFilename, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "ActionSetVariables.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.right = new FormAttachment(middle, -margin);
     fdlFilename.top = new FormAttachment(0, margin);
     wlFilename.setLayoutData(fdlFilename);
     wFilename = new TextVar(variables, gFilename, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -149,14 +156,14 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     Label wlFileVariableType = new Label(gFilename, SWT.RIGHT);
     wlFileVariableType.setText(
         BaseMessages.getString(PKG, "ActionSetVariables.FileVariableType.Label"));
-    props.setLook(wlFileVariableType);
+    PropsUi.setLook(wlFileVariableType);
     FormData fdlFileVariableType = new FormData();
     fdlFileVariableType.left = new FormAttachment(0, 0);
     fdlFileVariableType.right = new FormAttachment(middle, -margin);
     fdlFileVariableType.top = new FormAttachment(wFilename, margin);
     wlFileVariableType.setLayoutData(fdlFileVariableType);
     wFileVariableType = new CCombo(gFilename, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wFileVariableType);
+    PropsUi.setLook(wFileVariableType);
     wFileVariableType.addModifyListener(lsMod);
     FormData fdFileVariableType = new FormData();
     fdFileVariableType.left = new FormAttachment(middle, 0);
@@ -175,7 +182,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     // START OF SETTINGS GROUP
     //
     Group gSettings = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(gSettings);
+    PropsUi.setLook(gSettings);
     gSettings.setText(BaseMessages.getString(PKG, "ActionSetVariables.Settings.Label"));
 
     FormLayout groupLayout = new FormLayout();
@@ -185,14 +192,14 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
 
     Label wlVarSubs = new Label(gSettings, SWT.RIGHT);
     wlVarSubs.setText(BaseMessages.getString(PKG, "ActionSetVariables.VarsReplace.Label"));
-    props.setLook(wlVarSubs);
+    PropsUi.setLook(wlVarSubs);
     FormData fdlVarSubs = new FormData();
     fdlVarSubs.left = new FormAttachment(0, 0);
     fdlVarSubs.top = new FormAttachment(wName, margin);
     fdlVarSubs.right = new FormAttachment(middle, -margin);
     wlVarSubs.setLayoutData(fdlVarSubs);
     wVarSubs = new Button(gSettings, SWT.CHECK);
-    props.setLook(wVarSubs);
+    PropsUi.setLook(wVarSubs);
     wVarSubs.setToolTipText(BaseMessages.getString(PKG, "ActionSetVariables.VarsReplace.Tooltip"));
     FormData fdVarSubs = new FormData();
     fdVarSubs.left = new FormAttachment(middle, 0);
@@ -219,7 +226,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionSetVariables.Variables.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(gSettings, margin);

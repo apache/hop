@@ -31,6 +31,7 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -43,7 +44,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -117,20 +124,20 @@ public class KettleImportDialog extends Dialog {
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
-    int margin = Const.MARGIN + 2;
-    int middle = Const.MIDDLE_PCT;
+    int margin = PropsUi.getMargin() + 2;
+    int middle = props.getMiddlePct();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "KettleImportDialog.Shell.Name"));
 
     // Select folder to import from
     Label wlImportFrom = new Label(shell, SWT.RIGHT);
-    props.setLook(wlImportFrom);
+    PropsUi.setLook(wlImportFrom);
     wlImportFrom.setText(BaseMessages.getString(PKG, "KettleImportDialog.Label.ImportFrom"));
     FormData fdlImportFrom = new FormData();
     fdlImportFrom.left = new FormAttachment(0, 0);
@@ -139,7 +146,7 @@ public class KettleImportDialog extends Dialog {
     wlImportFrom.setLayoutData(fdlImportFrom);
 
     Button wbImportFrom = new Button(shell, SWT.PUSH);
-    props.setLook(wbImportFrom);
+    PropsUi.setLook(wbImportFrom);
     wbImportFrom.setText(BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse"));
     FormData fdbImportFrom = new FormData();
     fdbImportFrom.right = new FormAttachment(100, 0);
@@ -148,7 +155,7 @@ public class KettleImportDialog extends Dialog {
     wbImportFrom.addListener(SWT.Selection, this::browseHomeFolder);
 
     wImportFrom = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wImportFrom);
+    PropsUi.setLook(wImportFrom);
     FormData fdImportFrom = new FormData();
     fdImportFrom.left = new FormAttachment(middle, margin);
     fdImportFrom.right = new FormAttachment(wbImportFrom, -margin);
@@ -158,7 +165,7 @@ public class KettleImportDialog extends Dialog {
 
     // Import in existing project?
     Label wlImportInExisting = new Label(shell, SWT.RIGHT);
-    props.setLook(wlImportInExisting);
+    PropsUi.setLook(wlImportInExisting);
     wlImportInExisting.setText(
         BaseMessages.getString(PKG, "KettleImportDialog.Label.ImportInExistingProject"));
     FormData fdlImportInExisting = new FormData();
@@ -169,7 +176,7 @@ public class KettleImportDialog extends Dialog {
 
     wImportInExisting = new Button(shell, SWT.CHECK);
     wImportInExisting.setSelection(true);
-    props.setLook(wImportInExisting);
+    PropsUi.setLook(wImportInExisting);
     FormData fdcbImportInExisting = new FormData();
     fdcbImportInExisting.left = new FormAttachment(middle, margin);
     fdcbImportInExisting.right = new FormAttachment(100, 0);
@@ -181,7 +188,7 @@ public class KettleImportDialog extends Dialog {
 
     // Import in project
     Label wlImportProject = new Label(shell, SWT.RIGHT);
-    props.setLook(wlImportProject);
+    PropsUi.setLook(wlImportProject);
     wlImportProject.setText(
         BaseMessages.getString(PKG, "KettleImportDialog.Label.ImportInProject"));
     FormData fdlImportProject = new FormData();
@@ -192,7 +199,7 @@ public class KettleImportDialog extends Dialog {
 
     wImportProject = new Combo(shell, SWT.READ_ONLY);
     wImportProject.setItems(projectNames.toArray(new String[projectNames.size()]));
-    props.setLook(wImportProject);
+    PropsUi.setLook(wImportProject);
     FormData fdImportProject = new FormData();
     fdImportProject.left = new FormAttachment(middle, margin);
     fdImportProject.right = new FormAttachment(100, 0);
@@ -202,7 +209,7 @@ public class KettleImportDialog extends Dialog {
 
     // Import in path
     Label wlImportPath = new Label(shell, SWT.RIGHT);
-    props.setLook(wlImportPath);
+    PropsUi.setLook(wlImportPath);
     wlImportPath.setText(BaseMessages.getString(PKG, "KettleImportDialog.Label.ImportToFolder"));
     FormData fdlImportPath = new FormData();
     fdlImportPath.left = new FormAttachment(0, 0);
@@ -211,7 +218,7 @@ public class KettleImportDialog extends Dialog {
     wlImportPath.setLayoutData(fdlImportPath);
 
     wbImportPath = new Button(shell, SWT.PUSH);
-    props.setLook(wbImportPath);
+    PropsUi.setLook(wbImportPath);
     wbImportPath.setText(BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse"));
     FormData fdbImportPath = new FormData();
     fdbImportPath.right = new FormAttachment(100, 0);
@@ -221,7 +228,7 @@ public class KettleImportDialog extends Dialog {
     wbImportPath.addListener(SWT.Selection, this::browseTargetFolder);
 
     wImportPath = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wImportPath);
+    PropsUi.setLook(wImportPath);
     FormData fdImportPath = new FormData();
     fdImportPath.left = new FormAttachment(middle, margin);
     fdImportPath.right = new FormAttachment(wbImportPath, -margin);
@@ -232,7 +239,7 @@ public class KettleImportDialog extends Dialog {
 
     // Kettle properties path
     Label wlKettleProps = new Label(shell, SWT.RIGHT);
-    props.setLook(wlKettleProps);
+    PropsUi.setLook(wlKettleProps);
     wlKettleProps.setText(
         BaseMessages.getString(PKG, "KettleImportDialog.Label.PathToKettleProperties"));
     FormData fdlKettleProps = new FormData();
@@ -242,7 +249,7 @@ public class KettleImportDialog extends Dialog {
     wlKettleProps.setLayoutData(fdlKettleProps);
 
     Button wbKettleProps = new Button(shell, SWT.PUSH);
-    props.setLook(wbKettleProps);
+    PropsUi.setLook(wbKettleProps);
     wbKettleProps.setText(BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse"));
     FormData fdbKettleProps = new FormData();
     fdbKettleProps.right = new FormAttachment(100, 0);
@@ -251,7 +258,7 @@ public class KettleImportDialog extends Dialog {
     wbKettleProps.addListener(SWT.Selection, this::browseKettlePropsFile);
 
     wKettleProps = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wKettleProps);
+    PropsUi.setLook(wKettleProps);
     FormData fdKettleProps = new FormData();
     fdKettleProps.left = new FormAttachment(middle, margin);
     fdKettleProps.right = new FormAttachment(wbKettleProps, -margin);
@@ -261,7 +268,7 @@ public class KettleImportDialog extends Dialog {
 
     // Shared.xml path
     Label wlShared = new Label(shell, SWT.RIGHT);
-    props.setLook(wlShared);
+    PropsUi.setLook(wlShared);
     wlShared.setText(BaseMessages.getString(PKG, "KettleImportDialog.Label.PathToSharedXml"));
     FormData fdlShared = new FormData();
     fdlShared.left = new FormAttachment(0, 0);
@@ -278,7 +285,7 @@ public class KettleImportDialog extends Dialog {
     wbShared.addListener(SWT.Selection, this::browseXmlFile);
 
     wShared = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wShared);
+    PropsUi.setLook(wShared);
     FormData fdShared = new FormData();
     fdShared.left = new FormAttachment(middle, margin);
     fdShared.right = new FormAttachment(wbShared, -margin);
@@ -288,7 +295,7 @@ public class KettleImportDialog extends Dialog {
 
     // Jdbc properties path
     Label wlJdbcProps = new Label(shell, SWT.RIGHT);
-    props.setLook(wlJdbcProps);
+    PropsUi.setLook(wlJdbcProps);
     wlJdbcProps.setText(
         BaseMessages.getString(PKG, "KettleImportDialog.Label.PathToJDBCProperties"));
     FormData fdlJdbcProps = new FormData();
@@ -298,7 +305,7 @@ public class KettleImportDialog extends Dialog {
     wlJdbcProps.setLayoutData(fdlJdbcProps);
 
     Button wbJdbcProps = new Button(shell, SWT.PUSH);
-    props.setLook(wbJdbcProps);
+    PropsUi.setLook(wbJdbcProps);
     wbJdbcProps.setText(BaseMessages.getString(PKG, "KettleImportDialog.Button.Browse"));
     FormData fdbJdbcProps = new FormData();
     fdbJdbcProps.right = new FormAttachment(100, 0);
@@ -307,7 +314,7 @@ public class KettleImportDialog extends Dialog {
     wbJdbcProps.addListener(SWT.Selection, this::browseJdbcPropsFile);
 
     wJdbcProps = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wJdbcProps);
+    PropsUi.setLook(wJdbcProps);
     FormData fdJdbcProps = new FormData();
     fdJdbcProps.left = new FormAttachment(middle, margin);
     fdJdbcProps.right = new FormAttachment(wbJdbcProps, -margin);
@@ -317,7 +324,7 @@ public class KettleImportDialog extends Dialog {
 
     // Skip existing target files?
     Label wlSkipExisting = new Label(shell, SWT.RIGHT);
-    props.setLook(wlSkipExisting);
+    PropsUi.setLook(wlSkipExisting);
     wlSkipExisting.setText(
         BaseMessages.getString(PKG, "KettleImportDialog.Label.SkipExistingTargetFiles"));
     FormData fdlSkipExisting = new FormData();
@@ -327,7 +334,7 @@ public class KettleImportDialog extends Dialog {
     wlSkipExisting.setLayoutData(fdlSkipExisting);
 
     wSkipExisting = new Button(shell, SWT.CHECK);
-    props.setLook(wSkipExisting);
+    PropsUi.setLook(wSkipExisting);
     FormData fdSkipExisting = new FormData();
     fdSkipExisting.left = new FormAttachment(middle, margin);
     fdSkipExisting.right = new FormAttachment(100, 0);
@@ -338,7 +345,7 @@ public class KettleImportDialog extends Dialog {
 
     // Skip existing target files?
     Label wlSkipHidden = new Label(shell, SWT.RIGHT);
-    props.setLook(wlSkipHidden);
+    PropsUi.setLook(wlSkipHidden);
     wlSkipHidden.setText(BaseMessages.getString(PKG, "KettleImportDialog.Label.SkipHiddenFiles"));
     FormData fdlSkipHidden = new FormData();
     fdlSkipHidden.left = new FormAttachment(0, 0);
@@ -347,7 +354,7 @@ public class KettleImportDialog extends Dialog {
     wlSkipHidden.setLayoutData(fdlSkipHidden);
 
     wSkipHidden = new Button(shell, SWT.CHECK);
-    props.setLook(wSkipHidden);
+    PropsUi.setLook(wSkipHidden);
     FormData fdSkipHidden = new FormData();
     fdSkipHidden.left = new FormAttachment(middle, margin);
     fdSkipHidden.right = new FormAttachment(100, 0);
@@ -358,7 +365,7 @@ public class KettleImportDialog extends Dialog {
 
     // Skip existing target files?
     Label wlSkipFolders = new Label(shell, SWT.RIGHT);
-    props.setLook(wlSkipFolders);
+    PropsUi.setLook(wlSkipFolders);
     wlSkipFolders.setText(BaseMessages.getString(PKG, "KettleImportDialog.Label.SkipFolders"));
     FormData fdlSkipFolders = new FormData();
     fdlSkipFolders.left = new FormAttachment(0, 0);
@@ -367,7 +374,7 @@ public class KettleImportDialog extends Dialog {
     wlSkipFolders.setLayoutData(fdlSkipFolders);
 
     wSkipFolders = new Button(shell, SWT.CHECK);
-    props.setLook(wSkipFolders);
+    PropsUi.setLook(wSkipFolders);
     FormData fdSkipFolders = new FormData();
     fdSkipFolders.left = new FormAttachment(middle, margin);
     fdSkipFolders.right = new FormAttachment(100, 0);
@@ -379,7 +386,7 @@ public class KettleImportDialog extends Dialog {
 
     // Target environment configuration file
     Label wlTargetConfigFile = new Label(shell, SWT.RIGHT);
-    props.setLook(wlTargetConfigFile);
+    PropsUi.setLook(wlTargetConfigFile);
     wlTargetConfigFile.setText(
         BaseMessages.getString(PKG, "KettleImportDialog.Label.TargetConfigFile"));
     FormData fdlTargetConfigFile = new FormData();
@@ -389,7 +396,7 @@ public class KettleImportDialog extends Dialog {
     wlTargetConfigFile.setLayoutData(fdlTargetConfigFile);
 
     wTargetConfigFile = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wTargetConfigFile);
+    PropsUi.setLook(wTargetConfigFile);
     FormData fdTargetConfigFile = new FormData();
     fdTargetConfigFile.left = new FormAttachment(middle, margin);
     fdTargetConfigFile.right = new FormAttachment(100, 0);
@@ -402,7 +409,7 @@ public class KettleImportDialog extends Dialog {
     Label wlPipelineRunConfiguration = new Label(shell, SWT.RIGHT);
     wlPipelineRunConfiguration.setText(
         BaseMessages.getString(PKG, "KettleImportDialog.Pipeline.RunConfiguration.Label"));
-    props.setLook(wlPipelineRunConfiguration);
+    PropsUi.setLook(wlPipelineRunConfiguration);
     FormData fdlPipelineRunConfiguration = new FormData();
     fdlPipelineRunConfiguration.left = new FormAttachment(0, 0);
     fdlPipelineRunConfiguration.right = new FormAttachment(middle, 0);
@@ -410,13 +417,13 @@ public class KettleImportDialog extends Dialog {
     wlPipelineRunConfiguration.setLayoutData(fdlPipelineRunConfiguration);
 
     wPipelineRunConfiguration = new Combo(shell, SWT.READ_ONLY);
-    props.setLook(wlPipelineRunConfiguration);
+    PropsUi.setLook(wlPipelineRunConfiguration);
     FormData fdPipelineRunConfiguration = new FormData();
     fdPipelineRunConfiguration.left = new FormAttachment(middle, margin);
     fdPipelineRunConfiguration.top = new FormAttachment(wlPipelineRunConfiguration, 0, SWT.CENTER);
     fdPipelineRunConfiguration.right = new FormAttachment(100, 0);
     wPipelineRunConfiguration.setLayoutData(fdPipelineRunConfiguration);
-    props.setLook(wPipelineRunConfiguration);
+    PropsUi.setLook(wPipelineRunConfiguration);
 
     HopGui hopGui = HopGui.getInstance();
     IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
@@ -445,7 +452,7 @@ public class KettleImportDialog extends Dialog {
     Label wlWorkflowRunConfiguration = new Label(shell, SWT.RIGHT);
     wlWorkflowRunConfiguration.setText(
         BaseMessages.getString(PKG, "KettleImportDialog.Workflow.RunConfiguration.Label"));
-    props.setLook(wlWorkflowRunConfiguration);
+    PropsUi.setLook(wlWorkflowRunConfiguration);
     FormData fdlWorkflowRunConfiguration = new FormData();
     fdlWorkflowRunConfiguration.left = new FormAttachment(0, 0);
     fdlWorkflowRunConfiguration.right = new FormAttachment(middle, 0);
@@ -453,13 +460,13 @@ public class KettleImportDialog extends Dialog {
     wlWorkflowRunConfiguration.setLayoutData(fdlWorkflowRunConfiguration);
 
     wWorkflowRunConfiguration = new Combo(shell, SWT.READ_ONLY);
-    props.setLook(wlWorkflowRunConfiguration);
+    PropsUi.setLook(wlWorkflowRunConfiguration);
     FormData fdWorkflowRunConfiguration = new FormData();
     fdWorkflowRunConfiguration.left = new FormAttachment(middle, margin);
     fdWorkflowRunConfiguration.top = new FormAttachment(wlWorkflowRunConfiguration, 0, SWT.CENTER);
     fdWorkflowRunConfiguration.right = new FormAttachment(100, 0);
     wWorkflowRunConfiguration.setLayoutData(fdWorkflowRunConfiguration);
-    props.setLook(wWorkflowRunConfiguration);
+    PropsUi.setLook(wWorkflowRunConfiguration);
 
     try {
       List<String> runConfigurations =

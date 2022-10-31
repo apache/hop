@@ -33,7 +33,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 /** Displays the meta-data on the Values in a row as well as the Transform origin of the Value. */
 public class TransformFieldsDialog extends Dialog {
@@ -74,11 +79,11 @@ public class TransformFieldsDialog extends Dialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setImage(GuiResource.getInstance().getImagePipeline());
@@ -110,14 +115,14 @@ public class TransformFieldsDialog extends Dialog {
     // Filename line
     Label wlTransformName = new Label(shell, SWT.NONE);
     wlTransformName.setText(originText);
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     Text wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.READ_ONLY);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     FormData fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(wlTransformName, margin);
     fdTransformName.top = new FormAttachment(0, margin);
@@ -126,7 +131,7 @@ public class TransformFieldsDialog extends Dialog {
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "TransformFieldsDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wlTransformName, margin);

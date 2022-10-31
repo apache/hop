@@ -24,6 +24,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -50,20 +51,16 @@ import org.apache.hop.execution.ExecutionStateComponentMetrics;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadata;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.pipeline.engine.IEngineMetric;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
-import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -73,7 +70,6 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
-import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -183,7 +179,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
-    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     // Below the toolbar we have a horizontal splitter: Canvas above and Execution tabs below
     //
@@ -213,7 +209,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     // The execution information tabs at the bottom
     //
     tabFolder = new CTabFolder(sash, SWT.MULTI);
-    hopGui.getProps().setLook(tabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
 
     addInfoTab();
     addLogTab();
@@ -228,6 +224,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
   private void addInfoTab() {
     infoTab = new CTabItem(tabFolder, SWT.NONE);
+    infoTab.setFont(GuiResource.getInstance().getFontDefault());
     infoTab.setImage(GuiResource.getInstance().getImageInfo());
     infoTab.setText(BaseMessages.getString(PKG, "PipelineExecutionViewer.InfoTab.Title"));
 
@@ -249,7 +246,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
             true,
             null,
             props);
-    props.setLook(infoView);
+    PropsUi.setLook(infoView);
 
     infoTab.setControl(infoView);
   }
@@ -318,6 +315,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
   private void addDataTab() {
     dataTab = new CTabItem(tabFolder, SWT.NONE);
+    dataTab.setFont(GuiResource.getInstance().getFontDefault());
     dataTab.setImage(GuiResource.getInstance().getImageData());
     dataTab.setText(BaseMessages.getString(PKG, "PipelineExecutionViewer.DataTab.Title"));
 
@@ -343,7 +341,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
             true,
             null,
             props);
-    props.setLook(dataView);
+    PropsUi.setLook(dataView);
 
     dataView.optimizeTableView();
 
@@ -354,6 +352,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
   private void addMetricsTab() {
     metricsTab = new CTabItem(tabFolder, SWT.NONE);
+    metricsTab.setFont(GuiResource.getInstance().getFontDefault());
     metricsTab.setImage(GuiResource.getInstance().getImageData());
     metricsTab.setText(BaseMessages.getString(PKG, "PipelineExecutionViewer.MetricsTab.Title"));
 
@@ -370,7 +369,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
             true,
             null,
             props);
-    props.setLook(metricsView);
+    PropsUi.setLook(metricsView);
 
     metricsView.optimizeTableView();
 
@@ -531,11 +530,12 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
   private void addLogTab() {
     logTab = new CTabItem(tabFolder, SWT.NONE);
+    logTab.setFont(GuiResource.getInstance().getFontDefault());
     logTab.setImage(GuiResource.getInstance().getImageShowLog());
     logTab.setText(BaseMessages.getString(PKG, "PipelineExecutionViewer.LogTab.Title"));
 
     loggingText = new Text(tabFolder, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
-    props.setLook(loggingText);
+    PropsUi.setLook(loggingText);
 
     logTab.setControl(loggingText);
   }
@@ -619,8 +619,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
               hopGui.getVariables(),
               pipelineMeta,
               new Point(width, height),
-              horizontalScrollBar == null ? null : new SwtScrollBar(horizontalScrollBar),
-              verticalScrollBar == null ? null : new SwtScrollBar(verticalScrollBar),
+              new DPoint(0,0),
               null,
               null,
               areaOwners,
@@ -768,8 +767,8 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   public void mouseDown(MouseEvent e) {
     pipelineMeta.unselectAll();
 
-    Point real = screen2real(e.x, e.y);
-    AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
+    DPoint real = screen2real(e.x, e.y);
+    AreaOwner areaOwner = getVisibleAreaOwner((int)real.x, (int)real.y);
     if (areaOwner == null) {
       // Clicked on background: clear selection
       //
@@ -1050,11 +1049,11 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   }
 
   @Override
-  public void drillDownOnLocation(Point location) {
+  public void drillDownOnLocation(DPoint location) {
     if (location == null) {
       return;
     }
-    AreaOwner areaOwner = getVisibleAreaOwner(location.x, location.y);
+    AreaOwner areaOwner = getVisibleAreaOwner((int)location.x, (int)location.y);
     if (areaOwner == null) {
       return;
     }

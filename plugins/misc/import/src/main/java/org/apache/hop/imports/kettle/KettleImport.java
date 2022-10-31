@@ -23,7 +23,11 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.filter.NameFileFilter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.database.*;
+import org.apache.hop.core.database.BaseDatabaseMeta;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.NoneDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.plugins.IPlugin;
@@ -55,7 +59,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @ImportPlugin(

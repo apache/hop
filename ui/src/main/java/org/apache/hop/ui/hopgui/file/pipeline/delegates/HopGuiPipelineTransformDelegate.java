@@ -33,10 +33,16 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.IPartitioner;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -47,7 +53,6 @@ import org.apache.hop.ui.hopgui.partition.processor.IMethodProcessor;
 import org.apache.hop.ui.hopgui.partition.processor.MethodProcessorFactory;
 import org.apache.hop.ui.pipeline.transform.TransformErrorMetaDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import java.io.File;
@@ -339,7 +344,6 @@ public class HopGuiPipelineTransformDelegate {
           } else {
             return null; // Cancel pressed in dialog.
           }
-          pipelineGraph.adjustScrolling();
           pipelineGraph.updateGui();
         }
       } catch (HopException e) {

@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -31,7 +32,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class BeamBQOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = BeamBQOutputDialog.class; // For Translator
@@ -58,25 +63,25 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "BeamBQOutputDialog.DialogTitle"));
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -84,7 +89,7 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -94,14 +99,14 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
 
     Label wlProjectId = new Label(shell, SWT.RIGHT);
     wlProjectId.setText(BaseMessages.getString(PKG, "BeamBQOutputDialog.ProjectId"));
-    props.setLook(wlProjectId);
+    PropsUi.setLook(wlProjectId);
     FormData fdlProjectId = new FormData();
     fdlProjectId.left = new FormAttachment(0, 0);
     fdlProjectId.top = new FormAttachment(lastControl, margin);
     fdlProjectId.right = new FormAttachment(middle, -margin);
     wlProjectId.setLayoutData(fdlProjectId);
     wProjectId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wProjectId);
+    PropsUi.setLook(wProjectId);
     FormData fdProjectId = new FormData();
     fdProjectId.left = new FormAttachment(middle, 0);
     fdProjectId.top = new FormAttachment(wlProjectId, 0, SWT.CENTER);
@@ -111,14 +116,14 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
 
     Label wlDatasetId = new Label(shell, SWT.RIGHT);
     wlDatasetId.setText(BaseMessages.getString(PKG, "BeamBQOutputDialog.DatasetId"));
-    props.setLook(wlDatasetId);
+    PropsUi.setLook(wlDatasetId);
     FormData fdlDatasetId = new FormData();
     fdlDatasetId.left = new FormAttachment(0, 0);
     fdlDatasetId.top = new FormAttachment(lastControl, margin);
     fdlDatasetId.right = new FormAttachment(middle, -margin);
     wlDatasetId.setLayoutData(fdlDatasetId);
     wDatasetId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDatasetId);
+    PropsUi.setLook(wDatasetId);
     FormData fdDatasetId = new FormData();
     fdDatasetId.left = new FormAttachment(middle, 0);
     fdDatasetId.top = new FormAttachment(wlDatasetId, 0, SWT.CENTER);
@@ -128,14 +133,14 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
 
     Label wlTableId = new Label(shell, SWT.RIGHT);
     wlTableId.setText(BaseMessages.getString(PKG, "BeamBQOutputDialog.TableId"));
-    props.setLook(wlTableId);
+    PropsUi.setLook(wlTableId);
     FormData fdlTableId = new FormData();
     fdlTableId.left = new FormAttachment(0, 0);
     fdlTableId.top = new FormAttachment(lastControl, margin);
     fdlTableId.right = new FormAttachment(middle, -margin);
     wlTableId.setLayoutData(fdlTableId);
     wTableId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTableId);
+    PropsUi.setLook(wTableId);
     FormData fdTableId = new FormData();
     fdTableId.left = new FormAttachment(middle, 0);
     fdTableId.top = new FormAttachment(wlTableId, 0, SWT.CENTER);
@@ -145,14 +150,14 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
 
     Label wlCreateIfNeeded = new Label(shell, SWT.RIGHT);
     wlCreateIfNeeded.setText(BaseMessages.getString(PKG, "BeamBQOutputDialog.CreateIfNeeded"));
-    props.setLook(wlCreateIfNeeded);
+    PropsUi.setLook(wlCreateIfNeeded);
     FormData fdlCreateIfNeeded = new FormData();
     fdlCreateIfNeeded.left = new FormAttachment(0, 0);
     fdlCreateIfNeeded.top = new FormAttachment(lastControl, margin);
     fdlCreateIfNeeded.right = new FormAttachment(middle, -margin);
     wlCreateIfNeeded.setLayoutData(fdlCreateIfNeeded);
     wCreateIfNeeded = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wCreateIfNeeded);
+    PropsUi.setLook(wCreateIfNeeded);
     FormData fdCreateIfNeeded = new FormData();
     fdCreateIfNeeded.left = new FormAttachment(middle, 0);
     fdCreateIfNeeded.top = new FormAttachment(wlCreateIfNeeded, 0, SWT.CENTER);
@@ -162,14 +167,14 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
 
     Label wlTruncateTable = new Label(shell, SWT.RIGHT);
     wlTruncateTable.setText(BaseMessages.getString(PKG, "BeamBQOutputDialog.TruncateTable"));
-    props.setLook(wlTruncateTable);
+    PropsUi.setLook(wlTruncateTable);
     FormData fdlTruncateTable = new FormData();
     fdlTruncateTable.left = new FormAttachment(0, 0);
     fdlTruncateTable.top = new FormAttachment(lastControl, margin);
     fdlTruncateTable.right = new FormAttachment(middle, -margin);
     wlTruncateTable.setLayoutData(fdlTruncateTable);
     wTruncateTable = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wTruncateTable);
+    PropsUi.setLook(wTruncateTable);
     FormData fdTruncateTable = new FormData();
     fdTruncateTable.left = new FormAttachment(middle, 0);
     fdTruncateTable.top = new FormAttachment(wlTruncateTable, 0, SWT.CENTER);
@@ -179,14 +184,14 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
 
     Label wlFailIfNotEmpty = new Label(shell, SWT.RIGHT);
     wlFailIfNotEmpty.setText(BaseMessages.getString(PKG, "BeamBQOutputDialog.FailIfNotEmpty"));
-    props.setLook(wlFailIfNotEmpty);
+    PropsUi.setLook(wlFailIfNotEmpty);
     FormData fdlFailIfNotEmpty = new FormData();
     fdlFailIfNotEmpty.left = new FormAttachment(0, 0);
     fdlFailIfNotEmpty.top = new FormAttachment(lastControl, margin);
     fdlFailIfNotEmpty.right = new FormAttachment(middle, -margin);
     wlFailIfNotEmpty.setLayoutData(fdlFailIfNotEmpty);
     wFailIfNotEmpty = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wFailIfNotEmpty);
+    PropsUi.setLook(wFailIfNotEmpty);
     FormData fdFailIfNotEmpty = new FormData();
     fdFailIfNotEmpty.left = new FormAttachment(middle, 0);
     fdFailIfNotEmpty.top = new FormAttachment(wlFailIfNotEmpty, 0, SWT.CENTER);

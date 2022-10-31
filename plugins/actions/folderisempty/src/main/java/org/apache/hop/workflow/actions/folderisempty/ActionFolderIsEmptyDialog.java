@@ -17,11 +17,12 @@
 
 package org.apache.hop.workflow.actions.folderisempty;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -36,7 +37,10 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Create Folder action settings. */
 public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDialog {
@@ -71,33 +75,33 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionFolderIsEmpty.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Foldername line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionFolderIsEmpty.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -108,7 +112,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     // Foldername line
     Label wlFoldername = new Label(shell, SWT.RIGHT);
     wlFoldername.setText(BaseMessages.getString(PKG, "ActionFolderIsEmpty.Foldername.Label"));
-    props.setLook(wlFoldername);
+    PropsUi.setLook(wlFoldername);
     FormData fdlFoldername = new FormData();
     fdlFoldername.left = new FormAttachment(0, 0);
     fdlFoldername.top = new FormAttachment(wName, margin);
@@ -116,7 +120,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     wlFoldername.setLayoutData(fdlFoldername);
 
     Button wbFoldername = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbFoldername);
+    PropsUi.setLook(wbFoldername);
     wbFoldername.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFoldername = new FormData();
     fdbFoldername.right = new FormAttachment(100, 0);
@@ -124,7 +128,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     wbFoldername.setLayoutData(fdbFoldername);
 
     wFoldername = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFoldername);
+    PropsUi.setLook(wFoldername);
     wFoldername.addModifyListener(lsMod);
     FormData fdFoldername = new FormData();
     fdFoldername.left = new FormAttachment(middle, 0);
@@ -136,14 +140,14 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     Label wlIncludeSubFolders = new Label(shell, SWT.RIGHT);
     wlIncludeSubFolders.setText(
         BaseMessages.getString(PKG, "ActionFolderIsEmpty.IncludeSubFolders.Label"));
-    props.setLook(wlIncludeSubFolders);
+    PropsUi.setLook(wlIncludeSubFolders);
     FormData fdlIncludeSubFolders = new FormData();
     fdlIncludeSubFolders.left = new FormAttachment(0, 0);
     fdlIncludeSubFolders.top = new FormAttachment(wFoldername, margin);
     fdlIncludeSubFolders.right = new FormAttachment(middle, -margin);
     wlIncludeSubFolders.setLayoutData(fdlIncludeSubFolders);
     wIncludeSubFolders = new Button(shell, SWT.CHECK);
-    props.setLook(wIncludeSubFolders);
+    PropsUi.setLook(wIncludeSubFolders);
     wIncludeSubFolders.setToolTipText(
         BaseMessages.getString(PKG, "ActionFolderIsEmpty.IncludeSubFolders.Tooltip"));
     FormData fdIncludeSubFolders = new FormData();
@@ -163,14 +167,14 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     Label wlSpecifyWildcard = new Label(shell, SWT.RIGHT);
     wlSpecifyWildcard.setText(
         BaseMessages.getString(PKG, "ActionFolderIsEmpty.SpecifyWildcard.Label"));
-    props.setLook(wlSpecifyWildcard);
+    PropsUi.setLook(wlSpecifyWildcard);
     FormData fdlSpecifyWildcard = new FormData();
     fdlSpecifyWildcard.left = new FormAttachment(0, 0);
     fdlSpecifyWildcard.top = new FormAttachment(wlIncludeSubFolders, 2 * margin);
     fdlSpecifyWildcard.right = new FormAttachment(middle, -margin);
     wlSpecifyWildcard.setLayoutData(fdlSpecifyWildcard);
     wSpecifyWildcard = new Button(shell, SWT.CHECK);
-    props.setLook(wSpecifyWildcard);
+    PropsUi.setLook(wSpecifyWildcard);
     wSpecifyWildcard.setToolTipText(
         BaseMessages.getString(PKG, "ActionFolderIsEmpty.SpecifyWildcard.Tooltip"));
     FormData fdSpecifyWildcard = new FormData();
@@ -190,14 +194,14 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     // Wildcard line
     wlWildcard = new Label(shell, SWT.RIGHT);
     wlWildcard.setText(BaseMessages.getString(PKG, "ActionFolderIsEmpty.Wildcard.Label"));
-    props.setLook(wlWildcard);
+    PropsUi.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
     fdlWildcard.top = new FormAttachment(wSpecifyWildcard, margin);
     fdlWildcard.right = new FormAttachment(middle, -margin);
     wlWildcard.setLayoutData(fdlWildcard);
     wWildcard = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wWildcard);
+    PropsUi.setLook(wWildcard);
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment(middle, 0);

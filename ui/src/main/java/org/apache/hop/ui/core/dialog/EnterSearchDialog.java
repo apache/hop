@@ -29,7 +29,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class EnterSearchDialog {
   private static final Class<?> PKG = EnterSearchDialog.class; // For Translator
@@ -66,13 +70,13 @@ public class EnterSearchDialog {
 
   public boolean open() {
     shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.setText(BaseMessages.getString(PKG, "EnterSearchDialog.Shell.Title"));
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
     shell.setLayout(formLayout);
 
     int middle = props.getMiddlePct();
@@ -81,7 +85,7 @@ public class EnterSearchDialog {
     // Search Transforms?...
     Label wlTransform = new Label(shell, SWT.RIGHT);
     wlTransform.setText(BaseMessages.getString(PKG, "EnterSearchDialog.Transform.Label"));
-    props.setLook(wlTransform);
+    PropsUi.setLook(wlTransform);
     FormData fdlTransform = new FormData();
     fdlTransform.left = new FormAttachment(0, 0);
     fdlTransform.top = new FormAttachment(0, 0);
@@ -89,7 +93,7 @@ public class EnterSearchDialog {
     wlTransform.setLayoutData(fdlTransform);
 
     wTransform = new Button(shell, SWT.CHECK);
-    props.setLook(wTransform);
+    PropsUi.setLook(wTransform);
     wTransform.setToolTipText(BaseMessages.getString(PKG, "EnterSearchDialog.Transform.Tooltip"));
     FormData fdTransform = new FormData();
     fdTransform.left = new FormAttachment(middle, 0);
@@ -100,14 +104,14 @@ public class EnterSearchDialog {
     // Search databases...
     Label wlDB = new Label(shell, SWT.RIGHT);
     wlDB.setText(BaseMessages.getString(PKG, "EnterSearchDialog.DB.Label"));
-    props.setLook(wlDB);
+    PropsUi.setLook(wlDB);
     FormData fdlDB = new FormData();
     fdlDB.left = new FormAttachment(0, 0);
     fdlDB.top = new FormAttachment(wTransform, margin);
     fdlDB.right = new FormAttachment(middle, -margin);
     wlDB.setLayoutData(fdlDB);
     wDB = new Button(shell, SWT.CHECK);
-    props.setLook(wDB);
+    PropsUi.setLook(wDB);
     wDB.setToolTipText(BaseMessages.getString(PKG, "EnterSearchDialog.DB.Tooltip"));
     FormData fdDB = new FormData();
     fdDB.left = new FormAttachment(middle, 0);
@@ -118,14 +122,14 @@ public class EnterSearchDialog {
     // Search notes...
     Label wlNote = new Label(shell, SWT.RIGHT);
     wlNote.setText(BaseMessages.getString(PKG, "EnterSearchDialog.Note.Label"));
-    props.setLook(wlNote);
+    PropsUi.setLook(wlNote);
     FormData fdlNote = new FormData();
     fdlNote.left = new FormAttachment(0, 0);
     fdlNote.top = new FormAttachment(wDB, margin);
     fdlNote.right = new FormAttachment(middle, -margin);
     wlNote.setLayoutData(fdlNote);
     wNote = new Button(shell, SWT.CHECK);
-    props.setLook(wNote);
+    PropsUi.setLook(wNote);
     wNote.setToolTipText(BaseMessages.getString(PKG, "EnterSearchDialog.Note.Tooltip"));
     FormData fdNote = new FormData();
     fdNote.left = new FormAttachment(middle, 0);
@@ -137,14 +141,14 @@ public class EnterSearchDialog {
     Label wlFilter = new Label(shell, SWT.RIGHT);
     wlFilter.setText(
         BaseMessages.getString(PKG, "EnterSearchDialog.FilterSelection.Label")); // Select filter
-    props.setLook(wlFilter);
+    PropsUi.setLook(wlFilter);
     FormData fdlFilter = new FormData();
     fdlFilter.left = new FormAttachment(0, 0);
     fdlFilter.right = new FormAttachment(middle, -margin);
     fdlFilter.top = new FormAttachment(wNote, 3 * margin);
     wlFilter.setLayoutData(fdlFilter);
     wFilter = new Text(shell, SWT.SINGLE | SWT.BORDER);
-    props.setLook(wFilter);
+    PropsUi.setLook(wFilter);
     FormData fdFilter = new FormData();
     fdFilter.left = new FormAttachment(middle, 0);
     fdFilter.top = new FormAttachment(wNote, 3 * margin);

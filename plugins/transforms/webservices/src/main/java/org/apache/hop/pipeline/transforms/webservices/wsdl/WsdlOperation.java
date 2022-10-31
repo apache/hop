@@ -20,7 +20,13 @@ package org.apache.hop.pipeline.transforms.webservices.wsdl;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 
-import javax.wsdl.*;
+import javax.wsdl.Binding;
+import javax.wsdl.Fault;
+import javax.wsdl.Input;
+import javax.wsdl.Message;
+import javax.wsdl.Operation;
+import javax.wsdl.Output;
+import javax.wsdl.Part;
 import javax.xml.namespace.QName;
 import java.util.List;
 import java.util.Map;

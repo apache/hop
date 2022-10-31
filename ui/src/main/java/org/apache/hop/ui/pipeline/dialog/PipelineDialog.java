@@ -31,6 +31,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -46,7 +47,16 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 
@@ -132,7 +142,7 @@ public class PipelineDialog extends Dialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImagePipeline());
 
     lsMod = e -> changed = true;
@@ -145,8 +155,8 @@ public class PipelineDialog extends Dialog {
         };
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "PipelineDialog.Shell.Title"));
@@ -166,7 +176,7 @@ public class PipelineDialog extends Dialog {
         shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     addPipelineTab();
     addParamTab();
@@ -221,28 +231,29 @@ public class PipelineDialog extends Dialog {
     // START OF PIPELINE TAB///
     // /
     wPipelineTab = new CTabItem(wTabFolder, SWT.NONE);
+    wPipelineTab.setFont(GuiResource.getInstance().getFontDefault());
     wPipelineTab.setText(BaseMessages.getString(PKG, "PipelineDialog.PipelineTab.Label"));
 
     Composite wPipelineComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wPipelineComp);
+    PropsUi.setLook(wPipelineComp);
 
     FormLayout workflowLayout = new FormLayout();
-    workflowLayout.marginWidth = Const.FORM_MARGIN;
-    workflowLayout.marginHeight = Const.FORM_MARGIN;
+    workflowLayout.marginWidth = PropsUi.getFormMargin();
+    workflowLayout.marginHeight = PropsUi.getFormMargin();
     wPipelineComp.setLayout(workflowLayout);
 
     // Pipeline name:
     //
     Label wlPipelineName = new Label(wPipelineComp, SWT.RIGHT);
     wlPipelineName.setText(BaseMessages.getString(PKG, "PipelineDialog.PipelineName.Label"));
-    props.setLook(wlPipelineName);
+    PropsUi.setLook(wlPipelineName);
     FormData fdlPipelineName = new FormData();
     fdlPipelineName.left = new FormAttachment(0, 0);
     fdlPipelineName.right = new FormAttachment(middle, -margin);
     fdlPipelineName.top = new FormAttachment(0, margin);
     wlPipelineName.setLayoutData(fdlPipelineName);
     wPipelineName = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPipelineName);
+    PropsUi.setLook(wPipelineName);
     wPipelineName.addModifyListener(lsMod);
     FormData fdPipelineName = new FormData();
     fdPipelineName.left = new FormAttachment(middle, 0);
@@ -256,14 +267,14 @@ public class PipelineDialog extends Dialog {
     Label wlNameFilenameSync = new Label(wPipelineComp, SWT.RIGHT);
     wlNameFilenameSync.setText(
         BaseMessages.getString(PKG, "PipelineDialog.NameFilenameSync.Label"));
-    props.setLook(wlNameFilenameSync);
+    PropsUi.setLook(wlNameFilenameSync);
     FormData fdlNameFilenameSync = new FormData();
     fdlNameFilenameSync.left = new FormAttachment(0, 0);
     fdlNameFilenameSync.right = new FormAttachment(middle, -margin);
     fdlNameFilenameSync.top = new FormAttachment(lastControl, margin);
     wlNameFilenameSync.setLayoutData(fdlNameFilenameSync);
     wNameFilenameSync = new Button(wPipelineComp, SWT.CHECK);
-    props.setLook(wNameFilenameSync);
+    PropsUi.setLook(wNameFilenameSync);
     FormData fdNameFilenameSync = new FormData();
     fdNameFilenameSync.left = new FormAttachment(middle, 0);
     fdNameFilenameSync.top = new FormAttachment(wlNameFilenameSync, 0, SWT.CENTER);
@@ -276,14 +287,14 @@ public class PipelineDialog extends Dialog {
     Label wlPipelineFilename = new Label(wPipelineComp, SWT.RIGHT);
     wlPipelineFilename.setText(
         BaseMessages.getString(PKG, "PipelineDialog.PipelineFilename.Label"));
-    props.setLook(wlPipelineFilename);
+    PropsUi.setLook(wlPipelineFilename);
     FormData fdlPipelineFilename = new FormData();
     fdlPipelineFilename.left = new FormAttachment(0, 0);
     fdlPipelineFilename.right = new FormAttachment(middle, -margin);
     fdlPipelineFilename.top = new FormAttachment(lastControl, margin);
     wlPipelineFilename.setLayoutData(fdlPipelineFilename);
     wPipelineFilename = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPipelineFilename);
+    PropsUi.setLook(wPipelineFilename);
     wPipelineFilename.addModifyListener(lsMod);
     FormData fdPipelineFilename = new FormData();
     fdPipelineFilename.left = new FormAttachment(middle, 0);
@@ -299,14 +310,14 @@ public class PipelineDialog extends Dialog {
     Label wlPipelineDescription = new Label(wPipelineComp, SWT.RIGHT);
     wlPipelineDescription.setText(
         BaseMessages.getString(PKG, "PipelineDialog.PipelineDescription.Label"));
-    props.setLook(wlPipelineDescription);
+    PropsUi.setLook(wlPipelineDescription);
     FormData fdlPipelineDescription = new FormData();
     fdlPipelineDescription.left = new FormAttachment(0, 0);
     fdlPipelineDescription.right = new FormAttachment(middle, -margin);
     fdlPipelineDescription.top = new FormAttachment(lastControl, margin);
     wlPipelineDescription.setLayoutData(fdlPipelineDescription);
     wPipelineDescription = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPipelineDescription);
+    PropsUi.setLook(wPipelineDescription);
     wPipelineDescription.addModifyListener(lsMod);
     FormData fdPipelineDescription = new FormData();
     fdPipelineDescription.left = new FormAttachment(middle, 0);
@@ -318,7 +329,7 @@ public class PipelineDialog extends Dialog {
     Label wlExtendedDescription = new Label(wPipelineComp, SWT.RIGHT);
     wlExtendedDescription.setText(
         BaseMessages.getString(PKG, "PipelineDialog.Extendeddescription.Label"));
-    props.setLook(wlExtendedDescription);
+    PropsUi.setLook(wlExtendedDescription);
     FormData fdlExtendedDescription = new FormData();
     fdlExtendedDescription.left = new FormAttachment(0, 0);
     fdlExtendedDescription.top = new FormAttachment(wPipelineDescription, margin);
@@ -327,7 +338,7 @@ public class PipelineDialog extends Dialog {
 
     wExtendedDescription =
         new Text(wPipelineComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wExtendedDescription, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wExtendedDescription, Props.WIDGET_STYLE_FIXED);
     wExtendedDescription.addModifyListener(lsMod);
     FormData fdExtendedDescription = new FormData();
     fdExtendedDescription.left = new FormAttachment(middle, 0);
@@ -340,7 +351,7 @@ public class PipelineDialog extends Dialog {
     // Pipeline Status
     Label wlPipelineStatus = new Label(wPipelineComp, SWT.RIGHT);
     wlPipelineStatus.setText(BaseMessages.getString(PKG, "PipelineDialog.PipelineStatus.Label"));
-    props.setLook(wlPipelineStatus);
+    PropsUi.setLook(wlPipelineStatus);
     FormData fdlPipelineStatus = new FormData();
     fdlPipelineStatus.left = new FormAttachment(0, 0);
     fdlPipelineStatus.right = new FormAttachment(middle, 0);
@@ -353,7 +364,7 @@ public class PipelineDialog extends Dialog {
     wPipelineStatus.add("");
     wPipelineStatus.select(-1); // +1: starts at -1
     wPipelineStatus.addSelectionListener(lsModSel);
-    props.setLook(wPipelineStatus);
+    PropsUi.setLook(wPipelineStatus);
     
     FormData fdPipelineStatus = new FormData();
     fdPipelineStatus.left = new FormAttachment(middle, 0);
@@ -364,14 +375,14 @@ public class PipelineDialog extends Dialog {
     // Pipeline PipelineVersion:
     Label wlPipelineVersion = new Label(wPipelineComp, SWT.RIGHT);
     wlPipelineVersion.setText(BaseMessages.getString(PKG, "PipelineDialog.PipelineVersion.Label"));
-    props.setLook(wlPipelineVersion);
+    PropsUi.setLook(wlPipelineVersion);
     FormData fdlPipelineVersion = new FormData();
     fdlPipelineVersion.left = new FormAttachment(0, 0);
     fdlPipelineVersion.right = new FormAttachment(middle, -margin);
     fdlPipelineVersion.top = new FormAttachment(wPipelineStatus, margin);
     wlPipelineVersion.setLayoutData(fdlPipelineVersion);
     wPipelineVersion = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPipelineVersion);
+    PropsUi.setLook(wPipelineVersion);
     wPipelineVersion.addModifyListener(lsMod);
     FormData fdPipelineVersion = new FormData();
     fdPipelineVersion.left = new FormAttachment(middle, 0);
@@ -382,14 +393,14 @@ public class PipelineDialog extends Dialog {
     // Create User:
     Label wlCreateUser = new Label(wPipelineComp, SWT.RIGHT);
     wlCreateUser.setText(BaseMessages.getString(PKG, "PipelineDialog.CreateUser.Label"));
-    props.setLook(wlCreateUser);
+    PropsUi.setLook(wlCreateUser);
     FormData fdlCreateUser = new FormData();
     fdlCreateUser.left = new FormAttachment(0, 0);
     fdlCreateUser.right = new FormAttachment(middle, -margin);
     fdlCreateUser.top = new FormAttachment(wPipelineVersion, margin);
     wlCreateUser.setLayoutData(fdlCreateUser);
     wCreateUser = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCreateUser);
+    PropsUi.setLook(wCreateUser);
     wCreateUser.setEditable(false);
     wCreateUser.addModifyListener(lsMod);
     FormData fdCreateUser = new FormData();
@@ -401,14 +412,14 @@ public class PipelineDialog extends Dialog {
     // Created Date:
     Label wlCreateDate = new Label(wPipelineComp, SWT.RIGHT);
     wlCreateDate.setText(BaseMessages.getString(PKG, "PipelineDialog.CreateDate.Label"));
-    props.setLook(wlCreateDate);
+    PropsUi.setLook(wlCreateDate);
     FormData fdlCreateDate = new FormData();
     fdlCreateDate.left = new FormAttachment(0, 0);
     fdlCreateDate.right = new FormAttachment(middle, -margin);
     fdlCreateDate.top = new FormAttachment(wCreateUser, margin);
     wlCreateDate.setLayoutData(fdlCreateDate);
     wCreateDate = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCreateDate);
+    PropsUi.setLook(wCreateDate);
     wCreateDate.setEditable(false);
     wCreateDate.addModifyListener(lsMod);
     FormData fdCreateDate = new FormData();
@@ -420,14 +431,14 @@ public class PipelineDialog extends Dialog {
     // Modified User:
     Label wlModUser = new Label(wPipelineComp, SWT.RIGHT);
     wlModUser.setText(BaseMessages.getString(PKG, "PipelineDialog.LastModifiedUser.Label"));
-    props.setLook(wlModUser);
+    PropsUi.setLook(wlModUser);
     FormData fdlModUser = new FormData();
     fdlModUser.left = new FormAttachment(0, 0);
     fdlModUser.right = new FormAttachment(middle, -margin);
     fdlModUser.top = new FormAttachment(wCreateDate, margin);
     wlModUser.setLayoutData(fdlModUser);
     wModUser = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wModUser);
+    PropsUi.setLook(wModUser);
     wModUser.setEditable(false);
     wModUser.addModifyListener(lsMod);
     FormData fdModUser = new FormData();
@@ -439,14 +450,14 @@ public class PipelineDialog extends Dialog {
     // Modified Date:
     Label wlModDate = new Label(wPipelineComp, SWT.RIGHT);
     wlModDate.setText(BaseMessages.getString(PKG, "PipelineDialog.LastModifiedDate.Label"));
-    props.setLook(wlModDate);
+    PropsUi.setLook(wlModDate);
     FormData fdlModDate = new FormData();
     fdlModDate.left = new FormAttachment(0, 0);
     fdlModDate.right = new FormAttachment(middle, -margin);
     fdlModDate.top = new FormAttachment(wModUser, margin);
     wlModDate.setLayoutData(fdlModDate);
     wModDate = new Text(wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wModDate);
+    PropsUi.setLook(wModDate);
     wModDate.setEditable(false);
     wModDate.addModifyListener(lsMod);
     FormData fdModDate = new FormData();
@@ -488,6 +499,7 @@ public class PipelineDialog extends Dialog {
     // START OF PARAM TAB
     // /
     wParamTab = new CTabItem(wTabFolder, SWT.NONE);
+    wParamTab.setFont(GuiResource.getInstance().getFontDefault());
     wParamTab.setText(BaseMessages.getString(PKG, "PipelineDialog.ParamTab.Label"));
 
     FormLayout paramLayout = new FormLayout();
@@ -495,12 +507,12 @@ public class PipelineDialog extends Dialog {
     paramLayout.marginHeight = props.getMargin();
 
     Composite wParamComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wParamComp);
+    PropsUi.setLook(wParamComp);
     wParamComp.setLayout(paramLayout);
 
     Label wlFields = new Label(wParamComp, SWT.RIGHT);
     wlFields.setText(BaseMessages.getString(PKG, "PipelineDialog.Parameters.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(0, 0);
@@ -563,14 +575,15 @@ public class PipelineDialog extends Dialog {
     // START OF MONITORING TAB///
     // /
     wMonitorTab = new CTabItem(wTabFolder, SWT.NONE);
+    wMonitorTab.setFont(GuiResource.getInstance().getFontDefault());
     wMonitorTab.setText(BaseMessages.getString(PKG, "PipelineDialog.MonitorTab.Label"));
 
     Composite wMonitorComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wMonitorComp);
+    PropsUi.setLook(wMonitorComp);
 
     FormLayout monitorLayout = new FormLayout();
-    monitorLayout.marginWidth = Const.FORM_MARGIN;
-    monitorLayout.marginHeight = Const.FORM_MARGIN;
+    monitorLayout.marginWidth = PropsUi.getFormMargin();
+    monitorLayout.marginHeight = PropsUi.getFormMargin();
     wMonitorComp.setLayout(monitorLayout);
 
     //
@@ -579,14 +592,14 @@ public class PipelineDialog extends Dialog {
     Label wlEnableTransformPerfMonitor = new Label(wMonitorComp, SWT.LEFT);
     wlEnableTransformPerfMonitor.setText(
         BaseMessages.getString(PKG, "PipelineDialog.TransformPerformanceMonitoring.Label"));
-    props.setLook(wlEnableTransformPerfMonitor);
+    PropsUi.setLook(wlEnableTransformPerfMonitor);
     FormData fdlSchemaName = new FormData();
     fdlSchemaName.left = new FormAttachment(0, 0);
     fdlSchemaName.right = new FormAttachment(middle, -margin);
     fdlSchemaName.top = new FormAttachment(0, 0);
     wlEnableTransformPerfMonitor.setLayoutData(fdlSchemaName);
     wEnableTransformPerfMonitor = new Button(wMonitorComp, SWT.CHECK);
-    props.setLook(wEnableTransformPerfMonitor);
+    PropsUi.setLook(wEnableTransformPerfMonitor);
     FormData fdEnableTransformPerfMonitor = new FormData();
     fdEnableTransformPerfMonitor.left = new FormAttachment(middle, 0);
     fdEnableTransformPerfMonitor.right = new FormAttachment(100, 0);
@@ -600,14 +613,14 @@ public class PipelineDialog extends Dialog {
     Label wlTransformPerfInterval = new Label(wMonitorComp, SWT.LEFT);
     wlTransformPerfInterval.setText(
         BaseMessages.getString(PKG, "PipelineDialog.TransformPerformanceInterval.Label"));
-    props.setLook(wlTransformPerfInterval);
+    PropsUi.setLook(wlTransformPerfInterval);
     FormData fdlTransformPerfInterval = new FormData();
     fdlTransformPerfInterval.left = new FormAttachment(0, 0);
     fdlTransformPerfInterval.right = new FormAttachment(middle, -margin);
     fdlTransformPerfInterval.top = new FormAttachment(wEnableTransformPerfMonitor, margin);
     wlTransformPerfInterval.setLayoutData(fdlTransformPerfInterval);
     wTransformPerfInterval = new Text(wMonitorComp, SWT.LEFT | SWT.BORDER | SWT.SINGLE);
-    props.setLook(wTransformPerfInterval);
+    PropsUi.setLook(wTransformPerfInterval);
     FormData fdTransformPerfInterval = new FormData();
     fdTransformPerfInterval.left = new FormAttachment(middle, 0);
     fdTransformPerfInterval.right = new FormAttachment(100, 0);
@@ -623,7 +636,7 @@ public class PipelineDialog extends Dialog {
         BaseMessages.getString(PKG, "PipelineDialog.TransformPerformanceMaxSize.Label"));
     wlTransformPerfMaxSize.setToolTipText(
         BaseMessages.getString(PKG, "PipelineDialog.TransformPerformanceMaxSize.Tooltip"));
-    props.setLook(wlTransformPerfMaxSize);
+    PropsUi.setLook(wlTransformPerfMaxSize);
     FormData fdlTransformPerfMaxSize = new FormData();
     fdlTransformPerfMaxSize.left = new FormAttachment(0, 0);
     fdlTransformPerfMaxSize.right = new FormAttachment(middle, -margin);
@@ -633,7 +646,7 @@ public class PipelineDialog extends Dialog {
         new TextVar(variables, wMonitorComp, SWT.LEFT | SWT.BORDER | SWT.SINGLE);
     wTransformPerfMaxSize.setToolTipText(
         BaseMessages.getString(PKG, "PipelineDialog.TransformPerformanceMaxSize.Tooltip"));
-    props.setLook(wTransformPerfMaxSize);
+    PropsUi.setLook(wTransformPerfMaxSize);
     FormData fdTransformPerfMaxSize = new FormData();
     fdTransformPerfMaxSize.left = new FormAttachment(middle, 0);
     fdTransformPerfMaxSize.right = new FormAttachment(100, 0);

@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -31,7 +32,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
 
 import java.io.IOException;
 import java.io.InputStream;

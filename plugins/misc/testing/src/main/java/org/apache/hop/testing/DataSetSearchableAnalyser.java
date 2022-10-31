@@ -18,7 +18,12 @@
 package org.apache.hop.testing;
 
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.search.*;
+import org.apache.hop.core.search.BaseMetadataSearchableAnalyser;
+import org.apache.hop.core.search.ISearchQuery;
+import org.apache.hop.core.search.ISearchResult;
+import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.search.ISearchableAnalyser;
+import org.apache.hop.core.search.SearchableAnalyserPlugin;
 
 import java.util.ArrayList;
 import java.util.List;

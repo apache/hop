@@ -29,7 +29,11 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
 @Deprecated(since="2.0")

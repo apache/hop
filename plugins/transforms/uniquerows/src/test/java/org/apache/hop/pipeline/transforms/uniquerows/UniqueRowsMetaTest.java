@@ -20,11 +20,20 @@ package org.apache.hop.pipeline.transforms.uniquerows;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.*;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class UniqueRowsMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

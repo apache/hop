@@ -17,7 +17,11 @@
 
 package org.apache.hop.core.auth.core.impl;
 
-import org.apache.hop.core.auth.core.*;
+import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
+import org.apache.hop.core.auth.core.IAuthenticationConsumer;
+import org.apache.hop.core.auth.core.IAuthenticationConsumerFactory;
+import org.apache.hop.core.auth.core.IAuthenticationPerformer;
+import org.apache.hop.core.auth.core.IAuthenticationProvider;
 
 public class DefaultAuthenticationPerformer<
         ReturnType, CreateArgType, T extends IAuthenticationProvider>

@@ -17,12 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.mailinput;
 
+import jakarta.mail.Message;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.workflow.actions.getpop.MailConnection;
 
-import jakarta.mail.Message;
 import java.util.Iterator;
 
 public class MailInputData extends BaseTransformData implements ITransformData {

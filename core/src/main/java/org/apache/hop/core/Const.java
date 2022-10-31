@@ -30,15 +30,35 @@ import org.apache.hop.core.variables.Variable;
 import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.i18n.BaseMessages;
 
-import java.awt.*;
-import java.io.*;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.text.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
-import java.util.*;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -187,13 +207,19 @@ public class Const {
   /** Specifies the length (width) of fields in a number of pixels in dialog boxes. */
   public static final int LENGTH = 350;
 
-  /** The margin between the different dialog components & widgets */
+  /** The margin between the different dialog components & widgets.
+   * This method is deprecated. Please use PropsUi.getMargin() instead. */
+  @Deprecated
   public static final int MARGIN = 4;
 
-  /** The default percentage of the width of screen where we consider the middle of a dialog. */
+  /** The default percentage of the width of screen where we consider the middle of a dialog.
+   *  This method is deprecated. Please use PropsUi.getMiddlePct() instead.*/
+  @Deprecated
   public static final int MIDDLE_PCT = 35;
 
-  /** The horizontal and vertical margin of a dialog box. */
+  /** The horizontal and vertical margin of a dialog box.
+   * This method is deprecated. Please use PropsUi.getFormMargin() instead.*/
+  @Deprecated
   public static final int FORM_MARGIN = 5;
 
   /** The default locale for the hop environment (system defined) */

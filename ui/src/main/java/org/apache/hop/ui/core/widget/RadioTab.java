@@ -23,7 +23,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 
 public class RadioTab extends Composite {
   Group radioGroup;
@@ -35,7 +39,7 @@ public class RadioTab extends Composite {
   public RadioTab(Composite composite, int i, String title, PropsUi props) {
     super(composite, i);
     this.props = props;
-    props.setLook(this);
+    PropsUi.setLook(this);
     noMarginLayout = new FormLayout();
     this.setLayout(noMarginLayout);
 
@@ -58,7 +62,7 @@ public class RadioTab extends Composite {
     fdRadioGroup.left = new FormAttachment(0);
     fdRadioGroup.right = new FormAttachment(100);
     radioGroup.setLayoutData(fdRadioGroup);
-    props.setLook(radioGroup);
+    PropsUi.setLook(radioGroup);
 
     contentArea = new Composite(this, i);
     contentArea.setLayout(noMarginLayout);
@@ -68,14 +72,14 @@ public class RadioTab extends Composite {
     fdContentArea.bottom = new FormAttachment(100);
     fdContentArea.right = new FormAttachment(100);
     contentArea.setLayoutData(fdContentArea);
-    props.setLook(contentArea);
+    PropsUi.setLook(contentArea);
   }
 
   public Composite createContent(String radioText) {
     Control[] existingButtons = radioGroup.getChildren();
     Button button = new Button(radioGroup, SWT.RADIO);
     button.setText(radioText);
-    props.setLook(button);
+    PropsUi.setLook(button);
     FormData fdButton = new FormData();
     fdButton.top = new FormAttachment(0);
     fdButton.left =
@@ -86,7 +90,7 @@ public class RadioTab extends Composite {
     button.setSelection(existingButtons.length == 0);
     Composite content = new Composite(contentArea, SWT.NONE);
     content.setVisible(existingButtons.length == 0);
-    props.setLook(content);
+    PropsUi.setLook(content);
     content.setLayout(noMarginLayout);
     content.setLayoutData(fdMaximize);
     button.addSelectionListener(

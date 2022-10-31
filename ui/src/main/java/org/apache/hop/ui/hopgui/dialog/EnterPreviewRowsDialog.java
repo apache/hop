@@ -17,11 +17,11 @@
 
 package org.apache.hop.ui.hopgui.dialog;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -34,7 +34,13 @@ import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * Shows a dialog that allows you to select the transforms you want to preview by entering a number
@@ -71,11 +77,11 @@ public class EnterPreviewRowsDialog extends Dialog {
     Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(
@@ -93,7 +99,7 @@ public class EnterPreviewRowsDialog extends Dialog {
         BaseMessages.getString(
             PKG, "EnterPreviewRowsDialog.Dialog.PreviewTransform.Message")); // Transform
     // name :
-    props.setLook(wlTransformList);
+    PropsUi.setLook(wlTransformList);
     FormData fdlTransformList = new FormData();
     fdlTransformList.left = new FormAttachment(0, 0);
     fdlTransformList.top = new FormAttachment(0, margin);
@@ -106,7 +112,7 @@ public class EnterPreviewRowsDialog extends Dialog {
       wTransformList.add(transformNames.get(i));
     }
     wTransformList.select(0);
-    props.setLook(wTransformList);
+    PropsUi.setLook(wTransformList);
     FormData fdTransformList = new FormData();
     fdTransformList.left = new FormAttachment(middle, 0);
     fdTransformList.top = new FormAttachment(0, margin);

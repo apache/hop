@@ -17,7 +17,14 @@
 package org.apache.hop.databases.vectorwise;
 
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.value.*;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaInternetAddress;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

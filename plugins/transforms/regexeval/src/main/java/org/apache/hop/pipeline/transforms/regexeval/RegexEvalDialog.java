@@ -30,8 +30,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -42,12 +44,23 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class RegexEvalDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = RegexEvalMeta.class; // For Translator
@@ -86,7 +99,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -100,8 +113,8 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "RegexEvalDialog.Shell.Title"));
@@ -122,7 +135,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // Filename line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "RegexEvalDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -130,7 +143,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -141,17 +154,18 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     SashForm wSash = new SashForm(shell, SWT.VERTICAL);
 
     CTabFolder wTabFolder = new CTabFolder(wSash, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "RegexEvalDialog.GeneralTab.TabTitle"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -164,7 +178,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     //
 
     Group wTransformSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wTransformSettings);
+    PropsUi.setLook(wTransformSettings);
     wTransformSettings.setText(
         BaseMessages.getString(PKG, "RegexEvalDialog.Group.TransformSettings.Label"));
 
@@ -176,7 +190,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // fieldevaluate
     Label wlfieldevaluate = new Label(wTransformSettings, SWT.RIGHT);
     wlfieldevaluate.setText(BaseMessages.getString(PKG, "RegexEvalDialog.Matcher.Label"));
-    props.setLook(wlfieldevaluate);
+    PropsUi.setLook(wlfieldevaluate);
     FormData fdlfieldevaluate = new FormData();
     fdlfieldevaluate.left = new FormAttachment(0, 0);
     fdlfieldevaluate.top = new FormAttachment(wTransformName, margin);
@@ -184,7 +198,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wlfieldevaluate.setLayoutData(fdlfieldevaluate);
     wFieldEvaluate = new CCombo(wTransformSettings, SWT.BORDER | SWT.READ_ONLY);
     wFieldEvaluate.setEditable(true);
-    props.setLook(wFieldEvaluate);
+    PropsUi.setLook(wFieldEvaluate);
     wFieldEvaluate.addModifyListener(lsMod);
     FormData fdfieldevaluate = new FormData();
     fdfieldevaluate.left = new FormAttachment(middle, margin);
@@ -216,7 +230,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
             BaseMessages.getString(PKG, "RegexEvalDialog.ResultField.Label"),
             BaseMessages.getString(PKG, "RegexEvalDialog.ResultField.Tooltip"));
 
-    props.setLook(wResultField);
+    PropsUi.setLook(wResultField);
     wResultField.addModifyListener(lsMod);
     FormData fdResultField = new FormData();
     fdResultField.left = new FormAttachment(0, 0);
@@ -228,7 +242,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     Label wlAllowCaptureGroups = new Label(wTransformSettings, SWT.RIGHT);
     wlAllowCaptureGroups.setText(
         BaseMessages.getString(PKG, "RegexEvalDialog.AllowCaptureGroups.Label"));
-    props.setLook(wlAllowCaptureGroups);
+    PropsUi.setLook(wlAllowCaptureGroups);
     FormData fdlAllowCaptureGroups = new FormData();
     fdlAllowCaptureGroups.left = new FormAttachment(0, 0);
     fdlAllowCaptureGroups.top = new FormAttachment(wResultField, margin);
@@ -237,7 +251,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wAllowCaptureGroups = new Button(wTransformSettings, SWT.CHECK);
     wAllowCaptureGroups.setToolTipText(
         BaseMessages.getString(PKG, "RegexEvalDialog.AllowCaptureGroups.Tooltip"));
-    props.setLook(wAllowCaptureGroups);
+    PropsUi.setLook(wAllowCaptureGroups);
     FormData fdAllowCaptureGroups = new FormData();
     fdAllowCaptureGroups.left = new FormAttachment(middle, margin);
     fdAllowCaptureGroups.top = new FormAttachment(wlAllowCaptureGroups, 0, SWT.CENTER);
@@ -256,7 +270,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // Replace fields?
     wlReplaceFields = new Label(wTransformSettings, SWT.RIGHT);
     wlReplaceFields.setText(BaseMessages.getString(PKG, "RegexEvalDialog.ReplaceFields.Label"));
-    props.setLook(wlReplaceFields);
+    PropsUi.setLook(wlReplaceFields);
     FormData fdlReplaceFields = new FormData();
     fdlReplaceFields.left = new FormAttachment(0, 0);
     fdlReplaceFields.top = new FormAttachment(wAllowCaptureGroups, margin);
@@ -265,7 +279,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wReplaceFields = new Button(wTransformSettings, SWT.CHECK);
     wReplaceFields.setToolTipText(
         BaseMessages.getString(PKG, "RegexEvalDialog.ReplaceFields.Tooltip"));
-    props.setLook(wReplaceFields);
+    PropsUi.setLook(wReplaceFields);
     FormData fdReplaceFields = new FormData();
     fdReplaceFields.left = new FormAttachment(middle, margin);
     fdReplaceFields.top = new FormAttachment(wlReplaceFields, 0, SWT.CENTER);
@@ -294,14 +308,14 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // Script line
     Label wlScript = new Label(wGeneralComp, SWT.NONE);
     wlScript.setText(BaseMessages.getString(PKG, "RegexEvalDialog.Javascript.Label"));
-    props.setLook(wlScript);
+    PropsUi.setLook(wlScript);
     FormData fdlScript = new FormData();
     fdlScript.left = new FormAttachment(0, 0);
     fdlScript.top = new FormAttachment(wTransformSettings, margin);
     wlScript.setLayoutData(fdlScript);
 
     Button wbTestRegExScript = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTestRegExScript);
+    PropsUi.setLook(wbTestRegExScript);
     wbTestRegExScript.setText(BaseMessages.getString(PKG, "RegexEvalDialog.TestScript.Label"));
     FormData fdbTestRegExScript = new FormData();
     fdbTestRegExScript.right = new FormAttachment(100, -margin);
@@ -312,21 +326,21 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // Variable substitution?
     Label wlUseVar = new Label(wGeneralComp, SWT.NONE);
     wlUseVar.setText(BaseMessages.getString(PKG, "RegexEvalDialog.UseVar.Label"));
-    props.setLook(wlUseVar);
+    PropsUi.setLook(wlUseVar);
     FormData fdlUseVar = new FormData();
     fdlUseVar.left = new FormAttachment(0, margin);
     fdlUseVar.bottom = new FormAttachment(100, 0);
     wlUseVar.setLayoutData(fdlUseVar);
     wUseVar = new Button(wGeneralComp, SWT.CHECK);
     wUseVar.setToolTipText(BaseMessages.getString(PKG, "RegexEvalDialog.UseVar.Tooltip"));
-    props.setLook(wUseVar);
+    PropsUi.setLook(wUseVar);
     FormData fdUseVar = new FormData();
     fdUseVar.left = new FormAttachment(wlUseVar, margin);
     fdUseVar.top = new FormAttachment(wlUseVar, 0, SWT.CENTER);
     wUseVar.setLayoutData(fdUseVar);
     wUseVar.addSelectionListener(lsSel);
     Composite wBottom = new Composite(wSash, SWT.NONE);
-    props.setLook(wBottom);
+    PropsUi.setLook(wBottom);
 
     wScript =
         new StyledTextComp(
@@ -334,7 +348,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
             wGeneralComp,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wScript.setText(BaseMessages.getString(PKG, "RegexEvalDialog.Script.Label"));
-    props.setLook(wScript, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
     wScript.addModifyListener(lsMod);
     FormData fdScript = new FormData();
     fdScript.left = new FormAttachment(0, 0);
@@ -344,8 +358,8 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wScript.setLayoutData(fdScript);
 
     FormLayout bottomLayout = new FormLayout();
-    bottomLayout.marginWidth = Const.FORM_MARGIN;
-    bottomLayout.marginHeight = Const.FORM_MARGIN;
+    bottomLayout.marginWidth = PropsUi.getFormMargin();
+    bottomLayout.marginHeight = PropsUi.getFormMargin();
     wBottom.setLayout(bottomLayout);
 
     Label wSeparator = new Label(wBottom, SWT.SEPARATOR | SWT.HORIZONTAL);
@@ -358,7 +372,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wlFields = new Label(wBottom, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "RegexEvalDialog.Fields.Label"));
     wlFields.setToolTipText(BaseMessages.getString(PKG, "RegexEvalDialog.Fields.Tooltip"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wSeparator, 0);
@@ -441,7 +455,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
 
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -451,6 +465,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // START OF CONTENT TAB///
     // /
     CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
+    wContentTab.setFont(GuiResource.getInstance().getFontDefault());
     wContentTab.setText(BaseMessages.getString(PKG, "RegexEvalDialog.ContentTab.TabTitle"));
 
     FormLayout contentLayout = new FormLayout();
@@ -458,7 +473,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     contentLayout.marginHeight = 3;
 
     Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wContentComp);
+    PropsUi.setLook(wContentComp);
     wContentComp.setLayout(contentLayout);
 
     // Transform RegexSettings grouping?
@@ -467,7 +482,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     //
 
     Group wRegexSettings = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wRegexSettings);
+    PropsUi.setLook(wRegexSettings);
     wRegexSettings.setText("Regex Settings");
 
     FormLayout regexLayout = new FormLayout();
@@ -478,7 +493,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // Canon_Eq?
     Label wlCanonEq = new Label(wRegexSettings, SWT.RIGHT);
     wlCanonEq.setText(BaseMessages.getString(PKG, "RegexEvalDialog.CanonEq.Label"));
-    props.setLook(wlCanonEq);
+    PropsUi.setLook(wlCanonEq);
     FormData fdlCanonEq = new FormData();
     fdlCanonEq.left = new FormAttachment(0, 0);
     fdlCanonEq.top = new FormAttachment(wTransformSettings, margin);
@@ -486,7 +501,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wlCanonEq.setLayoutData(fdlCanonEq);
     wCanonEq = new Button(wRegexSettings, SWT.CHECK);
     wCanonEq.setToolTipText(BaseMessages.getString(PKG, "RegexEvalDialog.CanonEq.Tooltip"));
-    props.setLook(wCanonEq);
+    PropsUi.setLook(wCanonEq);
     FormData fdCanonEq = new FormData();
     fdCanonEq.left = new FormAttachment(middle, 0);
     fdCanonEq.top = new FormAttachment(wlCanonEq, 0, SWT.CENTER);
@@ -497,7 +512,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // CASE_INSENSITIVE?
     Label wlCaseInsensitive = new Label(wRegexSettings, SWT.RIGHT);
     wlCaseInsensitive.setText(BaseMessages.getString(PKG, "RegexEvalDialog.CaseInsensitive.Label"));
-    props.setLook(wlCaseInsensitive);
+    PropsUi.setLook(wlCaseInsensitive);
     FormData fdlCaseInsensitive = new FormData();
     fdlCaseInsensitive.left = new FormAttachment(0, 0);
     fdlCaseInsensitive.top = new FormAttachment(wCanonEq, margin);
@@ -506,7 +521,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wCaseInsensitive = new Button(wRegexSettings, SWT.CHECK);
     wCaseInsensitive.setToolTipText(
         BaseMessages.getString(PKG, "RegexEvalDialog.CaseInsensitive.Tooltip"));
-    props.setLook(wCaseInsensitive);
+    PropsUi.setLook(wCaseInsensitive);
     FormData fdCaseInsensitive = new FormData();
     fdCaseInsensitive.left = new FormAttachment(middle, 0);
     fdCaseInsensitive.top = new FormAttachment(wlCaseInsensitive, 0, SWT.CENTER);
@@ -517,7 +532,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // COMMENT?
     Label wlComment = new Label(wRegexSettings, SWT.RIGHT);
     wlComment.setText(BaseMessages.getString(PKG, "RegexEvalDialog.Comment.Label"));
-    props.setLook(wlComment);
+    PropsUi.setLook(wlComment);
     FormData fdlComment = new FormData();
     fdlComment.left = new FormAttachment(0, 0);
     fdlComment.top = new FormAttachment(wCaseInsensitive, margin);
@@ -525,7 +540,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wlComment.setLayoutData(fdlComment);
     wComment = new Button(wRegexSettings, SWT.CHECK);
     wComment.setToolTipText(BaseMessages.getString(PKG, "RegexEvalDialog.Comment.Tooltip"));
-    props.setLook(wComment);
+    PropsUi.setLook(wComment);
     FormData fdComment = new FormData();
     fdComment.left = new FormAttachment(middle, 0);
     fdComment.top = new FormAttachment(wlComment, 0, SWT.CENTER);
@@ -536,7 +551,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // DOTALL?
     Label wlDotAll = new Label(wRegexSettings, SWT.RIGHT);
     wlDotAll.setText(BaseMessages.getString(PKG, "RegexEvalDialog.DotAll.Label"));
-    props.setLook(wlDotAll);
+    PropsUi.setLook(wlDotAll);
     FormData fdlDotAll = new FormData();
     fdlDotAll.left = new FormAttachment(0, 0);
     fdlDotAll.top = new FormAttachment(wComment, margin);
@@ -544,7 +559,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wlDotAll.setLayoutData(fdlDotAll);
     wDotAll = new Button(wRegexSettings, SWT.CHECK);
     wDotAll.setToolTipText(BaseMessages.getString(PKG, "RegexEvalDialog.DotAll.Tooltip"));
-    props.setLook(wDotAll);
+    PropsUi.setLook(wDotAll);
     FormData fdDotAll = new FormData();
     fdDotAll.left = new FormAttachment(middle, 0);
     fdDotAll.top = new FormAttachment(wlDotAll, 0, SWT.CENTER);
@@ -555,7 +570,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // MULTILINE?
     Label wlMultiline = new Label(wRegexSettings, SWT.RIGHT);
     wlMultiline.setText(BaseMessages.getString(PKG, "RegexEvalDialog.Multiline.Label"));
-    props.setLook(wlMultiline);
+    PropsUi.setLook(wlMultiline);
     FormData fdlMultiline = new FormData();
     fdlMultiline.left = new FormAttachment(0, 0);
     fdlMultiline.top = new FormAttachment(wDotAll, margin);
@@ -563,7 +578,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wlMultiline.setLayoutData(fdlMultiline);
     wMultiline = new Button(wRegexSettings, SWT.CHECK);
     wMultiline.setToolTipText(BaseMessages.getString(PKG, "RegexEvalDialog.Multiline.Tooltip"));
-    props.setLook(wMultiline);
+    PropsUi.setLook(wMultiline);
     FormData fdMultiline = new FormData();
     fdMultiline.left = new FormAttachment(middle, 0);
     fdMultiline.top = new FormAttachment(wlMultiline, 0, SWT.CENTER);
@@ -574,7 +589,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // UNICODE?
     Label wlUnicode = new Label(wRegexSettings, SWT.RIGHT);
     wlUnicode.setText(BaseMessages.getString(PKG, "RegexEvalDialog.Unicode.Label"));
-    props.setLook(wlUnicode);
+    PropsUi.setLook(wlUnicode);
     FormData fdlUnicode = new FormData();
     fdlUnicode.left = new FormAttachment(0, 0);
     fdlUnicode.top = new FormAttachment(wMultiline, margin);
@@ -582,7 +597,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wlUnicode.setLayoutData(fdlUnicode);
     wUnicode = new Button(wRegexSettings, SWT.CHECK);
     wUnicode.setToolTipText(BaseMessages.getString(PKG, "RegexEvalDialog.Unicode.Tooltip"));
-    props.setLook(wUnicode);
+    PropsUi.setLook(wUnicode);
     FormData fdUnicode = new FormData();
     fdUnicode.left = new FormAttachment(middle, 0);
     fdUnicode.top = new FormAttachment(wlUnicode, 0, SWT.CENTER);
@@ -593,7 +608,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // UNIX?
     Label wlUnix = new Label(wRegexSettings, SWT.RIGHT);
     wlUnix.setText(BaseMessages.getString(PKG, "RegexEvalDialog.Unix.Label"));
-    props.setLook(wlUnix);
+    PropsUi.setLook(wlUnix);
     FormData fdlUnix = new FormData();
     fdlUnix.left = new FormAttachment(0, 0);
     fdlUnix.top = new FormAttachment(wUnicode, margin);
@@ -601,7 +616,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wlUnix.setLayoutData(fdlUnix);
     wUnix = new Button(wRegexSettings, SWT.CHECK);
     wUnix.setToolTipText(BaseMessages.getString(PKG, "RegexEvalDialog.Unix.Tooltip"));
-    props.setLook(wUnix);
+    PropsUi.setLook(wUnix);
     FormData fdUnix = new FormData();
     fdUnix.left = new FormAttachment(middle, 0);
     fdUnix.top = new FormAttachment(wlUnix, 0, SWT.CENTER);

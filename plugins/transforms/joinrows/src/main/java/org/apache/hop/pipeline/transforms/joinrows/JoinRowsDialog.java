@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ConditionEditor;
@@ -37,12 +38,13 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
@@ -76,7 +78,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -84,8 +86,8 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     backupCondition = (Condition) condition.clone();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "JoinRowsDialog.Shell.Title"));
@@ -96,7 +98,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "JoinRowsDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -104,7 +106,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -115,7 +117,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     // Connection line
     Label wlSortDir = new Label(shell, SWT.RIGHT);
     wlSortDir.setText(BaseMessages.getString(PKG, "JoinRowsDialog.TempDir.Label"));
-    props.setLook(wlSortDir);
+    PropsUi.setLook(wlSortDir);
     FormData fdlSortDir = new FormData();
     fdlSortDir.left = new FormAttachment(0, 0);
     fdlSortDir.right = new FormAttachment(middle, -margin);
@@ -123,7 +125,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     wlSortDir.setLayoutData(fdlSortDir);
 
     Button wbSortDir = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSortDir);
+    PropsUi.setLook(wbSortDir);
     wbSortDir.setText(BaseMessages.getString(PKG, "JoinRowsDialog.Browse.Button"));
     FormData fdbSortDir = new FormData();
     fdbSortDir.right = new FormAttachment(100, 0);
@@ -132,7 +134,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
 
     wSortDir = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSortDir.setText(BaseMessages.getString(PKG, "JoinRowsDialog.Temp.Label"));
-    props.setLook(wSortDir);
+    PropsUi.setLook(wSortDir);
     wSortDir.addModifyListener(lsMod);
     FormData fdSortDir = new FormData();
     fdSortDir.left = new FormAttachment(middle, 0);
@@ -140,18 +142,8 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     fdSortDir.right = new FormAttachment(wbSortDir, -margin);
     wSortDir.setLayoutData(fdSortDir);
 
-    wbSortDir.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            DirectoryDialog dd = new DirectoryDialog(shell, SWT.NONE);
-            dd.setFilterPath(wSortDir.getText());
-            String dir = dd.open();
-            if (dir != null) {
-              wSortDir.setText(dir);
-            }
-          }
-        });
+    wbSortDir.addListener(
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wSortDir, variables));
 
     // Whenever something changes, set the tooltip to the expanded version:
     wSortDir.addModifyListener(e -> wSortDir.setToolTipText(variables.resolve(wSortDir.getText())));
@@ -159,14 +151,14 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     // Table line...
     Label wlPrefix = new Label(shell, SWT.RIGHT);
     wlPrefix.setText(BaseMessages.getString(PKG, "JoinRowsDialog.TempFilePrefix.Label"));
-    props.setLook(wlPrefix);
+    PropsUi.setLook(wlPrefix);
     FormData fdlPrefix = new FormData();
     fdlPrefix.left = new FormAttachment(0, 0);
     fdlPrefix.right = new FormAttachment(middle, -margin);
     fdlPrefix.top = new FormAttachment(wbSortDir, margin * 2);
     wlPrefix.setLayoutData(fdlPrefix);
     wPrefix = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPrefix);
+    PropsUi.setLook(wPrefix);
     wPrefix.addModifyListener(lsMod);
     FormData fdPrefix = new FormData();
     fdPrefix.left = new FormAttachment(middle, 0);
@@ -178,14 +170,14 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     // ICache size...
     Label wlCache = new Label(shell, SWT.RIGHT);
     wlCache.setText(BaseMessages.getString(PKG, "JoinRowsDialog.Cache.Label"));
-    props.setLook(wlCache);
+    PropsUi.setLook(wlCache);
     FormData fdlCache = new FormData();
     fdlCache.left = new FormAttachment(0, 0);
     fdlCache.right = new FormAttachment(middle, -margin);
     fdlCache.top = new FormAttachment(wPrefix, margin * 2);
     wlCache.setLayoutData(fdlCache);
     wCache = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCache);
+    PropsUi.setLook(wCache);
     wCache.addModifyListener(lsMod);
     FormData fdCache = new FormData();
     fdCache.left = new FormAttachment(middle, 0);
@@ -196,14 +188,14 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     // Read date from...
     Label wlMainTransform = new Label(shell, SWT.RIGHT);
     wlMainTransform.setText(BaseMessages.getString(PKG, "JoinRowsDialog.MainTransform.Label"));
-    props.setLook(wlMainTransform);
+    PropsUi.setLook(wlMainTransform);
     FormData fdlMainTransform = new FormData();
     fdlMainTransform.left = new FormAttachment(0, 0);
     fdlMainTransform.right = new FormAttachment(middle, -margin);
     fdlMainTransform.top = new FormAttachment(wCache, margin);
     wlMainTransform.setLayoutData(fdlMainTransform);
     wMainTransform = new CCombo(shell, SWT.BORDER);
-    props.setLook(wMainTransform);
+    PropsUi.setLook(wMainTransform);
 
     List<TransformMeta> prevTransforms =
         pipelineMeta.findPreviousTransforms(pipelineMeta.findTransform(transformName));
@@ -221,7 +213,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     // Condition widget...
     Label wlCondition = new Label(shell, SWT.NONE);
     wlCondition.setText(BaseMessages.getString(PKG, "JoinRowsDialog.Condition.Label"));
-    props.setLook(wlCondition);
+    PropsUi.setLook(wlCondition);
     FormData fdlCondition = new FormData();
     fdlCondition.left = new FormAttachment(0, 0);
     fdlCondition.top = new FormAttachment(wMainTransform, margin);

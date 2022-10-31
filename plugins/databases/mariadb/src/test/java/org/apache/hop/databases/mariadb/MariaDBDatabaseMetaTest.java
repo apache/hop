@@ -32,7 +32,9 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.doReturn;
+import static org.mockito.BDDMockito.doThrow;
+import static org.mockito.BDDMockito.mock;
 
 public class MariaDBDatabaseMetaTest {
 

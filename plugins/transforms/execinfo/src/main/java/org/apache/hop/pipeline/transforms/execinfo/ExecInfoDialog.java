@@ -26,15 +26,21 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.widget.*;
+import org.apache.hop.ui.core.widget.LabelComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class ExecInfoDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ExecInfoMeta.class; // For Translator
@@ -66,12 +72,12 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ExecInfoDialog.Shell.Title"));
@@ -82,7 +88,7 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "ExecInfoDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -90,7 +96,7 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
@@ -107,7 +113,7 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
             SWT.NONE,
             BaseMessages.getString(PKG, "ExecInfoDialog.Location.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.Location.Tooltip"));
-    props.setLook(wLocation);
+    PropsUi.setLook(wLocation);
     FormData fdLocation = new FormData();
     fdLocation.left = new FormAttachment(0, 0);
     fdLocation.top = new FormAttachment(lastControl, margin);
@@ -119,7 +125,7 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
     wlOperationType.setText(BaseMessages.getString(PKG, "ExecInfoDialog.OperationType.Label"));
     wlOperationType.setToolTipText(
         BaseMessages.getString(PKG, "ExecInfoDialog.OperationType.Tooltip"));
-    props.setLook(wlOperationType);
+    PropsUi.setLook(wlOperationType);
     FormData fdlOperationType = new FormData();
     fdlOperationType.left = new FormAttachment(0, 0);
     fdlOperationType.top = new FormAttachment(lastControl, margin);
@@ -128,7 +134,7 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
     wOperationType = new CCombo(shell, SWT.LEFT);
     wOperationType.setToolTipText(
         BaseMessages.getString(PKG, "ExecInfoDialog.OperationType.Tooltip"));
-    props.setLook(wOperationType);
+    PropsUi.setLook(wOperationType);
     FormData fdOperationType = new FormData();
     fdOperationType.left = new FormAttachment(middle, margin);
     fdOperationType.top = new FormAttachment(lastControl, margin);
@@ -143,7 +149,7 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
             shell,
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldId.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldId.Tooltip"));
-    props.setLook(wFieldId);
+    PropsUi.setLook(wFieldId);
     FormData fdFieldId = new FormData();
     fdFieldId.left = new FormAttachment(0, 0);
     fdFieldId.top = new FormAttachment(lastControl, margin);
@@ -157,7 +163,7 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
             shell,
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldParentId.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldParentId.Tooltip"));
-    props.setLook(wFieldParentId);
+    PropsUi.setLook(wFieldParentId);
     FormData fdFieldParentId = new FormData();
     fdFieldParentId.left = new FormAttachment(0, 0);
     fdFieldParentId.top = new FormAttachment(lastControl, margin);
@@ -171,7 +177,7 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
             shell,
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldName.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldName.Tooltip"));
-    props.setLook(wFieldName);
+    PropsUi.setLook(wFieldName);
     FormData fdFieldName = new FormData();
     fdFieldName.left = new FormAttachment(0, 0);
     fdFieldName.top = new FormAttachment(lastControl, margin);
@@ -185,7 +191,7 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
             shell,
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldType.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldType.Tooltip"));
-    props.setLook(wFieldType);
+    PropsUi.setLook(wFieldType);
     FormData fdFieldType = new FormData();
     fdFieldType.left = new FormAttachment(0, 0);
     fdFieldType.top = new FormAttachment(lastControl, margin);
@@ -199,7 +205,7 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
             shell,
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldChildren.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldChildren.Tooltip"));
-    props.setLook(wFieldChildren);
+    PropsUi.setLook(wFieldChildren);
     FormData fdFieldChildren = new FormData();
     fdFieldChildren.left = new FormAttachment(0, 0);
     fdFieldChildren.top = new FormAttachment(lastControl, margin);
@@ -213,7 +219,7 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
             shell,
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldLimit.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldLimit.Tooltip"));
-    props.setLook(wFieldLimit);
+    PropsUi.setLook(wFieldLimit);
     FormData fdFieldLimit = new FormData();
     fdFieldLimit.left = new FormAttachment(0, 0);
     fdFieldLimit.top = new FormAttachment(lastControl, margin);

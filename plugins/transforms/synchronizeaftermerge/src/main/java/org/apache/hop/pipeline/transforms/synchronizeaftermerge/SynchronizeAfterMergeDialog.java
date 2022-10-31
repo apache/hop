@@ -18,7 +18,11 @@
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.*;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -32,12 +36,15 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -48,15 +55,29 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // For Translator
@@ -117,7 +138,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -144,8 +165,8 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.Shell.Title"));
@@ -169,7 +190,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -177,7 +198,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -186,18 +207,19 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.GeneralTab.TabTitle"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -211,7 +233,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     // Schema line...
     Label wlSchema = new Label(wGeneralComp, SWT.RIGHT);
     wlSchema.setText(BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.TargetSchema.Label"));
-    props.setLook(wlSchema);
+    PropsUi.setLook(wlSchema);
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
@@ -219,7 +241,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wlSchema.setLayoutData(fdlSchema);
 
     Button wbSchema = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSchema);
+    PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
@@ -227,7 +249,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wbSchema.setLayoutData(fdbSchema);
 
     wSchema = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSchema);
+    PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsTableMod);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
@@ -238,7 +260,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     // Table line...
     wlTable = new Label(wGeneralComp, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.TargetTable.Label"));
-    props.setLook(wlTable);
+    PropsUi.setLook(wlTable);
     FormData fdlTable = new FormData();
     fdlTable.left = new FormAttachment(0, 0);
     fdlTable.right = new FormAttachment(middle, -margin);
@@ -246,7 +268,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wlTable.setLayoutData(fdlTable);
 
     wbTable = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTable);
+    PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.Browse.Button"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
@@ -254,7 +276,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wbTable.setLayoutData(fdbTable);
 
     wTable = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTable);
+    PropsUi.setLook(wTable);
     wTable.addModifyListener(lsTableMod);
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(middle, 0);
@@ -265,7 +287,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     // Commit line
     Label wlCommit = new Label(wGeneralComp, SWT.RIGHT);
     wlCommit.setText(BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.CommitSize.Label"));
-    props.setLook(wlCommit);
+    PropsUi.setLook(wlCommit);
     FormData fdlCommit = new FormData();
     fdlCommit.left = new FormAttachment(0, 0);
     fdlCommit.top = new FormAttachment(wTable, margin);
@@ -273,7 +295,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wlCommit.setLayoutData(fdlCommit);
 
     wCommit = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCommit);
+    PropsUi.setLook(wCommit);
     wCommit.addModifyListener(lsMod);
     FormData fdCommit = new FormData();
     fdCommit.left = new FormAttachment(middle, 0);
@@ -284,7 +306,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     // UsePart update
     Label wlBatch = new Label(wGeneralComp, SWT.RIGHT);
     wlBatch.setText(BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.Batch.Label"));
-    props.setLook(wlBatch);
+    PropsUi.setLook(wlBatch);
     FormData fdlBatch = new FormData();
     fdlBatch.left = new FormAttachment(0, 0);
     fdlBatch.top = new FormAttachment(wCommit, margin);
@@ -293,7 +315,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wBatch = new Button(wGeneralComp, SWT.CHECK);
     wBatch.setToolTipText(BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.Batch.Tooltip"));
     wBatch.addSelectionListener(lsSimpleSelection);
-    props.setLook(wBatch);
+    PropsUi.setLook(wBatch);
     FormData fdBatch = new FormData();
     fdBatch.left = new FormAttachment(middle, 0);
     fdBatch.top = new FormAttachment(wlBatch, 0, SWT.CENTER);
@@ -304,7 +326,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     Label wlTablenameInField = new Label(wGeneralComp, SWT.RIGHT);
     wlTablenameInField.setText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.TablenameInField.Label"));
-    props.setLook(wlTablenameInField);
+    PropsUi.setLook(wlTablenameInField);
     FormData fdlTablenameInField = new FormData();
     fdlTablenameInField.left = new FormAttachment(0, 0);
     fdlTablenameInField.top = new FormAttachment(wBatch, margin);
@@ -313,7 +335,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wTablenameInField = new Button(wGeneralComp, SWT.CHECK);
     wTablenameInField.setToolTipText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.TablenameInField.Tooltip"));
-    props.setLook(wTablenameInField);
+    PropsUi.setLook(wTablenameInField);
     FormData fdTablenameInField = new FormData();
     fdTablenameInField.left = new FormAttachment(middle, 0);
     fdTablenameInField.top = new FormAttachment(wlTablenameInField, 0, SWT.CENTER);
@@ -331,7 +353,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wlTableField = new Label(wGeneralComp, SWT.RIGHT);
     wlTableField.setText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.TableField.Label"));
-    props.setLook(wlTableField);
+    PropsUi.setLook(wlTableField);
     FormData fdlTableField = new FormData();
     fdlTableField.left = new FormAttachment(0, 0);
     fdlTableField.top = new FormAttachment(wTablenameInField, margin);
@@ -339,7 +361,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wlTableField.setLayoutData(fdlTableField);
     wTableField = new CCombo(wGeneralComp, SWT.BORDER | SWT.READ_ONLY);
     wTableField.setEditable(true);
-    props.setLook(wTableField);
+    PropsUi.setLook(wTableField);
     wTableField.addModifyListener(lsMod);
     FormData fdTableField = new FormData();
     fdTableField.left = new FormAttachment(middle, 0);
@@ -363,7 +385,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
     Label wlKey = new Label(wGeneralComp, SWT.NONE);
     wlKey.setText(BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.Keys.Label"));
-    props.setLook(wlKey);
+    PropsUi.setLook(wlKey);
     FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment(0, 0);
     fdlKey.top = new FormAttachment(wTableField, margin);
@@ -426,7 +448,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     // THE UPDATE/INSERT TABLE
     Label wlReturn = new Label(wGeneralComp, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.UpdateFields.Label"));
-    props.setLook(wlReturn);
+    PropsUi.setLook(wlReturn);
     FormData fdlReturn = new FormData();
     fdlReturn.left = new FormAttachment(0, 0);
     fdlReturn.top = new FormAttachment(wKey, margin);
@@ -525,7 +547,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -536,11 +558,12 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     // ////////////////////////
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdvancedTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdvancedTab.setText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.AdvancedTab.TabTitle"));
 
     Composite wAdvancedComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wAdvancedComp);
+    PropsUi.setLook(wAdvancedComp);
 
     FormLayout advancedLayout = new FormLayout();
     advancedLayout.marginWidth = 3;
@@ -552,7 +575,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     // ///////////////////////////////
 
     Group wOperationOrder = new Group(wAdvancedComp, SWT.SHADOW_NONE);
-    props.setLook(wOperationOrder);
+    PropsUi.setLook(wOperationOrder);
     wOperationOrder.setText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.OperationOrder.Label"));
 
@@ -564,7 +587,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     Label wlOperationField = new Label(wOperationOrder, SWT.RIGHT);
     wlOperationField.setText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.OperationField.Label"));
-    props.setLook(wlOperationField);
+    PropsUi.setLook(wlOperationField);
     FormData fdlOperationField = new FormData();
     fdlOperationField.left = new FormAttachment(0, 0);
     fdlOperationField.top = new FormAttachment(wTableField, margin);
@@ -572,7 +595,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wlOperationField.setLayoutData(fdlOperationField);
     wOperationField = new CCombo(wOperationOrder, SWT.BORDER | SWT.READ_ONLY);
     wOperationField.setEditable(true);
-    props.setLook(wOperationField);
+    PropsUi.setLook(wOperationField);
     wOperationField.addModifyListener(lsMod);
     FormData fdOperationField = new FormData();
     fdOperationField.left = new FormAttachment(middle, 0);
@@ -598,7 +621,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     Label wlOrderInsert = new Label(wOperationOrder, SWT.RIGHT);
     wlOrderInsert.setText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.OrderInsert.Label"));
-    props.setLook(wlOrderInsert);
+    PropsUi.setLook(wlOrderInsert);
     FormData fdlOrderInsert = new FormData();
     fdlOrderInsert.left = new FormAttachment(0, 0);
     fdlOrderInsert.right = new FormAttachment(middle, -margin);
@@ -608,7 +631,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wOrderInsert = new TextVar(variables, wOperationOrder, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wOrderInsert.setToolTipText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.OrderInsert.ToolTip"));
-    props.setLook(wOrderInsert);
+    PropsUi.setLook(wOrderInsert);
     wOrderInsert.addModifyListener(lsMod);
     FormData fdOrderInsert = new FormData();
     fdOrderInsert.left = new FormAttachment(middle, 0);
@@ -620,7 +643,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     Label wlOrderUpdate = new Label(wOperationOrder, SWT.RIGHT);
     wlOrderUpdate.setText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.OrderUpdate.Label"));
-    props.setLook(wlOrderUpdate);
+    PropsUi.setLook(wlOrderUpdate);
     FormData fdlOrderUpdate = new FormData();
     fdlOrderUpdate.left = new FormAttachment(0, 0);
     fdlOrderUpdate.right = new FormAttachment(middle, -margin);
@@ -630,7 +653,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wOrderUpdate = new TextVar(variables, wOperationOrder, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wOrderUpdate.setToolTipText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.OrderUpdate.ToolTip"));
-    props.setLook(wOrderUpdate);
+    PropsUi.setLook(wOrderUpdate);
     wOrderUpdate.addModifyListener(lsMod);
     FormData fdOrderUpdate = new FormData();
     fdOrderUpdate.left = new FormAttachment(middle, 0);
@@ -642,7 +665,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     Label wlOrderDelete = new Label(wOperationOrder, SWT.RIGHT);
     wlOrderDelete.setText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.OrderDelete.Label"));
-    props.setLook(wlOrderDelete);
+    PropsUi.setLook(wlOrderDelete);
     FormData fdlOrderDelete = new FormData();
     fdlOrderDelete.left = new FormAttachment(0, 0);
     fdlOrderDelete.right = new FormAttachment(middle, -margin);
@@ -652,7 +675,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wOrderDelete = new TextVar(variables, wOperationOrder, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wOrderDelete.setToolTipText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.OrderDelete.ToolTip"));
-    props.setLook(wOrderDelete);
+    PropsUi.setLook(wOrderDelete);
     wOrderDelete.addModifyListener(lsMod);
     FormData fdOrderDelete = new FormData();
     fdOrderDelete.left = new FormAttachment(middle, 0);
@@ -664,7 +687,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     Label wlPerformLookup = new Label(wOperationOrder, SWT.RIGHT);
     wlPerformLookup.setText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.PerformLookup.Label"));
-    props.setLook(wlPerformLookup);
+    PropsUi.setLook(wlPerformLookup);
     FormData fdlPerformLookup = new FormData();
     fdlPerformLookup.left = new FormAttachment(0, 0);
     fdlPerformLookup.top = new FormAttachment(wOrderDelete, margin);
@@ -674,7 +697,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wPerformLookup.setToolTipText(
         BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.PerformLookup.Tooltip"));
     wPerformLookup.addSelectionListener(lsSimpleSelection);
-    props.setLook(wPerformLookup);
+    PropsUi.setLook(wPerformLookup);
     FormData fdPerformLookup = new FormData();
     fdPerformLookup.left = new FormAttachment(middle, 0);
     fdPerformLookup.top = new FormAttachment(wlPerformLookup, 0, SWT.CENTER);
@@ -700,7 +723,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
     wAdvancedComp.layout();
     wAdvancedTab.setControl(wAdvancedComp);
-    props.setLook(wAdvancedComp);
+    PropsUi.setLook(wAdvancedComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF ADVANCED TAB

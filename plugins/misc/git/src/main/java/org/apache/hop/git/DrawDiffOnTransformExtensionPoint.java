@@ -21,6 +21,7 @@ package org.apache.hop.git;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
@@ -31,7 +32,11 @@ import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 
-import static org.apache.hop.git.HopDiff.*;
+import static org.apache.hop.git.HopDiff.ADDED;
+import static org.apache.hop.git.HopDiff.ATTR_GIT;
+import static org.apache.hop.git.HopDiff.ATTR_STATUS;
+import static org.apache.hop.git.HopDiff.CHANGED;
+import static org.apache.hop.git.HopDiff.REMOVED;
 
 @ExtensionPoint(
     id = "DrawDiffOnTransExtensionPoint",
@@ -46,7 +51,7 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
       return;
     }
     PipelinePainter painter = (PipelinePainter) object;
-    Point offset = painter.getOffset();
+    DPoint offset = painter.getOffset();
     IGc gc = painter.getGc();
     PipelineMeta pipelineMeta = painter.getPipelineMeta();
     try {
@@ -74,13 +79,13 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
                   } catch (Exception e) {
                     // Exception when accessed from Hop Server
                   }
-                  int x = (n.x + iconSize + offset.x) - (iconSize / 4);
-                  int y = n.y + offset.y - (iconSize / 4);
+                  double x = (n.x + iconSize + offset.x) - (iconSize / 4);
+                  double y = n.y + offset.y - (iconSize / 4);
                   try {
                     gc.drawImage(
                         new SvgFile(location, getClass().getClassLoader()),
-                        x,
-                        y,
+                        (int) x,
+                        (int) y,
                         iconSize / 2,
                         iconSize / 2,
                         gc.getMagnification(),

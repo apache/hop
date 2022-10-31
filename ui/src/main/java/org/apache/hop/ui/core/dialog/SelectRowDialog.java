@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -80,11 +79,11 @@ public class SelectRowDialog extends Dialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     if (title == null) {
       title = BaseMessages.getString(PKG, "SelectRowDialog.Title");

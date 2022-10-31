@@ -21,10 +21,15 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -104,6 +109,7 @@ public class ComboVar extends Composite {
 
     // add a text field on it...
     wCombo = new CCombo(this, flags);
+    PropsUi.setLook(wCombo);
     modifyListenerTooltipText = getModifyListenerTooltipText(wCombo);
     wCombo.addModifyListener(modifyListenerTooltipText);
     FormData fdCombo = new FormData();
@@ -278,4 +284,5 @@ public class ComboVar extends Composite {
     wCombo.select(index);
     modifyListenerTooltipText.modifyText(null);
   }
+
 }

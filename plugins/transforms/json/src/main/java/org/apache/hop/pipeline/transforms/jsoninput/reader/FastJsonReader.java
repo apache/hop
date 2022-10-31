@@ -17,7 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
-import com.jayway.jsonpath.*;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
+import com.jayway.jsonpath.ParseContext;
+import com.jayway.jsonpath.ReadContext;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.SingleRowRowSet;

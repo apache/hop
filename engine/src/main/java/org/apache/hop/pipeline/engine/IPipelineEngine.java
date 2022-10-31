@@ -26,7 +26,6 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;

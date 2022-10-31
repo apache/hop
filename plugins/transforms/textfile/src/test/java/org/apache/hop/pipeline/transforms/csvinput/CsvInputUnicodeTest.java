@@ -25,7 +25,11 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 

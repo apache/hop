@@ -18,7 +18,11 @@
 package org.apache.hop.databases.mssql;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.*;
+import org.apache.hop.core.database.BaseDatabaseMeta;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;

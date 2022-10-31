@@ -25,9 +25,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -37,7 +37,12 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class ImporterDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -85,7 +90,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout shellLayout = new FormLayout();
@@ -107,7 +112,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     wScrolledComposite.setLayoutData(fdSComposite);
 
     Composite wComposite = new Composite(wScrolledComposite, SWT.NONE);
-    props.setLook(wComposite);
+    PropsUi.setLook(wComposite);
     FormData fdComposite = new FormData();
     fdComposite.left = new FormAttachment(0, 0);
     fdComposite.right = new FormAttachment(100, 0);
@@ -116,25 +121,25 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     wComposite.setLayoutData(fdComposite);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
     wComposite.setLayout(formLayout);
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Transform name line
     //
     Label wlTransformName = new Label(wComposite, SWT.RIGHT);
     wlTransformName.setText("Transform name");
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -154,7 +159,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlFilenameField = new Label(wComposite, SWT.RIGHT);
     wlFilenameField.setText("Filename field ");
-    props.setLook(wlFilenameField);
+    PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, 0);
     fdlFilenameField.right = new FormAttachment(middle, -margin);
@@ -162,7 +167,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     wlFilenameField.setLayoutData(fdlFilenameField);
     wFilenameField = new CCombo(wComposite, SWT.CHECK | SWT.BORDER);
     wFilenameField.setItems(fieldnames);
-    props.setLook(wFilenameField);
+    PropsUi.setLook(wFilenameField);
     FormData fdFilenameField = new FormData();
     fdFilenameField.left = new FormAttachment(middle, 0);
     fdFilenameField.right = new FormAttachment(100, 0);
@@ -174,7 +179,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlFileTypeField = new Label(wComposite, SWT.RIGHT);
     wlFileTypeField.setText("File type field ");
-    props.setLook(wlFileTypeField);
+    PropsUi.setLook(wlFileTypeField);
     FormData fdlFileTypeField = new FormData();
     fdlFileTypeField.left = new FormAttachment(0, 0);
     fdlFileTypeField.right = new FormAttachment(middle, -margin);
@@ -182,7 +187,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     wlFileTypeField.setLayoutData(fdlFileTypeField);
     wFileTypeField = new CCombo(wComposite, SWT.CHECK | SWT.BORDER);
     wFileTypeField.setItems(fieldnames);
-    props.setLook(wFileTypeField);
+    PropsUi.setLook(wFileTypeField);
     FormData fdFileTypeField = new FormData();
     fdFileTypeField.left = new FormAttachment(middle, 0);
     fdFileTypeField.right = new FormAttachment(100, 0);
@@ -194,14 +199,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlDatabaseFilename = new Label(wComposite, SWT.RIGHT);
     wlDatabaseFilename.setText("Database filename ");
-    props.setLook(wlDatabaseFilename);
+    PropsUi.setLook(wlDatabaseFilename);
     FormData fdlDatabaseFilename = new FormData();
     fdlDatabaseFilename.left = new FormAttachment(0, 0);
     fdlDatabaseFilename.right = new FormAttachment(middle, -margin);
     fdlDatabaseFilename.top = new FormAttachment(lastControl, 2 * margin);
     wlDatabaseFilename.setLayoutData(fdlDatabaseFilename);
     wDatabaseFilename = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDatabaseFilename);
+    PropsUi.setLook(wDatabaseFilename);
     wDatabaseFilename.addModifyListener(lsMod);
     FormData fdDatabaseFilename = new FormData();
     fdDatabaseFilename.left = new FormAttachment(middle, 0);
@@ -214,14 +219,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlAdminCommand = new Label(wComposite, SWT.RIGHT);
     wlAdminCommand.setText("neo4j-admin command path ");
-    props.setLook(wlAdminCommand);
+    PropsUi.setLook(wlAdminCommand);
     FormData fdlAdminCommand = new FormData();
     fdlAdminCommand.left = new FormAttachment(0, 0);
     fdlAdminCommand.right = new FormAttachment(middle, -margin);
     fdlAdminCommand.top = new FormAttachment(lastControl, 2 * margin);
     wlAdminCommand.setLayoutData(fdlAdminCommand);
     wAdminCommand = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wAdminCommand);
+    PropsUi.setLook(wAdminCommand);
     wAdminCommand.addModifyListener(lsMod);
     FormData fdAdminCommand = new FormData();
     fdAdminCommand.left = new FormAttachment(middle, 0);
@@ -234,14 +239,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlBaseFolder = new Label(wComposite, SWT.RIGHT);
     wlBaseFolder.setText("Base folder (below import/ folder) ");
-    props.setLook(wlBaseFolder);
+    PropsUi.setLook(wlBaseFolder);
     FormData fdlBaseFolder = new FormData();
     fdlBaseFolder.left = new FormAttachment(0, 0);
     fdlBaseFolder.right = new FormAttachment(middle, -margin);
     fdlBaseFolder.top = new FormAttachment(lastControl, 2 * margin);
     wlBaseFolder.setLayoutData(fdlBaseFolder);
     wBaseFolder = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBaseFolder);
+    PropsUi.setLook(wBaseFolder);
     wBaseFolder.addModifyListener(lsMod);
     FormData fdBaseFolder = new FormData();
     fdBaseFolder.left = new FormAttachment(middle, 0);
@@ -254,14 +259,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlVerbose = new Label(wComposite, SWT.RIGHT);
     wlVerbose.setText("Verbose output? ");
-    props.setLook(wlVerbose);
+    PropsUi.setLook(wlVerbose);
     FormData fdlVerbose = new FormData();
     fdlVerbose.left = new FormAttachment(0, 0);
     fdlVerbose.right = new FormAttachment(middle, -margin);
     fdlVerbose.top = new FormAttachment(lastControl, 2 * margin);
     wlVerbose.setLayoutData(fdlVerbose);
     Button wVerbose = new Button(wComposite, SWT.CHECK | SWT.LEFT);
-    props.setLook(wVerbose);
+    PropsUi.setLook(wVerbose);
     FormData fdVerbose = new FormData();
     fdVerbose.left = new FormAttachment(middle, 0);
     fdVerbose.right = new FormAttachment(100, 0);
@@ -273,14 +278,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlHighIo = new Label(wComposite, SWT.RIGHT);
     wlHighIo.setText("High IO? ");
-    props.setLook(wlHighIo);
+    PropsUi.setLook(wlHighIo);
     FormData fdlHighIo = new FormData();
     fdlHighIo.left = new FormAttachment(0, 0);
     fdlHighIo.right = new FormAttachment(middle, -margin);
     fdlHighIo.top = new FormAttachment(lastControl, 2 * margin);
     wlHighIo.setLayoutData(fdlHighIo);
     wHighIo = new Button(wComposite, SWT.CHECK | SWT.LEFT);
-    props.setLook(wHighIo);
+    PropsUi.setLook(wHighIo);
     FormData fdHighIo = new FormData();
     fdHighIo.left = new FormAttachment(middle, 0);
     fdHighIo.right = new FormAttachment(100, 0);
@@ -292,14 +297,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlCacheOnHeap = new Label(wComposite, SWT.RIGHT);
     wlCacheOnHeap.setText("Cache on heap? ");
-    props.setLook(wlCacheOnHeap);
+    PropsUi.setLook(wlCacheOnHeap);
     FormData fdlCacheOnHeap = new FormData();
     fdlCacheOnHeap.left = new FormAttachment(0, 0);
     fdlCacheOnHeap.right = new FormAttachment(middle, -margin);
     fdlCacheOnHeap.top = new FormAttachment(lastControl, 2 * margin);
     wlCacheOnHeap.setLayoutData(fdlCacheOnHeap);
     wCacheOnHeap = new Button(wComposite, SWT.CHECK | SWT.LEFT);
-    props.setLook(wCacheOnHeap);
+    PropsUi.setLook(wCacheOnHeap);
     FormData fdCacheOnHeap = new FormData();
     fdCacheOnHeap.left = new FormAttachment(middle, 0);
     fdCacheOnHeap.right = new FormAttachment(100, 0);
@@ -311,14 +316,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlIgnoreEmptyStrings = new Label(wComposite, SWT.RIGHT);
     wlIgnoreEmptyStrings.setText("Ignore empty strings? ");
-    props.setLook(wlIgnoreEmptyStrings);
+    PropsUi.setLook(wlIgnoreEmptyStrings);
     FormData fdlIgnoreEmptyStrings = new FormData();
     fdlIgnoreEmptyStrings.left = new FormAttachment(0, 0);
     fdlIgnoreEmptyStrings.right = new FormAttachment(middle, -margin);
     fdlIgnoreEmptyStrings.top = new FormAttachment(lastControl, 2 * margin);
     wlIgnoreEmptyStrings.setLayoutData(fdlIgnoreEmptyStrings);
     wIgnoreEmptyStrings = new Button(wComposite, SWT.CHECK | SWT.LEFT);
-    props.setLook(wIgnoreEmptyStrings);
+    PropsUi.setLook(wIgnoreEmptyStrings);
     FormData fdIgnoreEmptyStrings = new FormData();
     fdIgnoreEmptyStrings.left = new FormAttachment(middle, 0);
     fdIgnoreEmptyStrings.right = new FormAttachment(100, 0);
@@ -330,14 +335,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlIgnoreExtraColumns = new Label(wComposite, SWT.RIGHT);
     wlIgnoreExtraColumns.setText("Ignore extra columns? ");
-    props.setLook(wlIgnoreExtraColumns);
+    PropsUi.setLook(wlIgnoreExtraColumns);
     FormData fdlIgnoreExtraColumns = new FormData();
     fdlIgnoreExtraColumns.left = new FormAttachment(0, 0);
     fdlIgnoreExtraColumns.right = new FormAttachment(middle, -margin);
     fdlIgnoreExtraColumns.top = new FormAttachment(lastControl, 2 * margin);
     wlIgnoreExtraColumns.setLayoutData(fdlIgnoreExtraColumns);
     wIgnoreExtraColumns = new Button(wComposite, SWT.CHECK | SWT.LEFT);
-    props.setLook(wIgnoreExtraColumns);
+    PropsUi.setLook(wIgnoreExtraColumns);
     FormData fdIgnoreExtraColumns = new FormData();
     fdIgnoreExtraColumns.left = new FormAttachment(middle, 0);
     fdIgnoreExtraColumns.right = new FormAttachment(100, 0);
@@ -349,14 +354,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlLegacyStyleQuoting = new Label(wComposite, SWT.RIGHT);
     wlLegacyStyleQuoting.setText("Legacy style quoting? ");
-    props.setLook(wlLegacyStyleQuoting);
+    PropsUi.setLook(wlLegacyStyleQuoting);
     FormData fdlLegacyStyleQuoting = new FormData();
     fdlLegacyStyleQuoting.left = new FormAttachment(0, 0);
     fdlLegacyStyleQuoting.right = new FormAttachment(middle, -margin);
     fdlLegacyStyleQuoting.top = new FormAttachment(lastControl, 2 * margin);
     wlLegacyStyleQuoting.setLayoutData(fdlLegacyStyleQuoting);
     wLegacyStyleQuoting = new Button(wComposite, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLegacyStyleQuoting);
+    PropsUi.setLook(wLegacyStyleQuoting);
     FormData fdLegacyStyleQuoting = new FormData();
     fdLegacyStyleQuoting.left = new FormAttachment(middle, 0);
     fdLegacyStyleQuoting.right = new FormAttachment(100, 0);
@@ -368,14 +373,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlMultiLine = new Label(wComposite, SWT.RIGHT);
     wlMultiLine.setText("Fields can have multi-line data? ");
-    props.setLook(wlMultiLine);
+    PropsUi.setLook(wlMultiLine);
     FormData fdlMultiLine = new FormData();
     fdlMultiLine.left = new FormAttachment(0, 0);
     fdlMultiLine.right = new FormAttachment(middle, -margin);
     fdlMultiLine.top = new FormAttachment(lastControl, 2 * margin);
     wlMultiLine.setLayoutData(fdlMultiLine);
     wMultiLine = new Button(wComposite, SWT.CHECK | SWT.LEFT);
-    props.setLook(wMultiLine);
+    PropsUi.setLook(wMultiLine);
     FormData fdMultiLine = new FormData();
     fdMultiLine.left = new FormAttachment(middle, 0);
     fdMultiLine.right = new FormAttachment(100, 0);
@@ -387,14 +392,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlNormalizeTypes = new Label(wComposite, SWT.RIGHT);
     wlNormalizeTypes.setText("Normalize types? ");
-    props.setLook(wlNormalizeTypes);
+    PropsUi.setLook(wlNormalizeTypes);
     FormData fdlNormalizeTypes = new FormData();
     fdlNormalizeTypes.left = new FormAttachment(0, 0);
     fdlNormalizeTypes.right = new FormAttachment(middle, -margin);
     fdlNormalizeTypes.top = new FormAttachment(lastControl, 2 * margin);
     wlNormalizeTypes.setLayoutData(fdlNormalizeTypes);
     wNormalizeTypes = new Button(wComposite, SWT.CHECK | SWT.LEFT);
-    props.setLook(wNormalizeTypes);
+    PropsUi.setLook(wNormalizeTypes);
     FormData fdNormalizeTypes = new FormData();
     fdNormalizeTypes.left = new FormAttachment(middle, 0);
     fdNormalizeTypes.right = new FormAttachment(100, 0);
@@ -406,14 +411,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlSkipBadEntriesLogging = new Label(wComposite, SWT.RIGHT);
     wlSkipBadEntriesLogging.setText("Skip logging bad entries during import? ");
-    props.setLook(wlSkipBadEntriesLogging);
+    PropsUi.setLook(wlSkipBadEntriesLogging);
     FormData fdlSkipBadEntriesLogging = new FormData();
     fdlSkipBadEntriesLogging.left = new FormAttachment(0, 0);
     fdlSkipBadEntriesLogging.right = new FormAttachment(middle, -margin);
     fdlSkipBadEntriesLogging.top = new FormAttachment(lastControl, 2 * margin);
     wlSkipBadEntriesLogging.setLayoutData(fdlSkipBadEntriesLogging);
     wSkipBadEntriesLogging = new Button(wComposite, SWT.CHECK | SWT.LEFT);
-    props.setLook(wSkipBadEntriesLogging);
+    PropsUi.setLook(wSkipBadEntriesLogging);
     FormData fdSkipBadEntriesLogging = new FormData();
     fdSkipBadEntriesLogging.left = new FormAttachment(middle, 0);
     fdSkipBadEntriesLogging.right = new FormAttachment(100, 0);
@@ -425,14 +430,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlSkipBadRelationships = new Label(wComposite, SWT.RIGHT);
     wlSkipBadRelationships.setText("Skip bad relationships? ");
-    props.setLook(wlSkipBadRelationships);
+    PropsUi.setLook(wlSkipBadRelationships);
     FormData fdlSkipBadRelationships = new FormData();
     fdlSkipBadRelationships.left = new FormAttachment(0, 0);
     fdlSkipBadRelationships.right = new FormAttachment(middle, -margin);
     fdlSkipBadRelationships.top = new FormAttachment(lastControl, 2 * margin);
     wlSkipBadRelationships.setLayoutData(fdlSkipBadRelationships);
     wSkipBadRelationships = new Button(wComposite, SWT.CHECK | SWT.LEFT);
-    props.setLook(wSkipBadRelationships);
+    PropsUi.setLook(wSkipBadRelationships);
     FormData fdSkipBadRelationships = new FormData();
     fdSkipBadRelationships.left = new FormAttachment(middle, 0);
     fdSkipBadRelationships.right = new FormAttachment(100, 0);
@@ -444,14 +449,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlSkipDuplicateNodes = new Label(wComposite, SWT.RIGHT);
     wlSkipDuplicateNodes.setText("Skip duplicate nodes? ");
-    props.setLook(wlSkipDuplicateNodes);
+    PropsUi.setLook(wlSkipDuplicateNodes);
     FormData fdlSkipDuplicateNodes = new FormData();
     fdlSkipDuplicateNodes.left = new FormAttachment(0, 0);
     fdlSkipDuplicateNodes.right = new FormAttachment(middle, -margin);
     fdlSkipDuplicateNodes.top = new FormAttachment(lastControl, 2 * margin);
     wlSkipDuplicateNodes.setLayoutData(fdlSkipDuplicateNodes);
     wSkipDuplicateNodes = new Button(wComposite, SWT.CHECK | SWT.LEFT);
-    props.setLook(wSkipDuplicateNodes);
+    PropsUi.setLook(wSkipDuplicateNodes);
     FormData fdSkipDuplicateNodes = new FormData();
     fdSkipDuplicateNodes.left = new FormAttachment(middle, 0);
     fdSkipDuplicateNodes.right = new FormAttachment(100, 0);
@@ -463,14 +468,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlTrimStrings = new Label(wComposite, SWT.RIGHT);
     wlTrimStrings.setText("Trim strings? ");
-    props.setLook(wlTrimStrings);
+    PropsUi.setLook(wlTrimStrings);
     FormData fdlTrimStrings = new FormData();
     fdlTrimStrings.left = new FormAttachment(0, 0);
     fdlTrimStrings.right = new FormAttachment(middle, -margin);
     fdlTrimStrings.top = new FormAttachment(lastControl, 2 * margin);
     wlTrimStrings.setLayoutData(fdlTrimStrings);
     wTrimStrings = new Button(wComposite, SWT.CHECK | SWT.LEFT);
-    props.setLook(wTrimStrings);
+    PropsUi.setLook(wTrimStrings);
     FormData fdTrimStrings = new FormData();
     fdTrimStrings.left = new FormAttachment(middle, 0);
     fdTrimStrings.right = new FormAttachment(100, 0);
@@ -484,7 +489,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     wlBadTolerance.setText("Bad tolerance");
     String ttBadTolerance = "Number of bad entries before the import is considered failed";
     wlBadTolerance.setToolTipText(ttBadTolerance);
-    props.setLook(wlBadTolerance);
+    PropsUi.setLook(wlBadTolerance);
     FormData fdlBadTolerance = new FormData();
     fdlBadTolerance.left = new FormAttachment(0, 0);
     fdlBadTolerance.right = new FormAttachment(middle, -margin);
@@ -492,7 +497,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     wlBadTolerance.setLayoutData(fdlBadTolerance);
     wBadTolerance = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wBadTolerance.setToolTipText(ttBadTolerance);
-    props.setLook(wBadTolerance);
+    PropsUi.setLook(wBadTolerance);
     wBadTolerance.addModifyListener(lsMod);
     FormData fdBadTolerance = new FormData();
     fdBadTolerance.left = new FormAttachment(middle, 0);
@@ -505,14 +510,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlMaxMemory = new Label(wComposite, SWT.RIGHT);
     wlMaxMemory.setText("Max memory ");
-    props.setLook(wlMaxMemory);
+    PropsUi.setLook(wlMaxMemory);
     FormData fdlMaxMemory = new FormData();
     fdlMaxMemory.left = new FormAttachment(0, 0);
     fdlMaxMemory.right = new FormAttachment(middle, -margin);
     fdlMaxMemory.top = new FormAttachment(lastControl, 2 * margin);
     wlMaxMemory.setLayoutData(fdlMaxMemory);
     wMaxMemory = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMaxMemory);
+    PropsUi.setLook(wMaxMemory);
     wMaxMemory.addModifyListener(lsMod);
     FormData fdMaxMemory = new FormData();
     fdMaxMemory.left = new FormAttachment(middle, 0);
@@ -526,14 +531,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlReadBufferSize = new Label(wComposite, SWT.RIGHT);
     wlReadBufferSize.setText("Read buffer size ");
-    props.setLook(wlReadBufferSize);
+    PropsUi.setLook(wlReadBufferSize);
     FormData fdlReadBufferSize = new FormData();
     fdlReadBufferSize.left = new FormAttachment(0, 0);
     fdlReadBufferSize.right = new FormAttachment(middle, -margin);
     fdlReadBufferSize.top = new FormAttachment(lastControl, 2 * margin);
     wlReadBufferSize.setLayoutData(fdlReadBufferSize);
     wReadBufferSize = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wReadBufferSize);
+    PropsUi.setLook(wReadBufferSize);
     wReadBufferSize.addModifyListener(lsMod);
     FormData fdReadBufferSize = new FormData();
     fdReadBufferSize.left = new FormAttachment(middle, 0);
@@ -546,14 +551,14 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
     //
     Label wlProcessors = new Label(wComposite, SWT.RIGHT);
     wlProcessors.setText("Processors ");
-    props.setLook(wlProcessors);
+    PropsUi.setLook(wlProcessors);
     FormData fdlProcessors = new FormData();
     fdlProcessors.left = new FormAttachment(0, 0);
     fdlProcessors.right = new FormAttachment(middle, -margin);
     fdlProcessors.top = new FormAttachment(lastControl, 2 * margin);
     wlProcessors.setLayoutData(fdlProcessors);
     wProcessors = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wProcessors);
+    PropsUi.setLook(wProcessors);
     wProcessors.addModifyListener(lsMod);
     FormData fdProcessors = new FormData();
     fdProcessors.left = new FormAttachment(middle, 0);

@@ -17,8 +17,16 @@
 
 package org.apache.hop.workflow.actions.zipfile;
 
-import org.apache.commons.vfs2.*;
-import org.apache.hop.core.*;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSelectInfo;
+import org.apache.commons.vfs2.FileSelector;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileType;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -33,11 +41,20 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.*;
+import org.apache.hop.workflow.action.validator.AbstractFileValidator;
+import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
+import org.apache.hop.workflow.action.validator.AndValidator;
+import org.apache.hop.workflow.action.validator.FileDoesNotExistValidator;
+import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;

@@ -36,7 +36,13 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /** Denormalises data based on key-value pairs */
 public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserData> {

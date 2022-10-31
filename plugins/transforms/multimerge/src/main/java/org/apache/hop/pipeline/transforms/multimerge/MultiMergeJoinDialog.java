@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -45,10 +46,20 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = MultiMergeJoinMeta.class; // For Translator
@@ -110,15 +121,15 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, joinMeta);
 
     final ModifyListener lsMod = e -> joinMeta.setChanged();
     backupChanged = joinMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "MultiMergeJoinDialog.Shell.Label"));
@@ -126,7 +137,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "MultiMergeJoinDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -134,7 +145,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(wlTransformName, margin);
@@ -177,7 +188,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
   private void createJoinTypeWidget(final ModifyListener lsMod) {
     Label joinTypeLabel = new Label(shell, SWT.RIGHT);
     joinTypeLabel.setText(BaseMessages.getString(PKG, "MultiMergeJoinDialog.Type.Label"));
-    props.setLook(joinTypeLabel);
+    PropsUi.setLook(joinTypeLabel);
     FormData fdlType = new FormData();
     fdlType.left = new FormAttachment(0, 0);
     fdlType.right = new FormAttachment(middle, -margin);
@@ -189,7 +200,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     }
     joinTypeLabel.setLayoutData(fdlType);
     joinTypeCombo = new CCombo(shell, SWT.BORDER);
-    props.setLook(joinTypeCombo);
+    PropsUi.setLook(joinTypeCombo);
 
     joinTypeCombo.setItems(MultiMergeJoinMeta.joinTypes);
 
@@ -217,7 +228,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
       wlTransform = new Label(shell, SWT.RIGHT);
       wlTransform.setText(
           BaseMessages.getString(PKG, "MultiMergeJoinMeta.InputTransform") + (index + 1));
-      props.setLook(wlTransform);
+      PropsUi.setLook(wlTransform);
       fdlTransform = new FormData();
       fdlTransform.left = new FormAttachment(0, 0);
       fdlTransform.right = new FormAttachment(middle, -margin);
@@ -229,7 +240,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
 
       wlTransform.setLayoutData(fdlTransform);
       wInputTransformArray[index] = new CCombo(shell, SWT.BORDER);
-      props.setLook(wInputTransformArray[index]);
+      PropsUi.setLook(wInputTransformArray[index]);
 
       wInputTransformArray[index].setItems(inputTransforms);
 
@@ -242,14 +253,14 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
 
       Label keyLabel = new Label(shell, SWT.LEFT);
       keyLabel.setText(BaseMessages.getString(PKG, "MultiMergeJoinMeta.JoinKeys"));
-      props.setLook(keyLabel);
+      PropsUi.setLook(keyLabel);
       FormData keyTransform = new FormData();
       keyTransform.left = new FormAttachment(wInputTransformArray[index], margin * 2);
       keyTransform.top = new FormAttachment(wlTransform, 0, SWT.CENTER);
       keyLabel.setLayoutData(keyTransform);
 
       keyValTextBox[index] = new Text(shell, SWT.READ_ONLY | SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(keyValTextBox[index]);
+      PropsUi.setLook(keyValTextBox[index]);
       keyValTextBox[index].setText("");
       keyValTextBox[index].addModifyListener(lsMod);
       FormData keyData = new FormData();

@@ -21,8 +21,16 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.exception.HopException;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * This class contains a messages store: for a certain Locale and for a certain messages package, it

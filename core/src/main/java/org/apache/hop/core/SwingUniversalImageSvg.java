@@ -24,7 +24,7 @@ import org.apache.batik.bridge.UserAgentAdapter;
 import org.apache.batik.gvt.GraphicsNode;
 import org.apache.hop.core.svg.SvgImage;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;

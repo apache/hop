@@ -21,7 +21,11 @@ import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.*;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.ValueDataUtil;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
@@ -34,7 +38,13 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.StringJoiner;
+import java.util.TreeSet;
 
 /** Groups information based on aggregation rules. (sum, count, ...) */
 public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupByData> {

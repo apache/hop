@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ConditionEditor;
@@ -74,7 +75,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -82,8 +83,8 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
     backupCondition = (Condition) condition.clone();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "FilterRowsDialog.Shell.Title"));
@@ -94,7 +95,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "FilterRowsDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -102,7 +103,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -113,14 +114,14 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
     // Send 'True' data to...
     Label wlTrueTo = new Label(shell, SWT.RIGHT);
     wlTrueTo.setText(BaseMessages.getString(PKG, "FilterRowsDialog.SendTrueTo.Label"));
-    props.setLook(wlTrueTo);
+    PropsUi.setLook(wlTrueTo);
     FormData fdlTrueTo = new FormData();
     fdlTrueTo.left = new FormAttachment(0, 0);
     fdlTrueTo.right = new FormAttachment(middle, -margin);
     fdlTrueTo.top = new FormAttachment(wTransformName, margin);
     wlTrueTo.setLayoutData(fdlTrueTo);
     wTrueTo = new CCombo(shell, SWT.BORDER);
-    props.setLook(wTrueTo);
+    PropsUi.setLook(wTrueTo);
 
     TransformMeta transforminfo = pipelineMeta.findTransform(transformName);
     if (transforminfo != null) {
@@ -140,14 +141,14 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
     // Send 'False' data to...
     Label wlFalseTo = new Label(shell, SWT.RIGHT);
     wlFalseTo.setText(BaseMessages.getString(PKG, "FilterRowsDialog.SendFalseTo.Label"));
-    props.setLook(wlFalseTo);
+    PropsUi.setLook(wlFalseTo);
     FormData fdlFalseTo = new FormData();
     fdlFalseTo.left = new FormAttachment(0, 0);
     fdlFalseTo.right = new FormAttachment(middle, -margin);
     fdlFalseTo.top = new FormAttachment(wTrueTo, margin);
     wlFalseTo.setLayoutData(fdlFalseTo);
     wFalseTo = new CCombo(shell, SWT.BORDER);
-    props.setLook(wFalseTo);
+    PropsUi.setLook(wFalseTo);
 
     transforminfo = pipelineMeta.findTransform(transformName);
     if (transforminfo != null) {
@@ -166,7 +167,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
 
     Label wlCondition = new Label(shell, SWT.NONE);
     wlCondition.setText(BaseMessages.getString(PKG, "FilterRowsDialog.Condition.Label"));
-    props.setLook(wlCondition);
+    PropsUi.setLook(wlCondition);
     FormData fdlCondition = new FormData();
     fdlCondition.left = new FormAttachment(0, 0);
     fdlCondition.top = new FormAttachment(wFalseTo, margin);

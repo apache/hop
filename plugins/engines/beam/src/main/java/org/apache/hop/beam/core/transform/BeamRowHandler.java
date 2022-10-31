@@ -25,7 +25,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.IRowHandler;
 import org.apache.hop.pipeline.transform.IRowListener;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import java.util.List;
 

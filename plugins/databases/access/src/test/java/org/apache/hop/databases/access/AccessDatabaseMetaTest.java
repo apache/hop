@@ -17,9 +17,6 @@
 
 package org.apache.hop.databases.access;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
@@ -34,6 +31,10 @@ import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class AccessDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

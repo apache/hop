@@ -25,6 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -34,7 +35,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class BeamBigtableInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = BeamBigtableInputDialog.class; // For Translator
@@ -57,18 +63,18 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "BeamBigtableInputDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom!
     //
@@ -83,7 +89,7 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -91,7 +97,7 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -101,14 +107,14 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
 
     Label wlProjectId = new Label(shell, SWT.RIGHT);
     wlProjectId.setText(BaseMessages.getString(PKG, "BeamBigtableInputDialog.ProjectId"));
-    props.setLook(wlProjectId);
+    PropsUi.setLook(wlProjectId);
     FormData fdlProjectId = new FormData();
     fdlProjectId.left = new FormAttachment(0, 0);
     fdlProjectId.top = new FormAttachment(lastControl, margin);
     fdlProjectId.right = new FormAttachment(middle, -margin);
     wlProjectId.setLayoutData(fdlProjectId);
     wProjectId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wProjectId);
+    PropsUi.setLook(wProjectId);
     FormData fdProjectId = new FormData();
     fdProjectId.left = new FormAttachment(middle, 0);
     fdProjectId.top = new FormAttachment(wlProjectId, 0, SWT.CENTER);
@@ -118,14 +124,14 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
 
     Label wlInstanceId = new Label(shell, SWT.RIGHT);
     wlInstanceId.setText(BaseMessages.getString(PKG, "BeamBigtableInputDialog.InstanceId"));
-    props.setLook(wlInstanceId);
+    PropsUi.setLook(wlInstanceId);
     FormData fdlInstanceId = new FormData();
     fdlInstanceId.left = new FormAttachment(0, 0);
     fdlInstanceId.top = new FormAttachment(lastControl, margin);
     fdlInstanceId.right = new FormAttachment(middle, -margin);
     wlInstanceId.setLayoutData(fdlInstanceId);
     wInstanceId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInstanceId);
+    PropsUi.setLook(wInstanceId);
     FormData fdInstanceId = new FormData();
     fdInstanceId.left = new FormAttachment(middle, 0);
     fdInstanceId.top = new FormAttachment(wlInstanceId, 0, SWT.CENTER);
@@ -135,14 +141,14 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
 
     Label wlTableId = new Label(shell, SWT.RIGHT);
     wlTableId.setText(BaseMessages.getString(PKG, "BeamBigtableInputDialog.TableId"));
-    props.setLook(wlTableId);
+    PropsUi.setLook(wlTableId);
     FormData fdlTableId = new FormData();
     fdlTableId.left = new FormAttachment(0, 0);
     fdlTableId.top = new FormAttachment(lastControl, margin);
     fdlTableId.right = new FormAttachment(middle, -margin);
     wlTableId.setLayoutData(fdlTableId);
     wTableId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTableId);
+    PropsUi.setLook(wTableId);
     FormData fdTableId = new FormData();
     fdTableId.left = new FormAttachment(middle, 0);
     fdTableId.top = new FormAttachment(wlTableId, 0, SWT.CENTER);
@@ -152,14 +158,14 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
 
     Label wlKeyField = new Label(shell, SWT.RIGHT);
     wlKeyField.setText(BaseMessages.getString(PKG, "BeamBigtableInputDialog.KeyField"));
-    props.setLook(wlKeyField);
+    PropsUi.setLook(wlKeyField);
     FormData fdlKeyField = new FormData();
     fdlKeyField.left = new FormAttachment(0, 0);
     fdlKeyField.top = new FormAttachment(lastControl, margin);
     fdlKeyField.right = new FormAttachment(middle, -margin);
     wlKeyField.setLayoutData(fdlKeyField);
     wKeyField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wKeyField);
+    PropsUi.setLook(wKeyField);
     FormData fdKeyField = new FormData();
     fdKeyField.left = new FormAttachment(middle, 0);
     fdKeyField.top = new FormAttachment(wlKeyField, 0, SWT.CENTER);
@@ -169,7 +175,7 @@ public class BeamBigtableInputDialog extends BaseTransformDialog implements ITra
 
     Label wlColumns = new Label(shell, SWT.LEFT);
     wlColumns.setText(BaseMessages.getString(PKG, "BeamBigtableInputDialog.Columns"));
-    props.setLook(wlColumns);
+    PropsUi.setLook(wlColumns);
     FormData fdlColumns = new FormData();
     fdlColumns.left = new FormAttachment(0, 0);
     fdlColumns.top = new FormAttachment(lastControl, margin);

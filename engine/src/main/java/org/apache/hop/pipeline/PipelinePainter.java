@@ -22,9 +22,17 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.*;
+import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
+import org.apache.hop.core.gui.BasePainter;
+import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.IGc;
+import org.apache.hop.core.gui.IGc.EColor;
+import org.apache.hop.core.gui.IGc.EFont;
 import org.apache.hop.core.gui.IGc.EImage;
+import org.apache.hop.core.gui.IGc.ELineStyle;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.svg.SvgFile;
@@ -48,7 +56,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.hop.core.gui.IGc.*;
+import static org.apache.hop.core.gui.IGc.EColor;
+import static org.apache.hop.core.gui.IGc.EFont;
+import static org.apache.hop.core.gui.IGc.EImage;
+import static org.apache.hop.core.gui.IGc.ELineStyle;
 
 public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta> {
 
@@ -81,8 +92,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       IVariables variables,
       PipelineMeta pipelineMeta,
       Point area,
-      IScrollBar hori,
-      IScrollBar vert,
+      DPoint offset,
       PipelineHopMeta candidate,
       Rectangle selectRectangle,
       List<AreaOwner> areaOwners,
@@ -102,8 +112,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         variables,
         pipelineMeta,
         area,
-        hori,
-        vert,
+        offset,
         selectRectangle,
         areaOwners,
         iconSize,
@@ -132,10 +141,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       IVariables variables,
       PipelineMeta pipelineMeta,
       Point area,
-      IScrollBar hori,
-      IScrollBar vert,
+      DPoint offset,
       PipelineHopMeta candidate,
-      Point dropCandidate,
       Rectangle selectionRectangle,
       List<AreaOwner> areaOwners,
       int iconSize,
@@ -151,8 +158,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         variables,
         pipelineMeta,
         area,
-        hori,
-        vert,
+        offset,
         candidate,
         selectionRectangle,
         areaOwners,
@@ -188,13 +194,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   }
 
   public void drawPipelineImage() throws HopException {
-
-    Point max = pipelineMeta.getMaximum();
-    Point thumb = getThumb(area, max);
-    if (offset == null) {
-      offset = getOffset(thumb, area);
-    }
-
     // Make sure the canvas is scaled 100%
     gc.setTransform(0.0f, 0.0f, 1.0f);
     // First clear the image in the background color
@@ -203,9 +202,14 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     // Draw the pipeline onto the image
     //
-    gc.setTransform(translationX, translationY, magnification);
+    gc.setTransform((float)offset.x, (float)offset.y, magnification);
     gc.setAlpha(255);
     drawPipeline();
+
+    // Draw the navigation view in native pixels to make calculation a bit easier.
+    //
+    gc.setTransform(0.0f, 0.0f, 1.0f);
+    drawNavigationView();
 
     gc.dispose();
   }
