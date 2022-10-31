@@ -423,6 +423,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     Listener modifyListener = e -> setChanged();
     wName.addListener(SWT.Modify, modifyListener);
     wDescription.addListener(SWT.Modify, modifyListener);
+    wDefault.addListener(SWT.Selection, modifyListener);
     wPluginType.addListener(SWT.Modify, modifyListener);
     wPluginType.addListener(SWT.Modify, e -> changeConnectionType());
     wProfile.getComboWidget().addListener(SWT.Modify, modifyListener);

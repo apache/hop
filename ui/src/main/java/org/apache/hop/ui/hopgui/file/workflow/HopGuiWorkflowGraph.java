@@ -628,11 +628,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             clickedWorkflowHop = hop;
           }
         } else {
-          // If we're dragging a candidate hop around and click on the background it simply needs to go away.
+          // If we're dragging a candidate hop around and click on the background it simply needs to
+          // go away.
           //
-          if (startHopAction!=null) {
-            startHopAction=null;
-            hopCandidate=null;
+          if (startHopAction != null) {
+            startHopAction = null;
+            hopCandidate = null;
             lastClick = null;
             redraw();
             return;
@@ -2812,12 +2813,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               new SvgFile(
                   BasePropertyHandler.getProperty("WorkflowCanvas_image"),
                   getClass().getClassLoader());
-          gc.drawImage(svgFile, 200, 200, 32, 40, gc.getMagnification(), 0);
-          gc.setBackground(IGc.EColor.BACKGROUND);
+          gc.setTransform(0.0f, 0.0f, (float) (magnification * PropsUi.getNativeZoomFactor()));
+          gc.drawImage(svgFile, 150, 150, 32, 40, gc.getMagnification(), 0);
           gc.drawText(
               BaseMessages.getString(PKG, "HopGuiWorkflowGraph.NewWorkflowBackgroundMessage"),
-              260,
-              220);
+              155,
+              125,
+              true);
         }
       } catch (HopException e) {
         throw new HopException("Error drawing workflow", e);
@@ -2825,7 +2827,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
-    CanvasFacade.setData(canvas, magnification, offset, workflowMeta, HopGuiWorkflowGraph.class, variables);
+    CanvasFacade.setData(
+        canvas, magnification, offset, workflowMeta, HopGuiWorkflowGraph.class, variables);
   }
 
   @Override

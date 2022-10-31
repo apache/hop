@@ -3319,10 +3319,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               new SvgFile(
                   BasePropertyHandler.getProperty("PipelineCanvas_image"),
                   getClass().getClassLoader());
-          gc.drawImage(svgFile, 200, 200, 32, 40, gc.getMagnification(), 0);
-          gc.setBackground(IGc.EColor.BACKGROUND);
+          gc.setTransform(0.0f, 0.0f, (float) (magnification * PropsUi.getNativeZoomFactor()));
+          gc.drawImage(svgFile, 150, 150, 32, 40, gc.getMagnification(), 0);
           gc.drawText(
-              BaseMessages.getString(PKG, "PipelineGraph.NewPipelineBackgroundMessage"), 260, 220);
+              BaseMessages.getString(PKG, "PipelineGraph.NewPipelineBackgroundMessage"),
+              155,
+              125,
+              true);
         }
 
       } catch (Exception e) {
@@ -3331,7 +3334,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
-    CanvasFacade.setData(canvas, magnification, offset, pipelineMeta, HopGuiPipelineGraph.class, variables);
+    CanvasFacade.setData(
+        canvas, magnification, offset, pipelineMeta, HopGuiPipelineGraph.class, variables);
   }
 
   private void editTransform(TransformMeta transformMeta) {
