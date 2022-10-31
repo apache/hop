@@ -23,7 +23,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -39,7 +39,10 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the XSD Validator job entry settings. */
 public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
@@ -96,14 +99,14 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionXSDValidator.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
@@ -204,23 +207,16 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     // Whenever something changes, set the tooltip to the expanded version:
     wxmlFilename.addModifyListener(
         e -> wxmlFilename.setToolTipText(variables.resolve(wxmlFilename.getText())));
-
-    wbxmlFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.xml;*.XML", "*"});
-            if (wxmlFilename.getText() != null) {
-              dialog.setFileName(variables.resolve(wxmlFilename.getText()));
-            }
-            dialog.setFilterNames(FILETYPES_XML);
-            if (dialog.open() != null) {
-              wxmlFilename.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
+    wbxmlFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wxmlFilename,
+                variables,
+                new String[] {"*.xml;*.XML", "*"},
+                FILETYPES_XML,
+                true));
 
     // Filename 2 line
     wlxsdFilename = new Label(shell, SWT.RIGHT);
@@ -250,23 +246,16 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     // Whenever something changes, set the tooltip to the expanded version:
     wxsdFilename.addModifyListener(
         e -> wxsdFilename.setToolTipText(variables.resolve(wxsdFilename.getText())));
-
-    wbxsdFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.xsd;*.XSD", "*"});
-            if (wxsdFilename.getText() != null) {
-              dialog.setFileName(variables.resolve(wxsdFilename.getText()));
-            }
-            dialog.setFilterNames(FILETYPES_XSD);
-            if (dialog.open() != null) {
-              wxsdFilename.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
+    wbxsdFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wxsdFilename,
+                variables,
+                new String[] {"*.xsd;*.XSD", "*"},
+                FILETYPES_XSD,
+                true));
 
     // Buttons go at the very bottom
     //

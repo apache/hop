@@ -38,12 +38,13 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
@@ -85,8 +86,8 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     backupCondition = (Condition) condition.clone();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "JoinRowsDialog.Shell.Title"));
@@ -141,18 +142,8 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     fdSortDir.right = new FormAttachment(wbSortDir, -margin);
     wSortDir.setLayoutData(fdSortDir);
 
-    wbSortDir.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            DirectoryDialog dd = new DirectoryDialog(shell, SWT.NONE);
-            dd.setFilterPath(wSortDir.getText());
-            String dir = dd.open();
-            if (dir != null) {
-              wSortDir.setText(dir);
-            }
-          }
-        });
+    wbSortDir.addListener(
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wSortDir, variables));
 
     // Whenever something changes, set the tooltip to the expanded version:
     wSortDir.addModifyListener(e -> wSortDir.setToolTipText(variables.resolve(wSortDir.getText())));

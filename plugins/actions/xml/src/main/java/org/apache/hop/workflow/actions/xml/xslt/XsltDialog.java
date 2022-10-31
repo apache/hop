@@ -25,8 +25,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.xml.xslt.XsltMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -46,7 +46,13 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the XSLT job entry settings. */
 public class XsltDialog extends ActionDialog implements IActionDialog {
@@ -116,14 +122,14 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionXSLT.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons go at the very bottom
     //
@@ -239,23 +245,16 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // Whenever something changes, set the tooltip to the expanded version:
     wxmlFilename.addModifyListener(
         e -> wxmlFilename.setToolTipText(variables.resolve(wxmlFilename.getText())));
-
-    wbxmlFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.xml;*.XML", "*"});
-            if (wxmlFilename.getText() != null) {
-              dialog.setFileName(variables.resolve(wxmlFilename.getText()));
-            }
-            dialog.setFilterNames(FILETYPES_XML);
-            if (dialog.open() != null) {
-              wxmlFilename.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
+    wbxmlFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wxmlFilename,
+                variables,
+                new String[] {"*.xml;*.XML", "*"},
+                FILETYPES_XML,
+                true));
 
     // Filename 2 line
     wlxslFilename = new Label(wFiles, SWT.RIGHT);
@@ -285,23 +284,16 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     // Whenever something changes, set the tooltip to the expanded version:
     wxslFilename.addModifyListener(
         e -> wxslFilename.setToolTipText(variables.resolve(wxslFilename.getText())));
-
-    wbxslFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.xsl;*.XSL", "*.xslt;*.XSLT", "*"});
-            if (wxslFilename.getText() != null) {
-              dialog.setFileName(variables.resolve(wxslFilename.getText()));
-            }
-            dialog.setFilterNames(FILETYPES_XSL);
-            if (dialog.open() != null) {
-              wxslFilename.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
+    wbxslFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wxslFilename,
+                variables,
+                new String[] {"*.xsl;*.XSL", "*.xslt;*.XSLT", "*"},
+                FILETYPES_XSL,
+                true));
 
     // Browse Source folders button ...
     Button wbOutputDirectory = new Button(wFiles, SWT.PUSH | SWT.CENTER);
@@ -311,26 +303,8 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     fdbOutputDirectory.right = new FormAttachment(100, 0);
     fdbOutputDirectory.top = new FormAttachment(wXSLTFactory, margin);
     wbOutputDirectory.setLayoutData(fdbOutputDirectory);
-
-    wbOutputDirectory.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            DirectoryDialog ddialog = new DirectoryDialog(shell, SWT.OPEN);
-            if (wOutputFilename.getText() != null) {
-              ddialog.setFilterPath(variables.resolve(wOutputFilename.getText()));
-            }
-
-            // Calling open() will open and run the dialog.
-            // It will return the selected directory, or
-            // null if user cancels
-            String dir = ddialog.open();
-            if (dir != null) {
-              // Set the text box to the new selection
-              wOutputFilename.setText(dir);
-            }
-          }
-        });
+    wbOutputDirectory.addListener(
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wOutputFilename, variables));
 
     // OutputFilename
     wlOutputFilename = new Label(wFiles, SWT.RIGHT);
@@ -350,25 +324,8 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     fdbMovetoDirectory.right = new FormAttachment(100, 0);
     fdbMovetoDirectory.top = new FormAttachment(wxslFilename, margin);
     wbMovetoDirectory.setLayoutData(fdbMovetoDirectory);
-    wbMovetoDirectory.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            DirectoryDialog ddialog = new DirectoryDialog(shell, SWT.OPEN);
-            if (wOutputFilename.getText() != null) {
-              ddialog.setFilterPath(variables.resolve(wOutputFilename.getText()));
-            }
-
-            // Calling open() will open and run the dialog.
-            // It will return the selected directory, or
-            // null if user cancels
-            String dir = ddialog.open();
-            if (dir != null) {
-              // Set the text box to the new selection
-              wOutputFilename.setText(dir);
-            }
-          }
-        });
+    wbMovetoDirectory.addListener(
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wOutputFilename, variables));
 
     wOutputFilename = new TextVar(variables, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wOutputFilename);

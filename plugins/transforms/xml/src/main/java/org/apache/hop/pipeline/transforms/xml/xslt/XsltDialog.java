@@ -49,10 +49,19 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class XsltDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = XsltMeta.class; // For Translator
@@ -103,14 +112,14 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "XsltDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     //
@@ -418,8 +427,8 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wAdditionalTab.setText(BaseMessages.getString(PKG, "XsltDialog.AdvancedTab.Title"));
 
     FormLayout addLayout = new FormLayout();
-    addLayout.marginWidth = Const.FORM_MARGIN;
-    addLayout.marginHeight = Const.FORM_MARGIN;
+    addLayout.marginWidth = PropsUi.getFormMargin();
+    addLayout.marginHeight = PropsUi.getFormMargin();
 
     Composite wAdditionalComp = new Composite(wTabFolder, SWT.NONE);
     wAdditionalComp.setLayout(addLayout);
@@ -564,33 +573,18 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
         e -> wXSLFilename.setToolTipText(variables.resolve(wXSLFilename.getText())));
 
     // Listen to the Browse... button
-    wbbFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.xsl;*.XSL", "*.xslt;.*XSLT", "*"});
-            if (wXSLFilename.getText() != null) {
-              String fname = variables.resolve(wXSLFilename.getText());
-              dialog.setFileName(fname);
-            }
-
-            dialog.setFilterNames(
-                new String[] {
-                  BaseMessages.getString(PKG, "XsltDialog.FileType"),
-                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
-                });
-
-            if (dialog.open() != null) {
-              String str =
-                  dialog.getFilterPath()
-                      + System.getProperty("file.separator")
-                      + dialog.getFileName();
-              wXSLFilename.setText(str);
-            }
-          }
-        });
+    wbbFilename.addListener(
+        SWT.Selection,
+        e -> BaseDialog.presentFileDialog(
+            shell,
+            wXSLFilename,
+            variables,
+            new String[] {"*.xsl;*.XSL", "*.xslt;.*XSLT", "*"},
+            new String[] {
+              BaseMessages.getString(PKG, "XsltDialog.FileType"),
+              BaseMessages.getString(PKG, "System.FileType.AllFiles")
+            },
+            true));
 
     wTabFolder.setSelection(0);
 

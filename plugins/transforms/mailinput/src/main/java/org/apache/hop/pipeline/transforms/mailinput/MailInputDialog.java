@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.mailinput;
 
+import jakarta.mail.Folder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -32,7 +33,12 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -48,11 +54,28 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.layout.*;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
-import jakarta.mail.Folder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -185,8 +208,8 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "MailInputdialog.Shell.Title"));
@@ -302,29 +325,30 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
         });
 
     // USE connection with XOAUTH2
-    wlUseXOAUTH2 = new Label( wServerSettings, SWT.RIGHT );
-    wlUseXOAUTH2.setText( BaseMessages.getString( PKG, "MailInput.UseXOAUTH2Mails.Label" ) );
-    PropsUi.setLook( wlUseXOAUTH2 );
+    wlUseXOAUTH2 = new Label(wServerSettings, SWT.RIGHT);
+    wlUseXOAUTH2.setText(BaseMessages.getString(PKG, "MailInput.UseXOAUTH2Mails.Label"));
+    PropsUi.setLook(wlUseXOAUTH2);
     FormData fdlUseXOAUTH2 = new FormData();
-    fdlUseXOAUTH2.left = new FormAttachment( 0, 0 );
-    fdlUseXOAUTH2.top = new FormAttachment( wUseSSL, margin );
-    fdlUseXOAUTH2.right = new FormAttachment( middle, -margin );
-    wlUseXOAUTH2.setLayoutData( fdlUseXOAUTH2 );
-    wUseXOAUTH2 = new Button( wServerSettings, SWT.CHECK );
-    PropsUi.setLook( wUseXOAUTH2 );
+    fdlUseXOAUTH2.left = new FormAttachment(0, 0);
+    fdlUseXOAUTH2.top = new FormAttachment(wUseSSL, margin);
+    fdlUseXOAUTH2.right = new FormAttachment(middle, -margin);
+    wlUseXOAUTH2.setLayoutData(fdlUseXOAUTH2);
+    wUseXOAUTH2 = new Button(wServerSettings, SWT.CHECK);
+    PropsUi.setLook(wUseXOAUTH2);
     FormData fdUseXOAUTH2 = new FormData();
-    wUseXOAUTH2.setToolTipText( BaseMessages.getString( PKG, "MailInput.UseXOAUTH2Mails.Tooltip" ) );
-    fdUseXOAUTH2.left = new FormAttachment( middle, 0 );
-    fdUseXOAUTH2.top = new FormAttachment( wUseSSL, margin );
-    fdUseXOAUTH2.right = new FormAttachment( 100, 0 );
-    wUseXOAUTH2.setLayoutData( fdUseXOAUTH2 );
+    wUseXOAUTH2.setToolTipText(BaseMessages.getString(PKG, "MailInput.UseXOAUTH2Mails.Tooltip"));
+    fdUseXOAUTH2.left = new FormAttachment(middle, 0);
+    fdUseXOAUTH2.top = new FormAttachment(wUseSSL, margin);
+    fdUseXOAUTH2.right = new FormAttachment(100, 0);
+    wUseXOAUTH2.setLayoutData(fdUseXOAUTH2);
 
-    wUseXOAUTH2.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        closeMailConnection();
-        refreshPort( true );
-      }
-    } );
+    wUseXOAUTH2.addSelectionListener(
+        new SelectionAdapter() {
+          public void widgetSelected(SelectionEvent e) {
+            closeMailConnection();
+            refreshPort(true);
+          }
+        });
 
     // port
     wlPort = new Label(wServerSettings, SWT.RIGHT);
@@ -1159,8 +1183,8 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wFieldsTab.setText(BaseMessages.getString(PKG, "MailInputdialog.Fields.Tab"));
 
     FormLayout fieldsLayout = new FormLayout();
-    fieldsLayout.marginWidth = Const.FORM_MARGIN;
-    fieldsLayout.marginHeight = Const.FORM_MARGIN;
+    fieldsLayout.marginWidth = PropsUi.getFormMargin();
+    fieldsLayout.marginHeight = PropsUi.getFormMargin();
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     wFieldsComp.setLayout(fieldsLayout);
@@ -1844,7 +1868,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     PropsUi.setLook(label);
     FormData fData = new FormData();
     fData.top = new FormAttachment(widgetAbove, props.getMargin());
-    fData.right = new FormAttachment(Const.MIDDLE_PCT, -props.getMargin());
+    fData.right = new FormAttachment(props.getMiddlePct(), -props.getMargin());
     label.setLayoutData(fData);
   }
 
@@ -1852,7 +1876,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     PropsUi.setLook(control);
     FormData fData = new FormData();
     fData.top = new FormAttachment(label, 0, SWT.CENTER);
-    fData.left = new FormAttachment(Const.MIDDLE_PCT, props.getMargin());
+    fData.left = new FormAttachment(props.getMiddlePct(), props.getMargin());
     fData.right = new FormAttachment(100, -props.getMargin());
     control.setLayoutData(fData);
   }

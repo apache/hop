@@ -17,7 +17,6 @@
 
 package org.apache.hop.workflow.actions.getpop;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -28,7 +27,31 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import jakarta.mail.Folder;
 import jakarta.mail.MessagingException;
@@ -64,8 +87,8 @@ public class SelectFolderDialog extends Dialog {
     shell.setText(BaseMessages.getString(PKG, "SelectFolderDialog.Dialog.Main.Title"));
     shell.setImage(guiresource.getImageHopUi());
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
 
@@ -91,13 +114,13 @@ public class SelectFolderDialog extends Dialog {
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> dispose());
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wRefresh, wCancel}, Const.MARGIN, null);
+        shell, new Button[] {wOk, wRefresh, wCancel}, PropsUi.getMargin(), null);
 
     FormData fdTree = new FormData();
     fdTree.left = new FormAttachment(0, 0); // To the right of the label
     fdTree.top = new FormAttachment(0, 0);
     fdTree.right = new FormAttachment(100, 0);
-    fdTree.bottom = new FormAttachment(wOk, -2 * Const.MARGIN);
+    fdTree.bottom = new FormAttachment(wOk, -2 * PropsUi.getMargin());
     wTree.setLayoutData(fdTree);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> dispose());

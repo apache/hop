@@ -16,7 +16,6 @@
  */
 package org.apache.hop.ui.pipeline.transforms.missing;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -118,9 +117,9 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginLeft = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginLeft = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setText(BaseMessages.getString(PKG, "MissingPipelineDialog.MissingPlugins"));
     shell.setLayout(formLayout);

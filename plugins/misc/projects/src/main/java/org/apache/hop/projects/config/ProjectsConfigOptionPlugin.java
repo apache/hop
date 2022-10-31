@@ -40,7 +40,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import picocli.CommandLine;
 
 import java.util.ArrayList;

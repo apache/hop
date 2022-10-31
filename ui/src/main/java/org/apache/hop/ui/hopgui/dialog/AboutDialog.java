@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.hopgui.dialog;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.VariableScope;
@@ -32,7 +31,31 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.program.Program;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import java.util.Set;
 
@@ -71,8 +94,8 @@ public class AboutDialog extends Dialog {
     shell.setMinimumSize(450, 300);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
     shell.setLayout(formLayout);
     PropsUi.setLook(shell);
 
@@ -118,7 +141,7 @@ public class AboutDialog extends Dialog {
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk}, Const.MARGIN, null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk}, PropsUi.getMargin(), null);
 
     // Widget system properties
     Text wText =
@@ -126,10 +149,10 @@ public class AboutDialog extends Dialog {
             shell, SWT.READ_ONLY | SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     wText.setText(getProperties());
     FormData fdText = new FormData();
-    fdText.top = new FormAttachment(composite, Const.MARGIN);
+    fdText.top = new FormAttachment(composite, PropsUi.getMargin());
     fdText.left = new FormAttachment(0, 0);
     fdText.right = new FormAttachment(100, 0);
-    fdText.bottom = new FormAttachment(wOk, -Const.MARGIN);
+    fdText.bottom = new FormAttachment(wOk, -PropsUi.getMargin());
     wText.setLayoutData(fdText);
     PropsUi.setLook(wText);
 

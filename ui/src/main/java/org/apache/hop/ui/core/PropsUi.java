@@ -60,12 +60,9 @@ import java.util.Map;
  * fonts, positions of windows, etc.
  */
 public class PropsUi extends Props {
-
   private static final String OS = System.getProperty("os.name").toLowerCase();
 
   private static double nativeZoomFactor;
-
-  private static double globalZoomFactor;
 
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =
       "ShowCopyOrDistributeWarning";
@@ -104,13 +101,22 @@ public class PropsUi extends Props {
   private PropsUi() {
     super();
 
-    globalZoomFactor =
-        Const.toDouble(
-            System.getProperty(ConstUi.HOP_GUI_ZOOM_FACTOR, getProperty(GLOBAL_ZOOMFACTOR, "1.0")),
-            1.0);
+    // If the zoom factor is set with variable HOP_GUI_ZOOM_FACTOR we set this first.
+    //
+    String hopGuiZoomFactor = System.getProperty(ConstUi.HOP_GUI_ZOOM_FACTOR);
+    if (StringUtils.isNotEmpty(hopGuiZoomFactor)) {
+      setProperty(GLOBAL_ZOOMFACTOR, hopGuiZoomFactor);
+    }
 
+    reCalculateNativeZoomFactor();
+
+    setDefault();
+  }
+
+  public void reCalculateNativeZoomFactor() {
+    double globalZoom = getGlobalZoomFactor();
     if (EnvironmentUtils.getInstance().isWeb()) {
-      nativeZoomFactor = getGlobalZoomFactor() / 0.75;
+      nativeZoomFactor = globalZoom / 0.75;
     } else {
       // Calculate the native default zoom factor...
       // We take the default font and render it, calculate the height.
@@ -118,11 +124,8 @@ public class PropsUi extends Props {
       //
       org.eclipse.swt.graphics.Point extent =
           TextSizeUtilFacade.textExtent("The quick brown fox jumped over the lazy dog!");
-      nativeZoomFactor =
-          ((double) extent.y / (double) ConstUi.SMALL_ICON_SIZE) * getGlobalZoomFactor();
+      nativeZoomFactor = ((double) extent.y / (double) ConstUi.SMALL_ICON_SIZE) * globalZoom;
     }
-
-    setDefault();
   }
 
   @Override
@@ -314,8 +317,9 @@ public class PropsUi extends Props {
    *
    * @return
    */
-  public int getMargin() {
-    return (int) Math.round(getZoomFactor() * Const.MARGIN);
+  /** The margin between the different dialog components & widgets */
+  public static int getMargin() {
+    return (int) Math.round(4 * getNativeZoomFactor());
   }
 
   public void setLineWidth(int width) {
@@ -379,9 +383,16 @@ public class PropsUi extends Props {
     setProperty(STRING_MIDDLE_PCT, "" + pct);
   }
 
+  /** The percentage of the width of screen where we consider the middle of a dialog. */
   public int getMiddlePct() {
-    return Const.toInt(getProperty(STRING_MIDDLE_PCT), Const.MIDDLE_PCT);
+    return Const.toInt(getProperty(STRING_MIDDLE_PCT), 35);
   }
+
+  /** The horizontal and vertical margin of a dialog box. */
+  public static int getFormMargin() {
+    return (int) Math.round(5 * getNativeZoomFactor());
+  }
+
 
   public void setScreen(WindowProperty windowProperty) {
     AuditManager.storeState(
@@ -885,8 +896,8 @@ public class PropsUi extends Props {
     this.contrastingColors = contrastingColors;
   }
 
-  public static double getGlobalZoomFactor() {
-    return globalZoomFactor;
+  public double getGlobalZoomFactor() {
+    return Const.toDouble(getProperty(GLOBAL_ZOOMFACTOR, "1.0"), 1.0);
   }
 
   public void setGlobalZoomFactor(double globalZoomFactor) {

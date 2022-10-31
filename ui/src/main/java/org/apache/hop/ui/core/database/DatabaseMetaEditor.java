@@ -27,9 +27,9 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
@@ -48,10 +48,38 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @GuiPlugin(description = "This is the editor for database connection metadata")
@@ -225,8 +253,8 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     PropsUi.setLook(wGeneralComp);
 
     FormLayout genLayout = new FormLayout();
-    genLayout.marginWidth = Const.FORM_MARGIN * 2;
-    genLayout.marginHeight = Const.FORM_MARGIN * 2;
+    genLayout.marginWidth = PropsUi.getFormMargin() * 2;
+    genLayout.marginHeight = PropsUi.getFormMargin() * 2;
     wGeneralComp.setLayout(genLayout);
 
     // What's the type of database access?
@@ -457,8 +485,8 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     PropsUi.setLook(wAdvancedComp);
 
     FormLayout advancedLayout = new FormLayout();
-    advancedLayout.marginWidth = Const.FORM_MARGIN * 2;
-    advancedLayout.marginHeight = Const.FORM_MARGIN * 2;
+    advancedLayout.marginWidth = PropsUi.getFormMargin() * 2;
+    advancedLayout.marginHeight = PropsUi.getFormMargin() * 2;
     wAdvancedComp.setLayout(advancedLayout);
 
     // Supports the Boolean data type?
@@ -649,8 +677,8 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     PropsUi.setLook(wOptionsComp);
 
     FormLayout optionsLayout = new FormLayout();
-    optionsLayout.marginWidth = Const.FORM_MARGIN * 2;
-    optionsLayout.marginHeight = Const.FORM_MARGIN * 2;
+    optionsLayout.marginWidth = PropsUi.getFormMargin() * 2;
+    optionsLayout.marginHeight = PropsUi.getFormMargin() * 2;
     wOptionsComp.setLayout(optionsLayout);
 
     ColumnInfo[] optionsColumns =

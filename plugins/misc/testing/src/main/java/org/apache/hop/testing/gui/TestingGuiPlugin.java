@@ -65,7 +65,7 @@ import org.apache.hop.ui.testing.EditRowsDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageBox;
 
 import java.util.ArrayList;
 import java.util.Collections;

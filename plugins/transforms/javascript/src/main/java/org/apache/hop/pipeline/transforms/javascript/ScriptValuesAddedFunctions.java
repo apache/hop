@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadfileinput.LoadFileInput;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.mozilla.javascript.*;
 
 import java.io.*;

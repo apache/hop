@@ -36,7 +36,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformCon
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.www.service.WebService;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageBox;
 
 import java.util.List;
 

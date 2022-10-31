@@ -314,7 +314,7 @@ public class ContextDialog extends Dialog {
     // Make the icons a bit smaller to fit more
     //
     iconSize = (int) Math.round(props.getZoomFactor() * props.getIconSize() * 0.75);
-    margin = (int) (Const.MARGIN * props.getZoomFactor());
+    margin = (int) (PropsUi.getMargin() * props.getZoomFactor());
     highlightColor = new Color(parent.getDisplay(), props.contrastColor(201, 232, 251));
   }
 
@@ -409,10 +409,10 @@ public class ContextDialog extends Dialog {
     //
     Composite wTooltipComposite = new Composite(shell, SWT.NONE);
     GridLayout gdlTooltipComposite = new GridLayout(1, false);
-    gdlTooltipComposite.marginLeft = Const.FORM_MARGIN;
-    gdlTooltipComposite.marginRight = Const.FORM_MARGIN;
-    gdlTooltipComposite.marginTop = Const.FORM_MARGIN;
-    gdlTooltipComposite.marginBottom = Const.FORM_MARGIN;
+    gdlTooltipComposite.marginLeft = PropsUi.getFormMargin();
+    gdlTooltipComposite.marginRight = PropsUi.getFormMargin();
+    gdlTooltipComposite.marginTop = PropsUi.getFormMargin();
+    gdlTooltipComposite.marginBottom = PropsUi.getFormMargin();
     wTooltipComposite.setLayout(new GridLayout(1, false));
     PropsUi.setLook(wTooltipComposite, Props.WIDGET_STYLE_TOOLBAR);
 

@@ -83,8 +83,8 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
     backupCondition = (Condition) condition.clone();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "FilterRowsDialog.Shell.Title"));

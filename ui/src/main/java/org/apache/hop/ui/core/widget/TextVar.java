@@ -26,6 +26,8 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -141,8 +143,6 @@ public class TextVar extends Composite {
     this.insertTextInterface = insertTextInterface;
     this.variables = variables;
 
-    PropsUi props = PropsUi.getInstance();
-
     PropsUi.setLook(this);
 
     FormLayout formLayout = new FormLayout();
@@ -166,6 +166,7 @@ public class TextVar extends Composite {
 
     // add a text field on it...
     wText = new Text(this, flags);
+    PropsUi.setLook(wText);
     FormData fdText = new FormData();
     fdText.top = new FormAttachment(0, 0);
     fdText.left = new FormAttachment(0, 0);

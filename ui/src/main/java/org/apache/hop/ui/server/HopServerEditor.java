@@ -158,8 +158,8 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     PropsUi.setLook(wServiceComp);
 
     FormLayout genLayout = new FormLayout();
-    genLayout.marginWidth = Const.FORM_MARGIN;
-    genLayout.marginHeight = Const.FORM_MARGIN;
+    genLayout.marginWidth = PropsUi.getFormMargin();
+    genLayout.marginHeight = PropsUi.getFormMargin();
     wServiceComp.setLayout(genLayout);
 
     // What's the hostname
@@ -310,8 +310,8 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     wProxyTab.setText(BaseMessages.getString(PKG, "HopServerDialog.USER_TAB_PROXY"));
 
     FormLayout poolLayout = new FormLayout();
-    poolLayout.marginWidth = Const.FORM_MARGIN;
-    poolLayout.marginHeight = Const.FORM_MARGIN;
+    poolLayout.marginWidth = PropsUi.getFormMargin();
+    poolLayout.marginHeight = PropsUi.getFormMargin();
 
     Composite wProxyComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wProxyComp);

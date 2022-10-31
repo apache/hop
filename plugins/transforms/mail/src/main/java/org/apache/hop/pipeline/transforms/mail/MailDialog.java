@@ -32,22 +32,35 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.*;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.LabelText;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class MailDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = MailMeta.class; // For Translator
@@ -204,8 +217,8 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "MailDialog.Shell.Title"));
@@ -1606,24 +1619,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdbSourceFolder.right = new FormAttachment(100, 0);
     fdbSourceFolder.top = new FormAttachment(wDynamicWildcardField, 2 * margin);
     wbSourceFolder.setLayoutData(fdbSourceFolder);
-    wbSourceFolder.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            DirectoryDialog ddialog = new DirectoryDialog(shell, SWT.OPEN);
-            if (wSourceFileFoldername.getText() != null) {
-              ddialog.setFilterPath(variables.resolve(wSourceFileFoldername.getText()));
-            }
-
-            // Calling open() will open and run the dialog.
-            // It will return the selected directory, or
-            // null if user cancels
-            String dir = ddialog.open();
-            if (dir != null) {
-              // Set the text box to the new selection
-              wSourceFileFoldername.setText(dir);
-            }
-          }
+    wbSourceFolder.addListener(
+        SWT.Selection,
+        e -> {
+          BaseDialog.presentDirectoryDialog(shell, wSourceFileFoldername, variables);
         });
 
     // Browse source file button ...
@@ -1651,22 +1650,11 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
             wSourceFileFoldername.setToolTipText(
                 variables.resolve(wSourceFileFoldername.getText())));
 
-    wbFileFoldername.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*"});
-            if (wSourceFileFoldername.getText() != null) {
-              dialog.setFileName(variables.resolve(wSourceFileFoldername.getText()));
-            }
-            dialog.setFilterNames(FILETYPES);
-            if (dialog.open() != null) {
-              wSourceFileFoldername.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
+    wbFileFoldername.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell, wSourceFileFoldername, variables, new String[] {"*"}, FILETYPES, true));
 
     // Include sub folders
     Label wlIncludeSubFolders = new Label(wOriginFiles, SWT.RIGHT);
@@ -1937,25 +1925,16 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wImageFilename.addModifyListener(
         e -> wImageFilename.setToolTipText(variables.resolve(wImageFilename.getText())));
 
-    wbImageFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(
-                new String[] {"*png;*PNG", "*jpeg;*jpg;*JPEG;*JPG", "*gif;*GIF", "*"});
-            if (wImageFilename.getText() != null) {
-              dialog.setFileName(variables.resolve(wImageFilename.getText()));
-            }
-            dialog.setFilterNames(IMAGES_FILE_TYPES);
-            if (dialog.open() != null) {
-              wImageFilename.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-              Random randomgen = new Random();
-              wContentID.setText(Long.toString(Math.abs(randomgen.nextLong()), 32));
-            }
-          }
-        });
+    wbImageFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wImageFilename,
+                variables,
+                new String[] {"*png;*PNG", "*jpeg;*jpg;*JPEG;*JPG", "*gif;*GIF", "*"},
+                IMAGES_FILE_TYPES,
+                true));
 
     // ContentID
     wlContentID = new Label(wembeddedComp, SWT.RIGHT);

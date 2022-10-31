@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.core.metadata;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -58,8 +57,8 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     shell.setText(editor.getTitle());
     shell.setImage(editor.getTitleImage());
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN * 2;
-    formLayout.marginHeight = Const.FORM_MARGIN * 2;
+    formLayout.marginWidth = PropsUi.getFormMargin() * 2;
+    formLayout.marginHeight = PropsUi.getFormMargin() * 2;
     shell.setLayout(formLayout);
     PropsUi.setLook(shell);
 

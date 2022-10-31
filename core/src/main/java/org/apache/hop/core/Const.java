@@ -187,15 +187,6 @@ public class Const {
   /** Specifies the length (width) of fields in a number of pixels in dialog boxes. */
   public static final int LENGTH = 350;
 
-  /** The margin between the different dialog components & widgets */
-  public static final int MARGIN = 4;
-
-  /** The default percentage of the width of screen where we consider the middle of a dialog. */
-  public static final int MIDDLE_PCT = 35;
-
-  /** The horizontal and vertical margin of a dialog box. */
-  public static final int FORM_MARGIN = 5;
-
   /** The default locale for the hop environment (system defined) */
   public static final Locale DEFAULT_LOCALE = Locale.getDefault();
 

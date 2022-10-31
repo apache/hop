@@ -33,7 +33,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.config.ExplorerPerspectiveC
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageBox;
 
 import java.util.Collections;
 import java.util.List;

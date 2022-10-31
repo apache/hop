@@ -36,7 +36,7 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.missing.MissingAction;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.Constructor;

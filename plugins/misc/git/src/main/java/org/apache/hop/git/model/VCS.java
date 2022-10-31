@@ -21,7 +21,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageBox;
 
 public abstract class VCS {
 

@@ -47,6 +47,7 @@ import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchableProvider;
 import org.apache.hop.core.search.ISearchablesLocation;
+import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -973,6 +974,11 @@ public class HopGui
   public void menuToolsOptions() {
     if (new EnterOptionsDialog(getShell()).open() != null) {
       try {
+        // Clear the images cache
+        SvgCache.getInstance().clear();
+        // Re-load icons
+        GuiResource.getInstance().reload();
+        // Save the configuration to disk
         HopConfig.getInstance().saveToFile();
       } catch (Exception e) {
         new ErrorDialog(

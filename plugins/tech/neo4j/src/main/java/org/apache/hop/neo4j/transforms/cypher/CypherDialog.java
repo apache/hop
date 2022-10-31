@@ -138,7 +138,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     shell.setText(BaseMessages.getString(PKG, "Cypher.Transform.Name"));
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = PropsUi.getMargin();
 
     // Buttons go at the bottom...
     //
@@ -618,10 +618,10 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
   private Layout createFormLayout() {
     FormLayout formLayout = new FormLayout();
-    formLayout.marginLeft = Const.FORM_MARGIN;
-    formLayout.marginRight = Const.FORM_MARGIN;
-    formLayout.marginTop = Const.FORM_MARGIN;
-    formLayout.marginBottom = Const.FORM_MARGIN;
+    formLayout.marginLeft = PropsUi.getFormMargin();
+    formLayout.marginRight = PropsUi.getFormMargin();
+    formLayout.marginTop = PropsUi.getFormMargin();
+    formLayout.marginBottom = PropsUi.getFormMargin();
     return formLayout;
   }
 

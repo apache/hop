@@ -31,8 +31,16 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transforms.webservices.wsdl.*;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.ComplexType;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.Wsdl;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter.ParameterMode;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameterContainer;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameterList;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOperation;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOperationContainer;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlParamContainer;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.XsdType;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -53,13 +61,23 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
-import java.util.*;
+import java.util.Properties;
 
 public class WebServiceDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = WebServiceMeta.class; // For Translator
@@ -328,8 +346,8 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
 
     Composite vCompositeTabField = new Composite(wTabFolder, SWT.NONE);
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     vCompositeTabField.setLayout(formLayout);
     PropsUi.setLook(vCompositeTabField);
@@ -471,8 +489,8 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     //
     Composite vCompositeTabFieldOut = new Composite(wTabFolder, SWT.NONE);
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     vCompositeTabFieldOut.setLayout(formLayout);
     PropsUi.setLook(vCompositeTabFieldOut);
@@ -773,8 +791,8 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     changed = meta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "WebServiceDialog.DialogTitle"));
@@ -891,40 +909,32 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     fdbFile.top = new FormAttachment(0, 0);
     wbFile.setLayoutData(fdbFile);
 
-    wbFile.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            // We will load the WSDL from a file so we can at least try to debug the metadata
-            // extraction phase from the
-            // support side.
-            //
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.wsdl;*.WSDL", "*.*"});
-            dialog.setFilterNames(
-                new String[] {
-                  BaseMessages.getString(PKG, "WebServiceDialog.FileType.WsdlFiles"),
-                  BaseMessages.getString(PKG, "System.FileType.CSVFiles"),
-                  BaseMessages.getString(PKG, "System.FileType.TextFiles"),
-                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
-                });
+    wbFile.addListener(
+        SWT.Selection,
+        e -> {
+          String filename =
+              BaseDialog.presentFileDialog(
+                  shell,
+                  new String[] {"*.wsdl;*.WSDL", "*.*"},
+                  new String[] {
+                    BaseMessages.getString(PKG, "WebServiceDialog.FileType.WsdlFiles"),
+                    BaseMessages.getString(PKG, "System.FileType.CSVFiles"),
+                    BaseMessages.getString(PKG, "System.FileType.TextFiles"),
+                    BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                  },
+                  true);
 
-            if (dialog.open() != null) {
-              String filename =
-                  dialog.getFilterPath()
-                      + System.getProperty("file.separator")
-                      + dialog.getFileName();
-              try {
-                initTreeTabWebService(new File(filename).toURI().toASCIIString());
-              } catch (Throwable throwable) {
-                new ErrorDialog(
-                    shell,
-                    BaseMessages.getString(
-                        PKG, "WebServiceDialog.Exception.UnableToLoadWebService.Title"),
-                    BaseMessages.getString(
-                        PKG, "WebServiceDialog.Exception.UnableToLoadWebService.Message"),
-                    throwable);
-              }
+          if (filename != null) {
+            try {
+              initTreeTabWebService(new File(filename).toURI().toASCIIString());
+            } catch (Throwable throwable) {
+              new ErrorDialog(
+                  shell,
+                  BaseMessages.getString(
+                      PKG, "WebServiceDialog.Exception.UnableToLoadWebService.Title"),
+                  BaseMessages.getString(
+                      PKG, "WebServiceDialog.Exception.UnableToLoadWebService.Message"),
+                  throwable);
             }
           }
         });

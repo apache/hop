@@ -130,8 +130,8 @@ public class EditRowsDialog {
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(title);
@@ -149,7 +149,7 @@ public class EditRowsDialog {
         new Button[] {
           wOk, wCancel,
         },
-        Const.MARGIN,
+        PropsUi.getMargin(),
         null);
 
     if (addFields()) {
@@ -164,7 +164,7 @@ public class EditRowsDialog {
   }
 
   private boolean addFields() {
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     if (wlMessage == null) {
       wlMessage = new Label(shell, SWT.LEFT);

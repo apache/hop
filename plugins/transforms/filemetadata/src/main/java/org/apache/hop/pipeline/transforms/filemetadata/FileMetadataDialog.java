@@ -31,12 +31,20 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -134,14 +142,14 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     // SWT code for building the actual settings dialog        //
     // ------------------------------------------------------- //
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "FileMetadata.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // OK and cancel buttons
     wOk = new Button(shell, SWT.PUSH);
@@ -347,18 +355,8 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     meta.setChanged(changed);
 
     // Listen to the browse button next to the file name
-    wbbFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.txt;*.csv", "*.csv", "*.txt", "*"});
-            if (wFilename.getText() != null) {
-              String fileName = variables.resolve(wFilename.getText());
-              dialog.setFileName(fileName);
-            }
-
-            dialog.setFilterNames(
+    wbbFilename.addListener(SWT.Selection, e->BaseDialog.presentFileDialog(
+            shell, wFilename, variables, new String[] {"*.txt;*.csv", "*.csv", "*.txt", "*"},
                 new String[] {
                   BaseMessages.getString(PKG, "System.FileType.CSVFiles")
                       + ", "
@@ -366,17 +364,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
                   BaseMessages.getString(PKG, "System.FileType.CSVFiles"),
                   BaseMessages.getString(PKG, "System.FileType.TextFiles"),
                   BaseMessages.getString(PKG, "System.FileType.AllFiles")
-                });
-
-            if (dialog.open() != null) {
-              String str =
-                  dialog.getFilterPath()
-                      + System.getProperty("file.separator")
-                      + dialog.getFileName();
-              wFilename.setText(str);
-            }
-          }
-        });
+                }, true));
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 

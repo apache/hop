@@ -75,7 +75,7 @@ public class MessageDialogWithToggle {
   }
 
   public int open() {
-    int zoomedMargin = (int) (Const.MARGIN * props.getZoomFactor());
+    int zoomedMargin = (int) (PropsUi.getMargin() * props.getZoomFactor());
 
     // Create the shell with the appropriate look and title...
     //

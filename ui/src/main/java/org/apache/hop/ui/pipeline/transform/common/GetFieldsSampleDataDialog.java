@@ -22,7 +22,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 /**

@@ -59,7 +59,31 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import java.util.List;
 import java.util.*;
@@ -221,7 +245,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     PropsUi.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(wlFilename, margin);
-    fdFilename.right = new FormAttachment(wbFilename, -Const.MARGIN);
+    fdFilename.right = new FormAttachment(wbFilename, -PropsUi.getMargin());
     fdFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wFilename.setLayoutData(fdFilename);
 
@@ -354,8 +378,8 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     wlTopic.setText(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.Topics"));
     FormData fdlTopic = new FormData();
     fdlTopic.left = new FormAttachment(0, 0);
-    fdlTopic.top = new FormAttachment(wBootstrapServers, 3 * Const.MARGIN);
-    fdlTopic.right = new FormAttachment(Const.MIDDLE_PCT, 0);
+    fdlTopic.top = new FormAttachment(wBootstrapServers, 3 * PropsUi.getMargin());
+    fdlTopic.right = new FormAttachment(props.getMiddlePct(), 0);
     wlTopic.setLayoutData(fdlTopic);
 
     wConsumerGroup = new TextVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);

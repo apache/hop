@@ -107,6 +107,6 @@ public class HopWeb implements ApplicationConfiguration {
     //
     System.out.println("HOP_CONFIG_FOLDER: " + Const.HOP_CONFIG_FOLDER);
     System.out.println("HOP_AUDIT_FOLDER: " + Const.HOP_AUDIT_FOLDER);
-    System.out.println("GlobalZoomFactor: " + System.getProperty("HOP_GUI_ZOOM_FACTOR"));
+    System.out.println("HOP_GUI_ZOOM_FACTOR: " + System.getProperty("HOP_GUI_ZOOM_FACTOR"));
   }
 }

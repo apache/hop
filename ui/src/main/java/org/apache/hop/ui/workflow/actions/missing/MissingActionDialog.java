@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.workflow.actions.missing;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -108,9 +107,9 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginLeft = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginLeft = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setText(BaseMessages.getString(PKG, "MissingActionDialog.MissingPlugins"));
     shell.setLayout(formLayout);

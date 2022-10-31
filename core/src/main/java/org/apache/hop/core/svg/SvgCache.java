@@ -166,4 +166,8 @@ public class SvgCache {
         .fileDocumentMap
         .put(filename, new SvgCacheEntry(filename, svgDocument, width, height, x, y));
   }
+
+  public void clear() {
+    fileDocumentMap.clear();
+  }
 }

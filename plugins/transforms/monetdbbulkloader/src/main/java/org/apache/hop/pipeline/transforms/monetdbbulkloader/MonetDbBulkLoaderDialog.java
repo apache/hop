@@ -37,6 +37,7 @@ import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -53,7 +54,31 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import java.util.List;
 import java.util.*;
@@ -143,8 +168,8 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Shell.Title"));
@@ -152,7 +177,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     // The right side of all the labels is available as a user-defined percentage:
     // props.getMiddlePct()
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN; // Default 4 pixel margin around components.
+    int margin = PropsUi.getMargin(); // Default 4 pixel margin around components.
 
     //
     // OK (Button), Cancel (Button) and SQL (Button)
@@ -745,22 +770,8 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
         };
     new Thread(runnable).start();
 
-    wbLogFile.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*"});
-            if (wLogFile.getText() != null) {
-              dialog.setFileName(wLogFile.getText());
-            }
-            dialog.setFilterNames(ALL_FILETYPES);
-            if (dialog.open() != null) {
-              wLogFile.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
+    wbLogFile.addListener(SWT.Selection, e->BaseDialog.presentFileDialog(shell,
+            wLogFile, variables,new String[] {"*"}, ALL_FILETYPES, true ));
 
     // Add listeners
     wOk.addListener(SWT.Selection, e -> ok());

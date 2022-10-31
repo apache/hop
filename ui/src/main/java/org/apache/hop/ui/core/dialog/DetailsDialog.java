@@ -72,7 +72,7 @@ public class DetailsDialog {
         new Button[] {
           wClose,
         },
-        Const.MARGIN,
+        PropsUi.getMargin(),
         null);
 
     Label wLabel = new Label(shell, SWT.LEFT);
@@ -91,8 +91,8 @@ public class DetailsDialog {
     FormData fdDetails = new FormData();
     fdDetails.left = new FormAttachment(0, 0);
     fdDetails.right = new FormAttachment(100, 0);
-    fdDetails.top = new FormAttachment(wLabel, Const.MARGIN);
-    fdDetails.bottom = new FormAttachment(wClose, -2 * Const.MARGIN);
+    fdDetails.top = new FormAttachment(wLabel, PropsUi.getMargin());
+    fdDetails.bottom = new FormAttachment(wClose, -2 * PropsUi.getMargin());
     wDetails.setLayoutData(fdDetails);
 
     BaseDialog.defaultShellHandling(shell, c -> close(), c -> close());

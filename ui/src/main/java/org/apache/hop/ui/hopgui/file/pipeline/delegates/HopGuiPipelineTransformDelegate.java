@@ -47,7 +47,7 @@ import org.apache.hop.ui.hopgui.partition.processor.IMethodProcessor;
 import org.apache.hop.ui.hopgui.partition.processor.MethodProcessorFactory;
 import org.apache.hop.ui.pipeline.transform.TransformErrorMetaDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import java.io.File;

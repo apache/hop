@@ -44,13 +44,35 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.*;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,7 +135,7 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
     shell.setText(BaseMessages.getString(PKG, "CypherBuilder.Transform.Name"));
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = PropsUi.getMargin();
 
     // Buttons go at the bottom...
     //
@@ -1337,10 +1359,10 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
 
   private Layout createFormLayout() {
     FormLayout formLayout = new FormLayout();
-    formLayout.marginLeft = Const.FORM_MARGIN;
-    formLayout.marginRight = Const.FORM_MARGIN;
-    formLayout.marginTop = Const.FORM_MARGIN;
-    formLayout.marginBottom = Const.FORM_MARGIN;
+    formLayout.marginLeft = PropsUi.getFormMargin();
+    formLayout.marginRight = PropsUi.getFormMargin();
+    formLayout.marginTop = PropsUi.getFormMargin();
+    formLayout.marginBottom = PropsUi.getFormMargin();
     return formLayout;
   }
 

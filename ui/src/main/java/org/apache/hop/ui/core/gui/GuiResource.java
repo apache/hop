@@ -288,7 +288,7 @@ public class GuiResource {
 
     getResources();
 
-    display.addListener(SWT.Dispose, event -> dispose(false));
+    display.addListener(SWT.Dispose, event -> dispose());
 
     clipboard = null;
 
@@ -347,7 +347,22 @@ public class GuiResource {
 
   /** reloads all colors, fonts and images. */
   public void reload() {
-    dispose(true);
+    // Let's not dispose of all colors etc. since they'll still be in use by the GUI.
+    // It's better to leak those few things than to crash the GUI since this is exceptional anyway.
+    //
+    // dispose();
+
+    // Clear the image map. This forces toolbar icons and so on to be re-created.
+    // This again leaks images. This is not meant to be repeated a lot.
+    //
+    imageMap.clear();
+
+    // Re-calculate the native zoom
+    //
+    PropsUi.getInstance().reCalculateNativeZoomFactor();
+
+    // Re-load colors, fonts and images.
+    //
     getResources();
   }
 
@@ -397,145 +412,144 @@ public class GuiResource {
     loadValueMetaImages();
   }
 
-  private void dispose(boolean reload) {
+  private void dispose() {
+    // display shutdown, clean up the fonts, images, colors, and so on.
+    //
+    // Fonts
+    //
+    fontDefault.dispose();
+    fontGraph.dispose();
+    fontNote.dispose();
+    fontFixed.dispose();
+    fontMedium.dispose();
+    fontMediumBold.dispose();
+    fontLarge.dispose();
+    fontTiny.dispose();
+    fontSmall.dispose();
+    fontBold.dispose();
 
-    if (!reload) {
-      // display shutdown, clean up our mess
+    // Common images
+    imageLogo.dispose();
+    imageDisabledHop.dispose();
+    imageDatabase.dispose();
+    imageData.dispose();
+    imageAdd.dispose();
+    imageTable.dispose();
+    imagePreview.dispose();
+    imageSchema.dispose();
+    imageSynonym.dispose();
+    imageView.dispose();
+    imageLabel.dispose();
+    imageFunction.dispose();
+    imageCancel.dispose();
+    imageCopy.dispose();
+    imageCut.dispose();
+    imageDuplicate.dispose();
+    imagePaste.dispose();
+    imageBol.dispose();
+    imageCalendar.dispose();
+    imageServer.dispose();
+    imageArrow.dispose();
+    imageFile.dispose();
+    imageFolder.dispose();
+    imageMissing.dispose();
+    imageVariable.dispose();
+    imagePipeline.dispose();
+    imagePartitionSchema.dispose();
+    imageWorkflow.dispose();
+    imageUser.dispose();
+    imageFolderConnections.dispose();
+    imageShowResults.dispose();
+    imageHideResults.dispose();
+    imageCollapseAll.dispose();
+    imageCopyRows.dispose();
+    imageCopyRowsDisabled.dispose();
+    imageError.dispose();
+    imageErrorDisabled.dispose();
+    imageInfo.dispose();
+    imageInfoDisabled.dispose();
+    imageWarning.dispose();
+    imageClearText.dispose();
+    imageDeprecated.dispose();
+    imageExpandAll.dispose();
+    imageSearch.dispose();
+    imageRegEx.dispose();
+    imageNew.dispose();
+    imageEdit.dispose();
+    imageLocked.dispose();
+    imageInput.dispose();
+    imageOutput.dispose();
+    imageTarget.dispose();
+    imageTargetDisabled.dispose();
+    imageTrue.dispose();
+    imageTrueDisabled.dispose();
+    imageFalse.dispose();
+    imageFalseDisabled.dispose();
+    imageFailure.dispose();
+    imageSuccess.dispose();
+    imageContextMenu.dispose();
+    imageParallel.dispose();
+    imageParallelDisabled.dispose();
+    imageUnconditional.dispose();
+    imageUnconditionalDisabled.dispose();
+    imageBusy.dispose();
+    imageInject.dispose();
+    imageBalance.dispose();
+    imageCheckpoint.dispose();
+    imageHelp.dispose();
+    imageAddAll.dispose();
+    imageAddSingle.dispose();
+    imageRemoveAll.dispose();
+    imageRemoveSingle.dispose();
+    imageNavigateBack.dispose();
+    imageNavigateForward.dispose();
+    imageNavigateUp.dispose();
+    imageRefresh.dispose();
+    imageHome.dispose();
+    imagePrint.dispose();
+    imageClose.dispose();
+    imageDelete.dispose();
+    imagePause.dispose();
+    imageRun.dispose();
+    imageStop.dispose();
+    imageSearch.dispose();
+    imageDown.dispose();
+    imageUp.dispose();
+    imageLocation.dispose();
 
-      // Fonts
-      fontDefault.dispose();
-      fontGraph.dispose();
-      fontNote.dispose();
-      fontFixed.dispose();
-      fontMedium.dispose();
-      fontMediumBold.dispose();
-      fontLarge.dispose();
-      fontTiny.dispose();
-      fontSmall.dispose();
-      fontBold.dispose();
+    imageArrowDefault.dispose();
+    imageArrowTrue.dispose();
+    imageArrowFalse.dispose();
+    imageArrowError.dispose();
+    imageArrowDisabled.dispose();
+    imageArrowCandidate.dispose();
 
-      // Common images
-      imageLogo.dispose();
-      imageDisabledHop.dispose();
-      imageDatabase.dispose();
-      imageData.dispose();
-      imageAdd.dispose();
-      imageTable.dispose();
-      imagePreview.dispose();
-      imageSchema.dispose();
-      imageSynonym.dispose();
-      imageView.dispose();
-      imageLabel.dispose();
-      imageFunction.dispose();
-      imageCancel.dispose();
-      imageCopy.dispose();
-      imageCut.dispose();
-      imageDuplicate.dispose();
-      imagePaste.dispose();
-      imageBol.dispose();
-      imageCalendar.dispose();
-      imageServer.dispose();
-      imageArrow.dispose();
-      imageFile.dispose();
-      imageFolder.dispose();
-      imageMissing.dispose();
-      imageVariable.dispose();
-      imagePipeline.dispose();
-      imagePartitionSchema.dispose();
-      imageWorkflow.dispose();
-      imageUser.dispose();
-      imageFolderConnections.dispose();
-      imageShowResults.dispose();
-      imageHideResults.dispose();
-      imageCollapseAll.dispose();
-      imageCopyRows.dispose();
-      imageCopyRowsDisabled.dispose();
-      imageError.dispose();
-      imageErrorDisabled.dispose();
-      imageInfo.dispose();
-      imageInfoDisabled.dispose();
-      imageWarning.dispose();
-      imageClearText.dispose();
-      imageDeprecated.dispose();
-      imageExpandAll.dispose();
-      imageSearch.dispose();
-      imageRegEx.dispose();
-      imageNew.dispose();
-      imageEdit.dispose();
-      imageLocked.dispose();
-      imageInput.dispose();
-      imageOutput.dispose();
-      imageTarget.dispose();
-      imageTargetDisabled.dispose();
-      imageTrue.dispose();
-      imageTrueDisabled.dispose();
-      imageFalse.dispose();
-      imageFalseDisabled.dispose();
-      imageFailure.dispose();
-      imageSuccess.dispose();
-      imageContextMenu.dispose();
-      imageParallel.dispose();
-      imageParallelDisabled.dispose();
-      imageUnconditional.dispose();
-      imageUnconditionalDisabled.dispose();
-      imageBusy.dispose();
-      imageInject.dispose();
-      imageBalance.dispose();
-      imageCheckpoint.dispose();
-      imageHelp.dispose();
-      imageAddAll.dispose();
-      imageAddSingle.dispose();
-      imageRemoveAll.dispose();
-      imageRemoveSingle.dispose();
-      imageNavigateBack.dispose();
-      imageNavigateForward.dispose();
-      imageNavigateUp.dispose();
-      imageRefresh.dispose();
-      imageHome.dispose();
-      imagePrint.dispose();
-      imageClose.dispose();
-      imageDelete.dispose();
-      imagePause.dispose();
-      imageRun.dispose();
-      imageStop.dispose();
-      imageSearch.dispose();
-      imageDown.dispose();
-      imageUp.dispose();
-      imageLocation.dispose();
+    disposeImage(imageNote);
+    disposeImage(imageColor);
+    disposeImage(imageEditOption);
+    disposeImage(imageResetOption);
+    disposeImage(imageShowLog);
+    disposeImage(imageShowGrid);
+    disposeImage(imageShowHistory);
+    disposeImage(imageShowPerf);
+    disposeImage(imageShow);
+    disposeImage(imageHide);
+    disposeImage(imageShowSelected);
+    disposeImage(imageShowAll);
+    disposeImage(imageClosePanel);
+    disposeImage(imageMaximizePanel);
+    disposeImage(imageMinimizePanel);
+    disposeImage(imageShowErrorLines);
 
-      imageArrowDefault.dispose();
-      imageArrowTrue.dispose();
-      imageArrowFalse.dispose();
-      imageArrowError.dispose();
-      imageArrowDisabled.dispose();
-      imageArrowCandidate.dispose();
+    // big images
+    //
+    disposeUniversalImages(imagesActions.values());
+    disposeUniversalImages(imagesTransforms.values());
 
-      disposeImage(imageNote);
-      disposeImage(imageColor);
-      disposeImage(imageEditOption);
-      disposeImage(imageResetOption);
-      disposeImage(imageShowLog);
-      disposeImage(imageShowGrid);
-      disposeImage(imageShowHistory);
-      disposeImage(imageShowPerf);
-      disposeImage(imageShow);
-      disposeImage(imageHide);
-      disposeImage(imageShowSelected);
-      disposeImage(imageShowAll);
-      disposeImage(imageClosePanel);
-      disposeImage(imageMaximizePanel);
-      disposeImage(imageMinimizePanel);
-      disposeImage(imageShowErrorLines);
-
-      // big images
-      disposeUniversalImages(imagesActions.values());
-      disposeUniversalImages(imagesTransforms.values());
-
-      // Dispose of the images in the map
-      disposeImages(imageMap.values());
-
-      disposeImages(imagesValueMeta.values());
-    }
+    // Dispose of the images in the map
+    //
+    disposeImages(imageMap.values());
+    disposeImages(imagesValueMeta.values());
   }
 
   private void disposeImages(Collection<Image> c) {
@@ -596,24 +610,26 @@ public class GuiResource {
     //
     FontData defaultFontData = props.getDefaultFontData();
     int defaultFontSize =
-        (int) Math.round(defaultFontData.getHeight() * PropsUi.getGlobalZoomFactor());
+        (int) Math.round(defaultFontData.getHeight() * props.getGlobalZoomFactor());
     defaultFontData.setHeight(defaultFontSize);
     fontDefault = new ManagedFont(display, defaultFontData);
 
-    // The graph font needs to be smaller because it gets magnified using a zoom factor on the canvas.
+    // The graph font needs to be smaller because it gets magnified using a zoom factor on the
+    // canvas.
     //
     FontData graphFontData = props.getGraphFont();
-    int graphFontSize = (int) Math.round(1.5+graphFontData.getHeight() / PropsUi.getNativeZoomFactor());
+    int graphFontSize =
+        (int) Math.round(1.5 + graphFontData.getHeight() / PropsUi.getNativeZoomFactor());
     graphFontData.setHeight(graphFontSize);
     fontGraph = new ManagedFont(display, graphFontData);
 
     FontData noteFontData = props.getNoteFont();
-    int noteFontSize = (int) Math.round(noteFontData.getHeight() * PropsUi.getGlobalZoomFactor());
+    int noteFontSize = (int) Math.round(noteFontData.getHeight() * props.getGlobalZoomFactor());
     noteFontData.setHeight(noteFontSize);
     fontNote = new ManagedFont(display, noteFontData);
 
     FontData fixedFontData = props.getFixedFont();
-    int fixedFontSize = (int) Math.round(fixedFontData.getHeight() * PropsUi.getGlobalZoomFactor());
+    int fixedFontSize = (int) Math.round(fixedFontData.getHeight() * props.getGlobalZoomFactor());
     fixedFontData.setHeight(fixedFontSize);
     fontFixed = new ManagedFont(display, fixedFontData);
 

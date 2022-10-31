@@ -60,7 +60,7 @@ public class DialogBoxWithButtons {
     shell.setText(Const.NVL(title, ""));
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     FormLayout formLayout = new FormLayout();
-    int formMargin = (int) (Const.FORM_MARGIN * props.getZoomFactor());
+    int formMargin = (int) (PropsUi.getFormMargin() * props.getZoomFactor());
     formLayout.marginTop = formMargin;
     formLayout.marginLeft = formMargin;
     formLayout.marginBottom = formMargin;

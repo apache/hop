@@ -34,12 +34,27 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
-import javax.ws.rs.core.Form;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -155,7 +170,7 @@ public class GuiCompositeWidgets {
         } else {
           fdLabel.top = new FormAttachment(lastControl, props.getMargin() + extraVerticalMargin);
         }
-        fdLabel.right = new FormAttachment(Const.MIDDLE_PCT, 0);
+        fdLabel.right = new FormAttachment(props.getMiddlePct(), 0);
         label.setLayoutData(fdLabel);
         labelsMap.put(guiElements.getId(), label);
       }
@@ -576,7 +591,7 @@ public class GuiCompositeWidgets {
       PropsUi props, Control lastControl, Label label, Control control, Control rightControl) {
     FormData fdControl = new FormData();
     if (label != null) {
-      fdControl.left = new FormAttachment(Const.MIDDLE_PCT, props.getMargin());
+      fdControl.left = new FormAttachment(props.getMiddlePct(), props.getMargin());
       if (rightControl == null) {
         fdControl.right = new FormAttachment(100, 0);
       } else {
@@ -584,7 +599,7 @@ public class GuiCompositeWidgets {
       }
       fdControl.top = new FormAttachment(label, 0, SWT.CENTER);
     } else {
-      fdControl.left = new FormAttachment(Const.MIDDLE_PCT, props.getMargin());
+      fdControl.left = new FormAttachment(props.getMiddlePct(), props.getMargin());
       if (rightControl == null) {
         fdControl.right = new FormAttachment(100, 0);
       } else {

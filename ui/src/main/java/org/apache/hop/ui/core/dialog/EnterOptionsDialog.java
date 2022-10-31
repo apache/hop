@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -181,8 +181,8 @@ public class EnterOptionsDialog extends Dialog {
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.Title"));
@@ -494,7 +494,7 @@ public class EnterOptionsDialog extends Dialog {
     fdGlobalZoom.top = new FormAttachment(wlGlobalZoom, 0, SWT.CENTER);
     wGlobalZoom.setLayoutData(fdGlobalZoom);
     // set the current value
-    String globalZoomFactor = Integer.toString((int) (PropsUi.getGlobalZoomFactor() * 100)) + '%';
+    String globalZoomFactor = Integer.toString((int) (props.getGlobalZoomFactor() * 100)) + '%';
     wGlobalZoom.setText(globalZoomFactor);
 
     // GridSize line

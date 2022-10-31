@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -87,8 +86,8 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     changed = mCurrentMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ReservoirSamplingDialog.Shell.Title"));

@@ -16,7 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -40,9 +39,10 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
-
-import java.io.File;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /** Dialog class for the SSTableOutput transform. */
 public class SSTableOutputDialog extends BaseTransformDialog implements ITransformDialog {
@@ -85,14 +85,14 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // transformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -134,35 +134,15 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     fd.top = new FormAttachment(wTransformName, margin);
     wbYaml.setLayoutData(fd);
 
-    wbYaml.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            String[] extensions = null;
-            String[] filterNames = null;
-
-            extensions = new String[2];
-            filterNames = new String[2];
-
-            extensions[0] = "*.yaml";
-            filterNames[0] = BaseMessages.getString(PKG, "SSTableOutputDialog.FileType.YAML");
-
-            extensions[1] = "*";
-            filterNames[1] = BaseMessages.getString(PKG, "System.FileType.AllFiles");
-
-            dialog.setFilterExtensions(extensions);
-            dialog.setFilterNames(filterNames);
-
-            if (dialog.open() != null) {
-              String path =
-                  dialog.getFilterPath()
-                      + System.getProperty("file.separator")
-                      + dialog.getFileName();
-              path = new File(path).toURI().toString();
-              wYaml.setText(path);
-            }
-          }
+    wbYaml.addListener(
+        SWT.Selection,
+        e -> {
+          String[] extensions = {"*.yaml", "*"};
+          String[] filterNames = {
+            BaseMessages.getString(PKG, "SSTableOutputDialog.FileType.YAML"),
+            BaseMessages.getString(PKG, "System.FileType.AllFiles")
+          };
+          BaseDialog.presentFileDialog(shell, wYaml, variables, extensions, filterNames, true);
         });
 
     wYaml = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -191,20 +171,8 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     fd.right = new FormAttachment(100, 0);
     fd.top = new FormAttachment(wYaml, margin);
     wbDirectory.setLayoutData(fd);
-
-    wbDirectory.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            DirectoryDialog dialog = new DirectoryDialog(shell, SWT.OPEN);
-
-            if (dialog.open() != null) {
-              String path = dialog.getFilterPath();
-              path = new File(path).toURI().toString();
-              wDirectory.setText(path);
-            }
-          }
-        });
+    wbDirectory.addListener(
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wDirectory, variables));
 
     wDirectory = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wDirectory);

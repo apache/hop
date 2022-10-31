@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.xsdvalidator;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -46,7 +45,12 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class XsdValidatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = XsdValidatorMeta.class; // For Translator
@@ -93,14 +97,14 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "XsdValidatorDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     //
@@ -534,32 +538,19 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
         e -> wFilename.setToolTipText(variables.resolve(wFilename.getText())));
 
     // Listen to the Browse... button
-    wbbFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*xsd;*.XSD", "*"});
-            if (wFilename.getText() != null) {
-              String fname = variables.resolve(wFilename.getText());
-              dialog.setFileName(fname);
-            }
-
-            dialog.setFilterNames(
-                new String[] {
-                  BaseMessages.getString(PKG, "XsdValidatorDialog.FileType"),
-                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
-                });
-
-            if (dialog.open() != null) {
-              String str =
-                  dialog.getFilterPath()
-                      + System.getProperty("file.separator")
-                      + dialog.getFileName();
-              wFilename.setText(str);
-            }
-          }
+    wbbFilename.addListener(
+        SWT.Selection,
+        e -> {
+          BaseDialog.presentFileDialog(
+              shell,
+              wFilename,
+              variables,
+              new String[] {"*xsd;*.XSD", "*"},
+              new String[] {
+                BaseMessages.getString(PKG, "XsdValidatorDialog.FileType"),
+                BaseMessages.getString(PKG, "System.FileType.AllFiles")
+              },
+              true);
         });
 
     wTabFolder.setSelection(0);

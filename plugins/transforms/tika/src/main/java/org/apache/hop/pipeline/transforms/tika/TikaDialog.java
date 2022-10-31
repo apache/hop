@@ -32,7 +32,13 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -49,7 +55,14 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -133,14 +146,14 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "TikaDialog.DialogTitle"));
 
     middle = props.getMiddlePct();
-    margin = (int) (Const.MARGIN * props.getZoomFactor());
+    margin = (int) (PropsUi.getMargin() * props.getZoomFactor());
 
     // Buttons at the bottom:
     //
@@ -706,44 +719,21 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     wFilename.addModifyListener(e -> wFilename.setToolTipText(wFilename.getText()));
 
     // Listen to the Browse... button
-    wbbFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            if (!StringUtils.isEmpty(wFilemask.getText())
-                || !StringUtils.isEmpty(wExcludeFilemask.getText())) // A mask: a directory!
-            {
-              DirectoryDialog dialog = new DirectoryDialog(shell, SWT.OPEN);
-              if (wFilename.getText() != null) {
-                String fpath = variables.resolve(wFilename.getText());
-                dialog.setFilterPath(fpath);
-              }
-
-              if (dialog.open() != null) {
-                String str = dialog.getFilterPath();
-                wFilename.setText(str);
-              }
-            } else {
-              FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-
-              dialog.setFilterExtensions(new String[] {"*"});
-
-              if (wFilename.getText() != null) {
-                String filename = variables.resolve(wFilename.getText());
-                dialog.setFileName(filename);
-              }
-
-              dialog.setFilterNames(
-                  new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")});
-
-              if (dialog.open() != null) {
-                String str =
-                    dialog.getFilterPath()
-                        + System.getProperty("file.separator")
-                        + dialog.getFileName();
-                wFilename.setText(str);
-              }
-            }
+    wbbFilename.addListener(
+        SWT.Selection,
+        e -> {
+          if (!StringUtils.isEmpty(wFilemask.getText())
+              || !StringUtils.isEmpty(wExcludeFilemask.getText())) // A mask: a directory!
+          {
+            BaseDialog.presentDirectoryDialog(shell, wFilename, variables);
+          } else {
+            BaseDialog.presentFileDialog(
+                shell,
+                wFilename,
+                variables,
+                new String[] {"*"},
+                new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")},
+                true);
           }
         });
 

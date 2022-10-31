@@ -42,7 +42,31 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import java.util.List;
 import java.util.*;
@@ -110,8 +134,8 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     backupAllRows = input.isPassAllRows();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "GroupByDialog.Shell.Title"));
@@ -189,19 +213,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     fdSortDir.top = new FormAttachment(wAllRows, margin);
     fdSortDir.right = new FormAttachment(wbSortDir, -margin);
     wSortDir.setLayoutData(fdSortDir);
-
-    wbSortDir.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            DirectoryDialog dd = new DirectoryDialog(shell, SWT.NONE);
-            dd.setFilterPath(wSortDir.getText());
-            String dir = dd.open();
-            if (dir != null) {
-              wSortDir.setText(dir);
-            }
-          }
-        });
+    wbSortDir.addListener(SWT.Selection, e-> BaseDialog.presentDirectoryDialog(shell, wSortDir, variables));
 
     // Whenever something changes, set the tooltip to the expanded version:
     wSortDir.addModifyListener(e -> wSortDir.setToolTipText(variables.resolve(wSortDir.getText())));

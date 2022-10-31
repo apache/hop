@@ -62,7 +62,31 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -183,8 +207,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Shell.Title"));
@@ -233,8 +257,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     PropsUi.setLook(wTop);
 
     FormLayout topLayout = new FormLayout();
-    topLayout.marginWidth = Const.FORM_MARGIN;
-    topLayout.marginHeight = Const.FORM_MARGIN;
+    topLayout.marginWidth = PropsUi.getFormMargin();
+    topLayout.marginHeight = PropsUi.getFormMargin();
     wTop.setLayout(topLayout);
 
     // Script line
@@ -553,8 +577,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     PropsUi.setLook(wBottom);
     fieldsTab.setControl(wBottom);
     FormLayout bottomLayout = new FormLayout();
-    bottomLayout.marginWidth = Const.FORM_MARGIN;
-    bottomLayout.marginHeight = Const.FORM_MARGIN;
+    bottomLayout.marginWidth = PropsUi.getFormMargin();
+    bottomLayout.marginHeight = PropsUi.getFormMargin();
     wBottom.setLayout(bottomLayout);
 
     Label wlFields = new Label(wBottom, SWT.NONE);
@@ -632,8 +656,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     PropsUi.setLook(wBottom);
     infoTab.setControl(wBottom);
     FormLayout bottomLayout = new FormLayout();
-    bottomLayout.marginWidth = Const.FORM_MARGIN;
-    bottomLayout.marginHeight = Const.FORM_MARGIN;
+    bottomLayout.marginWidth = PropsUi.getFormMargin();
+    bottomLayout.marginHeight = PropsUi.getFormMargin();
     wBottom.setLayout(bottomLayout);
 
     Label wlFields = new Label(wBottom, SWT.NONE);
@@ -699,8 +723,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     PropsUi.setLook(wBottom);
     targetTab.setControl(wBottom);
     FormLayout bottomLayout = new FormLayout();
-    bottomLayout.marginWidth = Const.FORM_MARGIN;
-    bottomLayout.marginHeight = Const.FORM_MARGIN;
+    bottomLayout.marginWidth = PropsUi.getFormMargin();
+    bottomLayout.marginHeight = PropsUi.getFormMargin();
     wBottom.setLayout(bottomLayout);
 
     Label wlFields = new Label(wBottom, SWT.NONE);
@@ -767,8 +791,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     PropsUi.setLook(wBottom);
     parametersTab.setControl(wBottom);
     FormLayout bottomLayout = new FormLayout();
-    bottomLayout.marginWidth = Const.FORM_MARGIN;
-    bottomLayout.marginHeight = Const.FORM_MARGIN;
+    bottomLayout.marginWidth = PropsUi.getFormMargin();
+    bottomLayout.marginHeight = PropsUi.getFormMargin();
     wBottom.setLayout(bottomLayout);
 
     Label wlFields = new Label(wBottom, SWT.NONE);

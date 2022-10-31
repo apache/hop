@@ -24,8 +24,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -45,7 +45,13 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the XML valid job entry settings. */
 public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
@@ -114,14 +120,14 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionXMLWellFormed.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = PropsUi.getMargin();
 
     // Buttons go at the very bottom
     //
@@ -266,26 +272,8 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     fdbSourceDirectory.right = new FormAttachment(100, 0);
     fdbSourceDirectory.top = new FormAttachment(wSettings, margin);
     wbSourceDirectory.setLayoutData(fdbSourceDirectory);
-
-    wbSourceDirectory.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            DirectoryDialog ddialog = new DirectoryDialog(shell, SWT.OPEN);
-            if (wSourceFileFolder.getText() != null) {
-              ddialog.setFilterPath(variables.resolve(wSourceFileFolder.getText()));
-            }
-
-            // Calling open() will open and run the dialog.
-            // It will return the selected directory, or
-            // null if user cancels
-            String dir = ddialog.open();
-            if (dir != null) {
-              // Set the text box to the new selection
-              wSourceFileFolder.setText(dir);
-            }
-          }
-        });
+    wbSourceDirectory.addListener(
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wSourceFileFolder, variables));
 
     // Browse Source files button ...
     wbSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
@@ -322,23 +310,16 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     // Whenever something changes, set the tooltip to the expanded version:
     wSourceFileFolder.addModifyListener(
         e -> wSourceFileFolder.setToolTipText(variables.resolve(wSourceFileFolder.getText())));
-
-    wbSourceFileFolder.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] {"*.xml;*.XML", "*"});
-            if (wSourceFileFolder.getText() != null) {
-              dialog.setFileName(variables.resolve(wSourceFileFolder.getText()));
-            }
-            dialog.setFilterNames(FILETYPES);
-            if (dialog.open() != null) {
-              wSourceFileFolder.setText(
-                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
-            }
-          }
-        });
+    wbSourceFileFolder.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wSourceFileFolder,
+                variables,
+                new String[] {"*.xml;*.XML", "*"},
+                FILETYPES,
+                true));
 
     // Wildcard
     wlWildcard = new Label(wGeneralComp, SWT.RIGHT);

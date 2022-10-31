@@ -31,7 +31,12 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -48,7 +53,12 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class SshDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SshMeta.class; // For Translator
@@ -110,8 +120,8 @@ public class SshDialog extends BaseTransformDialog implements ITransformDialog {
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SSHDialog.Shell.Title"));
@@ -292,28 +302,18 @@ public class SshDialog extends BaseTransformDialog implements ITransformDialog {
     fdbFilename.top = new FormAttachment(wUseKey, 2 * margin);
     wbFilename.setLayoutData(fdbFilename);
 
-    wbFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-            dialog.setFilterExtensions(new String[] {"*.pem", "*"});
-            if (wPrivateKey.getText() != null) {
-              dialog.setFileName(variables.resolve(wPrivateKey.getText()));
-            }
-            dialog.setFilterNames(
-                new String[] {
-                  BaseMessages.getString(PKG, "System.FileType.PEMFiles"),
-                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
-                });
-            if (dialog.open() != null) {
-              wPrivateKey.setText(
-                  dialog.getFilterPath()
-                      + System.getProperty("file.separator")
-                      + dialog.getFileName());
-            }
-          }
-        });
+    wbFilename.addListener(
+        SWT.Selection,
+        e -> BaseDialog.presentFileDialog(
+            shell,
+            wPrivateKey,
+            variables,
+            new String[] {"*.pem", "*"},
+            new String[] {
+              BaseMessages.getString(PKG, "System.FileType.PEMFiles"),
+              BaseMessages.getString(PKG, "System.FileType.AllFiles")
+            },
+            true));
 
     // Private key
     Label wlPrivateKey = new Label(wSettingsGroup, SWT.RIGHT | SWT.SINGLE);
@@ -783,19 +783,28 @@ public class SshDialog extends BaseTransformDialog implements ITransformDialog {
         }
       }
     }
-    if (exception==null) {
+    if (exception == null) {
       MessageBox messageBox;
       messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
       messageBox.setMessage(
-          BaseMessages.getString(PKG, "SSHDialog.Connected.OK", meta.getServerName(), meta.getUserName()) + Const.CR);
+          BaseMessages.getString(
+                  PKG, "SSHDialog.Connected.OK", meta.getServerName(), meta.getUserName())
+              + Const.CR);
       messageBox.setText(BaseMessages.getString(PKG, "SSHDialog.Connected.Title.Ok"));
       messageBox.open();
     } else {
-      new ErrorDialog(shell, "Error",
-          BaseMessages.getString(PKG, "SSHDialog.Connected.NOK.ConnectionBad", meta.getServerName(), meta.getUserName())
+      new ErrorDialog(
+          shell,
+          "Error",
+          BaseMessages.getString(
+                  PKG,
+                  "SSHDialog.Connected.NOK.ConnectionBad",
+                  meta.getServerName(),
+                  meta.getUserName())
               + Const.CR
               + errMsg
-              + Const.CR, exception);
+              + Const.CR,
+          exception);
     }
   }
 

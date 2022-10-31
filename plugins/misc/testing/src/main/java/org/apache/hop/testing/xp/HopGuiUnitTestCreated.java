@@ -27,7 +27,7 @@ import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageBox;
 
 @ExtensionPoint(
     id = "HopGuiUnitTestCreated",

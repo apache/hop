@@ -40,6 +40,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -52,7 +53,31 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import java.sql.ResultSet;
 import java.util.List;
@@ -272,8 +297,8 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.Title"));
@@ -531,19 +556,9 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     fdWorkDirectory.top = new FormAttachment(wStageName, margin);
     fdWorkDirectory.right = new FormAttachment(wbWorkDirectory, -margin);
     wWorkDirectory.setLayoutData(fdWorkDirectory);
-
-    wbWorkDirectory.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            DirectoryDialog dd = new DirectoryDialog(shell, SWT.NONE);
-            dd.setFilterPath(wWorkDirectory.getText());
-            String dir = dd.open();
-            if (dir != null) {
-              wWorkDirectory.setText(dir);
-            }
-          }
-        });
+    wbWorkDirectory.addListener(SWT.Selection, e-> {
+      BaseDialog.presentDirectoryDialog(shell, wWorkDirectory, variables);
+    });
 
     // Whenever something changes, set the tooltip to the expanded version:
     wWorkDirectory.addModifyListener(

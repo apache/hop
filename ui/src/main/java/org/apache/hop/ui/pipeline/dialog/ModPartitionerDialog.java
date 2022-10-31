@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.pipeline.dialog;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -89,8 +88,8 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
     changed = partitioningMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
     shell.setText(partitioner.getDescription());

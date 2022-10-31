@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -38,7 +39,12 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit a Action As400Command metadata. */
 public class ActionAs400CommandDialog extends ActionDialog implements IActionDialog {
@@ -128,11 +134,11 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     Group systemGroup = new Group(shell, SWT.SHADOW_NONE);
     systemGroup.setText(BaseMessages.getString(PKG, "ActionAs400CommandDialog.System.Group.Label"));
     FormLayout systemGroupLayout = new FormLayout();
-    systemGroupLayout.marginWidth = Const.FORM_MARGIN;
-    systemGroupLayout.marginHeight = Const.FORM_MARGIN;
+    systemGroupLayout.marginWidth = PropsUi.getFormMargin();
+    systemGroupLayout.marginHeight = PropsUi.getFormMargin();
     systemGroup.setLayout(systemGroupLayout);
     systemGroup.setLayoutData(
-        new FormDataBuilder().top(spacer, Const.FORM_MARGIN).fullWidth().result());
+        new FormDataBuilder().top(spacer, PropsUi.getFormMargin()).fullWidth().result());
     PropsUi.setLook(systemGroup);
 
     // Widget ServerName
@@ -172,11 +178,11 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     Group proxyGroup = new Group(shell, SWT.SHADOW_NONE);
     proxyGroup.setText(BaseMessages.getString(PKG, "ActionAs400CommandDialog.Proxy.Group.Label"));
     FormLayout proxyGroupLayout = new FormLayout();
-    proxyGroupLayout.marginWidth = Const.FORM_MARGIN;
-    proxyGroupLayout.marginHeight = Const.FORM_MARGIN;
+    proxyGroupLayout.marginWidth = PropsUi.getFormMargin();
+    proxyGroupLayout.marginHeight = PropsUi.getFormMargin();
     proxyGroup.setLayout(proxyGroupLayout);
     proxyGroup.setLayoutData(
-        new FormDataBuilder().top(systemGroup, Const.FORM_MARGIN).fullWidth().result());
+        new FormDataBuilder().top(systemGroup, PropsUi.getFormMargin()).fullWidth().result());
     PropsUi.setLook(proxyGroup);
 
     // Widget proxy host
@@ -205,11 +211,11 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     commandGroup.setText(
         BaseMessages.getString(PKG, "ActionAs400CommandDialog.Command.Group.Label"));
     FormLayout commandGroupLayout = new FormLayout();
-    commandGroupLayout.marginWidth = Const.FORM_MARGIN;
-    commandGroupLayout.marginHeight = Const.FORM_MARGIN;
+    commandGroupLayout.marginWidth = PropsUi.getFormMargin();
+    commandGroupLayout.marginHeight = PropsUi.getFormMargin();
     commandGroup.setLayout(commandGroupLayout);
     commandGroup.setLayoutData(
-        new FormDataBuilder().top(proxyGroup, Const.FORM_MARGIN).fullWidth().result());
+        new FormDataBuilder().top(proxyGroup, PropsUi.getFormMargin()).fullWidth().result());
     PropsUi.setLook(commandGroup);
 
     // Widget Command
@@ -234,7 +240,7 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     wTest.setText(BaseMessages.getString(PKG, "ActionAs400CommandDialog.TestConnection.Label"));
     wTest.addListener(SWT.Selection, (Event e) -> onTest());
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wTest, wOk, wCancel}, Const.MARGIN, null);
+        shell, new Button[] {wTest, wOk, wCancel}, PropsUi.getMargin(), null);
 
     getData();
 
