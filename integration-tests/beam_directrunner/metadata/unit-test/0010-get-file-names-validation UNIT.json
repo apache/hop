@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "group",
+          "data_set_field": "group"
+        },
+        {
+          "transform_field": "filesCount",
+          "data_set_field": "filesCount"
+        }
+      ],
+      "field_order": [
+        "group",
+        "filesCount"
+      ],
+      "data_set_name": "0010-get-file-names-golden",
+      "transform_name": "Output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0010-get-file-names-validation UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0010-get-file-names-validation.hpl",
+  "test_type": "UNIT_TEST"
+}
