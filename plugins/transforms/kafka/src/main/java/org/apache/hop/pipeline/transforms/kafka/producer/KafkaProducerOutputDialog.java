@@ -30,8 +30,10 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaDialogHelper;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaFactory;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
@@ -96,7 +98,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     lsMod = e -> meta.setChanged();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, meta);
     shell.setMinimumSize(SHELL_MIN_WIDTH, SHELL_MIN_HEIGHT);
     shell.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.Shell.Title"));
@@ -109,7 +111,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "KafkaProducerOutputDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, 0);
@@ -118,7 +120,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(wlTransformName, margin);
@@ -136,7 +138,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
 
     // Start of tabbed display
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
     wTabFolder.setUnselectedCloseVisible(true);
 
     wOk = new Button(shell, SWT.PUSH);
@@ -148,7 +150,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     positionBottomButtons(shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
 
     Label bottomSeparator = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
-    props.setLook(bottomSeparator);
+    PropsUi.setLook(bottomSeparator);
     FormData fdBottomSeparator = new FormData();
     fdBottomSeparator.height = 2;
     fdBottomSeparator.left = new FormAttachment(0, 0);
@@ -179,17 +181,18 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
 
   private void buildSetupTab() {
     CTabItem wSetupTab = new CTabItem(wTabFolder, SWT.NONE);
+    wSetupTab.setFont(GuiResource.getInstance().getFontDefault());
     wSetupTab.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.SetupTab"));
 
     Composite wSetupComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wSetupComp);
+    PropsUi.setLook(wSetupComp);
     FormLayout setupLayout = new FormLayout();
     setupLayout.marginHeight = 15;
     setupLayout.marginWidth = 15;
     wSetupComp.setLayout(setupLayout);
 
     Label wlBootstrapServers = new Label(wSetupComp, SWT.RIGHT);
-    props.setLook(wlBootstrapServers);
+    PropsUi.setLook(wlBootstrapServers);
     wlBootstrapServers.setText(
         BaseMessages.getString(PKG, "KafkaProducerOutputDialog.BootstrapServers"));
     FormData fdlBootstrapServers = new FormData();
@@ -199,7 +202,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     wlBootstrapServers.setLayoutData(fdlBootstrapServers);
 
     wBootstrapServers = new TextVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBootstrapServers);
+    PropsUi.setLook(wBootstrapServers);
     wBootstrapServers.addModifyListener(lsMod);
     FormData fdBootstrapServers = new FormData();
     fdBootstrapServers.left = new FormAttachment(wlBootstrapServers, margin);
@@ -208,7 +211,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     wBootstrapServers.setLayoutData(fdBootstrapServers);
 
     Label wlClientId = new Label(wSetupComp, SWT.RIGHT);
-    props.setLook(wlClientId);
+    PropsUi.setLook(wlClientId);
     wlClientId.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.ClientId"));
     FormData fdlClientId = new FormData();
     fdlClientId.left = new FormAttachment(0, 0);
@@ -217,7 +220,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     wlClientId.setLayoutData(fdlClientId);
 
     wClientId = new TextVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wClientId);
+    PropsUi.setLook(wClientId);
     wClientId.addModifyListener(lsMod);
     FormData fdClientId = new FormData();
     fdClientId.left = new FormAttachment(wlClientId, margin);
@@ -226,7 +229,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     wClientId.setLayoutData(fdClientId);
 
     Label wlTopic = new Label(wSetupComp, SWT.RIGHT);
-    props.setLook(wlTopic);
+    PropsUi.setLook(wlTopic);
     wlTopic.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.Topic"));
     FormData fdlTopic = new FormData();
     fdlTopic.left = new FormAttachment(0, 0);
@@ -235,7 +238,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     wlTopic.setLayoutData(fdlTopic);
 
     wTopic = new ComboVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTopic);
+    PropsUi.setLook(wTopic);
     wTopic.addModifyListener(lsMod);
     FormData fdTopic = new FormData();
     fdTopic.left = new FormAttachment(wlTopic, margin);
@@ -259,7 +262,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
             });
 
     Label wlKeyField = new Label(wSetupComp, SWT.RIGHT);
-    props.setLook(wlKeyField);
+    PropsUi.setLook(wlKeyField);
     wlKeyField.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.KeyField"));
     FormData fdlKeyField = new FormData();
     fdlKeyField.left = new FormAttachment(0, 0);
@@ -268,7 +271,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     wlKeyField.setLayoutData(fdlKeyField);
 
     wKeyField = new ComboVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wKeyField);
+    PropsUi.setLook(wKeyField);
     wKeyField.addModifyListener(lsMod);
     FormData fdKeyField = new FormData();
     fdKeyField.left = new FormAttachment(wlKeyField, margin);
@@ -281,7 +284,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     wKeyField.getCComboWidget().addListener(SWT.FocusIn, lsKeyFocus);
 
     Label wlMessageField = new Label(wSetupComp, SWT.RIGHT);
-    props.setLook(wlMessageField);
+    PropsUi.setLook(wlMessageField);
     wlMessageField.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.MessageField"));
     FormData fdlMessageField = new FormData();
     fdlMessageField.left = new FormAttachment(0, 0);
@@ -290,7 +293,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     wlMessageField.setLayoutData(fdlMessageField);
 
     wMessageField = new ComboVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMessageField);
+    PropsUi.setLook(wMessageField);
     wMessageField.addModifyListener(lsMod);
     FormData fdMessageField = new FormData();
     fdMessageField.left = new FormAttachment(wlMessageField, margin);
@@ -315,9 +318,10 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
 
   private void buildOptionsTab() {
     CTabItem wOptionsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wOptionsTab.setFont(GuiResource.getInstance().getFontDefault());
     wOptionsTab.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.Options.Tab"));
     Composite wOptionsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wOptionsComp);
+    PropsUi.setLook(wOptionsComp);
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginHeight = 15;
     fieldsLayout.marginWidth = 15;

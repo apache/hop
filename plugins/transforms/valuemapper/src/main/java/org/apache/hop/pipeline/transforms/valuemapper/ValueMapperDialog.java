@@ -26,6 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -71,7 +72,7 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -99,14 +100,14 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
     // TransformName line
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "ValueMapperDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     FormData fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -117,7 +118,7 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
     // Fieldname line
     Label wlFieldname = new Label(shell, SWT.RIGHT);
     wlFieldname.setText(BaseMessages.getString(PKG, "ValueMapperDialog.FieldnameToUser.Label"));
-    props.setLook(wlFieldname);
+    PropsUi.setLook(wlFieldname);
     FormData fdlFieldname = new FormData();
     fdlFieldname.left = new FormAttachment(0, 0);
     fdlFieldname.right = new FormAttachment(middle, -margin);
@@ -125,7 +126,7 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
     wlFieldname.setLayoutData(fdlFieldname);
 
     wFieldName = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wFieldName);
+    PropsUi.setLook(wFieldName);
     wFieldName.addModifyListener(lsMod);
     FormData fdFieldname = new FormData();
     fdFieldname.left = new FormAttachment(middle, 0);
@@ -150,14 +151,14 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
     Label wlTargetFieldname = new Label(shell, SWT.RIGHT);
     wlTargetFieldname.setText(
         BaseMessages.getString(PKG, "ValueMapperDialog.TargetFieldname.Label"));
-    props.setLook(wlTargetFieldname);
+    PropsUi.setLook(wlTargetFieldname);
     FormData fdlTargetFieldname = new FormData();
     fdlTargetFieldname.left = new FormAttachment(0, 0);
     fdlTargetFieldname.right = new FormAttachment(middle, -margin);
     fdlTargetFieldname.top = new FormAttachment(wFieldName, margin);
     wlTargetFieldname.setLayoutData(fdlTargetFieldname);
     wTargetFieldName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTargetFieldName);
+    PropsUi.setLook(wTargetFieldName);
     wTargetFieldName.addModifyListener(lsMod);
     FormData fdTargetFieldname = new FormData();
     fdTargetFieldname.left = new FormAttachment(middle, 0);
@@ -169,14 +170,14 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
     Label wlNonMatchDefault = new Label(shell, SWT.RIGHT);
     wlNonMatchDefault.setText(
         BaseMessages.getString(PKG, "ValueMapperDialog.NonMatchDefault.Label"));
-    props.setLook(wlNonMatchDefault);
+    PropsUi.setLook(wlNonMatchDefault);
     FormData fdlNonMatchDefault = new FormData();
     fdlNonMatchDefault.left = new FormAttachment(0, 0);
     fdlNonMatchDefault.right = new FormAttachment(middle, -margin);
     fdlNonMatchDefault.top = new FormAttachment(wTargetFieldName, margin);
     wlNonMatchDefault.setLayoutData(fdlNonMatchDefault);
     wNonMatchDefault = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wNonMatchDefault);
+    PropsUi.setLook(wNonMatchDefault);
     wNonMatchDefault.addModifyListener(lsMod);
     FormData fdNonMatchDefault = new FormData();
     fdNonMatchDefault.left = new FormAttachment(middle, 0);
@@ -186,7 +187,7 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ValueMapperDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wNonMatchDefault, margin);

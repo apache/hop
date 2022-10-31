@@ -34,6 +34,7 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnectionUtils;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformDialog;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -106,7 +107,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -138,7 +139,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -146,7 +147,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -155,16 +156,17 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF FILE TAB ///
     // ////////////////////////
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "SalesforceUpdateDialog.General.Tab"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -176,7 +178,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     // ///////////////////////////////
 
     Group wConnectionGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wConnectionGroup);
+    PropsUi.setLook(wConnectionGroup);
     wConnectionGroup.setText(
         BaseMessages.getString(PKG, "SalesforceUpdateDialog.ConnectionGroup.Label"));
 
@@ -192,7 +194,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
             wConnectionGroup,
             BaseMessages.getString(PKG, "SalesforceUpdateDialog.URL.Label"),
             BaseMessages.getString(PKG, "SalesforceUpdateDialog.URL.Tooltip"));
-    props.setLook(wURL);
+    PropsUi.setLook(wURL);
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(0, 0);
@@ -207,7 +209,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
             wConnectionGroup,
             BaseMessages.getString(PKG, "SalesforceUpdateDialog.User.Label"),
             BaseMessages.getString(PKG, "SalesforceUpdateDialog.User.Tooltip"));
-    props.setLook(wUserName);
+    PropsUi.setLook(wUserName);
     wUserName.addModifyListener(lsMod);
     FormData fdUserName = new FormData();
     fdUserName.left = new FormAttachment(0, 0);
@@ -223,7 +225,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
             BaseMessages.getString(PKG, "SalesforceUpdateDialog.Password.Label"),
             BaseMessages.getString(PKG, "SalesforceUpdateDialog.Password.Tooltip"),
             true);
-    props.setLook(wPassword);
+    PropsUi.setLook(wPassword);
     wPassword.addModifyListener(lsMod);
     FormData fdPassword = new FormData();
     fdPassword.left = new FormAttachment(0, 0);
@@ -234,7 +236,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     // Test Salesforce connection button
     Button wTest = new Button(wConnectionGroup, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "SalesforceUpdateDialog.TestConnection.Label"));
-    props.setLook(wTest);
+    PropsUi.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceUpdateDialog.TestConnection.Tooltip"));
@@ -257,7 +259,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     // ///////////////////////////////
 
     Group wSettingsGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wSettingsGroup);
+    PropsUi.setLook(wSettingsGroup);
     wSettingsGroup.setText(
         BaseMessages.getString(PKG, "SalesforceUpdateDialog.SettingsGroup.Label"));
 
@@ -269,14 +271,14 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     // Timeout
     Label wlTimeOut = new Label(wSettingsGroup, SWT.RIGHT);
     wlTimeOut.setText(BaseMessages.getString(PKG, "SalesforceUpdateDialog.TimeOut.Label"));
-    props.setLook(wlTimeOut);
+    PropsUi.setLook(wlTimeOut);
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, 0);
     fdlTimeOut.top = new FormAttachment(wSettingsGroup, margin);
     fdlTimeOut.right = new FormAttachment(middle, -margin);
     wlTimeOut.setLayoutData(fdlTimeOut);
     wTimeOut = new TextVar(variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTimeOut);
+    PropsUi.setLook(wTimeOut);
     wTimeOut.addModifyListener(lsMod);
     FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment(middle, 0);
@@ -288,14 +290,14 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     Label wlUseCompression = new Label(wSettingsGroup, SWT.RIGHT);
     wlUseCompression.setText(
         BaseMessages.getString(PKG, "SalesforceUpdateDialog.UseCompression.Label"));
-    props.setLook(wlUseCompression);
+    PropsUi.setLook(wlUseCompression);
     FormData fdlUseCompression = new FormData();
     fdlUseCompression.left = new FormAttachment(0, 0);
     fdlUseCompression.top = new FormAttachment(wTimeOut, margin);
     fdlUseCompression.right = new FormAttachment(middle, -margin);
     wlUseCompression.setLayoutData(fdlUseCompression);
     wUseCompression = new Button(wSettingsGroup, SWT.CHECK);
-    props.setLook(wUseCompression);
+    PropsUi.setLook(wUseCompression);
     wUseCompression.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceUpdateDialog.UseCompression.Tooltip"));
     FormData fdUseCompression = new FormData();
@@ -308,7 +310,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     Label wlRollbackAllChangesOnError = new Label(wSettingsGroup, SWT.RIGHT);
     wlRollbackAllChangesOnError.setText(
         BaseMessages.getString(PKG, "SalesforceUpdateDialog.RollbackAllChangesOnError.Label"));
-    props.setLook(wlRollbackAllChangesOnError);
+    PropsUi.setLook(wlRollbackAllChangesOnError);
     FormData fdlRollbackAllChangesOnError = new FormData();
     fdlRollbackAllChangesOnError.left = new FormAttachment(0, 0);
     fdlRollbackAllChangesOnError.top = new FormAttachment(wUseCompression, margin);
@@ -316,7 +318,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     wlRollbackAllChangesOnError.setLayoutData(fdlRollbackAllChangesOnError);
     wRollbackAllChangesOnError = new Button(wSettingsGroup, SWT.CHECK);
     wRollbackAllChangesOnError.addSelectionListener(new ComponentSelectionListener(input));
-    props.setLook(wRollbackAllChangesOnError);
+    PropsUi.setLook(wRollbackAllChangesOnError);
     wRollbackAllChangesOnError.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceUpdateDialog.RollbackAllChangesOnError.Tooltip"));
     FormData fdRollbackAllChangesOnError = new FormData();
@@ -328,14 +330,14 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     // BatchSize value
     Label wlBatchSize = new Label(wSettingsGroup, SWT.RIGHT);
     wlBatchSize.setText(BaseMessages.getString(PKG, "SalesforceUpdateDialog.Limit.Label"));
-    props.setLook(wlBatchSize);
+    PropsUi.setLook(wlBatchSize);
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
     fdlBatchSize.top = new FormAttachment(wRollbackAllChangesOnError, margin);
     fdlBatchSize.right = new FormAttachment(middle, -margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
     wBatchSize = new TextVar(variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBatchSize);
+    PropsUi.setLook(wBatchSize);
     wBatchSize.addModifyListener(lsMod);
     FormData fdBatchSize = new FormData();
     fdBatchSize.left = new FormAttachment(middle, 0);
@@ -346,7 +348,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     // Module
     Label wlModule = new Label(wSettingsGroup, SWT.RIGHT);
     wlModule.setText(BaseMessages.getString(PKG, "SalesforceUpdateDialog.Module.Label"));
-    props.setLook(wlModule);
+    PropsUi.setLook(wlModule);
     FormData fdlModule = new FormData();
     fdlModule.left = new FormAttachment(0, 0);
     fdlModule.top = new FormAttachment(wBatchSize, margin);
@@ -354,7 +356,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     wlModule.setLayoutData(fdlModule);
     wModule = new ComboVar(variables, wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wModule.setEditable(true);
-    props.setLook(wModule);
+    PropsUi.setLook(wModule);
     wModule.addModifyListener(lsTableMod);
     wModule.addSelectionListener(lsSelection);
     FormData fdModule = new FormData();
@@ -400,7 +402,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     // THE UPDATE/INSERT TABLE
     Label wlReturn = new Label(wGeneralComp, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "SalesforceUpdateDialog.UpdateFields.Label"));
-    props.setLook(wlReturn);
+    PropsUi.setLook(wlReturn);
     FormData fdlReturn = new FormData();
     fdlReturn.left = new FormAttachment(0, 0);
     fdlReturn.top = new FormAttachment(wSettingsGroup, margin);

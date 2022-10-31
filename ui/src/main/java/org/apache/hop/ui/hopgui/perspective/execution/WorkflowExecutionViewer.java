@@ -23,6 +23,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -63,7 +64,6 @@ import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
-import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowPainter;
@@ -116,7 +116,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   public static final String TOOLBAR_ITEM_VIEW_EXECUTOR =
       "WorkflowExecutionViewer-Toolbar-12000-ViewExecutor";
   public static final String TOOLBAR_ITEM_VIEW_METADATA =
-          "WorkflowExecutionViewer-Toolbar-12100-ViewMetadata";
+      "WorkflowExecutionViewer-Toolbar-12100-ViewMetadata";
 
   protected final WorkflowMeta workflowMeta;
   protected final String locationName;
@@ -171,7 +171,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
-    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     // Below the toolbar we have a horizontal splitter: Canvas above and Execution tabs below
     //
@@ -201,7 +201,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     // The execution information tabs at the bottom
     //
     tabFolder = new CTabFolder(sash, SWT.MULTI);
-    hopGui.getProps().setLook(tabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
 
     addInfoTab();
     addLogTab();
@@ -215,6 +215,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
   private void addInfoTab() {
     infoTab = new CTabItem(tabFolder, SWT.NONE);
+    infoTab.setFont(GuiResource.getInstance().getFontDefault());
     infoTab.setImage(GuiResource.getInstance().getImageInfo());
     infoTab.setText(BaseMessages.getString(PKG, "WorkflowExecutionViewer.InfoTab.Title"));
 
@@ -236,7 +237,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
             true,
             null,
             props);
-    props.setLook(infoView);
+    PropsUi.setLook(infoView);
 
     infoTab.setControl(infoView);
   }
@@ -315,6 +316,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
   private void addDataTab() {
     dataTab = new CTabItem(tabFolder, SWT.NONE);
+    dataTab.setFont(GuiResource.getInstance().getFontDefault());
     dataTab.setImage(GuiResource.getInstance().getImageData());
     dataTab.setText(BaseMessages.getString(PKG, "WorkflowExecutionViewer.DataTab.Title"));
 
@@ -340,7 +342,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
             true,
             null,
             props);
-    props.setLook(dataView);
+    PropsUi.setLook(dataView);
 
     dataView.optimizeTableView();
 
@@ -429,11 +431,12 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
   private void addLogTab() {
     logTab = new CTabItem(tabFolder, SWT.NONE);
+    logTab.setFont(GuiResource.getInstance().getFontDefault());
     logTab.setImage(GuiResource.getInstance().getImageShowLog());
     logTab.setText(BaseMessages.getString(PKG, "WorkflowExecutionViewer.LogTab.Title"));
 
     loggingText = new Text(tabFolder, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
-    props.setLook(loggingText);
+    PropsUi.setLook(loggingText);
 
     logTab.setControl(loggingText);
   }
@@ -517,8 +520,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
               hopGui.getVariables(),
               workflowMeta,
               new Point(width, height),
-              horizontalScrollBar == null ? null : new SwtScrollBar(horizontalScrollBar),
-              verticalScrollBar == null ? null : new SwtScrollBar(verticalScrollBar),
+              new DPoint(0, 0),
               null,
               null,
               areaOwners,
@@ -704,8 +706,8 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
   @Override
   public void mouseDown(MouseEvent e) {
-    Point real = screen2real(e.x, e.y);
-    AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
+    DPoint real = screen2real(e.x, e.y);
+    AreaOwner areaOwner = getVisibleAreaOwner((int)real.x, (int)real.y);
     if (areaOwner == null) {
       return;
     }
@@ -782,11 +784,11 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   @Override
   public void mouseUp(MouseEvent e) {}
 
-  public void drillDownOnLocation(Point location) {
+  public void drillDownOnLocation(DPoint location) {
     if (location == null) {
       return;
     }
-    AreaOwner areaOwner = getVisibleAreaOwner(location.x, location.y);
+    AreaOwner areaOwner = getVisibleAreaOwner((int)location.x, (int)location.y);
     if (areaOwner == null) {
       return;
     }
@@ -943,10 +945,10 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   }
 
   @GuiToolbarElement(
-          root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-          id = TOOLBAR_ITEM_VIEW_METADATA,
-          toolTip = "i18n::WorkflowExecutionViewer.ToolbarElement.ViewMetadata.Tooltip",
-          image = "ui/images/metadata.svg")
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_VIEW_METADATA,
+      toolTip = "i18n::WorkflowExecutionViewer.ToolbarElement.ViewMetadata.Tooltip",
+      image = "ui/images/metadata.svg")
   public void viewMetadata() {
     super.viewMetadata(execution);
   }

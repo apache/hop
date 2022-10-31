@@ -89,7 +89,7 @@ public class ShowHelpDialog extends Dialog {
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.setLayout(new FormLayout());
     shell.setText(dialogTitle);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     Cursor cursorHand = new Cursor(display, SWT.CURSOR_HAND);
 
@@ -159,7 +159,7 @@ public class ShowHelpDialog extends Dialog {
     fdBrowser.left = new FormAttachment(0, 0);
     wBrowser.setLayoutData(fdBrowser);
     wBrowser.setUrl(url);
-    props.setLook(wBrowser);
+    PropsUi.setLook(wBrowser);
 
     addProgressAndLocationListener();
 

@@ -38,9 +38,11 @@ import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -102,7 +104,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     changed = input.hasChanged();
@@ -121,14 +123,14 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     //
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText("Transform name");
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -145,7 +147,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             "Neo4j Connection",
             "The name of the Neo4j connection to use");
-    props.setLook(wConnection);
+    PropsUi.setLook(wConnection);
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
     fdConnection.right = new FormAttachment(100, 0);
@@ -167,7 +169,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             "Graph model",
             "The name of the Neo4j logical Graph Model to use");
-    props.setLook(wModel);
+    PropsUi.setLook(wModel);
     FormData fdModel = new FormData();
     fdModel.left = new FormAttachment(0, 0);
     fdModel.right = new FormAttachment(100, 0);
@@ -182,14 +184,14 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
 
     wlBatchSize = new Label(shell, SWT.RIGHT);
     wlBatchSize.setText("Batch size (rows)");
-    props.setLook(wlBatchSize);
+    PropsUi.setLook(wlBatchSize);
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
     fdlBatchSize.right = new FormAttachment(middle, -margin);
     fdlBatchSize.top = new FormAttachment(lastControl, 2 * margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
     wBatchSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBatchSize);
+    PropsUi.setLook(wBatchSize);
     FormData fdBatchSize = new FormData();
     fdBatchSize.left = new FormAttachment(middle, 0);
     fdBatchSize.right = new FormAttachment(100, 0);
@@ -201,7 +203,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     wlCreateIndexes.setText("Create indexes? ");
     wlCreateIndexes.setToolTipText(
         "Create index on first row using label field and primary key properties.");
-    props.setLook(wlCreateIndexes);
+    PropsUi.setLook(wlCreateIndexes);
     FormData fdlCreateIndexes = new FormData();
     fdlCreateIndexes.left = new FormAttachment(0, 0);
     fdlCreateIndexes.right = new FormAttachment(middle, -margin);
@@ -210,7 +212,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     wCreateIndexes = new Button(shell, SWT.CHECK | SWT.BORDER);
     wCreateIndexes.setToolTipText(
         "Create index on first row using label field and primary key properties.");
-    props.setLook(wCreateIndexes);
+    PropsUi.setLook(wCreateIndexes);
     FormData fdCreateIndexes = new FormData();
     fdCreateIndexes.left = new FormAttachment(middle, 0);
     fdCreateIndexes.right = new FormAttachment(100, 0);
@@ -223,7 +225,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     String returnGraphTooltipText =
         "The update data to be updated in the form of Graph a value in the output of this transform";
     wlReturnGraph.setToolTipText(returnGraphTooltipText);
-    props.setLook(wlReturnGraph);
+    PropsUi.setLook(wlReturnGraph);
     FormData fdlReturnGraph = new FormData();
     fdlReturnGraph.left = new FormAttachment(0, 0);
     fdlReturnGraph.right = new FormAttachment(middle, -margin);
@@ -231,7 +233,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     wlReturnGraph.setLayoutData(fdlReturnGraph);
     wReturnGraph = new Button(shell, SWT.CHECK | SWT.BORDER);
     wReturnGraph.setToolTipText(returnGraphTooltipText);
-    props.setLook(wReturnGraph);
+    PropsUi.setLook(wReturnGraph);
     FormData fdReturnGraph = new FormData();
     fdReturnGraph.left = new FormAttachment(middle, 0);
     fdReturnGraph.right = new FormAttachment(100, 0);
@@ -242,14 +244,14 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
 
     wlReturnGraphField = new Label(shell, SWT.RIGHT);
     wlReturnGraphField.setText("Graph output field name");
-    props.setLook(wlReturnGraphField);
+    PropsUi.setLook(wlReturnGraphField);
     FormData fdlReturnGraphField = new FormData();
     fdlReturnGraphField.left = new FormAttachment(0, 0);
     fdlReturnGraphField.right = new FormAttachment(middle, -margin);
     fdlReturnGraphField.top = new FormAttachment(lastControl, 2 * margin);
     wlReturnGraphField.setLayoutData(fdlReturnGraphField);
     wReturnGraphField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wReturnGraphField);
+    PropsUi.setLook(wReturnGraphField);
     FormData fdReturnGraphField = new FormData();
     fdReturnGraphField.left = new FormAttachment(middle, 0);
     fdReturnGraphField.right = new FormAttachment(100, 0);
@@ -261,7 +263,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     wlValidateAgainstModel.setText("Validate against model?");
     wlValidateAgainstModel.setToolTipText(
         "This validates indexes, constraints and properties as specified in the model");
-    props.setLook(wlValidateAgainstModel);
+    PropsUi.setLook(wlValidateAgainstModel);
     FormData fdlValidateAgainstModel = new FormData();
     fdlValidateAgainstModel.left = new FormAttachment(0, 0);
     fdlValidateAgainstModel.right = new FormAttachment(middle, -margin);
@@ -269,7 +271,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     wlValidateAgainstModel.setLayoutData(fdlValidateAgainstModel);
     wValidateAgainstModel = new Button(shell, SWT.CHECK | SWT.BORDER);
     wValidateAgainstModel.setToolTipText(returnGraphTooltipText);
-    props.setLook(wValidateAgainstModel);
+    PropsUi.setLook(wValidateAgainstModel);
     FormData fdValidateAgainstModel = new FormData();
     fdValidateAgainstModel.left = new FormAttachment(middle, 0);
     fdValidateAgainstModel.right = new FormAttachment(100, 0);
@@ -282,7 +284,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     wlOutOfOrderAllowed.setText("Allow out of order updates?");
     wlOutOfOrderAllowed.setToolTipText(
         "The transform can group similar cypher statements to increase performance.");
-    props.setLook(wlOutOfOrderAllowed);
+    PropsUi.setLook(wlOutOfOrderAllowed);
     FormData fdlOutOfOrderAllowed = new FormData();
     fdlOutOfOrderAllowed.left = new FormAttachment(0, 0);
     fdlOutOfOrderAllowed.right = new FormAttachment(middle, -margin);
@@ -290,7 +292,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     wlOutOfOrderAllowed.setLayoutData(fdlOutOfOrderAllowed);
     wOutOfOrderAllowed = new Button(shell, SWT.CHECK | SWT.BORDER);
     wOutOfOrderAllowed.setToolTipText(returnGraphTooltipText);
-    props.setLook(wOutOfOrderAllowed);
+    PropsUi.setLook(wOutOfOrderAllowed);
     FormData fdOutOfOrderAllowed = new FormData();
     fdOutOfOrderAllowed.left = new FormAttachment(middle, 0);
     fdOutOfOrderAllowed.right = new FormAttachment(100, 0);
@@ -314,7 +316,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     // The tab folder goes between the last control and the OK button:
     //
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
@@ -342,10 +344,11 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
 
   private void addFieldMappingsTab(int margin, String[] fieldNames) {
     CTabItem wPropertiesTab = new CTabItem(wTabFolder, SWT.NONE);
+    wPropertiesTab.setFont(GuiResource.getInstance().getFontDefault());
     wPropertiesTab.setText("Field to properties mappings  ");
 
     Composite wPropertiesComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wPropertiesComp);
+    PropsUi.setLook(wPropertiesComp);
     wPropertiesComp.setLayout(new FormLayout());
 
     Button wMapping = new Button(wPropertiesComp, SWT.PUSH);
@@ -378,7 +381,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
             input.getFieldModelMappings().size(),
             null,
             props);
-    props.setLook(wFieldMappings);
+    PropsUi.setLook(wFieldMappings);
     FormData fdFieldMappings = new FormData();
     fdFieldMappings.left = new FormAttachment(0, 0);
     fdFieldMappings.right = new FormAttachment(100, 0);
@@ -399,10 +402,11 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
 
   private void addRelMappingsTab(int margin, String[] fieldNames) {
     CTabItem wRelationshipsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wRelationshipsTab.setFont(GuiResource.getInstance().getFontDefault());
     wRelationshipsTab.setText("Field to relationship mappings  ");
 
     Composite wRelationshipsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wRelationshipsComp);
+    PropsUi.setLook(wRelationshipsComp);
     wRelationshipsComp.setLayout(new FormLayout());
 
     Button wGetFields = new Button(wRelationshipsComp, SWT.PUSH);
@@ -436,7 +440,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
             input.getRelationshipMappings().size(),
             null,
             props);
-    props.setLook(wFieldMappings);
+    PropsUi.setLook(wFieldMappings);
     wRelMappings.addModifyListener(null);
     FormData fdRelMappings = new FormData();
     fdRelMappings.left = new FormAttachment(0, 0);
@@ -458,10 +462,11 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
 
   private void addNodeMappingsTab(String[] fieldNames) {
     CTabItem wNodesTab = new CTabItem(wTabFolder, SWT.NONE);
+    wNodesTab.setFont(GuiResource.getInstance().getFontDefault());
     wNodesTab.setText("Node label mappings  ");
 
     Composite wNodesComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wNodesComp);
+    PropsUi.setLook(wNodesComp);
     wNodesComp.setLayout(new FormLayout());
 
     // Table: field to model mapping
@@ -488,7 +493,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
             input.getNodeMappings().size(),
             null,
             props);
-    props.setLook(wNodeMappings);
+    PropsUi.setLook(wNodeMappings);
     wNodeMappings.addModifyListener(null);
     FormData fdNodeMappings = new FormData();
     fdNodeMappings.left = new FormAttachment(0, 0);

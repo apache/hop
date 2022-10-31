@@ -25,6 +25,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -71,7 +72,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setMinimumSize(400, 520);
     setShellImage(shell, input);
 
@@ -107,12 +108,12 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     fdlicon.top = new FormAttachment(0, 0);
     fdlicon.right = new FormAttachment(100, 0);
     wicon.setLayoutData(fdlicon);
-    props.setLook(wicon);
+    PropsUi.setLook(wicon);
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "AbortDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(wicon, 0, SWT.CENTER);
@@ -121,7 +122,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(wlTransformName, margin);
@@ -156,7 +157,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
 
   private void buildOptions(Control widgetAbove) {
     wOptionsGroup = new Group(shell, SWT.SHADOW_ETCHED_IN);
-    props.setLook(wOptionsGroup);
+    PropsUi.setLook(wOptionsGroup);
     wOptionsGroup.setText(BaseMessages.getString(PKG, "AbortDialog.Options.Group.Label"));
     FormLayout flOptionsGroup = new FormLayout();
     flOptionsGroup.marginHeight = 15;
@@ -176,7 +177,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     fdAbort.left = new FormAttachment(middle, margin);
     fdAbort.top = new FormAttachment(0, 0);
     wAbortButton.setLayoutData(fdAbort);
-    props.setLook(wAbortButton);
+    PropsUi.setLook(wAbortButton);
 
     wAbortWithErrorButton = new Button(wOptionsGroup, SWT.RADIO);
     wAbortWithErrorButton.addSelectionListener(lsSelMod);
@@ -186,7 +187,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     fdAbortWithError.left = new FormAttachment(middle, margin);
     fdAbortWithError.top = new FormAttachment(wAbortButton, 10);
     wAbortWithErrorButton.setLayoutData(fdAbortWithError);
-    props.setLook(wAbortWithErrorButton);
+    PropsUi.setLook(wAbortWithErrorButton);
 
     wSafeStopButton = new Button(wOptionsGroup, SWT.RADIO);
     wSafeStopButton.addSelectionListener(lsSelMod);
@@ -195,11 +196,11 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
     fdSafeStop.left = new FormAttachment(middle, margin);
     fdSafeStop.top = new FormAttachment(wAbortWithErrorButton, 10);
     wSafeStopButton.setLayoutData(fdSafeStop);
-    props.setLook(wSafeStopButton);
+    PropsUi.setLook(wSafeStopButton);
 
     Label wlRowThreshold = new Label(wOptionsGroup, SWT.RIGHT);
     wlRowThreshold.setText(BaseMessages.getString(PKG, "AbortDialog.Options.RowThreshold.Label"));
-    props.setLook(wlRowThreshold);
+    PropsUi.setLook(wlRowThreshold);
     FormData fdlRowThreshold = new FormData();
     fdlRowThreshold.left = new FormAttachment(0, 0);
     fdlRowThreshold.top = new FormAttachment(wSafeStopButton, 10);
@@ -208,7 +209,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
 
     wRowThreshold = new TextVar(variables, wOptionsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wRowThreshold.setText("");
-    props.setLook(wRowThreshold);
+    PropsUi.setLook(wRowThreshold);
     wRowThreshold.addModifyListener(lsMod);
     wRowThreshold.setToolTipText(
         BaseMessages.getString(PKG, "AbortDialog.Options.RowThreshold.Tooltip"));
@@ -221,7 +222,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
 
   private void buildLogging(Composite widgetAbove) {
     Group wLoggingGroup = new Group(shell, SWT.SHADOW_ETCHED_IN);
-    props.setLook(wLoggingGroup);
+    PropsUi.setLook(wLoggingGroup);
     wLoggingGroup.setText(BaseMessages.getString(PKG, "AbortDialog.Logging.Group"));
     FormLayout flLoggingGroup = new FormLayout();
     flLoggingGroup.marginHeight = 15;
@@ -237,7 +238,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
 
     Label wlMessage = new Label(wLoggingGroup, SWT.RIGHT);
     wlMessage.setText(BaseMessages.getString(PKG, "AbortDialog.Logging.AbortMessage.Label"));
-    props.setLook(wlMessage);
+    PropsUi.setLook(wlMessage);
     FormData fdlMessage = new FormData();
     fdlMessage.left = new FormAttachment(0, 0);
     fdlMessage.top = new FormAttachment(0, 0);
@@ -246,7 +247,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
 
     wMessage = new TextVar(variables, wLoggingGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wMessage.setText("");
-    props.setLook(wMessage);
+    PropsUi.setLook(wMessage);
     wMessage.addModifyListener(lsMod);
     wMessage.setToolTipText(
         BaseMessages.getString(PKG, "AbortDialog.Logging.AbortMessage.Tooltip"));
@@ -258,7 +259,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
 
     wAlwaysLogRows = new Button(wLoggingGroup, SWT.CHECK);
     wAlwaysLogRows.setText(BaseMessages.getString(PKG, "AbortDialog.Logging.AlwaysLogRows.Label"));
-    props.setLook(wAlwaysLogRows);
+    PropsUi.setLook(wAlwaysLogRows);
     wAlwaysLogRows.setToolTipText(
         BaseMessages.getString(PKG, "AbortDialog.Logging.AlwaysLogRows.Tooltip"));
     FormData fdAlwaysLogRows = new FormData();

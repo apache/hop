@@ -25,6 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -61,7 +62,7 @@ public class AvroFileInputDialog extends BaseTransformDialog implements ITransfo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
@@ -77,7 +78,7 @@ public class AvroFileInputDialog extends BaseTransformDialog implements ITransfo
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "AvroFileInputDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -85,7 +86,7 @@ public class AvroFileInputDialog extends BaseTransformDialog implements ITransfo
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -95,7 +96,7 @@ public class AvroFileInputDialog extends BaseTransformDialog implements ITransfo
 
     Label wlFilenameField = new Label(shell, SWT.RIGHT);
     wlFilenameField.setText(BaseMessages.getString(PKG, "AvroFileInputDialog.FilenameField.Label"));
-    props.setLook(wlFilenameField);
+    PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, 0);
     fdlFilenameField.right = new FormAttachment(middle, -margin);
@@ -103,7 +104,7 @@ public class AvroFileInputDialog extends BaseTransformDialog implements ITransfo
     wlFilenameField.setLayoutData(fdlFilenameField);
     wFilenameField = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFilenameField.setText(transformName);
-    props.setLook(wFilenameField);
+    PropsUi.setLook(wFilenameField);
     FormData fdFilenameField = new FormData();
     fdFilenameField.left = new FormAttachment(middle, 0);
     fdFilenameField.top = new FormAttachment(wlFilenameField, 0, SWT.CENTER);
@@ -113,7 +114,7 @@ public class AvroFileInputDialog extends BaseTransformDialog implements ITransfo
 
     Label wlOutputField = new Label(shell, SWT.RIGHT);
     wlOutputField.setText(BaseMessages.getString(PKG, "AvroFileInputDialog.OutputField.Label"));
-    props.setLook(wlOutputField);
+    PropsUi.setLook(wlOutputField);
     FormData fdlOutputField = new FormData();
     fdlOutputField.left = new FormAttachment(0, 0);
     fdlOutputField.right = new FormAttachment(middle, -margin);
@@ -121,7 +122,7 @@ public class AvroFileInputDialog extends BaseTransformDialog implements ITransfo
     wlOutputField.setLayoutData(fdlOutputField);
     wOutputField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wOutputField.setText(transformName);
-    props.setLook(wOutputField);
+    PropsUi.setLook(wOutputField);
     FormData fdOutputField = new FormData();
     fdOutputField.left = new FormAttachment(middle, 0);
     fdOutputField.top = new FormAttachment(wlOutputField, 0, SWT.CENTER);
@@ -131,7 +132,7 @@ public class AvroFileInputDialog extends BaseTransformDialog implements ITransfo
 
     Label wlRowsLimit = new Label(shell, SWT.RIGHT);
     wlRowsLimit.setText(BaseMessages.getString(PKG, "AvroFileInputDialog.RowsLimit.Label"));
-    props.setLook(wlRowsLimit);
+    PropsUi.setLook(wlRowsLimit);
     FormData fdlRowsLimit = new FormData();
     fdlRowsLimit.left = new FormAttachment(0, 0);
     fdlRowsLimit.right = new FormAttachment(middle, -margin);
@@ -139,7 +140,7 @@ public class AvroFileInputDialog extends BaseTransformDialog implements ITransfo
     wlRowsLimit.setLayoutData(fdlRowsLimit);
     wRowsLimit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wRowsLimit.setText(transformName);
-    props.setLook(wRowsLimit);
+    PropsUi.setLook(wRowsLimit);
     FormData fdRowsLimit = new FormData();
     fdRowsLimit.left = new FormAttachment(middle, 0);
     fdRowsLimit.top = new FormAttachment(wlRowsLimit, 0, SWT.CENTER);

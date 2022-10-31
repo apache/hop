@@ -136,7 +136,7 @@ public class EnterMappingDialog extends Dialog {
         new Shell(
             parent,
             SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL | SWT.SHEET);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
@@ -168,7 +168,7 @@ public class EnterMappingDialog extends Dialog {
     wSourceHide = new Button(shell, SWT.CHECK);
     wSourceHide.setSelection(true);
     wSourceHide.setText(BaseMessages.getString(PKG, "EnterMappingDialog.HideUsedSources"));
-    props.setLook(wSourceHide);
+    PropsUi.setLook(wSourceHide);
     FormData fdSourceHide = new FormData();
     fdSourceHide.left = new FormAttachment(0, 0);
     fdSourceHide.right = new FormAttachment(25, 0);
@@ -180,7 +180,7 @@ public class EnterMappingDialog extends Dialog {
     wTargetHide = new Button(shell, SWT.CHECK);
     wTargetHide.setText(BaseMessages.getString(PKG, "EnterMappingDialog.HideUsedTargets"));
     wTargetHide.setSelection(true);
-    props.setLook(wTargetHide);
+    PropsUi.setLook(wTargetHide);
     FormData fdTargetHide = new FormData();
     fdTargetHide.left = new FormAttachment(25, margin * 2);
     fdTargetHide.right = new FormAttachment(50, 0);
@@ -193,7 +193,7 @@ public class EnterMappingDialog extends Dialog {
     wSourceAuto.setText(
         BaseMessages.getString(PKG, "EnterMappingDialog.AutoTargetSelection.Label"));
     wSourceAuto.setSelection(true);
-    props.setLook(wSourceAuto);
+    PropsUi.setLook(wSourceAuto);
     FormData fdSourceAuto = new FormData();
     fdSourceAuto.left = new FormAttachment(0, 0);
     fdSourceAuto.right = new FormAttachment(25, 0);
@@ -205,7 +205,7 @@ public class EnterMappingDialog extends Dialog {
     wTargetAuto.setText(
         BaseMessages.getString(PKG, "EnterMappingDialog.AutoSourceSelection.Label"));
     wTargetAuto.setSelection(false);
-    props.setLook(wTargetAuto);
+    PropsUi.setLook(wTargetAuto);
     FormData fdTargetAuto = new FormData();
     fdTargetAuto.left = new FormAttachment(25, margin * 2);
     fdTargetAuto.right = new FormAttachment(50, 0);
@@ -216,7 +216,7 @@ public class EnterMappingDialog extends Dialog {
     //
     Label wlSource = new Label(shell, SWT.NONE);
     wlSource.setText(BaseMessages.getString(PKG, "EnterMappingDialog.SourceFields.Label"));
-    props.setLook(wlSource);
+    PropsUi.setLook(wlSource);
     FormData fdlSource = new FormData();
     fdlSource.left = new FormAttachment(0, 0);
     fdlSource.top = new FormAttachment(0, margin);
@@ -225,7 +225,7 @@ public class EnterMappingDialog extends Dialog {
     for (int i = 0; i < sourceList.length; i++) {
       wSource.add(sourceList[i]);
     }
-    props.setLook(wSource);
+    PropsUi.setLook(wSource);
     FormData fdSource = new FormData();
     fdSource.left = new FormAttachment(0, 0);
     fdSource.right = new FormAttachment(25, 0);
@@ -236,7 +236,7 @@ public class EnterMappingDialog extends Dialog {
     // Target table
     Label wlTarget = new Label(shell, SWT.NONE);
     wlTarget.setText(BaseMessages.getString(PKG, "EnterMappingDialog.TargetFields.Label"));
-    props.setLook(wlTarget);
+    PropsUi.setLook(wlTarget);
     FormData fdlTarget = new FormData();
     fdlTarget.left = new FormAttachment(wSource, margin * 2);
     fdlTarget.top = new FormAttachment(0, margin);
@@ -245,7 +245,7 @@ public class EnterMappingDialog extends Dialog {
     for (int i = 0; i < targetList.length; i++) {
       wTarget.add(targetList[i]);
     }
-    props.setLook(wTarget);
+    PropsUi.setLook(wTarget);
     FormData fdTarget = new FormData();
     fdTarget.left = new FormAttachment(wSource, margin * 2);
     fdTarget.right = new FormAttachment(50, 0);
@@ -275,7 +275,7 @@ public class EnterMappingDialog extends Dialog {
     // Result table
     Label wlResult = new Label(shell, SWT.NONE);
     wlResult.setText(BaseMessages.getString(PKG, "EnterMappingDialog.ResultMappings.Label"));
-    props.setLook(wlResult);
+    PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(wDelete, margin * 2);
     fdlResult.top = new FormAttachment(0, margin);
@@ -284,7 +284,7 @@ public class EnterMappingDialog extends Dialog {
     for (String s : targetList) {
       wResult.add(s);
     }
-    props.setLook(wResult);
+    PropsUi.setLook(wResult);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(wDelete, margin * 2);
     fdResult.right = new FormAttachment(100, 0);

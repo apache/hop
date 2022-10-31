@@ -21,6 +21,7 @@ package org.apache.hop.git;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
@@ -46,7 +47,7 @@ public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
       return;
     }
     WorkflowPainter painter = (WorkflowPainter) object;
-    Point offset = painter.getOffset();
+    DPoint offset = painter.getOffset();
     IGc gc = painter.getGc();
     WorkflowMeta workflowMeta = painter.getWorkflowMeta();
     try {
@@ -75,13 +76,13 @@ public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
                   } catch (Exception e) {
                     // Exception when accessed from Hop Server
                   }
-                  int x = (n.x + iconSize + offset.x) - (iconSize / 4);
-                  int y = n.y + offset.y - (iconSize / 4);
+                  double x = (n.x + iconSize + offset.x) - (iconSize / 4);
+                  double y = n.y + offset.y - (iconSize / 4);
                   try {
                     gc.drawImage(
                         new SvgFile(location, getClass().getClassLoader()),
-                        x,
-                        y,
+                        (int) x,
+                        (int) y,
                         iconSize / 4,
                         iconSize / 4,
                         gc.getMagnification(),

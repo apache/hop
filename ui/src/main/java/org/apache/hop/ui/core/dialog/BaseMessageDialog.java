@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -54,7 +55,7 @@ public class BaseMessageDialog extends BaseDialog {
   protected Control buildBody() {
     final Label message = new Label(shell, SWT.WRAP | SWT.LEFT);
     message.setText(this.message);
-    props.setLook(message);
+    PropsUi.setLook(message);
     message.setLayoutData(new FormDataBuilder().top().left().right(100, 0).result());
     return message;
   }

@@ -60,7 +60,7 @@ public class SelectFolderDialog extends Dialog {
 
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setText(BaseMessages.getString(PKG, "SelectFolderDialog.Dialog.Main.Title"));
     shell.setImage(guiresource.getImageHopUi());
     FormLayout formLayout = new FormLayout();
@@ -71,7 +71,7 @@ public class SelectFolderDialog extends Dialog {
 
     // Tree
     wTree = new Tree(shell, SWT.SINGLE | SWT.BORDER);
-    props.setLook(wTree);
+    PropsUi.setLook(wTree);
     // Double click in tree: select the value
     wTree.addListener(SWT.DefaultSelection, e -> ok());
 

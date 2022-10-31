@@ -98,7 +98,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
   public boolean open() {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageTable());
 
     int middle = props.getMiddlePct();
@@ -114,7 +114,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     // Transform name
     //
     Label wlTransformName = new Label(shell, SWT.RIGHT);
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "PipelineUnitTestSetLocationDialog.TransformName.Label"));
     FormData fdlTransformName = new FormData();
@@ -152,7 +152,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     Label wlFieldMapping = new Label(shell, SWT.LEFT);
     wlFieldMapping.setText(
         BaseMessages.getString(PKG, "PipelineUnitTestSetLocationDialog.FieldMapping.Label"));
-    props.setLook(wlFieldMapping);
+    PropsUi.setLook(wlFieldMapping);
     FormData fdlFieldMapping = new FormData();
     fdlFieldMapping.left = new FormAttachment(0, 0);
     fdlFieldMapping.right = new FormAttachment(60, -margin);
@@ -162,7 +162,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     Label wlFieldOrder = new Label(shell, SWT.LEFT);
     wlFieldOrder.setText(
         BaseMessages.getString(PKG, "PipelineUnitTestSetLocationDialog.FieldOrder.Label"));
-    props.setLook(wlFieldOrder);
+    PropsUi.setLook(wlFieldOrder);
     FormData fdlFieldOrder = new FormData();
     fdlFieldOrder.left = new FormAttachment(60, margin);
     fdlFieldOrder.right = new FormAttachment(100, 0);

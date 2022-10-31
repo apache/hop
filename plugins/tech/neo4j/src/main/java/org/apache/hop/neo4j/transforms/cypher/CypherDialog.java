@@ -35,6 +35,7 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -130,7 +131,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     shell.setLayout(createFormLayout());
@@ -159,14 +160,14 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     //
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText("Transform name");
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, 0);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -174,7 +175,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     wTransformName.setLayoutData(fdTransformName);
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     addOptionsTab();
     addParametersTab();
@@ -200,10 +201,11 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
   private void addOptionsTab() {
     CTabItem wOptionsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wOptionsTab.setFont(GuiResource.getInstance().getFontDefault());
     wOptionsTab.setText(BaseMessages.getString(PKG, "CypherDialog.Tab.Options.Label"));
     wOptionsTab.setToolTipText(BaseMessages.getString(PKG, "CypherDialog.Tab.Options.ToolTip"));
     Composite wOptionsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wOptionsComp);
+    PropsUi.setLook(wOptionsComp);
     wOptionsComp.setLayout(createFormLayout());
 
     wConnection =
@@ -215,7 +217,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             "Neo4j Connection",
             "The name of the Neo4j connection to use");
-    props.setLook(wConnection);
+    PropsUi.setLook(wConnection);
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
     fdConnection.right = new FormAttachment(100, 0);
@@ -230,14 +232,14 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
     Label wlBatchSize = new Label(wOptionsComp, SWT.RIGHT);
     wlBatchSize.setText("Batch size (rows)");
-    props.setLook(wlBatchSize);
+    PropsUi.setLook(wlBatchSize);
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
     fdlBatchSize.right = new FormAttachment(middle, -margin);
     fdlBatchSize.top = new FormAttachment(lastControl, 2 * margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
     wBatchSize = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBatchSize);
+    PropsUi.setLook(wBatchSize);
     FormData fdBatchSize = new FormData();
     fdBatchSize.left = new FormAttachment(middle, 0);
     fdBatchSize.right = new FormAttachment(100, 0);
@@ -247,14 +249,14 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
     Label wlReadOnly = new Label(wOptionsComp, SWT.RIGHT);
     wlReadOnly.setText("Read only statement? ");
-    props.setLook(wlReadOnly);
+    PropsUi.setLook(wlReadOnly);
     FormData fdlReadOnly = new FormData();
     fdlReadOnly.left = new FormAttachment(0, 0);
     fdlReadOnly.right = new FormAttachment(middle, -margin);
     fdlReadOnly.top = new FormAttachment(lastControl, 2 * margin);
     wlReadOnly.setLayoutData(fdlReadOnly);
     wReadOnly = new Button(wOptionsComp, SWT.CHECK | SWT.BORDER);
-    props.setLook(wReadOnly);
+    PropsUi.setLook(wReadOnly);
     FormData fdReadOnly = new FormData();
     fdReadOnly.left = new FormAttachment(middle, 0);
     fdReadOnly.right = new FormAttachment(100, 0);
@@ -264,14 +266,14 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
     Label wlRetry = new Label(wOptionsComp, SWT.RIGHT);
     wlRetry.setText("Reconnect once after disconnection? ");
-    props.setLook(wlRetry);
+    PropsUi.setLook(wlRetry);
     FormData fdlRetry = new FormData();
     fdlRetry.left = new FormAttachment(0, 0);
     fdlRetry.right = new FormAttachment(middle, -margin);
     fdlRetry.top = new FormAttachment(lastControl, 2 * margin);
     wlRetry.setLayoutData(fdlRetry);
     wRetryOnDisconnect = new Button(wOptionsComp, SWT.CHECK | SWT.BORDER);
-    props.setLook(wRetryOnDisconnect);
+    PropsUi.setLook(wRetryOnDisconnect);
     FormData fdRetry = new FormData();
     fdRetry.left = new FormAttachment(middle, 0);
     fdRetry.right = new FormAttachment(100, 0);
@@ -281,14 +283,14 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
     Label wlNrRetriesOnError = new Label(wOptionsComp, SWT.RIGHT);
     wlNrRetriesOnError.setText("Number of retries on error");
-    props.setLook(wlNrRetriesOnError);
+    PropsUi.setLook(wlNrRetriesOnError);
     FormData fdlNrRetriesOnError = new FormData();
     fdlNrRetriesOnError.left = new FormAttachment(0, 0);
     fdlNrRetriesOnError.right = new FormAttachment(middle, -margin);
     fdlNrRetriesOnError.top = new FormAttachment(lastControl, 2 * margin);
     wlNrRetriesOnError.setLayoutData(fdlNrRetriesOnError);
     wNrRetriesOnError = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wNrRetriesOnError);
+    PropsUi.setLook(wNrRetriesOnError);
     FormData fdNrRetriesOnError = new FormData();
     fdNrRetriesOnError.left = new FormAttachment(middle, 0);
     fdNrRetriesOnError.right = new FormAttachment(100, 0);
@@ -298,14 +300,14 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
     Label wlCypherFromField = new Label(wOptionsComp, SWT.RIGHT);
     wlCypherFromField.setText("Get Cypher from input field? ");
-    props.setLook(wlCypherFromField);
+    PropsUi.setLook(wlCypherFromField);
     FormData fdlCypherFromField = new FormData();
     fdlCypherFromField.left = new FormAttachment(0, 0);
     fdlCypherFromField.right = new FormAttachment(middle, -margin);
     fdlCypherFromField.top = new FormAttachment(lastControl, 2 * margin);
     wlCypherFromField.setLayoutData(fdlCypherFromField);
     wCypherFromField = new Button(wOptionsComp, SWT.CHECK | SWT.BORDER);
-    props.setLook(wCypherFromField);
+    PropsUi.setLook(wCypherFromField);
     FormData fdCypherFromField = new FormData();
     fdCypherFromField.left = new FormAttachment(middle, 0);
     fdCypherFromField.right = new FormAttachment(100, 0);
@@ -323,14 +325,14 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
     Label wlCypherField = new Label(wOptionsComp, SWT.RIGHT);
     wlCypherField.setText("Cypher input field");
-    props.setLook(wlCypherField);
+    PropsUi.setLook(wlCypherField);
     FormData fdlCypherField = new FormData();
     fdlCypherField.left = new FormAttachment(0, 0);
     fdlCypherField.right = new FormAttachment(middle, -margin);
     fdlCypherField.top = new FormAttachment(lastControl, 2 * margin);
     wlCypherField.setLayoutData(fdlCypherField);
     wCypherField = new CCombo(wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCypherField);
+    PropsUi.setLook(wCypherField);
     FormData fdCypherField = new FormData();
     fdCypherField.left = new FormAttachment(middle, 0);
     fdCypherField.right = new FormAttachment(100, 0);
@@ -342,14 +344,14 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     wlUnwind.setText("Collect parameter values map?");
     wlUnwind.setToolTipText(
         "Collect the specified parameters field data and expose it into a single variable to support UNWIND statements");
-    props.setLook(wlUnwind);
+    PropsUi.setLook(wlUnwind);
     FormData fdlUnwind = new FormData();
     fdlUnwind.left = new FormAttachment(0, 0);
     fdlUnwind.right = new FormAttachment(middle, -margin);
     fdlUnwind.top = new FormAttachment(lastControl, 2 * margin);
     wlUnwind.setLayoutData(fdlUnwind);
     wUnwind = new Button(wOptionsComp, SWT.CHECK | SWT.BORDER);
-    props.setLook(wUnwind);
+    PropsUi.setLook(wUnwind);
     FormData fdUnwind = new FormData();
     fdUnwind.left = new FormAttachment(middle, 0);
     fdUnwind.right = new FormAttachment(100, 0);
@@ -368,14 +370,14 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     wlUnwindMap.setText("Name of values map list");
     wlUnwindMap.setToolTipText(
         "You can use this parameter in your Cypher usually in UNWIND statements");
-    props.setLook(wlUnwindMap);
+    PropsUi.setLook(wlUnwindMap);
     FormData fdlUnwindMap = new FormData();
     fdlUnwindMap.left = new FormAttachment(0, 0);
     fdlUnwindMap.right = new FormAttachment(middle, -margin);
     fdlUnwindMap.top = new FormAttachment(lastControl, 2 * margin);
     wlUnwindMap.setLayoutData(fdlUnwindMap);
     wUnwindMap = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUnwindMap);
+    PropsUi.setLook(wUnwindMap);
     FormData fdUnwindMap = new FormData();
     fdUnwindMap.left = new FormAttachment(middle, 0);
     fdUnwindMap.right = new FormAttachment(100, 0);
@@ -387,7 +389,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     wlReturnGraph.setText("Return graph data?");
     String returnGraphTooltipText = "Returns the whole result of a query as a Graph Hop data type";
     wlReturnGraph.setToolTipText(returnGraphTooltipText);
-    props.setLook(wlReturnGraph);
+    PropsUi.setLook(wlReturnGraph);
     FormData fdlReturnGraph = new FormData();
     fdlReturnGraph.left = new FormAttachment(0, 0);
     fdlReturnGraph.right = new FormAttachment(middle, -margin);
@@ -395,7 +397,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     wlReturnGraph.setLayoutData(fdlReturnGraph);
     wReturnGraph = new Button(wOptionsComp, SWT.CHECK | SWT.BORDER);
     wReturnGraph.setToolTipText(returnGraphTooltipText);
-    props.setLook(wReturnGraph);
+    PropsUi.setLook(wReturnGraph);
     FormData fdReturnGraph = new FormData();
     fdReturnGraph.left = new FormAttachment(middle, 0);
     fdReturnGraph.right = new FormAttachment(100, 0);
@@ -412,14 +414,14 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
     wlReturnGraphField = new Label(wOptionsComp, SWT.RIGHT);
     wlReturnGraphField.setText("Graph output field name");
-    props.setLook(wlReturnGraphField);
+    PropsUi.setLook(wlReturnGraphField);
     FormData fdlReturnGraphField = new FormData();
     fdlReturnGraphField.left = new FormAttachment(0, 0);
     fdlReturnGraphField.right = new FormAttachment(middle, -margin);
     fdlReturnGraphField.top = new FormAttachment(lastControl, 2 * margin);
     wlReturnGraphField.setLayoutData(fdlReturnGraphField);
     wReturnGraphField = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wReturnGraphField);
+    PropsUi.setLook(wReturnGraphField);
     FormData fdReturnGraphField = new FormData();
     fdReturnGraphField.left = new FormAttachment(middle, 0);
     fdReturnGraphField.right = new FormAttachment(100, 0);
@@ -432,11 +434,12 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
   private void addParametersTab() {
     CTabItem wParametersTab = new CTabItem(wTabFolder, SWT.NONE);
+    wParametersTab.setFont(GuiResource.getInstance().getFontDefault());
     wParametersTab.setText(BaseMessages.getString(PKG, "CypherDialog.Tab.Parameters.Label"));
     wParametersTab.setToolTipText(
         BaseMessages.getString(PKG, "CypherDialog.Tab.Parameters.ToolTip"));
     Composite wParametersComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wParametersComp);
+    PropsUi.setLook(wParametersComp);
     wParametersComp.setLayout(createFormLayout());
 
     // Get the input field names...
@@ -461,7 +464,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
     Label wlParameters = new Label(wParametersComp, SWT.LEFT);
     wlParameters.setText("Parameters: (NOTE that parameters for labels are not supported)");
-    props.setLook(wlParameters);
+    PropsUi.setLook(wlParameters);
     FormData fdlParameters = new FormData();
     fdlParameters.left = new FormAttachment(0, 0);
     fdlParameters.right = new FormAttachment(100, 0);
@@ -505,7 +508,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
             input.getParameterMappings().size(),
             null,
             props);
-    props.setLook(wParameters);
+    PropsUi.setLook(wParameters);
     FormData fdParameters = new FormData();
     fdParameters.left = new FormAttachment(0, 0);
     fdParameters.right = new FormAttachment(wbGetParameters, -margin);
@@ -519,15 +522,16 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
   private void addCypherTab() {
     CTabItem wCypherTab = new CTabItem(wTabFolder, SWT.NONE);
+    wCypherTab.setFont(GuiResource.getInstance().getFontDefault());
     wCypherTab.setText(BaseMessages.getString(PKG, "CypherDialog.Tab.Cypher.Label"));
     wCypherTab.setToolTipText(BaseMessages.getString(PKG, "CypherDialog.Tab.Cypher.ToolTip"));
     Composite wCypherComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wCypherComp);
+    PropsUi.setLook(wCypherComp);
     wCypherComp.setLayout(createFormLayout());
 
     Label wlCypher = new Label(wCypherComp, SWT.LEFT);
     wlCypher.setText("Cypher:");
-    props.setLook(wlCypher);
+    PropsUi.setLook(wlCypher);
     FormData fdlCypher = new FormData();
     fdlCypher.left = new FormAttachment(0, 0);
     fdlCypher.right = new FormAttachment(middle, -margin);
@@ -536,7 +540,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
     wCypher =
         new Text(wCypherComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wCypher.setFont(GuiResource.getInstance().getFontFixed());
-    props.setLook(wCypher);
+    PropsUi.setLook(wCypher);
     FormData fdCypher = new FormData();
     fdCypher.left = new FormAttachment(0, 0);
     fdCypher.right = new FormAttachment(100, 0);
@@ -550,10 +554,11 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
   private void addReturnsTab() {
     CTabItem wReturnsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wReturnsTab.setFont(GuiResource.getInstance().getFontDefault());
     wReturnsTab.setText(BaseMessages.getString(PKG, "CypherDialog.Tab.Returns.Label"));
     wReturnsTab.setToolTipText(BaseMessages.getString(PKG, "CypherDialog.Tab.Returns.ToolTip"));
     Composite wReturnsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wReturnsComp);
+    PropsUi.setLook(wReturnsComp);
     wReturnsComp.setLayout(createFormLayout());
 
     // Table: return field name and type
@@ -575,7 +580,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
 
     Label wlReturns = new Label(wReturnsComp, SWT.LEFT);
     wlReturns.setText("Returns");
-    props.setLook(wlReturns);
+    PropsUi.setLook(wlReturns);
     FormData fdlReturns = new FormData();
     fdlReturns.left = new FormAttachment(0, 0);
     fdlReturns.right = new FormAttachment(middle, -margin);
@@ -599,7 +604,7 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
             input.getReturnValues().size(),
             null,
             props);
-    props.setLook(wReturns);
+    PropsUi.setLook(wReturns);
     FormData fdReturns = new FormData();
     fdReturns.left = new FormAttachment(0, 0);
     fdReturns.right = new FormAttachment(wbGetReturnFields, 0);

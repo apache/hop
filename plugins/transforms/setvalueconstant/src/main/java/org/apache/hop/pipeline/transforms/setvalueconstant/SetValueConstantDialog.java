@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -69,7 +70,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -101,7 +102,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "SetValueConstantDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -109,7 +110,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -120,7 +121,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     // Use variable?
     Label wlUseVars = new Label(shell, SWT.RIGHT);
     wlUseVars.setText(BaseMessages.getString(PKG, "SetValueConstantDialog.useVars.Label"));
-    props.setLook(wlUseVars);
+    PropsUi.setLook(wlUseVars);
     FormData fdlUseVars = new FormData();
     fdlUseVars.left = new FormAttachment(0, 0);
     fdlUseVars.right = new FormAttachment(middle, -margin);
@@ -128,7 +129,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     wlUseVars.setLayoutData(fdlUseVars);
     wUseVars = new Button(shell, SWT.CHECK);
     wUseVars.setToolTipText(BaseMessages.getString(PKG, "SetValueConstantDialog.useVars.Tooltip"));
-    props.setLook(wUseVars);
+    PropsUi.setLook(wUseVars);
     FormData fdUseVars = new FormData();
     fdUseVars.left = new FormAttachment(middle, 0);
     fdUseVars.top = new FormAttachment(wlUseVars, 0, SWT.CENTER);
@@ -138,7 +139,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     // Table with fields
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "SetValueConstantDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wUseVars, margin);

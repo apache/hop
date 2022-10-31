@@ -35,7 +35,9 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
@@ -161,7 +163,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     lsMod = e -> input.setChanged();
@@ -192,7 +194,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -200,7 +202,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -209,16 +211,17 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wTransformName.setLayoutData(fdTransformName);
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF FILE TAB ///
     // ////////////////////////
     CTabItem wFileTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFileTab.setFont(GuiResource.getInstance().getFontDefault());
     wFileTab.setText(BaseMessages.getString(PKG, "PropertyInputDialog.File.Tab"));
 
     Composite wFileComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFileComp);
+    PropsUi.setLook(wFileComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -230,7 +233,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // ///////////////////////////////
 
     Group wOriginFiles = new Group(wFileComp, SWT.SHADOW_NONE);
-    props.setLook(wOriginFiles);
+    PropsUi.setLook(wOriginFiles);
     wOriginFiles.setText(BaseMessages.getString(PKG, "PropertyInputDialog.wOriginFiles.Label"));
 
     FormLayout originFilesgroupLayout = new FormLayout();
@@ -241,14 +244,14 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // Is Filename defined in a Field
     Label wlFileField = new Label(wOriginFiles, SWT.RIGHT);
     wlFileField.setText(BaseMessages.getString(PKG, "PropertyInputDialog.FileField.Label"));
-    props.setLook(wlFileField);
+    PropsUi.setLook(wlFileField);
     FormData fdlFileField = new FormData();
     fdlFileField.left = new FormAttachment(0, 0);
     fdlFileField.top = new FormAttachment(0, margin);
     fdlFileField.right = new FormAttachment(middle, -margin);
     wlFileField.setLayoutData(fdlFileField);
     wFileField = new Button(wOriginFiles, SWT.CHECK);
-    props.setLook(wFileField);
+    PropsUi.setLook(wFileField);
     wFileField.setToolTipText(BaseMessages.getString(PKG, "PropertyInputDialog.FileField.Tooltip"));
     FormData fdFileField = new FormData();
     fdFileField.left = new FormAttachment(middle, margin);
@@ -268,7 +271,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wlFilenameField = new Label(wOriginFiles, SWT.RIGHT);
     wlFilenameField.setText(
         BaseMessages.getString(PKG, "PropertyInputDialog.wlFilenameField.Label"));
-    props.setLook(wlFilenameField);
+    PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, 0);
     fdlFilenameField.top = new FormAttachment(wFileField, margin);
@@ -277,7 +280,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wFilenameField = new CCombo(wOriginFiles, SWT.BORDER | SWT.READ_ONLY);
     wFilenameField.setEditable(true);
-    props.setLook(wFilenameField);
+    PropsUi.setLook(wFilenameField);
     wFilenameField.addModifyListener(lsMod);
     FormData fdFilenameField = new FormData();
     fdFilenameField.left = new FormAttachment(middle, margin);
@@ -310,7 +313,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // Filename line
     wlFilename = new Label(wFileComp, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "PropertyInputDialog.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(wOriginFiles, 2 * margin);
@@ -318,7 +321,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wlFilename.setLayoutData(fdlFilename);
 
     wbbFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "PropertyInputDialog.FilenameBrowse.Button"));
     wbbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -328,7 +331,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wbbFilename.setLayoutData(fdbFilename);
 
     wbaFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbaFilename);
+    PropsUi.setLook(wbaFilename);
     wbaFilename.setText(BaseMessages.getString(PKG, "PropertyInputDialog.FilenameAdd.Button"));
     wbaFilename.setToolTipText(
         BaseMessages.getString(PKG, "PropertyInputDialog.FilenameAdd.Tooltip"));
@@ -338,7 +341,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wbaFilename.setLayoutData(fdbaFilename);
 
     wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -348,14 +351,14 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wlFilemask = new Label(wFileComp, SWT.RIGHT);
     wlFilemask.setText(BaseMessages.getString(PKG, "PropertyInputDialog.RegExp.Label"));
-    props.setLook(wlFilemask);
+    PropsUi.setLook(wlFilemask);
     FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
     fdlFilemask.top = new FormAttachment(wFilename, margin);
     fdlFilemask.right = new FormAttachment(middle, -margin);
     wlFilemask.setLayoutData(fdlFilemask);
     wFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilemask);
+    PropsUi.setLook(wFilemask);
     wFilemask.addModifyListener(lsMod);
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
@@ -366,14 +369,14 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wlExcludeFilemask = new Label(wFileComp, SWT.RIGHT);
     wlExcludeFilemask.setText(
         BaseMessages.getString(PKG, "PropertyInputDialog.ExcludeFilemask.Label"));
-    props.setLook(wlExcludeFilemask);
+    PropsUi.setLook(wlExcludeFilemask);
     FormData fdlExcludeFilemask = new FormData();
     fdlExcludeFilemask.left = new FormAttachment(0, 0);
     fdlExcludeFilemask.top = new FormAttachment(wFilemask, margin);
     fdlExcludeFilemask.right = new FormAttachment(middle, -margin);
     wlExcludeFilemask.setLayoutData(fdlExcludeFilemask);
     wExcludeFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wExcludeFilemask);
+    PropsUi.setLook(wExcludeFilemask);
     wExcludeFilemask.addModifyListener(lsMod);
     FormData fdExcludeFilemask = new FormData();
     fdExcludeFilemask.left = new FormAttachment(middle, 0);
@@ -384,7 +387,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // Filename list line
     wlFilenameList = new Label(wFileComp, SWT.RIGHT);
     wlFilenameList.setText(BaseMessages.getString(PKG, "PropertyInputDialog.FilenameList.Label"));
-    props.setLook(wlFilenameList);
+    PropsUi.setLook(wlFilenameList);
     FormData fdlFilenameList = new FormData();
     fdlFilenameList.left = new FormAttachment(0, 0);
     fdlFilenameList.top = new FormAttachment(wExcludeFilemask, margin);
@@ -393,7 +396,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     // Buttons to the right of the screen...
     wbdFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdFilename);
+    PropsUi.setLook(wbdFilename);
     wbdFilename.setText(BaseMessages.getString(PKG, "PropertyInputDialog.FilenameRemove.Button"));
     wbdFilename.setToolTipText(
         BaseMessages.getString(PKG, "PropertyInputDialog.FilenameRemove.Tooltip"));
@@ -403,7 +406,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wbdFilename.setLayoutData(fdbdFilename);
 
     wbeFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeFilename);
+    PropsUi.setLook(wbeFilename);
     wbeFilename.setText(BaseMessages.getString(PKG, "PropertyInputDialog.FilenameEdit.Button"));
     wbeFilename.setToolTipText(
         BaseMessages.getString(PKG, "PropertyInputDialog.FilenameEdit.Tooltip"));
@@ -414,7 +417,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wbeFilename.setLayoutData(fdbeFilename);
 
     wbShowFiles = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbShowFiles);
+    PropsUi.setLook(wbShowFiles);
     wbShowFiles.setText(BaseMessages.getString(PKG, "PropertyInputDialog.ShowFiles.Button"));
     FormData fdbShowFiles = new FormData();
     fdbShowFiles.left = new FormAttachment(middle, 0);
@@ -468,7 +471,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
             2,
             lsMod,
             props);
-    props.setLook(wFilenameList);
+    PropsUi.setLook(wFilenameList);
 
     FormData fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment(middle, 0);
@@ -495,6 +498,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // START OF CONTENT TAB///
     // /
     CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
+    wContentTab.setFont(GuiResource.getInstance().getFontDefault());
     wContentTab.setText(BaseMessages.getString(PKG, "PropertyInputDialog.Content.Tab"));
 
     FormLayout contentLayout = new FormLayout();
@@ -502,7 +506,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     contentLayout.marginHeight = 3;
 
     Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wContentComp);
+    PropsUi.setLook(wContentComp);
     wContentComp.setLayout(contentLayout);
 
     // ///////////////////////////////
@@ -510,7 +514,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // ///////////////////////////////
 
     Group wSettingsGroup = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wSettingsGroup);
+    PropsUi.setLook(wSettingsGroup);
     wSettingsGroup.setText(BaseMessages.getString(PKG, "PropertyInputDialog.SettingsGroup.Label"));
 
     FormLayout settingsGroupLayout = new FormLayout();
@@ -520,7 +524,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     Label wlFileType = new Label(wSettingsGroup, SWT.RIGHT);
     wlFileType.setText(BaseMessages.getString(PKG, "PropertyInputDialog.FileType.Label"));
-    props.setLook(wlFileType);
+    PropsUi.setLook(wlFileType);
     FormData fdlFileType = new FormData();
     fdlFileType.left = new FormAttachment(0, 0);
     fdlFileType.top = new FormAttachment(0, margin);
@@ -529,7 +533,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wFileType = new CCombo(wSettingsGroup, SWT.BORDER | SWT.READ_ONLY);
     wFileType.setEditable(true);
     wFileType.setItems(PropertyInputMeta.fileTypeDesc);
-    props.setLook(wFileType);
+    PropsUi.setLook(wFileType);
     wFileType.addModifyListener(lsMod);
     FormData fdFileType = new FormData();
     fdFileType.left = new FormAttachment(middle, 0);
@@ -546,7 +550,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wlEncoding = new Label(wSettingsGroup, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "PropertyInputDialog.Encoding.Label"));
-    props.setLook(wlEncoding);
+    PropsUi.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment(0, 0);
     fdlEncoding.top = new FormAttachment(wFileType, margin);
@@ -554,7 +558,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new ComboVar(variables, wSettingsGroup, SWT.BORDER | SWT.READ_ONLY);
     wEncoding.setEditable(true);
-    props.setLook(wEncoding);
+    PropsUi.setLook(wEncoding);
     wEncoding.addModifyListener(lsMod);
     FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment(middle, 0);
@@ -574,7 +578,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wlSection = new Label(wSettingsGroup, SWT.RIGHT);
     wlSection.setText(BaseMessages.getString(PKG, "PropertyInputDialog.Section.Label"));
-    props.setLook(wlSection);
+    PropsUi.setLook(wlSection);
     FormData fdlSection = new FormData();
     fdlSection.left = new FormAttachment(0, 0);
     fdlSection.top = new FormAttachment(wEncoding, margin);
@@ -582,7 +586,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wlSection.setLayoutData(fdlSection);
 
     wbbSection = new Button(wSettingsGroup, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbSection);
+    PropsUi.setLook(wbbSection);
     wbbSection.setText(BaseMessages.getString(PKG, "PropertyInputDialog.SectionBrowse.Button"));
     FormData fdbSection = new FormData();
     fdbSection.right = new FormAttachment(100, 0);
@@ -598,7 +602,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wSection = new TextVar(variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSection.setToolTipText(BaseMessages.getString(PKG, "PropertyInputDialog.Section.Tooltip"));
-    props.setLook(wSection);
+    PropsUi.setLook(wSection);
     wSection.addModifyListener(lsMod);
     FormData fdSection = new FormData();
     fdSection.left = new FormAttachment(middle, 0);
@@ -608,14 +612,14 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wlLimit = new Label(wSettingsGroup, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "PropertyInputDialog.Limit.Label"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.top = new FormAttachment(wbbSection, margin);
     fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
@@ -626,14 +630,14 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     Label wlResolveValueVariable = new Label(wSettingsGroup, SWT.RIGHT);
     wlResolveValueVariable.setText(
         BaseMessages.getString(PKG, "PropertyInputDialog.resolveValueVariable.Label"));
-    props.setLook(wlResolveValueVariable);
+    PropsUi.setLook(wlResolveValueVariable);
     FormData fdlResolveValueVariable = new FormData();
     fdlResolveValueVariable.left = new FormAttachment(0, 0);
     fdlResolveValueVariable.top = new FormAttachment(wLimit, margin);
     fdlResolveValueVariable.right = new FormAttachment(middle, -margin);
     wlResolveValueVariable.setLayoutData(fdlResolveValueVariable);
     wResolveValueVariable = new Button(wSettingsGroup, SWT.CHECK);
-    props.setLook(wResolveValueVariable);
+    PropsUi.setLook(wResolveValueVariable);
     wResolveValueVariable.setToolTipText(
         BaseMessages.getString(PKG, "PropertyInputDialog.resolveValueVariable.Tooltip"));
     FormData fdResolveValueVariable = new FormData();
@@ -657,7 +661,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // /////////////////////////////////
 
     Group wAdditionalGroup = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wAdditionalGroup);
+    PropsUi.setLook(wAdditionalGroup);
     wAdditionalGroup.setText(
         BaseMessages.getString(PKG, "PropertyInputDialog.Group.AdditionalGroup.Label"));
 
@@ -668,14 +672,14 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wlInclFilename = new Label(wAdditionalGroup, SWT.RIGHT);
     wlInclFilename.setText(BaseMessages.getString(PKG, "PropertyInputDialog.InclFilename.Label"));
-    props.setLook(wlInclFilename);
+    PropsUi.setLook(wlInclFilename);
     FormData fdlInclFilename = new FormData();
     fdlInclFilename.left = new FormAttachment(0, 0);
     fdlInclFilename.top = new FormAttachment(wSettingsGroup, margin);
     fdlInclFilename.right = new FormAttachment(middle, -margin);
     wlInclFilename.setLayoutData(fdlInclFilename);
     wInclFilename = new Button(wAdditionalGroup, SWT.CHECK);
-    props.setLook(wInclFilename);
+    PropsUi.setLook(wInclFilename);
     wInclFilename.setToolTipText(
         BaseMessages.getString(PKG, "PropertyInputDialog.InclFilename.Tooltip"));
     FormData fdInclFilename = new FormData();
@@ -687,14 +691,14 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wlInclFilenameField = new Label(wAdditionalGroup, SWT.LEFT);
     wlInclFilenameField.setText(
         BaseMessages.getString(PKG, "PropertyInputDialog.InclFilenameField.Label"));
-    props.setLook(wlInclFilenameField);
+    PropsUi.setLook(wlInclFilenameField);
     FormData fdlInclFilenameField = new FormData();
     fdlInclFilenameField.left = new FormAttachment(wInclFilename, margin);
     fdlInclFilenameField.top = new FormAttachment(wSettingsGroup, margin);
     wlInclFilenameField.setLayoutData(fdlInclFilenameField);
     wInclFilenameField =
         new TextVar(variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclFilenameField);
+    PropsUi.setLook(wInclFilenameField);
     wInclFilenameField.addModifyListener(lsMod);
     FormData fdInclFilenameField = new FormData();
     fdInclFilenameField.left = new FormAttachment(wlInclFilenameField, margin);
@@ -704,14 +708,14 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     Label wlInclRownum = new Label(wAdditionalGroup, SWT.RIGHT);
     wlInclRownum.setText(BaseMessages.getString(PKG, "PropertyInputDialog.InclRownum.Label"));
-    props.setLook(wlInclRownum);
+    PropsUi.setLook(wlInclRownum);
     FormData fdlInclRownum = new FormData();
     fdlInclRownum.left = new FormAttachment(0, 0);
     fdlInclRownum.top = new FormAttachment(wInclFilenameField, margin);
     fdlInclRownum.right = new FormAttachment(middle, -margin);
     wlInclRownum.setLayoutData(fdlInclRownum);
     wInclRownum = new Button(wAdditionalGroup, SWT.CHECK);
-    props.setLook(wInclRownum);
+    PropsUi.setLook(wInclRownum);
     wInclRownum.setToolTipText(
         BaseMessages.getString(PKG, "PropertyInputDialog.InclRownum.Tooltip"));
     FormData fdRownum = new FormData();
@@ -723,13 +727,13 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wlInclRownumField = new Label(wAdditionalGroup, SWT.RIGHT);
     wlInclRownumField.setText(
         BaseMessages.getString(PKG, "PropertyInputDialog.InclRownumField.Label"));
-    props.setLook(wlInclRownumField);
+    PropsUi.setLook(wlInclRownumField);
     FormData fdlInclRownumField = new FormData();
     fdlInclRownumField.left = new FormAttachment(wInclRownum, margin);
     fdlInclRownumField.top = new FormAttachment(wInclFilenameField, margin);
     wlInclRownumField.setLayoutData(fdlInclRownumField);
     wInclRownumField = new TextVar(variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclRownumField);
+    PropsUi.setLook(wInclRownumField);
     wInclRownumField.addModifyListener(lsMod);
     FormData fdInclRownumField = new FormData();
     fdInclRownumField.left = new FormAttachment(wlInclRownumField, margin);
@@ -738,7 +742,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wInclRownumField.setLayoutData(fdInclRownumField);
 
     wResetRownum = new Button(wAdditionalGroup, SWT.CHECK);
-    props.setLook(wResetRownum);
+    PropsUi.setLook(wResetRownum);
     wResetRownum.setText(BaseMessages.getString(PKG, "PropertyInputDialog.ResetRownum.Label"));
     wResetRownum.setToolTipText(
         BaseMessages.getString(PKG, "PropertyInputDialog.ResetRownum.Tooltip"));
@@ -751,14 +755,14 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wlInclINIsection = new Label(wAdditionalGroup, SWT.RIGHT);
     wlInclINIsection.setText(
         BaseMessages.getString(PKG, "PropertyInputDialog.InclINIsection.Label"));
-    props.setLook(wlInclINIsection);
+    PropsUi.setLook(wlInclINIsection);
     FormData fdlInclINIsection = new FormData();
     fdlInclINIsection.left = new FormAttachment(0, 0);
     fdlInclINIsection.top = new FormAttachment(wResetRownum, margin);
     fdlInclINIsection.right = new FormAttachment(middle, -margin);
     wlInclINIsection.setLayoutData(fdlInclINIsection);
     wInclINIsection = new Button(wAdditionalGroup, SWT.CHECK);
-    props.setLook(wInclINIsection);
+    PropsUi.setLook(wInclINIsection);
     wInclINIsection.setToolTipText(
         BaseMessages.getString(PKG, "PropertyInputDialog.InclINIsection.Tooltip"));
     fdRownum = new FormData();
@@ -770,14 +774,14 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wlInclINIsectionField = new Label(wAdditionalGroup, SWT.RIGHT);
     wlInclINIsectionField.setText(
         BaseMessages.getString(PKG, "PropertyInputDialog.InclINIsectionField.Label"));
-    props.setLook(wlInclINIsectionField);
+    PropsUi.setLook(wlInclINIsectionField);
     FormData fdlInclINIsectionField = new FormData();
     fdlInclINIsectionField.left = new FormAttachment(wInclINIsection, margin);
     fdlInclINIsectionField.top = new FormAttachment(wResetRownum, margin);
     wlInclINIsectionField.setLayoutData(fdlInclINIsectionField);
     wInclINIsectionField =
         new TextVar(variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclINIsectionField);
+    PropsUi.setLook(wInclINIsectionField);
     wInclINIsectionField.addModifyListener(lsMod);
     FormData fdInclINIsectionField = new FormData();
     fdInclINIsectionField.left = new FormAttachment(wlInclINIsectionField, margin);
@@ -800,7 +804,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // ///////////////////////////////
 
     Group wAddFileResult = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wAddFileResult);
+    PropsUi.setLook(wAddFileResult);
     wAddFileResult.setText(BaseMessages.getString(PKG, "PropertyInputDialog.wAddFileResult.Label"));
 
     FormLayout addFileResultgroupLayout = new FormLayout();
@@ -810,14 +814,14 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     Label wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "PropertyInputDialog.AddResult.Label"));
-    props.setLook(wlAddResult);
+    PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
     fdlAddResult.top = new FormAttachment(wAdditionalGroup, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(wAddFileResult, SWT.CHECK);
-    props.setLook(wAddResult);
+    PropsUi.setLook(wAddResult);
     wAddResult.setToolTipText(BaseMessages.getString(PKG, "PropertyInputDialog.AddResult.Tooltip"));
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment(middle, 0);
@@ -852,6 +856,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // Fields tab...
     //
     CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wFieldsTab.setText(BaseMessages.getString(PKG, "PropertyInputDialog.Fields.Tab"));
 
     FormLayout fieldsLayout = new FormLayout();
@@ -860,7 +865,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     wFieldsComp.setLayout(fieldsLayout);
-    props.setLook(wFieldsComp);
+    PropsUi.setLook(wFieldsComp);
 
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "PropertyInputDialog.GetFields.Button"));
@@ -1667,11 +1672,12 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // START OF ADDITIONAL FIELDS TAB ///
     // ////////////////////////
     CTabItem wAdditionalFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdditionalFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdditionalFieldsTab.setText(
         BaseMessages.getString(PKG, "PropertyInputDialog.AdditionalFieldsTab.TabTitle"));
 
     Composite wAdditionalFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wAdditionalFieldsComp);
+    PropsUi.setLook(wAdditionalFieldsComp);
 
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = 3;
@@ -1682,7 +1688,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     Label wlShortFileFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlShortFileFieldName.setText(
         BaseMessages.getString(PKG, "PropertyInputDialog.ShortFileFieldName.Label"));
-    props.setLook(wlShortFileFieldName);
+    PropsUi.setLook(wlShortFileFieldName);
     FormData fdlShortFileFieldName = new FormData();
     fdlShortFileFieldName.left = new FormAttachment(0, 0);
     fdlShortFileFieldName.top = new FormAttachment(wInclRownumField, margin);
@@ -1691,7 +1697,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wShortFileFieldName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wShortFileFieldName);
+    PropsUi.setLook(wShortFileFieldName);
     wShortFileFieldName.addModifyListener(lsMod);
     FormData fdShortFileFieldName = new FormData();
     fdShortFileFieldName.left = new FormAttachment(middle, 0);
@@ -1703,7 +1709,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     Label wlExtensionFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlExtensionFieldName.setText(
         BaseMessages.getString(PKG, "PropertyInputDialog.ExtensionFieldName.Label"));
-    props.setLook(wlExtensionFieldName);
+    PropsUi.setLook(wlExtensionFieldName);
     FormData fdlExtensionFieldName = new FormData();
     fdlExtensionFieldName.left = new FormAttachment(0, 0);
     fdlExtensionFieldName.top = new FormAttachment(wShortFileFieldName, margin);
@@ -1712,7 +1718,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wExtensionFieldName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wExtensionFieldName);
+    PropsUi.setLook(wExtensionFieldName);
     wExtensionFieldName.addModifyListener(lsMod);
     FormData fdExtensionFieldName = new FormData();
     fdExtensionFieldName.left = new FormAttachment(middle, 0);
@@ -1723,7 +1729,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // PathFieldName line
     Label wlPathFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlPathFieldName.setText(BaseMessages.getString(PKG, "PropertyInputDialog.PathFieldName.Label"));
-    props.setLook(wlPathFieldName);
+    PropsUi.setLook(wlPathFieldName);
     FormData fdlPathFieldName = new FormData();
     fdlPathFieldName.left = new FormAttachment(0, 0);
     fdlPathFieldName.top = new FormAttachment(wExtensionFieldName, margin);
@@ -1732,7 +1738,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wPathFieldName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPathFieldName);
+    PropsUi.setLook(wPathFieldName);
     wPathFieldName.addModifyListener(lsMod);
     FormData fdPathFieldName = new FormData();
     fdPathFieldName.left = new FormAttachment(middle, 0);
@@ -1743,7 +1749,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // SizeFieldName line
     Label wlSizeFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlSizeFieldName.setText(BaseMessages.getString(PKG, "PropertyInputDialog.SizeFieldName.Label"));
-    props.setLook(wlSizeFieldName);
+    PropsUi.setLook(wlSizeFieldName);
     FormData fdlSizeFieldName = new FormData();
     fdlSizeFieldName.left = new FormAttachment(0, 0);
     fdlSizeFieldName.top = new FormAttachment(wPathFieldName, margin);
@@ -1752,7 +1758,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wSizeFieldName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSizeFieldName);
+    PropsUi.setLook(wSizeFieldName);
     wSizeFieldName.addModifyListener(lsMod);
     FormData fdSizeFieldName = new FormData();
     fdSizeFieldName.left = new FormAttachment(middle, 0);
@@ -1763,7 +1769,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // IsHiddenName line
     Label wlIsHiddenName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlIsHiddenName.setText(BaseMessages.getString(PKG, "PropertyInputDialog.IsHiddenName.Label"));
-    props.setLook(wlIsHiddenName);
+    PropsUi.setLook(wlIsHiddenName);
     FormData fdlIsHiddenName = new FormData();
     fdlIsHiddenName.left = new FormAttachment(0, 0);
     fdlIsHiddenName.top = new FormAttachment(wSizeFieldName, margin);
@@ -1772,7 +1778,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wIsHiddenName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wIsHiddenName);
+    PropsUi.setLook(wIsHiddenName);
     wIsHiddenName.addModifyListener(lsMod);
     FormData fdIsHiddenName = new FormData();
     fdIsHiddenName.left = new FormAttachment(middle, 0);
@@ -1784,7 +1790,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     Label wlLastModificationTimeName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlLastModificationTimeName.setText(
         BaseMessages.getString(PKG, "PropertyInputDialog.LastModificationTimeName.Label"));
-    props.setLook(wlLastModificationTimeName);
+    PropsUi.setLook(wlLastModificationTimeName);
     FormData fdlLastModificationTimeName = new FormData();
     fdlLastModificationTimeName.left = new FormAttachment(0, 0);
     fdlLastModificationTimeName.top = new FormAttachment(wIsHiddenName, margin);
@@ -1793,7 +1799,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wLastModificationTimeName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLastModificationTimeName);
+    PropsUi.setLook(wLastModificationTimeName);
     wLastModificationTimeName.addModifyListener(lsMod);
     FormData fdLastModificationTimeName = new FormData();
     fdLastModificationTimeName.left = new FormAttachment(middle, 0);
@@ -1804,7 +1810,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // UriName line
     Label wlUriName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlUriName.setText(BaseMessages.getString(PKG, "PropertyInputDialog.UriName.Label"));
-    props.setLook(wlUriName);
+    PropsUi.setLook(wlUriName);
     FormData fdlUriName = new FormData();
     fdlUriName.left = new FormAttachment(0, 0);
     fdlUriName.top = new FormAttachment(wLastModificationTimeName, margin);
@@ -1812,7 +1818,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wlUriName.setLayoutData(fdlUriName);
 
     wUriName = new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUriName);
+    PropsUi.setLook(wUriName);
     wUriName.addModifyListener(lsMod);
     FormData fdUriName = new FormData();
     fdUriName.left = new FormAttachment(middle, 0);
@@ -1823,7 +1829,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     // RootUriName line
     Label wlRootUriName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlRootUriName.setText(BaseMessages.getString(PKG, "PropertyInputDialog.RootUriName.Label"));
-    props.setLook(wlRootUriName);
+    PropsUi.setLook(wlRootUriName);
     FormData fdlRootUriName = new FormData();
     fdlRootUriName.left = new FormAttachment(0, 0);
     fdlRootUriName.top = new FormAttachment(wUriName, margin);
@@ -1832,7 +1838,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wRootUriName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRootUriName);
+    PropsUi.setLook(wRootUriName);
     wRootUriName.addModifyListener(lsMod);
     FormData fdRootUriName = new FormData();
     fdRootUriName.left = new FormAttachment(middle, 0);

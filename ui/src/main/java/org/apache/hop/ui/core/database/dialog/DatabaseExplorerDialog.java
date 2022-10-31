@@ -157,7 +157,7 @@ public class DatabaseExplorerDialog extends Dialog {
     } else {
       shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     }
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageDatabase());
 
     shell.setText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Title", dbMeta.toString()));
@@ -203,14 +203,14 @@ public class DatabaseExplorerDialog extends Dialog {
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
-    PropsUi.getInstance().setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     addRightButtons();
     refreshButtons(null);
 
     // Tree
     wTree = new Tree(shell, SWT.SINGLE | SWT.BORDER /*| (multiple?SWT.CHECK:SWT.NONE)*/);
-    props.setLook(wTree);
+    PropsUi.setLook(wTree);
     FormData fdTree = new FormData();
     fdTree.left = new FormAttachment(0, 0); // To the right of the label
     fdTree.top = new FormAttachment(toolBar, margin);
@@ -258,7 +258,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
   private void addRightButtons() {
     buttonsComposite = new Composite(shell, SWT.NONE);
-    props.setLook(buttonsComposite);
+    PropsUi.setLook(buttonsComposite);
     buttonsComposite.setLayout(new FormLayout());
 
     activeSchemaTable = null;

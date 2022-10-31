@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -68,7 +69,7 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
@@ -84,7 +85,7 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -92,7 +93,7 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -102,14 +103,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlServerField = new Label(shell, SWT.RIGHT);
     wlServerField.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ServerField"));
-    props.setLook(wlServerField);
+    PropsUi.setLook(wlServerField);
     FormData fdlServerField = new FormData();
     fdlServerField.left = new FormAttachment(0, 0);
     fdlServerField.top = new FormAttachment(lastControl, margin);
     fdlServerField.right = new FormAttachment(middle, -margin);
     wlServerField.setLayoutData(fdlServerField);
     wServerField = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wServerField);
+    PropsUi.setLook(wServerField);
     FormData fdServerField = new FormData();
     fdServerField.left = new FormAttachment(middle, 0);
     fdServerField.top = new FormAttachment(wlServerField, 0, SWT.CENTER);
@@ -119,14 +120,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlErrorMessage = new Label(shell, SWT.RIGHT);
     wlErrorMessage.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ErrorMessage"));
-    props.setLook(wlErrorMessage);
+    PropsUi.setLook(wlErrorMessage);
     FormData fdlErrorMessage = new FormData();
     fdlErrorMessage.left = new FormAttachment(0, 0);
     fdlErrorMessage.top = new FormAttachment(lastControl, margin);
     fdlErrorMessage.right = new FormAttachment(middle, -margin);
     wlErrorMessage.setLayoutData(fdlErrorMessage);
     wErrorMessage = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrorMessage);
+    PropsUi.setLook(wErrorMessage);
     FormData fdErrorMessage = new FormData();
     fdErrorMessage.left = new FormAttachment(middle, 0);
     fdErrorMessage.top = new FormAttachment(wlErrorMessage, 0, SWT.CENTER);
@@ -137,14 +138,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
     Label wlStatusDescription = new Label(shell, SWT.RIGHT);
     wlStatusDescription.setText(
         BaseMessages.getString(PKG, "GetServerStatusDialog.StatusDescription"));
-    props.setLook(wlStatusDescription);
+    PropsUi.setLook(wlStatusDescription);
     FormData fdlStatusDescription = new FormData();
     fdlStatusDescription.left = new FormAttachment(0, 0);
     fdlStatusDescription.top = new FormAttachment(lastControl, margin);
     fdlStatusDescription.right = new FormAttachment(middle, -margin);
     wlStatusDescription.setLayoutData(fdlStatusDescription);
     wStatusDescription = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wStatusDescription);
+    PropsUi.setLook(wStatusDescription);
     FormData fdStatusDescription = new FormData();
     fdStatusDescription.left = new FormAttachment(middle, 0);
     fdStatusDescription.top = new FormAttachment(wlStatusDescription, 0, SWT.CENTER);
@@ -154,14 +155,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlServerLoad = new Label(shell, SWT.RIGHT);
     wlServerLoad.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ServerLoad"));
-    props.setLook(wlServerLoad);
+    PropsUi.setLook(wlServerLoad);
     FormData fdlServerLoad = new FormData();
     fdlServerLoad.left = new FormAttachment(0, 0);
     fdlServerLoad.top = new FormAttachment(lastControl, margin);
     fdlServerLoad.right = new FormAttachment(middle, -margin);
     wlServerLoad.setLayoutData(fdlServerLoad);
     wServerLoad = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wServerLoad);
+    PropsUi.setLook(wServerLoad);
     FormData fdServerLoad = new FormData();
     fdServerLoad.left = new FormAttachment(middle, 0);
     fdServerLoad.top = new FormAttachment(wlServerLoad, 0, SWT.CENTER);
@@ -171,14 +172,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlMemoryFree = new Label(shell, SWT.RIGHT);
     wlMemoryFree.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.MemoryFree"));
-    props.setLook(wlMemoryFree);
+    PropsUi.setLook(wlMemoryFree);
     FormData fdlMemoryFree = new FormData();
     fdlMemoryFree.left = new FormAttachment(0, 0);
     fdlMemoryFree.top = new FormAttachment(lastControl, margin);
     fdlMemoryFree.right = new FormAttachment(middle, -margin);
     wlMemoryFree.setLayoutData(fdlMemoryFree);
     wMemoryFree = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMemoryFree);
+    PropsUi.setLook(wMemoryFree);
     FormData fdMemoryFree = new FormData();
     fdMemoryFree.left = new FormAttachment(middle, 0);
     fdMemoryFree.top = new FormAttachment(wlMemoryFree, 0, SWT.CENTER);
@@ -188,14 +189,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlMemoryTotal = new Label(shell, SWT.RIGHT);
     wlMemoryTotal.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.MemoryTotal"));
-    props.setLook(wlMemoryTotal);
+    PropsUi.setLook(wlMemoryTotal);
     FormData fdlMemoryTotal = new FormData();
     fdlMemoryTotal.left = new FormAttachment(0, 0);
     fdlMemoryTotal.top = new FormAttachment(lastControl, margin);
     fdlMemoryTotal.right = new FormAttachment(middle, -margin);
     wlMemoryTotal.setLayoutData(fdlMemoryTotal);
     wMemoryTotal = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMemoryTotal);
+    PropsUi.setLook(wMemoryTotal);
     FormData fdMemoryTotal = new FormData();
     fdMemoryTotal.left = new FormAttachment(middle, 0);
     fdMemoryTotal.top = new FormAttachment(wlMemoryTotal, 0, SWT.CENTER);
@@ -205,14 +206,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlCpuCores = new Label(shell, SWT.RIGHT);
     wlCpuCores.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.CpuCores"));
-    props.setLook(wlCpuCores);
+    PropsUi.setLook(wlCpuCores);
     FormData fdlCpuCores = new FormData();
     fdlCpuCores.left = new FormAttachment(0, 0);
     fdlCpuCores.top = new FormAttachment(lastControl, margin);
     fdlCpuCores.right = new FormAttachment(middle, -margin);
     wlCpuCores.setLayoutData(fdlCpuCores);
     wCpuCores = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCpuCores);
+    PropsUi.setLook(wCpuCores);
     FormData fdCpuCores = new FormData();
     fdCpuCores.left = new FormAttachment(middle, 0);
     fdCpuCores.top = new FormAttachment(wlCpuCores, 0, SWT.CENTER);
@@ -222,14 +223,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlCpuProcessTime = new Label(shell, SWT.RIGHT);
     wlCpuProcessTime.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.CpuProcessTime"));
-    props.setLook(wlCpuProcessTime);
+    PropsUi.setLook(wlCpuProcessTime);
     FormData fdlCpuProcessTime = new FormData();
     fdlCpuProcessTime.left = new FormAttachment(0, 0);
     fdlCpuProcessTime.top = new FormAttachment(lastControl, margin);
     fdlCpuProcessTime.right = new FormAttachment(middle, -margin);
     wlCpuProcessTime.setLayoutData(fdlCpuProcessTime);
     wCpuProcessTime = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCpuProcessTime);
+    PropsUi.setLook(wCpuProcessTime);
     FormData fdCpuProcessTime = new FormData();
     fdCpuProcessTime.left = new FormAttachment(middle, 0);
     fdCpuProcessTime.top = new FormAttachment(wlCpuProcessTime, 0, SWT.CENTER);
@@ -239,14 +240,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlOsName = new Label(shell, SWT.RIGHT);
     wlOsName.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.OsName"));
-    props.setLook(wlOsName);
+    PropsUi.setLook(wlOsName);
     FormData fdlOsName = new FormData();
     fdlOsName.left = new FormAttachment(0, 0);
     fdlOsName.top = new FormAttachment(lastControl, margin);
     fdlOsName.right = new FormAttachment(middle, -margin);
     wlOsName.setLayoutData(fdlOsName);
     wOsName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wOsName);
+    PropsUi.setLook(wOsName);
     FormData fdOsName = new FormData();
     fdOsName.left = new FormAttachment(middle, 0);
     fdOsName.top = new FormAttachment(wlOsName, 0, SWT.CENTER);
@@ -256,14 +257,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlOsVersion = new Label(shell, SWT.RIGHT);
     wlOsVersion.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.OsVersion"));
-    props.setLook(wlOsVersion);
+    PropsUi.setLook(wlOsVersion);
     FormData fdlOsVersion = new FormData();
     fdlOsVersion.left = new FormAttachment(0, 0);
     fdlOsVersion.top = new FormAttachment(lastControl, margin);
     fdlOsVersion.right = new FormAttachment(middle, -margin);
     wlOsVersion.setLayoutData(fdlOsVersion);
     wOsVersion = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wOsVersion);
+    PropsUi.setLook(wOsVersion);
     FormData fdOsVersion = new FormData();
     fdOsVersion.left = new FormAttachment(middle, 0);
     fdOsVersion.top = new FormAttachment(wlOsVersion, 0, SWT.CENTER);
@@ -273,14 +274,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlOsArchitecture = new Label(shell, SWT.RIGHT);
     wlOsArchitecture.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.OsArchitecture"));
-    props.setLook(wlOsArchitecture);
+    PropsUi.setLook(wlOsArchitecture);
     FormData fdlOsArchitecture = new FormData();
     fdlOsArchitecture.left = new FormAttachment(0, 0);
     fdlOsArchitecture.top = new FormAttachment(lastControl, margin);
     fdlOsArchitecture.right = new FormAttachment(middle, -margin);
     wlOsArchitecture.setLayoutData(fdlOsArchitecture);
     wOsArchitecture = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wOsArchitecture);
+    PropsUi.setLook(wOsArchitecture);
     FormData fdOsArchitecture = new FormData();
     fdOsArchitecture.left = new FormAttachment(middle, 0);
     fdOsArchitecture.top = new FormAttachment(wlOsArchitecture, 0, SWT.CENTER);
@@ -290,14 +291,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlActivePipelines = new Label(shell, SWT.RIGHT);
     wlActivePipelines.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ActivePipelines"));
-    props.setLook(wlActivePipelines);
+    PropsUi.setLook(wlActivePipelines);
     FormData fdlActivePipelines = new FormData();
     fdlActivePipelines.left = new FormAttachment(0, 0);
     fdlActivePipelines.top = new FormAttachment(lastControl, margin);
     fdlActivePipelines.right = new FormAttachment(middle, -margin);
     wlActivePipelines.setLayoutData(fdlActivePipelines);
     wActivePipelines = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wActivePipelines);
+    PropsUi.setLook(wActivePipelines);
     FormData fdActivePipelines = new FormData();
     fdActivePipelines.left = new FormAttachment(middle, 0);
     fdActivePipelines.top = new FormAttachment(wlActivePipelines, 0, SWT.CENTER);
@@ -307,14 +308,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlActiveWorkflows = new Label(shell, SWT.RIGHT);
     wlActiveWorkflows.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ActiveWorkflows"));
-    props.setLook(wlActiveWorkflows);
+    PropsUi.setLook(wlActiveWorkflows);
     FormData fdlActiveWorkflows = new FormData();
     fdlActiveWorkflows.left = new FormAttachment(0, 0);
     fdlActiveWorkflows.top = new FormAttachment(lastControl, margin);
     fdlActiveWorkflows.right = new FormAttachment(middle, -margin);
     wlActiveWorkflows.setLayoutData(fdlActiveWorkflows);
     wActiveWorkflows = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wActiveWorkflows);
+    PropsUi.setLook(wActiveWorkflows);
     FormData fdActiveWorkflows = new FormData();
     fdActiveWorkflows.left = new FormAttachment(middle, 0);
     fdActiveWorkflows.top = new FormAttachment(wlActiveWorkflows, 0, SWT.CENTER);
@@ -324,14 +325,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlAvailable = new Label(shell, SWT.RIGHT);
     wlAvailable.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.Available"));
-    props.setLook(wlAvailable);
+    PropsUi.setLook(wlAvailable);
     FormData fdlAvailable = new FormData();
     fdlAvailable.left = new FormAttachment(0, 0);
     fdlAvailable.top = new FormAttachment(lastControl, margin);
     fdlAvailable.right = new FormAttachment(middle, -margin);
     wlAvailable.setLayoutData(fdlAvailable);
     wAvailable = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wAvailable);
+    PropsUi.setLook(wAvailable);
     FormData fdAvailable = new FormData();
     fdAvailable.left = new FormAttachment(middle, 0);
     fdAvailable.top = new FormAttachment(wlAvailable, 0, SWT.CENTER);
@@ -341,14 +342,14 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
 
     Label wlResponseNs = new Label(shell, SWT.RIGHT);
     wlResponseNs.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ResponseNs"));
-    props.setLook(wlResponseNs);
+    PropsUi.setLook(wlResponseNs);
     FormData fdlResponseNs = new FormData();
     fdlResponseNs.left = new FormAttachment(0, 0);
     fdlResponseNs.top = new FormAttachment(lastControl, margin);
     fdlResponseNs.right = new FormAttachment(middle, -margin);
     wlResponseNs.setLayoutData(fdlResponseNs);
     wResponseNs = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wResponseNs);
+    PropsUi.setLook(wResponseNs);
     FormData fdResponseNs = new FormData();
     fdResponseNs.left = new FormAttachment(middle, 0);
     fdResponseNs.top = new FormAttachment(wlResponseNs, 0, SWT.CENTER);

@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -81,7 +82,7 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell);
 
     ModifyListener lsMod = e -> partitioningMeta.hasChanged(true);
@@ -100,7 +101,7 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
 
     Label wlFieldname = new Label(shell, SWT.RIGHT);
     wlFieldname.setText("Fieldname");
-    props.setLook(wlFieldname);
+    PropsUi.setLook(wlFieldname);
     FormData fdlFieldname = new FormData();
     fdlFieldname.left = new FormAttachment(0, 0);
     fdlFieldname.right = new FormAttachment(middle, -margin);
@@ -108,7 +109,7 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
     wlFieldname.setLayoutData(fdlFieldname);
     wFieldname = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFieldname.setText(fieldName == null ? "" : fieldName);
-    props.setLook(wFieldname);
+    PropsUi.setLook(wFieldname);
     wFieldname.addModifyListener(lsMod);
     FormData fdFieldname = new FormData();
     fdFieldname.left = new FormAttachment(middle, 0);

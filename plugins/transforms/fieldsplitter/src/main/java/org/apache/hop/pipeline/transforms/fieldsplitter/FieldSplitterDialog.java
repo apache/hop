@@ -28,6 +28,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -73,7 +74,7 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -92,7 +93,7 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "FieldSplitterDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -100,7 +101,7 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -111,7 +112,7 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     // Typefield line
     Label wlSplitfield = new Label(shell, SWT.RIGHT);
     wlSplitfield.setText(BaseMessages.getString(PKG, "FieldSplitterDialog.SplitField.Label"));
-    props.setLook(wlSplitfield);
+    PropsUi.setLook(wlSplitfield);
     FormData fdlSplitfield = new FormData();
     fdlSplitfield.left = new FormAttachment(0, 0);
     fdlSplitfield.right = new FormAttachment(middle, -margin);
@@ -119,7 +120,7 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wlSplitfield.setLayoutData(fdlSplitfield);
     wSplitField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
     wSplitField.setText("");
-    props.setLook(wSplitField);
+    PropsUi.setLook(wSplitField);
     wSplitField.addModifyListener(lsMod);
     FormData fdSplitfield = new FormData();
     fdSplitfield.left = new FormAttachment(middle, 0);
@@ -144,7 +145,7 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     // Typefield line
     Label wlDelimiter = new Label(shell, SWT.RIGHT);
     wlDelimiter.setText(BaseMessages.getString(PKG, "FieldSplitterDialog.Delimiter.Label"));
-    props.setLook(wlDelimiter);
+    PropsUi.setLook(wlDelimiter);
     FormData fdlDelimiter = new FormData();
     fdlDelimiter.left = new FormAttachment(0, 0);
     fdlDelimiter.right = new FormAttachment(middle, -margin);
@@ -153,7 +154,7 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wDelimiter = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wDelimiter.setToolTipText(BaseMessages.getString(PKG, "FieldSplitterDialog.Delimiter.Tooltip"));
     wDelimiter.setText("");
-    props.setLook(wDelimiter);
+    PropsUi.setLook(wDelimiter);
     wDelimiter.addModifyListener(lsMod);
     FormData fdDelimiter = new FormData();
     fdDelimiter.left = new FormAttachment(middle, 0);
@@ -164,7 +165,7 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     // enclosure
     Label wlEnclosure = new Label(shell, SWT.RIGHT);
     wlEnclosure.setText(BaseMessages.getString(PKG, "FieldSplitterDialog.Enclosure.Label"));
-    props.setLook(wlEnclosure);
+    PropsUi.setLook(wlEnclosure);
     FormData fdlEnclosure = new FormData();
     fdlEnclosure.top = new FormAttachment(wDelimiter, margin);
     fdlEnclosure.left = new FormAttachment(0, 0);
@@ -172,7 +173,7 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wlEnclosure.setLayoutData(fdlEnclosure);
     wEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wEnclosure.setToolTipText(BaseMessages.getString(PKG, "FieldSplitterDialog.Enclosure.Tooltip"));
-    props.setLook(wEnclosure);
+    PropsUi.setLook(wEnclosure);
     wEnclosure.addModifyListener(lsMod);
     FormData fdEnclosure = new FormData();
     fdEnclosure.top = new FormAttachment(wDelimiter, margin);
@@ -183,7 +184,7 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     // Escape string
     Label wlEscapeString = new Label(shell, SWT.RIGHT);
     wlEscapeString.setText(BaseMessages.getString(PKG, "FieldSplitterDialog.EscapeString.Label"));
-    props.setLook(wlEscapeString);
+    PropsUi.setLook(wlEscapeString);
     FormData fdlEscapeString = new FormData();
     fdlEscapeString.top = new FormAttachment(wEnclosure, margin);
     fdlEscapeString.left = new FormAttachment(0, 0);
@@ -192,7 +193,7 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wEscapeString = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wEscapeString.setToolTipText(
         BaseMessages.getString(PKG, "FieldSplitterDialog.EscapeString.Tooltip"));
-    props.setLook(wEscapeString);
+    PropsUi.setLook(wEscapeString);
     wEscapeString.addModifyListener(lsMod);
     FormData fdEscapeString = new FormData();
     fdEscapeString.top = new FormAttachment(wEnclosure, margin);
@@ -202,7 +203,7 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
 
     Label wlFields = new Label(shell, SWT.RIGHT);
     wlFields.setText(BaseMessages.getString(PKG, "FieldSplitterDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wEscapeString, margin);

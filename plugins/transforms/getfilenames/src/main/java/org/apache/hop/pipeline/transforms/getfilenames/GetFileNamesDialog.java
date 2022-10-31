@@ -30,7 +30,9 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -128,7 +130,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -159,7 +161,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -167,7 +169,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -176,16 +178,17 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF FILE TAB ///
     // ////////////////////////
     CTabItem wFileTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFileTab.setFont(GuiResource.getInstance().getFontDefault());
     wFileTab.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.FileTab.TabTitle"));
 
     Composite wFileComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFileComp);
+    PropsUi.setLook(wFileComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -197,7 +200,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // ///////////////////////////////
 
     Group wOriginFiles = new Group(wFileComp, SWT.SHADOW_NONE);
-    props.setLook(wOriginFiles);
+    PropsUi.setLook(wOriginFiles);
     wOriginFiles.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.OriginFiles.Label"));
 
     FormLayout originFilesgroupLayout = new FormLayout();
@@ -208,7 +211,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // Is Filename defined in a Field
     Label wlFileField = new Label(wOriginFiles, SWT.RIGHT);
     wlFileField.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.FileField.Label"));
-    props.setLook(wlFileField);
+    PropsUi.setLook(wlFileField);
     FormData fdlFileField = new FormData();
     fdlFileField.left = new FormAttachment(0, -margin);
     fdlFileField.top = new FormAttachment(0, margin);
@@ -216,7 +219,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wlFileField.setLayoutData(fdlFileField);
 
     wFileField = new Button(wOriginFiles, SWT.CHECK);
-    props.setLook(wFileField);
+    PropsUi.setLook(wFileField);
     wFileField.setToolTipText(BaseMessages.getString(PKG, "GetFileNamesDialog.FileField.Tooltip"));
     FormData fdFileField = new FormData();
     fdFileField.left = new FormAttachment(middle, -margin);
@@ -236,7 +239,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // Filename field
     wlFilenameField = new Label(wOriginFiles, SWT.RIGHT);
     wlFilenameField.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.FilenameField.Label"));
-    props.setLook(wlFilenameField);
+    PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, -margin);
     fdlFilenameField.top = new FormAttachment(wFileField, margin);
@@ -245,7 +248,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
     wFilenameField = new CCombo(wOriginFiles, SWT.BORDER | SWT.READ_ONLY);
     wFilenameField.setEditable(true);
-    props.setLook(wFilenameField);
+    PropsUi.setLook(wFilenameField);
     wFilenameField.addModifyListener(lsMod);
     FormData fdFilenameField = new FormData();
     fdFilenameField.left = new FormAttachment(middle, -margin);
@@ -256,7 +259,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // Wildcard field
     wlWildcardField = new Label(wOriginFiles, SWT.RIGHT);
     wlWildcardField.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.WildcardField.Label"));
-    props.setLook(wlWildcardField);
+    PropsUi.setLook(wlWildcardField);
     FormData fdlWildcardField = new FormData();
     fdlWildcardField.left = new FormAttachment(0, -margin);
     fdlWildcardField.top = new FormAttachment(wFilenameField, margin);
@@ -265,7 +268,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
     wWildcardField = new CCombo(wOriginFiles, SWT.BORDER | SWT.READ_ONLY);
     wWildcardField.setEditable(true);
-    props.setLook(wWildcardField);
+    PropsUi.setLook(wWildcardField);
     wWildcardField.addModifyListener(lsMod);
     FormData fdWildcardField = new FormData();
     fdWildcardField.left = new FormAttachment(middle, -margin);
@@ -277,7 +280,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wlExcludeWildcardField = new Label(wOriginFiles, SWT.RIGHT);
     wlExcludeWildcardField.setText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.ExcludeWildcardField.Label"));
-    props.setLook(wlExcludeWildcardField);
+    PropsUi.setLook(wlExcludeWildcardField);
     FormData fdlExcludeWildcardField = new FormData();
     fdlExcludeWildcardField.left = new FormAttachment(0, -margin);
     fdlExcludeWildcardField.top = new FormAttachment(wWildcardField, margin);
@@ -286,7 +289,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
     wExcludeWildcardField = new CCombo(wOriginFiles, SWT.BORDER | SWT.READ_ONLY);
     wExcludeWildcardField.setEditable(true);
-    props.setLook(wExcludeWildcardField);
+    PropsUi.setLook(wExcludeWildcardField);
     wExcludeWildcardField.addModifyListener(lsMod);
     FormData fdExcludeWildcardField = new FormData();
     fdExcludeWildcardField.left = new FormAttachment(middle, -margin);
@@ -298,7 +301,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wlIncludeSubFolder = new Label(wOriginFiles, SWT.RIGHT);
     wlIncludeSubFolder.setText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.IncludeSubFolder.Label"));
-    props.setLook(wlIncludeSubFolder);
+    PropsUi.setLook(wlIncludeSubFolder);
     FormData fdlIncludeSubFolder = new FormData();
     fdlIncludeSubFolder.left = new FormAttachment(0, -margin);
     fdlIncludeSubFolder.top = new FormAttachment(wExcludeWildcardField, margin);
@@ -306,7 +309,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wlIncludeSubFolder.setLayoutData(fdlIncludeSubFolder);
 
     wIncludeSubFolder = new Button(wOriginFiles, SWT.CHECK);
-    props.setLook(wIncludeSubFolder);
+    PropsUi.setLook(wIncludeSubFolder);
     wIncludeSubFolder.setToolTipText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.IncludeSubFolder.Tooltip"));
     FormData fdIncludeSubFolder = new FormData();
@@ -334,7 +337,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // Filename line
     wlFilename = new Label(wFileComp, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(wOriginFiles, 2 * margin);
@@ -342,7 +345,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wlFilename.setLayoutData(fdlFilename);
 
     wbbFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -352,7 +355,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wbbFilename.setLayoutData(fdbFilename);
 
     wbaFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbaFilename);
+    PropsUi.setLook(wbaFilename);
     wbaFilename.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.FilenameAdd.Button"));
     wbaFilename.setToolTipText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.FilenameAdd.Tooltip"));
@@ -362,7 +365,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wbaFilename.setLayoutData(fdbaFilename);
 
     wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -372,14 +375,14 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
     wlFilemask = new Label(wFileComp, SWT.RIGHT);
     wlFilemask.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.Filemask.Label"));
-    props.setLook(wlFilemask);
+    PropsUi.setLook(wlFilemask);
     FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
     fdlFilemask.top = new FormAttachment(wFilename, margin);
     fdlFilemask.right = new FormAttachment(middle, -margin);
     wlFilemask.setLayoutData(fdlFilemask);
     wFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilemask);
+    PropsUi.setLook(wFilemask);
     wFilemask.addModifyListener(lsMod);
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
@@ -390,14 +393,14 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wlExcludeFilemask = new Label(wFileComp, SWT.RIGHT);
     wlExcludeFilemask.setText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.ExcludeFilemask.Label"));
-    props.setLook(wlExcludeFilemask);
+    PropsUi.setLook(wlExcludeFilemask);
     FormData fdlExcludeFilemask = new FormData();
     fdlExcludeFilemask.left = new FormAttachment(0, 0);
     fdlExcludeFilemask.top = new FormAttachment(wFilemask, margin);
     fdlExcludeFilemask.right = new FormAttachment(middle, -margin);
     wlExcludeFilemask.setLayoutData(fdlExcludeFilemask);
     wExcludeFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wExcludeFilemask);
+    PropsUi.setLook(wExcludeFilemask);
     wExcludeFilemask.addModifyListener(lsMod);
     FormData fdExcludeFilemask = new FormData();
     fdExcludeFilemask.left = new FormAttachment(middle, 0);
@@ -408,7 +411,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // Filename list line
     wlFilenameList = new Label(wFileComp, SWT.RIGHT);
     wlFilenameList.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.FilenameList.Label"));
-    props.setLook(wlFilenameList);
+    PropsUi.setLook(wlFilenameList);
     FormData fdlFilenameList = new FormData();
     fdlFilenameList.left = new FormAttachment(0, 0);
     fdlFilenameList.top = new FormAttachment(wExcludeFilemask, margin);
@@ -417,7 +420,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
     // Buttons to the right of the screen...
     wbdFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdFilename);
+    PropsUi.setLook(wbdFilename);
     wbdFilename.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.FilenameDelete.Button"));
     wbdFilename.setToolTipText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.FilenameDelete.Tooltip"));
@@ -427,7 +430,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wbdFilename.setLayoutData(fdbdFilename);
 
     wbeFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeFilename);
+    PropsUi.setLook(wbeFilename);
     wbeFilename.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.FilenameEdit.Button"));
     wbeFilename.setToolTipText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.FilenameEdit.Tooltip"));
@@ -438,7 +441,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wbeFilename.setLayoutData(fdbeFilename);
 
     wbShowFiles = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbShowFiles);
+    PropsUi.setLook(wbShowFiles);
     wbShowFiles.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.ShowFiles.Button"));
     FormData fdbShowFiles = new FormData();
     fdbShowFiles.left = new FormAttachment(middle, 0);
@@ -487,7 +490,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
             colinfo.length,
             lsMod,
             props);
-    props.setLook(wFilenameList);
+    PropsUi.setLook(wFilenameList);
     FormData fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment(middle, 0);
     fdFilenameList.right = new FormAttachment(wbdFilename, -margin);
@@ -520,10 +523,11 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // START OF Filter TAB ///
     // ////////////////////////
     CTabItem wFilterTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFilterTab.setFont(GuiResource.getInstance().getFontDefault());
     wFilterTab.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.FilterTab.TabTitle"));
 
     Composite wFilterComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFilterComp);
+    PropsUi.setLook(wFilterComp);
 
     FormLayout filesettingLayout = new FormLayout();
     filesettingLayout.marginWidth = 3;
@@ -534,7 +538,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     Label wlFilterFileType = new Label(wFilterComp, SWT.RIGHT);
     wlFilterFileType.setText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.FilterTab.FileType.Label"));
-    props.setLook(wlFilterFileType);
+    PropsUi.setLook(wlFilterFileType);
     FormData fdlFilterFileType = new FormData();
     fdlFilterFileType.left = new FormAttachment(0, 0);
     fdlFilterFileType.right = new FormAttachment(middle, 0);
@@ -548,7 +552,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wFilterFileType.add(
         BaseMessages.getString(PKG, "GetFileNamesDialog.FilterTab.FileType.OnlyFolder.Label"));
     // wFilterFileType.select(0); // +1: starts at -1
-    props.setLook(wFilterFileType);
+    PropsUi.setLook(wFilterFileType);
     FormData fdFilterFileType = new FormData();
     fdFilterFileType.left = new FormAttachment(middle, 0);
     fdFilterFileType.top = new FormAttachment(0, 3 * margin);
@@ -561,7 +565,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // /////////////////////////////////
 
     Group wAdditionalGroup = new Group(wFilterComp, SWT.SHADOW_NONE);
-    props.setLook(wAdditionalGroup);
+    PropsUi.setLook(wAdditionalGroup);
     wAdditionalGroup.setText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.Group.AdditionalGroup.Label"));
 
@@ -572,14 +576,14 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
     Label wlInclRownum = new Label(wAdditionalGroup, SWT.RIGHT);
     wlInclRownum.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.InclRownum.Label"));
-    props.setLook(wlInclRownum);
+    PropsUi.setLook(wlInclRownum);
     FormData fdlInclRownum = new FormData();
     fdlInclRownum.left = new FormAttachment(0, 0);
     fdlInclRownum.top = new FormAttachment(wFilterFileType, 2 * margin);
     fdlInclRownum.right = new FormAttachment(middle, -margin);
     wlInclRownum.setLayoutData(fdlInclRownum);
     wInclRownum = new Button(wAdditionalGroup, SWT.CHECK);
-    props.setLook(wInclRownum);
+    PropsUi.setLook(wInclRownum);
     wInclRownum.setToolTipText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.InclRownum.Tooltip"));
     FormData fdRownum = new FormData();
@@ -597,14 +601,14 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     Label wlInclRownumField = new Label(wAdditionalGroup, SWT.RIGHT);
     wlInclRownumField.setText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.InclRownumField.Label"));
-    props.setLook(wlInclRownumField);
+    PropsUi.setLook(wlInclRownumField);
     FormData fdlInclRownumField = new FormData();
     fdlInclRownumField.left = new FormAttachment(wInclRownum, margin);
     fdlInclRownumField.top = new FormAttachment(wFilterFileType, 2 * margin);
     wlInclRownumField.setLayoutData(fdlInclRownumField);
 
     wInclRownumField = new TextVar(variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclRownumField);
+    PropsUi.setLook(wInclRownumField);
     wInclRownumField.addModifyListener(lsMod);
     FormData fdInclRownumField = new FormData();
     fdInclRownumField.left = new FormAttachment(wlInclRownumField, margin);
@@ -627,7 +631,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // /////////////////////////////////
 
     Group wNoFilesFolderGroup = new Group(wFilterComp, SWT.SHADOW_NONE);
-    props.setLook(wNoFilesFolderGroup);
+    PropsUi.setLook(wNoFilesFolderGroup);
     wNoFilesFolderGroup.setText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.Group.NoFilesFolder.Label"));
 
@@ -640,7 +644,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wlDoNotFailIfNoFile = new Label(wNoFilesFolderGroup, SWT.RIGHT);
     wlDoNotFailIfNoFile.setText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.DoNotFailIfNoFile.Label"));
-    props.setLook(wlDoNotFailIfNoFile);
+    PropsUi.setLook(wlDoNotFailIfNoFile);
     FormData fdldoNotFailIfNoFile = new FormData();
     fdldoNotFailIfNoFile.left = new FormAttachment(0, 0);
     fdldoNotFailIfNoFile.top = new FormAttachment(wAdditionalGroup, 2 * margin);
@@ -648,7 +652,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wlDoNotFailIfNoFile.setLayoutData(fdldoNotFailIfNoFile);
 
     wDoNotFailIfNoFile = new Button(wNoFilesFolderGroup, SWT.CHECK);
-    props.setLook(wDoNotFailIfNoFile);
+    PropsUi.setLook(wDoNotFailIfNoFile);
     wDoNotFailIfNoFile.setToolTipText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.DoNotFailIfNoFile.Tooltip"));
     FormData fddoNotFailIfNoFile = new FormData();
@@ -660,7 +664,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wlRaiseAnExceptionIfNoFile = new Label(wNoFilesFolderGroup, SWT.RIGHT);
     wlRaiseAnExceptionIfNoFile.setText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.RaiseAnExceptionIfNoFiles.Label"));
-    props.setLook(wlRaiseAnExceptionIfNoFile);
+    PropsUi.setLook(wlRaiseAnExceptionIfNoFile);
     FormData fdlRaiseAnExceptionIfNoFile = new FormData();
     fdlRaiseAnExceptionIfNoFile.left = new FormAttachment(0, 0);
     fdlRaiseAnExceptionIfNoFile.top = new FormAttachment(wlDoNotFailIfNoFile, 2 * margin);
@@ -668,7 +672,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     wlRaiseAnExceptionIfNoFile.setLayoutData(fdlRaiseAnExceptionIfNoFile);
 
     wRaiseAnExceptionIfNoFile = new Button(wNoFilesFolderGroup, SWT.CHECK);
-    props.setLook(wRaiseAnExceptionIfNoFile);
+    PropsUi.setLook(wRaiseAnExceptionIfNoFile);
     wRaiseAnExceptionIfNoFile.setToolTipText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.RaiseAnExceptionIfNoFiles.Tooltip"));
     FormData fddoRaiseAnExceptionIfNoFile = new FormData();
@@ -709,14 +713,14 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
     Label wlLimit = new Label(wFilterComp, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.Limit.Label"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.top = new FormAttachment(wNoFilesFolderGroup, margin);
     fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(wFilterComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
@@ -726,14 +730,14 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
     Label wlAddResult = new Label(wFilterComp, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.AddResult.Label"));
-    props.setLook(wlAddResult);
+    PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
     fdlAddResult.top = new FormAttachment(wLimit, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(wFilterComp, SWT.CHECK);
-    props.setLook(wAddResult);
+    PropsUi.setLook(wAddResult);
     wAddResult.setToolTipText(BaseMessages.getString(PKG, "GetFileNamesDialog.AddResult.Tooltip"));
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment(middle, 0);

@@ -33,6 +33,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -239,7 +240,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     int margin = props.getMargin();
     
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     /* ************************************************
@@ -282,7 +283,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     // Transform name line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -290,7 +291,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -299,18 +300,19 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     /* *********************************************
      * Start of Loader tab
      * *********************************************/
 
     CTabItem wLoaderTab = new CTabItem(wTabFolder, SWT.NONE);
+    wLoaderTab.setFont(GuiResource.getInstance().getFontDefault());
     wLoaderTab.setText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.LoaderTab.TabTitle"));
 
     Composite wLoaderComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wLoaderComp);
+    PropsUi.setLook(wLoaderComp);
 
     FormLayout loaderLayout = new FormLayout();
     loaderLayout.marginWidth = 3;
@@ -330,7 +332,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlSchema.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.Schema.Label"));
     wlSchema.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.Schema.Tooltip"));
-    props.setLook(wlSchema);
+    PropsUi.setLook(wlSchema);
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.top = new FormAttachment(wConnection, 2 * margin);
@@ -338,7 +340,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlSchema.setLayoutData(fdlSchema);
 
     Button wbSchema = new Button(wLoaderComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSchema);
+    PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
@@ -346,7 +348,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wbSchema.setLayoutData(fdbSchema);
 
     wSchema = new TextVar(variables, wLoaderComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSchema);
+    PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsMod);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
@@ -364,7 +366,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     // Table line...
     Label wlTable = new Label(wLoaderComp, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.Table.Label"));
-    props.setLook(wlTable);
+    PropsUi.setLook(wlTable);
     FormData fdlTable = new FormData();
     fdlTable.left = new FormAttachment(0, 0);
     fdlTable.right = new FormAttachment(middle, -margin);
@@ -372,7 +374,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlTable.setLayoutData(fdlTable);
 
     Button wbTable = new Button(wLoaderComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTable);
+    PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
@@ -380,7 +382,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wbTable.setLayoutData(fdbTable);
 
     wTable = new TextVar(variables, wLoaderComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTable);
+    PropsUi.setLook(wTable);
     wTable.addModifyListener(lsMod);
     FormData fdTable = new FormData();
     fdTable.top = new FormAttachment(wbSchema, margin);
@@ -402,7 +404,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.LocationType.Label"));
     wlLocationType.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.LocationType.Tooltip"));
-    props.setLook(wlLocationType);
+    PropsUi.setLook(wlLocationType);
     FormData fdlLocationType = new FormData();
     fdlLocationType.left = new FormAttachment(0, 0);
     fdlLocationType.top = new FormAttachment(wTable, margin * 2);
@@ -411,7 +413,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
 
     wLocationType = new CCombo(wLoaderComp, SWT.BORDER | SWT.READ_ONLY);
     wLocationType.setEditable(false);
-    props.setLook(wLocationType);
+    PropsUi.setLook(wLocationType);
     wLocationType.addModifyListener(lsMod);
     wLocationType.addSelectionListener(lsFlags);
     FormData fdLocationType = new FormData();
@@ -427,7 +429,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     //
     Label wlStageName = new Label(wLoaderComp, SWT.RIGHT);
     wlStageName.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.StageName.Label"));
-    props.setLook(wlStageName);
+    PropsUi.setLook(wlStageName);
     FormData fdlStageName = new FormData();
     fdlStageName.left = new FormAttachment(0, 0);
     fdlStageName.top = new FormAttachment(wLocationType, margin * 2);
@@ -435,7 +437,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlStageName.setLayoutData(fdlStageName);
 
     wStageName = new ComboVar(variables, wLoaderComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wStageName);
+    PropsUi.setLook(wStageName);
     wStageName.addModifyListener(lsMod);
     wStageName.addSelectionListener(lsFlags);
     FormData fdStageName = new FormData();
@@ -505,7 +507,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.WorkDirectory.Label"));
     wlWorkDirectory.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.WorkDirectory.Tooltip"));
-    props.setLook(wlWorkDirectory);
+    PropsUi.setLook(wlWorkDirectory);
     FormData fdlWorkDirectory = new FormData();
     fdlWorkDirectory.left = new FormAttachment(0, 0);
     fdlWorkDirectory.top = new FormAttachment(wStageName, margin);
@@ -513,7 +515,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlWorkDirectory.setLayoutData(fdlWorkDirectory);
 
     Button wbWorkDirectory = new Button(wLoaderComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbWorkDirectory);
+    PropsUi.setLook(wbWorkDirectory);
     wbWorkDirectory.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbWorkDirectory = new FormData();
     fdbWorkDirectory.right = new FormAttachment(100, 0);
@@ -522,7 +524,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
 
     wWorkDirectory = new TextVar(variables, wLoaderComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wWorkDirectory.setText("temp");
-    props.setLook(wWorkDirectory);
+    PropsUi.setLook(wWorkDirectory);
     wWorkDirectory.addModifyListener(lsMod);
     FormData fdWorkDirectory = new FormData();
     fdWorkDirectory.left = new FormAttachment(middle, 0);
@@ -553,7 +555,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlOnError.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.OnError.Label"));
     wlOnError.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.OnError.Tooltip"));
-    props.setLook(wlOnError);
+    PropsUi.setLook(wlOnError);
     FormData fdlOnError = new FormData();
     fdlOnError.left = new FormAttachment(0, 0);
     fdlOnError.top = new FormAttachment(wWorkDirectory, margin * 2);
@@ -562,7 +564,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
 
     wOnError = new CCombo(wLoaderComp, SWT.BORDER | SWT.READ_ONLY);
     wOnError.setEditable(false);
-    props.setLook(wOnError);
+    PropsUi.setLook(wOnError);
     wOnError.addModifyListener(lsMod);
     wOnError.addSelectionListener(lsFlags);
     FormData fdOnError = new FormData();
@@ -580,7 +582,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.ErrorCountLimit.Label"));
     wlErrorLimit.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.ErrorCountLimit.Tooltip"));
-    props.setLook(wlErrorLimit);
+    PropsUi.setLook(wlErrorLimit);
     FormData fdlErrorLimit = new FormData();
     fdlErrorLimit.left = new FormAttachment(0, 0);
     fdlErrorLimit.top = new FormAttachment(wOnError, margin);
@@ -588,7 +590,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlErrorLimit.setLayoutData(fdlErrorLimit);
 
     wErrorLimit = new TextVar(variables, wLoaderComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrorLimit);
+    PropsUi.setLook(wErrorLimit);
     wErrorLimit.addModifyListener(lsMod);
     FormData fdErrorLimit = new FormData();
     fdErrorLimit.left = new FormAttachment(middle, 0);
@@ -601,7 +603,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlSplitSize.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.SplitSize.Label"));
     wlSplitSize.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.SplitSize.Tooltip"));
-    props.setLook(wlSplitSize);
+    PropsUi.setLook(wlSplitSize);
     FormData fdlSplitSize = new FormData();
     fdlSplitSize.left = new FormAttachment(0, 0);
     fdlSplitSize.top = new FormAttachment(wErrorLimit, margin);
@@ -609,7 +611,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlSplitSize.setLayoutData(fdlSplitSize);
 
     wSplitSize = new TextVar(variables, wLoaderComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSplitSize);
+    PropsUi.setLook(wSplitSize);
     wSplitSize.addModifyListener(lsMod);
     FormData fdSplitSize = new FormData();
     fdSplitSize.left = new FormAttachment(middle, 0);
@@ -624,7 +626,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.RemoveFiles.Label"));
     wlRemoveFiles.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.RemoveFiles.Tooltip"));
-    props.setLook(wlRemoveFiles);
+    PropsUi.setLook(wlRemoveFiles);
     FormData fdlRemoveFiles = new FormData();
     fdlRemoveFiles.left = new FormAttachment(0, 0);
     fdlRemoveFiles.top = new FormAttachment(wSplitSize, margin);
@@ -632,7 +634,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlRemoveFiles.setLayoutData(fdlRemoveFiles);
 
     wRemoveFiles = new Button(wLoaderComp, SWT.CHECK);
-    props.setLook(wRemoveFiles);
+    PropsUi.setLook(wRemoveFiles);
     FormData fdRemoveFiles = new FormData();
     fdRemoveFiles.left = new FormAttachment(middle, 0);
     fdRemoveFiles.top = new FormAttachment(wSplitSize, margin);
@@ -659,11 +661,12 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
      * ********************************************************/
 
     CTabItem wDataTypeTab = new CTabItem(wTabFolder, SWT.NONE);
+    wDataTypeTab.setFont(GuiResource.getInstance().getFontDefault());
     wDataTypeTab.setText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.DataTypeTab.TabTitle"));
 
     Composite wDataTypeComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wDataTypeComp);
+    PropsUi.setLook(wDataTypeComp);
 
     FormLayout dataTypeLayout = new FormLayout();
     dataTypeLayout.marginWidth = 3;
@@ -674,7 +677,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     //
     Label wlDataType = new Label(wDataTypeComp, SWT.RIGHT);
     wlDataType.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.DataType.Label"));
-    props.setLook(wlDataType);
+    PropsUi.setLook(wlDataType);
     FormData fdlDataType = new FormData();
     fdlDataType.left = new FormAttachment(0, 0);
     fdlDataType.top = new FormAttachment(0, margin);
@@ -683,7 +686,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
 
     wDataType = new CCombo(wDataTypeComp, SWT.BORDER | SWT.READ_ONLY);
     wDataType.setEditable(false);
-    props.setLook(wDataType);
+    PropsUi.setLook(wDataType);
     wDataType.addModifyListener(lsMod);
     wDataType.addSelectionListener(lsFlags);
     FormData fdDataType = new FormData();
@@ -704,7 +707,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     csvLayout.marginWidth = 3;
     csvLayout.marginHeight = 3;
     gCsvGroup.setLayout(csvLayout);
-    props.setLook(gCsvGroup);
+    PropsUi.setLook(gCsvGroup);
 
     FormData fdgCsvGroup = new FormData();
     fdgCsvGroup.left = new FormAttachment(0, 0);
@@ -719,7 +722,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.TrimWhitespace.Label"));
     wlTrimWhitespace.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.TrimWhitespace.Tooltip"));
-    props.setLook(wlTrimWhitespace);
+    PropsUi.setLook(wlTrimWhitespace);
     FormData fdlTrimWhitespace = new FormData();
     fdlTrimWhitespace.left = new FormAttachment(0, 0);
     fdlTrimWhitespace.top = new FormAttachment(0, margin);
@@ -727,7 +730,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlTrimWhitespace.setLayoutData(fdlTrimWhitespace);
 
     wTrimWhitespace = new Button(gCsvGroup, SWT.CHECK);
-    props.setLook(wTrimWhitespace);
+    PropsUi.setLook(wTrimWhitespace);
     FormData fdTrimWhitespace = new FormData();
     fdTrimWhitespace.left = new FormAttachment(middle, 0);
     fdTrimWhitespace.top = new FormAttachment(0, margin);
@@ -740,7 +743,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlNullIf.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.NullIf.Label"));
     wlNullIf.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.NullIf.Tooltip"));
-    props.setLook(wlNullIf);
+    PropsUi.setLook(wlNullIf);
     FormData fdlNullIf = new FormData();
     fdlNullIf.left = new FormAttachment(0, 0);
     fdlNullIf.top = new FormAttachment(wTrimWhitespace, margin);
@@ -748,7 +751,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlNullIf.setLayoutData(fdlNullIf);
 
     wNullIf = new TextVar(variables, gCsvGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wNullIf);
+    PropsUi.setLook(wNullIf);
     wNullIf.addModifyListener(lsMod);
     FormData fdNullIf = new FormData();
     fdNullIf.left = new FormAttachment(middle, 0);
@@ -762,7 +765,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.ColumnMismatch.Label"));
     wlColumnMismatch.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.ColumnMismatch.Tooltip"));
-    props.setLook(wlColumnMismatch);
+    PropsUi.setLook(wlColumnMismatch);
     FormData fdlColumnMismatch = new FormData();
     fdlColumnMismatch.left = new FormAttachment(0, 0);
     fdlColumnMismatch.top = new FormAttachment(wNullIf, margin);
@@ -770,7 +773,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlColumnMismatch.setLayoutData(fdlColumnMismatch);
 
     wColumnMismatch = new Button(gCsvGroup, SWT.CHECK);
-    props.setLook(wColumnMismatch);
+    PropsUi.setLook(wColumnMismatch);
     FormData fdColumnMismatch = new FormData();
     fdColumnMismatch.left = new FormAttachment(middle, 0);
     fdColumnMismatch.top = new FormAttachment(wNullIf, margin);
@@ -791,7 +794,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     jsonLayout.marginWidth = 3;
     jsonLayout.marginHeight = 3;
     gJsonGroup.setLayout(jsonLayout);
-    props.setLook(gJsonGroup);
+    PropsUi.setLook(gJsonGroup);
 
     FormData fdgJsonGroup = new FormData();
     fdgJsonGroup.left = new FormAttachment(0, 0);
@@ -805,7 +808,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlStripNull.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.StripNull.Label"));
     wlStripNull.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.StripNull.Tooltip"));
-    props.setLook(wlStripNull);
+    PropsUi.setLook(wlStripNull);
     FormData fdlStripNull = new FormData();
     fdlStripNull.left = new FormAttachment(0, 0);
     fdlStripNull.top = new FormAttachment(0, margin);
@@ -813,7 +816,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlStripNull.setLayoutData(fdlStripNull);
 
     wStripNull = new Button(gJsonGroup, SWT.CHECK);
-    props.setLook(wStripNull);
+    PropsUi.setLook(wStripNull);
     FormData fdStripNull = new FormData();
     fdStripNull.left = new FormAttachment(middle, 0);
     fdStripNull.top = new FormAttachment(0, margin);
@@ -827,7 +830,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.IgnoreUtf8.Label"));
     wlIgnoreUtf8.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.IgnoreUtf8.Tooltip"));
-    props.setLook(wlIgnoreUtf8);
+    PropsUi.setLook(wlIgnoreUtf8);
     FormData fdlIgnoreUtf8 = new FormData();
     fdlIgnoreUtf8.left = new FormAttachment(0, 0);
     fdlIgnoreUtf8.top = new FormAttachment(wStripNull, margin);
@@ -835,7 +838,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlIgnoreUtf8.setLayoutData(fdlIgnoreUtf8);
 
     wIgnoreUtf8 = new Button(gJsonGroup, SWT.CHECK);
-    props.setLook(wIgnoreUtf8);
+    PropsUi.setLook(wIgnoreUtf8);
     FormData fdIgnoreUtf8 = new FormData();
     fdIgnoreUtf8.left = new FormAttachment(middle, 0);
     fdIgnoreUtf8.top = new FormAttachment(wStripNull, margin);
@@ -849,7 +852,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.AllowDuplicate.Label"));
     wlAllowDuplicate.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.AllowDuplicate.Tooltip"));
-    props.setLook(wlAllowDuplicate);
+    PropsUi.setLook(wlAllowDuplicate);
     FormData fdlAllowDuplicate = new FormData();
     fdlAllowDuplicate.left = new FormAttachment(0, 0);
     fdlAllowDuplicate.top = new FormAttachment(wIgnoreUtf8, margin);
@@ -857,7 +860,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlAllowDuplicate.setLayoutData(fdlAllowDuplicate);
 
     wAllowDuplicate = new Button(gJsonGroup, SWT.CHECK);
-    props.setLook(wAllowDuplicate);
+    PropsUi.setLook(wAllowDuplicate);
     FormData fdAllowDuplicate = new FormData();
     fdAllowDuplicate.left = new FormAttachment(middle, 0);
     fdAllowDuplicate.top = new FormAttachment(wIgnoreUtf8, margin);
@@ -871,7 +874,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.EnableOctal.Label"));
     wlEnableOctal.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.EnableOctal.Tooltip"));
-    props.setLook(wlEnableOctal);
+    PropsUi.setLook(wlEnableOctal);
     FormData fdlEnableOctal = new FormData();
     fdlEnableOctal.left = new FormAttachment(0, 0);
     fdlEnableOctal.top = new FormAttachment(wAllowDuplicate, margin);
@@ -879,7 +882,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wlEnableOctal.setLayoutData(fdlEnableOctal);
 
     wEnableOctal = new Button(gJsonGroup, SWT.CHECK);
-    props.setLook(wEnableOctal);
+    PropsUi.setLook(wEnableOctal);
     FormData fdEnableOctal = new FormData();
     fdEnableOctal.left = new FormAttachment(middle, 0);
     fdEnableOctal.top = new FormAttachment(wAllowDuplicate, margin);
@@ -912,11 +915,12 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
      * ******************************************/
 
     CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wFieldsTab.setText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.FieldsTab.TabTitle"));
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFieldsComp);
+    PropsUi.setLook(wFieldsComp);
 
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = 3;
@@ -930,7 +934,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wSpecifyFields.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.SpecifyFields.Tooltip"));
 
-    props.setLook(wSpecifyFields);
+    PropsUi.setLook(wSpecifyFields);
     FormData fdSpecifyFields = new FormData();
     fdSpecifyFields.left = new FormAttachment(0, 0);
     fdSpecifyFields.top = new FormAttachment(0, margin);
@@ -1001,7 +1005,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     //
     wlJsonField = new Label(wFieldsComp, SWT.RIGHT);
     wlJsonField.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.JsonField.Label"));
-    props.setLook(wlJsonField);
+    PropsUi.setLook(wlJsonField);
     FormData fdlJsonField = new FormData();
     fdlJsonField.left = new FormAttachment(0, 0);
     fdlJsonField.top = new FormAttachment(0, margin);
@@ -1010,7 +1014,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
 
     wJsonField = new CCombo(wFieldsComp, SWT.BORDER | SWT.READ_ONLY);
     wJsonField.setEditable(false);
-    props.setLook(wJsonField);
+    PropsUi.setLook(wJsonField);
     wJsonField.addModifyListener(lsMod);
     FormData fdJsonField = new FormData();
     fdJsonField.left = new FormAttachment(middle, 0);

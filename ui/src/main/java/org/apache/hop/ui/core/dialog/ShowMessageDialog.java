@@ -141,7 +141,7 @@ public class ShowMessageDialog extends Dialog {
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
 
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     formLayout = new FormLayout();
@@ -178,7 +178,7 @@ public class ShowMessageDialog extends Dialog {
 
     if (hasIcon) {
       wIcon = new Label(shell, SWT.NONE);
-      props.setLook(wIcon);
+      PropsUi.setLook(wIcon);
       wIcon.setImage(image);
       FormData fdIcon = new FormData();
       fdIcon.left = new FormAttachment(0, 0);
@@ -202,7 +202,7 @@ public class ShowMessageDialog extends Dialog {
     }
 
     wlDesc.setText(message);
-    props.setLook(wlDesc);
+    PropsUi.setLook(wlDesc);
 
     wlDesc.setLayoutData(fdlDesc);
 

@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -73,7 +74,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -92,14 +93,14 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionPing.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -110,7 +111,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     // hostname line
     Label wlHostname = new Label(shell, SWT.RIGHT);
     wlHostname.setText(BaseMessages.getString(PKG, "ActionPing.Hostname.Label"));
-    props.setLook(wlHostname);
+    PropsUi.setLook(wlHostname);
     FormData fdlHostname = new FormData();
     fdlHostname.left = new FormAttachment(0, 0);
     fdlHostname.top = new FormAttachment(wName, margin);
@@ -118,7 +119,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     wlHostname.setLayoutData(fdlHostname);
 
     wHostname = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wHostname);
+    PropsUi.setLook(wHostname);
     wHostname.addModifyListener(lsMod);
     FormData fdHostname = new FormData();
     fdHostname.left = new FormAttachment(middle, 0);
@@ -132,7 +133,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
 
     Label wlPingType = new Label(shell, SWT.RIGHT);
     wlPingType.setText(BaseMessages.getString(PKG, "ActionPing.PingType.Label"));
-    props.setLook(wlPingType);
+    PropsUi.setLook(wlPingType);
     FormData fdlPingType = new FormData();
     fdlPingType.left = new FormAttachment(0, 0);
     fdlPingType.right = new FormAttachment(middle, 0);
@@ -143,7 +144,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     wPingType.add(BaseMessages.getString(PKG, "ActionPing.SystemPing.Label"));
     wPingType.add(BaseMessages.getString(PKG, "ActionPing.BothPings.Label"));
     wPingType.select(1); // +1: starts at -1
-    props.setLook(wPingType);
+    PropsUi.setLook(wPingType);
     FormData fdPingType = new FormData();
     fdPingType.left = new FormAttachment(middle, 0);
     fdPingType.top = new FormAttachment(wHostname, margin);
@@ -161,7 +162,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     // Timeout
     wlTimeOut = new Label(shell, SWT.RIGHT);
     wlTimeOut.setText(BaseMessages.getString(PKG, "ActionPing.TimeOut.Label"));
-    props.setLook(wlTimeOut);
+    PropsUi.setLook(wlTimeOut);
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, 0);
     fdlTimeOut.right = new FormAttachment(middle, 0);
@@ -170,7 +171,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
 
     wTimeOut = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wlTimeOut.setToolTipText(BaseMessages.getString(PKG, "ActionPing.TimeOut.Tooltip"));
-    props.setLook(wTimeOut);
+    PropsUi.setLook(wTimeOut);
     wTimeOut.addModifyListener(lsMod);
     FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment(middle, 0);
@@ -181,7 +182,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     // Nbr packets to send
     wlNbrPackets = new Label(shell, SWT.RIGHT);
     wlNbrPackets.setText(BaseMessages.getString(PKG, "ActionPing.NrPackets.Label"));
-    props.setLook(wlNbrPackets);
+    PropsUi.setLook(wlNbrPackets);
     FormData fdlNbrPackets = new FormData();
     fdlNbrPackets.left = new FormAttachment(0, 0);
     fdlNbrPackets.right = new FormAttachment(middle, 0);
@@ -189,7 +190,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     wlNbrPackets.setLayoutData(fdlNbrPackets);
 
     wNbrPackets = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wNbrPackets);
+    PropsUi.setLook(wNbrPackets);
     wNbrPackets.addModifyListener(lsMod);
     FormData fdNbrPackets = new FormData();
     fdNbrPackets.left = new FormAttachment(middle, 0);

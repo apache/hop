@@ -112,7 +112,7 @@ public class EnterTextDialog extends Dialog {
                 | SWT.MAX
                 | SWT.MIN
                 | (modal ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE));
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
@@ -143,7 +143,7 @@ public class EnterTextDialog extends Dialog {
     // From transform line
     wlDesc = new Label(shell, SWT.NONE);
     wlDesc.setText(message);
-    props.setLook(wlDesc);
+    PropsUi.setLook(wlDesc);
     FormData fdlDesc = new FormData();
     fdlDesc.left = new FormAttachment(0, 0);
     fdlDesc.top = new FormAttachment(0, margin);
@@ -157,9 +157,9 @@ public class EnterTextDialog extends Dialog {
 
     wDesc.setText("");
     if (fixed) {
-      props.setLook(wDesc, Props.WIDGET_STYLE_FIXED);
+      PropsUi.setLook(wDesc, Props.WIDGET_STYLE_FIXED);
     } else {
-      props.setLook(wDesc);
+      PropsUi.setLook(wDesc);
     }
     FormData fdDesc = new FormData();
     fdDesc.left = new FormAttachment(0, 0);

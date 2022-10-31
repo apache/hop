@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -80,7 +81,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -124,7 +125,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "StreamLookupDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -132,7 +133,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -143,14 +144,14 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     // Lookup transform line...
     Label wlTransform = new Label(shell, SWT.RIGHT);
     wlTransform.setText(BaseMessages.getString(PKG, "StreamLookupDialog.LookupTransform.Label"));
-    props.setLook(wlTransform);
+    PropsUi.setLook(wlTransform);
     FormData fdlTransform = new FormData();
     fdlTransform.left = new FormAttachment(0, 0);
     fdlTransform.right = new FormAttachment(middle, -margin);
     fdlTransform.top = new FormAttachment(wTransformName, margin * 2);
     wlTransform.setLayoutData(fdlTransform);
     wTransform = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransform);
+    PropsUi.setLook(wTransform);
 
     List<TransformMeta> previousTransforms =
         pipelineMeta.findPreviousTransforms(transformMeta, true);
@@ -170,7 +171,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
 
     Label wlKey = new Label(shell, SWT.NONE);
     wlKey.setText(BaseMessages.getString(PKG, "StreamLookupDialog.Key.Label"));
-    props.setLook(wlKey);
+    PropsUi.setLook(wlKey);
     FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment(0, 0);
     fdlKey.top = new FormAttachment(wTransform, margin);
@@ -212,7 +213,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
 
     Label wlSortedList = new Label(shell, SWT.RIGHT);
     wlSortedList.setText(BaseMessages.getString(PKG, "StreamLookupDialog.SortedList.Label"));
-    props.setLook(wlSortedList);
+    PropsUi.setLook(wlSortedList);
     FormData fdlSortedList = new FormData();
     fdlSortedList.left = new FormAttachment(0, 0);
     fdlSortedList.bottom = new FormAttachment(wOk, -2 * margin);
@@ -220,7 +221,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     wlSortedList.setLayoutData(fdlSortedList);
     wSortedList = new Button(shell, SWT.RADIO);
     wSortedList.setEnabled(false);
-    props.setLook(wSortedList);
+    PropsUi.setLook(wSortedList);
     FormData fdSortedList = new FormData();
     fdSortedList.left = new FormAttachment(middle, 0);
     fdSortedList.top = new FormAttachment(wlSortedList, 0, SWT.CENTER);
@@ -236,7 +237,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
 
     Label wlIntegerPair = new Label(shell, SWT.RIGHT);
     wlIntegerPair.setText(BaseMessages.getString(PKG, "StreamLookupDialog.IntegerPair.Label"));
-    props.setLook(wlIntegerPair);
+    PropsUi.setLook(wlIntegerPair);
     FormData fdlIntegerPair = new FormData();
     fdlIntegerPair.left = new FormAttachment(0, 0);
     fdlIntegerPair.bottom = new FormAttachment(wSortedList, -margin);
@@ -244,7 +245,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     wlIntegerPair.setLayoutData(fdlIntegerPair);
     wIntegerPair = new Button(shell, SWT.RADIO);
     wIntegerPair.setEnabled(false);
-    props.setLook(wIntegerPair);
+    PropsUi.setLook(wIntegerPair);
     FormData fdIntegerPair = new FormData();
     fdIntegerPair.left = new FormAttachment(middle, 0);
     fdIntegerPair.top = new FormAttachment(wlIntegerPair, 0, SWT.CENTER);
@@ -261,14 +262,14 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     Label wlPreserveMemory = new Label(shell, SWT.RIGHT);
     wlPreserveMemory.setText(
         BaseMessages.getString(PKG, "StreamLookupDialog.PreserveMemory.Label"));
-    props.setLook(wlPreserveMemory);
+    PropsUi.setLook(wlPreserveMemory);
     FormData fdlPreserveMemory = new FormData();
     fdlPreserveMemory.left = new FormAttachment(0, 0);
     fdlPreserveMemory.bottom = new FormAttachment(wlIntegerPair, -margin);
     fdlPreserveMemory.right = new FormAttachment(middle, -margin);
     wlPreserveMemory.setLayoutData(fdlPreserveMemory);
     wPreserveMemory = new Button(shell, SWT.CHECK);
-    props.setLook(wPreserveMemory);
+    PropsUi.setLook(wPreserveMemory);
     FormData fdPreserveMemory = new FormData();
     fdPreserveMemory.left = new FormAttachment(middle, 0);
     fdPreserveMemory.top = new FormAttachment(wlPreserveMemory, 0, SWT.CENTER);
@@ -293,7 +294,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     // THE UPDATE/INSERT TABLE
     Label wlReturn = new Label(shell, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "StreamLookupDialog.ReturnFields.Label"));
-    props.setLook(wlReturn);
+    PropsUi.setLook(wlReturn);
     FormData fdlReturn = new FormData();
     fdlReturn.left = new FormAttachment(0, 0);
     fdlReturn.top = new FormAttachment(wKey, margin);

@@ -66,7 +66,7 @@ public class TransformDebugLevelDialog extends Dialog {
   public boolean open() {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageServer());
 
     int middle = props.getMiddlePct();
@@ -81,7 +81,7 @@ public class TransformDebugLevelDialog extends Dialog {
 
     // The name
     Label wlName = new Label(shell, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText("Log level to set ");
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin);
@@ -90,7 +90,7 @@ public class TransformDebugLevelDialog extends Dialog {
     wlName.setLayoutData(fdlName);
     wLogLevel = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wLogLevel.setItems(LogLevel.getLogLevelDescriptions());
-    props.setLook(wLogLevel);
+    PropsUi.setLook(wLogLevel);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, 0); // To the right of the label
@@ -100,7 +100,7 @@ public class TransformDebugLevelDialog extends Dialog {
 
     // Start row option
     Label wlStartRow = new Label(shell, SWT.RIGHT);
-    props.setLook(wlStartRow);
+    PropsUi.setLook(wlStartRow);
     wlStartRow.setText("Start row ");
     FormData fdlStartRow = new FormData();
     fdlStartRow.top = new FormAttachment(lastControl, margin);
@@ -108,7 +108,7 @@ public class TransformDebugLevelDialog extends Dialog {
     fdlStartRow.right = new FormAttachment(middle, -margin);
     wlStartRow.setLayoutData(fdlStartRow);
     wStartRow = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wStartRow);
+    PropsUi.setLook(wStartRow);
     FormData fdStartRow = new FormData();
     fdStartRow.top = new FormAttachment(wlStartRow, 0, SWT.CENTER);
     fdStartRow.left = new FormAttachment(middle, 0); // To the right of the label
@@ -118,7 +118,7 @@ public class TransformDebugLevelDialog extends Dialog {
 
     // End row
     Label wlEndRow = new Label(shell, SWT.RIGHT);
-    props.setLook(wlEndRow);
+    PropsUi.setLook(wlEndRow);
     wlEndRow.setText("End row ");
     FormData fdlEndRow = new FormData();
     fdlEndRow.top = new FormAttachment(lastControl, margin);
@@ -126,7 +126,7 @@ public class TransformDebugLevelDialog extends Dialog {
     fdlEndRow.right = new FormAttachment(middle, -margin);
     wlEndRow.setLayoutData(fdlEndRow);
     wEndRow = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wEndRow);
+    PropsUi.setLook(wEndRow);
     FormData fdEndRow = new FormData();
     fdEndRow.top = new FormAttachment(wlEndRow, 0, SWT.CENTER);
     fdEndRow.left = new FormAttachment(middle, 0); // To the right of the label
@@ -149,7 +149,7 @@ public class TransformDebugLevelDialog extends Dialog {
     // Condition
     Label wlCondition = new Label(shell, SWT.RIGHT);
     wlCondition.setText("Condition : ");
-    props.setLook(wlCondition);
+    PropsUi.setLook(wlCondition);
     FormData fdlCondition = new FormData();
     fdlCondition.top = new FormAttachment(lastControl, margin);
     fdlCondition.left = new FormAttachment(0, 0);
@@ -157,7 +157,7 @@ public class TransformDebugLevelDialog extends Dialog {
     wlCondition.setLayoutData(fdlCondition);
     ConditionEditor wCondition =
         new ConditionEditor(shell, SWT.NONE, debugLevel.getCondition(), inputRowMeta);
-    props.setLook(wCondition);
+    PropsUi.setLook(wCondition);
     FormData fdCondition = new FormData();
     fdCondition.top = new FormAttachment(lastControl, margin);
     fdCondition.left = new FormAttachment(middle, 0);

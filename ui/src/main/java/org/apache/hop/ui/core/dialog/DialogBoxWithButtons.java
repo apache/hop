@@ -68,7 +68,7 @@ public class DialogBoxWithButtons {
     shell.setLayout(formLayout);
 
     Label wLabel = new Label(shell, SWT.CENTER | SWT.WRAP);
-    props.setLook(wLabel);
+    PropsUi.setLook(wLabel);
     wLabel.setText(Const.NVL(message, ""));
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment(0, 0);
@@ -80,7 +80,7 @@ public class DialogBoxWithButtons {
     for (int i = 0; i < buttonLabels.length; i++) {
       String buttonLabel = buttonLabels[i];
       Button button = new Button(shell, SWT.PUSH);
-      props.setLook(button);
+      PropsUi.setLook(button);
       button.setText(Const.NVL(buttonLabel, ""));
       buttons.add(button);
       final int index = i;

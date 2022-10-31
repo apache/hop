@@ -58,7 +58,7 @@ public class TreeToolbar extends Composite {
     sep3.setLayoutData(fdSep3);
 
     ToolBar treeTb = new ToolBar(this, SWT.HORIZONTAL | SWT.FLAT);
-    props.setLook(treeTb, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(treeTb, Props.WIDGET_STYLE_TOOLBAR);
     /*
      This contains a map with all the unnamed pipeline (just a filename)
     */
@@ -77,7 +77,7 @@ public class TreeToolbar extends Composite {
     treeTb.setLayoutData(fdTreeToolbar);
 
     ToolBar selectionFilterTb = new ToolBar(this, SWT.HORIZONTAL | SWT.FLAT);
-    props.setLook(selectionFilterTb, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(selectionFilterTb, Props.WIDGET_STYLE_TOOLBAR);
 
     ToolItem clearSelectionFilter = new ToolItem(selectionFilterTb, SWT.PUSH);
     clearSelectionFilter.setImage(GuiResource.getInstance().getImageClearText());

@@ -32,6 +32,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -79,7 +80,7 @@ public class ParquetInputDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
@@ -107,7 +108,7 @@ public class ParquetInputDialog extends BaseTransformDialog implements ITransfor
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "ParquetInputDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -115,7 +116,7 @@ public class ParquetInputDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -125,14 +126,14 @@ public class ParquetInputDialog extends BaseTransformDialog implements ITransfor
 
     Label wlFilenameField = new Label(shell, SWT.RIGHT);
     wlFilenameField.setText(BaseMessages.getString(PKG, "ParquetInputDialog.FilenameField.Label"));
-    props.setLook(wlFilenameField);
+    PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, 0);
     fdlFilenameField.right = new FormAttachment(middle, -margin);
     fdlFilenameField.top = new FormAttachment(lastControl, margin);
     wlFilenameField.setLayoutData(fdlFilenameField);
     wFilenameField = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilenameField);
+    PropsUi.setLook(wFilenameField);
     FormData fdFilenameField = new FormData();
     fdFilenameField.left = new FormAttachment(middle, 0);
     fdFilenameField.top = new FormAttachment(wlFilenameField, 0, SWT.CENTER);
@@ -142,7 +143,7 @@ public class ParquetInputDialog extends BaseTransformDialog implements ITransfor
 
     Label wlFields = new Label(shell, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "ParquetInputDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
@@ -183,7 +184,7 @@ public class ParquetInputDialog extends BaseTransformDialog implements ITransfor
     wFields =
         new TableView(
             variables, shell, SWT.BORDER, columns, input.getFields().size(), false, null, props);
-    props.setLook(wFields);
+    PropsUi.setLook(wFields);
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);

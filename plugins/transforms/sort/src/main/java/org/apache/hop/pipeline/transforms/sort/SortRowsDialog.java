@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.CheckBoxVar;
@@ -82,7 +83,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -101,7 +102,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -109,7 +110,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -120,7 +121,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     // Temp directory for sorting
     Label wlSortDir = new Label(shell, SWT.RIGHT);
     wlSortDir.setText(BaseMessages.getString(PKG, "SortRowsDialog.SortDir.Label"));
-    props.setLook(wlSortDir);
+    PropsUi.setLook(wlSortDir);
     FormData fdlSortDir = new FormData();
     fdlSortDir.left = new FormAttachment(0, 0);
     fdlSortDir.right = new FormAttachment(middle, -margin);
@@ -128,7 +129,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     wlSortDir.setLayoutData(fdlSortDir);
 
     Button wbSortDir = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSortDir);
+    PropsUi.setLook(wbSortDir);
     wbSortDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSortDir = new FormData();
     fdbSortDir.right = new FormAttachment(100, 0);
@@ -136,7 +137,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     wbSortDir.setLayoutData(fdbSortDir);
 
     wSortDir = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSortDir);
+    PropsUi.setLook(wSortDir);
     wSortDir.addModifyListener(lsMod);
     FormData fdSortDir = new FormData();
     fdSortDir.left = new FormAttachment(middle, 0);
@@ -153,14 +154,14 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     // Prefix of temporary file
     Label wlPrefix = new Label(shell, SWT.RIGHT);
     wlPrefix.setText(BaseMessages.getString(PKG, "SortRowsDialog.Prefix.Label"));
-    props.setLook(wlPrefix);
+    PropsUi.setLook(wlPrefix);
     FormData fdlPrefix = new FormData();
     fdlPrefix.left = new FormAttachment(0, 0);
     fdlPrefix.right = new FormAttachment(middle, -margin);
     fdlPrefix.top = new FormAttachment(wbSortDir, margin * 2);
     wlPrefix.setLayoutData(fdlPrefix);
     wPrefix = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPrefix);
+    PropsUi.setLook(wPrefix);
     wPrefix.addModifyListener(lsMod);
     FormData fdPrefix = new FormData();
     fdPrefix.left = new FormAttachment(middle, 0);
@@ -172,14 +173,14 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     // Maximum number of lines to keep in memory before using temporary files
     Label wlSortSize = new Label(shell, SWT.RIGHT);
     wlSortSize.setText(BaseMessages.getString(PKG, "SortRowsDialog.SortSize.Label"));
-    props.setLook(wlSortSize);
+    PropsUi.setLook(wlSortSize);
     FormData fdlSortSize = new FormData();
     fdlSortSize.left = new FormAttachment(0, 0);
     fdlSortSize.right = new FormAttachment(middle, -margin);
     fdlSortSize.top = new FormAttachment(wPrefix, margin * 2);
     wlSortSize.setLayoutData(fdlSortSize);
     wSortSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSortSize);
+    PropsUi.setLook(wSortSize);
     wSortSize.addModifyListener(lsMod);
     FormData fdSortSize = new FormData();
     fdSortSize.left = new FormAttachment(middle, 0);
@@ -191,7 +192,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     Label wlFreeMemory = new Label(shell, SWT.RIGHT);
     wlFreeMemory.setText(BaseMessages.getString(PKG, "SortRowsDialog.FreeMemory.Label"));
     wlFreeMemory.setToolTipText(BaseMessages.getString(PKG, "SortRowsDialog.FreeMemory.ToolTip"));
-    props.setLook(wlFreeMemory);
+    PropsUi.setLook(wlFreeMemory);
     FormData fdlFreeMemory = new FormData();
     fdlFreeMemory.left = new FormAttachment(0, 0);
     fdlFreeMemory.right = new FormAttachment(middle, -margin);
@@ -199,7 +200,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     wlFreeMemory.setLayoutData(fdlFreeMemory);
     wFreeMemory = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFreeMemory.setToolTipText(BaseMessages.getString(PKG, "SortRowsDialog.FreeMemory.ToolTip"));
-    props.setLook(wFreeMemory);
+    PropsUi.setLook(wFreeMemory);
     wFreeMemory.addModifyListener(lsMod);
     FormData fdFreeMemory = new FormData();
     fdFreeMemory.left = new FormAttachment(middle, 0);
@@ -210,14 +211,14 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     // Using compression for temporary files?
     Label wlCompress = new Label(shell, SWT.RIGHT);
     wlCompress.setText(BaseMessages.getString(PKG, "SortRowsDialog.Compress.Label"));
-    props.setLook(wlCompress);
+    PropsUi.setLook(wlCompress);
     FormData fdlCompress = new FormData();
     fdlCompress.left = new FormAttachment(0, 0);
     fdlCompress.right = new FormAttachment(middle, -margin);
     fdlCompress.top = new FormAttachment(wFreeMemory, margin * 2);
     wlCompress.setLayoutData(fdlCompress);
     wCompress = new CheckBoxVar(variables, shell, SWT.CHECK, "");
-    props.setLook(wCompress);
+    PropsUi.setLook(wCompress);
     FormData fdCompress = new FormData();
     fdCompress.left = new FormAttachment(middle, 0);
     fdCompress.top = new FormAttachment(wlCompress, 0, SWT.CENTER);
@@ -236,7 +237,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     // Using compression for temporary files?
     Label wlUniqueRows = new Label(shell, SWT.RIGHT);
     wlUniqueRows.setText(BaseMessages.getString(PKG, "SortRowsDialog.UniqueRows.Label"));
-    props.setLook(wlUniqueRows);
+    PropsUi.setLook(wlUniqueRows);
     FormData fdlUniqueRows = new FormData();
     fdlUniqueRows.left = new FormAttachment(0, 0);
     fdlUniqueRows.right = new FormAttachment(middle, -margin);
@@ -244,7 +245,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     wlUniqueRows.setLayoutData(fdlUniqueRows);
     wUniqueRows = new Button(shell, SWT.CHECK);
     wUniqueRows.setToolTipText(BaseMessages.getString(PKG, "SortRowsDialog.UniqueRows.Tooltip"));
-    props.setLook(wUniqueRows);
+    PropsUi.setLook(wUniqueRows);
     FormData fdUniqueRows = new FormData();
     fdUniqueRows.left = new FormAttachment(middle, 0);
     fdUniqueRows.top = new FormAttachment(wlUniqueRows, 0, SWT.CENTER);
@@ -266,7 +267,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     // Table with fields to sort and sort direction
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "SortRowsDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wUniqueRows, margin);

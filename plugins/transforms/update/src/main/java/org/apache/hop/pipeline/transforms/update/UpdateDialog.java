@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -103,7 +104,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -135,7 +136,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "UpdateDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -143,7 +144,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -159,7 +160,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     // Schema line...
     Label wlSchema = new Label(shell, SWT.RIGHT);
     wlSchema.setText(BaseMessages.getString(PKG, "UpdateDialog.TargetSchema.Label"));
-    props.setLook(wlSchema);
+    PropsUi.setLook(wlSchema);
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
@@ -167,7 +168,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     wlSchema.setLayoutData(fdlSchema);
 
     Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSchema);
+    PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
@@ -175,7 +176,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     wbSchema.setLayoutData(fdbSchema);
 
     wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSchema);
+    PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsTableMod);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
@@ -186,7 +187,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     // Table line...
     Label wlTable = new Label(shell, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "UpdateDialog.TargetTable.Label"));
-    props.setLook(wlTable);
+    PropsUi.setLook(wlTable);
     FormData fdlTable = new FormData();
     fdlTable.left = new FormAttachment(0, 0);
     fdlTable.right = new FormAttachment(middle, -margin);
@@ -194,7 +195,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     wlTable.setLayoutData(fdlTable);
 
     Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTable);
+    PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString(PKG, "UpdateDialog.Browse.Button"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
@@ -202,7 +203,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     wbTable.setLayoutData(fdbTable);
 
     wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTable);
+    PropsUi.setLook(wTable);
     wTable.addModifyListener(lsTableMod);
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(middle, 0);
@@ -213,14 +214,14 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     // Commit line
     Label wlCommit = new Label(shell, SWT.RIGHT);
     wlCommit.setText(BaseMessages.getString(PKG, "UpdateDialog..Commit.Label"));
-    props.setLook(wlCommit);
+    PropsUi.setLook(wlCommit);
     FormData fdlCommit = new FormData();
     fdlCommit.left = new FormAttachment(0, 0);
     fdlCommit.top = new FormAttachment(wTable, margin);
     fdlCommit.right = new FormAttachment(middle, -margin);
     wlCommit.setLayoutData(fdlCommit);
     wCommit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCommit);
+    PropsUi.setLook(wCommit);
     wCommit.addModifyListener(lsMod);
     FormData fdCommit = new FormData();
     fdCommit.left = new FormAttachment(middle, 0);
@@ -231,14 +232,14 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     // Batch update
     Label wlBatch = new Label(shell, SWT.RIGHT);
     wlBatch.setText(BaseMessages.getString(PKG, "UpdateDialog.Batch.Label"));
-    props.setLook(wlBatch);
+    PropsUi.setLook(wlBatch);
     FormData fdlBatch = new FormData();
     fdlBatch.left = new FormAttachment(0, 0);
     fdlBatch.top = new FormAttachment(wCommit, margin);
     fdlBatch.right = new FormAttachment(middle, -margin);
     wlBatch.setLayoutData(fdlBatch);
     wBatch = new Button(shell, SWT.CHECK);
-    props.setLook(wBatch);
+    PropsUi.setLook(wBatch);
     FormData fdBatch = new FormData();
     fdBatch.left = new FormAttachment(middle, 0);
     fdBatch.top = new FormAttachment(wlBatch, 0, SWT.CENTER);
@@ -256,7 +257,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     // UsePart update
     Label wlSkipLookup = new Label(shell, SWT.RIGHT);
     wlSkipLookup.setText(BaseMessages.getString(PKG, "UpdateDialog.SkipLookup.Label"));
-    props.setLook(wlSkipLookup);
+    PropsUi.setLook(wlSkipLookup);
     FormData fdlSkipLookup = new FormData();
     fdlSkipLookup.left = new FormAttachment(0, 0);
     fdlSkipLookup.top = new FormAttachment(wBatch, margin);
@@ -264,7 +265,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     wlSkipLookup.setLayoutData(fdlSkipLookup);
     wSkipLookup = new Button(shell, SWT.CHECK);
     wSkipLookup.setToolTipText(BaseMessages.getString(PKG, "UpdateDialog.SkipLookup.Tooltip"));
-    props.setLook(wSkipLookup);
+    PropsUi.setLook(wSkipLookup);
     FormData fdSkipLookup = new FormData();
     fdSkipLookup.left = new FormAttachment(middle, 0);
     fdSkipLookup.top = new FormAttachment(wlSkipLookup, 0, SWT.CENTER);
@@ -281,14 +282,14 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
 
     wlErrorIgnored = new Label(shell, SWT.RIGHT);
     wlErrorIgnored.setText(BaseMessages.getString(PKG, "UpdateDialog.ErrorIgnored.Label"));
-    props.setLook(wlErrorIgnored);
+    PropsUi.setLook(wlErrorIgnored);
     FormData fdlErrorIgnored = new FormData();
     fdlErrorIgnored.left = new FormAttachment(0, 0);
     fdlErrorIgnored.top = new FormAttachment(wSkipLookup, margin);
     fdlErrorIgnored.right = new FormAttachment(middle, -margin);
     wlErrorIgnored.setLayoutData(fdlErrorIgnored);
     wErrorIgnored = new Button(shell, SWT.CHECK);
-    props.setLook(wErrorIgnored);
+    PropsUi.setLook(wErrorIgnored);
     wErrorIgnored.setToolTipText(BaseMessages.getString(PKG, "UpdateDialog.ErrorIgnored.ToolTip"));
     FormData fdErrorIgnored = new FormData();
     fdErrorIgnored.left = new FormAttachment(middle, 0);
@@ -305,13 +306,13 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
 
     wlIgnoreFlagField = new Label(shell, SWT.LEFT);
     wlIgnoreFlagField.setText(BaseMessages.getString(PKG, "UpdateDialog.FlagField.Label"));
-    props.setLook(wlIgnoreFlagField);
+    PropsUi.setLook(wlIgnoreFlagField);
     FormData fdlIgnoreFlagField = new FormData();
     fdlIgnoreFlagField.left = new FormAttachment(wErrorIgnored, margin);
     fdlIgnoreFlagField.top = new FormAttachment(wSkipLookup, margin);
     wlIgnoreFlagField.setLayoutData(fdlIgnoreFlagField);
     wIgnoreFlagField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wIgnoreFlagField);
+    PropsUi.setLook(wIgnoreFlagField);
     wIgnoreFlagField.addModifyListener(lsMod);
     FormData fdIgnoreFlagField = new FormData();
     fdIgnoreFlagField.left = new FormAttachment(wlIgnoreFlagField, margin);
@@ -321,7 +322,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
 
     Label wlKey = new Label(shell, SWT.NONE);
     wlKey.setText(BaseMessages.getString(PKG, "UpdateDialog.Key.Label"));
-    props.setLook(wlKey);
+    PropsUi.setLook(wlKey);
     FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment(0, 0);
     fdlKey.top = new FormAttachment(wIgnoreFlagField, margin);
@@ -407,7 +408,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     // THE UPDATE/INSERT TABLE
     Label wlReturn = new Label(shell, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "UpdateDialog.Return.Label"));
-    props.setLook(wlReturn);
+    PropsUi.setLook(wlReturn);
     FormData fdlReturn = new FormData();
     fdlReturn.left = new FormAttachment(0, 0);
     fdlReturn.top = new FormAttachment(wKey, margin);

@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -90,7 +91,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -119,14 +120,14 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -140,7 +141,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     //
 
     Group wgSettings = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(wgSettings);
+    PropsUi.setLook(wgSettings);
     wgSettings.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Settings.Label"));
 
     FormLayout groupLayout = new FormLayout();
@@ -151,14 +152,14 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     Label wlIncludeSubfolders = new Label(wgSettings, SWT.RIGHT);
     wlIncludeSubfolders.setText(
         BaseMessages.getString(PKG, "ActionAddResultFilenames.IncludeSubfolders.Label"));
-    props.setLook(wlIncludeSubfolders);
+    PropsUi.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
     fdlIncludeSubfolders.left = new FormAttachment(0, 0);
     fdlIncludeSubfolders.top = new FormAttachment(0, 2 * margin);
     fdlIncludeSubfolders.right = new FormAttachment(middle, -margin);
     wlIncludeSubfolders.setLayoutData(fdlIncludeSubfolders);
     wIncludeSubfolders = new Button(wgSettings, SWT.CHECK);
-    props.setLook(wIncludeSubfolders);
+    PropsUi.setLook(wIncludeSubfolders);
     wIncludeSubfolders.setToolTipText(
         BaseMessages.getString(PKG, "ActionAddResultFilenames.IncludeSubfolders.Tooltip"));
     FormData fdIncludeSubfolders = new FormData();
@@ -176,14 +177,14 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
 
     Label wlPrevious = new Label(wgSettings, SWT.RIGHT);
     wlPrevious.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Previous.Label"));
-    props.setLook(wlPrevious);
+    PropsUi.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
     fdlPrevious.top = new FormAttachment(wlIncludeSubfolders, 2 * margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wgSettings, SWT.CHECK);
-    props.setLook(wPrevious);
+    PropsUi.setLook(wPrevious);
     wPrevious.setSelection(action.isArgFromPrevious());
     wPrevious.setToolTipText(
         BaseMessages.getString(PKG, "ActionAddResultFilenames.Previous.Tooltip"));
@@ -205,14 +206,14 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     Label wlDeleteAllBefore = new Label(wgSettings, SWT.RIGHT);
     wlDeleteAllBefore.setText(
         BaseMessages.getString(PKG, "ActionAddResultFilenames.DeleteAllBefore.Label"));
-    props.setLook(wlDeleteAllBefore);
+    PropsUi.setLook(wlDeleteAllBefore);
     FormData fdlDeleteAllBefore = new FormData();
     fdlDeleteAllBefore.left = new FormAttachment(0, 0);
     fdlDeleteAllBefore.top = new FormAttachment(wlPrevious, 2 * margin);
     fdlDeleteAllBefore.right = new FormAttachment(middle, -margin);
     wlDeleteAllBefore.setLayoutData(fdlDeleteAllBefore);
     wDeleteAllBefore = new Button(wgSettings, SWT.CHECK);
-    props.setLook(wDeleteAllBefore);
+    PropsUi.setLook(wDeleteAllBefore);
     wDeleteAllBefore.setToolTipText(
         BaseMessages.getString(PKG, "ActionAddResultFilenames.DeleteAllBefore.Tooltip"));
     FormData fdDeleteAllBefore = new FormData();
@@ -241,7 +242,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     // Filename line
     wlFilename = new Label(shell, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(wgSettings, 2 * margin);
@@ -250,7 +251,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
 
     // Browse Source folders button ...
     wbDirectory = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbDirectory);
+    PropsUi.setLook(wbDirectory);
     wbDirectory.setText(
         BaseMessages.getString(PKG, "ActionAddResultFilenames.BrowseFolders.Label"));
     FormData fdbDirectory = new FormData();
@@ -262,7 +263,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
         SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wFilename, variables));
 
     wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbFilename);
+    PropsUi.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.BrowseFiles.Label"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
@@ -271,7 +272,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     wbFilename.setLayoutData(fdbFilename);
 
     wbaFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbaFilename);
+    PropsUi.setLook(wbaFilename);
     wbaFilename.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.FilenameAdd.Button"));
     FormData fdbaFilename = new FormData();
     fdbaFilename.right = new FormAttachment(wbFilename, -margin);
@@ -279,7 +280,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     wbaFilename.setLayoutData(fdbaFilename);
 
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -300,7 +301,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     // Filemask
     wlFilemask = new Label(shell, SWT.RIGHT);
     wlFilemask.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Wildcard.Label"));
-    props.setLook(wlFilemask);
+    PropsUi.setLook(wlFilemask);
     FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
     fdlFilemask.top = new FormAttachment(wFilename, margin);
@@ -312,7 +313,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
             shell,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionAddResultFilenames.Wildcard.Tooltip"));
-    props.setLook(wFilemask);
+    PropsUi.setLook(wFilemask);
     wFilemask.addModifyListener(lsMod);
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
@@ -322,7 +323,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
 
     wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
@@ -331,7 +332,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
 
     // Buttons to the right of the screen...
     wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdFilename);
+    PropsUi.setLook(wbdFilename);
     wbdFilename.setText(
         BaseMessages.getString(PKG, "ActionAddResultFilenames.FilenameDelete.Button"));
     wbdFilename.setToolTipText(
@@ -342,7 +343,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
     wbdFilename.setLayoutData(fdbdFilename);
 
     wbeFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeFilename);
+    PropsUi.setLook(wbeFilename);
     wbeFilename.setText(
         BaseMessages.getString(PKG, "ActionAddResultFilenames.FilenameEdit.Button"));
     wbeFilename.setToolTipText(

@@ -117,7 +117,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 
     composite = new Composite(parent, SWT.NONE);
     composite.setLayout(new FormLayout());
-    props.setLook(composite);
+    PropsUi.setLook(composite);
 
     FormData formData = new FormData();
     formData.left = new FormAttachment(0, 0);
@@ -132,12 +132,12 @@ public class HopPluginExplorePerspective implements IHopPerspective {
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(0, props.getMargin());
     label.setLayoutData(fdlFields);
-    props.setLook(label);
+    PropsUi.setLook(label);
 
     wPluginType = new Combo(composite, SWT.LEFT | SWT.READ_ONLY | SWT.BORDER);
     wPluginType.setItems(pluginsType);
     wPluginType.setText(selectedPluginType);
-    props.setLook(wPluginType);
+    PropsUi.setLook(wPluginType);
     FormData fdlSubject = new FormData();
     fdlSubject.left = new FormAttachment(label, props.getMargin());
     fdlSubject.top = new FormAttachment(label, 0, SWT.CENTER);
@@ -150,7 +150,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
             refresh();
           }
         });
-    props.setLook(wPluginType, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(wPluginType, Props.WIDGET_STYLE_TOOLBAR);
 
     IRowMeta rowMeta = metaMap.get(selectedPluginType);
     ColumnInfo[] colinf = new ColumnInfo[rowMeta.size()];

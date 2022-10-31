@@ -54,20 +54,15 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   protected Point area;
 
-  protected IScrollBar hori;
-  protected IScrollBar vert;
-
   protected List<AreaOwner> areaOwners;
 
-  protected Point offset;
+  protected DPoint offset;
   protected int iconSize;
   protected int miniIconSize;
   protected int gridSize;
   protected Rectangle selectionRectangle;
   protected int lineWidth;
   protected float magnification;
-  protected float translationX;
-  protected float translationY;
 
   protected Object subject;
   protected IVariables variables;
@@ -80,13 +75,18 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   protected Hop candidate;
 
+  protected Point maximum;
+  protected boolean showingNavigationView;
+  protected float screenMagnification;
+  protected Rectangle graphPort;
+  protected Rectangle viewPort;
+
   public BasePainter(
       IGc gc,
       IVariables variables,
       Object subject,
       Point area,
-      IScrollBar hori,
-      IScrollBar vert,
+      DPoint offset,
       Rectangle selectionRectangle,
       List<AreaOwner> areaOwners,
       int iconSize,
@@ -100,8 +100,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.variables = variables;
     this.subject = subject;
     this.area = area;
-    this.hori = hori;
-    this.vert = vert;
+    this.offset = offset;
 
     this.selectionRectangle = selectionRectangle;
 
@@ -121,6 +120,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
     this.noteFontName = noteFontName;
     this.noteFontHeight = noteFontHeight;
+
+    this.screenMagnification = 1.0f;
   }
 
   public static EImage getStreamIconImage(StreamIcon streamIcon, boolean enabled) {
@@ -236,60 +237,14 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
             notePadMeta));
   }
 
-  protected int translateTo1To1(int value) {
-    return Math.round(value / magnification);
-  }
-
-  protected int translateToCurrentScale(int value) {
-    return Math.round(value * magnification);
-  }
-
   protected Point real2screen(int x, int y) {
-    Point screen = new Point(x + offset.x, y + offset.y);
+    Point screen = new Point((int)(x + offset.x), (int)(y + offset.y));
 
     return screen;
   }
 
-  protected Point getThumb(Point area, Point pipelineMax) {
-    Point resizedMax = magnifyPoint(pipelineMax);
-
-    Point thumb = new Point(0, 0);
-    if (resizedMax.x <= area.x) {
-      thumb.x = 100;
-    } else {
-      thumb.x = (int) Math.floor(100d * area.x / resizedMax.x);
-    }
-
-    if (resizedMax.y <= area.y) {
-      thumb.y = 100;
-    } else {
-      thumb.y = (int) Math.floor(100d * area.y / resizedMax.y);
-    }
-
-    return thumb;
-  }
-
   protected Point magnifyPoint(Point p) {
     return new Point(Math.round(p.x * magnification), Math.round(p.y * magnification));
-  }
-
-  protected Point getOffset(Point thumb, Point area) {
-    Point p = new Point(0, 0);
-
-    if (hori == null || vert == null) {
-      return p;
-    }
-
-    Point sel = new Point(hori.getSelection(), vert.getSelection());
-
-    if (thumb.x == 0 || thumb.y == 0) {
-      return p;
-    }
-
-    p.x = Math.round(-sel.x * area.x / thumb.x / magnification);
-    p.y = Math.round(-sel.y * area.y / thumb.y / magnification);
-
-    return p;
   }
 
   protected void drawRect(Rectangle rect) {
@@ -315,21 +270,29 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     Point bounds = gc.getDeviceBounds();
     for (int x = 0; x < bounds.x; x += gridSize) {
       for (int y = 0; y < bounds.y; y += gridSize) {
-        gc.drawPoint(x + (offset.x % gridSize), y + (offset.y % gridSize));
+        gc.drawPoint((int)(x + (offset.x % gridSize)), (int)(y + (offset.y % gridSize)));
       }
     }
+  }
+
+  protected int round(double value) {
+    return (int)Math.round(value);
   }
 
   protected int calcArrowLength() {
     return 19 + (lineWidth - 1) * 5; // arrowhead length
   }
 
-  /** @return the magnification */
+  /**
+   * @return the magnification
+   */
   public float getMagnification() {
     return magnification;
   }
 
-  /** @param magnification the magnification to set */
+  /**
+   * @param magnification the magnification to set
+   */
   public void setMagnification(float magnification) {
     this.magnification = magnification;
   }
@@ -342,22 +305,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.area = area;
   }
 
-  public IScrollBar getHori() {
-    return hori;
-  }
-
-  public void setHori(IScrollBar hori) {
-    this.hori = hori;
-  }
-
-  public IScrollBar getVert() {
-    return vert;
-  }
-
-  public void setVert(IScrollBar vert) {
-    this.vert = vert;
-  }
-
   public List<AreaOwner> getAreaOwners() {
     return areaOwners;
   }
@@ -366,11 +313,11 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.areaOwners = areaOwners;
   }
 
-  public Point getOffset() {
+  public DPoint getOffset() {
     return offset;
   }
 
-  public void setOffset(Point offset) {
+  public void setOffset(DPoint offset) {
     this.offset = offset;
   }
 
@@ -404,22 +351,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   public void setLineWidth(int lineWidth) {
     this.lineWidth = lineWidth;
-  }
-
-  public float getTranslationX() {
-    return translationX;
-  }
-
-  public void setTranslationX(float translationX) {
-    this.translationX = translationX;
-  }
-
-  public float getTranslationY() {
-    return translationY;
-  }
-
-  public void setTranslationY(float translationY) {
-    this.translationY = translationY;
   }
 
   public Object getSubject() {
@@ -517,6 +448,77 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
       throws HopException;
 
   /**
+   * Draw a small rectangle at the bottom right of the screen which depicts the viewport as a part
+   * of the total size of the metadata graph. If the graph fits completely on the screen, the
+   * navigation view is not shown.
+   */
+  protected void drawNavigationView() {
+    if (!showingNavigationView || maximum == null) {
+      // Disabled or no maximum size available
+      return;
+    }
+
+    // Compensate the screen size for the current magnification
+    //
+    int areaWidth = (int) (area.x / magnification);
+    int areaHeight = (int) (area.y / magnification);
+
+    // We want to show a rectangle depicting the total area of the pipeline/workflow graph.
+    // As such the area needs to be a certain percentage its size.
+    // Let's take 25%.
+    //
+    double graphWidth = 25.0 * maximum.x / 100.0;
+    double graphHeight = 25.0 * maximum.y / 100.0;
+
+    // Position it in the bottom right corner of the screen
+    //
+    double graphX = area.x - graphWidth - 20.0;
+    double graphY = area.y - graphHeight - 20.0;
+
+    int alpha = gc.getAlpha();
+    gc.setAlpha(75);
+
+    gc.setForeground(EColor.DARKGRAY);
+    gc.setBackground(EColor.LIGHTBLUE);
+    gc.drawRectangle((int) graphX, (int) graphY, (int) graphWidth, (int) graphHeight);
+    gc.fillRectangle((int) graphX, (int) graphY, (int) graphWidth, (int) graphHeight);
+
+    // Now draw a darker area inside showing the size of the view-screen in relation to the graph
+    // surface. The view size is a fraction of the total graph area outlined above.
+    //
+    double viewWidth = (graphWidth * (double) areaWidth) / Math.max(areaWidth, maximum.x);
+    double viewHeight = (graphHeight * areaHeight) / Math.max(areaHeight, maximum.y);
+
+    // The offset is a part of the screen size.  The maximum offset is the graph size minus the area
+    // size.
+    // The offset horizontally is [0, -maximum.x+areaWidth]
+    // The idea is that if the right side of the pipeline or workflow is shown you don't need to
+    // scroll further.
+    // The offset fractions calculated below are in the range 0-1 (there about)
+    //
+    double offsetXFraction = (double) (-offset.x) / ((double) maximum.x);
+    double offsetYFraction = (double) (-offset.y) / ((double) maximum.y);
+
+    // We shift the view rectangle to the right or down based on the offset fraction and the wiggle
+    // room of the inner rectangle.
+    //
+    double viewX = graphX + (graphWidth) * offsetXFraction;
+    double viewY = graphY + (graphHeight) * offsetYFraction;
+
+    gc.setForeground(EColor.BLACK);
+    gc.setBackground(EColor.BLUE);
+    gc.drawRectangle((int) viewX, (int) viewY, (int) viewWidth, (int) viewHeight);
+    gc.fillRectangle((int) viewX, (int) viewY, (int) viewWidth, (int) viewHeight);
+
+    // We remember the rectangles so that we can navigate in it when the user drags it around.
+    //
+    graphPort = new Rectangle((int) graphX, (int) graphY, (int) graphWidth, (int) graphHeight);
+    viewPort = new Rectangle((int) viewX, (int) viewY, (int) viewWidth, (int) viewHeight);
+
+    gc.setAlpha(alpha);
+  }
+
+  /**
    * Gets zoomFactor
    *
    * @return value of zoomFactor
@@ -525,7 +527,9 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return zoomFactor;
   }
 
-  /** @param zoomFactor The zoomFactor to set */
+  /**
+   * @param zoomFactor The zoomFactor to set
+   */
   public void setZoomFactor(double zoomFactor) {
     this.zoomFactor = zoomFactor;
   }
@@ -539,7 +543,9 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return drawingEditIcons;
   }
 
-  /** @param drawingEditIcons The drawingEditIcons to set */
+  /**
+   * @param drawingEditIcons The drawingEditIcons to set
+   */
   public void setDrawingEditIcons(boolean drawingEditIcons) {
     this.drawingEditIcons = drawingEditIcons;
   }
@@ -553,8 +559,118 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return miniIconSize;
   }
 
-  /** @param miniIconSize The miniIconSize to set */
+  /**
+   * @param miniIconSize The miniIconSize to set
+   */
   public void setMiniIconSize(int miniIconSize) {
     this.miniIconSize = miniIconSize;
+  }
+
+  /**
+   * Gets showingNavigationView
+   *
+   * @return value of showingNavigationView
+   */
+  public boolean isShowingNavigationView() {
+    return showingNavigationView;
+  }
+
+  /**
+   * Sets showingNavigationView
+   *
+   * @param showingNavigationView value of showingNavigationView
+   */
+  public void setShowingNavigationView(boolean showingNavigationView) {
+    this.showingNavigationView = showingNavigationView;
+  }
+
+  /**
+   * Gets maximum
+   *
+   * @return value of maximum
+   */
+  public Point getMaximum() {
+    return maximum;
+  }
+
+  /**
+   * Sets maximum
+   *
+   * @param maximum value of maximum
+   */
+  public void setMaximum(Point maximum) {
+    this.maximum = maximum;
+  }
+
+  /**
+   * Gets variables
+   *
+   * @return value of variables
+   */
+  public IVariables getVariables() {
+    return variables;
+  }
+
+  /**
+   * Sets variables
+   *
+   * @param variables value of variables
+   */
+  public void setVariables(IVariables variables) {
+    this.variables = variables;
+  }
+
+  /**
+   * Gets screenMagnification
+   *
+   * @return value of screenMagnification
+   */
+  public float getScreenMagnification() {
+    return screenMagnification;
+  }
+
+  /**
+   * Sets screenMagnification
+   *
+   * @param screenMagnification value of screenMagnification
+   */
+  public void setScreenMagnification(float screenMagnification) {
+    this.screenMagnification = screenMagnification;
+  }
+
+  /**
+   * Gets graphPort
+   *
+   * @return value of graphPort
+   */
+  public Rectangle getGraphPort() {
+    return graphPort;
+  }
+
+  /**
+   * Sets graphPort
+   *
+   * @param graphPort value of graphPort
+   */
+  public void setGraphPort(Rectangle graphPort) {
+    this.graphPort = graphPort;
+  }
+
+  /**
+   * Gets viewPort
+   *
+   * @return value of viewPort
+   */
+  public Rectangle getViewPort() {
+    return viewPort;
+  }
+
+  /**
+   * Sets viewPort
+   *
+   * @param viewPort value of viewPort
+   */
+  public void setViewPort(Rectangle viewPort) {
+    this.viewPort = viewPort;
   }
 }

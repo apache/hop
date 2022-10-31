@@ -143,7 +143,7 @@ public class TextVar extends Composite {
 
     PropsUi props = PropsUi.getInstance();
 
-    props.setLook(this);
+    PropsUi.setLook(this);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
@@ -156,7 +156,7 @@ public class TextVar extends Composite {
     // Add the variable $ image on the top right of the control
     //
     Label wImage = new Label(this, SWT.NONE);
-    props.setLook(wImage);
+    PropsUi.setLook(wImage);
     wImage.setImage(GuiResource.getInstance().getImageVariable());
     wImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.InsertVariable"));
     FormData fdlImage = new FormData();

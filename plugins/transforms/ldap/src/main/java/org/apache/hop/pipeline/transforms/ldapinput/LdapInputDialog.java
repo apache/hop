@@ -32,7 +32,9 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -134,7 +136,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -165,7 +167,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -173,7 +175,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -182,16 +184,17 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "LdapInputDialog.General.Tab"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -203,7 +206,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // /////////////////////////////////
 
     Group wHostGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wHostGroup);
+    PropsUi.setLook(wHostGroup);
     wHostGroup.setText(BaseMessages.getString(PKG, "LdapInputDialog.Group.HostGroup.Label"));
 
     FormLayout hostGroupLayout = new FormLayout();
@@ -214,7 +217,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // Host line
     Label wlHost = new Label(wHostGroup, SWT.RIGHT);
     wlHost.setText(BaseMessages.getString(PKG, "LdapInputDialog.Host.Label"));
-    props.setLook(wlHost);
+    PropsUi.setLook(wlHost);
     FormData fdlHost = new FormData();
     fdlHost.left = new FormAttachment(0, 0);
     fdlHost.top = new FormAttachment(wTransformName, margin);
@@ -222,7 +225,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wlHost.setLayoutData(fdlHost);
     wHost = new TextVar(variables, wHostGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wHost.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.Host.Tooltip"));
-    props.setLook(wHost);
+    PropsUi.setLook(wHost);
     wHost.addModifyListener(lsMod);
     FormData fdHost = new FormData();
     fdHost.left = new FormAttachment(middle, 0);
@@ -233,14 +236,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // Port line
     Label wlPort = new Label(wHostGroup, SWT.RIGHT);
     wlPort.setText(BaseMessages.getString(PKG, "LdapInputDialog.Port.Label"));
-    props.setLook(wlPort);
+    PropsUi.setLook(wlPort);
     FormData fdlPort = new FormData();
     fdlPort.left = new FormAttachment(0, 0);
     fdlPort.top = new FormAttachment(wHost, margin);
     fdlPort.right = new FormAttachment(middle, -margin);
     wlPort.setLayoutData(fdlPort);
     wPort = new TextVar(variables, wHostGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPort);
+    PropsUi.setLook(wPort);
     wPort.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.Port.Tooltip"));
     wPort.addModifyListener(lsMod);
     FormData fdPort = new FormData();
@@ -252,7 +255,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // Protocol Line
     Label wlProtocol = new Label(wHostGroup, SWT.RIGHT);
     wlProtocol.setText(BaseMessages.getString(PKG, "LdapInputDialog.Protocol.Label"));
-    props.setLook(wlProtocol);
+    PropsUi.setLook(wlProtocol);
     FormData fdlProtocol = new FormData();
     fdlProtocol.left = new FormAttachment(0, 0);
     fdlProtocol.right = new FormAttachment(middle, -margin);
@@ -261,7 +264,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
     wProtocol = new ComboVar(variables, wHostGroup, SWT.BORDER | SWT.READ_ONLY);
     wProtocol.setEditable(true);
-    props.setLook(wProtocol);
+    PropsUi.setLook(wProtocol);
     wProtocol.addModifyListener(lsMod);
     FormData fdProtocol = new FormData();
     fdProtocol.left = new FormAttachment(middle, 0);
@@ -293,7 +296,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // /////////////////////////////////
 
     Group wAuthenticationGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wAuthenticationGroup);
+    PropsUi.setLook(wAuthenticationGroup);
     wAuthenticationGroup.setText(
         BaseMessages.getString(PKG, "LdapInputDialog.Group.AuthenticationGroup.Label"));
 
@@ -306,14 +309,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     Label wlUsingAuthentication = new Label(wAuthenticationGroup, SWT.RIGHT);
     wlUsingAuthentication.setText(
         BaseMessages.getString(PKG, "LdapInputDialog.usingAuthentication.Label"));
-    props.setLook(wlUsingAuthentication);
+    PropsUi.setLook(wlUsingAuthentication);
     FormData fdlUsingAuthentication = new FormData();
     fdlUsingAuthentication.left = new FormAttachment(0, 0);
     fdlUsingAuthentication.top = new FormAttachment(wHostGroup, margin);
     fdlUsingAuthentication.right = new FormAttachment(middle, -margin);
     wlUsingAuthentication.setLayoutData(fdlUsingAuthentication);
     wUsingAuthentication = new Button(wAuthenticationGroup, SWT.CHECK);
-    props.setLook(wUsingAuthentication);
+    PropsUi.setLook(wUsingAuthentication);
     wUsingAuthentication.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.usingAuthentication.Tooltip"));
     FormData fdUsingAuthentication = new FormData();
@@ -333,14 +336,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // UserName line
     wlUserName = new Label(wAuthenticationGroup, SWT.RIGHT);
     wlUserName.setText(BaseMessages.getString(PKG, "LdapInputDialog.Username.Label"));
-    props.setLook(wlUserName);
+    PropsUi.setLook(wlUserName);
     FormData fdlUserName = new FormData();
     fdlUserName.left = new FormAttachment(0, 0);
     fdlUserName.top = new FormAttachment(wUsingAuthentication, margin);
     fdlUserName.right = new FormAttachment(middle, -margin);
     wlUserName.setLayoutData(fdlUserName);
     wUserName = new TextVar(variables, wAuthenticationGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUserName);
+    PropsUi.setLook(wUserName);
     wUserName.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.Username.Tooltip"));
     wUserName.addModifyListener(lsMod);
     FormData fdUserName = new FormData();
@@ -352,7 +355,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // Password line
     wlPassword = new Label(wAuthenticationGroup, SWT.RIGHT);
     wlPassword.setText(BaseMessages.getString(PKG, "LdapInputDialog.Password.Label"));
-    props.setLook(wlPassword);
+    PropsUi.setLook(wlPassword);
     FormData fdlPassword = new FormData();
     fdlPassword.left = new FormAttachment(0, 0);
     fdlPassword.top = new FormAttachment(wUserName, margin);
@@ -361,7 +364,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wPassword =
         new PasswordTextVar(variables, wAuthenticationGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wPassword.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.Password.Tooltip"));
-    props.setLook(wPassword);
+    PropsUi.setLook(wPassword);
     wPassword.addModifyListener(lsMod);
     FormData fdPassword = new FormData();
     fdPassword.left = new FormAttachment(middle, 0);
@@ -384,7 +387,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // /////////////////////////////////
 
     Group wCertificateGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wCertificateGroup);
+    PropsUi.setLook(wCertificateGroup);
     wCertificateGroup.setText(
         BaseMessages.getString(PKG, "LdapInputDialog.Group.CertificateGroup.Label"));
 
@@ -396,14 +399,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // set TrustStore?
     wlSetTrustStore = new Label(wCertificateGroup, SWT.RIGHT);
     wlSetTrustStore.setText(BaseMessages.getString(PKG, "LdapInputDialog.setTrustStore.Label"));
-    props.setLook(wlSetTrustStore);
+    PropsUi.setLook(wlSetTrustStore);
     FormData fdlsetTrustStore = new FormData();
     fdlsetTrustStore.left = new FormAttachment(0, 0);
     fdlsetTrustStore.top = new FormAttachment(wAuthenticationGroup, margin);
     fdlsetTrustStore.right = new FormAttachment(middle, -margin);
     wlSetTrustStore.setLayoutData(fdlsetTrustStore);
     wSetTrustStore = new Button(wCertificateGroup, SWT.CHECK);
-    props.setLook(wSetTrustStore);
+    PropsUi.setLook(wSetTrustStore);
     wSetTrustStore.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.setTrustStore.Tooltip"));
     FormData fdsetTrustStore = new FormData();
@@ -423,7 +426,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // TrustStorePath line
     wlTrustStorePath = new Label(wCertificateGroup, SWT.RIGHT);
     wlTrustStorePath.setText(BaseMessages.getString(PKG, "LdapInputDialog.TrustStorePath.Label"));
-    props.setLook(wlTrustStorePath);
+    PropsUi.setLook(wlTrustStorePath);
     FormData fdlTrustStorePath = new FormData();
     fdlTrustStorePath.left = new FormAttachment(0, -margin);
     fdlTrustStorePath.top = new FormAttachment(wSetTrustStore, margin);
@@ -431,7 +434,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wlTrustStorePath.setLayoutData(fdlTrustStorePath);
 
     wbbFilename = new Button(wCertificateGroup, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -453,7 +456,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
                 true));
 
     wTrustStorePath = new TextVar(variables, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTrustStorePath);
+    PropsUi.setLook(wTrustStorePath);
     wTrustStorePath.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.TrustStorePath.Tooltip"));
     wTrustStorePath.addModifyListener(lsMod);
@@ -467,7 +470,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wlTrustStorePassword = new Label(wCertificateGroup, SWT.RIGHT);
     wlTrustStorePassword.setText(
         BaseMessages.getString(PKG, "LdapInputDialog.TrustStorePassword.Label"));
-    props.setLook(wlTrustStorePassword);
+    PropsUi.setLook(wlTrustStorePassword);
     FormData fdlTrustStorePassword = new FormData();
     fdlTrustStorePassword.left = new FormAttachment(0, -margin);
     fdlTrustStorePassword.top = new FormAttachment(wbbFilename, margin);
@@ -475,7 +478,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wlTrustStorePassword.setLayoutData(fdlTrustStorePassword);
     wTrustStorePassword =
         new PasswordTextVar(variables, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTrustStorePassword);
+    PropsUi.setLook(wTrustStorePassword);
     wTrustStorePassword.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.TrustStorePassword.Tooltip"));
     wTrustStorePassword.addModifyListener(lsMod);
@@ -488,14 +491,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // Trust all certificate?
     wlTrustAll = new Label(wCertificateGroup, SWT.RIGHT);
     wlTrustAll.setText(BaseMessages.getString(PKG, "LdapInputDialog.TrustAll.Label"));
-    props.setLook(wlTrustAll);
+    PropsUi.setLook(wlTrustAll);
     FormData fdlTrustAll = new FormData();
     fdlTrustAll.left = new FormAttachment(0, 0);
     fdlTrustAll.top = new FormAttachment(wTrustStorePassword, margin);
     fdlTrustAll.right = new FormAttachment(middle, -margin);
     wlTrustAll.setLayoutData(fdlTrustAll);
     wTrustAll = new Button(wCertificateGroup, SWT.CHECK);
-    props.setLook(wTrustAll);
+    PropsUi.setLook(wTrustAll);
     wTrustAll.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.TrustAll.Tooltip"));
     FormData fdTrustAll = new FormData();
     fdTrustAll.left = new FormAttachment(middle, 0);
@@ -524,7 +527,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // Test LDAP connection button
     Button wTest = new Button(wGeneralComp, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "LdapInputDialog.TestConnection.Label"));
-    props.setLook(wTest);
+    PropsUi.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.TestConnection.Tooltip"));
     fdTest.top = new FormAttachment(wCertificateGroup, margin);
@@ -549,6 +552,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // START OF Search TAB///
     // /
     CTabItem wSearchTab = new CTabItem(wTabFolder, SWT.NONE);
+    wSearchTab.setFont(GuiResource.getInstance().getFontDefault());
     wSearchTab.setText(BaseMessages.getString(PKG, "LdapInputDialog.Search.Tab"));
 
     FormLayout searchLayout = new FormLayout();
@@ -556,7 +560,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     searchLayout.marginHeight = 3;
 
     Composite wSearchComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wSearchComp);
+    PropsUi.setLook(wSearchComp);
     wSearchComp.setLayout(searchLayout);
 
     // /////////////////////////////////
@@ -564,7 +568,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // /////////////////////////////////
 
     Group wSearchGroup = new Group(wSearchComp, SWT.SHADOW_NONE);
-    props.setLook(wSearchGroup);
+    PropsUi.setLook(wSearchGroup);
     wSearchGroup.setText(BaseMessages.getString(PKG, "LdapInputDialog.Group.SearchGroup.Label"));
 
     FormLayout searchgroupLayout = new FormLayout();
@@ -575,14 +579,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // Is base defined in a Field
     Label wlDynamicBase = new Label(wSearchGroup, SWT.RIGHT);
     wlDynamicBase.setText(BaseMessages.getString(PKG, "LdapInputDialog.dynamicBase.Label"));
-    props.setLook(wlDynamicBase);
+    PropsUi.setLook(wlDynamicBase);
     FormData fdlDynamicBase = new FormData();
     fdlDynamicBase.left = new FormAttachment(0, -margin);
     fdlDynamicBase.top = new FormAttachment(wTransformName, margin);
     fdlDynamicBase.right = new FormAttachment(middle, -2 * margin);
     wlDynamicBase.setLayoutData(fdlDynamicBase);
     wDynamicBase = new Button(wSearchGroup, SWT.CHECK);
-    props.setLook(wDynamicBase);
+    PropsUi.setLook(wDynamicBase);
     wDynamicBase.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.dynamicBase.Tooltip"));
     FormData fdDynamicBase = new FormData();
     fdDynamicBase.left = new FormAttachment(middle, -margin);
@@ -602,7 +606,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wlSearchBaseField = new Label(wSearchGroup, SWT.RIGHT);
     wlSearchBaseField.setText(
         BaseMessages.getString(PKG, "LdapInputDialog.wsearchBaseField.Label"));
-    props.setLook(wlSearchBaseField);
+    PropsUi.setLook(wlSearchBaseField);
     FormData fdlsearchBaseField = new FormData();
     fdlsearchBaseField.left = new FormAttachment(0, -margin);
     fdlsearchBaseField.top = new FormAttachment(wDynamicBase, margin);
@@ -611,7 +615,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
     wSearchBaseField = new CCombo(wSearchGroup, SWT.BORDER | SWT.READ_ONLY);
     wSearchBaseField.setEditable(true);
-    props.setLook(wSearchBaseField);
+    PropsUi.setLook(wSearchBaseField);
     wSearchBaseField.addModifyListener(lsMod);
     FormData fdsearchBaseField = new FormData();
     fdsearchBaseField.left = new FormAttachment(middle, -margin);
@@ -632,14 +636,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // SearchBase line
     wlSearchBase = new Label(wSearchGroup, SWT.RIGHT);
     wlSearchBase.setText(BaseMessages.getString(PKG, "LdapInputDialog.SearchBase.Label"));
-    props.setLook(wlSearchBase);
+    PropsUi.setLook(wlSearchBase);
     FormData fdlSearchBase = new FormData();
     fdlSearchBase.left = new FormAttachment(0, -margin);
     fdlSearchBase.top = new FormAttachment(wSearchBaseField, margin);
     fdlSearchBase.right = new FormAttachment(middle, -2 * margin);
     wlSearchBase.setLayoutData(fdlSearchBase);
     wSearchBase = new TextVar(variables, wSearchGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSearchBase);
+    PropsUi.setLook(wSearchBase);
     wSearchBase.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.SearchBase.Tooltip"));
     wSearchBase.addModifyListener(lsMod);
     FormData fdSearchBase = new FormData();
@@ -651,14 +655,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // Is filter defined in a Field
     Label wlDynamicFilter = new Label(wSearchGroup, SWT.RIGHT);
     wlDynamicFilter.setText(BaseMessages.getString(PKG, "LdapInputDialog.dynamicFilter.Label"));
-    props.setLook(wlDynamicFilter);
+    PropsUi.setLook(wlDynamicFilter);
     FormData fdlDynamicFilter = new FormData();
     fdlDynamicFilter.left = new FormAttachment(0, -margin);
     fdlDynamicFilter.top = new FormAttachment(wSearchBase, margin);
     fdlDynamicFilter.right = new FormAttachment(middle, -2 * margin);
     wlDynamicFilter.setLayoutData(fdlDynamicFilter);
     wDynamicFilter = new Button(wSearchGroup, SWT.CHECK);
-    props.setLook(wDynamicFilter);
+    PropsUi.setLook(wDynamicFilter);
     wDynamicFilter.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.dynamicFilter.Tooltip"));
     FormData fdynamicFilter = new FormData();
@@ -678,7 +682,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // dynamic search base field
     wlFilterField = new Label(wSearchGroup, SWT.RIGHT);
     wlFilterField.setText(BaseMessages.getString(PKG, "LdapInputDialog.filterField.Label"));
-    props.setLook(wlFilterField);
+    PropsUi.setLook(wlFilterField);
     FormData fdlfilterField = new FormData();
     fdlfilterField.left = new FormAttachment(0, -margin);
     fdlfilterField.top = new FormAttachment(wDynamicFilter, margin);
@@ -686,7 +690,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wlFilterField.setLayoutData(fdlfilterField);
     wFilterField = new CCombo(wSearchGroup, SWT.BORDER | SWT.READ_ONLY);
     wFilterField.setEditable(true);
-    props.setLook(wFilterField);
+    PropsUi.setLook(wFilterField);
     wFilterField.addModifyListener(lsMod);
     FormData fdfilterField = new FormData();
     fdfilterField.left = new FormAttachment(middle, -margin);
@@ -707,7 +711,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // Filter String
     wlFilterString = new Label(wSearchGroup, SWT.RIGHT);
     wlFilterString.setText(BaseMessages.getString(PKG, "LdapInputDialog.FilterString.Label"));
-    props.setLook(wlFilterString);
+    PropsUi.setLook(wlFilterString);
     FormData fdlFilterString = new FormData();
     fdlFilterString.left = new FormAttachment(0, 0);
     fdlFilterString.top = new FormAttachment(wFilterField, margin);
@@ -721,7 +725,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wFilterString.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.FilterString.Tooltip"));
-    props.setLook(wFilterString);
+    PropsUi.setLook(wFilterString);
     wFilterString.addModifyListener(lsMod);
     FormData fdFilterString = new FormData();
     fdFilterString.left = new FormAttachment(middle, -margin);
@@ -760,6 +764,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // START OF CONTENT TAB///
     // /
     CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
+    wContentTab.setFont(GuiResource.getInstance().getFontDefault());
     wContentTab.setText(BaseMessages.getString(PKG, "LdapInputDialog.Content.Tab"));
 
     FormLayout contentLayout = new FormLayout();
@@ -767,7 +772,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     contentLayout.marginHeight = 3;
 
     Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wContentComp);
+    PropsUi.setLook(wContentComp);
     wContentComp.setLayout(contentLayout);
 
     // /////////////////////////////////
@@ -775,7 +780,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // /////////////////////////////////
 
     Group wAdditionalGroup = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wAdditionalGroup);
+    PropsUi.setLook(wAdditionalGroup);
     wAdditionalGroup.setText(
         BaseMessages.getString(PKG, "LdapInputDialog.Group.AdditionalGroup.Label"));
 
@@ -786,14 +791,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
     Label wlInclRownum = new Label(wAdditionalGroup, SWT.RIGHT);
     wlInclRownum.setText(BaseMessages.getString(PKG, "LdapInputDialog.InclRownum.Label"));
-    props.setLook(wlInclRownum);
+    PropsUi.setLook(wlInclRownum);
     FormData fdlInclRownum = new FormData();
     fdlInclRownum.left = new FormAttachment(0, 0);
     fdlInclRownum.top = new FormAttachment(0, margin);
     fdlInclRownum.right = new FormAttachment(middle, -margin);
     wlInclRownum.setLayoutData(fdlInclRownum);
     wInclRownum = new Button(wAdditionalGroup, SWT.CHECK);
-    props.setLook(wInclRownum);
+    PropsUi.setLook(wInclRownum);
     wInclRownum.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.InclRownum.Tooltip"));
     FormData fdRownum = new FormData();
     fdRownum.left = new FormAttachment(middle, 0);
@@ -803,13 +808,13 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
     wlInclRownumField = new Label(wAdditionalGroup, SWT.RIGHT);
     wlInclRownumField.setText(BaseMessages.getString(PKG, "LdapInputDialog.InclRownumField.Label"));
-    props.setLook(wlInclRownumField);
+    PropsUi.setLook(wlInclRownumField);
     FormData fdlInclRownumField = new FormData();
     fdlInclRownumField.left = new FormAttachment(wInclRownum, margin);
     fdlInclRownumField.top = new FormAttachment(0, margin);
     wlInclRownumField.setLayoutData(fdlInclRownumField);
     wInclRownumField = new TextVar(variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclRownumField);
+    PropsUi.setLook(wInclRownumField);
     wInclRownumField.addModifyListener(lsMod);
     FormData fdInclRownumField = new FormData();
     fdInclRownumField.left = new FormAttachment(wlInclRownumField, margin);
@@ -829,14 +834,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
     Label wlLimit = new Label(wContentComp, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "LdapInputDialog.Limit.Label"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.top = new FormAttachment(wAdditionalGroup, 2 * margin);
     fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
@@ -847,14 +852,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // TimeLimit
     Label wlTimeLimit = new Label(wContentComp, SWT.RIGHT);
     wlTimeLimit.setText(BaseMessages.getString(PKG, "LdapInputDialog.TimeLimit.Label"));
-    props.setLook(wlTimeLimit);
+    PropsUi.setLook(wlTimeLimit);
     FormData fdlTimeLimit = new FormData();
     fdlTimeLimit.left = new FormAttachment(0, 0);
     fdlTimeLimit.top = new FormAttachment(wLimit, margin);
     fdlTimeLimit.right = new FormAttachment(middle, -margin);
     wlTimeLimit.setLayoutData(fdlTimeLimit);
     wTimeLimit = new TextVar(variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTimeLimit);
+    PropsUi.setLook(wTimeLimit);
     wTimeLimit.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.TimeLimit.Tooltip"));
     wTimeLimit.addModifyListener(lsMod);
 
@@ -868,7 +873,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     Label wlMultiValuedSeparator = new Label(wContentComp, SWT.RIGHT);
     wlMultiValuedSeparator.setText(
         BaseMessages.getString(PKG, "LdapInputDialog.MultiValuedSeparator.Label"));
-    props.setLook(wlMultiValuedSeparator);
+    PropsUi.setLook(wlMultiValuedSeparator);
     FormData fdlMultiValuedSeparator = new FormData();
     fdlMultiValuedSeparator.left = new FormAttachment(0, 0);
     fdlMultiValuedSeparator.top = new FormAttachment(wTimeLimit, margin);
@@ -876,7 +881,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wlMultiValuedSeparator.setLayoutData(fdlMultiValuedSeparator);
     wMultiValuedSeparator =
         new TextVar(variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wMultiValuedSeparator);
+    PropsUi.setLook(wMultiValuedSeparator);
     wMultiValuedSeparator.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.MultiValuedSeparator.Tooltip"));
     wMultiValuedSeparator.addModifyListener(lsMod);
@@ -889,14 +894,14 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // Use page ranging?
     Label wlSetPaging = new Label(wContentComp, SWT.RIGHT);
     wlSetPaging.setText(BaseMessages.getString(PKG, "LdapInputDialog.setPaging.Label"));
-    props.setLook(wlSetPaging);
+    PropsUi.setLook(wlSetPaging);
     FormData fdlSetPaging = new FormData();
     fdlSetPaging.left = new FormAttachment(0, 0);
     fdlSetPaging.top = new FormAttachment(wMultiValuedSeparator, margin);
     fdlSetPaging.right = new FormAttachment(middle, -margin);
     wlSetPaging.setLayoutData(fdlSetPaging);
     wSetPaging = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wSetPaging);
+    PropsUi.setLook(wSetPaging);
     wSetPaging.setToolTipText(BaseMessages.getString(PKG, "LdapInputDialog.setPaging.Tooltip"));
     FormData fdSetPaging = new FormData();
     fdSetPaging.left = new FormAttachment(middle, 0);
@@ -912,13 +917,13 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
         });
     wlPageSize = new Label(wContentComp, SWT.RIGHT);
     wlPageSize.setText(BaseMessages.getString(PKG, "LdapInputDialog.PageSize.Label"));
-    props.setLook(wlPageSize);
+    PropsUi.setLook(wlPageSize);
     FormData fdlPageSize = new FormData();
     fdlPageSize.left = new FormAttachment(wSetPaging, margin);
     fdlPageSize.top = new FormAttachment(wMultiValuedSeparator, margin);
     wlPageSize.setLayoutData(fdlPageSize);
     wPageSize = new TextVar(variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPageSize);
+    PropsUi.setLook(wPageSize);
     wPageSize.addModifyListener(lsMod);
     FormData fdPageSize = new FormData();
     fdPageSize.left = new FormAttachment(wlPageSize, margin);
@@ -929,7 +934,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // searchScope
     Label wlsearchScope = new Label(wContentComp, SWT.RIGHT);
     wlsearchScope.setText(BaseMessages.getString(PKG, "LdapInputDialog.SearchScope.Label"));
-    props.setLook(wlsearchScope);
+    PropsUi.setLook(wlsearchScope);
     FormData fdlsearchScope = new FormData();
     fdlsearchScope.left = new FormAttachment(0, 0);
     fdlsearchScope.right = new FormAttachment(middle, -margin);
@@ -937,7 +942,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     wlsearchScope.setLayoutData(fdlsearchScope);
 
     wSearchScope = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wSearchScope);
+    PropsUi.setLook(wSearchScope);
     wSearchScope.addModifyListener(lsMod);
     FormData fdsearchScope = new FormData();
     fdsearchScope.left = new FormAttachment(middle, 0);
@@ -968,6 +973,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     // Fields tab...
     //
     CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wFieldsTab.setText(BaseMessages.getString(PKG, "LdapInputDialog.Fields.Tab"));
 
     FormLayout fieldsLayout = new FormLayout();
@@ -976,7 +982,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     wFieldsComp.setLayout(fieldsLayout);
-    props.setLook(wFieldsComp);
+    PropsUi.setLook(wFieldsComp);
 
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "LdapInputDialog.GetFields.Button"));

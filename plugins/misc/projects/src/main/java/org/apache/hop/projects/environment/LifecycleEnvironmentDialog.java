@@ -85,7 +85,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     int margin = Const.MARGIN + 2;
     int middle = Const.MIDDLE_PCT;
@@ -108,7 +108,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOK, wCancel}, margin * 3, null);
 
     Label wlName = new Label(shell, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.EnvironmentName"));
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -116,7 +116,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, margin);
     fdName.right = new FormAttachment(100, 0);
@@ -125,7 +125,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     Control lastControl = wName;
 
     Label wlPurpose = new Label(shell, SWT.RIGHT);
-    props.setLook(wlPurpose);
+    PropsUi.setLook(wlPurpose);
     wlPurpose.setText(
         BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.EnvironmentPurpose"));
     FormData fdlPurpose = new FormData();
@@ -134,7 +134,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdlPurpose.top = new FormAttachment(lastControl, margin);
     wlPurpose.setLayoutData(fdlPurpose);
     wPurpose = new Combo(shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wPurpose);
+    PropsUi.setLook(wPurpose);
     FormData fdPurpose = new FormData();
     fdPurpose.left = new FormAttachment(middle, margin);
     fdPurpose.right = new FormAttachment(100, 0);
@@ -144,7 +144,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     lastControl = wPurpose;
 
     Label wlProject = new Label(shell, SWT.RIGHT);
-    props.setLook(wlProject);
+    PropsUi.setLook(wlProject);
     wlProject.setText(
         BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.ReferencedProject"));
     FormData fdlProject = new FormData();
@@ -153,7 +153,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdlProject.top = new FormAttachment(lastControl, margin);
     wlProject.setLayoutData(fdlProject);
     wProject = new Combo(shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wProject);
+    PropsUi.setLook(wProject);
     FormData fdProject = new FormData();
     fdProject.left = new FormAttachment(middle, margin);
     fdProject.right = new FormAttachment(100, 0);
@@ -163,7 +163,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     lastControl = wProject;
 
     Label wlConfigFiles = new Label(shell, SWT.LEFT);
-    props.setLook(wlConfigFiles);
+    PropsUi.setLook(wlConfigFiles);
     wlConfigFiles.setText(
         BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Group.Label.ConfigurationFiles"));
     FormData fdlConfigFiles = new FormData();
@@ -173,7 +173,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wlConfigFiles.setLayoutData(fdlConfigFiles);
 
     Button wbSelect = new Button(shell, SWT.PUSH);
-    props.setLook(wbSelect);
+    PropsUi.setLook(wbSelect);
     wbSelect.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.Select"));
     FormData fdAdd = new FormData();
     fdAdd.right = new FormAttachment(100, 0);
@@ -200,7 +200,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
             environment.getConfigurationFiles().size(),
             null,
             props);
-    props.setLook(wConfigFiles);
+    PropsUi.setLook(wConfigFiles);
     FormData fdConfigFiles = new FormData();
     fdConfigFiles.left = new FormAttachment(0, 0);
     fdConfigFiles.right = new FormAttachment(wbSelect, -2 * margin);
@@ -210,7 +210,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wConfigFiles.table.addListener(SWT.Selection, this::setButtonStates);
 
     Button wbNew = new Button(shell, SWT.PUSH);
-    props.setLook(wbNew);
+    PropsUi.setLook(wbNew);
     wbNew.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.New"));
     FormData fdNew = new FormData();
     fdNew.left = new FormAttachment(wConfigFiles, 2 * margin);
@@ -220,7 +220,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wbNew.addListener(SWT.Selection, this::newConfigFile);
 
     wbEdit = new Button(shell, SWT.PUSH);
-    props.setLook(wbEdit);
+    PropsUi.setLook(wbEdit);
     wbEdit.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.Edit"));
     FormData fdEdit = new FormData();
     fdEdit.left = new FormAttachment(wConfigFiles, 2 * margin);

@@ -28,8 +28,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -126,7 +128,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -146,16 +148,17 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     setupTransformNameField(lsMod);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.GeneralTab.Title"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -255,6 +258,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     // Additional tab...
     //
     CTabItem wAdditionalTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdditionalTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdditionalTab.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.FieldsTab.Title"));
 
     FormLayout addLayout = new FormLayout();
@@ -263,7 +267,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
     Composite wAdditionalComp = new Composite(wTabFolder, SWT.NONE);
     wAdditionalComp.setLayout(addLayout);
-    props.setLook(wAdditionalComp);
+    PropsUi.setLook(wAdditionalComp);
 
     setupBodyParamBlock(lsMod, gProxy, wAdditionalComp);
     setupQueryParamBlock(lsMod, wAdditionalComp);
@@ -335,7 +339,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlQuery = new Label(wAdditionalComp, SWT.NONE);
     wlQuery.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.QueryParameters.Label"));
-    props.setLook(wlQuery);
+    PropsUi.setLook(wlQuery);
     FormData fdlQuery = new FormData();
     fdlQuery.left = new FormAttachment(0, 0);
     fdlQuery.top = new FormAttachment(wFields, margin);
@@ -388,7 +392,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlFields = new Label(wAdditionalComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.Parameters.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(gProxy, margin);
@@ -449,7 +453,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlProxyPort = new Label(gProxy, SWT.RIGHT);
     wlProxyPort.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.ProxyPort.Label"));
-    props.setLook(wlProxyPort);
+    PropsUi.setLook(wlProxyPort);
     FormData fdlProxyPort = new FormData();
     fdlProxyPort.top = new FormAttachment(wProxyHost, margin);
     fdlProxyPort.left = new FormAttachment(0, 0);
@@ -458,7 +462,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wProxyPort = new TextVar(variables, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wProxyPort.addModifyListener(lsMod);
     wProxyPort.setToolTipText(BaseMessages.getString(PKG, "HTTPPOSTDialog.ProxyPort.Tooltip"));
-    props.setLook(wProxyPort);
+    PropsUi.setLook(wProxyPort);
     FormData fdProxyPort = new FormData();
     fdProxyPort.top = new FormAttachment(wProxyHost, margin);
     fdProxyPort.left = new FormAttachment(middle, 0);
@@ -472,7 +476,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlProxyHost = new Label(gProxy, SWT.RIGHT);
     wlProxyHost.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.ProxyHost.Label"));
-    props.setLook(wlProxyHost);
+    PropsUi.setLook(wlProxyHost);
     FormData fdlProxyHost = new FormData();
     fdlProxyHost.top = new FormAttachment(0, margin);
     fdlProxyHost.left = new FormAttachment(0, 0);
@@ -481,7 +485,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wProxyHost = new TextVar(variables, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wProxyHost.addModifyListener(lsMod);
     wProxyHost.setToolTipText(BaseMessages.getString(PKG, "HTTPPOSTDialog.ProxyHost.Tooltip"));
-    props.setLook(wProxyHost);
+    PropsUi.setLook(wProxyHost);
     FormData fdProxyHost = new FormData();
     fdProxyHost.top = new FormAttachment(0, margin);
     fdProxyHost.left = new FormAttachment(middle, 0);
@@ -496,7 +500,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     proxyLayout.marginWidth = 3;
     proxyLayout.marginHeight = 3;
     gProxy.setLayout(proxyLayout);
-    props.setLook(gProxy);
+    PropsUi.setLook(gProxy);
     return gProxy;
   }
 
@@ -506,7 +510,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlHttpPassword = new Label(gHttpAuth, SWT.RIGHT);
     wlHttpPassword.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.HttpPassword.Label"));
-    props.setLook(wlHttpPassword);
+    PropsUi.setLook(wlHttpPassword);
     FormData fdlHttpPassword = new FormData();
     fdlHttpPassword.top = new FormAttachment(wHttpLogin, margin);
     fdlHttpPassword.left = new FormAttachment(0, 0);
@@ -516,7 +520,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wHttpPassword.addModifyListener(lsMod);
     wHttpPassword.setToolTipText(
         BaseMessages.getString(PKG, "HTTPPOSTDialog.HttpPassword.Tooltip"));
-    props.setLook(wHttpPassword);
+    PropsUi.setLook(wHttpPassword);
     FormData fdHttpPassword = new FormData();
     fdHttpPassword.top = new FormAttachment(wHttpLogin, margin);
     fdHttpPassword.left = new FormAttachment(middle, 0);
@@ -530,7 +534,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlHttpLogin = new Label(gHttpAuth, SWT.RIGHT);
     wlHttpLogin.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.HttpLogin.Label"));
-    props.setLook(wlHttpLogin);
+    PropsUi.setLook(wlHttpLogin);
     FormData fdlHttpLogin = new FormData();
     fdlHttpLogin.top = new FormAttachment(0, margin);
     fdlHttpLogin.left = new FormAttachment(0, 0);
@@ -539,7 +543,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wHttpLogin = new TextVar(variables, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wHttpLogin.addModifyListener(lsMod);
     wHttpLogin.setToolTipText(BaseMessages.getString(PKG, "HTTPPOSTDialog.HttpLogin.Tooltip"));
-    props.setLook(wHttpLogin);
+    PropsUi.setLook(wHttpLogin);
     FormData fdHttpLogin = new FormData();
     fdHttpLogin.top = new FormAttachment(0, margin);
     fdHttpLogin.left = new FormAttachment(middle, 0);
@@ -554,7 +558,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     httpAuthLayout.marginWidth = 3;
     httpAuthLayout.marginHeight = 3;
     gHttpAuth.setLayout(httpAuthLayout);
-    props.setLook(gHttpAuth);
+    PropsUi.setLook(gHttpAuth);
     return gHttpAuth;
   }
 
@@ -564,14 +568,14 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlResponseHeader = new Label(gOutputFields, SWT.RIGHT);
     wlResponseHeader.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.ResponseHeader.Label"));
-    props.setLook(wlResponseHeader);
+    PropsUi.setLook(wlResponseHeader);
     FormData fdlResponseHeader = new FormData();
     fdlResponseHeader.left = new FormAttachment(0, 0);
     fdlResponseHeader.right = new FormAttachment(middle, -margin);
     fdlResponseHeader.top = new FormAttachment(wResponseTime, margin);
     wlResponseHeader.setLayoutData(fdlResponseHeader);
     wResponseHeader = new TextVar(variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wResponseHeader);
+    PropsUi.setLook(wResponseHeader);
     wResponseHeader.addModifyListener(lsMod);
     FormData fdResponseHeader = new FormData();
     fdResponseHeader.left = new FormAttachment(middle, 0);
@@ -586,14 +590,14 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlResponseTime = new Label(gOutputFields, SWT.RIGHT);
     wlResponseTime.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.ResponseTime.Label"));
-    props.setLook(wlResponseTime);
+    PropsUi.setLook(wlResponseTime);
     FormData fdlResponseTime = new FormData();
     fdlResponseTime.left = new FormAttachment(0, 0);
     fdlResponseTime.right = new FormAttachment(middle, -margin);
     fdlResponseTime.top = new FormAttachment(wResultCode, margin);
     wlResponseTime.setLayoutData(fdlResponseTime);
     wResponseTime = new TextVar(variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wResponseTime);
+    PropsUi.setLook(wResponseTime);
     wResponseTime.addModifyListener(lsMod);
     FormData fdResponseTime = new FormData();
     fdResponseTime.left = new FormAttachment(middle, 0);
@@ -608,14 +612,14 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlResultCode = new Label(gOutputFields, SWT.RIGHT);
     wlResultCode.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.ResultCode.Label"));
-    props.setLook(wlResultCode);
+    PropsUi.setLook(wlResultCode);
     FormData fdlResultCode = new FormData();
     fdlResultCode.left = new FormAttachment(0, 0);
     fdlResultCode.right = new FormAttachment(middle, -margin);
     fdlResultCode.top = new FormAttachment(wResult, margin);
     wlResultCode.setLayoutData(fdlResultCode);
     wResultCode = new TextVar(variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wResultCode);
+    PropsUi.setLook(wResultCode);
     wResultCode.addModifyListener(lsMod);
     FormData fdResultCode = new FormData();
     fdResultCode.left = new FormAttachment(middle, 0);
@@ -630,14 +634,14 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlResult = new Label(gOutputFields, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.Result.Label"));
-    props.setLook(wlResult);
+    PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
     fdlResult.top = new FormAttachment(wPostAFile, margin);
     wlResult.setLayoutData(fdlResult);
     wResult = new TextVar(variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wResult);
+    PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
@@ -653,7 +657,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     outputFieldsLayout.marginWidth = 3;
     outputFieldsLayout.marginHeight = 3;
     gOutputFields.setLayout(outputFieldsLayout);
-    props.setLook(gOutputFields);
+    PropsUi.setLook(gOutputFields);
     return gOutputFields;
   }
 
@@ -663,7 +667,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     Label wlCloseIdleConnectionsTime = new Label(gSettings, SWT.RIGHT);
     wlCloseIdleConnectionsTime.setText(
         BaseMessages.getString(PKG, "HTTPPOSTDialog.CloseIdleConnectionsTime.Label"));
-    props.setLook(wlCloseIdleConnectionsTime);
+    PropsUi.setLook(wlCloseIdleConnectionsTime);
     FormData fdlCloseIdleConnectionsTime = new FormData();
     fdlCloseIdleConnectionsTime.top = new FormAttachment(wSocketTimeOut, margin);
     fdlCloseIdleConnectionsTime.left = new FormAttachment(0, 0);
@@ -674,7 +678,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wCloseIdleConnectionsTime.addModifyListener(lsMod);
     wCloseIdleConnectionsTime.setToolTipText(
         BaseMessages.getString(PKG, "HTTPPOSTDialog.CloseIdleConnectionsTime.Tooltip"));
-    props.setLook(wCloseIdleConnectionsTime);
+    PropsUi.setLook(wCloseIdleConnectionsTime);
     FormData fdCloseIdleConnectionsTime = new FormData();
     fdCloseIdleConnectionsTime.top = new FormAttachment(wSocketTimeOut, margin);
     fdCloseIdleConnectionsTime.left = new FormAttachment(middle, 0);
@@ -687,7 +691,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlSocketTimeOut = new Label(gSettings, SWT.RIGHT);
     wlSocketTimeOut.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.SocketTimeOut.Label"));
-    props.setLook(wlSocketTimeOut);
+    PropsUi.setLook(wlSocketTimeOut);
     FormData fdlSocketTimeOut = new FormData();
     fdlSocketTimeOut.top = new FormAttachment(wConnectionTimeOut, margin);
     fdlSocketTimeOut.left = new FormAttachment(0, 0);
@@ -697,7 +701,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wSocketTimeOut.addModifyListener(lsMod);
     wSocketTimeOut.setToolTipText(
         BaseMessages.getString(PKG, "HTTPPOSTDialog.SocketTimeOut.Tooltip"));
-    props.setLook(wSocketTimeOut);
+    PropsUi.setLook(wSocketTimeOut);
     FormData fdSocketTimeOut = new FormData();
     fdSocketTimeOut.top = new FormAttachment(wConnectionTimeOut, margin);
     fdSocketTimeOut.left = new FormAttachment(middle, 0);
@@ -711,7 +715,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     Label wlConnectionTimeOut = new Label(gSettings, SWT.RIGHT);
     wlConnectionTimeOut.setText(
         BaseMessages.getString(PKG, "HTTPPOSTDialog.ConnectionTimeOut.Label"));
-    props.setLook(wlConnectionTimeOut);
+    PropsUi.setLook(wlConnectionTimeOut);
     FormData fdlConnectionTimeOut = new FormData();
     fdlConnectionTimeOut.top = new FormAttachment(wPostAFile, margin);
     fdlConnectionTimeOut.left = new FormAttachment(0, 0);
@@ -721,7 +725,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wConnectionTimeOut.addModifyListener(lsMod);
     wConnectionTimeOut.setToolTipText(
         BaseMessages.getString(PKG, "HTTPPOSTDialog.ConnectionTimeOut.Tooltip"));
-    props.setLook(wConnectionTimeOut);
+    PropsUi.setLook(wConnectionTimeOut);
     FormData fdConnectionTimeOut = new FormData();
     fdConnectionTimeOut.top = new FormAttachment(wPostAFile, margin);
     fdConnectionTimeOut.left = new FormAttachment(middle, 0);
@@ -735,7 +739,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlPostAFile = new Label(gSettings, SWT.RIGHT);
     wlPostAFile.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.postAFile.Label"));
-    props.setLook(wlPostAFile);
+    PropsUi.setLook(wlPostAFile);
     FormData fdlPostAFile = new FormData();
     fdlPostAFile.left = new FormAttachment(0, 0);
     fdlPostAFile.right = new FormAttachment(middle, -margin);
@@ -743,7 +747,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wlPostAFile.setLayoutData(fdlPostAFile);
     wPostAFile = new Button(gSettings, SWT.CHECK);
     wPostAFile.setToolTipText(BaseMessages.getString(PKG, "HTTPPOSTDialog.postAFile.Tooltip"));
-    props.setLook(wPostAFile);
+    PropsUi.setLook(wPostAFile);
     FormData fdPostAFile = new FormData();
     fdPostAFile.left = new FormAttachment(middle, 0);
     fdPostAFile.top = new FormAttachment(wlPostAFile, 0, SWT.CENTER);
@@ -758,7 +762,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlRequestEntity = new Label(gSettings, SWT.RIGHT);
     wlRequestEntity.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.requestEntity.Label"));
-    props.setLook(wlRequestEntity);
+    PropsUi.setLook(wlRequestEntity);
     FormData fdlRequestEntity = new FormData();
     fdlRequestEntity.left = new FormAttachment(0, 0);
     fdlRequestEntity.right = new FormAttachment(middle, -margin);
@@ -767,7 +771,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
     wRequestEntity = new ComboVar(variables, gSettings, SWT.BORDER | SWT.READ_ONLY);
     wRequestEntity.setEditable(true);
-    props.setLook(wRequestEntity);
+    PropsUi.setLook(wRequestEntity);
     wRequestEntity.addModifyListener(lsMod);
     FormData fdRequestEntity = new FormData();
     fdRequestEntity.left = new FormAttachment(middle, 0);
@@ -797,7 +801,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlEncoding = new Label(gSettings, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.Encoding.Label"));
-    props.setLook(wlEncoding);
+    PropsUi.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment(0, 0);
     fdlEncoding.top = new FormAttachment(wUrlField, margin);
@@ -805,7 +809,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new ComboVar(variables, gSettings, SWT.BORDER | SWT.READ_ONLY);
     wEncoding.setEditable(true);
-    props.setLook(wEncoding);
+    PropsUi.setLook(wEncoding);
     wEncoding.addModifyListener(lsMod);
     FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment(middle, 0);
@@ -836,7 +840,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     wlUrlField = new Label(gSettings, SWT.RIGHT);
     wlUrlField.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.UrlField.Label"));
-    props.setLook(wlUrlField);
+    PropsUi.setLook(wlUrlField);
     FormData fdlUrlField = new FormData();
     fdlUrlField.left = new FormAttachment(0, 0);
     fdlUrlField.right = new FormAttachment(middle, -margin);
@@ -845,7 +849,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
     wUrlField = new ComboVar(variables, gSettings, SWT.BORDER | SWT.READ_ONLY);
     wUrlField.setEditable(true);
-    props.setLook(wUrlField);
+    PropsUi.setLook(wUrlField);
     wUrlField.addModifyListener(lsMod);
     FormData fdUrlField = new FormData();
     fdUrlField.left = new FormAttachment(middle, 0);
@@ -876,14 +880,14 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     Label wlUrlInField = new Label(gSettings, SWT.RIGHT);
     wlUrlInField.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.UrlInField.Label"));
-    props.setLook(wlUrlInField);
+    PropsUi.setLook(wlUrlInField);
     FormData fdlUrlInField = new FormData();
     fdlUrlInField.left = new FormAttachment(0, 0);
     fdlUrlInField.top = new FormAttachment(wUrl, margin);
     fdlUrlInField.right = new FormAttachment(middle, -margin);
     wlUrlInField.setLayoutData(fdlUrlInField);
     wUrlInField = new Button(gSettings, SWT.CHECK);
-    props.setLook(wUrlInField);
+    PropsUi.setLook(wUrlInField);
     FormData fdUrlInField = new FormData();
     fdUrlInField.left = new FormAttachment(middle, 0);
     fdUrlInField.top = new FormAttachment(wlUrlInField, 0, SWT.CENTER);
@@ -906,14 +910,14 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int middle = props.getMiddlePct();
     Label wlIgnoreSsl = new Label(gSettings, SWT.RIGHT);
     wlIgnoreSsl.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.IgnoreSsl.Label"));
-    props.setLook(wlIgnoreSsl);
+    PropsUi.setLook(wlIgnoreSsl);
     FormData fdlIgnoreSsl = new FormData();
     fdlIgnoreSsl.left = new FormAttachment(0, 0);
     fdlIgnoreSsl.top = new FormAttachment(wUrlInField, margin);
     fdlIgnoreSsl.right = new FormAttachment(middle, -margin);
     wlIgnoreSsl.setLayoutData(fdlIgnoreSsl);
     wIgnoreSsl = new Button(gSettings, SWT.CHECK);
-    props.setLook(wIgnoreSsl);
+    PropsUi.setLook(wIgnoreSsl);
     FormData fdIgnoreSsl = new FormData();
     fdIgnoreSsl.left = new FormAttachment(middle, 0);
     fdIgnoreSsl.top = new FormAttachment(wlIgnoreSsl, 0, SWT.CENTER);
@@ -933,7 +937,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     wlUrl = new Label(gSettings, SWT.RIGHT);
     wlUrl.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.URL.Label"));
-    props.setLook(wlUrl);
+    PropsUi.setLook(wlUrl);
     FormData fdlUrl = new FormData();
     fdlUrl.left = new FormAttachment(0, 0);
     fdlUrl.right = new FormAttachment(middle, -margin);
@@ -941,7 +945,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wlUrl.setLayoutData(fdlUrl);
 
     wUrl = new TextVar(variables, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUrl);
+    PropsUi.setLook(wUrl);
     wUrl.addModifyListener(lsMod);
     FormData fdUrl = new FormData();
     fdUrl.left = new FormAttachment(middle, 0);
@@ -957,7 +961,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     settingsLayout.marginWidth = 3;
     settingsLayout.marginHeight = 3;
     gSettings.setLayout(settingsLayout);
-    props.setLook(gSettings);
+    PropsUi.setLook(gSettings);
     return gSettings;
   }
 
@@ -967,7 +971,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     int margin = props.getMargin();
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -975,7 +979,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);

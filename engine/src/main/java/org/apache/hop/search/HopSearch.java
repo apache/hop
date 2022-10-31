@@ -336,7 +336,7 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
       PluginRegistry registry = PluginRegistry.getInstance();
       SearchableAnalyserPluginType searchableAnalyserPluginType =
           SearchableAnalyserPluginType.getInstance();
-      registry.addPluginType(searchableAnalyserPluginType);
+      PluginRegistry.addPluginType(searchableAnalyserPluginType);
       searchableAnalyserPluginType.searchPlugins();
 
       CommandLine cmd = new CommandLine(hopSearch);

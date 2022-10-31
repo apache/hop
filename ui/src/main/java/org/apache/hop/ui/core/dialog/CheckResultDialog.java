@@ -84,7 +84,7 @@ public class CheckResultDialog extends Dialog {
     yellow = display.getSystemColor(SWT.COLOR_YELLOW);
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImagePipeline());
 
     FormLayout formLayout = new FormLayout();
@@ -113,7 +113,7 @@ public class CheckResultDialog extends Dialog {
 
     wNoOK = new Button(shell, SWT.CHECK);
     wNoOK.setText(STRING_SHOW_SUCESSFUL);
-    props.setLook(wNoOK);
+    PropsUi.setLook(wNoOK);
     FormData fd = new FormData();
     fd.left = new FormAttachment(0, 0);
     fd.bottom = new FormAttachment(wClose, -2 * margin);
@@ -122,7 +122,7 @@ public class CheckResultDialog extends Dialog {
 
     wlFields = new Label(shell, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "CheckResultDialog.Remarks.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);

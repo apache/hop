@@ -40,6 +40,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -140,7 +141,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, metaInjectMeta);
 
     lsMod = e -> metaInjectMeta.setChanged();
@@ -159,7 +160,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdlicon.top = new FormAttachment(0, 0);
     fdlicon.right = new FormAttachment(100, 0);
     wicon.setLayoutData(fdlicon);
-    props.setLook(wicon);
+    PropsUi.setLook(wicon);
 
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
@@ -181,7 +182,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     // Transform Name line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "MetaInjectDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, 0);
@@ -189,7 +190,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.right = new FormAttachment(90, 0);
@@ -205,7 +206,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     spacer.setLayoutData(fdSpacer);
 
     Label wlPath = new Label(shell, SWT.LEFT);
-    props.setLook(wlPath);
+    PropsUi.setLook(wlPath);
     wlPath.setText(BaseMessages.getString(PKG, "MetaInjectDialog.Pipeline.Label"));
     FormData fdlTransformation = new FormData();
     fdlTransformation.left = new FormAttachment(0, 0);
@@ -214,7 +215,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wlPath.setLayoutData(fdlTransformation);
 
     Button wbBrowse = new Button(shell, SWT.PUSH);
-    props.setLook(wbBrowse);
+    PropsUi.setLook(wbBrowse);
     wbBrowse.setText(BaseMessages.getString(PKG, "MetaInjectDialog.Browse.Label"));
     FormData fdBrowse = new FormData();
     fdBrowse.right = new FormAttachment(100, -props.getMargin());
@@ -222,7 +223,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wbBrowse.setLayoutData(fdBrowse);
 
     wPath = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPath);
+    PropsUi.setLook(wPath);
     FormData fdTransformation = new FormData();
     fdTransformation.left = new FormAttachment(0, 0);
     fdTransformation.top = new FormAttachment(wlPath, 5);
@@ -248,7 +249,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wlRunConfiguration = new Label(shell, SWT.LEFT);
     wlRunConfiguration.setText(
         BaseMessages.getString(PKG, "MetaInjectDialog.RunConfiguration.Label"));
-    props.setLook(wlRunConfiguration);
+    PropsUi.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
     fdlRunConfiguration.top = new FormAttachment(wPath, 20);
@@ -256,16 +257,16 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wlRunConfiguration.setLayoutData(fdlRunConfiguration);
 
     wRunConfiguration = new ComboVar(variables, shell, SWT.LEFT | SWT.BORDER);
-    props.setLook(wlRunConfiguration);
+    PropsUi.setLook(wlRunConfiguration);
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.left = new FormAttachment(0, 0);
     fdRunConfiguration.top = new FormAttachment(wlRunConfiguration, 10);
     fdRunConfiguration.right = new FormAttachment(100, 0);
     wRunConfiguration.setLayoutData(fdRunConfiguration);
-    props.setLook(wRunConfiguration);
+    PropsUi.setLook(wRunConfiguration);
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     Label hSpacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdhSpacer = new FormData();
@@ -363,6 +364,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     int margin = props.getMargin();
 
     CTabItem wOptionsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wOptionsTab.setFont(GuiResource.getInstance().getFontDefault());
     wOptionsTab.setText(BaseMessages.getString(PKG, "MetaInjectDialog.OptionsTab.TabTitle"));
 
     ScrolledComposite wOptionsSComp =
@@ -370,7 +372,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wOptionsSComp.setLayout(new FillLayout());
 
     Composite wOptionsComp = new Composite(wOptionsSComp, SWT.NONE);
-    props.setLook(wOptionsComp);
+    PropsUi.setLook(wOptionsComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 15;
@@ -380,14 +382,14 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     Label wlSourceTransform = new Label(wOptionsComp, SWT.RIGHT);
     wlSourceTransform.setText(
         BaseMessages.getString(PKG, "MetaInjectDialog.SourceTransform.Label"));
-    props.setLook(wlSourceTransform);
+    PropsUi.setLook(wlSourceTransform);
     FormData fdlSourceTransform = new FormData();
     fdlSourceTransform.left = new FormAttachment(0, 0);
     fdlSourceTransform.top = new FormAttachment(0, 0);
     wlSourceTransform.setLayoutData(fdlSourceTransform);
 
     wSourceTransform = new CCombo(wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSourceTransform);
+    PropsUi.setLook(wSourceTransform);
     wSourceTransform.addModifyListener(lsMod);
     FormData fdSourceTransform = new FormData();
     fdSourceTransform.right = new FormAttachment(100, 0);
@@ -439,7 +441,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     Label wlTargetFile = new Label(wOptionsComp, SWT.RIGHT);
     wlTargetFile.setText(BaseMessages.getString(PKG, "MetaInjectDialog.TargetFile.Label"));
-    props.setLook(wlTargetFile);
+    PropsUi.setLook(wlTargetFile);
     FormData fdlTargetFile = new FormData();
     fdlTargetFile.left = new FormAttachment(0, 0);
     fdlTargetFile.top = new FormAttachment(wSourceFields, 10);
@@ -447,7 +449,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     // Browse for optional target file
     Button wbFilename = new Button(wOptionsComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbFilename);
+    PropsUi.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -469,7 +471,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
                 true));
 
     wTargetFile = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTargetFile);
+    PropsUi.setLook(wTargetFile);
     wTargetFile.addModifyListener(lsMod);
     FormData fdTargetFile = new FormData();
     fdTargetFile.right = new FormAttachment(wbFilename, -margin);
@@ -482,7 +484,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
         BaseMessages.getString(PKG, "MetaInjectDialog.CreateParentFolder.Label"));
     wCreateParentFolder.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.CreateParentFolder.Tooltip"));
-    props.setLook(wCreateParentFolder);
+    PropsUi.setLook(wCreateParentFolder);
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment(0, 0);
     fdCreateParentFolder.top = new FormAttachment(wTargetFile, margin);
@@ -500,14 +502,14 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     Label wlStreamingSourceTransform = new Label(wOptionsComp, SWT.RIGHT);
     wlStreamingSourceTransform.setText(
         BaseMessages.getString(PKG, "MetaInjectDialog.StreamingSourceTransform.Label"));
-    props.setLook(wlStreamingSourceTransform);
+    PropsUi.setLook(wlStreamingSourceTransform);
     FormData fdlStreamingSourceTransform = new FormData();
     fdlStreamingSourceTransform.left = new FormAttachment(0, 0);
     fdlStreamingSourceTransform.top = new FormAttachment(wCreateParentFolder, 10);
     wlStreamingSourceTransform.setLayoutData(fdlStreamingSourceTransform);
 
     wStreamingSourceTransform = new CCombo(wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wStreamingSourceTransform);
+    PropsUi.setLook(wStreamingSourceTransform);
     FormData fdStreamingSourceTransform = new FormData();
     fdStreamingSourceTransform.right = new FormAttachment(100, 0);
     fdStreamingSourceTransform.left = new FormAttachment(0, 0);
@@ -519,14 +521,14 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wlStreamingTargetTransform = new Label(wOptionsComp, SWT.RIGHT);
     wlStreamingTargetTransform.setText(
         BaseMessages.getString(PKG, "MetaInjectDialog.StreamingTargetTransform.Label"));
-    props.setLook(wlStreamingTargetTransform);
+    PropsUi.setLook(wlStreamingTargetTransform);
     FormData fdlStreamingTargetTransform = new FormData();
     fdlStreamingTargetTransform.left = new FormAttachment(0, 0);
     fdlStreamingTargetTransform.top = new FormAttachment(wStreamingSourceTransform, 10);
     wlStreamingTargetTransform.setLayoutData(fdlStreamingTargetTransform);
 
     wStreamingTargetTransform = new CCombo(wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wStreamingTargetTransform);
+    PropsUi.setLook(wStreamingTargetTransform);
     FormData fdStreamingTargetTransform = new FormData();
     fdStreamingTargetTransform.right = new FormAttachment(100, 0);
     fdStreamingTargetTransform.left = new FormAttachment(0, 0);
@@ -535,7 +537,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     wNoExecution = new Button(wOptionsComp, SWT.CHECK);
     wNoExecution.setText(BaseMessages.getString(PKG, "MetaInjectDialog.NoExecution.Label"));
-    props.setLook(wNoExecution);
+    PropsUi.setLook(wNoExecution);
     FormData fdNoExecution = new FormData();
     fdNoExecution.width = 350;
     fdNoExecution.left = new FormAttachment(0, 0);
@@ -571,13 +573,14 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     // ////////////////////////
 
     CTabItem wInjectTab = new CTabItem(wTabFolder, SWT.NONE);
+    wInjectTab.setFont(GuiResource.getInstance().getFontDefault());
     wInjectTab.setText(BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.TabTitle"));
 
     ScrolledComposite wInjectSComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     wInjectSComp.setLayout(new FillLayout());
 
     Composite wInjectComp = new Composite(wInjectSComp, SWT.NONE);
-    props.setLook(wInjectComp);
+    PropsUi.setLook(wInjectComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 15;
@@ -586,11 +589,11 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     // Add a search bar at the top...
     ToolBar treeTb = new ToolBar(wInjectComp, SWT.HORIZONTAL | SWT.FLAT);
-    props.setLook(treeTb);
+    PropsUi.setLook(treeTb);
 
     ToolItem wFilter = new ToolItem(treeTb, SWT.SEPARATOR);
     wSearchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
-    props.setLook(wSearchText);
+    PropsUi.setLook(wSearchText);
     wSearchText.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.ToolTip"));
     wFilter.setControl(wSearchText);
@@ -615,7 +618,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     treeTb.setLayoutData(fd);
 
     Label wlFilter = new Label(wInjectComp, SWT.RIGHT);
-    props.setLook(wlFilter);
+    PropsUi.setLook(wlFilter);
     wlFilter.setText(BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.Label"));
     FormData fdlFilter = new FormData();
     fdlFilter.top = new FormAttachment(0, 5);
@@ -625,7 +628,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wSearchText.addListener(SWT.Modify, e -> updateTransformationFilter());
 
     Label wlTree = new Label(wInjectComp, SWT.LEFT);
-    props.setLook(wlTree);
+    PropsUi.setLook(wlTree);
     wlTree.setText(BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.CLickTree.Label"));
 
     // Transformation list

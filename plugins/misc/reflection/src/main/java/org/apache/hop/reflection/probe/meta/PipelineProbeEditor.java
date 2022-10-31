@@ -77,11 +77,11 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     fdlIcon.top = new FormAttachment(0, 0);
     fdlIcon.right = new FormAttachment(100, 0);
     wIcon.setLayoutData(fdlIcon);
-    props.setLook(wIcon);
+    PropsUi.setLook(wIcon);
 
     // What's the name
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "PipelineProbeEditor.Name.Label"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(wIcon, margin);
@@ -89,7 +89,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, margin);
@@ -107,7 +107,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     // Enabled?
     //
     Label wlEnabled = new Label(parent, SWT.RIGHT);
-    props.setLook(wlEnabled);
+    PropsUi.setLook(wlEnabled);
     wlEnabled.setText(BaseMessages.getString(PKG, "PipelineProbeEditor.Enabled.Label"));
     FormData fdlEnabled = new FormData();
     fdlEnabled.left = new FormAttachment(0, 0);
@@ -115,7 +115,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     fdlEnabled.top = new FormAttachment(lastControl, margin);
     wlEnabled.setLayoutData(fdlEnabled);
     wEnabled = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wEnabled);
+    PropsUi.setLook(wEnabled);
     FormData fdEnabled = new FormData();
     fdEnabled.left = new FormAttachment(middle, margin);
     fdEnabled.right = new FormAttachment(100, 0);
@@ -124,7 +124,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     lastControl = wlEnabled;
 
     Label wlFilename = new Label(parent, SWT.RIGHT);
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     wlFilename.setText(BaseMessages.getString(PKG, "PipelineProbeEditor.Filename.Label"));
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -133,7 +133,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     wlFilename.setLayoutData(fdlFilename);
 
     Button wbbFilename = new Button(parent, SWT.PUSH);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbbFilename = new FormData();
     fdbbFilename.right = new FormAttachment(100, 0);
@@ -142,7 +142,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     wbbFilename.addListener(SWT.Selection, e -> selectPipelineFilename(parent));
 
     Button wbnFilename = new Button(parent, SWT.PUSH);
-    props.setLook(wbnFilename);
+    PropsUi.setLook(wbnFilename);
     wbnFilename.setText(BaseMessages.getString(PKG, "System.Button.New"));
     FormData fdbnFilename = new FormData();
     fdbnFilename.right = new FormAttachment(wbbFilename, -margin);
@@ -151,7 +151,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     wbnFilename.addListener(SWT.Selection, e -> createPipelineFile(parent));
 
     Button wboFilename = new Button(parent, SWT.PUSH);
-    props.setLook(wboFilename);
+    PropsUi.setLook(wboFilename);
     wboFilename.setText(BaseMessages.getString(PKG, "System.Button.Open"));
     FormData fdboFilename = new FormData();
     fdboFilename.right = new FormAttachment(wbnFilename, -margin);
@@ -160,7 +160,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     wboFilename.addListener(SWT.Selection, e -> openPipelineFile(parent));
 
     wFilename = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, margin);
     fdFilename.right = new FormAttachment(wboFilename, -margin);
@@ -171,7 +171,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     // The locations in a table view:
     //
     Label wlSources = new Label(parent, SWT.LEFT);
-    props.setLook(wlSources);
+    PropsUi.setLook(wlSources);
     wlSources.setText(BaseMessages.getString(PKG, "PipelineProbeEditor.Sources.Label"));
     FormData fdlSources = new FormData();
     fdlSources.left = new FormAttachment(0, 0);

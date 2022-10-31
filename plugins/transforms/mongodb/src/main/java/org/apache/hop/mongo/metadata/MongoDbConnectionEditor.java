@@ -68,7 +68,7 @@ public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
     // Name...
     //
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText("MongoDB Connection name");
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin * 2);
@@ -76,7 +76,7 @@ public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, margin);
@@ -122,12 +122,12 @@ public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
     PropsUi props = PropsUi.getInstance();
 
     Button wbGetDbs = new Button(parent, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGetDbs);
+    PropsUi.setLook(wbGetDbs);
     wbGetDbs.setText("Get databases");
     wbGetDbs.addListener(SWT.Selection, e -> getDbNames());
 
     Button wbTest = new Button(parent, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTest);
+    PropsUi.setLook(wbTest);
     wbTest.setText("Test");
     wbTest.addListener(SWT.Selection, e -> test());
 

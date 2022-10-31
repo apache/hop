@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -85,7 +86,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = (ModifyEvent e) -> action.setChanged();
@@ -114,14 +115,14 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionTruncateTables.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -134,14 +135,14 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
 
     Label wlPrevious = new Label(shell, SWT.RIGHT);
     wlPrevious.setText(BaseMessages.getString(PKG, "ActionTruncateTables.Previous.Label"));
-    props.setLook(wlPrevious);
+    PropsUi.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
     fdlPrevious.top = new FormAttachment(wConnection, margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(shell, SWT.CHECK);
-    props.setLook(wPrevious);
+    PropsUi.setLook(wPrevious);
     wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionTruncateTables.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
@@ -159,7 +160,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
         });
 
     wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTable);
+    PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString(PKG, "ActionTruncateTables.GetTablenamesList.Auto"));
     FormData fdbTable = new FormData();
     fdbTable.left = new FormAttachment(0, margin);
@@ -176,7 +177,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
 
     wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionTruncateTables.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
@@ -185,7 +186,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
 
     // Buttons to the right of the screen...
     wbdTablename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdTablename);
+    PropsUi.setLook(wbdTablename);
     wbdTablename.setText(BaseMessages.getString(PKG, "ActionTruncateTables.TableDelete.Button"));
     wbdTablename.setToolTipText(
         BaseMessages.getString(PKG, "ActionTruncateTables.TableDelete.Tooltip"));

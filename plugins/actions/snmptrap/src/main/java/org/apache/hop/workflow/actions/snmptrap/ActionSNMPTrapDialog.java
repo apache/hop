@@ -22,7 +22,9 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -94,7 +96,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -134,17 +136,18 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "ActionSNMPTrap.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -155,7 +158,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // START OF SERVER SETTINGS GROUP///
     // /
     Group wServerSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wServerSettings);
+    PropsUi.setLook(wServerSettings);
     wServerSettings.setText(
         BaseMessages.getString(PKG, "ActionSNMPTrap.ServerSettings.Group.Label"));
 
@@ -172,7 +175,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
             wServerSettings,
             BaseMessages.getString(PKG, "ActionSNMPTrap.Server.Label"),
             BaseMessages.getString(PKG, "ActionSNMPTrap.Server.Tooltip"));
-    props.setLook(wServerName);
+    PropsUi.setLook(wServerName);
     wServerName.addModifyListener(lsMod);
     FormData fdServerName = new FormData();
     fdServerName.left = new FormAttachment(0, 0);
@@ -187,7 +190,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
             wServerSettings,
             BaseMessages.getString(PKG, "ActionSNMPTrap.Port.Label"),
             BaseMessages.getString(PKG, "ActionSNMPTrap.Port.Tooltip"));
-    props.setLook(wPort);
+    PropsUi.setLook(wPort);
     wPort.addModifyListener(lsMod);
     FormData fdPort = new FormData();
     fdPort.left = new FormAttachment(0, 0);
@@ -202,7 +205,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
             wServerSettings,
             BaseMessages.getString(PKG, "ActionSNMPTrap.OID.Label"),
             BaseMessages.getString(PKG, "ActionSNMPTrap.OID.Tooltip"));
-    props.setLook(wOID);
+    PropsUi.setLook(wOID);
     wOID.addModifyListener(lsMod);
     FormData fdOID = new FormData();
     fdOID.left = new FormAttachment(0, 0);
@@ -213,7 +216,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // Test connection button
     Button wTest = new Button(wServerSettings, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "ActionSNMPTrap.TestConnection.Label"));
-    props.setLook(wTest);
+    PropsUi.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(BaseMessages.getString(PKG, "ActionSNMPTrap.TestConnection.Tooltip"));
     fdTest.top = new FormAttachment(wOID, margin);
@@ -234,7 +237,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // START OF Advanced SETTINGS GROUP///
     // /
     Group wAdvancedSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wAdvancedSettings);
+    PropsUi.setLook(wAdvancedSettings);
     wAdvancedSettings.setText(
         BaseMessages.getString(PKG, "ActionSNMPTrap.AdvancedSettings.Group.Label"));
     FormLayout advancedSettingsgroupLayout = new FormLayout();
@@ -245,7 +248,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // Target type
     Label wlTargetType = new Label(wAdvancedSettings, SWT.RIGHT);
     wlTargetType.setText(BaseMessages.getString(PKG, "ActionSNMPTrap.TargetType.Label"));
-    props.setLook(wlTargetType);
+    PropsUi.setLook(wlTargetType);
     FormData fdlTargetType = new FormData();
     fdlTargetType.left = new FormAttachment(0, margin);
     fdlTargetType.right = new FormAttachment(middle, -margin);
@@ -254,7 +257,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     wTargetType = new CCombo(wAdvancedSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wTargetType.setItems(ActionSNMPTrap.targetTypeDesc);
 
-    props.setLook(wTargetType);
+    PropsUi.setLook(wTargetType);
     FormData fdTargetType = new FormData();
     fdTargetType.left = new FormAttachment(middle, margin);
     fdTargetType.top = new FormAttachment(wServerSettings, margin);
@@ -275,7 +278,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
             wAdvancedSettings,
             BaseMessages.getString(PKG, "ActionSNMPTrap.ComString.Label"),
             BaseMessages.getString(PKG, "ActionSNMPTrap.ComString.Tooltip"));
-    props.setLook(wComString);
+    PropsUi.setLook(wComString);
     wComString.addModifyListener(lsMod);
     FormData fdComString = new FormData();
     fdComString.left = new FormAttachment(0, 0);
@@ -290,7 +293,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
             wAdvancedSettings,
             BaseMessages.getString(PKG, "ActionSNMPTrap.User.Label"),
             BaseMessages.getString(PKG, "ActionSNMPTrap.User.Tooltip"));
-    props.setLook(wUser);
+    PropsUi.setLook(wUser);
     wUser.addModifyListener(lsMod);
     FormData fdUser = new FormData();
     fdUser.left = new FormAttachment(0, 0);
@@ -306,7 +309,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
             BaseMessages.getString(PKG, "ActionSNMPTrap.Passphrase.Label"),
             BaseMessages.getString(PKG, "ActionSNMPTrap.Passphrase.Tooltip"),
             true);
-    props.setLook(wPassphrase);
+    PropsUi.setLook(wPassphrase);
     wPassphrase.addModifyListener(lsMod);
     FormData fdPassphrase = new FormData();
     fdPassphrase.left = new FormAttachment(0, 0);
@@ -321,7 +324,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
             wAdvancedSettings,
             BaseMessages.getString(PKG, "ActionSNMPTrap.EngineID.Label"),
             BaseMessages.getString(PKG, "ActionSNMPTrap.EngineID.Tooltip"));
-    props.setLook(wEngineID);
+    PropsUi.setLook(wEngineID);
     wEngineID.addModifyListener(lsMod);
     FormData fdEngineID = new FormData();
     fdEngineID.left = new FormAttachment(0, 0);
@@ -336,7 +339,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
             wAdvancedSettings,
             BaseMessages.getString(PKG, "ActionSNMPTrap.Retry.Label"),
             BaseMessages.getString(PKG, "ActionSNMPTrap.Retry.Tooltip"));
-    props.setLook(wRetry);
+    PropsUi.setLook(wRetry);
     wRetry.addModifyListener(lsMod);
     FormData fdRetry = new FormData();
     fdRetry.left = new FormAttachment(0, 0);
@@ -351,7 +354,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
             wAdvancedSettings,
             BaseMessages.getString(PKG, "ActionSNMPTrap.Timeout.Label"),
             BaseMessages.getString(PKG, "ActionSNMPTrap.Timeout.Tooltip"));
-    props.setLook(wTimeout);
+    PropsUi.setLook(wTimeout);
     wTimeout.addModifyListener(lsMod);
     FormData fdTimeout = new FormData();
     fdTimeout.left = new FormAttachment(0, 0);
@@ -372,7 +375,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // START OF MESSAGE GROUP///
     // /
     Group wMessageGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wMessageGroup);
+    PropsUi.setLook(wMessageGroup);
     wMessageGroup.setText(BaseMessages.getString(PKG, "ActionSNMPTrap.MessageGroup.Group.Label"));
     FormLayout messageGroupgroupLayout = new FormLayout();
     messageGroupgroupLayout.marginWidth = 10;
@@ -382,7 +385,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // Message line
     Label wlMessage = new Label(wMessageGroup, SWT.RIGHT);
     wlMessage.setText(BaseMessages.getString(PKG, "ActionSNMPTrap.Message.Label"));
-    props.setLook(wlMessage);
+    PropsUi.setLook(wlMessage);
     FormData fdlMessage = new FormData();
     fdlMessage.left = new FormAttachment(0, 0);
     fdlMessage.top = new FormAttachment(wComString, margin);
@@ -392,7 +395,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     wMessage =
         new StyledTextComp(
             action, wMessageGroup, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wMessage);
+    PropsUi.setLook(wMessage);
     wMessage.addModifyListener(lsMod);
     FormData fdMessage = new FormData();
     fdMessage.left = new FormAttachment(middle, 0);
@@ -420,7 +423,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
 
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB

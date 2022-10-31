@@ -143,11 +143,11 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlicon.top = new FormAttachment(0, 0);
     fdlicon.right = new FormAttachment(100, 0);
     wIcon.setLayoutData(fdlicon);
-    props.setLook(wIcon);
+    PropsUi.setLook(wIcon);
 
     // What's the name
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.ConnectionName"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, 0);
@@ -155,7 +155,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wlName.setLayoutData(fdlName);
 
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, margin);
     fdName.left = new FormAttachment(0, 0);
@@ -171,7 +171,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     // Now create the tabs above the buttons...
     wTabFolder = new CTabFolder(parent, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     addGeneralTab();
     addAdvancedTab();
@@ -218,10 +218,11 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private void addGeneralTab() {
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText("   " + BaseMessages.getString(PKG, "DatabaseDialog.DbTab.title") + "   ");
 
     wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout genLayout = new FormLayout();
     genLayout.marginWidth = Const.FORM_MARGIN * 2;
@@ -231,7 +232,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // What's the type of database access?
     //
     Label wlConnectionType = new Label(wGeneralComp, SWT.RIGHT);
-    props.setLook(wlConnectionType);
+    PropsUi.setLook(wlConnectionType);
     wlConnectionType.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.ConnectionType"));
     FormData fdlConnectionType = new FormData();
     fdlConnectionType.top = new FormAttachment(0, margin);
@@ -244,7 +245,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdToolBar.right = new FormAttachment(100, 0);
     fdToolBar.top = new FormAttachment(0, 0);
     wToolBar.setLayoutData(fdToolBar);
-    props.setLook(wToolBar);
+    PropsUi.setLook(wToolBar);
 
     ToolItem item = new ToolItem(wToolBar, SWT.PUSH);
     item.setImage(GuiResource.getInstance().getImageHelpWeb());
@@ -253,7 +254,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     wConnectionType = new Combo(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wConnectionType.setItems(getConnectionTypes());
-    props.setLook(wConnectionType);
+    PropsUi.setLook(wConnectionType);
     FormData fdConnectionType = new FormData();
     fdConnectionType.top = new FormAttachment(wlConnectionType, 0, SWT.CENTER);
     fdConnectionType.left = new FormAttachment(middle, margin); // To the right of the label
@@ -264,7 +265,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // Username field
     //
     wlUsername = new Label(wGeneralComp, SWT.RIGHT);
-    props.setLook(wlUsername);
+    PropsUi.setLook(wlUsername);
     wlUsername.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.Username"));
     FormData fdlUsername = new FormData();
     fdlUsername.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
@@ -273,7 +274,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wlUsername.setLayoutData(fdlUsername);
     wUsername =
         new TextVar(manager.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUsername);
+    PropsUi.setLook(wUsername);
     FormData fdUsername = new FormData();
     fdUsername.top = new FormAttachment(wlUsername, 0, SWT.CENTER);
     fdUsername.left = new FormAttachment(middle, margin); // To the right of the label
@@ -284,7 +285,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // Password field
     //
     wlPassword = new Label(wGeneralComp, SWT.RIGHT);
-    props.setLook(wlPassword);
+    PropsUi.setLook(wlPassword);
     wlPassword.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.Password"));
     FormData fdlPassword = new FormData();
     fdlPassword.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
@@ -294,7 +295,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wPassword =
         new TextVar(manager.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wPassword.setEchoChar('*');
-    props.setLook(wPassword);
+    PropsUi.setLook(wPassword);
     FormData fdPassword = new FormData();
     fdPassword.top = new FormAttachment(wlPassword, 0, SWT.CENTER);
     fdPassword.left = new FormAttachment(middle, margin); // To the right of the label
@@ -311,7 +312,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdDatabaseSpecificComp.right = new FormAttachment(100, 0);
     fdDatabaseSpecificComp.top = new FormAttachment(lastControl, margin);
     wDatabaseSpecificComp.setLayoutData(fdDatabaseSpecificComp);
-    props.setLook(wDatabaseSpecificComp);    
+    PropsUi.setLook(wDatabaseSpecificComp);
     lastControl = wDatabaseSpecificComp;
 
     // Now add the database plugin specific widgets
@@ -339,7 +340,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // manual URL field
     //
     Label wlManualUrl = new Label(wGeneralComp, SWT.RIGHT);
-    props.setLook(wlManualUrl);
+    PropsUi.setLook(wlManualUrl);
     wlManualUrl.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.ManualUrl"));
     FormData fdlManualUrl = new FormData();
     fdlManualUrl.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
@@ -348,7 +349,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wlManualUrl.setLayoutData(fdlManualUrl);
     wManualUrl =
         new TextVar(manager.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wManualUrl);
+    PropsUi.setLook(wManualUrl);
     FormData fdManualUrl = new FormData();
     fdManualUrl.top = new FormAttachment(wlManualUrl, 0, SWT.CENTER);
     fdManualUrl.left = new FormAttachment(middle, margin); // To the right of the label
@@ -448,11 +449,12 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private void addAdvancedTab() {
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdvancedTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdvancedTab.setText(
         "   " + BaseMessages.getString(PKG, "DatabaseDialog.AdvancedTab.title") + "   ");
 
     Composite wAdvancedComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wAdvancedComp);
+    PropsUi.setLook(wAdvancedComp);
 
     FormLayout advancedLayout = new FormLayout();
     advancedLayout.marginWidth = Const.FORM_MARGIN * 2;
@@ -462,7 +464,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // Supports the Boolean data type?
     //
     Label wlSupportsBoolean = new Label(wAdvancedComp, SWT.RIGHT);
-    props.setLook(wlSupportsBoolean);
+    PropsUi.setLook(wlSupportsBoolean);
     wlSupportsBoolean.setText(
         BaseMessages.getString(PKG, "DatabaseDialog.label.ConnectionSupportsBoolean"));
     FormData fdlSupportsBoolean = new FormData();
@@ -471,7 +473,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlSupportsBoolean.right = new FormAttachment(middle, 0);
     wlSupportsBoolean.setLayoutData(fdlSupportsBoolean);
     wSupportsBoolean = new Button(wAdvancedComp, SWT.CHECK | SWT.LEFT);
-    props.setLook(wSupportsBoolean);
+    PropsUi.setLook(wSupportsBoolean);
     FormData fdSupportsBoolean = new FormData();
     fdSupportsBoolean.top = new FormAttachment(wlSupportsBoolean, 0, SWT.CENTER);
     fdSupportsBoolean.left = new FormAttachment(middle, margin); // To the right of the label
@@ -482,7 +484,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // Supports the Timestamp data type?
     //
     Label wlSupportsTimestamp = new Label(wAdvancedComp, SWT.RIGHT);
-    props.setLook(wlSupportsTimestamp);
+    PropsUi.setLook(wlSupportsTimestamp);
     wlSupportsTimestamp.setText(
         BaseMessages.getString(PKG, "DatabaseDialog.label.ConnectionSupportsTimestamp"));
     FormData fdlSupportsTimestamp = new FormData();
@@ -491,7 +493,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlSupportsTimestamp.right = new FormAttachment(middle, 0);
     wlSupportsTimestamp.setLayoutData(fdlSupportsTimestamp);
     wSupportsTimestamp = new Button(wAdvancedComp, SWT.CHECK | SWT.LEFT);
-    props.setLook(wSupportsTimestamp);
+    PropsUi.setLook(wSupportsTimestamp);
     FormData fdSupportsTimestamp = new FormData();
     fdSupportsTimestamp.top = new FormAttachment(wlSupportsTimestamp, 0, SWT.CENTER);
     fdSupportsTimestamp.left = new FormAttachment(middle, margin); // To the right of the label
@@ -502,7 +504,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // Quote all in database?
     //
     Label wlQuoteAll = new Label(wAdvancedComp, SWT.RIGHT);
-    props.setLook(wlQuoteAll);
+    PropsUi.setLook(wlQuoteAll);
     wlQuoteAll.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.AdvancedQuoteAllFields"));
     FormData fdlQuoteAll = new FormData();
     fdlQuoteAll.top = new FormAttachment(lastControl, margin);
@@ -510,7 +512,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlQuoteAll.right = new FormAttachment(middle, 0);
     wlQuoteAll.setLayoutData(fdlQuoteAll);
     wQuoteAll = new Button(wAdvancedComp, SWT.CHECK | SWT.LEFT);
-    props.setLook(wQuoteAll);
+    PropsUi.setLook(wQuoteAll);
     FormData fdQuoteAll = new FormData();
     fdQuoteAll.top = new FormAttachment(wlQuoteAll, 0, SWT.CENTER);
     fdQuoteAll.left = new FormAttachment(middle, margin); // To the right of the label
@@ -521,7 +523,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // Force all identifiers to lowercase?
     //
     Label wlForceLowercase = new Label(wAdvancedComp, SWT.RIGHT);
-    props.setLook(wlForceLowercase);
+    PropsUi.setLook(wlForceLowercase);
     wlForceLowercase.setText(
         BaseMessages.getString(PKG, "DatabaseDialog.label.AdvancedForceIdentifiersLowerCase"));
     FormData fdlForceLowercase = new FormData();
@@ -530,7 +532,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlForceLowercase.right = new FormAttachment(middle, 0);
     wlForceLowercase.setLayoutData(fdlForceLowercase);
     wForceLowercase = new Button(wAdvancedComp, SWT.CHECK | SWT.LEFT);
-    props.setLook(wForceLowercase);
+    PropsUi.setLook(wForceLowercase);
     FormData fdForceLowercase = new FormData();
     fdForceLowercase.top = new FormAttachment(wlForceLowercase, 0, SWT.CENTER);
     fdForceLowercase.left = new FormAttachment(middle, margin); // To the right of the label
@@ -541,7 +543,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // Force all identifiers to uppercase?
     //
     Label wlForceUppercase = new Label(wAdvancedComp, SWT.RIGHT);
-    props.setLook(wlForceUppercase);
+    PropsUi.setLook(wlForceUppercase);
     wlForceUppercase.setText(
         BaseMessages.getString(PKG, "DatabaseDialog.label.AdvancedForceIdentifiersUpperCase"));
     FormData fdlForceUppercase = new FormData();
@@ -550,7 +552,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlForceUppercase.right = new FormAttachment(middle, 0);
     wlForceUppercase.setLayoutData(fdlForceUppercase);
     wForceUppercase = new Button(wAdvancedComp, SWT.CHECK | SWT.LEFT);
-    props.setLook(wForceUppercase);
+    PropsUi.setLook(wForceUppercase);
     FormData fdForceUppercase = new FormData();
     fdForceUppercase.top = new FormAttachment(wlForceUppercase, 0, SWT.CENTER);
     fdForceUppercase.left = new FormAttachment(middle, margin); // To the right of the label
@@ -561,7 +563,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // Preserve case of reserved keywords?
     //
     Label wlPreserveCase = new Label(wAdvancedComp, SWT.RIGHT);
-    props.setLook(wlPreserveCase);
+    PropsUi.setLook(wlPreserveCase);
     wlPreserveCase.setText(
         BaseMessages.getString(PKG, "DatabaseDialog.label.ConnectionPreserveCase"));
     FormData fdlPreserveCase = new FormData();
@@ -570,7 +572,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlPreserveCase.right = new FormAttachment(middle, 0);
     wlPreserveCase.setLayoutData(fdlPreserveCase);
     wPreserveCase = new Button(wAdvancedComp, SWT.CHECK | SWT.LEFT);
-    props.setLook(wPreserveCase);
+    PropsUi.setLook(wPreserveCase);
     FormData fdPreserveCase = new FormData();
     fdPreserveCase.top = new FormAttachment(wlPreserveCase, 0, SWT.CENTER);
     fdPreserveCase.left = new FormAttachment(middle, margin); // To the right of the label
@@ -581,7 +583,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // The preferred schema to use
     //
     Label wlPreferredSchema = new Label(wAdvancedComp, SWT.RIGHT);
-    props.setLook(wlPreferredSchema);
+    PropsUi.setLook(wlPreferredSchema);
     wlPreferredSchema.setText(
         BaseMessages.getString(PKG, "DatabaseDialog.label.PreferredSchemaName"));
     FormData fdlPreferredSchema = new FormData();
@@ -591,7 +593,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wlPreferredSchema.setLayoutData(fdlPreferredSchema);
     wPreferredSchema =
         new TextVar(manager.getVariables(), wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPreferredSchema);
+    PropsUi.setLook(wPreferredSchema);
     FormData fdPreferredSchema = new FormData();
     fdPreferredSchema.top = new FormAttachment(wlPreferredSchema, 0, SWT.CENTER);
     fdPreferredSchema.left = new FormAttachment(middle, margin); // To the right of the label
@@ -602,7 +604,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // SQL Statements to run after connecting
     //
     Label wlSqlStatements = new Label(wAdvancedComp, SWT.LEFT);
-    props.setLook(wlSqlStatements);
+    PropsUi.setLook(wlSqlStatements);
     wlSqlStatements.setText(
         BaseMessages.getString(PKG, "DatabaseDialog.label.ConnectionSQLStatements"));
     FormData fdlSqlStatements = new FormData();
@@ -615,7 +617,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
             manager.getVariables(),
             wAdvancedComp,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wSqlStatements);
+    PropsUi.setLook(wSqlStatements);
     FormData fdSqlStatements = new FormData();
     fdSqlStatements.top = new FormAttachment(wlSqlStatements, margin);
     fdSqlStatements.bottom = new FormAttachment(100, 0);
@@ -639,11 +641,12 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     DatabaseMeta databaseMeta = this.getMetadata();
 
     CTabItem wOptionsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wOptionsTab.setFont(GuiResource.getInstance().getFontDefault());
     wOptionsTab.setText(
         "   " + BaseMessages.getString(PKG, "DatabaseDialog.OptionsTab.title") + "   ");
 
     Composite wOptionsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wOptionsComp);
+    PropsUi.setLook(wOptionsComp);
 
     FormLayout optionsLayout = new FormLayout();
     optionsLayout.marginWidth = Const.FORM_MARGIN * 2;
@@ -667,7 +670,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     // Options?
     //
     Label wlOptions = new Label(wOptionsComp, SWT.LEFT);
-    props.setLook(wlOptions);
+    PropsUi.setLook(wlOptions);
     wlOptions.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.Options"));
     FormData fdlOptions = new FormData();
     fdlOptions.top = new FormAttachment(0, 0);
@@ -683,7 +686,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
             databaseMeta.getExtraOptions().size(),
             event -> setChanged(),
             props);
-    props.setLook(wOptions);
+    PropsUi.setLook(wOptions);
     FormData fdOptions = new FormData();
     fdOptions.top = new FormAttachment(wlOptions, margin * 2);
     fdOptions.bottom = new FormAttachment(100, 0);

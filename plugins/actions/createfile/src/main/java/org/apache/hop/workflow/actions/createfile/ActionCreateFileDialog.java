@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -71,7 +72,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -90,14 +91,14 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionCreateFile.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -108,7 +109,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     // Filename line
     Label wlFilename = new Label(shell, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "ActionCreateFile.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(wName, margin);
@@ -116,7 +117,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     wlFilename.setLayoutData(fdlFilename);
 
     Button wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbFilename);
+    PropsUi.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
@@ -124,7 +125,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     wbFilename.setLayoutData(fdbFilename);
 
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -144,14 +145,14 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
 
     Label wlAbortExists = new Label(shell, SWT.RIGHT);
     wlAbortExists.setText(BaseMessages.getString(PKG, "ActionCreateFile.FailIfExists.Label"));
-    props.setLook(wlAbortExists);
+    PropsUi.setLook(wlAbortExists);
     FormData fdlAbortExists = new FormData();
     fdlAbortExists.left = new FormAttachment(0, 0);
     fdlAbortExists.top = new FormAttachment(wFilename, margin);
     fdlAbortExists.right = new FormAttachment(middle, -margin);
     wlAbortExists.setLayoutData(fdlAbortExists);
     wAbortExists = new Button(shell, SWT.CHECK);
-    props.setLook(wAbortExists);
+    PropsUi.setLook(wAbortExists);
     wAbortExists.setToolTipText(
         BaseMessages.getString(PKG, "ActionCreateFile.FailIfExists.Tooltip"));
     FormData fdAbortExists = new FormData();
@@ -171,7 +172,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     Label wlAddFilenameToResult = new Label(shell, SWT.RIGHT);
     wlAddFilenameToResult.setText(
         BaseMessages.getString(PKG, "ActionCreateFile.AddFilenameToResult.Label"));
-    props.setLook(wlAddFilenameToResult);
+    PropsUi.setLook(wlAddFilenameToResult);
     FormData fdlAddFilenameToResult = new FormData();
     fdlAddFilenameToResult.left = new FormAttachment(0, 0);
     fdlAddFilenameToResult.top = new FormAttachment(wlAbortExists, 2 * margin);
@@ -180,7 +181,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     wAddFilenameToResult = new Button(shell, SWT.CHECK);
     wAddFilenameToResult.setToolTipText(
         BaseMessages.getString(PKG, "ActionCreateFile.AddFilenameToResult.Tooltip"));
-    props.setLook(wAddFilenameToResult);
+    PropsUi.setLook(wAddFilenameToResult);
     FormData fdAddFilenameToResult = new FormData();
     fdAddFilenameToResult.left = new FormAttachment(middle, 0);
     fdAddFilenameToResult.top = new FormAttachment(wlAddFilenameToResult, 0, SWT.CENTER);

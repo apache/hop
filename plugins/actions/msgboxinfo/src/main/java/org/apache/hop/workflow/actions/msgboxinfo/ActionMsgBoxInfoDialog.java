@@ -22,6 +22,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -65,7 +66,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -94,14 +95,14 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "MsgBoxInfo.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, 0);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -113,7 +114,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
     // TitleMessage
     Label wlTitleMessage = new Label(shell, SWT.RIGHT);
     wlTitleMessage.setText(BaseMessages.getString(PKG, "MsgBoxInfo.TitleMessage.Label"));
-    props.setLook(wlTitleMessage);
+    PropsUi.setLook(wlTitleMessage);
     FormData fdlTitleMessage = new FormData();
     fdlTitleMessage.left = new FormAttachment(0, 0);
     fdlTitleMessage.top = new FormAttachment(wName, margin);
@@ -121,7 +122,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
     wlTitleMessage.setLayoutData(fdlTitleMessage);
 
     wTitleMessage = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTitleMessage);
+    PropsUi.setLook(wTitleMessage);
     wTitleMessage.addModifyListener(lsMod);
     FormData fdTitleMessage = new FormData();
     fdTitleMessage.left = new FormAttachment(middle, 0);
@@ -132,7 +133,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
     // Body Msgbox
     Label wlBodyMessage = new Label(shell, SWT.RIGHT);
     wlBodyMessage.setText(BaseMessages.getString(PKG, "MsgBoxInfo.BodyMessage.Label"));
-    props.setLook(wlBodyMessage);
+    PropsUi.setLook(wlBodyMessage);
     FormData fdlBodyMessage = new FormData();
     fdlBodyMessage.left = new FormAttachment(0, 0);
     fdlBodyMessage.top = new FormAttachment(wTitleMessage, margin);
@@ -143,7 +144,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
         new TextVar(
             variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wBodyMessage.setText(BaseMessages.getString(PKG, "MsgBoxInfo.Name.Default"));
-    props.setLook(wBodyMessage, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wBodyMessage, Props.WIDGET_STYLE_FIXED);
     wBodyMessage.addModifyListener(lsMod);
     FormData fdBodyMessage = new FormData();
     fdBodyMessage.left = new FormAttachment(middle, 0);

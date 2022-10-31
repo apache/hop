@@ -18,6 +18,7 @@
 package org.apache.hop.workflow;
 
 import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -37,7 +38,7 @@ public class WorkflowPainterExtension {
   public int y2;
   public int mx;
   public int my;
-  public Point offset;
+  public DPoint offset;
   public int iconSize;
 
   public WorkflowPainterExtension(
@@ -52,7 +53,7 @@ public class WorkflowPainterExtension {
       int y2,
       int mx,
       int my,
-      Point offset,
+      DPoint offset,
       int iconSize) {
     super();
     this.gc = gc;

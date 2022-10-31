@@ -26,6 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -69,7 +70,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -90,7 +91,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "CreditCardValidatorDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -98,7 +99,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -109,7 +110,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     // filename field
     Label wlFieldName = new Label(shell, SWT.RIGHT);
     wlFieldName.setText(BaseMessages.getString(PKG, "CreditCardValidatorDialog.FieldName.Label"));
-    props.setLook(wlFieldName);
+    PropsUi.setLook(wlFieldName);
     FormData fdlFieldName = new FormData();
     fdlFieldName.left = new FormAttachment(0, 0);
     fdlFieldName.right = new FormAttachment(middle, -margin);
@@ -117,7 +118,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     wlFieldName.setLayoutData(fdlFieldName);
 
     wFieldName = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wFieldName);
+    PropsUi.setLook(wFieldName);
     wFieldName.addModifyListener(lsMod);
     FormData fdFieldName = new FormData();
     fdFieldName.left = new FormAttachment(middle, 0);
@@ -144,14 +145,14 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     // get only digits?
     Label wlgetOnlyDigits = new Label(shell, SWT.RIGHT);
     wlgetOnlyDigits.setText(BaseMessages.getString(PKG, "CreditCardValidator.getOnlyDigits.Label"));
-    props.setLook(wlgetOnlyDigits);
+    PropsUi.setLook(wlgetOnlyDigits);
     FormData fdlgetOnlyDigits = new FormData();
     fdlgetOnlyDigits.left = new FormAttachment(0, 0);
     fdlgetOnlyDigits.top = new FormAttachment(wFieldName, margin);
     fdlgetOnlyDigits.right = new FormAttachment(middle, -margin);
     wlgetOnlyDigits.setLayoutData(fdlgetOnlyDigits);
     wgetOnlyDigits = new Button(shell, SWT.CHECK);
-    props.setLook(wgetOnlyDigits);
+    PropsUi.setLook(wgetOnlyDigits);
     wgetOnlyDigits.setToolTipText(
         BaseMessages.getString(PKG, "CreditCardValidator.getOnlyDigits.Tooltip"));
     FormData fdgetOnlyDigits = new FormData();
@@ -165,7 +166,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     // ///////////////////////////////
 
     Group wOutputFields = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(wOutputFields);
+    PropsUi.setLook(wOutputFields);
     wOutputFields.setText(
         BaseMessages.getString(PKG, "CreditCardValidatorDialog.OutputFields.Label"));
 
@@ -177,7 +178,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     // Result fieldname ...
     Label wlResult = new Label(wOutputFields, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "CreditCardValidatorDialog.ResultField.Label"));
-    props.setLook(wlResult);
+    PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, -margin);
     fdlResult.right = new FormAttachment(middle, -2 * margin);
@@ -187,7 +188,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     wResult = new TextVar(variables, wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wResult.setToolTipText(
         BaseMessages.getString(PKG, "CreditCardValidatorDialog.ResultField.Tooltip"));
-    props.setLook(wResult);
+    PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, -margin);
@@ -198,7 +199,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     // FileType fieldname ...
     Label wlCardType = new Label(wOutputFields, SWT.RIGHT);
     wlCardType.setText(BaseMessages.getString(PKG, "CreditCardValidatorDialog.CardType.Label"));
-    props.setLook(wlCardType);
+    PropsUi.setLook(wlCardType);
     FormData fdlCardType = new FormData();
     fdlCardType.left = new FormAttachment(0, -margin);
     fdlCardType.right = new FormAttachment(middle, -2 * margin);
@@ -208,7 +209,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     wFileType = new TextVar(variables, wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFileType.setToolTipText(
         BaseMessages.getString(PKG, "CreditCardValidatorDialog.CardType.Tooltip"));
-    props.setLook(wFileType);
+    PropsUi.setLook(wFileType);
     wFileType.addModifyListener(lsMod);
     FormData fdCardType = new FormData();
     fdCardType.left = new FormAttachment(middle, -margin);
@@ -220,7 +221,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     Label wlNotValidMsg = new Label(wOutputFields, SWT.RIGHT);
     wlNotValidMsg.setText(
         BaseMessages.getString(PKG, "CreditCardValidatorDialog.NotValidMsg.Label"));
-    props.setLook(wlNotValidMsg);
+    PropsUi.setLook(wlNotValidMsg);
     FormData fdlNotValidMsg = new FormData();
     fdlNotValidMsg.left = new FormAttachment(0, -margin);
     fdlNotValidMsg.right = new FormAttachment(middle, -2 * margin);
@@ -230,7 +231,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     wNotValidMsg = new TextVar(variables, wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wNotValidMsg.setToolTipText(
         BaseMessages.getString(PKG, "CreditCardValidatorDialog.NotValidMsg.Tooltip"));
-    props.setLook(wNotValidMsg);
+    PropsUi.setLook(wNotValidMsg);
     wNotValidMsg.addModifyListener(lsMod);
     FormData fdNotValidMsg = new FormData();
     fdNotValidMsg.left = new FormAttachment(middle, -margin);

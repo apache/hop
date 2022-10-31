@@ -23,6 +23,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -61,7 +62,7 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -80,7 +81,7 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -89,7 +90,7 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -100,7 +101,7 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
     // edifact field line
     Label wlEdiField = new Label(shell, SWT.RIGHT);
     wlEdiField.setText(BaseMessages.getString(PKG, "Edi2Xml.InputField.Label"));
-    props.setLook(wlEdiField);
+    PropsUi.setLook(wlEdiField);
     FormData fdlEdiField = new FormData();
     fdlEdiField.left = new FormAttachment(0, 0);
     fdlEdiField.right = new FormAttachment(middle, -margin);
@@ -109,7 +110,7 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
 
     wEdiField = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wEdiField.setToolTipText(BaseMessages.getString(PKG, "Edi2Xml.InputField.Tooltip"));
-    props.setLook(wEdiField);
+    PropsUi.setLook(wEdiField);
     wEdiField.addModifyListener(lsMod);
     FormData fdEdiField = new FormData();
     fdEdiField.left = new FormAttachment(middle, 0);
@@ -136,7 +137,7 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
     // output field name
     Label wlXmlField = new Label(shell, SWT.RIGHT);
     wlXmlField.setText(BaseMessages.getString(PKG, "Edi2Xml.OutputField.Label"));
-    props.setLook(wlXmlField);
+    PropsUi.setLook(wlXmlField);
     FormData fdlXmlField = new FormData();
     fdlXmlField.left = new FormAttachment(0, 0);
     fdlXmlField.right = new FormAttachment(middle, -margin);
@@ -144,7 +145,7 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
     wlXmlField.setLayoutData(fdlXmlField);
 
     wXmlField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wXmlField);
+    PropsUi.setLook(wXmlField);
     wXmlField.setToolTipText(BaseMessages.getString(PKG, "Edi2Xml.OutputField.Tooltip"));
     wXmlField.addModifyListener(lsMod);
     FormData fdXmlField = new FormData();

@@ -79,11 +79,11 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdlIcon.top = new FormAttachment(0, 0);
     fdlIcon.right = new FormAttachment(100, 0);
     wIcon.setLayoutData(fdlIcon);
-    props.setLook(wIcon);
+    PropsUi.setLook(wIcon);
 
     // What's the name
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "WebServiceEditor.Name.Label"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(wIcon, margin);
@@ -91,7 +91,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, margin);
@@ -109,7 +109,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     // Enabled?
     //
     Label wlEnabled = new Label(parent, SWT.RIGHT);
-    props.setLook(wlEnabled);
+    PropsUi.setLook(wlEnabled);
     wlEnabled.setText(BaseMessages.getString(PKG, "WebServiceEditor.Enabled.Label"));
     FormData fdlEnabled = new FormData();
     fdlEnabled.left = new FormAttachment(0, 0);
@@ -117,7 +117,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdlEnabled.top = new FormAttachment(lastControl, margin);
     wlEnabled.setLayoutData(fdlEnabled);
     wEnabled = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wEnabled);
+    PropsUi.setLook(wEnabled);
     FormData fdEnabled = new FormData();
     fdEnabled.left = new FormAttachment(middle, margin);
     fdEnabled.right = new FormAttachment(100, 0);
@@ -126,7 +126,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     lastControl = wlEnabled;
 
     Label wlFilename = new Label(parent, SWT.RIGHT);
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     wlFilename.setText(BaseMessages.getString(PKG, "WebServiceEditor.Filename.Label"));
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -135,7 +135,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wlFilename.setLayoutData(fdlFilename);
 
     Button wbbFilename = new Button(parent, SWT.PUSH);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbbFilename = new FormData();
     fdbbFilename.right = new FormAttachment(100, 0);
@@ -144,7 +144,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wbbFilename.addListener(SWT.Selection, e -> selectPipelineFilename(parent));
 
     Button wbnFilename = new Button(parent, SWT.PUSH);
-    props.setLook(wbnFilename);
+    PropsUi.setLook(wbnFilename);
     wbnFilename.setText(BaseMessages.getString(PKG, "System.Button.New"));
     FormData fdbnFilename = new FormData();
     fdbnFilename.right = new FormAttachment(wbbFilename, -margin);
@@ -153,7 +153,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wbnFilename.addListener(SWT.Selection, e -> createPipelineFile(parent));
 
     Button wboFilename = new Button(parent, SWT.PUSH);
-    props.setLook(wboFilename);
+    PropsUi.setLook(wboFilename);
     wboFilename.setText(BaseMessages.getString(PKG, "System.Button.Open"));
     FormData fdboFilename = new FormData();
     fdboFilename.right = new FormAttachment(wbnFilename, -margin);
@@ -162,7 +162,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wboFilename.addListener(SWT.Selection, e -> openPipelineFile(parent));
 
     wFilename = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, margin);
     fdFilename.right = new FormAttachment(wboFilename, -margin);
@@ -173,7 +173,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     // The transform to read from
     //
     Label wlTransform = new Label(parent, SWT.RIGHT);
-    props.setLook(wlTransform);
+    PropsUi.setLook(wlTransform);
     wlTransform.setText(BaseMessages.getString(PKG, "WebServiceEditor.Transform.Label"));
     FormData fdlTransform = new FormData();
     fdlTransform.left = new FormAttachment(0, 0);
@@ -181,7 +181,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdlTransform.top = new FormAttachment(lastControl, 2 * margin);
     wlTransform.setLayoutData(fdlTransform);
     wTransform = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wTransform);
+    PropsUi.setLook(wTransform);
     FormData fdTransform = new FormData();
     fdTransform.left = new FormAttachment(middle, margin);
     fdTransform.right = new FormAttachment(100, 0);
@@ -192,7 +192,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     // Field to read from
     //
     Label wlField = new Label(parent, SWT.RIGHT);
-    props.setLook(wlField);
+    PropsUi.setLook(wlField);
     wlField.setText(BaseMessages.getString(PKG, "WebServiceEditor.Field.Label"));
     FormData fdlField = new FormData();
     fdlField.left = new FormAttachment(0, 0);
@@ -200,7 +200,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdlField.top = new FormAttachment(lastControl, 2 * margin);
     wlField.setLayoutData(fdlField);
     wField = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wField);
+    PropsUi.setLook(wField);
     FormData fdField = new FormData();
     fdField.left = new FormAttachment(middle, margin);
     fdField.right = new FormAttachment(100, 0);
@@ -211,7 +211,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     // Content type
     //
     Label wlContentType = new Label(parent, SWT.RIGHT);
-    props.setLook(wlContentType);
+    PropsUi.setLook(wlContentType);
     wlContentType.setText(BaseMessages.getString(PKG, "WebServiceEditor.ContentType.Label"));
     FormData fdlContentType = new FormData();
     fdlContentType.left = new FormAttachment(0, 0);
@@ -219,7 +219,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdlContentType.top = new FormAttachment(lastControl, 2 * margin);
     wlContentType.setLayoutData(fdlContentType);
     wContentType = new ComboVar(manager.getVariables(), parent, SWT.LEFT | SWT.BORDER);
-    props.setLook(wContentType);
+    PropsUi.setLook(wContentType);
     FormData fdContentType = new FormData();
     fdContentType.left = new FormAttachment(middle, margin);
     fdContentType.right = new FormAttachment(100, 0);
@@ -234,7 +234,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     // List status?
     //
     Label wlListStatus = new Label(parent, SWT.RIGHT);
-    props.setLook(wlListStatus);
+    PropsUi.setLook(wlListStatus);
     wlListStatus.setText(BaseMessages.getString(PKG, "WebServiceEditor.ListStatus.Label"));
     FormData fdlListStatus = new FormData();
     fdlListStatus.left = new FormAttachment(0, 0);
@@ -242,7 +242,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     fdlListStatus.top = new FormAttachment(lastControl, margin);
     wlListStatus.setLayoutData(fdlListStatus);
     wListStatus = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wListStatus);
+    PropsUi.setLook(wListStatus);
     FormData fdListStatus = new FormData();
     fdListStatus.left = new FormAttachment(middle, margin);
     fdListStatus.right = new FormAttachment(100, 0);
@@ -253,7 +253,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     // BodyContentVariable to read from
     //
     Label wlBodyContentVariable = new Label(parent, SWT.RIGHT);
-    props.setLook(wlBodyContentVariable);
+    PropsUi.setLook(wlBodyContentVariable);
     wlBodyContentVariable.setText(BaseMessages.getString(PKG, "WebServiceEditor.BodyContentVariable.Label"));
     wlBodyContentVariable.setToolTipText(BaseMessages.getString(PKG, "WebServiceEditor.BodyContentVariable.Tooltip"));
     FormData fdlBodyContentVariable = new FormData();
@@ -263,7 +263,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wlBodyContentVariable.setLayoutData(fdlBodyContentVariable);
     wBodyContentVariable = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wBodyContentVariable.setToolTipText(BaseMessages.getString(PKG, "WebServiceEditor.BodyContentVariable.Tooltip"));
-    props.setLook(wBodyContentVariable);
+    PropsUi.setLook(wBodyContentVariable);
     FormData fdBodyContentVariable = new FormData();
     fdBodyContentVariable.left = new FormAttachment(middle, margin);
     fdBodyContentVariable.right = new FormAttachment(100, 0);

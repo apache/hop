@@ -23,6 +23,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -91,7 +92,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     FormLayout formLayout = new FormLayout();
@@ -117,14 +118,14 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionSQL.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, 0);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
     fdName.top = new FormAttachment(0, margin);
@@ -137,14 +138,14 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     // SQL from file?
     Label wlSqlFromFile = new Label(shell, SWT.RIGHT);
     wlSqlFromFile.setText(BaseMessages.getString(PKG, "ActionSQL.SQLFromFile.Label"));
-    props.setLook(wlSqlFromFile);
+    PropsUi.setLook(wlSqlFromFile);
     FormData fdlSqlFromFile = new FormData();
     fdlSqlFromFile.left = new FormAttachment(0, 0);
     fdlSqlFromFile.top = new FormAttachment(wConnection, 2 * margin);
     fdlSqlFromFile.right = new FormAttachment(middle, -margin);
     wlSqlFromFile.setLayoutData(fdlSqlFromFile);
     wSqlFromFile = new Button(shell, SWT.CHECK);
-    props.setLook(wSqlFromFile);
+    PropsUi.setLook(wSqlFromFile);
     wSqlFromFile.setToolTipText(BaseMessages.getString(PKG, "ActionSQL.SQLFromFile.Tooltip"));
     FormData fdSqlFromFile = new FormData();
     fdSqlFromFile.left = new FormAttachment(middle, 0);
@@ -163,7 +164,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     // Filename line
     wlFilename = new Label(shell, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "ActionSQL.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(wlSqlFromFile, 2 * margin);
@@ -171,7 +172,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wlFilename.setLayoutData(fdlFilename);
 
     wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbFilename);
+    PropsUi.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
@@ -179,7 +180,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wbFilename.setLayoutData(fdbFilename);
 
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.setToolTipText(BaseMessages.getString(PKG, "ActionSQL.Filename.Tooltip"));
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -205,14 +206,14 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     // Send one SQL Statement?
     Label wlUseOneStatement = new Label(shell, SWT.RIGHT);
     wlUseOneStatement.setText(BaseMessages.getString(PKG, "ActionSQL.SendOneStatement.Label"));
-    props.setLook(wlUseOneStatement);
+    PropsUi.setLook(wlUseOneStatement);
     FormData fdlUseOneStatement = new FormData();
     fdlUseOneStatement.left = new FormAttachment(0, 0);
     fdlUseOneStatement.top = new FormAttachment(wbFilename, margin);
     fdlUseOneStatement.right = new FormAttachment(middle, -margin);
     wlUseOneStatement.setLayoutData(fdlUseOneStatement);
     wSendOneStatement = new Button(shell, SWT.CHECK);
-    props.setLook(wSendOneStatement);
+    PropsUi.setLook(wSendOneStatement);
     wSendOneStatement.setToolTipText(
         BaseMessages.getString(PKG, "ActionSQL.SendOneStatement.Tooltip"));
     FormData fdUseOneStatement = new FormData();
@@ -231,14 +232,14 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     // Use variable substitution?
     Label wlUseSubs = new Label(shell, SWT.RIGHT);
     wlUseSubs.setText(BaseMessages.getString(PKG, "ActionSQL.UseVariableSubst.Label"));
-    props.setLook(wlUseSubs);
+    PropsUi.setLook(wlUseSubs);
     FormData fdlUseSubs = new FormData();
     fdlUseSubs.left = new FormAttachment(0, 0);
     fdlUseSubs.top = new FormAttachment(wlUseOneStatement, 2 * margin);
     fdlUseSubs.right = new FormAttachment(middle, -margin);
     wlUseSubs.setLayoutData(fdlUseSubs);
     wUseSubs = new Button(shell, SWT.CHECK);
-    props.setLook(wUseSubs);
+    PropsUi.setLook(wUseSubs);
     wUseSubs.setToolTipText(BaseMessages.getString(PKG, "ActionSQL.UseVariableSubst.Tooltip"));
     FormData fdUseSubs = new FormData();
     fdUseSubs.left = new FormAttachment(middle, 0);
@@ -256,7 +257,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
 
     wlPosition = new Label(shell, SWT.NONE);
     wlPosition.setText(BaseMessages.getString(PKG, "ActionSQL.LineNr.Label", "0"));
-    props.setLook(wlPosition);
+    PropsUi.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);
     fdlPosition.right = new FormAttachment(100, 0);
@@ -266,7 +267,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     // Script line
     wlSql = new Label(shell, SWT.NONE);
     wlSql.setText(BaseMessages.getString(PKG, "ActionSQL.Script.Label"));
-    props.setLook(wlSql);
+    PropsUi.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
     fdlSql.top = new FormAttachment(wUseSubs, margin);
@@ -275,7 +276,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wSql =
         new StyledTextComp(
             action, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wSql, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);
     fdSql.top = new FormAttachment(wlSql, margin);

@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -78,7 +79,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 
     // SWT code for preparing the dialog
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, meta);
 
     // Save the value of the changed flag on the meta object. If the user cancels
@@ -106,7 +107,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
     // TransformName line
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -115,7 +116,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -137,7 +138,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
     Label wlTransforms = new Label(shell, SWT.NONE);
     wlTransforms.setText(
         BaseMessages.getString(PKG, "StreamSchemaTransformDialog.Transforms.Label"));
-    props.setLook(wlTransforms);
+    PropsUi.setLook(wlTransforms);
     FormData fdlTransforms = new FormData();
     fdlTransforms.left = new FormAttachment(0, 0);
     fdlTransforms.top = new FormAttachment(wTransformName, margin);

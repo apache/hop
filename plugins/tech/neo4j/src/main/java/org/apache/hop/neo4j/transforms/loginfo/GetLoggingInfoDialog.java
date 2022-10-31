@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.*;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -65,7 +66,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod =
@@ -107,7 +108,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     // Transform name line
     Label wlTransformname = new Label(shell, SWT.RIGHT);
     wlTransformname.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformname);
+    PropsUi.setLook(wlTransformname);
     FormData fdlTransformname = new FormData();
     fdlTransformname.left = new FormAttachment(0, 0);
     fdlTransformname.right = new FormAttachment(middle, -margin);
@@ -115,7 +116,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     wlTransformname.setLayoutData(fdlTransformname);
     wTransformname = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformname.setText(transformName);
-    props.setLook(wTransformname);
+    PropsUi.setLook(wTransformname);
     wTransformname.addModifyListener(lsMod);
     FormData fdTransformname = new FormData();
     fdTransformname.left = new FormAttachment(middle, 0);
@@ -125,7 +126,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "GetLoggingInfoDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wTransformname, margin);

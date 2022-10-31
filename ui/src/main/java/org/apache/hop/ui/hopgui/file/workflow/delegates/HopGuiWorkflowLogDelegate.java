@@ -24,6 +24,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -91,6 +92,7 @@ public class HopGuiWorkflowLogDelegate {
     // Add a pipelineLogTab : display the logging...
     //
     workflowLogTab = new CTabItem(workflowGraph.extraViewTabFolder, SWT.NONE);
+    workflowLogTab.setFont(GuiResource.getInstance().getFontDefault());
     workflowLogTab.setImage(GuiResource.getInstance().getImageShowLog());
     workflowLogTab.setText(BaseMessages.getString(PKG, "WorkflowGraph.LogTab.Name"));
 
@@ -109,7 +111,7 @@ public class HopGuiWorkflowLogDelegate {
         new Text(
             workflowLogComposite,
             SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-    hopGui.getProps().setLook(workflowLogText);
+    PropsUi.setLook(workflowLogText);
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(0, 0);
     fdText.right = new FormAttachment(100, 0);
@@ -160,7 +162,7 @@ public class HopGuiWorkflowLogDelegate {
     fdToolBar.top = new FormAttachment(0, 0);
     fdToolBar.right = new FormAttachment(100, 0);
     toolbar.setLayoutData(fdToolBar);
-    hopGui.getProps().setLook(toolbar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolbar, Props.WIDGET_STYLE_TOOLBAR);
 
     toolBarWidgets = new GuiToolbarWidgets();
     toolBarWidgets.registerGuiPluginObject(this);

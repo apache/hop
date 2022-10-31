@@ -25,6 +25,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -158,7 +159,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, warehouseManager);
 
     backupChanged = warehouseManager.hasChanged();
@@ -176,7 +177,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.top = new FormAttachment(0, 0);
@@ -184,7 +185,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlName.setLayoutData(fdlName);
 
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(0, 0);
     fdName.left = new FormAttachment(middle, margin);
@@ -202,7 +203,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlWarehouseName = new Label(shell, SWT.RIGHT);
     wlWarehouseName.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.WarehouseName.Label"));
-    props.setLook(wlWarehouseName);
+    PropsUi.setLook(wlWarehouseName);
     FormData fdlWarehouseName = new FormData();
     fdlWarehouseName.left = new FormAttachment(0, 0);
     fdlWarehouseName.top = new FormAttachment(wConnection, margin * 2);
@@ -210,7 +211,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlWarehouseName.setLayoutData(fdlWarehouseName);
 
     wWarehouseName = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wWarehouseName);
+    PropsUi.setLook(wWarehouseName);
     FormData fdWarehouseName = new FormData();
     fdWarehouseName.left = new FormAttachment(middle, 0);
     fdWarehouseName.top = new FormAttachment(wConnection, margin * 2);
@@ -268,7 +269,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     // ///////////////////
     Label wlAction = new Label(shell, SWT.RIGHT);
     wlAction.setText(BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Action.Label"));
-    props.setLook(wlAction);
+    PropsUi.setLook(wlAction);
     FormData fdlAction = new FormData();
     fdlAction.left = new FormAttachment(0, 0);
     fdlAction.right = new FormAttachment(middle, -margin);
@@ -277,7 +278,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
 
     wAction = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wAction.setItems(MANAGEMENT_ACTION_DESCS);
-    props.setLook(wAction);
+    PropsUi.setLook(wAction);
     FormData fdAction = new FormData();
     fdAction.left = new FormAttachment(middle, 0);
     fdAction.top = new FormAttachment(wWarehouseName, margin);
@@ -302,7 +303,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     createWarehouseLayout.marginWidth = 3;
     createWarehouseLayout.marginHeight = 3;
     wCreateGroup.setLayout(createWarehouseLayout);
-    props.setLook(wCreateGroup);
+    PropsUi.setLook(wCreateGroup);
 
     FormData fdgCreateGroup = new FormData();
     fdgCreateGroup.left = new FormAttachment(0, 0);
@@ -318,7 +319,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Create.Replace.Label"));
     wlCreateReplace.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Create.Replace.Tooltip"));
-    props.setLook(wlCreateReplace);
+    PropsUi.setLook(wlCreateReplace);
     FormData fdlCreateReplace = new FormData();
     fdlCreateReplace.left = new FormAttachment(0, 0);
     fdlCreateReplace.top = new FormAttachment(0, margin * 2);
@@ -326,7 +327,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlCreateReplace.setLayoutData(fdlCreateReplace);
 
     wCreateReplace = new Button(wCreateGroup, SWT.CHECK);
-    props.setLook(wCreateReplace);
+    PropsUi.setLook(wCreateReplace);
     FormData fdCreateReplace = new FormData();
     fdCreateReplace.left = new FormAttachment(middle, 0);
     fdCreateReplace.top = new FormAttachment(0, margin * 2);
@@ -341,7 +342,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlCreateFailIfExists = new Label(wCreateGroup, SWT.RIGHT);
     wlCreateFailIfExists.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Create.FailIfExists.Label"));
-    props.setLook(wlCreateFailIfExists);
+    PropsUi.setLook(wlCreateFailIfExists);
     FormData fdlCreateFailIfExists = new FormData();
     fdlCreateFailIfExists.left = new FormAttachment(0, 0);
     fdlCreateFailIfExists.top = new FormAttachment(wCreateReplace, margin * 2);
@@ -349,7 +350,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlCreateFailIfExists.setLayoutData(fdlCreateFailIfExists);
 
     wCreateFailIfExists = new Button(wCreateGroup, SWT.CHECK);
-    props.setLook(wCreateFailIfExists);
+    PropsUi.setLook(wCreateFailIfExists);
     FormData fdCreateFailIfExists = new FormData();
     fdCreateFailIfExists.left = new FormAttachment(middle, 0);
     fdCreateFailIfExists.top = new FormAttachment(wCreateReplace, margin * 2);
@@ -362,7 +363,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlCreateWarehouseSize = new Label(wCreateGroup, SWT.RIGHT);
     wlCreateWarehouseSize.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.CreateWarehouseSize.Label"));
-    props.setLook(wlCreateWarehouseSize);
+    PropsUi.setLook(wlCreateWarehouseSize);
     FormData fdlCreateWarehouseSize = new FormData();
     fdlCreateWarehouseSize.left = new FormAttachment(0, 0);
     fdlCreateWarehouseSize.top = new FormAttachment(wCreateFailIfExists, margin * 2);
@@ -371,7 +372,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
 
     wCreateWarehouseSize =
         new ComboVar(variables, wCreateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCreateWarehouseSize);
+    PropsUi.setLook(wCreateWarehouseSize);
     wCreateWarehouseSize.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdCreateWarehouseSize = new FormData();
     fdCreateWarehouseSize.left = new FormAttachment(middle, 0);
@@ -385,7 +386,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlCreateWarehouseType = new Label(wCreateGroup, SWT.RIGHT);
     wlCreateWarehouseType.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.CreateWarehouseType.Label"));
-    props.setLook(wlCreateWarehouseType);
+    PropsUi.setLook(wlCreateWarehouseType);
     FormData fdlCreateWarehouseType = new FormData();
     fdlCreateWarehouseType.left = new FormAttachment(0, 0);
     fdlCreateWarehouseType.top = new FormAttachment(wCreateWarehouseSize, margin * 2);
@@ -394,7 +395,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
 
     wCreateWarehouseType =
         new ComboVar(variables, wCreateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCreateWarehouseType);
+    PropsUi.setLook(wCreateWarehouseType);
     wCreateWarehouseType.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdCreateWarehouseType = new FormData();
     fdCreateWarehouseType.left = new FormAttachment(middle, 0);
@@ -410,7 +411,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlCreateMaxClusterSize.setText(
         BaseMessages.getString(
             PKG, "SnowflakeWarehouseManager.Dialog.Create.MaxClusterSize.Label"));
-    props.setLook(wlCreateMaxClusterSize);
+    PropsUi.setLook(wlCreateMaxClusterSize);
     FormData fdlCreateMaxClusterSize = new FormData();
     fdlCreateMaxClusterSize.left = new FormAttachment(0, 0);
     fdlCreateMaxClusterSize.top = new FormAttachment(wCreateWarehouseType, margin * 2);
@@ -419,7 +420,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
 
     wCreateMaxClusterSize =
         new TextVar(variables, wCreateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCreateGroup);
+    PropsUi.setLook(wCreateGroup);
     wCreateMaxClusterSize.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdCreateMaxClusterSize = new FormData();
     fdCreateMaxClusterSize.left = new FormAttachment(middle, 0);
@@ -434,7 +435,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlCreateMinClusterSize.setText(
         BaseMessages.getString(
             PKG, "SnowflakeWarehouseManager.Dialog.Create.MinClusterSize.Label"));
-    props.setLook(wlCreateMinClusterSize);
+    PropsUi.setLook(wlCreateMinClusterSize);
     FormData fdlCreateMinClusterSize = new FormData();
     fdlCreateMinClusterSize.left = new FormAttachment(0, 0);
     fdlCreateMinClusterSize.top = new FormAttachment(wCreateMaxClusterSize, margin * 2);
@@ -443,7 +444,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
 
     wCreateMinClusterSize =
         new TextVar(variables, wCreateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCreateGroup);
+    PropsUi.setLook(wCreateGroup);
     wCreateMinClusterSize.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdCreateMinClusterSize = new FormData();
     fdCreateMinClusterSize.left = new FormAttachment(middle, 0);
@@ -459,7 +460,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Create.AutoSuspend.Label"));
     wlCreateAutoSuspend.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Create.AutoSuspend.Tooltip"));
-    props.setLook(wlCreateAutoSuspend);
+    PropsUi.setLook(wlCreateAutoSuspend);
     FormData fdlCreateAutoSuspend = new FormData();
     fdlCreateAutoSuspend.left = new FormAttachment(0, 0);
     fdlCreateAutoSuspend.top = new FormAttachment(wCreateMinClusterSize, margin * 2);
@@ -467,7 +468,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlCreateAutoSuspend.setLayoutData(fdlCreateAutoSuspend);
 
     wCreateAutoSuspend = new TextVar(variables, wCreateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCreateGroup);
+    PropsUi.setLook(wCreateGroup);
     wCreateAutoSuspend.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdCreateAutoSuspend = new FormData();
     fdCreateAutoSuspend.left = new FormAttachment(middle, 0);
@@ -481,7 +482,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlCreateAutoResume = new Label(wCreateGroup, SWT.RIGHT);
     wlCreateAutoResume.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Create.AutoResume.Label"));
-    props.setLook(wlCreateAutoResume);
+    PropsUi.setLook(wlCreateAutoResume);
     FormData fdlCreateAutoResume = new FormData();
     fdlCreateAutoResume.left = new FormAttachment(0, 0);
     fdlCreateAutoResume.top = new FormAttachment(wCreateAutoSuspend, margin * 2);
@@ -489,7 +490,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlCreateAutoResume.setLayoutData(fdlCreateAutoResume);
 
     wCreateAutoResume = new Button(wCreateGroup, SWT.CHECK);
-    props.setLook(wCreateAutoResume);
+    PropsUi.setLook(wCreateAutoResume);
     FormData fdCreateAutoResume = new FormData();
     fdCreateAutoResume.left = new FormAttachment(middle, 0);
     fdCreateAutoResume.top = new FormAttachment(wCreateAutoSuspend, margin * 2);
@@ -507,7 +508,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlCreateInitialSuspend.setToolTipText(
         BaseMessages.getString(
             PKG, "SnowflakeWarehouseManager.Dialog.Create.InitialSuspend.Tooltip"));
-    props.setLook(wlCreateInitialSuspend);
+    PropsUi.setLook(wlCreateInitialSuspend);
     FormData fdlCreateInitialSuspend = new FormData();
     fdlCreateInitialSuspend.left = new FormAttachment(0, 0);
     fdlCreateInitialSuspend.top = new FormAttachment(wCreateAutoResume, margin * 2);
@@ -515,7 +516,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlCreateInitialSuspend.setLayoutData(fdlCreateInitialSuspend);
 
     wCreateInitialSuspend = new Button(wCreateGroup, SWT.CHECK);
-    props.setLook(wCreateInitialSuspend);
+    PropsUi.setLook(wCreateInitialSuspend);
     FormData fdCreateInitialSuspend = new FormData();
     fdCreateInitialSuspend.left = new FormAttachment(middle, 0);
     fdCreateInitialSuspend.top = new FormAttachment(wCreateAutoResume, margin * 2);
@@ -528,7 +529,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlCreateResourceMonitor = new Label(wCreateGroup, SWT.RIGHT);
     wlCreateResourceMonitor.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.ResourceMonitor.Label"));
-    props.setLook(wlCreateResourceMonitor);
+    PropsUi.setLook(wlCreateResourceMonitor);
     FormData fdlCreateResourceMonitor = new FormData();
     fdlCreateResourceMonitor.left = new FormAttachment(0, 0);
     fdlCreateResourceMonitor.top = new FormAttachment(wCreateInitialSuspend, margin * 2);
@@ -537,7 +538,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
 
     wCreateResourceMonitor =
         new ComboVar(variables, wCreateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCreateResourceMonitor);
+    PropsUi.setLook(wCreateResourceMonitor);
     wCreateResourceMonitor.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdCreateResourceMonitor = new FormData();
     fdCreateResourceMonitor.left = new FormAttachment(middle, 0);
@@ -564,7 +565,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlCreateComment = new Label(wCreateGroup, SWT.RIGHT);
     wlCreateComment.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Create.Comment.Label"));
-    props.setLook(wlCreateComment);
+    PropsUi.setLook(wlCreateComment);
     FormData fdlCreateComment = new FormData();
     fdlCreateComment.left = new FormAttachment(0, 0);
     fdlCreateComment.top = new FormAttachment(wCreateResourceMonitor, margin * 2);
@@ -572,7 +573,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlCreateComment.setLayoutData(fdlCreateComment);
 
     wCreateComment = new TextVar(variables, wCreateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCreateGroup);
+    PropsUi.setLook(wCreateGroup);
     wCreateComment.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdCreateComment = new FormData();
     fdCreateComment.left = new FormAttachment(middle, 0);
@@ -590,7 +591,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     dropWarehouseLayout.marginWidth = 3;
     dropWarehouseLayout.marginHeight = 3;
     wDropGroup.setLayout(dropWarehouseLayout);
-    props.setLook(wDropGroup);
+    PropsUi.setLook(wDropGroup);
 
     FormData fdgDropGroup = new FormData();
     fdgDropGroup.left = new FormAttachment(0, 0);
@@ -604,7 +605,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlDropFailIfNotExists = new Label(wDropGroup, SWT.RIGHT);
     wlDropFailIfNotExists.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Drop.FailIfNotExists.Label"));
-    props.setLook(wlDropFailIfNotExists);
+    PropsUi.setLook(wlDropFailIfNotExists);
     FormData fdlDropFailIfNotExists = new FormData();
     fdlDropFailIfNotExists.left = new FormAttachment(0, 0);
     fdlDropFailIfNotExists.top = new FormAttachment(0, margin);
@@ -612,7 +613,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlDropFailIfNotExists.setLayoutData(fdlDropFailIfNotExists);
 
     wDropFailIfNotExists = new Button(wDropGroup, SWT.CHECK);
-    props.setLook(wDropFailIfNotExists);
+    PropsUi.setLook(wDropFailIfNotExists);
     FormData fdDropFailIfNotExists = new FormData();
     fdDropFailIfNotExists.left = new FormAttachment(middle, 0);
     fdDropFailIfNotExists.top = new FormAttachment(0, margin);
@@ -631,7 +632,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     resumeWarehouseLayout.marginWidth = 3;
     resumeWarehouseLayout.marginHeight = 3;
     wResumeGroup.setLayout(resumeWarehouseLayout);
-    props.setLook(wResumeGroup);
+    PropsUi.setLook(wResumeGroup);
 
     FormData fdgResumeGroup = new FormData();
     fdgResumeGroup.left = new FormAttachment(0, 0);
@@ -646,7 +647,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlResumeFailIfNotExists.setText(
         BaseMessages.getString(
             PKG, "SnowflakeWarehouseManager.Dialog.Resume.FailIfNotExists.Label"));
-    props.setLook(wlResumeFailIfNotExists);
+    PropsUi.setLook(wlResumeFailIfNotExists);
     FormData fdlResumeFailIfNotExists = new FormData();
     fdlResumeFailIfNotExists.left = new FormAttachment(0, 0);
     fdlResumeFailIfNotExists.top = new FormAttachment(0, margin);
@@ -654,7 +655,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlResumeFailIfNotExists.setLayoutData(fdlResumeFailIfNotExists);
 
     wResumeFailIfNotExists = new Button(wResumeGroup, SWT.CHECK);
-    props.setLook(wResumeFailIfNotExists);
+    PropsUi.setLook(wResumeFailIfNotExists);
     FormData fdResumeFailIfNotExists = new FormData();
     fdResumeFailIfNotExists.left = new FormAttachment(middle, 0);
     fdResumeFailIfNotExists.top = new FormAttachment(0, margin);
@@ -673,7 +674,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     suspendWarehouseLayout.marginWidth = 3;
     suspendWarehouseLayout.marginHeight = 3;
     wSuspendGroup.setLayout(suspendWarehouseLayout);
-    props.setLook(wSuspendGroup);
+    PropsUi.setLook(wSuspendGroup);
 
     FormData fdgSuspendGroup = new FormData();
     fdgSuspendGroup.left = new FormAttachment(0, 0);
@@ -688,7 +689,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlSuspendFailIfNotExists.setText(
         BaseMessages.getString(
             PKG, "SnowflakeWarehouseManager.Dialog.Suspend.FailIfNotExists.Label"));
-    props.setLook(wlSuspendFailIfNotExists);
+    PropsUi.setLook(wlSuspendFailIfNotExists);
     FormData fdlSuspendFailIfNotExists = new FormData();
     fdlSuspendFailIfNotExists.left = new FormAttachment(0, 0);
     fdlSuspendFailIfNotExists.top = new FormAttachment(0, margin);
@@ -696,7 +697,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlSuspendFailIfNotExists.setLayoutData(fdlSuspendFailIfNotExists);
 
     wSuspendFailIfNotExists = new Button(wSuspendGroup, SWT.CHECK);
-    props.setLook(wSuspendFailIfNotExists);
+    PropsUi.setLook(wSuspendFailIfNotExists);
     FormData fdSuspendFailIfNotExists = new FormData();
     fdSuspendFailIfNotExists.left = new FormAttachment(middle, 0);
     fdSuspendFailIfNotExists.top = new FormAttachment(0, margin);
@@ -714,7 +715,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     alterWarehouseLayout.marginWidth = 3;
     alterWarehouseLayout.marginHeight = 3;
     wAlterGroup.setLayout(alterWarehouseLayout);
-    props.setLook(wAlterGroup);
+    PropsUi.setLook(wAlterGroup);
 
     FormData fdgAlterGroup = new FormData();
     fdgAlterGroup.left = new FormAttachment(0, 0);
@@ -729,7 +730,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlAlterFailIfNotExists.setText(
         BaseMessages.getString(
             PKG, "SnowflakeWarehouseManager.Dialog.Alter.FailIfNotExists.Label"));
-    props.setLook(wlAlterFailIfNotExists);
+    PropsUi.setLook(wlAlterFailIfNotExists);
     FormData fdlAlterFailIfNotExists = new FormData();
     fdlAlterFailIfNotExists.left = new FormAttachment(0, 0);
     fdlAlterFailIfNotExists.top = new FormAttachment(0, margin);
@@ -737,7 +738,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlAlterFailIfNotExists.setLayoutData(fdlAlterFailIfNotExists);
 
     wAlterFailIfNotExists = new Button(wAlterGroup, SWT.CHECK);
-    props.setLook(wAlterFailIfNotExists);
+    PropsUi.setLook(wAlterFailIfNotExists);
     FormData fdAlterFailIfNotExists = new FormData();
     fdAlterFailIfNotExists.left = new FormAttachment(middle, 0);
     fdAlterFailIfNotExists.top = new FormAttachment(0, margin);
@@ -750,7 +751,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlAlterWarehouseSize = new Label(wAlterGroup, SWT.RIGHT);
     wlAlterWarehouseSize.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.AlterWarehouseSize.Label"));
-    props.setLook(wlAlterWarehouseSize);
+    PropsUi.setLook(wlAlterWarehouseSize);
     FormData fdlAlterWarehouseSize = new FormData();
     fdlAlterWarehouseSize.left = new FormAttachment(0, 0);
     fdlAlterWarehouseSize.top = new FormAttachment(wAlterFailIfNotExists, margin);
@@ -758,7 +759,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlAlterWarehouseSize.setLayoutData(fdlAlterWarehouseSize);
 
     wAlterWarehouseSize = new ComboVar(variables, wAlterGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wAlterWarehouseSize);
+    PropsUi.setLook(wAlterWarehouseSize);
     wAlterWarehouseSize.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdAlterWarehouseSize = new FormData();
     fdAlterWarehouseSize.left = new FormAttachment(middle, 0);
@@ -772,7 +773,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlAlterWarehouseType = new Label(wAlterGroup, SWT.RIGHT);
     wlAlterWarehouseType.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.AlterWarehouseType.Label"));
-    props.setLook(wlAlterWarehouseType);
+    PropsUi.setLook(wlAlterWarehouseType);
     FormData fdlAlterWarehouseType = new FormData();
     fdlAlterWarehouseType.left = new FormAttachment(0, 0);
     fdlAlterWarehouseType.top = new FormAttachment(wAlterWarehouseSize, margin);
@@ -780,7 +781,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlAlterWarehouseType.setLayoutData(fdlAlterWarehouseType);
 
     wAlterWarehouseType = new ComboVar(variables, wAlterGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wAlterWarehouseType);
+    PropsUi.setLook(wAlterWarehouseType);
     wAlterWarehouseType.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdAlterWarehouseType = new FormData();
     fdAlterWarehouseType.left = new FormAttachment(middle, 0);
@@ -795,7 +796,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlAlterMaxClusterSize = new Label(wAlterGroup, SWT.RIGHT);
     wlAlterMaxClusterSize.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Alter.MaxClusterSize.Label"));
-    props.setLook(wlAlterMaxClusterSize);
+    PropsUi.setLook(wlAlterMaxClusterSize);
     FormData fdlAlterMaxClusterSize = new FormData();
     fdlAlterMaxClusterSize.left = new FormAttachment(0, 0);
     fdlAlterMaxClusterSize.top = new FormAttachment(wAlterWarehouseType, margin);
@@ -803,7 +804,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlAlterMaxClusterSize.setLayoutData(fdlAlterMaxClusterSize);
 
     wAlterMaxClusterSize = new TextVar(variables, wAlterGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wAlterGroup);
+    PropsUi.setLook(wAlterGroup);
     wAlterMaxClusterSize.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdAlterMaxClusterSize = new FormData();
     fdAlterMaxClusterSize.left = new FormAttachment(middle, 0);
@@ -817,7 +818,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlAlterMinClusterSize = new Label(wAlterGroup, SWT.RIGHT);
     wlAlterMinClusterSize.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Alter.MinClusterSize.Label"));
-    props.setLook(wlAlterMinClusterSize);
+    PropsUi.setLook(wlAlterMinClusterSize);
     FormData fdlAlterMinClusterSize = new FormData();
     fdlAlterMinClusterSize.left = new FormAttachment(0, 0);
     fdlAlterMinClusterSize.top = new FormAttachment(wAlterMaxClusterSize, margin);
@@ -825,7 +826,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlAlterMinClusterSize.setLayoutData(fdlAlterMinClusterSize);
 
     wAlterMinClusterSize = new TextVar(variables, wAlterGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wAlterGroup);
+    PropsUi.setLook(wAlterGroup);
     wAlterMinClusterSize.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdAlterMinClusterSize = new FormData();
     fdAlterMinClusterSize.left = new FormAttachment(middle, 0);
@@ -841,7 +842,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Alter.AutoSuspend.Label"));
     wlAlterAutoSuspend.setToolTipText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Alter.AutoSuspend.Tooltip"));
-    props.setLook(wlAlterAutoSuspend);
+    PropsUi.setLook(wlAlterAutoSuspend);
     FormData fdlAlterAutoSuspend = new FormData();
     fdlAlterAutoSuspend.left = new FormAttachment(0, 0);
     fdlAlterAutoSuspend.top = new FormAttachment(wAlterMinClusterSize, margin);
@@ -849,7 +850,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlAlterAutoSuspend.setLayoutData(fdlAlterAutoSuspend);
 
     wAlterAutoSuspend = new TextVar(variables, wAlterGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wAlterGroup);
+    PropsUi.setLook(wAlterGroup);
     wAlterAutoSuspend.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdAlterAutoSuspend = new FormData();
     fdAlterAutoSuspend.left = new FormAttachment(middle, 0);
@@ -863,7 +864,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlAlterAutoResume = new Label(wAlterGroup, SWT.RIGHT);
     wlAlterAutoResume.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Alter.AutoResume.Label"));
-    props.setLook(wlAlterAutoResume);
+    PropsUi.setLook(wlAlterAutoResume);
     FormData fdlAlterAutoResume = new FormData();
     fdlAlterAutoResume.left = new FormAttachment(0, 0);
     fdlAlterAutoResume.top = new FormAttachment(wAlterAutoSuspend, margin);
@@ -871,7 +872,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlAlterAutoResume.setLayoutData(fdlAlterAutoResume);
 
     wAlterAutoResume = new Button(wAlterGroup, SWT.CHECK);
-    props.setLook(wAlterAutoResume);
+    PropsUi.setLook(wAlterAutoResume);
     FormData fdAlterAutoResume = new FormData();
     fdAlterAutoResume.left = new FormAttachment(middle, 0);
     fdAlterAutoResume.top = new FormAttachment(wAlterAutoSuspend, margin);
@@ -884,7 +885,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlAlterResourceMonitor = new Label(wAlterGroup, SWT.RIGHT);
     wlAlterResourceMonitor.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.ResourceMonitor.Label"));
-    props.setLook(wlAlterResourceMonitor);
+    PropsUi.setLook(wlAlterResourceMonitor);
     FormData fdlAlterResourceMonitor = new FormData();
     fdlAlterResourceMonitor.left = new FormAttachment(0, 0);
     fdlAlterResourceMonitor.top = new FormAttachment(wAlterAutoResume, margin);
@@ -893,7 +894,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
 
     wAlterResourceMonitor =
         new ComboVar(variables, wAlterGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wAlterResourceMonitor);
+    PropsUi.setLook(wAlterResourceMonitor);
     wAlterResourceMonitor.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdAlterResourceMonitor = new FormData();
     fdAlterResourceMonitor.left = new FormAttachment(middle, 0);
@@ -920,7 +921,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     Label wlAlterComment = new Label(wAlterGroup, SWT.RIGHT);
     wlAlterComment.setText(
         BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Alter.Comment.Label"));
-    props.setLook(wlAlterComment);
+    PropsUi.setLook(wlAlterComment);
     FormData fdlAlterComment = new FormData();
     fdlAlterComment.left = new FormAttachment(0, 0);
     fdlAlterComment.top = new FormAttachment(wAlterResourceMonitor, margin);
@@ -928,7 +929,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wlAlterComment.setLayoutData(fdlAlterComment);
 
     wAlterComment = new TextVar(variables, wAlterGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wAlterGroup);
+    PropsUi.setLook(wAlterGroup);
     wAlterComment.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdAlterComment = new FormData();
     fdAlterComment.left = new FormAttachment(middle, 0);

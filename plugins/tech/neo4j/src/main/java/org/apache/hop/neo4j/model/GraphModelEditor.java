@@ -330,13 +330,14 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   private void addModelTab() {
 
     CTabItem wModelTab = new CTabItem(wTabs, SWT.NONE);
+    wModelTab.setFont(GuiResource.getInstance().getFontDefault());
     wModelTab.setText("Model");
 
     ScrolledComposite wModelSComp = new ScrolledComposite(wTabs, SWT.V_SCROLL | SWT.H_SCROLL);
     wModelSComp.setLayout(new FillLayout());
 
     Composite wModelComp = new Composite(wModelSComp, SWT.NONE);
-    props.setLook(wModelComp);
+    PropsUi.setLook(wModelComp);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 3;
@@ -352,14 +353,14 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     //
     Label wlName = new Label(wModelComp, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "GraphModelDialog.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlModelName = new FormData();
     fdlModelName.left = new FormAttachment(0, 0);
     fdlModelName.right = new FormAttachment(middle, 0);
     fdlModelName.top = new FormAttachment(0, 0);
     wlName.setLayoutData(fdlModelName);
     wModelName = new Text(wModelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wModelName);
+    PropsUi.setLook(wModelName);
     FormData fdModelName = new FormData();
     fdModelName.left = new FormAttachment(middle, margin);
     fdModelName.right = new FormAttachment(100, 0);
@@ -374,14 +375,14 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     Label wlModelDescription = new Label(wModelComp, SWT.RIGHT);
     wlModelDescription.setText(BaseMessages.getString(PKG, "GraphModelDialog.Description.Label"));
-    props.setLook(wlModelDescription);
+    PropsUi.setLook(wlModelDescription);
     FormData fdlModelDescription = new FormData();
     fdlModelDescription.left = new FormAttachment(0, 0);
     fdlModelDescription.right = new FormAttachment(middle, 0);
     fdlModelDescription.top = new FormAttachment(lastControl, margin);
     wlModelDescription.setLayoutData(fdlModelDescription);
     wModelDescription = new Text(wModelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wModelDescription);
+    PropsUi.setLook(wModelDescription);
     FormData fdModelDescription = new FormData();
     fdModelDescription.left = new FormAttachment(middle, margin);
     fdModelDescription.right = new FormAttachment(100, 0);
@@ -396,7 +397,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     Button wImportGraph = new Button(wModelComp, SWT.PUSH);
     wImportGraph.setText(BaseMessages.getString(PKG, "GraphModelDialog.ImportGraph.Button"));
-    props.setLook(wImportGraph);
+    PropsUi.setLook(wImportGraph);
     FormData fdImportGraph = new FormData();
     fdImportGraph.left = new FormAttachment(middle, 0);
     fdImportGraph.right = new FormAttachment(75, 0);
@@ -407,7 +408,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     Button wExportGraph = new Button(wModelComp, SWT.PUSH);
     wExportGraph.setText(BaseMessages.getString(PKG, "GraphModelDialog.ExportGraph.Button"));
-    props.setLook(wExportGraph);
+    PropsUi.setLook(wExportGraph);
     FormData fdExportGraph = new FormData();
     fdExportGraph.left = new FormAttachment(middle, 0);
     fdExportGraph.right = new FormAttachment(75, 0);
@@ -419,7 +420,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     Button wSolutionsWorkbenchImportGraph = new Button(wModelComp, SWT.PUSH);
     wSolutionsWorkbenchImportGraph.setText(
         BaseMessages.getString(PKG, "GraphModelDialog.ImportGraphSW.Button"));
-    props.setLook(wSolutionsWorkbenchImportGraph);
+    PropsUi.setLook(wSolutionsWorkbenchImportGraph);
     FormData fdSolutionsWorkbenchImportGraph = new FormData();
     fdSolutionsWorkbenchImportGraph.left = new FormAttachment(middle, 0);
     fdSolutionsWorkbenchImportGraph.right = new FormAttachment(75, 0);
@@ -432,7 +433,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     Button wArrowsAppImportGraph = new Button(wModelComp, SWT.PUSH);
     wArrowsAppImportGraph.setText(
         BaseMessages.getString(PKG, "GraphModelDialog.ImportArrowsApp.Button"));
-    props.setLook(wArrowsAppImportGraph);
+    PropsUi.setLook(wArrowsAppImportGraph);
     FormData fdArrowsAppImportGraph = new FormData();
     fdArrowsAppImportGraph.left = new FormAttachment(middle, 0);
     fdArrowsAppImportGraph.right = new FormAttachment(75, 0);
@@ -444,7 +445,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     Button wCreateIndexAction = new Button(wModelComp, SWT.PUSH);
     wCreateIndexAction.setText(
         BaseMessages.getString(PKG, "GraphModelDialog.CreateIndexAction.Button"));
-    props.setLook(wCreateIndexAction);
+    PropsUi.setLook(wCreateIndexAction);
     FormData fdCreateIndexAction = new FormData();
     fdCreateIndexAction.left = new FormAttachment(middle, 0);
     fdCreateIndexAction.right = new FormAttachment(75, 0);
@@ -475,13 +476,14 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   private void addNodesTab() {
 
     CTabItem wNodesTab = new CTabItem(wTabs, SWT.NONE);
+    wNodesTab.setFont(GuiResource.getInstance().getFontDefault());
     wNodesTab.setText("Nodes");
 
     ScrolledComposite wNodesSComp = new ScrolledComposite(wTabs, SWT.V_SCROLL | SWT.H_SCROLL);
     wNodesSComp.setLayout(new FillLayout());
 
     Composite wNodesComp = new Composite(wNodesSComp, SWT.NONE);
-    props.setLook(wNodesComp);
+    PropsUi.setLook(wNodesComp);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 5;
@@ -526,14 +528,14 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     Label wlNodesList = new Label(wNodesComp, SWT.LEFT);
     wlNodesList.setText("Nodes list");
-    props.setLook(wlNodesList);
+    PropsUi.setLook(wlNodesList);
     FormData fdlNodesList = new FormData();
     fdlNodesList.left = new FormAttachment(0, 0);
     fdlNodesList.right = new FormAttachment(middle, 0);
     fdlNodesList.top = new FormAttachment(0, 0);
     wlNodesList.setLayoutData(fdlNodesList);
     wNodesList = new List(wNodesComp, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
-    props.setLook(wNodesList);
+    PropsUi.setLook(wNodesList);
     FormData fdNodesList = new FormData();
     fdNodesList.left = new FormAttachment(0, 0);
     fdNodesList.right = new FormAttachment(middle, 0);
@@ -550,7 +552,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     wlNodeName = new Label(wNodesComp, SWT.RIGHT);
     wlNodeName.setText("Name");
-    props.setLook(wlNodeName);
+    PropsUi.setLook(wlNodeName);
     FormData fdlNodeName = new FormData();
     fdlNodeName.left = new FormAttachment(middle, margin);
     fdlNodeName.top = new FormAttachment(wlNodesList, margin * 2);
@@ -568,7 +570,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
             setChanged();
           }
         });
-    props.setLook(wNodeName);
+    PropsUi.setLook(wNodeName);
     FormData fdNodeName = new FormData();
     fdNodeName.left = new FormAttachment(wlNodeName, margin * 2);
     fdNodeName.right = new FormAttachment(100, 0);
@@ -577,7 +579,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     wlNodeDescription = new Label(wNodesComp, SWT.RIGHT);
     wlNodeDescription.setText("Description");
-    props.setLook(wlNodeDescription);
+    PropsUi.setLook(wlNodeDescription);
     FormData fdlNodeDescription = new FormData();
     fdlNodeDescription.left = new FormAttachment(middle, margin);
     fdlNodeDescription.top = new FormAttachment(wNodeName, margin);
@@ -591,7 +593,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
             setChanged();
           }
         });
-    props.setLook(wNodeDescription);
+    PropsUi.setLook(wNodeDescription);
     FormData fdNodeDescription = new FormData();
     fdNodeDescription.left = new FormAttachment(wlNodeDescription, margin * 2);
     fdNodeDescription.right = new FormAttachment(100, 0);
@@ -614,7 +616,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
             1,
             labelModifyListener,
             props);
-    props.setLook(wNodeLabels);
+    PropsUi.setLook(wNodeLabels);
     FormData fdNodeLabels = new FormData();
     fdNodeLabels.left = new FormAttachment(middle, margin);
     fdNodeLabels.right = new FormAttachment(100, 0);
@@ -626,7 +628,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     //
     wlNodeProperties = new Label(wNodesComp, SWT.LEFT);
     wlNodeProperties.setText("Properties:");
-    props.setLook(wlNodeProperties);
+    PropsUi.setLook(wlNodeProperties);
     FormData fdlNodeProperties = new FormData();
     fdlNodeProperties.left = new FormAttachment(middle, margin);
     fdlNodeProperties.top = new FormAttachment(wNodeLabels, margin);
@@ -655,7 +657,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
             propertyModifyListener,
             props);
     wNodeProperties.table.addListener(SWT.FocusOut, event -> getNodePropertiesFromView());
-    props.setLook(wNodeProperties);
+    PropsUi.setLook(wNodeProperties);
     FormData fdNodeProperties = new FormData();
     fdNodeProperties.left = new FormAttachment(middle, margin);
     fdNodeProperties.right = new FormAttachment(100, 0);
@@ -938,13 +940,14 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   private void addRelationshipsTab() {
 
     CTabItem wRelTab = new CTabItem(wTabs, SWT.NONE);
+    wRelTab.setFont(GuiResource.getInstance().getFontDefault());
     wRelTab.setText("Relationships");
 
     ScrolledComposite wRelSComp = new ScrolledComposite(wTabs, SWT.V_SCROLL | SWT.H_SCROLL);
     wRelSComp.setLayout(new FillLayout());
 
     Composite wRelComp = new Composite(wRelSComp, SWT.NONE);
-    props.setLook(wRelComp);
+    PropsUi.setLook(wRelComp);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 3;
@@ -998,14 +1001,14 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     Label wlRelationshipsList = new Label(wRelComp, SWT.LEFT);
     wlRelationshipsList.setText("Relationships list");
-    props.setLook(wlRelationshipsList);
+    PropsUi.setLook(wlRelationshipsList);
     FormData fdlRelationshipsList = new FormData();
     fdlRelationshipsList.left = new FormAttachment(0, 0);
     fdlRelationshipsList.right = new FormAttachment(middle, 0);
     fdlRelationshipsList.top = new FormAttachment(0, margin);
     wlRelationshipsList.setLayoutData(fdlRelationshipsList);
     wRelationshipsList = new List(wRelComp, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
-    props.setLook(wRelationshipsList);
+    PropsUi.setLook(wRelationshipsList);
     FormData fdRelationshipsList = new FormData();
     fdRelationshipsList.left = new FormAttachment(0, 0);
     fdRelationshipsList.right = new FormAttachment(middle, 0);
@@ -1021,13 +1024,13 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     wlRelName = new Label(wRelComp, SWT.LEFT);
     wlRelName.setText("Name");
-    props.setLook(wlRelName);
+    PropsUi.setLook(wlRelName);
     FormData fdlRelName = new FormData();
     fdlRelName.left = new FormAttachment(middle, margin);
     fdlRelName.top = new FormAttachment(wlRelationshipsList, 2 * margin);
     wlRelName.setLayoutData(fdlRelName);
     wRelName = new Text(wRelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRelName);
+    PropsUi.setLook(wRelName);
     FormData fdRelName = new FormData();
     fdRelName.left = new FormAttachment(wlRelName, margin * 2);
     fdRelName.right = new FormAttachment(100, 0);
@@ -1049,13 +1052,13 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     wlRelDescription = new Label(wRelComp, SWT.LEFT);
     wlRelDescription.setText("Description");
-    props.setLook(wlRelDescription);
+    PropsUi.setLook(wlRelDescription);
     FormData fdlRelDescription = new FormData();
     fdlRelDescription.left = new FormAttachment(middle, margin);
     fdlRelDescription.top = new FormAttachment(wRelName, margin);
     wlRelDescription.setLayoutData(fdlRelDescription);
     wRelDescription = new Text(wRelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRelDescription);
+    PropsUi.setLook(wRelDescription);
     FormData fdRelDescription = new FormData();
     fdRelDescription.left = new FormAttachment(wlRelDescription, margin * 2);
     fdRelDescription.right = new FormAttachment(100, 0);
@@ -1072,13 +1075,13 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     wlRelLabel = new Label(wRelComp, SWT.LEFT);
     wlRelLabel.setText("Label");
-    props.setLook(wlRelLabel);
+    PropsUi.setLook(wlRelLabel);
     FormData fdlRelLabel = new FormData();
     fdlRelLabel.left = new FormAttachment(middle, margin);
     fdlRelLabel.top = new FormAttachment(wRelDescription, margin);
     wlRelLabel.setLayoutData(fdlRelLabel);
     wRelLabel = new Text(wRelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRelLabel);
+    PropsUi.setLook(wRelLabel);
     FormData fdRelLabel = new FormData();
     fdRelLabel.left = new FormAttachment(wlRelLabel, margin * 2);
     fdRelLabel.right = new FormAttachment(100, 0);
@@ -1095,13 +1098,13 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     wlRelSource = new Label(wRelComp, SWT.LEFT);
     wlRelSource.setText("Source");
-    props.setLook(wlRelSource);
+    PropsUi.setLook(wlRelSource);
     FormData fdlRelSource = new FormData();
     fdlRelSource.left = new FormAttachment(middle, margin);
     fdlRelSource.top = new FormAttachment(wRelLabel, margin);
     wlRelSource.setLayoutData(fdlRelSource);
     wRelSource = new CCombo(wRelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRelSource);
+    PropsUi.setLook(wRelSource);
     FormData fdRelSource = new FormData();
     fdRelSource.left = new FormAttachment(wlRelSource, margin * 2);
     fdRelSource.right = new FormAttachment(100, 0);
@@ -1118,13 +1121,13 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     wlRelTarget = new Label(wRelComp, SWT.LEFT);
     wlRelTarget.setText("Target");
-    props.setLook(wlRelTarget);
+    PropsUi.setLook(wlRelTarget);
     FormData fdlRelTarget = new FormData();
     fdlRelTarget.left = new FormAttachment(middle, margin);
     fdlRelTarget.top = new FormAttachment(wRelSource, margin);
     wlRelTarget.setLayoutData(fdlRelTarget);
     wRelTarget = new CCombo(wRelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRelTarget);
+    PropsUi.setLook(wRelTarget);
     FormData fdRelTarget = new FormData();
     fdRelTarget.left = new FormAttachment(wlRelTarget, margin * 2);
     fdRelTarget.right = new FormAttachment(100, 0);
@@ -1143,7 +1146,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     //
     wlRelProperties = new Label(wRelComp, SWT.LEFT);
     wlRelProperties.setText("Properties:");
-    props.setLook(wlRelProperties);
+    PropsUi.setLook(wlRelProperties);
     FormData fdlRelProperties = new FormData();
     fdlRelProperties.left = new FormAttachment(middle, margin);
     fdlRelProperties.top = new FormAttachment(wRelTarget, margin);
@@ -1172,7 +1175,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
             propertyModifyListener,
             props);
     wRelProperties.table.addListener(SWT.FocusOut, event -> getRelationshipPropertiesFromView());
-    props.setLook(wRelProperties);
+    PropsUi.setLook(wRelProperties);
     FormData fdRelProperties = new FormData();
     fdRelProperties.left = new FormAttachment(middle, margin);
     fdRelProperties.right = new FormAttachment(100, 0);
@@ -1286,13 +1289,14 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   private void addGraphTab() {
 
     CTabItem wGraphTab = new CTabItem(wTabs, SWT.NONE);
+    wGraphTab.setFont(GuiResource.getInstance().getFontDefault());
     wGraphTab.setText("Graph");
 
     ScrolledComposite wGraphSComp = new ScrolledComposite(wTabs, SWT.V_SCROLL | SWT.H_SCROLL);
     wGraphSComp.setLayout(new FillLayout());
 
     Composite wGraphComp = new Composite(wGraphSComp, SWT.NONE);
-    props.setLook(wGraphComp);
+    PropsUi.setLook(wGraphComp);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 3;
@@ -1310,7 +1314,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     // This is the canvas on which we draw the graph
     //
     wCanvas = new Canvas(wGraphComp, SWT.NONE);
-    props.setLook(wCanvas);
+    PropsUi.setLook(wCanvas);
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
     fdCanvas.right = new FormAttachment(100, 0);

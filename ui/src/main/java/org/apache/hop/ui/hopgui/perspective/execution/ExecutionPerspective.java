@@ -203,7 +203,7 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
-    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
@@ -216,7 +216,7 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
           }
         });
 
-    PropsUi.getInstance().setLook(tree);
+    PropsUi.setLook(tree);
 
     FormData treeFormData = new FormData();
     treeFormData.left = new FormAttachment(0, 0);
@@ -240,7 +240,7 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
             onTabClose(event);
           }
         });
-    props.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
 
     // Show/Hide tree
     //
@@ -271,6 +271,7 @@ public class ExecutionPerspective implements IHopPerspective , TabClosable {
     // Create tab item
     //
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
+    tabItem.setFont(GuiResource.getInstance().getFontDefault());
     tabItem.setText(viewer.getName());
     tabItem.setImage(viewer.getTitleImage());
     tabItem.setToolTipText(viewer.getTitleToolTip());

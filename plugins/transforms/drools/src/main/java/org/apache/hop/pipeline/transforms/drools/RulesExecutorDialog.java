@@ -26,7 +26,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -63,7 +65,7 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
@@ -86,7 +88,7 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "RulesDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -94,7 +96,7 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
@@ -102,7 +104,7 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
     wTabFolder.setUnselectedCloseVisible(true);
 
     FormData fdTabFolder = new FormData();
@@ -151,10 +153,11 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
         };
 
     CTabItem wRulesTab = new CTabItem(wTabFolder, SWT.NONE);
+    wRulesTab.setFont(GuiResource.getInstance().getFontDefault());
     wRulesTab.setText(BaseMessages.getString(PKG, "RulesDialog.Tabs.RuleDefinition"));
 
     Composite wRulesComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wRulesComp);
+    PropsUi.setLook(wRulesComp);
 
     FormLayout rulesLayout = new FormLayout();
     rulesLayout.marginWidth = 3;
@@ -162,7 +165,7 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
     wRulesComp.setLayout(rulesLayout);
 
     wlRuleFilePath = new Label(wRulesComp, SWT.LEFT);
-    props.setLook(wlRuleFilePath);
+    PropsUi.setLook(wlRuleFilePath);
     wlRuleFilePath.setText(BaseMessages.getString(PKG, "RulesDialog.RulesFile.Label"));
     FormData fdlTransformation = new FormData();
     fdlTransformation.left = new FormAttachment(0, 0);
@@ -171,7 +174,7 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
     wlRuleFilePath.setLayoutData(fdlTransformation);
 
     wbBrowse = new Button(wRulesComp, SWT.PUSH);
-    props.setLook(wbBrowse);
+    PropsUi.setLook(wbBrowse);
     wbBrowse.setText(BaseMessages.getString(PKG, "RulesDialog.Browse.Label"));
     FormData fdBrowse = new FormData();
     fdBrowse.right = new FormAttachment(100, 0);
@@ -196,7 +199,7 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
     wRuleFilePath.setLayoutData(fdRuleFilePath);
 
     wbRulesInEditor = new Button(wRulesComp, SWT.CHECK);
-    props.setLook(wbRulesInEditor);
+    PropsUi.setLook(wbRulesInEditor);
     wbRulesInEditor.setText(
         BaseMessages.getString(PKG, "RulesDialog.RuleDefinition.EnableScriptEditor.Label"));
     FormData fdPipelineNameInField = new FormData();
@@ -215,7 +218,7 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
     wRulesEditor =
         new StyledTextComp(
             variables, wRulesComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wRulesEditor, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wRulesEditor, Props.WIDGET_STYLE_FIXED);
 
     FormData fdRulesEditor = new FormData();
     fdRulesEditor.left = new FormAttachment(0, 0);
@@ -272,7 +275,7 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
     // Position label under the SQL editor
     //
     wlPosition = new Label(wRulesComp, SWT.NONE);
-    props.setLook(wlPosition);
+    PropsUi.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);
     fdlPosition.top =
@@ -303,10 +306,11 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
   private void addRulesResultsTab(CTabFolder wTabFolder, int margin) {
 
     CTabItem wRulesResultsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wRulesResultsTab.setFont(GuiResource.getInstance().getFontDefault());
     wRulesResultsTab.setText(BaseMessages.getString(PKG, "RulesDialog.Tabs.ColumnSelection"));
 
     Composite wRulesResultsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wRulesResultsComp);
+    PropsUi.setLook(wRulesResultsComp);
 
     FormLayout rulesResultsLayout = new FormLayout();
     rulesResultsLayout.marginWidth = 3;

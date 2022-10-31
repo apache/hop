@@ -26,6 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -74,7 +75,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -95,7 +96,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "PGPDecryptStreamDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -103,7 +104,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -116,7 +117,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     // ///////////////////////////////
 
     Group wGPGGroup = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(wGPGGroup);
+    PropsUi.setLook(wGPGGroup);
     wGPGGroup.setText(BaseMessages.getString(PKG, "PGPDecryptStreamDialog.GPGGroup.Label"));
 
     FormLayout gpggroupgrouplayout = new FormLayout();
@@ -128,7 +129,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     Label wlGPGLocation = new Label(wGPGGroup, SWT.RIGHT);
     wlGPGLocation.setText(
         BaseMessages.getString(PKG, "PGPDecryptStreamDialog.GPGLocationField.Label"));
-    props.setLook(wlGPGLocation);
+    PropsUi.setLook(wlGPGLocation);
     FormData fdlGPGLocation = new FormData();
     fdlGPGLocation.left = new FormAttachment(0, 0);
     fdlGPGLocation.right = new FormAttachment(middle, -margin);
@@ -137,7 +138,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
 
     // Browse Source files button ...
     Button wbbGpgExe = new Button(wGPGGroup, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbGpgExe);
+    PropsUi.setLook(wbbGpgExe);
     wbbGpgExe.setText(BaseMessages.getString(PKG, "PGPDecryptStreamDialog.BrowseFiles.Label"));
     FormData fdbbGpgExe = new FormData();
     fdbbGpgExe.right = new FormAttachment(100, -margin);
@@ -162,7 +163,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     wGPGLocation = new TextVar(variables, wGPGGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wGPGLocation.setToolTipText(
         BaseMessages.getString(PKG, "PGPDecryptStreamDialog.GPGLocationField.Tooltip"));
-    props.setLook(wGPGLocation);
+    PropsUi.setLook(wGPGLocation);
     wGPGLocation.addModifyListener(lsMod);
     FormData fdGPGLocation = new FormData();
     fdGPGLocation.left = new FormAttachment(middle, 0);
@@ -174,7 +175,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     wlPassphrase = new Label(wGPGGroup, SWT.RIGHT);
     wlPassphrase.setText(
         BaseMessages.getString(PKG, "PGPDecryptStreamDialog.PassphraseField.Label"));
-    props.setLook(wlPassphrase);
+    PropsUi.setLook(wlPassphrase);
     FormData fdlPassphrase = new FormData();
     fdlPassphrase.left = new FormAttachment(0, 0);
     fdlPassphrase.right = new FormAttachment(middle, -margin);
@@ -184,7 +185,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     wPassphrase = new PasswordTextVar(variables, wGPGGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wPassphrase.setToolTipText(
         BaseMessages.getString(PKG, "PGPDecryptStreamDialog.PassphraseField.Tooltip"));
-    props.setLook(wPassphrase);
+    PropsUi.setLook(wPassphrase);
     wPassphrase.addModifyListener(lsMod);
     FormData fdPassphrase = new FormData();
     fdPassphrase.left = new FormAttachment(middle, 0);
@@ -195,14 +196,14 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     wlPassphraseFromField = new Label(wGPGGroup, SWT.RIGHT);
     wlPassphraseFromField.setText(
         BaseMessages.getString(PKG, "PGPDecryptStreamDialog.PassphraseFromField.Label"));
-    props.setLook(wlPassphraseFromField);
+    PropsUi.setLook(wlPassphraseFromField);
     FormData fdlPassphraseFromField = new FormData();
     fdlPassphraseFromField.left = new FormAttachment(0, 0);
     fdlPassphraseFromField.top = new FormAttachment(wPassphrase, margin);
     fdlPassphraseFromField.right = new FormAttachment(middle, -margin);
     wlPassphraseFromField.setLayoutData(fdlPassphraseFromField);
     wPassphraseFromField = new Button(wGPGGroup, SWT.CHECK);
-    props.setLook(wPassphraseFromField);
+    PropsUi.setLook(wPassphraseFromField);
     wPassphraseFromField.setToolTipText(
         BaseMessages.getString(PKG, "PGPDecryptStreamDialog.PassphraseFromField.Tooltip"));
     FormData fdPassphraseFromField = new FormData();
@@ -222,7 +223,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     Label wlPassphraseFieldName = new Label(wGPGGroup, SWT.RIGHT);
     wlPassphraseFieldName.setText(
         BaseMessages.getString(PKG, "PGPDecryptStreamDialog.PassphraseFieldName.Label"));
-    props.setLook(wlPassphraseFieldName);
+    PropsUi.setLook(wlPassphraseFieldName);
     FormData fdlPassphraseFieldName = new FormData();
     fdlPassphraseFieldName.left = new FormAttachment(0, 0);
     fdlPassphraseFieldName.right = new FormAttachment(middle, -margin);
@@ -230,7 +231,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     wlPassphraseFieldName.setLayoutData(fdlPassphraseFieldName);
 
     wPassphraseFieldName = new CCombo(wGPGGroup, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wPassphraseFieldName);
+    PropsUi.setLook(wPassphraseFieldName);
     wPassphraseFieldName.addModifyListener(lsMod);
     FormData fdPassphraseFieldName = new FormData();
     fdPassphraseFieldName.left = new FormAttachment(middle, 0);
@@ -266,7 +267,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     Label wlStreamFieldName = new Label(shell, SWT.RIGHT);
     wlStreamFieldName.setText(
         BaseMessages.getString(PKG, "PGPDecryptStreamDialog.StreamFieldName.Label"));
-    props.setLook(wlStreamFieldName);
+    PropsUi.setLook(wlStreamFieldName);
     FormData fdlStreamFieldName = new FormData();
     fdlStreamFieldName.left = new FormAttachment(0, 0);
     fdlStreamFieldName.right = new FormAttachment(middle, -margin);
@@ -274,7 +275,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     wlStreamFieldName.setLayoutData(fdlStreamFieldName);
 
     wStreamFieldName = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wStreamFieldName);
+    PropsUi.setLook(wStreamFieldName);
     wStreamFieldName.addModifyListener(lsMod);
     FormData fdStreamFieldName = new FormData();
     fdStreamFieldName.left = new FormAttachment(middle, 0);
@@ -299,7 +300,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     // Result fieldname ...
     Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "PGPDecryptStreamDialog.ResultField.Label"));
-    props.setLook(wlResult);
+    PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
@@ -309,7 +310,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog implements ITran
     wResult = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wResult.setToolTipText(
         BaseMessages.getString(PKG, "PGPDecryptStreamDialog.ResultField.Tooltip"));
-    props.setLook(wResult);
+    PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);

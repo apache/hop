@@ -27,6 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
@@ -65,7 +66,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -84,7 +85,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "DenormaliserDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -92,7 +93,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -103,7 +104,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     // Key field...
     Label wlKeyField = new Label(shell, SWT.RIGHT);
     wlKeyField.setText(BaseMessages.getString(PKG, "DenormaliserDialog.KeyField.Label"));
-    props.setLook(wlKeyField);
+    PropsUi.setLook(wlKeyField);
     FormData fdlKeyField = new FormData();
     fdlKeyField.left = new FormAttachment(0, 0);
     fdlKeyField.right = new FormAttachment(middle, -margin);
@@ -111,7 +112,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     wlKeyField.setLayoutData(fdlKeyField);
 
     wKeyField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wKeyField);
+    PropsUi.setLook(wKeyField);
     wKeyField.addModifyListener(lsMod);
     FormData fdKeyField = new FormData();
     fdKeyField.left = new FormAttachment(middle, 0);
@@ -121,7 +122,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
 
     Label wlGroup = new Label(shell, SWT.NONE);
     wlGroup.setText(BaseMessages.getString(PKG, "DenormaliserDialog.Group.Label"));
-    props.setLook(wlGroup);
+    PropsUi.setLook(wlGroup);
     FormData fdlGroup = new FormData();
     fdlGroup.left = new FormAttachment(0, 0);
     fdlGroup.top = new FormAttachment(wKeyField, margin);
@@ -164,7 +165,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     // THE unpivot target field fields
     Label wlTarget = new Label(shell, SWT.NONE);
     wlTarget.setText(BaseMessages.getString(PKG, "DenormaliserDialog.Target.Label"));
-    props.setLook(wlTarget);
+    PropsUi.setLook(wlTarget);
     FormData fdlTarget = new FormData();
     fdlTarget.left = new FormAttachment(0, 0);
     fdlTarget.top = new FormAttachment(wGroup, margin);

@@ -61,7 +61,7 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     formLayout.marginWidth = Const.FORM_MARGIN * 2;
     formLayout.marginHeight = Const.FORM_MARGIN * 2;
     shell.setLayout(formLayout);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     // Create buttons
     Button wOk = new Button(shell, SWT.PUSH);
@@ -102,7 +102,7 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     fdArea.right = new FormAttachment(100, 0);
     fdArea.bottom = new FormAttachment(wOk, -props.getMargin());
     area.setLayoutData(fdArea);
-    props.setLook(area);
+    PropsUi.setLook(area);
 
     // Create editor controls
     editor.createControl(area);

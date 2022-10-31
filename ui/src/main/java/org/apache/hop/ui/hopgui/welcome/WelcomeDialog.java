@@ -34,7 +34,6 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -86,7 +85,7 @@ public class WelcomeDialog {
           SvgCache.loadSvg(new SvgFile("ui/images/logo_hop.svg", getClass().getClassLoader()));
       SwtUniversalImageSvg imageSvg =
           new SwtUniversalImageSvg(new SvgImage(cacheEntry.getSvgDocument()));
-      int logoSize = (int) (125 * props.getZoomFactor());
+      int logoSize = (int) (75 * props.getZoomFactor());
       this.logoImage = imageSvg.getAsBitmapForSize(shell.getDisplay(), logoSize, logoSize);
       logoLabel.setImage(this.logoImage);
       FormData fdLogoLabel = new FormData();
@@ -99,14 +98,7 @@ public class WelcomeDialog {
       Label welcome = new Label(shell, SWT.CENTER);
       welcome.setText("Apache Hop");
       titleFont =
-          new Font(
-              shell.getDisplay(),
-              "Open Sans",
-              (int)
-                  (15
-                      * props.getZoomFactor()
-                      / (EnvironmentUtils.getInstance().isWeb() ? 0.75 : 1)),
-              SWT.NONE);
+          new Font(shell.getDisplay(), "Open Sans", (int) (18 * props.getZoomFactor()), SWT.NONE);
       welcome.setFont(titleFont);
       FormData fdWelcome = new FormData();
       fdWelcome.left = new FormAttachment(logoLabel, props.getMargin(), SWT.RIGHT);
@@ -120,6 +112,7 @@ public class WelcomeDialog {
       doNotShow.setText("Don't show this at startup (find me in the Help menu)");
       doNotShow.addListener(SWT.Selection, this::dontShowAgain);
       doNotShow.setSelection(HopConfig.readOptionBoolean(HOP_CONFIG_NO_SHOW_OPTION, false));
+      PropsUi.setLook(doNotShow);
       FormData fdDoNotShow = new FormData();
       fdDoNotShow.bottom = new FormAttachment(100, 0);
       fdDoNotShow.left = new FormAttachment(0, 0);
@@ -130,6 +123,7 @@ public class WelcomeDialog {
       // On the left we have the welcome/help topics
       //
       wTopics = new List(shell, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER | SWT.LEFT);
+      PropsUi.setLook(wTopics);
       FormData fdTopics = new FormData();
       fdTopics.left = new FormAttachment(0, 0);
       fdTopics.right = new FormAttachment(logoLabel, 0, SWT.RIGHT);
@@ -138,6 +132,7 @@ public class WelcomeDialog {
       wTopics.setLayoutData(fdTopics);
 
       wPluginsComp = new Composite(shell, SWT.NONE);
+      PropsUi.setLook(wPluginsComp);
       wPluginsComp.setLayout(new FormLayout());
       FormData fdPluginsComp = new FormData();
       fdPluginsComp.left = new FormAttachment(logoLabel, 2 * margin, SWT.RIGHT);
@@ -219,7 +214,8 @@ public class WelcomeDialog {
       parentId = HopGui.ID_MAIN_MENU_HELP_PARENT_ID,
       type = GuiMenuElementType.MENU_ITEM,
       id = "help.welcome",
-      label = "Welcome")
+      label = "Welcome",
+      image = "ui/images/logo_hop.svg")
   public void menuHelpWelcome() {
     open();
   }

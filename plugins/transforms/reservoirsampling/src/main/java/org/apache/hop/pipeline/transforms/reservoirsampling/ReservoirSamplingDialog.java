@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -77,7 +78,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
 
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, mCurrentMeta);
 
     // used to listen to a text field (m_wTransformName)
@@ -100,7 +101,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     Label mWlTransformName = new Label(shell, SWT.RIGHT);
     mWlTransformName.setText(
         BaseMessages.getString(PKG, "ReservoirSamplingDialog.TransformName.Label"));
-    props.setLook(mWlTransformName);
+    PropsUi.setLook(mWlTransformName);
 
     FormData mFdlTransformName = new FormData();
     mFdlTransformName.left = new FormAttachment(0, 0);
@@ -109,7 +110,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     mWlTransformName.setLayoutData(mFdlTransformName);
     mWTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     mWTransformName.setText(transformName);
-    props.setLook(mWTransformName);
+    PropsUi.setLook(mWTransformName);
     mWTransformName.addModifyListener(lsMod);
 
     // format the text field
@@ -122,7 +123,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     // Sample size text field
     Label mWlSampleSize = new Label(shell, SWT.RIGHT);
     mWlSampleSize.setText(BaseMessages.getString(PKG, "ReservoirSamplingDialog.SampleSize.Label"));
-    props.setLook(mWlSampleSize);
+    PropsUi.setLook(mWlSampleSize);
 
     FormData mFdlSampleSize = new FormData();
     mFdlSampleSize.left = new FormAttachment(0, 0);
@@ -131,7 +132,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     mWlSampleSize.setLayoutData(mFdlSampleSize);
 
     mWSampleSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(mWSampleSize);
+    PropsUi.setLook(mWSampleSize);
     mWSampleSize.addModifyListener(lsMod);
     mWSampleSize.setText("" + mOriginalMeta.getSampleSize());
     FormData mFdSampleSize = new FormData();
@@ -143,7 +144,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     // Seed text field
     Label mWlSeed = new Label(shell, SWT.RIGHT);
     mWlSeed.setText(BaseMessages.getString(PKG, "ReservoirSamplingDialog.Seed.Label"));
-    props.setLook(mWlSeed);
+    PropsUi.setLook(mWlSeed);
 
     FormData mFdlSeed = new FormData();
     mFdlSeed.left = new FormAttachment(0, 0);
@@ -152,7 +153,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     mWlSeed.setLayoutData(mFdlSeed);
 
     mWSeed = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(mWSeed);
+    PropsUi.setLook(mWSeed);
     mWSeed.addModifyListener(lsMod);
     mWSeed.setText("" + mOriginalMeta.getSeed());
     FormData mFdSeed = new FormData();

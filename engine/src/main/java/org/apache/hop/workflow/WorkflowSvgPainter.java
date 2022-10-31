@@ -18,6 +18,7 @@
 package org.apache.hop.workflow;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SvgGc;
 import org.apache.hop.core.svg.HopSvgGraphics2D;
@@ -42,8 +43,7 @@ public class WorkflowSvgPainter {
               variables,
               workflowMeta,
               maximum,
-              null,
-              null,
+              new DPoint(0,0),
               null,
               null,
               new ArrayList<>(),

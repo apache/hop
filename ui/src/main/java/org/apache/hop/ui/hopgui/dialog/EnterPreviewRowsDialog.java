@@ -71,7 +71,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -93,7 +93,7 @@ public class EnterPreviewRowsDialog extends Dialog {
         BaseMessages.getString(
             PKG, "EnterPreviewRowsDialog.Dialog.PreviewTransform.Message")); // Transform
     // name :
-    props.setLook(wlTransformList);
+    PropsUi.setLook(wlTransformList);
     FormData fdlTransformList = new FormData();
     fdlTransformList.left = new FormAttachment(0, 0);
     fdlTransformList.top = new FormAttachment(0, margin);
@@ -106,7 +106,7 @@ public class EnterPreviewRowsDialog extends Dialog {
       wTransformList.add(transformNames.get(i));
     }
     wTransformList.select(0);
-    props.setLook(wTransformList);
+    PropsUi.setLook(wTransformList);
     FormData fdTransformList = new FormData();
     fdTransformList.left = new FormAttachment(middle, 0);
     fdTransformList.top = new FormAttachment(0, margin);

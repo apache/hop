@@ -66,7 +66,7 @@ public class EnterListDialog extends Dialog {
   public String[] open() {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImagePipeline());
     shell.setText(BaseMessages.getString(PKG, "EnterListDialog.Title"));
 
@@ -99,7 +99,7 @@ public class EnterListDialog extends Dialog {
     fdTop.right = new FormAttachment(100, 0);
     fdTop.bottom = new FormAttachment(wOk, -2 * margin);
     top.setLayoutData(fdTop);
-    props.setLook(top);
+    PropsUi.setLook(top);
 
     Composite bottom = new Composite(shell, SWT.NONE);
     bottom.setLayout(new FormLayout());
@@ -109,7 +109,7 @@ public class EnterListDialog extends Dialog {
     fdBottom.right = new FormAttachment(100, 0);
     fdBottom.bottom = new FormAttachment(100, 0);
     bottom.setLayoutData(fdBottom);
-    props.setLook(bottom);
+    PropsUi.setLook(bottom);
 
     // //////////////////////////////////////////////////
     // Sashform
@@ -135,19 +135,19 @@ public class EnterListDialog extends Dialog {
     fdLeftsplit.right = new FormAttachment(100, 0);
     fdLeftsplit.bottom = new FormAttachment(100, 0);
     leftsplit.setLayoutData(fdLeftsplit);
-    props.setLook(leftsplit);
+    PropsUi.setLook(leftsplit);
 
     // Source list to the left...
     Label wlListSource = new Label(leftsplit, SWT.NONE);
     wlListSource.setText(BaseMessages.getString(PKG, "EnterListDialog.AvailableItems.Label"));
-    props.setLook(wlListSource);
+    PropsUi.setLook(wlListSource);
     FormData fdlListSource = new FormData();
     fdlListSource.left = new FormAttachment(0, 0);
     fdlListSource.top = new FormAttachment(0, 0);
     wlListSource.setLayoutData(fdlListSource);
 
     wListSource = new List(leftsplit, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wListSource);
+    PropsUi.setLook(wListSource);
 
     FormData fdListSource = new FormData();
     fdListSource.left = new FormAttachment(0, 0);
@@ -179,7 +179,7 @@ public class EnterListDialog extends Dialog {
     fdCompMiddle.right = new FormAttachment(100, 0);
     fdCompMiddle.bottom = new FormAttachment(100, 0);
     compMiddle.setLayoutData(fdCompMiddle);
-    props.setLook(compMiddle);
+    PropsUi.setLook(compMiddle);
 
     Composite gButtonGroup = new Composite(compMiddle, SWT.NONE);
     GridLayout gridLayout = new GridLayout(1, false);
@@ -235,18 +235,18 @@ public class EnterListDialog extends Dialog {
     fdRightSplit.right = new FormAttachment(100, 0);
     fdRightSplit.bottom = new FormAttachment(100, 0);
     rightSplit.setLayoutData(fdRightSplit);
-    props.setLook(rightSplit);
+    PropsUi.setLook(rightSplit);
 
     Label wlListDest = new Label(rightSplit, SWT.NONE);
     wlListDest.setText(BaseMessages.getString(PKG, "EnterListDialog.Selection.Label"));
-    props.setLook(wlListDest);
+    PropsUi.setLook(wlListDest);
     FormData fdlListDest = new FormData();
     fdlListDest.left = new FormAttachment(0, 0);
     fdlListDest.top = new FormAttachment(0, 0);
     wlListDest.setLayoutData(fdlListDest);
 
     wListDest = new List(rightSplit, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wListDest);
+    PropsUi.setLook(wListDest);
     FormData fdListDest = new FormData();
     fdListDest.left = new FormAttachment(0, 0);
     fdListDest.top = new FormAttachment(wlListDest, 0);

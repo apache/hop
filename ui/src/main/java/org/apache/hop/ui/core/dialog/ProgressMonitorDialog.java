@@ -73,7 +73,7 @@ public class ProgressMonitorDialog {
         new Shell(parent, SWT.RESIZE | SWT.APPLICATION_MODAL | (cancelable ? SWT.CLOSE : SWT.NONE));
     shell.setText(BaseMessages.getString(PKG, "ProgressMonitorDialog.Shell.Title"));
     shell.setImage(GuiResource.getInstance().getImageHopUi());
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     display = shell.getDisplay();
 
@@ -92,7 +92,7 @@ public class ProgressMonitorDialog {
     //
     Label wlImage = new Label(shell, SWT.NONE);
     wlImage.setImage(GuiResource.getInstance().getImageHopUi());
-    props.setLook(wlImage);
+    PropsUi.setLook(wlImage);
     FormData fdlImage = new FormData();
     fdlImage.right = new FormAttachment(100, 0);
     fdlImage.top = new FormAttachment(0, 0);
@@ -100,7 +100,7 @@ public class ProgressMonitorDialog {
 
     wlTask = new Label(shell, SWT.LEFT);
     wlTask.setText(BaseMessages.getString(PKG, "ProgressMonitorDialog.InitialTaskLabel"));
-    props.setLook(wlTask);
+    PropsUi.setLook(wlTask);
     FormData fdlTask = new FormData();
     fdlTask.left = new FormAttachment(0, 0);
     fdlTask.top = new FormAttachment(0, 0);
@@ -109,7 +109,7 @@ public class ProgressMonitorDialog {
 
     wlSubTask = new Label(shell, SWT.LEFT);
     wlSubTask.setText(BaseMessages.getString(PKG, "ProgressMonitorDialog.InitialSubTaskLabel"));
-    props.setLook(wlSubTask);
+    PropsUi.setLook(wlSubTask);
     FormData fdlSubTask = new FormData();
     fdlSubTask.left = new FormAttachment(0, 0);
     fdlSubTask.top = new FormAttachment(wlTask, margin);

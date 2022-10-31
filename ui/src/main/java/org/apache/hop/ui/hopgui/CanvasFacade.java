@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.base.AbstractMeta;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.variables.IVariables;
 import org.eclipse.swt.widgets.Canvas;
 
@@ -28,9 +29,21 @@ public abstract class CanvasFacade {
     IMPL = (CanvasFacade) ImplementationLoader.newInstance(CanvasFacade.class);
   }
 
-  public static void setData(Canvas canvas, float magnification, AbstractMeta meta, Class<?> type, IVariables variables) {
-    IMPL.setDataInternal(canvas, magnification, meta, type, variables);
+  public static void setData(
+      Canvas canvas,
+      float magnification,
+      DPoint offset,
+      AbstractMeta meta,
+      Class<?> type,
+      IVariables variables) {
+    IMPL.setDataInternal(canvas, magnification, offset, meta, type, variables);
   }
 
-  abstract void setDataInternal(Canvas canvas, float magnification, AbstractMeta meta, Class<?> type, IVariables variables);
+  abstract void setDataInternal(
+      Canvas canvas,
+      float magnification,
+      DPoint offset,
+      AbstractMeta meta,
+      Class<?> type,
+      IVariables variables);
 }

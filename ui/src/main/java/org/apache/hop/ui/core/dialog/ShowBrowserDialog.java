@@ -54,7 +54,7 @@ public class ShowBrowserDialog extends Dialog {
 
     shell = new Shell(parent, SWT.RESIZE | SWT.MAX | SWT.MIN);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -67,7 +67,7 @@ public class ShowBrowserDialog extends Dialog {
 
     // Canvas
     wBrowser = new Browser(shell, SWT.NONE);
-    props.setLook(wBrowser);
+    PropsUi.setLook(wBrowser);
 
     FormData fdBrowser = new FormData();
     fdBrowser.left = new FormAttachment(0, 0);

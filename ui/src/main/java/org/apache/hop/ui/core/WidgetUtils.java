@@ -24,6 +24,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -64,7 +65,7 @@ public abstract class WidgetUtils {
     PipelineMeta pipelineMeta = transformMeta.getParentTransformMeta().getParentPipelineMeta();
     ComboVar fieldDropDownCombo =
         new ComboVar(variables, parentComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(fieldDropDownCombo);
+    PropsUi.setLook(fieldDropDownCombo);
     fieldDropDownCombo.addModifyListener(e -> transformMeta.setChanged());
 
     fieldDropDownCombo.setLayoutData(formData);
@@ -117,9 +118,10 @@ public abstract class WidgetUtils {
         title = StringUtils.rightPad(title, 8);
       }
       Composite tab = new Composite(tabFolder, SWT.NONE);
-      WidgetUtils.setFormLayout(tab, ConstUi.MEDUIM_MARGIN);
+      WidgetUtils.setFormLayout(tab, ConstUi.MEDIUM_MARGIN);
 
       CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
+      tabItem.setFont(GuiResource.getInstance().getFontDefault());
       tabItem.setText(title);
       tabItem.setControl(tab);
     }
@@ -129,10 +131,10 @@ public abstract class WidgetUtils {
   }
 
   public static FormData firstColumn(Control top) {
-    return new FormDataBuilder().top(top, ConstUi.MEDUIM_MARGIN).percentWidth(47).result();
+    return new FormDataBuilder().top(top, ConstUi.MEDIUM_MARGIN).percentWidth(47).result();
   }
 
   public static FormData secondColumn(Control top) {
-    return new FormDataBuilder().top(top, ConstUi.MEDUIM_MARGIN).right().left(53, 0).result();
+    return new FormDataBuilder().top(top, ConstUi.MEDIUM_MARGIN).right().left(53, 0).result();
   }
 }

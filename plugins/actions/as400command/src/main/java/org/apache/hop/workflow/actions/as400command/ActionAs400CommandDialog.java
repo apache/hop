@@ -22,6 +22,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -76,7 +77,7 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     shell.setMinimumSize(new Point(600, 400));
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = (ModifyEvent e) -> action.setChanged();
@@ -98,10 +99,10 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     fdlicon.top = new FormAttachment(0, 0);
     fdlicon.right = new FormAttachment(100, 0);
     wicon.setLayoutData(fdlicon);
-    props.setLook(wicon);
+    PropsUi.setLook(wicon);
 
     Label wlName = new Label(shell, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "ActionAs400CommandDialog.Name.Label"));
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -110,7 +111,7 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     wlName.setLayoutData(fdlName);
 
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.right = new FormAttachment(wicon, -margin);
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
@@ -132,7 +133,7 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     systemGroup.setLayout(systemGroupLayout);
     systemGroup.setLayoutData(
         new FormDataBuilder().top(spacer, Const.FORM_MARGIN).fullWidth().result());
-    props.setLook(systemGroup);
+    PropsUi.setLook(systemGroup);
 
     // Widget ServerName
     wServerName =
@@ -143,7 +144,7 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
             BaseMessages.getString(PKG, "ActionAs400CommandDialog.Server.Tooltip"));
     wServerName.addModifyListener(lsMod);
     wServerName.setLayoutData(new FormDataBuilder().top().fullWidth().result());
-    props.setLook(wServerName);
+    PropsUi.setLook(wServerName);
 
     // Widget UserName
     wUserName =
@@ -154,7 +155,7 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
             BaseMessages.getString(PKG, "ActionAs400CommandDialog.User.Tooltip"));
     wUserName.setLayoutData(new FormDataBuilder().top(wServerName).fullWidth().result());
     wUserName.addModifyListener(lsMod);
-    props.setLook(wUserName);
+    PropsUi.setLook(wUserName);
 
     // Widget Password
     wPassword =
@@ -166,7 +167,7 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     wPassword.setEchoChar('*');
     wPassword.setLayoutData(new FormDataBuilder().top(wUserName).fullWidth().result());
     wPassword.addModifyListener(lsMod);
-    props.setLook(wPassword);
+    PropsUi.setLook(wPassword);
 
     Group proxyGroup = new Group(shell, SWT.SHADOW_NONE);
     proxyGroup.setText(BaseMessages.getString(PKG, "ActionAs400CommandDialog.Proxy.Group.Label"));
@@ -176,7 +177,7 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     proxyGroup.setLayout(proxyGroupLayout);
     proxyGroup.setLayoutData(
         new FormDataBuilder().top(systemGroup, Const.FORM_MARGIN).fullWidth().result());
-    props.setLook(proxyGroup);
+    PropsUi.setLook(proxyGroup);
 
     // Widget proxy host
     wProxyHost =
@@ -187,7 +188,7 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
             BaseMessages.getString(PKG, "ActionAs400CommandDialog.ProxyHost.Tooltip"));
     wProxyHost.addModifyListener(lsMod);
     wProxyHost.setLayoutData(new FormDataBuilder().top().fullWidth().result());
-    props.setLook(wProxyHost);
+    PropsUi.setLook(wProxyHost);
 
     // Widget UserName
     wProxyPort =
@@ -198,7 +199,7 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
             BaseMessages.getString(PKG, "ActionAs400CommandDialog.ProxyPort.Tooltip"));
     wProxyPort.setLayoutData(new FormDataBuilder().top(wProxyHost).fullWidth().result());
     wProxyPort.addModifyListener(lsMod);
-    props.setLook(wProxyPort);
+    PropsUi.setLook(wProxyPort);
 
     Group commandGroup = new Group(shell, SWT.SHADOW_NONE);
     commandGroup.setText(
@@ -209,7 +210,7 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
     commandGroup.setLayout(commandGroupLayout);
     commandGroup.setLayoutData(
         new FormDataBuilder().top(proxyGroup, Const.FORM_MARGIN).fullWidth().result());
-    props.setLook(commandGroup);
+    PropsUi.setLook(commandGroup);
 
     // Widget Command
     wCommand =
@@ -220,7 +221,7 @@ public class ActionAs400CommandDialog extends ActionDialog implements IActionDia
             BaseMessages.getString(PKG, "ActionAs400CommandDialog.Command.Tooltip"));
     wCommand.setLayoutData(new FormDataBuilder().fullWidth().result());
     wCommand.addModifyListener(lsMod);
-    props.setLook(wCommand);
+    PropsUi.setLook(wCommand);
 
     // at the bottom
     Button wOk = new Button(shell, SWT.PUSH);

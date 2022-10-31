@@ -121,6 +121,7 @@ public class HopGuiPipelineGridDelegate {
     }
 
     pipelineGridTab = new CTabItem(pipelineGraph.extraViewTabFolder, SWT.NONE);
+    pipelineGridTab.setFont(GuiResource.getInstance().getFontDefault());
     pipelineGridTab.setImage(GuiResource.getInstance().getImageShowGrid());
     pipelineGridTab.setText(BaseMessages.getString(PKG, "HopGui.PipelineGraph.GridTab.Name"));
 
@@ -282,7 +283,7 @@ public class HopGuiPipelineGridDelegate {
     fdToolBar.top = new FormAttachment(0, 0);
     fdToolBar.right = new FormAttachment(100, 0);
     toolbar.setLayoutData(fdToolBar);
-    hopGui.getProps().setLook(toolbar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolbar, Props.WIDGET_STYLE_TOOLBAR);
 
     toolbarWidget = new GuiToolbarWidgets();
     toolbarWidget.registerGuiPluginObject(this);

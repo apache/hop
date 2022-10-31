@@ -81,8 +81,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       IVariables variables,
       PipelineMeta pipelineMeta,
       Point area,
-      IScrollBar hori,
-      IScrollBar vert,
+      DPoint offset,
       PipelineHopMeta candidate,
       Rectangle selectRectangle,
       List<AreaOwner> areaOwners,
@@ -102,8 +101,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         variables,
         pipelineMeta,
         area,
-        hori,
-        vert,
+        offset,
         selectRectangle,
         areaOwners,
         iconSize,
@@ -132,10 +130,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       IVariables variables,
       PipelineMeta pipelineMeta,
       Point area,
-      IScrollBar hori,
-      IScrollBar vert,
+      DPoint offset,
       PipelineHopMeta candidate,
-      Point dropCandidate,
       Rectangle selectionRectangle,
       List<AreaOwner> areaOwners,
       int iconSize,
@@ -151,8 +147,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         variables,
         pipelineMeta,
         area,
-        hori,
-        vert,
+        offset,
         candidate,
         selectionRectangle,
         areaOwners,
@@ -188,13 +183,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   }
 
   public void drawPipelineImage() throws HopException {
-
-    Point max = pipelineMeta.getMaximum();
-    Point thumb = getThumb(area, max);
-    if (offset == null) {
-      offset = getOffset(thumb, area);
-    }
-
     // Make sure the canvas is scaled 100%
     gc.setTransform(0.0f, 0.0f, 1.0f);
     // First clear the image in the background color
@@ -203,9 +191,14 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     // Draw the pipeline onto the image
     //
-    gc.setTransform(translationX, translationY, magnification);
+    gc.setTransform((float)offset.x, (float)offset.y, magnification);
     gc.setAlpha(255);
     drawPipeline();
+
+    // Draw the navigation view in native pixels to make calculation a bit easier.
+    //
+    gc.setTransform(0.0f, 0.0f, 1.0f);
+    drawNavigationView();
 
     gc.dispose();
   }

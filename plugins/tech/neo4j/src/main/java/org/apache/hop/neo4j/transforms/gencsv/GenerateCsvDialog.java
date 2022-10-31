@@ -25,6 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -70,7 +71,7 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout shellLayout = new FormLayout();
@@ -92,7 +93,7 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
     wScrolledComposite.setLayoutData(fdSComposite);
 
     Composite wComposite = new Composite(wScrolledComposite, SWT.NONE);
-    props.setLook(wComposite);
+    PropsUi.setLook(wComposite);
     FormData fdComposite = new FormData();
     fdComposite.left = new FormAttachment(0, 0);
     fdComposite.right = new FormAttachment(100, 0);
@@ -112,14 +113,14 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
     //
     Label wlTransformName = new Label(wComposite, SWT.RIGHT);
     wlTransformName.setText("Transform name");
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -139,7 +140,7 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
     //
     Label wlGraphField = new Label(wComposite, SWT.RIGHT);
     wlGraphField.setText("Graph field ");
-    props.setLook(wlGraphField);
+    PropsUi.setLook(wlGraphField);
     FormData fdlGraphField = new FormData();
     fdlGraphField.left = new FormAttachment(0, 0);
     fdlGraphField.right = new FormAttachment(middle, -margin);
@@ -147,7 +148,7 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
     wlGraphField.setLayoutData(fdlGraphField);
     wGraphField = new CCombo(wComposite, SWT.FLAT | SWT.BORDER);
     wGraphField.setItems(fieldnames);
-    props.setLook(wGraphField);
+    PropsUi.setLook(wGraphField);
     FormData fdGraphField = new FormData();
     fdGraphField.left = new FormAttachment(middle, 0);
     fdGraphField.right = new FormAttachment(100, 0);
@@ -159,14 +160,14 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
     //
     Label wlBaseFolder = new Label(wComposite, SWT.RIGHT);
     wlBaseFolder.setText("Base folder (below import/ folder) ");
-    props.setLook(wlBaseFolder);
+    PropsUi.setLook(wlBaseFolder);
     FormData fdlBaseFolder = new FormData();
     fdlBaseFolder.left = new FormAttachment(0, 0);
     fdlBaseFolder.right = new FormAttachment(middle, -margin);
     fdlBaseFolder.top = new FormAttachment(lastControl, 2 * margin);
     wlBaseFolder.setLayoutData(fdlBaseFolder);
     wBaseFolder = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBaseFolder);
+    PropsUi.setLook(wBaseFolder);
     wBaseFolder.addModifyListener(lsMod);
     FormData fdBaseFolder = new FormData();
     fdBaseFolder.left = new FormAttachment(middle, 0);
@@ -177,14 +178,14 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
 
     Label wlFilesPrefix = new Label(wComposite, SWT.RIGHT);
     wlFilesPrefix.setText("CSV files prefix ");
-    props.setLook(wlFilesPrefix);
+    PropsUi.setLook(wlFilesPrefix);
     FormData fdlFilesPrefix = new FormData();
     fdlFilesPrefix.left = new FormAttachment(0, 0);
     fdlFilesPrefix.right = new FormAttachment(middle, -margin);
     fdlFilesPrefix.top = new FormAttachment(lastControl, 2 * margin);
     wlFilesPrefix.setLayoutData(fdlFilesPrefix);
     wFilesPrefix = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilesPrefix);
+    PropsUi.setLook(wFilesPrefix);
     wFilesPrefix.addModifyListener(lsMod);
     FormData fdFilesPrefix = new FormData();
     fdFilesPrefix.left = new FormAttachment(middle, 0);
@@ -195,7 +196,7 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
 
     Label wlStrategy = new Label(wComposite, SWT.RIGHT);
     wlStrategy.setText("Node/Relationships Uniqueness strategy ");
-    props.setLook(wlStrategy);
+    PropsUi.setLook(wlStrategy);
     FormData fdlStrategy = new FormData();
     fdlStrategy.left = new FormAttachment(0, 0);
     fdlStrategy.right = new FormAttachment(middle, -margin);
@@ -203,7 +204,7 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
     wlStrategy.setLayoutData(fdlStrategy);
     wStrategy = new CCombo(wComposite, SWT.FLAT | SWT.BORDER);
     wStrategy.setItems(UniquenessStrategy.getNames());
-    props.setLook(wStrategy);
+    PropsUi.setLook(wStrategy);
     FormData fdStrategy = new FormData();
     fdStrategy.left = new FormAttachment(middle, 0);
     fdStrategy.right = new FormAttachment(100, 0);
@@ -213,14 +214,14 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
 
     Label wlFilenameField = new Label(wComposite, SWT.RIGHT);
     wlFilenameField.setText("Filename field) ");
-    props.setLook(wlFilenameField);
+    PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, 0);
     fdlFilenameField.right = new FormAttachment(middle, -margin);
     fdlFilenameField.top = new FormAttachment(lastControl, 2 * margin);
     wlFilenameField.setLayoutData(fdlFilenameField);
     wFilenameField = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilenameField);
+    PropsUi.setLook(wFilenameField);
     wFilenameField.addModifyListener(lsMod);
     FormData fdFilenameField = new FormData();
     fdFilenameField.left = new FormAttachment(middle, 0);
@@ -231,14 +232,14 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
 
     Label wlFileTypeField = new Label(wComposite, SWT.RIGHT);
     wlFileTypeField.setText("File type field ");
-    props.setLook(wlFileTypeField);
+    PropsUi.setLook(wlFileTypeField);
     FormData fdlFileTypeField = new FormData();
     fdlFileTypeField.left = new FormAttachment(0, 0);
     fdlFileTypeField.right = new FormAttachment(middle, -margin);
     fdlFileTypeField.top = new FormAttachment(lastControl, 2 * margin);
     wlFileTypeField.setLayoutData(fdlFileTypeField);
     wFileTypeField = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFileTypeField);
+    PropsUi.setLook(wFileTypeField);
     wFileTypeField.addModifyListener(lsMod);
     FormData fdFileTypeField = new FormData();
     fdFileTypeField.left = new FormAttachment(middle, 0);

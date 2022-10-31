@@ -31,11 +31,13 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -127,7 +129,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -170,13 +172,13 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Transformname.Label"));
-    props.setLook(
+    PropsUi.setLook(
         wlTransformName); // Puts the user-selected background color and font on the widget.
 
     // Text box for editing the transform name
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
 
     //
@@ -189,18 +191,19 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     // Prepare the Folder that will contain tabs. //
     // //////////////////////////////////////////////
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // General Settings tab //
     // ////////////////////////
 
     CTabItem wGeneralSettingsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralSettingsTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralSettingsTab.setText(
         BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Tab.GeneralSettings.Label"));
 
     Composite wGeneralSettingsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralSettingsComp);
+    PropsUi.setLook(wGeneralSettingsComp);
 
     FormLayout tabLayout = new FormLayout();
     tabLayout.marginWidth = 3;
@@ -215,11 +218,12 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     // ////////////////////////////////
 
     CTabItem wMonetDBmclientSettingsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wMonetDBmclientSettingsTab.setFont(GuiResource.getInstance().getFontDefault());
     wMonetDBmclientSettingsTab.setText(
         BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Tab.MonetDBmclientSettings.Label"));
 
     Composite wMonetDBmclientSettingsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wMonetDBmclientSettingsComp);
+    PropsUi.setLook(wMonetDBmclientSettingsComp);
     wMonetDBmclientSettingsComp.setLayout(tabLayout);
     wMonetDBmclientSettingsComp.layout();
     wMonetDBmclientSettingsTab.setControl(wMonetDBmclientSettingsComp);
@@ -228,7 +232,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     wMonetDBmclientParamGroup.setText(
         BaseMessages.getString(
             PKG, "MonetDBBulkLoaderDialog.Tab.MonetDBmclientSettings.ParameterGroup"));
-    props.setLook(wMonetDBmclientParamGroup);
+    PropsUi.setLook(wMonetDBmclientParamGroup);
     wMonetDBmclientParamGroup.setLayout(tabLayout);
     wMonetDBmclientParamGroup.layout();
 
@@ -237,11 +241,12 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     // /////////////////////
 
     CTabItem wOutputFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wOutputFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wOutputFieldsTab.setText(
         BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Tab.OutputFields"));
 
     Composite wOutputFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wOutputFieldsComp);
+    PropsUi.setLook(wOutputFieldsComp);
 
     wOutputFieldsComp.setLayout(tabLayout);
 
@@ -264,9 +269,9 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     //
     Label wlSchema = new Label(wGeneralSettingsComp, SWT.RIGHT);
     wlSchema.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.TargetSchema.Label"));
-    props.setLook(wlSchema);
+    PropsUi.setLook(wlSchema);
     wSchema = new TextVar(variables, wGeneralSettingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSchema);
+    PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsMod);
     wSchema.addFocusListener(lsFocusLost);
 
@@ -275,14 +280,14 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     //
     Label wlTable = new Label(wGeneralSettingsComp, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.TargetTable.Label"));
-    props.setLook(wlTable);
+    PropsUi.setLook(wlTable);
 
     Button wbTable = new Button(wGeneralSettingsComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTable);
+    PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Browse.Button"));
 
     wTable = new TextVar(variables, wGeneralSettingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTable);
+    PropsUi.setLook(wTable);
     wTable.addModifyListener(lsMod);
     wTable.addFocusListener(lsFocusLost);
 
@@ -291,10 +296,10 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     //
     Label wlBufferSize = new Label(wGeneralSettingsComp, SWT.RIGHT);
     wlBufferSize.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.BufferSize.Label"));
-    props.setLook(wlBufferSize);
+    PropsUi.setLook(wlBufferSize);
 
     wBufferSize = new TextVar(variables, wGeneralSettingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBufferSize);
+    PropsUi.setLook(wBufferSize);
     wBufferSize.addModifyListener(lsMod);
 
     //
@@ -302,14 +307,14 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     //
     Label wlLogFile = new Label(wGeneralSettingsComp, SWT.RIGHT);
     wlLogFile.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.LogFile.Label"));
-    props.setLook(wlLogFile);
+    PropsUi.setLook(wlLogFile);
 
     Button wbLogFile = new Button(wGeneralSettingsComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbLogFile);
+    PropsUi.setLook(wbLogFile);
     wbLogFile.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Browse.Button"));
 
     wLogFile = new TextVar(variables, wGeneralSettingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLogFile);
+    PropsUi.setLook(wLogFile);
     wLogFile.addModifyListener(lsMod);
 
     //
@@ -317,9 +322,9 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     //
     Label wlTruncate = new Label(wGeneralSettingsComp, SWT.RIGHT);
     wlTruncate.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Truncate.Label"));
-    props.setLook(wlTruncate);
+    PropsUi.setLook(wlTruncate);
     wTruncate = new Button(wGeneralSettingsComp, SWT.CHECK);
-    props.setLook(wTruncate);
+    PropsUi.setLook(wTruncate);
     SelectionAdapter lsSelMod =
         new SelectionAdapter() {
           @Override
@@ -337,10 +342,10 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     Label wlFullyQuoteSQL = new Label(wGeneralSettingsComp, SWT.RIGHT);
     wlFullyQuoteSQL.setText(
         BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.FullyQuoteSQL.Label"));
-    props.setLook(wlFullyQuoteSQL);
+    PropsUi.setLook(wlFullyQuoteSQL);
 
     wFullyQuoteSQL = new Button(wGeneralSettingsComp, SWT.CHECK);
-    props.setLook(wFullyQuoteSQL);
+    PropsUi.setLook(wFullyQuoteSQL);
     SelectionAdapter lsFullyQuoteSQL =
         new SelectionAdapter() {
           @Override
@@ -365,11 +370,11 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
         BaseMessages.getString(
             PKG,
             "MonetDBBulkLoaderDialog.Tab.MonetDBmclientSettings.ParameterGroup.FieldSeparator.Label"));
-    props.setLook(wlFieldSeparator);
+    PropsUi.setLook(wlFieldSeparator);
 
     wFieldSeparator = new Combo(wMonetDBmclientParamGroup, SWT.SINGLE | SWT.CENTER | SWT.BORDER);
     wFieldSeparator.setItems(fieldSeparators);
-    props.setLook(wFieldSeparator);
+    PropsUi.setLook(wFieldSeparator);
     wFieldSeparator.addModifyListener(lsMod);
 
     Label wlFieldEnclosure = new Label(wMonetDBmclientParamGroup, SWT.RIGHT);
@@ -377,7 +382,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
         BaseMessages.getString(
             PKG,
             "MonetDBBulkLoaderDialog.Tab.MonetDBmclientSettings.ParameterGroup.FieldEnclosure.Label"));
-    props.setLook(wlFieldEnclosure);
+    PropsUi.setLook(wlFieldEnclosure);
 
     wFieldEnclosure = new Combo(wMonetDBmclientParamGroup, SWT.SINGLE | SWT.CENTER | SWT.BORDER);
     wFieldEnclosure.setItems(fieldEnclosures);
@@ -388,7 +393,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
         BaseMessages.getString(
             PKG,
             "MonetDBBulkLoaderDialog.Tab.MonetDBmclientSettings.ParameterGroup.NULLrepresentation.Label"));
-    props.setLook(wlNULLrepresentation);
+    PropsUi.setLook(wlNULLrepresentation);
 
     wNULLrepresentation =
         new Combo(wMonetDBmclientParamGroup, SWT.SINGLE | SWT.CENTER | SWT.BORDER);
@@ -403,13 +408,13 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     //
     Label wlEncoding = new Label(wMonetDBmclientParamGroup, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Encoding.Label"));
-    props.setLook(wlEncoding);
+    PropsUi.setLook(wlEncoding);
 
     wEncoding = new Combo(wMonetDBmclientParamGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wEncoding.setToolTipText(
         BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Encoding.Tooltip"));
     wEncoding.setItems(encodings);
-    props.setLook(wEncoding);
+    PropsUi.setLook(wEncoding);
     wEncoding.addModifyListener(lsMod);
 
     // The field Table
@@ -417,7 +422,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     // Output Fields tab - Widgets and FormData
     Label wlReturn = new Label(wOutputFieldsComp, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Fields.Label"));
-    props.setLook(wlReturn);
+    PropsUi.setLook(wlReturn);
 
     int upInsCols = 3;
     int upInsRows = (input.getFieldTable() != null ? input.getFieldTable().length : 1);

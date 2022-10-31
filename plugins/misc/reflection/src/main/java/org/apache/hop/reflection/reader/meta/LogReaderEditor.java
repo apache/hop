@@ -76,7 +76,7 @@ public class LogReaderEditor extends MetadataEditor<LogReader> {
     // What's the name
     //
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "LogReaderEditor.label.name"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, 0);
@@ -84,7 +84,7 @@ public class LogReaderEditor extends MetadataEditor<LogReader> {
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, margin); // To the right of the label
@@ -95,7 +95,7 @@ public class LogReaderEditor extends MetadataEditor<LogReader> {
     // Add a composite area
     //
     wPluginSpecificComp = new Composite(parent, SWT.BACKGROUND);
-    props.setLook(wPluginSpecificComp);
+    PropsUi.setLook(wPluginSpecificComp);
     wPluginSpecificComp.setLayout(new FormLayout());
     FormData fdPluginSpecificComp = new FormData();
     fdPluginSpecificComp.left = new FormAttachment(0, 0);

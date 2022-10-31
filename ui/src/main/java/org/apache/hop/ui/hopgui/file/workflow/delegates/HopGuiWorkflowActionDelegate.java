@@ -120,7 +120,6 @@ public class HopGuiWorkflowActionDelegate {
                 workflowMeta,
                 new ActionMeta[] {actionMeta},
                 new int[] {workflowMeta.indexOfAction(actionMeta)});
-            workflowGraph.adjustScrolling();
             workflowGraph.updateGui();
             return actionMeta;
           } else {
@@ -138,7 +137,6 @@ public class HopGuiWorkflowActionDelegate {
               workflowMeta,
               new ActionMeta[] {actionMeta},
               new int[] {workflowMeta.indexOfAction(actionMeta)});
-          workflowGraph.adjustScrolling();
           workflowGraph.updateGui();
           return actionMeta;
         }

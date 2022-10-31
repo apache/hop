@@ -64,7 +64,7 @@ public class DetailsDialog {
     shell.setLayout(new FormLayout());
 
     Button wClose = new Button(shell, SWT.PUSH);
-    props.setLook(wClose);
+    PropsUi.setLook(wClose);
     wClose.setText(BaseMessages.getString("System.Button.Close"));
     wClose.addListener(SWT.Selection, e -> close());
     BaseTransformDialog.positionBottomButtons(
@@ -76,7 +76,7 @@ public class DetailsDialog {
         null);
 
     Label wLabel = new Label(shell, SWT.LEFT);
-    props.setLook(wLabel);
+    PropsUi.setLook(wLabel);
     wLabel.setText(Const.NVL(message, ""));
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment(0, 0);
@@ -85,7 +85,7 @@ public class DetailsDialog {
     wLabel.setLayoutData(fdLabel);
 
     Text wDetails = new Text(shell, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wDetails);
+    PropsUi.setLook(wDetails);
     wDetails.setText(Const.NVL(details, ""));
     wDetails.setSelection(details.length());
     FormData fdDetails = new FormData();

@@ -165,7 +165,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
     // A tab folder covers the complete area...
     //
     tabFolder = new CTabFolder(composite, SWT.MULTI | SWT.BORDER);
-    props.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment(0, 0);
     fdLabel.right = new FormAttachment(100, 0);
@@ -239,6 +239,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
       HopGui hopGui, PipelineMeta pipelineMeta, HopPipelineFileType pipelineFile)
       throws HopException {
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
+    tabItem.setFont(GuiResource.getInstance().getFontDefault());
     tabItem.setImage(GuiResource.getInstance().getImagePipeline());
     HopGuiPipelineGraph pipelineGraph =
         new HopGuiPipelineGraph(tabFolder, hopGui, tabItem, this, pipelineMeta, pipelineFile);
@@ -292,8 +293,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
           e);
     }
 
-    pipelineGraph.adjustScrolling();
-
     pipelineGraph.setFocus();
 
     return pipelineGraph;
@@ -316,6 +315,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
       HopGui hopGui, WorkflowMeta workflowMeta, HopWorkflowFileType workflowFile)
       throws HopException {
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
+    tabItem.setFont(GuiResource.getInstance().getFontDefault());
     tabItem.setImage(GuiResource.getInstance().getImageWorkflow());
     HopGuiWorkflowGraph workflowGraph =
         new HopGuiWorkflowGraph(tabFolder, hopGui, tabItem, this, workflowMeta, workflowFile);

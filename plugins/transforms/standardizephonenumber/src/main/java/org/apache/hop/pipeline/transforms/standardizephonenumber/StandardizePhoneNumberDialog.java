@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -89,7 +90,7 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog implements
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     shell.setText(BaseMessages.getString(PKG, "StandardizePhoneNumberDialog.Shell.Title"));
     shell.setMinimumSize(650, 350);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
@@ -121,20 +122,20 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog implements
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
     wlTransformName.setLayoutData(new FormDataBuilder().right(middle, -margin).result());
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     wTransformName.addListener(SWT.Modify, e -> input.setChanged());
     wTransformName.setLayoutData(
         new FormDataBuilder().left(wlTransformName, margin).top(wlTransformName, 0, SWT.CENTER).right().result());
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
 
     // Table with fields
     Label lblFields = new Label(shell, SWT.LEFT);
     lblFields.setText(BaseMessages.getString(PKG, "StandardizePhoneNumberDialog.Fields.Label"));
     lblFields.setLayoutData(new FormDataBuilder().top(wTransformName, margin).fullWidth().result());
-    props.setLook(lblFields);
+    PropsUi.setLook(lblFields);
 
     ColumnInfo[] columns =
         new ColumnInfo[] {

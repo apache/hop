@@ -378,13 +378,13 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
-    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> updateSelection());
     tree.addListener(SWT.DefaultSelection, this::openFile);
-    PropsUi.getInstance().setLook(tree);
+    PropsUi.setLook(tree);
 
     FormData treeFormData = new FormData();
     treeFormData.left = new FormAttachment(0, 0);
@@ -557,7 +557,7 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
           }
         });
     tabFolder.addListener(SWT.Selection, this::handleTabSelectionEvent);
-    props.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
 
     // Show/Hide tree
     //
@@ -647,7 +647,7 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
     // Create tab item
     //
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
-    tabItem.setFont(tabFolder.getFont());
+    tabItem.setFont(GuiResource.getInstance().getFontDefault());
     tabItem.setText(Const.NVL(explorerFile.getName(), ""));
     if (explorerFile.getTabImage() != null) {
       tabItem.setImage(explorerFile.getTabImage());
@@ -680,7 +680,7 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
     layoutComposite.marginWidth = Const.FORM_MARGIN;
     layoutComposite.marginHeight = Const.FORM_MARGIN;
     composite.setLayout(layoutComposite);
-    props.setLook(composite);
+    PropsUi.setLook(composite);
 
     IExplorerFileTypeHandler renderer = explorerFile.getFileTypeHandler();
     // This is usually done by the file type
@@ -701,7 +701,7 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
     fdArea.bottom = new FormAttachment(100, 0);
 
     area.setLayoutData(fdArea);
-    props.setLook(area);
+    PropsUi.setLook(area);
 
     tabItem.setControl(composite);
     tabItem.setData(explorerFile);

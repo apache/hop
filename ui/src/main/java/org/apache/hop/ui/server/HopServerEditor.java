@@ -24,6 +24,7 @@ import org.apache.hop.server.HopServer;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -87,11 +88,11 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     fdlicon.top = new FormAttachment(0, 0);
     fdlicon.right = new FormAttachment(100, 0);
     wIcon.setLayoutData(fdlicon);
-    props.setLook(wIcon);
+    PropsUi.setLook(wIcon);
 
     // What's the name
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "HopServerDialog.ServerName.Label"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, 0);
@@ -99,7 +100,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     wlName.setLayoutData(fdlName);
 
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 5);
     fdName.left = new FormAttachment(0, 0);
@@ -114,7 +115,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     spacer.setLayoutData(fdSpacer);
 
     wTabFolder = new CTabFolder(parent, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(spacer, 15);
@@ -150,10 +151,11 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     // START OF DB TAB ///
     // ////////////////////////
     CTabItem wServiceTab = new CTabItem(wTabFolder, SWT.NONE);
+    wServiceTab.setFont(GuiResource.getInstance().getFontDefault());
     wServiceTab.setText(BaseMessages.getString(PKG, "HopServerDialog.USER_TAB_SERVICE"));
 
     Composite wServiceComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wServiceComp);
+    PropsUi.setLook(wServiceComp);
 
     FormLayout genLayout = new FormLayout();
     genLayout.marginWidth = Const.FORM_MARGIN;
@@ -162,7 +164,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
     // What's the hostname
     Label wlHostname = new Label(wServiceComp, SWT.RIGHT);
-    props.setLook(wlHostname);
+    PropsUi.setLook(wlHostname);
     wlHostname.setText(BaseMessages.getString(PKG, "HopServerDialog.HostIP.Label"));
     FormData fdlHostname = new FormData();
     fdlHostname.top = new FormAttachment(0, margin * 2);
@@ -173,7 +175,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     wHostname =
         new TextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
-    props.setLook(wHostname);
+    PropsUi.setLook(wHostname);
     FormData fdHostname = new FormData();
     fdHostname.top = new FormAttachment(wName, margin * 2);
     fdHostname.left = new FormAttachment(middle, 0); // To the right of the label
@@ -182,7 +184,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
     // What's the service URL?
     Label wlPort = new Label(wServiceComp, SWT.RIGHT);
-    props.setLook(wlPort);
+    PropsUi.setLook(wlPort);
     wlPort.setText(BaseMessages.getString(PKG, "HopServerDialog.Port.Label"));
     FormData fdlPort = new FormData();
     fdlPort.top = new FormAttachment(wHostname, margin);
@@ -192,7 +194,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
     wPort = new TextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
-    props.setLook(wPort);
+    PropsUi.setLook(wPort);
     FormData fdPort = new FormData();
     fdPort.top = new FormAttachment(wHostname, margin);
     fdPort.left = new FormAttachment(middle, 0); // To the right of the label
@@ -202,7 +204,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     // webapp name (optional)
     Label wlWebAppName = new Label(wServiceComp, SWT.RIGHT);
     wlWebAppName.setText(BaseMessages.getString(PKG, "HopServerDialog.WebAppName.Label"));
-    props.setLook(wlWebAppName);
+    PropsUi.setLook(wlWebAppName);
     FormData fdlWebAppName = new FormData();
     fdlWebAppName.top = new FormAttachment(wPort, margin);
     fdlWebAppName.left = new FormAttachment(0, 0);
@@ -212,7 +214,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     wWebAppName =
         new TextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
-    props.setLook(wWebAppName);
+    PropsUi.setLook(wWebAppName);
     FormData fdWebAppName = new FormData();
     fdWebAppName.top = new FormAttachment(wPort, margin);
     fdWebAppName.left = new FormAttachment(middle, 0);
@@ -222,7 +224,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     // Username
     Label wlUsername = new Label(wServiceComp, SWT.RIGHT);
     wlUsername.setText(BaseMessages.getString(PKG, "HopServerDialog.UserName.Label"));
-    props.setLook(wlUsername);
+    PropsUi.setLook(wlUsername);
     FormData fdlUsername = new FormData();
     fdlUsername.top = new FormAttachment(wWebAppName, margin);
     fdlUsername.left = new FormAttachment(0, 0);
@@ -232,7 +234,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     wUsername =
         new TextVar(manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
-    props.setLook(wUsername);
+    PropsUi.setLook(wUsername);
     FormData fdUsername = new FormData();
     fdUsername.top = new FormAttachment(wWebAppName, margin);
     fdUsername.left = new FormAttachment(middle, 0);
@@ -242,7 +244,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     // Password
     Label wlPassword = new Label(wServiceComp, SWT.RIGHT);
     wlPassword.setText(BaseMessages.getString(PKG, "HopServerDialog.Password.Label"));
-    props.setLook(wlPassword);
+    PropsUi.setLook(wlPassword);
     FormData fdlPassword = new FormData();
     fdlPassword.top = new FormAttachment(wUsername, margin);
     fdlPassword.left = new FormAttachment(0, 0);
@@ -253,7 +255,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
         new PasswordTextVar(
             manager.getVariables(), wServiceComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
-    props.setLook(wPassword);
+    PropsUi.setLook(wPassword);
     FormData fdPassword = new FormData();
     fdPassword.top = new FormAttachment(wUsername, margin);
     fdPassword.left = new FormAttachment(middle, 0);
@@ -263,7 +265,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     // Https
     Label wlSSL = new Label(wServiceComp, SWT.RIGHT);
     wlSSL.setText(BaseMessages.getString(PKG, "HopServerDialog.UseSsl.Label"));
-    props.setLook(wlSSL);
+    PropsUi.setLook(wlSSL);
     FormData fd = new FormData();
     fd.top = new FormAttachment(wPassword, margin);
     fd.left = new FormAttachment(0, 0);
@@ -273,7 +275,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
     wSSL = new Button(wServiceComp, SWT.CHECK);
 
-    props.setLook(wSSL);
+    PropsUi.setLook(wSSL);
     FormData bfd = new FormData();
     bfd.top = new FormAttachment(wlSSL, 0, SWT.CENTER);
     bfd.left = new FormAttachment(middle, 0);
@@ -304,6 +306,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     // START OF POOL TAB///
     // /
     CTabItem wProxyTab = new CTabItem(wTabFolder, SWT.NONE);
+    wProxyTab.setFont(GuiResource.getInstance().getFontDefault());
     wProxyTab.setText(BaseMessages.getString(PKG, "HopServerDialog.USER_TAB_PROXY"));
 
     FormLayout poolLayout = new FormLayout();
@@ -311,12 +314,12 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     poolLayout.marginHeight = Const.FORM_MARGIN;
 
     Composite wProxyComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wProxyComp);
+    PropsUi.setLook(wProxyComp);
     wProxyComp.setLayout(poolLayout);
 
     // What's the data tablespace name?
     Label wlProxyHost = new Label(wProxyComp, SWT.RIGHT);
-    props.setLook(wlProxyHost);
+    PropsUi.setLook(wlProxyHost);
     wlProxyHost.setText(BaseMessages.getString(PKG, "HopServerDialog.ProxyServerName.Label"));
     FormData fdlProxyHost = new FormData();
     fdlProxyHost.top = new FormAttachment(0, 0);
@@ -327,7 +330,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     wProxyHost =
         new TextVar(manager.getVariables(), wProxyComp, SWT.BORDER | SWT.LEFT | SWT.SINGLE);
 
-    props.setLook(wProxyHost);
+    PropsUi.setLook(wProxyHost);
     FormData fdProxyHost = new FormData();
     fdProxyHost.top = new FormAttachment(0, 0);
     fdProxyHost.left = new FormAttachment(middle, 0); // To the right of the label
@@ -336,7 +339,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
     // What's the initial pool size
     Label wlProxyPort = new Label(wProxyComp, SWT.RIGHT);
-    props.setLook(wlProxyPort);
+    PropsUi.setLook(wlProxyPort);
     wlProxyPort.setText(BaseMessages.getString(PKG, "HopServerDialog.ProxyServerPort.Label"));
     FormData fdlProxyPort = new FormData();
     fdlProxyPort.top = new FormAttachment(wProxyHost, margin);
@@ -346,7 +349,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
     wProxyPort =
         new TextVar(manager.getVariables(), wProxyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wProxyPort);
+    PropsUi.setLook(wProxyPort);
     FormData fdProxyPort = new FormData();
     fdProxyPort.top = new FormAttachment(wProxyHost, margin);
     fdProxyPort.left = new FormAttachment(middle, 0); // To the right of the label
@@ -355,7 +358,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
     // What's the maximum pool size
     Label wlNonProxyHosts = new Label(wProxyComp, SWT.RIGHT);
-    props.setLook(wlNonProxyHosts);
+    PropsUi.setLook(wlNonProxyHosts);
     wlNonProxyHosts.setText(
         BaseMessages.getString(PKG, "HopServerDialog.IgnoreProxyForHosts.Label"));
     FormData fdlNonProxyHosts = new FormData();
@@ -366,7 +369,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
     wNonProxyHosts =
         new TextVar(manager.getVariables(), wProxyComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wNonProxyHosts);
+    PropsUi.setLook(wNonProxyHosts);
     FormData fdNonProxyHosts = new FormData();
     fdNonProxyHosts.top = new FormAttachment(wProxyPort, margin);
     fdNonProxyHosts.left = new FormAttachment(middle, 0); // To the right of the label

@@ -24,6 +24,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.shared.NeoConnection;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -71,7 +72,7 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -106,14 +107,14 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
 
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText("Action name");
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -123,7 +124,7 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
 
     Label wlConnections = new Label(shell, SWT.LEFT);
     wlConnections.setText(BaseMessages.getString(PKG, "CheckConnectionsDialog.Connections.Label"));
-    props.setLook(wlConnections);
+    PropsUi.setLook(wlConnections);
     FormData fdlConnections = new FormData();
     fdlConnections.left = new FormAttachment(0, 0);
     fdlConnections.right = new FormAttachment(middle, -margin);

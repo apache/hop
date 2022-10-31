@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
@@ -72,7 +73,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -91,7 +92,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "MergeJoinDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -99,7 +100,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -113,14 +114,14 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     // First transform
     Label wlTransform1 = new Label(shell, SWT.RIGHT);
     wlTransform1.setText(BaseMessages.getString(PKG, "MergeJoinDialog.Transform1.Label"));
-    props.setLook(wlTransform1);
+    PropsUi.setLook(wlTransform1);
     FormData fdlTransform1 = new FormData();
     fdlTransform1.left = new FormAttachment(0, 0);
     fdlTransform1.right = new FormAttachment(middle, -margin);
     fdlTransform1.top = new FormAttachment(wTransformName, margin);
     wlTransform1.setLayoutData(fdlTransform1);
     wTransform1 = new CCombo(shell, SWT.BORDER);
-    props.setLook(wTransform1);
+    PropsUi.setLook(wTransform1);
 
     if (previousTransforms != null) {
       wTransform1.setItems(previousTransforms);
@@ -136,14 +137,14 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     // Second transform
     Label wlTransform2 = new Label(shell, SWT.RIGHT);
     wlTransform2.setText(BaseMessages.getString(PKG, "MergeJoinDialog.Transform2.Label"));
-    props.setLook(wlTransform2);
+    PropsUi.setLook(wlTransform2);
     FormData fdlTransform2 = new FormData();
     fdlTransform2.left = new FormAttachment(0, 0);
     fdlTransform2.right = new FormAttachment(middle, -margin);
     fdlTransform2.top = new FormAttachment(wTransform1, margin);
     wlTransform2.setLayoutData(fdlTransform2);
     wTransform2 = new CCombo(shell, SWT.BORDER);
-    props.setLook(wTransform2);
+    PropsUi.setLook(wTransform2);
 
     if (previousTransforms != null) {
       wTransform2.setItems(previousTransforms);
@@ -159,14 +160,14 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     // Join type
     Label wlType = new Label(shell, SWT.RIGHT);
     wlType.setText(BaseMessages.getString(PKG, "MergeJoinDialog.Type.Label"));
-    props.setLook(wlType);
+    PropsUi.setLook(wlType);
     FormData fdlType = new FormData();
     fdlType.left = new FormAttachment(0, 0);
     fdlType.right = new FormAttachment(middle, -margin);
     fdlType.top = new FormAttachment(wTransform2, margin);
     wlType.setLayoutData(fdlType);
     wType = new CCombo(shell, SWT.BORDER);
-    props.setLook(wType);
+    PropsUi.setLook(wType);
 
     wType.setItems(MergeJoinMeta.joinTypes);
 
@@ -211,7 +212,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     // THE KEYS TO MATCH for first transform...
     Label wlKeys1 = new Label(shell, SWT.NONE);
     wlKeys1.setText(BaseMessages.getString(PKG, "MergeJoinDialog.Keys1.Label"));
-    props.setLook(wlKeys1);
+    PropsUi.setLook(wlKeys1);
     FormData fdlKeys1 = new FormData();
     fdlKeys1.left = new FormAttachment(0, 0);
     fdlKeys1.top = new FormAttachment(wType, margin);
@@ -246,7 +247,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     // THE KEYS TO MATCH for second transform
     Label wlKeys2 = new Label(shell, SWT.NONE);
     wlKeys2.setText(BaseMessages.getString(PKG, "MergeJoinDialog.Keys2.Label"));
-    props.setLook(wlKeys2);
+    PropsUi.setLook(wlKeys2);
     FormData fdlKeys2 = new FormData();
     fdlKeys2.left = new FormAttachment(50, 0);
     fdlKeys2.top = new FormAttachment(wType, margin);

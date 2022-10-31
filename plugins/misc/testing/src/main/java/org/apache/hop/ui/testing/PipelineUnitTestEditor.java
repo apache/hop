@@ -79,7 +79,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     // The name of the unit test...
     //
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "PipelineUnitTestDialog.Name.Label"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin);
@@ -87,7 +87,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, 0);
@@ -98,7 +98,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     // The description of the test...
     //
     Label wlDescription = new Label(parent, SWT.RIGHT);
-    props.setLook(wlDescription);
+    PropsUi.setLook(wlDescription);
     wlDescription.setText(BaseMessages.getString(PKG, "PipelineUnitTestDialog.Description.Label"));
     FormData fdlDescription = new FormData();
     fdlDescription.top = new FormAttachment(lastControl, margin);
@@ -106,7 +106,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdlDescription.right = new FormAttachment(middle, -margin);
     wlDescription.setLayoutData(fdlDescription);
     wDescription = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDescription);
+    PropsUi.setLook(wDescription);
     FormData fdDescription = new FormData();
     fdDescription.top = new FormAttachment(wlDescription, 0, SWT.CENTER);
     fdDescription.left = new FormAttachment(middle, 0);
@@ -117,7 +117,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     // The type of test...
     //
     Label wlTestType = new Label(parent, SWT.RIGHT);
-    props.setLook(wlTestType);
+    PropsUi.setLook(wlTestType);
     wlTestType.setText(BaseMessages.getString(PKG, "PipelineUnitTestDialog.TestType.Label"));
     FormData fdlTestType = new FormData();
     fdlTestType.top = new FormAttachment(lastControl, margin);
@@ -136,7 +136,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     // The filename of the pipeline to test
     //
     Label wlPipelineFilename = new Label(parent, SWT.RIGHT);
-    props.setLook(wlPipelineFilename);
+    PropsUi.setLook(wlPipelineFilename);
     wlPipelineFilename.setText(
         BaseMessages.getString(PKG, "PipelineUnitTestDialog.PipelineFilename.Label"));
     FormData fdlPipelineFilename = new FormData();
@@ -145,7 +145,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdlPipelineFilename.right = new FormAttachment(middle, -margin);
     wlPipelineFilename.setLayoutData(fdlPipelineFilename);
     wPipelineFilename = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPipelineFilename);
+    PropsUi.setLook(wPipelineFilename);
     FormData fdPipelineFilename = new FormData();
     fdPipelineFilename.top = new FormAttachment(wlPipelineFilename, 0, SWT.CENTER);
     fdPipelineFilename.left = new FormAttachment(middle, 0);
@@ -156,7 +156,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     // The optional filename of the test result...
     //
     Label wlFilename = new Label(parent, SWT.RIGHT);
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     wlFilename.setText(BaseMessages.getString(PKG, "PipelineUnitTestDialog.Filename.Label"));
     FormData fdlFilename = new FormData();
     fdlFilename.top = new FormAttachment(lastControl, margin);
@@ -164,7 +164,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
     wFilename = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     fdFilename.left = new FormAttachment(middle, 0);
@@ -175,7 +175,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     // The base path for relative test path resolution
     //
     Label wlBasePath = new Label(parent, SWT.RIGHT);
-    props.setLook(wlBasePath);
+    PropsUi.setLook(wlBasePath);
     wlBasePath.setText(BaseMessages.getString(PKG, "PipelineUnitTestDialog.BasePath.Label"));
     FormData fdlBasePath = new FormData();
     fdlBasePath.top = new FormAttachment(lastControl, margin);
@@ -183,7 +183,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdlBasePath.right = new FormAttachment(middle, -margin);
     wlBasePath.setLayoutData(fdlBasePath);
     wBasePath = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBasePath);
+    PropsUi.setLook(wBasePath);
     FormData fdBasePath = new FormData();
     fdBasePath.top = new FormAttachment(wlBasePath, 0, SWT.CENTER);
     fdBasePath.left = new FormAttachment(middle, 0);
@@ -194,7 +194,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     // The base path for relative test path resolution
     //
     Label wlAutoOpen = new Label(parent, SWT.RIGHT);
-    props.setLook(wlAutoOpen);
+    PropsUi.setLook(wlAutoOpen);
     wlAutoOpen.setText(BaseMessages.getString(PKG, "PipelineUnitTestDialog.AutoOpen.Label"));
     FormData fdlAutoOpen = new FormData();
     fdlAutoOpen.top = new FormAttachment(lastControl, margin);
@@ -202,7 +202,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdlAutoOpen.right = new FormAttachment(middle, -margin);
     wlAutoOpen.setLayoutData(fdlAutoOpen);
     wAutoOpen = new Button(parent, SWT.CHECK);
-    props.setLook(wAutoOpen);
+    PropsUi.setLook(wAutoOpen);
     FormData fdAutoOpen = new FormData();
     fdAutoOpen.top = new FormAttachment(wlAutoOpen, 0, SWT.CENTER);
     fdAutoOpen.left = new FormAttachment(middle, 0);
@@ -215,7 +215,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     Label wlFieldMapping = new Label(parent, SWT.NONE);
     wlFieldMapping.setText(
         BaseMessages.getString(PKG, "PipelineUnitTestDialog.DbReplacements.Label"));
-    props.setLook(wlFieldMapping);
+    PropsUi.setLook(wlFieldMapping);
     FormData fdlUpIns = new FormData();
     fdlUpIns.left = new FormAttachment(0, 0);
     fdlUpIns.top = new FormAttachment(lastControl, 3 * margin);
@@ -271,7 +271,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     Label wlVariableValues = new Label(parent, SWT.NONE);
     wlVariableValues.setText(
         BaseMessages.getString(PKG, "PipelineUnitTestDialog.VariableValues.Label"));
-    props.setLook(wlVariableValues);
+    PropsUi.setLook(wlVariableValues);
     FormData fdlVariableValues = new FormData();
     fdlVariableValues.left = new FormAttachment(0, 0);
     fdlVariableValues.top = new FormAttachment(lastControl, margin);

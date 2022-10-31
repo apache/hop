@@ -71,7 +71,7 @@ public class GoogleAuthorizationDialog extends Dialog {
     dialog.setText(title);
     dialog.setImage(logo);
     PropsUi props = PropsUi.getInstance();
-    props.setLook(dialog);
+    PropsUi.setLook(dialog);
     dialog.setSize(width, height);
 
     FormLayout formLayout = new FormLayout();
@@ -95,7 +95,7 @@ public class GoogleAuthorizationDialog extends Dialog {
       helpLabel.setText("Help");
       helpLabel.setEditable(false);
 
-      props.setLook(helpLabel);
+      PropsUi.setLook(helpLabel);
       helpLabel.setFont(new Font(display, "Open Sans Regular", 11, SWT.NORMAL));
       helpLabel.setForeground(new Color(display, props.contrastColor(0, 94, 170)));
       FormData helpLabelFormData = new FormData();

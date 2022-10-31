@@ -122,7 +122,7 @@ public class EditRowsDialog {
 
   public List<Object[]> open() {
     shell = new Shell(parentShell, style);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
@@ -167,7 +167,7 @@ public class EditRowsDialog {
     if (wlMessage == null) {
       wlMessage = new Label(shell, SWT.LEFT);
       wlMessage.setText(message);
-      props.setLook(wlMessage);
+      PropsUi.setLook(wlMessage);
       FormData fdlFields = new FormData();
       fdlFields.left = new FormAttachment(0, 0);
       fdlFields.right = new FormAttachment(100, 0);

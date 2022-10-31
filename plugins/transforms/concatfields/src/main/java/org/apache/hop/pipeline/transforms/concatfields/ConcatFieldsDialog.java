@@ -31,8 +31,10 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.textfileoutput.TextFileField;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -91,7 +93,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod =
@@ -126,7 +128,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     // transformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -134,7 +136,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -148,7 +150,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
         BaseMessages.getString(PKG, "ConcatFieldsDialog.TargetFieldName.Label"));
     wlTargetFieldName.setToolTipText(
         BaseMessages.getString(PKG, "ConcatFieldsDialog.TargetFieldName.Tooltip"));
-    props.setLook(wlTargetFieldName);
+    PropsUi.setLook(wlTargetFieldName);
     FormData fdlTargetFieldName = new FormData();
     fdlTargetFieldName.left = new FormAttachment(0, 0);
     fdlTargetFieldName.top = new FormAttachment(wTransformName, margin);
@@ -156,7 +158,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     wlTargetFieldName.setLayoutData(fdlTargetFieldName);
     wTargetFieldName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTargetFieldName.setText("");
-    props.setLook(wTargetFieldName);
+    PropsUi.setLook(wTargetFieldName);
     wTargetFieldName.addModifyListener(lsMod);
     FormData fdTargetFieldName = new FormData();
     fdTargetFieldName.left = new FormAttachment(middle, 0);
@@ -170,14 +172,14 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
         BaseMessages.getString(PKG, "ConcatFieldsDialog.TargetFieldLength.Label"));
     wlTargetFieldLength.setToolTipText(
         BaseMessages.getString(PKG, "ConcatFieldsDialog.TargetFieldLength.Tooltip"));
-    props.setLook(wlTargetFieldLength);
+    PropsUi.setLook(wlTargetFieldLength);
     FormData fdlTargetFieldLength = new FormData();
     fdlTargetFieldLength.left = new FormAttachment(0, 0);
     fdlTargetFieldLength.top = new FormAttachment(wTargetFieldName, margin);
     fdlTargetFieldLength.right = new FormAttachment(middle, -margin);
     wlTargetFieldLength.setLayoutData(fdlTargetFieldLength);
     wTargetFieldLength = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTargetFieldLength);
+    PropsUi.setLook(wTargetFieldLength);
     wTargetFieldLength.addModifyListener(lsMod);
     FormData fdTargetFieldLength = new FormData();
     fdTargetFieldLength.left = new FormAttachment(middle, 0);
@@ -188,7 +190,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     // Separator
     Label wlSeparator = new Label(shell, SWT.RIGHT);
     wlSeparator.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.Separator.Label"));
-    props.setLook(wlSeparator);
+    PropsUi.setLook(wlSeparator);
     FormData fdlSeparator = new FormData();
     fdlSeparator.left = new FormAttachment(0, 0);
     fdlSeparator.top = new FormAttachment(wTargetFieldLength, margin);
@@ -196,7 +198,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     wlSeparator.setLayoutData(fdlSeparator);
 
     Button wbSeparator = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSeparator);
+    PropsUi.setLook(wbSeparator);
     wbSeparator.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.Separator.Button"));
     FormData fdbSeparator = new FormData();
     fdbSeparator.right = new FormAttachment(100, 0);
@@ -211,7 +213,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
         });
 
     wSeparator = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSeparator);
+    PropsUi.setLook(wSeparator);
     wSeparator.addModifyListener(lsMod);
     FormData fdSeparator = new FormData();
     fdSeparator.left = new FormAttachment(middle, 0);
@@ -222,14 +224,14 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     // Enclosure line...
     Label wlEnclosure = new Label(shell, SWT.RIGHT);
     wlEnclosure.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.Enclosure.Label"));
-    props.setLook(wlEnclosure);
+    PropsUi.setLook(wlEnclosure);
     FormData fdlEnclosure = new FormData();
     fdlEnclosure.left = new FormAttachment(0, 0);
     fdlEnclosure.top = new FormAttachment(wSeparator, margin);
     fdlEnclosure.right = new FormAttachment(middle, -margin);
     wlEnclosure.setLayoutData(fdlEnclosure);
     wEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wEnclosure);
+    PropsUi.setLook(wEnclosure);
     wEnclosure.addModifyListener(lsMod);
     FormData fdEnclosure = new FormData();
     fdEnclosure.left = new FormAttachment(middle, 0);
@@ -242,11 +244,12 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     // /
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // Fields tab...
     //
     CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wFieldsTab.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.FieldsTab.TabTitle"));
 
     FormLayout fieldsLayout = new FormLayout();
@@ -255,7 +258,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     wFieldsComp.setLayout(fieldsLayout);
-    props.setLook(wFieldsComp);
+    PropsUi.setLook(wFieldsComp);
 
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));

@@ -24,6 +24,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -89,7 +90,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -129,18 +130,19 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, PropsUi.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, PropsUi.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ServerSettings.General"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -151,7 +153,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     // START OF SERVER SETTINGS GROUP///
     // /
     Group wServerSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wServerSettings);
+    PropsUi.setLook(wServerSettings);
     wServerSettings.setText(
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ServerSettings.Group.Label"));
 
@@ -168,7 +170,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
             wServerSettings,
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Server.Label"),
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Server.Tooltip"));
-    props.setLook(wServerName);
+    PropsUi.setLook(wServerName);
     wServerName.addModifyListener(lsMod);
     FormData fdServerName = new FormData();
     fdServerName.left = new FormAttachment(0, 0);
@@ -183,7 +185,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
             wServerSettings,
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Port.Label"),
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Port.Tooltip"));
-    props.setLook(wPort);
+    PropsUi.setLook(wPort);
     wPort.addModifyListener(lsMod);
     FormData fdPort = new FormData();
     fdPort.left = new FormAttachment(0, 0);
@@ -199,7 +201,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Password.Label"),
             BaseMessages.getString("JobSendNagiosPassiveCheck.Password.Tooltip"),
             true);
-    props.setLook(wPassword);
+    PropsUi.setLook(wPassword);
     wPassword.addModifyListener(lsMod);
     FormData fdPassword = new FormData();
     fdPassword.left = new FormAttachment(0, 0);
@@ -214,7 +216,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
             wServerSettings,
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ConnectionTimeOut.Label"),
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ConnectionTimeOut.Tooltip"));
-    props.setLook(wConnectionTimeOut);
+    PropsUi.setLook(wConnectionTimeOut);
     wConnectionTimeOut.addModifyListener(lsMod);
     FormData fdwConnectionTimeOut = new FormData();
     fdwConnectionTimeOut.left = new FormAttachment(0, 0);
@@ -229,7 +231,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
             wServerSettings,
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ResponseTimeOut.Label"),
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.ResponseTimeOut.Tooltip"));
-    props.setLook(wResponseTimeOut);
+    PropsUi.setLook(wResponseTimeOut);
     wResponseTimeOut.addModifyListener(lsMod);
     FormData fdResponseTimeOut = new FormData();
     fdResponseTimeOut.left = new FormAttachment(0, 0);
@@ -240,7 +242,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     // Test connection button
     Button wTest = new Button(wServerSettings, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.TestConnection.Label"));
-    props.setLook(wTest);
+    PropsUi.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.TestConnection.Tooltip"));
@@ -262,7 +264,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     // START OF Advanced SETTINGS GROUP///
     // /
     Group wSenderSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wSenderSettings);
+    PropsUi.setLook(wSenderSettings);
     wSenderSettings.setText(
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.SenderSettings.Group.Label"));
     FormLayout senderSettingsgroupLayout = new FormLayout();
@@ -277,7 +279,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
             wSenderSettings,
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.SenderServerName.Label"),
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.SenderServerName.Tooltip"));
-    props.setLook(wSenderServerName);
+    PropsUi.setLook(wSenderServerName);
     wSenderServerName.addModifyListener(lsMod);
     FormData fdSenderServerName = new FormData();
     fdSenderServerName.left = new FormAttachment(0, 0);
@@ -292,7 +294,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
             wSenderSettings,
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.SenderServiceName.Label"),
             BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.SenderServiceName.Tooltip"));
-    props.setLook(wSenderServiceName);
+    PropsUi.setLook(wSenderServiceName);
     wSenderServiceName.addModifyListener(lsMod);
     FormData fdSenderServiceName = new FormData();
     fdSenderServiceName.left = new FormAttachment(0, 0);
@@ -304,7 +306,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     Label wlEncryptionMode = new Label(wSenderSettings, SWT.RIGHT);
     wlEncryptionMode.setText(
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.Label"));
-    props.setLook(wlEncryptionMode);
+    PropsUi.setLook(wlEncryptionMode);
     FormData fdlEncryptionMode = new FormData();
     fdlEncryptionMode.left = new FormAttachment(0, margin);
     fdlEncryptionMode.right = new FormAttachment(middle, -margin);
@@ -313,7 +315,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wEncryptionMode = new CCombo(wSenderSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wEncryptionMode.setItems(ActionSendNagiosPassiveCheck.encryptionModeDesc);
 
-    props.setLook(wEncryptionMode);
+    PropsUi.setLook(wEncryptionMode);
     FormData fdEncryptionMode = new FormData();
     fdEncryptionMode.left = new FormAttachment(middle, margin);
     fdEncryptionMode.top = new FormAttachment(wSenderServiceName, margin);
@@ -329,7 +331,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     Label wlLevelMode = new Label(wSenderSettings, SWT.RIGHT);
     wlLevelMode.setText(
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.LevelMode.Label"));
-    props.setLook(wlLevelMode);
+    PropsUi.setLook(wlLevelMode);
     FormData fdlLevelMode = new FormData();
     fdlLevelMode.left = new FormAttachment(0, margin);
     fdlLevelMode.right = new FormAttachment(middle, -margin);
@@ -338,7 +340,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wLevelMode = new CCombo(wSenderSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wLevelMode.setItems(ActionSendNagiosPassiveCheck.levelTypeDesc);
 
-    props.setLook(wLevelMode);
+    PropsUi.setLook(wLevelMode);
     FormData fdLevelMode = new FormData();
     fdLevelMode.left = new FormAttachment(middle, margin);
     fdLevelMode.top = new FormAttachment(wEncryptionMode, margin);
@@ -363,7 +365,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     // START OF MESSAGE GROUP///
     // /
     Group wMessageGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wMessageGroup);
+    PropsUi.setLook(wMessageGroup);
     wMessageGroup.setText(
         BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.MessageGroup.Group.Label"));
     FormLayout messageGroupgroupLayout = new FormLayout();
@@ -374,7 +376,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     // Message line
     Label wlMessage = new Label(wMessageGroup, SWT.RIGHT);
     wlMessage.setText(BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.Message.Label"));
-    props.setLook(wlMessage);
+    PropsUi.setLook(wlMessage);
     FormData fdlMessage = new FormData();
     fdlMessage.left = new FormAttachment(0, 0);
     fdlMessage.top = new FormAttachment(wSenderSettings, margin);
@@ -386,7 +388,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
             variables,
             wMessageGroup,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wMessage);
+    PropsUi.setLook(wMessage);
     wMessage.addModifyListener(lsMod);
     FormData fdMessage = new FormData();
     fdMessage.left = new FormAttachment(middle, 0);
@@ -414,7 +416,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB

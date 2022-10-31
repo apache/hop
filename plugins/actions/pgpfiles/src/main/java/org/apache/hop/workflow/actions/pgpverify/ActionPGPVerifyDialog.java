@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -79,7 +80,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
@@ -107,14 +108,14 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     // GPGLocation line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionPGPVerify.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -126,7 +127,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     // START OF SERVER SETTINGS GROUP///
     // /
     Group wSettings = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(wSettings);
+    PropsUi.setLook(wSettings);
     wSettings.setText(BaseMessages.getString(PKG, "ActionPGPVerify.Settings.Group.Label"));
 
     FormLayout settingsgroupLayout = new FormLayout();
@@ -138,7 +139,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     // GPGLocation line
     Label wlGPGLocation = new Label(wSettings, SWT.RIGHT);
     wlGPGLocation.setText(BaseMessages.getString(PKG, "ActionPGPVerify.GPGLocation.Label"));
-    props.setLook(wlGPGLocation);
+    PropsUi.setLook(wlGPGLocation);
     FormData fdlGPGLocation = new FormData();
     fdlGPGLocation.left = new FormAttachment(0, 0);
     fdlGPGLocation.top = new FormAttachment(wName, margin);
@@ -146,7 +147,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wlGPGLocation.setLayoutData(fdlGPGLocation);
 
     Button wbGPGLocation = new Button(wSettings, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGPGLocation);
+    PropsUi.setLook(wbGPGLocation);
     wbGPGLocation.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbGPGLocation = new FormData();
     fdbGPGLocation.right = new FormAttachment(100, 0);
@@ -154,7 +155,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wbGPGLocation.setLayoutData(fdbGPGLocation);
 
     wGPGLocation = new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wGPGLocation);
+    PropsUi.setLook(wGPGLocation);
     wGPGLocation.addModifyListener(lsMod);
     FormData fdGPGLocation = new FormData();
     fdGPGLocation.left = new FormAttachment(middle, 0);
@@ -165,7 +166,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     // Filename line
     Label wlFilename = new Label(wSettings, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "ActionPGPVerify.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(wGPGLocation, margin);
@@ -173,7 +174,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wlFilename.setLayoutData(fdlFilename);
 
     Button wbFilename = new Button(wSettings, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbFilename);
+    PropsUi.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
@@ -181,7 +182,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wbFilename.setLayoutData(fdbFilename);
 
     wFilename = new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -192,14 +193,14 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     Label wlUseDetachedSignature = new Label(wSettings, SWT.RIGHT);
     wlUseDetachedSignature.setText(
         BaseMessages.getString(PKG, "ActionPGPVerify.useDetachedSignature.Label"));
-    props.setLook(wlUseDetachedSignature);
+    PropsUi.setLook(wlUseDetachedSignature);
     FormData fdlUseDetachedSignature = new FormData();
     fdlUseDetachedSignature.left = new FormAttachment(0, 0);
     fdlUseDetachedSignature.top = new FormAttachment(wFilename, margin);
     fdlUseDetachedSignature.right = new FormAttachment(middle, -margin);
     wlUseDetachedSignature.setLayoutData(fdlUseDetachedSignature);
     wUseDetachedSignature = new Button(wSettings, SWT.CHECK);
-    props.setLook(wUseDetachedSignature);
+    PropsUi.setLook(wUseDetachedSignature);
     wUseDetachedSignature.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPVerify.useDetachedSignature.Tooltip"));
     FormData fdUseDetachedSignature = new FormData();
@@ -220,7 +221,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wlDetachedFilename = new Label(wSettings, SWT.RIGHT);
     wlDetachedFilename.setText(
         BaseMessages.getString(PKG, "ActionPGPVerify.DetachedFilename.Label"));
-    props.setLook(wlDetachedFilename);
+    PropsUi.setLook(wlDetachedFilename);
     FormData fdlDetachedFilename = new FormData();
     fdlDetachedFilename.left = new FormAttachment(0, 0);
     fdlDetachedFilename.top = new FormAttachment(wlUseDetachedSignature, 2 * margin);
@@ -228,7 +229,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wlDetachedFilename.setLayoutData(fdlDetachedFilename);
 
     wbDetachedFilename = new Button(wSettings, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbDetachedFilename);
+    PropsUi.setLook(wbDetachedFilename);
     wbDetachedFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbDetachedFilename = new FormData();
     fdbDetachedFilename.right = new FormAttachment(100, 0);
@@ -236,7 +237,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wbDetachedFilename.setLayoutData(fdbDetachedFilename);
 
     wDetachedFilename = new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDetachedFilename);
+    PropsUi.setLook(wDetachedFilename);
     wDetachedFilename.addModifyListener(lsMod);
     FormData fdDetachedFilename = new FormData();
     fdDetachedFilename.left = new FormAttachment(middle, 0);

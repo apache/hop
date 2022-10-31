@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -66,7 +67,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -85,14 +86,14 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     // Foldername line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionCreateFolder.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -103,7 +104,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     // Foldername line
     Label wlFoldername = new Label(shell, SWT.RIGHT);
     wlFoldername.setText(BaseMessages.getString(PKG, "ActionCreateFolder.Foldername.Label"));
-    props.setLook(wlFoldername);
+    PropsUi.setLook(wlFoldername);
     FormData fdlFoldername = new FormData();
     fdlFoldername.left = new FormAttachment(0, 0);
     fdlFoldername.top = new FormAttachment(wName, margin);
@@ -111,7 +112,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     wlFoldername.setLayoutData(fdlFoldername);
 
     Button wbFoldername = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbFoldername);
+    PropsUi.setLook(wbFoldername);
     wbFoldername.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFoldername = new FormData();
     fdbFoldername.right = new FormAttachment(100, 0);
@@ -119,7 +120,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     wbFoldername.setLayoutData(fdbFoldername);
 
     wFoldername = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFoldername);
+    PropsUi.setLook(wFoldername);
     wFoldername.addModifyListener(lsMod);
     FormData fdFoldername = new FormData();
     fdFoldername.left = new FormAttachment(middle, 0);
@@ -136,14 +137,14 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
 
     Label wlAbortExists = new Label(shell, SWT.RIGHT);
     wlAbortExists.setText(BaseMessages.getString(PKG, "ActionCreateFolder.FailIfExists.Label"));
-    props.setLook(wlAbortExists);
+    PropsUi.setLook(wlAbortExists);
     FormData fdlAbortExists = new FormData();
     fdlAbortExists.left = new FormAttachment(0, 0);
     fdlAbortExists.top = new FormAttachment(wFoldername, margin);
     fdlAbortExists.right = new FormAttachment(middle, -margin);
     wlAbortExists.setLayoutData(fdlAbortExists);
     wAbortExists = new Button(shell, SWT.CHECK);
-    props.setLook(wAbortExists);
+    PropsUi.setLook(wAbortExists);
     wAbortExists.setToolTipText(
         BaseMessages.getString(PKG, "ActionCreateFolder.FailIfExists.Tooltip"));
     FormData fdAbortExists = new FormData();

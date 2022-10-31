@@ -25,6 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -61,7 +62,7 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     changed = input.hasChanged();
@@ -79,7 +80,7 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
     // Transform name line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -87,7 +88,7 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -97,14 +98,14 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
 
     Label wlOutputLocation = new Label(shell, SWT.RIGHT);
     wlOutputLocation.setText(BaseMessages.getString(PKG, "BeamOutputDialog.OutputLocation"));
-    props.setLook(wlOutputLocation);
+    PropsUi.setLook(wlOutputLocation);
     FormData fdlOutputLocation = new FormData();
     fdlOutputLocation.left = new FormAttachment(0, 0);
     fdlOutputLocation.top = new FormAttachment(lastControl, margin);
     fdlOutputLocation.right = new FormAttachment(middle, -margin);
     wlOutputLocation.setLayoutData(fdlOutputLocation);
     wOutputLocation = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wOutputLocation);
+    PropsUi.setLook(wOutputLocation);
     FormData fdOutputLocation = new FormData();
     fdOutputLocation.left = new FormAttachment(middle, 0);
     fdOutputLocation.top = new FormAttachment(wlOutputLocation, 0, SWT.CENTER);
@@ -114,14 +115,14 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
 
     Label wlFilePrefix = new Label(shell, SWT.RIGHT);
     wlFilePrefix.setText(BaseMessages.getString(PKG, "BeamOutputDialog.FilePrefix"));
-    props.setLook(wlFilePrefix);
+    PropsUi.setLook(wlFilePrefix);
     FormData fdlFilePrefix = new FormData();
     fdlFilePrefix.left = new FormAttachment(0, 0);
     fdlFilePrefix.top = new FormAttachment(lastControl, margin);
     fdlFilePrefix.right = new FormAttachment(middle, -margin);
     wlFilePrefix.setLayoutData(fdlFilePrefix);
     wFilePrefix = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilePrefix);
+    PropsUi.setLook(wFilePrefix);
     FormData fdFilePrefix = new FormData();
     fdFilePrefix.left = new FormAttachment(middle, 0);
     fdFilePrefix.top = new FormAttachment(wlFilePrefix, 0, SWT.CENTER);
@@ -131,14 +132,14 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
 
     Label wlFileSuffix = new Label(shell, SWT.RIGHT);
     wlFileSuffix.setText(BaseMessages.getString(PKG, "BeamOutputDialog.FileSuffix"));
-    props.setLook(wlFileSuffix);
+    PropsUi.setLook(wlFileSuffix);
     FormData fdlFileSuffix = new FormData();
     fdlFileSuffix.left = new FormAttachment(0, 0);
     fdlFileSuffix.top = new FormAttachment(lastControl, margin);
     fdlFileSuffix.right = new FormAttachment(middle, -margin);
     wlFileSuffix.setLayoutData(fdlFileSuffix);
     wFileSuffix = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFileSuffix);
+    PropsUi.setLook(wFileSuffix);
     FormData fdFileSuffix = new FormData();
     fdFileSuffix.left = new FormAttachment(middle, 0);
     fdFileSuffix.top = new FormAttachment(wlFileSuffix, 0, SWT.CENTER);
@@ -148,14 +149,14 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
 
     Label wlWindowed = new Label(shell, SWT.RIGHT);
     wlWindowed.setText(BaseMessages.getString(PKG, "BeamOutputDialog.Windowed"));
-    props.setLook(wlWindowed);
+    PropsUi.setLook(wlWindowed);
     FormData fdlWindowed = new FormData();
     fdlWindowed.left = new FormAttachment(0, 0);
     fdlWindowed.top = new FormAttachment(lastControl, margin);
     fdlWindowed.right = new FormAttachment(middle, -margin);
     wlWindowed.setLayoutData(fdlWindowed);
     wWindowed = new Button(shell, SWT.CHECK);
-    props.setLook(wWindowed);
+    PropsUi.setLook(wWindowed);
     FormData fdWindowed = new FormData();
     fdWindowed.left = new FormAttachment(middle, 0);
     fdWindowed.top = new FormAttachment(wlWindowed, 0, SWT.CENTER);
@@ -172,7 +173,7 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
             SWT.NONE,
             BaseMessages.getString(PKG, "BeamOutputDialog.FileDefinition"),
             BaseMessages.getString(PKG, "BeamOutputDialog.FileDefinition"));
-    props.setLook(wFileDefinition);
+    PropsUi.setLook(wFileDefinition);
     FormData fdFileDefinition = new FormData();
     fdFileDefinition.left = new FormAttachment(0, 0);
     fdFileDefinition.top = new FormAttachment(lastControl, margin);

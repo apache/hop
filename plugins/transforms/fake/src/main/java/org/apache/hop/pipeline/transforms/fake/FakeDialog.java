@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -60,7 +61,7 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -79,7 +80,7 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
     // Filename line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -87,7 +88,7 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -98,7 +99,7 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
     // Locale line
     Label wlLocale = new Label(shell, SWT.RIGHT);
     wlLocale.setText(BaseMessages.getString(PKG, "FakeDialog.Label.Locale"));
-    props.setLook(wlLocale);
+    PropsUi.setLook(wlLocale);
     FormData fdlLocale = new FormData();
     fdlLocale.left = new FormAttachment(0, 0);
     fdlLocale.right = new FormAttachment(middle, -margin);
@@ -107,7 +108,7 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
     wLocale = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wLocale.setItems(FakeMeta.getFakerLocales());
     wLocale.setText(transformName);
-    props.setLook(wLocale);
+    PropsUi.setLook(wLocale);
     wLocale.addModifyListener(lsMod);
     FormData fdLocale = new FormData();
     fdLocale.left = new FormAttachment(middle, 0);

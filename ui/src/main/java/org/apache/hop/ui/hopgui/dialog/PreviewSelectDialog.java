@@ -64,7 +64,7 @@ public class PreviewSelectDialog extends Dialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
@@ -95,7 +95,7 @@ public class PreviewSelectDialog extends Dialog {
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(
         BaseMessages.getString(PKG, "PreviewSelectDialog.Label.Transforms")); // Transforms:
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(0, margin);

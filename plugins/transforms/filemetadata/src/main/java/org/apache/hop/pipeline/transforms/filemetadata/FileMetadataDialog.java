@@ -23,6 +23,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -111,7 +112,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 
     // SWT code for preparing the dialog
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, meta);
 
     // Save the value of the changed flag on the meta object. If the user cancels
@@ -154,7 +155,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -163,7 +164,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -178,7 +179,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     // The filename browse button
     //
     Button wbbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -191,14 +192,14 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     //
     Label wlFilename = new Label(shell, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "FileMetadata.Filename"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.top = new FormAttachment(lastControl, margin);
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.top = new FormAttachment(lastControl, margin);
@@ -214,12 +215,12 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     gDelimitedLayoutLayout.marginWidth = 3;
     gDelimitedLayoutLayout.marginHeight = 3;
     gDelimitedLayout.setLayout(gDelimitedLayoutLayout);
-    props.setLook(gDelimitedLayout);
+    PropsUi.setLook(gDelimitedLayout);
 
     // Limit input ...
     Label wlLimit = new Label(gDelimitedLayout, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "FileMetadata.methods.DELIMITED_FIELDS.limit"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.right = new FormAttachment(middle, -margin);
@@ -228,7 +229,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     wLimit = new TextVar(variables, gDelimitedLayout, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wLimit.setToolTipText(
         BaseMessages.getString(PKG, "FileMetadata.methods.DELIMITED_FIELDS.limit.tooltip"));
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.top = new FormAttachment(0, margin);
@@ -242,14 +243,14 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     Label wlEncoding = new Label(gDelimitedLayout, SWT.RIGHT);
     wlEncoding.setText(
         BaseMessages.getString(PKG, "FileMetadata.methods.DELIMITED_FIELDS.default_charset"));
-    props.setLook(wlEncoding);
+    PropsUi.setLook(wlEncoding);
     FormData fdlDefaultCharset = new FormData();
     fdlDefaultCharset.top = new FormAttachment(lastControl, margin);
     fdlDefaultCharset.left = new FormAttachment(0, 0);
     fdlDefaultCharset.right = new FormAttachment(middle, -margin);
     wlEncoding.setLayoutData(fdlDefaultCharset);
     wDefaultCharset = new ComboVar(variables, gDelimitedLayout, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDefaultCharset);
+    PropsUi.setLook(wDefaultCharset);
     wDefaultCharset.addModifyListener(lsMod);
     FormData fdDefaultCharset = new FormData();
     fdDefaultCharset.top = new FormAttachment(lastControl, margin);

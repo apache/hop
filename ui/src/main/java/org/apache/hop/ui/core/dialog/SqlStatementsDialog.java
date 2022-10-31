@@ -79,7 +79,7 @@ public class SqlStatementsDialog extends Dialog {
     red = display.getSystemColor(SWT.COLOR_RED);
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageDatabase());
 
     FormLayout formLayout = new FormLayout();

@@ -149,7 +149,7 @@ public class PreviewRowsDialog {
     shell = new Shell(parentShell, style);
     PropsUi props = PropsUi.getInstance();
 
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
@@ -252,7 +252,7 @@ public class PreviewRowsDialog {
     if (wlFields == null) {
       wlFields = new Label(shell, SWT.LEFT);
       wlFields.setText(message);
-      props.setLook(wlFields);
+      PropsUi.setLook(wlFields);
       FormData fdlFields = new FormData();
       fdlFields.left = new FormAttachment(0, 0);
       fdlFields.right = new FormAttachment(100, 0);

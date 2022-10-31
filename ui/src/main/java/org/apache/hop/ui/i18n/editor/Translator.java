@@ -432,7 +432,7 @@ public class Translator {
 
   private void addLists() {
     Composite composite = new Composite(sashform, SWT.NONE);
-    props.setLook(composite);
+    PropsUi.setLook(composite);
     FormLayout formLayout = new FormLayout();
     formLayout.marginHeight = Const.FORM_MARGIN;
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -507,7 +507,7 @@ public class Translator {
 
   private void addGrid() {
     Composite composite = new Composite(sashform, SWT.NONE);
-    props.setLook(composite);
+    PropsUi.setLook(composite);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -537,7 +537,7 @@ public class Translator {
 
     wAll = new Button(composite, SWT.CHECK);
     wAll.setText(BaseMessages.getString(PKG, "i18nDialog.ShowAllkeys"));
-    props.setLook(wAll);
+    PropsUi.setLook(wAll);
     FormData fdAll = new FormData();
     fdAll.left = new FormAttachment(0, 0);
     fdAll.right = new FormAttachment(left, 0);
@@ -545,7 +545,7 @@ public class Translator {
     wAll.setLayoutData(fdAll);
 
     Label wlTodo = new Label(composite, SWT.LEFT);
-    props.setLook(wlTodo);
+    PropsUi.setLook(wlTodo);
     wlTodo.setText(BaseMessages.getString(PKG, "i18nDialog.ToDoList"));
     FormData fdlTodo = new FormData();
     fdlTodo.left = new FormAttachment(0, 0);
@@ -566,7 +566,7 @@ public class Translator {
     //
     Label wlReferenceLocale = new Label(composite, SWT.RIGHT);
     wlReferenceLocale.setText(BaseMessages.getString(PKG, "i18nDialog.TranslationReferenceLocale"));
-    props.setLook(wlReferenceLocale);
+    PropsUi.setLook(wlReferenceLocale);
     FormData fdlReferenceLocale = new FormData();
     fdlReferenceLocale.left = new FormAttachment(left, props.getMargin());
     fdlReferenceLocale.right = new FormAttachment(middle, 0);
@@ -574,7 +574,7 @@ public class Translator {
     wlReferenceLocale.setLayoutData(fdlReferenceLocale);
 
     wReferenceLocale = new Text(composite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wReferenceLocale);
+    PropsUi.setLook(wReferenceLocale);
     FormData fdReferenceLocale = new FormData();
     fdReferenceLocale.left = new FormAttachment(middle, props.getMargin());
     fdReferenceLocale.right = new FormAttachment(100, 0);
@@ -589,7 +589,7 @@ public class Translator {
     Label wlSelectedSourceFolder = new Label(composite, SWT.RIGHT);
     wlSelectedSourceFolder.setText(
         BaseMessages.getString(PKG, "i18nDialog.TranslationSelectedSourceFolder"));
-    props.setLook(wlSelectedSourceFolder);
+    PropsUi.setLook(wlSelectedSourceFolder);
     FormData fdlSelectedSourceFolder = new FormData();
     fdlSelectedSourceFolder.left = new FormAttachment(left, props.getMargin());
     fdlSelectedSourceFolder.right = new FormAttachment(middle, 0);
@@ -597,7 +597,7 @@ public class Translator {
     wlSelectedSourceFolder.setLayoutData(fdlSelectedSourceFolder);
 
     wSelectedSourceFolder = new Text(composite, SWT.SINGLE | SWT.LEFT);
-    props.setLook(wSelectedSourceFolder);
+    PropsUi.setLook(wSelectedSourceFolder);
     FormData fdSelectedSourceFolder = new FormData();
     fdSelectedSourceFolder.left = new FormAttachment(middle, props.getMargin());
     fdSelectedSourceFolder.right = new FormAttachment(100, 0);
@@ -610,7 +610,7 @@ public class Translator {
     //
     Label wlSelectedPackage = new Label(composite, SWT.RIGHT);
     wlSelectedPackage.setText(BaseMessages.getString(PKG, "i18nDialog.TranslationSelectedPackage"));
-    props.setLook(wlSelectedPackage);
+    PropsUi.setLook(wlSelectedPackage);
     FormData fdlSelectedPackage = new FormData();
     fdlSelectedPackage.left = new FormAttachment(left, props.getMargin());
     fdlSelectedPackage.right = new FormAttachment(middle, 0);
@@ -618,7 +618,7 @@ public class Translator {
     wlSelectedPackage.setLayoutData(fdlSelectedPackage);
 
     wSelectedPackage = new Text(composite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wSelectedPackage);
+    PropsUi.setLook(wSelectedPackage);
     FormData fdSelectedPackage = new FormData();
     fdSelectedPackage.left = new FormAttachment(middle, props.getMargin());
     fdSelectedPackage.right = new FormAttachment(100, 0);
@@ -631,7 +631,7 @@ public class Translator {
     //
     Label wlKey = new Label(composite, SWT.RIGHT);
     wlKey.setText(BaseMessages.getString(PKG, "i18nDialog.TranslationKey"));
-    props.setLook(wlKey);
+    PropsUi.setLook(wlKey);
     FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment(left, props.getMargin());
     fdlKey.right = new FormAttachment(middle, 0);
@@ -639,7 +639,7 @@ public class Translator {
     wlKey.setLayoutData(fdlKey);
 
     wKey = new Text(composite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wKey);
+    PropsUi.setLook(wKey);
     FormData fdKey = new FormData();
     fdKey.left = new FormAttachment(middle, props.getMargin());
     fdKey.right = new FormAttachment(100, 0);
@@ -652,7 +652,7 @@ public class Translator {
     //
     Label wlMain = new Label(composite, SWT.RIGHT);
     wlMain.setText(BaseMessages.getString(PKG, "i18nDialog.MainTranslation"));
-    props.setLook(wlMain);
+    PropsUi.setLook(wlMain);
     FormData fdlMain = new FormData();
     fdlMain.left = new FormAttachment(left, props.getMargin());
     fdlMain.right = new FormAttachment(middle, 0);
@@ -660,7 +660,7 @@ public class Translator {
     wlMain.setLayoutData(fdlMain);
 
     wMain = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wMain);
+    PropsUi.setLook(wMain);
     FormData fdMain = new FormData();
     fdMain.left = new FormAttachment(middle, props.getMargin());
     fdMain.right = new FormAttachment(100, 0);
@@ -689,7 +689,7 @@ public class Translator {
     //
     Label wlSource = new Label(composite, SWT.RIGHT);
     wlSource.setText(BaseMessages.getString(PKG, "i18nDialog.LineOfSourceCode"));
-    props.setLook(wlSource);
+    PropsUi.setLook(wlSource);
     FormData fdlSource = new FormData();
     fdlSource.left = new FormAttachment(left, props.getMargin());
     fdlSource.right = new FormAttachment(middle, 0);
@@ -697,7 +697,7 @@ public class Translator {
     wlSource.setLayoutData(fdlSource);
 
     wSource = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
-    props.setLook(wSource);
+    PropsUi.setLook(wSource);
     FormData fdSource = new FormData();
     fdSource.left = new FormAttachment(middle, props.getMargin());
     fdSource.right = new FormAttachment(100, 0);
@@ -710,7 +710,7 @@ public class Translator {
     //
     Label wlSourceFile = new Label(composite, SWT.RIGHT);
     wlSourceFile.setText(BaseMessages.getString(PKG, "i18nDialog.SourceFile"));
-    props.setLook(wlSourceFile);
+    PropsUi.setLook(wlSourceFile);
     FormData fdlSourceFile = new FormData();
     fdlSourceFile.left = new FormAttachment(left, props.getMargin());
     fdlSourceFile.right = new FormAttachment(middle, 0);
@@ -718,7 +718,7 @@ public class Translator {
     wlSourceFile.setLayoutData(fdlSourceFile);
 
     wSourceFile = new Text(composite, SWT.SINGLE | SWT.BORDER);
-    props.setLook(wSourceFile);
+    PropsUi.setLook(wSourceFile);
     FormData fdSourceFile = new FormData();
     fdSourceFile.left = new FormAttachment(middle, props.getMargin());
     fdSourceFile.right = new FormAttachment(100, 0);
@@ -730,7 +730,7 @@ public class Translator {
     //
     Label wlBundleFile = new Label(composite, SWT.RIGHT);
     wlBundleFile.setText(BaseMessages.getString(PKG, "i18nDialog.BundleFile"));
-    props.setLook(wlBundleFile);
+    PropsUi.setLook(wlBundleFile);
     FormData fdlBundleFile = new FormData();
     fdlBundleFile.left = new FormAttachment(left, props.getMargin());
     fdlBundleFile.right = new FormAttachment(middle, 0);
@@ -738,7 +738,7 @@ public class Translator {
     wlBundleFile.setLayoutData(fdlBundleFile);
 
     wBundleFile = new Text(composite, SWT.SINGLE | SWT.BORDER);
-    props.setLook(wBundleFile);
+    PropsUi.setLook(wBundleFile);
     FormData fdBundleFile = new FormData();
     fdBundleFile.left = new FormAttachment(middle, props.getMargin());
     fdBundleFile.right = new FormAttachment(100, 0);
@@ -751,7 +751,7 @@ public class Translator {
     Label wlValue = new Label(composite, SWT.RIGHT);
     wlValue.setText(BaseMessages.getString(PKG, "i18nDialog.Translation"));
     wlValue.setFont(GuiResource.getInstance().getFontBold());
-    props.setLook(wlValue);
+    PropsUi.setLook(wlValue);
     FormData fdlValue = new FormData();
     fdlValue.left = new FormAttachment(left, props.getMargin());
     fdlValue.right = new FormAttachment(middle, 0);
@@ -759,7 +759,7 @@ public class Translator {
     wlValue.setLayoutData(fdlValue);
 
     wValue = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wValue);
+    PropsUi.setLook(wValue);
     wValue.setFont(GuiResource.getInstance().getFontBold());
     FormData fdValue = new FormData();
     fdValue.left = new FormAttachment(middle, props.getMargin());

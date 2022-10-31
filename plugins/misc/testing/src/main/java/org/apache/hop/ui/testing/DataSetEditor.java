@@ -75,11 +75,11 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     fdlicon.top = new FormAttachment(0, 0);
     fdlicon.right = new FormAttachment(100, 0);
     wIcon.setLayoutData(fdlicon);
-    props.setLook(wIcon);
+    PropsUi.setLook(wIcon);
 
     // What's the name
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "DataSetDialog.Name.Label"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, 0);
@@ -87,7 +87,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     wlName.setLayoutData(fdlName);
 
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 5);
     fdName.left = new FormAttachment(0, 0);
@@ -104,7 +104,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     // The description of the group...
     //
     Label wlDescription = new Label(parent, SWT.LEFT);
-    props.setLook(wlDescription);
+    PropsUi.setLook(wlDescription);
     wlDescription.setText(BaseMessages.getString(PKG, "DataSetDialog.Description.Label"));
     FormData fdlDescription = new FormData();
     fdlDescription.top = new FormAttachment(spacer, margin);
@@ -112,7 +112,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     fdlDescription.right = new FormAttachment(100, 0);
     wlDescription.setLayoutData(fdlDescription);
     wDescription = new Text(parent, SWT.MULTI | SWT.LEFT | SWT.V_SCROLL | SWT.BORDER);
-    props.setLook(wDescription);
+    PropsUi.setLook(wDescription);
     FormData fdDescription = new FormData();
     fdDescription.height = 50;
     fdDescription.top = new FormAttachment(wlDescription, margin);
@@ -123,7 +123,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     // The folder containing the set...
     //
     Label wlFolderName = new Label(parent, SWT.LEFT);
-    props.setLook(wlFolderName);
+    PropsUi.setLook(wlFolderName);
     wlFolderName.setText(BaseMessages.getString(PKG, "DataSetDialog.FolderName.Label"));
     FormData fdlFolderName = new FormData();
     fdlFolderName.top = new FormAttachment(wDescription, margin);
@@ -131,7 +131,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     fdlFolderName.right = new FormAttachment(100, 0);
     wlFolderName.setLayoutData(fdlFolderName);
     wFolderName = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFolderName);
+    PropsUi.setLook(wFolderName);
     FormData fdFolderName = new FormData();
     fdFolderName.top = new FormAttachment(wlFolderName, margin);
     fdFolderName.left = new FormAttachment(0, 0);
@@ -141,7 +141,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     // The table storing the set...
     //
     Label wlBaseFilename = new Label(parent, SWT.LEFT);
-    props.setLook(wlBaseFilename);
+    PropsUi.setLook(wlBaseFilename);
     wlBaseFilename.setText(BaseMessages.getString(PKG, "DataSetDialog.BaseFilename.Label"));
     FormData fdlBaseFilename = new FormData();
     fdlBaseFilename.top = new FormAttachment(wFolderName, margin);
@@ -149,7 +149,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     fdlBaseFilename.right = new FormAttachment(100, 0);
     wlBaseFilename.setLayoutData(fdlBaseFilename);
     wBaseFilename = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBaseFilename);
+    PropsUi.setLook(wBaseFilename);
     FormData fdBaseFilename = new FormData();
     fdBaseFilename.top = new FormAttachment(wlBaseFilename, margin);
     fdBaseFilename.left = new FormAttachment(0, 0);
@@ -160,7 +160,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     //
     Label wlFieldMapping = new Label(parent, SWT.NONE);
     wlFieldMapping.setText(BaseMessages.getString(PKG, "DataSetDialog.FieldMapping.Label"));
-    props.setLook(wlFieldMapping);
+    PropsUi.setLook(wlFieldMapping);
     FormData fdlUpIns = new FormData();
     fdlUpIns.left = new FormAttachment(0, 0);
     fdlUpIns.top = new FormAttachment(wBaseFilename, margin * 2);

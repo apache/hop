@@ -74,7 +74,7 @@ public class TransformFieldsDialog extends Dialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -110,14 +110,14 @@ public class TransformFieldsDialog extends Dialog {
     // Filename line
     Label wlTransformName = new Label(shell, SWT.NONE);
     wlTransformName.setText(originText);
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     Text wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.READ_ONLY);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     FormData fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(wlTransformName, margin);
     fdTransformName.top = new FormAttachment(0, margin);
@@ -126,7 +126,7 @@ public class TransformFieldsDialog extends Dialog {
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "TransformFieldsDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wlTransformName, margin);

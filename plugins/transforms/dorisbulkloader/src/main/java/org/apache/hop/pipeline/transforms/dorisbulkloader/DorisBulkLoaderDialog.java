@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -79,7 +80,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -109,7 +110,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -117,7 +118,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -126,16 +127,17 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, PropsUi.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, PropsUi.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.GeneralTab.Title"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -151,11 +153,11 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     settingsLayout.marginWidth = 3;
     settingsLayout.marginHeight = 3;
     gConnections.setLayout(settingsLayout);
-    props.setLook(gConnections);
+    PropsUi.setLook(gConnections);
 
     Label wlFeHost = new Label(gConnections, SWT.RIGHT);
     wlFeHost.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.FeHost.Label"));
-    props.setLook(wlFeHost);
+    PropsUi.setLook(wlFeHost);
     FormData fdlFeHost = new FormData();
     fdlFeHost.left = new FormAttachment(0, 0);
     fdlFeHost.right = new FormAttachment(middle, -margin);
@@ -163,7 +165,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wlFeHost.setLayoutData(fdlFeHost);
     wFeHost = new TextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFeHost.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.FeHost.Tooltip"));
-    props.setLook(wFeHost);
+    PropsUi.setLook(wFeHost);
     wFeHost.addModifyListener(lsMod);
     FormData fdFeHost = new FormData();
     fdFeHost.left = new FormAttachment(middle, 0);
@@ -173,7 +175,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
 
     Label wlFeHttpPort = new Label(gConnections, SWT.RIGHT);
     wlFeHttpPort.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.FeRestPort.Label"));
-    props.setLook(wlFeHttpPort);
+    PropsUi.setLook(wlFeHttpPort);
     FormData fdlFeHttpPort = new FormData();
     fdlFeHttpPort.left = new FormAttachment(0, 0);
     fdlFeHttpPort.right = new FormAttachment(middle, -margin);
@@ -182,7 +184,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wFeHttpPort = new TextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFeHttpPort.setToolTipText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.FeRestPort.Tooltip"));
-    props.setLook(wFeHttpPort);
+    PropsUi.setLook(wFeHttpPort);
     wFeHttpPort.addModifyListener(lsMod);
     FormData fdFeHttpPort = new FormData();
     fdFeHttpPort.left = new FormAttachment(middle, 0);
@@ -192,7 +194,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
 
     Label wlDatabaseName = new Label(gConnections, SWT.RIGHT);
     wlDatabaseName.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.DatabaseName.Label"));
-    props.setLook(wlDatabaseName);
+    PropsUi.setLook(wlDatabaseName);
     FormData fdLblDatabaseName = new FormData();
     fdLblDatabaseName.left = new FormAttachment(0, 0);
     fdLblDatabaseName.right = new FormAttachment(middle, -margin);
@@ -201,7 +203,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wDatabaseName = new TextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wDatabaseName.setToolTipText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.DatabaseName.Tooltip"));
-    props.setLook(wDatabaseName);
+    PropsUi.setLook(wDatabaseName);
     wDatabaseName.addModifyListener(lsMod);
     FormData fdDatabaseName = new FormData();
     fdDatabaseName.left = new FormAttachment(middle, 0);
@@ -211,7 +213,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
 
     Label wlTableName = new Label(gConnections, SWT.RIGHT);
     wlTableName.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.TableName.Label"));
-    props.setLook(wlTableName);
+    PropsUi.setLook(wlTableName);
     FormData fdlTableName = new FormData();
     fdlTableName.left = new FormAttachment(0, 0);
     fdlTableName.right = new FormAttachment(middle, -margin);
@@ -220,7 +222,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wTableName = new TextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTableName.setToolTipText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.TableName.Tooltip"));
-    props.setLook(wTableName);
+    PropsUi.setLook(wTableName);
     wTableName.addModifyListener(lsMod);
     FormData fdTableName = new FormData();
     fdTableName.left = new FormAttachment(middle, 0);
@@ -231,7 +233,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     // HTTP Login
     Label wlHttpLogin = new Label(gConnections, SWT.RIGHT);
     wlHttpLogin.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.HttpLogin.Label"));
-    props.setLook(wlHttpLogin);
+    PropsUi.setLook(wlHttpLogin);
     FormData fdlHttpLogin = new FormData();
     fdlHttpLogin.top = new FormAttachment(wTableName, margin);
     fdlHttpLogin.left = new FormAttachment(0, 0);
@@ -241,7 +243,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wHttpLogin.addModifyListener(lsMod);
     wHttpLogin.setToolTipText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.HttpLogin.Tooltip"));
-    props.setLook(wHttpLogin);
+    PropsUi.setLook(wHttpLogin);
     FormData fdHttpLogin = new FormData();
     fdHttpLogin.top = new FormAttachment(wTableName, margin);
     fdHttpLogin.left = new FormAttachment(middle, 0);
@@ -251,7 +253,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     // HTTP Password
     Label wlHttpPassword = new Label(gConnections, SWT.RIGHT);
     wlHttpPassword.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.HttpPassword.Label"));
-    props.setLook(wlHttpPassword);
+    PropsUi.setLook(wlHttpPassword);
     FormData fdLblHttpPassword = new FormData();
     fdLblHttpPassword.top = new FormAttachment(wHttpLogin, margin);
     fdLblHttpPassword.left = new FormAttachment(0, 0);
@@ -262,7 +264,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wHttpPassword.addModifyListener(lsMod);
     wHttpPassword.setToolTipText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.HttpPassword.Tooltip"));
-    props.setLook(wHttpPassword);
+    PropsUi.setLook(wHttpPassword);
     FormData fdHttpPassword = new FormData();
     fdHttpPassword.top = new FormAttachment(wHttpLogin, margin);
     fdHttpPassword.left = new FormAttachment(middle, 0);
@@ -285,12 +287,12 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     bulkDataLayout.marginWidth = 3;
     bulkDataLayout.marginHeight = 3;
     gBulkData.setLayout(bulkDataLayout);
-    props.setLook(gBulkData);
+    PropsUi.setLook(gBulkData);
 
     // Data Field
     Label wlDataField = new Label(gBulkData, SWT.RIGHT);
     wlDataField.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BulkData.Label"));
-    props.setLook(wlDataField);
+    PropsUi.setLook(wlDataField);
     FormData fdlBody = new FormData();
     fdlBody.top = new FormAttachment(wHttpPassword, margin);
     fdlBody.left = new FormAttachment(0, 0);
@@ -300,7 +302,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wDataField.setToolTipText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BulkData.Tooltip"));
     wDataField.setEditable(true);
-    props.setLook(wDataField);
+    PropsUi.setLook(wDataField);
     wDataField.addModifyListener(lsMod);
     FormData fdDataField = new FormData();
     fdDataField.top = new FormAttachment(wHttpPassword, margin);
@@ -327,7 +329,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     // format
     Label wlFormat = new Label(gBulkData, SWT.RIGHT);
     wlFormat.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.Format.Label"));
-    props.setLook(wlFormat);
+    PropsUi.setLook(wlFormat);
     FormData fdlFormat = new FormData();
     fdlFormat.top = new FormAttachment(wDataField, margin);
     fdlFormat.left = new FormAttachment(0, 0);
@@ -336,7 +338,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wFormat = new ComboVar(variables, gBulkData, SWT.BORDER | SWT.READ_ONLY);
     wFormat.addModifyListener(lsMod);
     wFormat.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.Format.Tooltip"));
-    props.setLook(wFormat);
+    PropsUi.setLook(wFormat);
     FormData fdFormat = new FormData();
     fdFormat.top = new FormAttachment(wDataField, margin);
     fdFormat.left = new FormAttachment(middle, 0);
@@ -383,7 +385,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     Label wlLineDelimiter = new Label(gBulkData, SWT.RIGHT);
     wlLineDelimiter.setText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.LineDelimiter.Label"));
-    props.setLook(wlLineDelimiter);
+    PropsUi.setLook(wlLineDelimiter);
     FormData fdlLineDelimiter = new FormData();
     fdlLineDelimiter.top = new FormAttachment(wFormat, margin);
     fdlLineDelimiter.left = new FormAttachment(0, 0);
@@ -393,7 +395,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wLineDelimiter.addModifyListener(lsMod);
     wLineDelimiter.setToolTipText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.LineDelimiter.Tooltip"));
-    props.setLook(wLineDelimiter);
+    PropsUi.setLook(wLineDelimiter);
     FormData fdLineDelimiter = new FormData();
     fdLineDelimiter.top = new FormAttachment(wFormat, margin);
     fdLineDelimiter.left = new FormAttachment(middle, 0);
@@ -404,7 +406,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     Label wlColumnDelimiter = new Label(gBulkData, SWT.RIGHT);
     wlColumnDelimiter.setText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnDelimiter.Label"));
-    props.setLook(wlColumnDelimiter);
+    PropsUi.setLook(wlColumnDelimiter);
     FormData fdlColumnDelimiter = new FormData();
     fdlColumnDelimiter.top = new FormAttachment(wLineDelimiter, margin);
     fdlColumnDelimiter.left = new FormAttachment(0, 0);
@@ -414,7 +416,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wColumnDelimiter.addModifyListener(lsMod);
     wColumnDelimiter.setToolTipText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnDelimiter.Tooltip"));
-    props.setLook(wColumnDelimiter);
+    PropsUi.setLook(wColumnDelimiter);
     FormData fdColumnDelimiter = new FormData();
     fdColumnDelimiter.top = new FormAttachment(wLineDelimiter, margin);
     fdColumnDelimiter.left = new FormAttachment(middle, 0);
@@ -424,7 +426,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     // bufferSize
     Label wlBufferSize = new Label(gBulkData, SWT.RIGHT);
     wlBufferSize.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BufferSize.Label"));
-    props.setLook(wlBufferSize);
+    PropsUi.setLook(wlBufferSize);
     FormData fdlBufferSize = new FormData();
     fdlBufferSize.top = new FormAttachment(wColumnDelimiter, margin);
     fdlBufferSize.left = new FormAttachment(0, 0);
@@ -434,7 +436,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wBufferSize.addModifyListener(lsMod);
     wBufferSize.setToolTipText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BufferSize.Tooltip"));
-    props.setLook(wBufferSize);
+    PropsUi.setLook(wBufferSize);
     FormData fdBufferSize = new FormData();
     fdBufferSize.top = new FormAttachment(wColumnDelimiter, margin);
     fdBufferSize.left = new FormAttachment(middle, 0);
@@ -444,7 +446,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     // bufferCount
     Label wlBufferCount = new Label(gBulkData, SWT.RIGHT);
     wlBufferCount.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BufferCount.Label"));
-    props.setLook(wlBufferCount);
+    PropsUi.setLook(wlBufferCount);
     FormData fdlBufferCount = new FormData();
     fdlBufferCount.top = new FormAttachment(wBufferSize, margin);
     fdlBufferCount.left = new FormAttachment(0, 0);
@@ -454,7 +456,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     wBufferCount.addModifyListener(lsMod);
     wBufferCount.setToolTipText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BufferCount.Tooltip"));
-    props.setLook(wBufferCount);
+    PropsUi.setLook(wBufferCount);
     FormData fdBufferCount = new FormData();
     fdBufferCount.top = new FormAttachment(wBufferSize, margin);
     fdBufferCount.left = new FormAttachment(middle, 0);
@@ -485,6 +487,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     // / START OF HEADER TAB
     // ///////////////////////////////////////////////////////////
     CTabItem wAdditionalTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdditionalTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdditionalTab.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.Headers.Title"));
 
     Composite wAdditionalComp = new Composite(wTabFolder, SWT.NONE);
@@ -492,11 +495,11 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITrans
     addLayout.marginWidth = Const.FORM_MARGIN;
     addLayout.marginHeight = Const.FORM_MARGIN;
     wAdditionalComp.setLayout(addLayout);
-    props.setLook(wAdditionalComp);
+    PropsUi.setLook(wAdditionalComp);
 
     Label wlFields = new Label(wAdditionalComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.Headers.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wTransformName, margin);

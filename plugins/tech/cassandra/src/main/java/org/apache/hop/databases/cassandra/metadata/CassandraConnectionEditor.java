@@ -66,7 +66,7 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
     //
     // What's the name
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText("Cassandra connection name");
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin * 2);
@@ -74,7 +74,7 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, margin);
@@ -120,17 +120,17 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
     PropsUi props = PropsUi.getInstance();
 
     Button wbSelectKeyspace = new Button(parent, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSelectKeyspace);
+    PropsUi.setLook(wbSelectKeyspace);
     wbSelectKeyspace.setText("Select keyspace");
     wbSelectKeyspace.addListener(SWT.Selection, e -> selectKeyspace());
 
     Button wbTest = new Button(parent, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTest);
+    PropsUi.setLook(wbTest);
     wbTest.setText("Test");
     wbTest.addListener(SWT.Selection, e -> test());
 
     Button wbCql = new Button(parent, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbCql);
+    PropsUi.setLook(wbCql);
     wbCql.setText("Execute CQL");
     wbCql.addListener(SWT.Selection, e -> execCql());
 

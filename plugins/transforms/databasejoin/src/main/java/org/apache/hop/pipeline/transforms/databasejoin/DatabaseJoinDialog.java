@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -82,7 +83,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -101,7 +102,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -109,7 +110,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -124,7 +125,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     // SQL editor...
     Label wlSql = new Label(shell, SWT.NONE);
     wlSql.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.SQL.Label"));
-    props.setLook(wlSql);
+    PropsUi.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
     fdlSql.top = new FormAttachment(wConnection, margin * 2);
@@ -133,7 +134,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     wSql =
         new StyledTextComp(
             variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wSql, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     wSql.addModifyListener(lsMod);
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);
@@ -187,7 +188,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
         });
 
     wlPosition = new Label(shell, SWT.NONE);
-    props.setLook(wlPosition);
+    PropsUi.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);
     fdlPosition.top = new FormAttachment(wSql, margin);
@@ -197,14 +198,14 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     // Limit the number of lines returns
     Label wlLimit = new Label(shell, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.Limit.Label"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.right = new FormAttachment(middle, -margin);
     fdlLimit.top = new FormAttachment(wlPosition, margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
@@ -216,14 +217,14 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     Label wlOuter = new Label(shell, SWT.RIGHT);
     wlOuter.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.Outerjoin.Label"));
     wlOuter.setToolTipText(BaseMessages.getString(PKG, "DatabaseJoinDialog.Outerjoin.Tooltip"));
-    props.setLook(wlOuter);
+    PropsUi.setLook(wlOuter);
     FormData fdlOuter = new FormData();
     fdlOuter.left = new FormAttachment(0, 0);
     fdlOuter.right = new FormAttachment(middle, -margin);
     fdlOuter.top = new FormAttachment(wLimit, margin);
     wlOuter.setLayoutData(fdlOuter);
     wOuter = new Button(shell, SWT.CHECK);
-    props.setLook(wOuter);
+    PropsUi.setLook(wOuter);
     wOuter.setToolTipText(wlOuter.getToolTipText());
     FormData fdOuter = new FormData();
     fdOuter.left = new FormAttachment(middle, 0);
@@ -241,14 +242,14 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     Label wluseVars = new Label(shell, SWT.RIGHT);
     wluseVars.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.useVarsjoin.Label"));
     wluseVars.setToolTipText(BaseMessages.getString(PKG, "DatabaseJoinDialog.useVarsjoin.Tooltip"));
-    props.setLook(wluseVars);
+    PropsUi.setLook(wluseVars);
     FormData fdluseVars = new FormData();
     fdluseVars.left = new FormAttachment(0, 0);
     fdluseVars.right = new FormAttachment(middle, -margin);
     fdluseVars.top = new FormAttachment(wOuter, margin);
     wluseVars.setLayoutData(fdluseVars);
     wUseVars = new Button(shell, SWT.CHECK);
-    props.setLook(wUseVars);
+    PropsUi.setLook(wUseVars);
     wUseVars.setToolTipText(wluseVars.getToolTipText());
     FormData fduseVars = new FormData();
     fduseVars.left = new FormAttachment(middle, 0);
@@ -275,7 +276,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     // The parameters
     Label wlParam = new Label(shell, SWT.NONE);
     wlParam.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.Param.Label"));
-    props.setLook(wlParam);
+    PropsUi.setLook(wlParam);
     FormData fdlParam = new FormData();
     fdlParam.left = new FormAttachment(0, 0);
     fdlParam.top = new FormAttachment(wUseVars, margin);

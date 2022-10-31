@@ -28,6 +28,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -110,7 +111,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -139,14 +140,14 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -160,7 +161,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     // Schema name line
     wlSchemaname = new Label(shell, SWT.RIGHT);
     wlSchemaname.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.Schemaname.Label"));
-    props.setLook(wlSchemaname);
+    PropsUi.setLook(wlSchemaname);
     FormData fdlSchemaname = new FormData();
     fdlSchemaname.left = new FormAttachment(0, 0);
     fdlSchemaname.right = new FormAttachment(middle, 0);
@@ -168,7 +169,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wlSchemaname.setLayoutData(fdlSchemaname);
 
     wSchemaname = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSchemaname);
+    PropsUi.setLook(wSchemaname);
     wSchemaname.setToolTipText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.Schemaname.Tooltip"));
     wSchemaname.addModifyListener(lsMod);
@@ -181,7 +182,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     // Table name line
     wlTablename = new Label(shell, SWT.RIGHT);
     wlTablename.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.Tablename.Label"));
-    props.setLook(wlTablename);
+    PropsUi.setLook(wlTablename);
     FormData fdlTablename = new FormData();
     fdlTablename.left = new FormAttachment(0, 0);
     fdlTablename.right = new FormAttachment(middle, 0);
@@ -189,7 +190,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wlTablename.setLayoutData(fdlTablename);
 
     wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTable);
+    PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
@@ -204,7 +205,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
         });
 
     wTablename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTablename);
+    PropsUi.setLook(wTablename);
     wTablename.setToolTipText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.Tablename.Tooltip"));
     wTablename.addModifyListener(lsMod);
@@ -218,7 +219,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     // START OF Success GROUP///
     // ///////////////////////////////
     Group wSuccessGroup = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(wSuccessGroup);
+    PropsUi.setLook(wSuccessGroup);
     wSuccessGroup.setText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessGroup.Group.Label"));
 
@@ -231,7 +232,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     Label wlSuccessCondition = new Label(wSuccessGroup, SWT.RIGHT);
     wlSuccessCondition.setText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessCondition.Label"));
-    props.setLook(wlSuccessCondition);
+    PropsUi.setLook(wlSuccessCondition);
     FormData fdlSuccessCondition = new FormData();
     fdlSuccessCondition.left = new FormAttachment(0, -margin);
     fdlSuccessCondition.right = new FormAttachment(middle, -2 * margin);
@@ -241,7 +242,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wSuccessCondition.setItems(ActionEvalTableContent.successConditionsDesc);
     wSuccessCondition.select(0); // +1: starts at -1
 
-    props.setLook(wSuccessCondition);
+    PropsUi.setLook(wSuccessCondition);
     FormData fdSuccessCondition = new FormData();
     fdSuccessCondition.left = new FormAttachment(middle, -margin);
     fdSuccessCondition.top = new FormAttachment(0, margin);
@@ -258,7 +259,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     // Success when number of errors less than
     Label wlLimit = new Label(wSuccessGroup, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.Limit.Label"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, -margin);
     fdlLimit.top = new FormAttachment(wSuccessCondition, margin);
@@ -271,7 +272,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
             wSuccessGroup,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionEvalTableContent.Limit.Tooltip"));
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, -margin);
@@ -292,7 +293,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     // START OF Custom GROUP///
     // ///////////////////////////////
     Group wCustomGroup = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(wCustomGroup);
+    PropsUi.setLook(wCustomGroup);
     wCustomGroup.setText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.CustomGroup.Group.Label"));
 
@@ -304,14 +305,14 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     // custom Sql?
     Label wlCustomSql = new Label(wCustomGroup, SWT.RIGHT);
     wlCustomSql.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.customSQL.Label"));
-    props.setLook(wlCustomSql);
+    PropsUi.setLook(wlCustomSql);
     FormData fdlCustomSql = new FormData();
     fdlCustomSql.left = new FormAttachment(0, -margin);
     fdlCustomSql.top = new FormAttachment(0, margin);
     fdlCustomSql.right = new FormAttachment(middle, -2 * margin);
     wlCustomSql.setLayoutData(fdlCustomSql);
     wCustomSql = new Button(wCustomGroup, SWT.CHECK);
-    props.setLook(wCustomSql);
+    PropsUi.setLook(wCustomSql);
     wCustomSql.setToolTipText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.customSQL.Tooltip"));
     FormData fdCustomSql = new FormData();
@@ -331,14 +332,14 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     // use Variable substitution?
     wlUseSubs = new Label(wCustomGroup, SWT.RIGHT);
     wlUseSubs.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.UseVariableSubst.Label"));
-    props.setLook(wlUseSubs);
+    PropsUi.setLook(wlUseSubs);
     FormData fdlUseSubs = new FormData();
     fdlUseSubs.left = new FormAttachment(0, -margin);
     fdlUseSubs.top = new FormAttachment(wlCustomSql, 2 * margin);
     fdlUseSubs.right = new FormAttachment(middle, -2 * margin);
     wlUseSubs.setLayoutData(fdlUseSubs);
     wUseSubs = new Button(wCustomGroup, SWT.CHECK);
-    props.setLook(wUseSubs);
+    PropsUi.setLook(wUseSubs);
     wUseSubs.setToolTipText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.UseVariableSubst.Tooltip"));
     FormData fdUseSubs = new FormData();
@@ -358,14 +359,14 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wlClearResultList = new Label(wCustomGroup, SWT.RIGHT);
     wlClearResultList.setText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.ClearResultList.Label"));
-    props.setLook(wlClearResultList);
+    PropsUi.setLook(wlClearResultList);
     FormData fdlClearResultList = new FormData();
     fdlClearResultList.left = new FormAttachment(0, -margin);
     fdlClearResultList.top = new FormAttachment(wlUseSubs, 2 * margin);
     fdlClearResultList.right = new FormAttachment(middle, -2 * margin);
     wlClearResultList.setLayoutData(fdlClearResultList);
     wClearResultList = new Button(wCustomGroup, SWT.CHECK);
-    props.setLook(wClearResultList);
+    PropsUi.setLook(wClearResultList);
     wClearResultList.setToolTipText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.ClearResultList.Tooltip"));
     FormData fdClearResultList = new FormData();
@@ -385,14 +386,14 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wlAddRowsToResult = new Label(wCustomGroup, SWT.RIGHT);
     wlAddRowsToResult.setText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.AddRowsToResult.Label"));
-    props.setLook(wlAddRowsToResult);
+    PropsUi.setLook(wlAddRowsToResult);
     FormData fdlAddRowsToResult = new FormData();
     fdlAddRowsToResult.left = new FormAttachment(0, -margin);
     fdlAddRowsToResult.top = new FormAttachment(wlClearResultList, 2 * margin);
     fdlAddRowsToResult.right = new FormAttachment(middle, -2 * margin);
     wlAddRowsToResult.setLayoutData(fdlAddRowsToResult);
     wAddRowsToResult = new Button(wCustomGroup, SWT.CHECK);
-    props.setLook(wAddRowsToResult);
+    PropsUi.setLook(wAddRowsToResult);
     wAddRowsToResult.setToolTipText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.AddRowsToResult.Tooltip"));
     FormData fdAddRowsToResult = new FormData();
@@ -409,7 +410,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
         });
 
     wlPosition = new Label(wCustomGroup, SWT.NONE);
-    props.setLook(wlPosition);
+    PropsUi.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);
     fdlPosition.right = new FormAttachment(100, 0);
@@ -419,14 +420,14 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     // Script line
     wlSql = new Label(wCustomGroup, SWT.NONE);
     wlSql.setText(BaseMessages.getString(PKG, "ActionEvalTableContent.Script.Label"));
-    props.setLook(wlSql);
+    PropsUi.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
     fdlSql.top = new FormAttachment(wlAddRowsToResult, 2 * margin);
     wlSql.setLayoutData(fdlSql);
 
     wbSqlTable = new Button(wCustomGroup, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSqlTable);
+    PropsUi.setLook(wbSqlTable);
     wbSqlTable.setText(
         BaseMessages.getString(PKG, "ActionEvalTableContent.GetSQLAndSelectStatement"));
     FormData fdbSqlTable = new FormData();
@@ -438,7 +439,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wSql =
         new StyledTextComp(
             action, wCustomGroup, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wSql, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     wSql.addModifyListener(lsMod);
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);

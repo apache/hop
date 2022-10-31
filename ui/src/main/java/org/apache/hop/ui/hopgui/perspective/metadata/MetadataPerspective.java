@@ -79,6 +79,7 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "MetadataPerspective-Toolbar";
 
+  public static final String TOOLBAR_ITEM_NEW = "MetadataPerspective-Toolbar-10000-New";
   public static final String TOOLBAR_ITEM_EDIT = "MetadataPerspective-Toolbar-10010-Edit";
   public static final String TOOLBAR_ITEM_DUPLICATE = "MetadataPerspective-Toolbar-10030-Duplicate";
   public static final String TOOLBAR_ITEM_DELETE = "MetadataPerspective-Toolbar-10040-Delete";
@@ -207,7 +208,7 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
     layoutData.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
-    props.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+    PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
@@ -274,7 +275,7 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
             menu.setVisible(true);
           }
         });
-    PropsUi.getInstance().setLook(tree);
+    PropsUi.setLook(tree);
 
     FormData treeFormData = new FormData();
     treeFormData.left = new FormAttachment(0, 0);
@@ -304,7 +305,7 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
           }
         });
     tabFolder.addListener(SWT.Selection, event -> updateGui());
-    props.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
 
     // Show/Hide tree
     //
@@ -337,6 +338,7 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
     // Create tab item
     //
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
+    tabItem.setFont(GuiResource.getInstance().getFontDefault());
     tabItem.setText(editor.getTitle());
     tabItem.setImage(editor.getTitleImage());
     tabItem.setToolTipText(editor.getTitleToolTip());
@@ -348,7 +350,7 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
     layoutComposite.marginWidth = Const.FORM_MARGIN;
     layoutComposite.marginHeight = Const.FORM_MARGIN;
     composite.setLayout(layoutComposite);
-    props.setLook(composite);
+    PropsUi.setLook(composite);
 
     // Create buttons
     Button[] buttons = editor.createButtonsForButtonBar(composite);
@@ -374,7 +376,7 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
     }
 
     area.setLayoutData(fdArea);
-    props.setLook(area);
+    PropsUi.setLook(area);
 
     // Create editor controls
     //
@@ -464,6 +466,11 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
     closeTab(event, tabItem);
   }
 
+  @GuiToolbarElement(
+          root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+          id = TOOLBAR_ITEM_NEW,
+          toolTip = "i18n::MetadataPerspective.ToolbarElement.New.Tooltip",
+          image = "ui/images/new.svg")
   public void onNewMetadata() {
     if (tree.getSelectionCount() != 1) {
       return;

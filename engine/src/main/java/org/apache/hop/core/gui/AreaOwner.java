@@ -87,12 +87,12 @@ public class AreaOwner<Parent, Owner> {
       int y,
       int width,
       int height,
-      Point offset,
+      DPoint offset,
       Parent parent,
       Owner owner) {
     super();
     this.areaType = areaType;
-    this.area = new Rectangle(x - offset.x, y - offset.y, width, height);
+    this.area = new Rectangle((int)(x - offset.x), (int)(y - offset.y), width, height);
     this.parent = parent;
     this.owner = owner;
   }

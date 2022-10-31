@@ -47,7 +47,9 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -272,7 +274,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     lsMod = e -> input.setChanged();
@@ -291,7 +293,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -299,7 +301,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -321,7 +323,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     addFilesTab();
     addContentTab();
@@ -525,13 +527,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // ////////////////////////
 
     CTabItem wFileTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFileTab.setFont(GuiResource.getInstance().getFontDefault());
     wFileTab.setText(BaseMessages.getString(PKG, "TextFileInputDialog.FileTab.TabTitle"));
 
     ScrolledComposite wFileSComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     wFileSComp.setLayout(new FillLayout());
 
     Composite wFileComp = new Composite(wFileSComp, SWT.NONE);
-    props.setLook(wFileComp);
+    PropsUi.setLook(wFileComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -541,7 +544,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Filename line
     wlFilename = new Label(wFileComp, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(0, 0);
@@ -549,7 +552,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlFilename.setLayoutData(fdlFilename);
 
     wbbFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -559,7 +562,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wbbFilename.setLayoutData(fdbFilename);
 
     wbaFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbaFilename);
+    PropsUi.setLook(wbaFilename);
     wbaFilename.setText(BaseMessages.getString(PKG, "TextFileInputDialog.FilenameAdd.Button"));
     wbaFilename.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.FilenameAdd.Tooltip"));
@@ -569,7 +572,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wbaFilename.setLayoutData(fdbaFilename);
 
     wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -579,7 +582,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wlFilemask = new Label(wFileComp, SWT.RIGHT);
     wlFilemask.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Filemask.Label"));
-    props.setLook(wlFilemask);
+    PropsUi.setLook(wlFilemask);
     FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
     fdlFilemask.top = new FormAttachment(wFilename, margin);
@@ -588,7 +591,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
 
-    props.setLook(wFilemask);
+    PropsUi.setLook(wFilemask);
     wFilemask.addModifyListener(lsMod);
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
@@ -599,14 +602,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     Label wlExcludeFilemask = new Label(wFileComp, SWT.RIGHT);
     wlExcludeFilemask.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.ExcludeFilemask.Label"));
-    props.setLook(wlExcludeFilemask);
+    PropsUi.setLook(wlExcludeFilemask);
     FormData fdlExcludeFilemask = new FormData();
     fdlExcludeFilemask.left = new FormAttachment(0, 0);
     fdlExcludeFilemask.top = new FormAttachment(wFilemask, margin);
     fdlExcludeFilemask.right = new FormAttachment(middle, -margin);
     wlExcludeFilemask.setLayoutData(fdlExcludeFilemask);
     wExcludeFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wExcludeFilemask);
+    PropsUi.setLook(wExcludeFilemask);
     wExcludeFilemask.addModifyListener(lsMod);
     FormData fdExcludeFilemask = new FormData();
     fdExcludeFilemask.left = new FormAttachment(middle, 0);
@@ -617,7 +620,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Filename list line
     wlFilenameList = new Label(wFileComp, SWT.RIGHT);
     wlFilenameList.setText(BaseMessages.getString(PKG, "TextFileInputDialog.FilenameList.Label"));
-    props.setLook(wlFilenameList);
+    PropsUi.setLook(wlFilenameList);
     FormData fdlFilenameList = new FormData();
     fdlFilenameList.left = new FormAttachment(0, 0);
     fdlFilenameList.top = new FormAttachment(wExcludeFilemask, margin);
@@ -626,7 +629,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     // Buttons to the right of the screen...
     wbdFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdFilename);
+    PropsUi.setLook(wbdFilename);
     wbdFilename.setText(BaseMessages.getString(PKG, "TextFileInputDialog.FilenameDelete.Button"));
     wbdFilename.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.FilenameDelete.Tooltip"));
@@ -636,7 +639,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wbdFilename.setLayoutData(fdbdFilename);
 
     wbeFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeFilename);
+    PropsUi.setLook(wbeFilename);
     wbeFilename.setText(BaseMessages.getString(PKG, "TextFileInputDialog.FilenameEdit.Button"));
     wbeFilename.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.FilenameEdit.Tooltip"));
@@ -647,7 +650,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wbeFilename.setLayoutData(fdbeFilename);
 
     wbShowFiles = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbShowFiles);
+    PropsUi.setLook(wbShowFiles);
     wbShowFiles.setText(BaseMessages.getString(PKG, "TextFileInputDialog.ShowFiles.Button"));
     FormData fdbShowFiles = new FormData();
     fdbShowFiles.left = new FormAttachment(middle, 0);
@@ -677,14 +680,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     acceptingLayout.marginWidth = 3;
     acceptingLayout.marginHeight = 3;
     gAccepting.setLayout(acceptingLayout);
-    props.setLook(gAccepting);
+    PropsUi.setLook(gAccepting);
 
     // Accept filenames from previous transforms?
     //
     Label wlAccFilenames = new Label(gAccepting, SWT.RIGHT);
     wlAccFilenames.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.AcceptFilenames.Label"));
-    props.setLook(wlAccFilenames);
+    PropsUi.setLook(wlAccFilenames);
     FormData fdlAccFilenames = new FormData();
     fdlAccFilenames.top = new FormAttachment(0, margin);
     fdlAccFilenames.left = new FormAttachment(0, 0);
@@ -693,7 +696,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wAccFilenames = new Button(gAccepting, SWT.CHECK);
     wAccFilenames.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.AcceptFilenames.Tooltip"));
-    props.setLook(wAccFilenames);
+    PropsUi.setLook(wAccFilenames);
     FormData fdAccFilenames = new FormData();
     fdAccFilenames.top = new FormAttachment(wlAccFilenames, 0, SWT.CENTER);
     fdAccFilenames.left = new FormAttachment(middle, 0);
@@ -705,7 +708,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlPassThruFields = new Label(gAccepting, SWT.RIGHT);
     wlPassThruFields.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.PassThruFields.Label"));
-    props.setLook(wlPassThruFields);
+    PropsUi.setLook(wlPassThruFields);
     FormData fdlPassThruFields = new FormData();
     fdlPassThruFields.top = new FormAttachment(wAccFilenames, margin);
     fdlPassThruFields.left = new FormAttachment(0, 0);
@@ -714,7 +717,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wPassThruFields = new Button(gAccepting, SWT.CHECK);
     wPassThruFields.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.PassThruFields.Tooltip"));
-    props.setLook(wPassThruFields);
+    PropsUi.setLook(wPassThruFields);
     FormData fdPassThruFields = new FormData();
     fdPassThruFields.top = new FormAttachment(wlPassThruFields, 0, SWT.CENTER);
     fdPassThruFields.left = new FormAttachment(middle, 0);
@@ -725,7 +728,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlAccTransform = new Label(gAccepting, SWT.RIGHT);
     wlAccTransform.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.AcceptTransform.Label"));
-    props.setLook(wlAccTransform);
+    PropsUi.setLook(wlAccTransform);
     FormData fdlAccTransform = new FormData();
     fdlAccTransform.top = new FormAttachment(wPassThruFields, margin);
     fdlAccTransform.left = new FormAttachment(0, 0);
@@ -734,7 +737,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wAccTransform = new CCombo(gAccepting, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wAccTransform.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.AcceptTransform.Tooltip"));
-    props.setLook(wAccTransform);
+    PropsUi.setLook(wAccTransform);
     FormData fdAccTransform = new FormData();
     fdAccTransform.top = new FormAttachment(wPassThruFields, margin);
     fdAccTransform.left = new FormAttachment(middle, 0);
@@ -745,7 +748,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     //
     wlAccField = new Label(gAccepting, SWT.RIGHT);
     wlAccField.setText(BaseMessages.getString(PKG, "TextFileInputDialog.AcceptField.Label"));
-    props.setLook(wlAccField);
+    PropsUi.setLook(wlAccField);
     FormData fdlAccField = new FormData();
     fdlAccField.top = new FormAttachment(wAccTransform, margin);
     fdlAccField.left = new FormAttachment(0, 0);
@@ -754,7 +757,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wAccField = new Text(gAccepting, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wAccField.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.AcceptField.Tooltip"));
-    props.setLook(wAccField);
+    PropsUi.setLook(wAccField);
     FormData fdAccField = new FormData();
     fdAccField.top = new FormAttachment(wAccTransform, margin);
     fdAccField.left = new FormAttachment(middle, 0);
@@ -820,7 +823,7 @@ public class TextFileInputDialog extends BaseTransformDialog
             4,
             lsMod,
             props);
-    props.setLook(wFilenameList);
+    PropsUi.setLook(wFilenameList);
     FormData fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment(middle, 0);
     fdFilenameList.right = new FormAttachment(wbdFilename, -margin);
@@ -856,6 +859,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // START OF CONTENT TAB///
     // /
     CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
+    wContentTab.setFont(GuiResource.getInstance().getFontDefault());
     wContentTab.setText(BaseMessages.getString(PKG, "TextFileInputDialog.ContentTab.TabTitle"));
 
     FormLayout contentLayout = new FormLayout();
@@ -867,13 +871,13 @@ public class TextFileInputDialog extends BaseTransformDialog
     wContentSComp.setLayout(new FillLayout());
 
     Composite wContentComp = new Composite(wContentSComp, SWT.NONE);
-    props.setLook(wContentComp);
+    PropsUi.setLook(wContentComp);
     wContentComp.setLayout(contentLayout);
 
     // Filetype line
     Label wlFiletype = new Label(wContentComp, SWT.RIGHT);
     wlFiletype.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Filetype.Label"));
-    props.setLook(wlFiletype);
+    PropsUi.setLook(wlFiletype);
     FormData fdlFiletype = new FormData();
     fdlFiletype.left = new FormAttachment(0, 0);
     fdlFiletype.top = new FormAttachment(0, 0);
@@ -881,7 +885,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlFiletype.setLayoutData(fdlFiletype);
     wFiletype = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
     wFiletype.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Filetype.Label"));
-    props.setLook(wFiletype);
+    PropsUi.setLook(wFiletype);
     wFiletype.add("CSV");
     wFiletype.add("Fixed");
     wFiletype.select(0);
@@ -894,7 +898,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Label wlSeparator = new Label(wContentComp, SWT.RIGHT);
     wlSeparator.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Separator.Label"));
-    props.setLook(wlSeparator);
+    PropsUi.setLook(wlSeparator);
     FormData fdlSeparator = new FormData();
     fdlSeparator.left = new FormAttachment(0, 0);
     fdlSeparator.top = new FormAttachment(wFiletype, margin);
@@ -903,13 +907,13 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wbSeparator = new Button(wContentComp, SWT.PUSH | SWT.CENTER);
     wbSeparator.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Delimiter.Button"));
-    props.setLook(wbSeparator);
+    PropsUi.setLook(wbSeparator);
     FormData fdbSeparator = new FormData();
     fdbSeparator.right = new FormAttachment(100, 0);
     fdbSeparator.top = new FormAttachment(wFiletype, 0);
     wbSeparator.setLayoutData(fdbSeparator);
     wSeparator = new TextVar(variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSeparator);
+    PropsUi.setLook(wSeparator);
     wSeparator.addModifyListener(lsMod);
     FormData fdSeparator = new FormData();
     fdSeparator.top = new FormAttachment(wFiletype, margin);
@@ -920,14 +924,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Enclosure
     Label wlEnclosure = new Label(wContentComp, SWT.RIGHT);
     wlEnclosure.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Enclosure.Label"));
-    props.setLook(wlEnclosure);
+    PropsUi.setLook(wlEnclosure);
     FormData fdlEnclosure = new FormData();
     fdlEnclosure.left = new FormAttachment(0, 0);
     fdlEnclosure.top = new FormAttachment(wSeparator, margin);
     fdlEnclosure.right = new FormAttachment(middle, -margin);
     wlEnclosure.setLayoutData(fdlEnclosure);
     wEnclosure = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wEnclosure);
+    PropsUi.setLook(wEnclosure);
     wEnclosure.addModifyListener(lsMod);
     FormData fdEnclosure = new FormData();
     fdEnclosure.left = new FormAttachment(middle, 0);
@@ -938,14 +942,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Allow Enclosure breaks checkbox
     Label wlEnclBreaks = new Label(wContentComp, SWT.RIGHT);
     wlEnclBreaks.setText(BaseMessages.getString(PKG, "TextFileInputDialog.EnclBreaks.Label"));
-    props.setLook(wlEnclBreaks);
+    PropsUi.setLook(wlEnclBreaks);
     FormData fdlEnclBreaks = new FormData();
     fdlEnclBreaks.left = new FormAttachment(0, 0);
     fdlEnclBreaks.top = new FormAttachment(wEnclosure, margin);
     fdlEnclBreaks.right = new FormAttachment(middle, -margin);
     wlEnclBreaks.setLayoutData(fdlEnclBreaks);
     Button wEnclBreaks = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wEnclBreaks);
+    PropsUi.setLook(wEnclBreaks);
     FormData fdEnclBreaks = new FormData();
     fdEnclBreaks.left = new FormAttachment(middle, 0);
     fdEnclBreaks.top = new FormAttachment(wlEnclBreaks, 0, SWT.CENTER);
@@ -958,14 +962,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Escape
     Label wlEscape = new Label(wContentComp, SWT.RIGHT);
     wlEscape.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Escape.Label"));
-    props.setLook(wlEscape);
+    PropsUi.setLook(wlEscape);
     FormData fdlEscape = new FormData();
     fdlEscape.left = new FormAttachment(0, 0);
     fdlEscape.top = new FormAttachment(wEnclBreaks, margin);
     fdlEscape.right = new FormAttachment(middle, -margin);
     wlEscape.setLayoutData(fdlEscape);
     wEscape = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wEscape);
+    PropsUi.setLook(wEscape);
     wEscape.addModifyListener(lsMod);
     FormData fdEscape = new FormData();
     fdEscape.left = new FormAttachment(middle, 0);
@@ -976,14 +980,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Header checkbox
     Label wlHeader = new Label(wContentComp, SWT.RIGHT);
     wlHeader.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Header.Label"));
-    props.setLook(wlHeader);
+    PropsUi.setLook(wlHeader);
     FormData fdlHeader = new FormData();
     fdlHeader.left = new FormAttachment(0, 0);
     fdlHeader.top = new FormAttachment(wEscape, margin);
     fdlHeader.right = new FormAttachment(middle, -margin);
     wlHeader.setLayoutData(fdlHeader);
     wHeader = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wHeader);
+    PropsUi.setLook(wHeader);
     FormData fdHeader = new FormData();
     fdHeader.left = new FormAttachment(middle, 0);
     fdHeader.top = new FormAttachment(wlHeader, 0, SWT.CENTER);
@@ -992,14 +996,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // NrHeader
     wlNrHeader = new Label(wContentComp, SWT.RIGHT);
     wlNrHeader.setText(BaseMessages.getString(PKG, "TextFileInputDialog.NrHeader.Label"));
-    props.setLook(wlNrHeader);
+    PropsUi.setLook(wlNrHeader);
     FormData fdlNrHeader = new FormData();
     fdlNrHeader.left = new FormAttachment(wHeader, margin);
     fdlNrHeader.top = new FormAttachment(wlHeader, 0, SWT.CENTER);
     wlNrHeader.setLayoutData(fdlNrHeader);
     wNrHeader = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wNrHeader.setTextLimit(3);
-    props.setLook(wNrHeader);
+    PropsUi.setLook(wNrHeader);
     wNrHeader.addModifyListener(lsMod);
     FormData fdNrHeader = new FormData();
     fdNrHeader.left = new FormAttachment(wlNrHeader, margin);
@@ -1009,14 +1013,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Label wlFooter = new Label(wContentComp, SWT.RIGHT);
     wlFooter.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Footer.Label"));
-    props.setLook(wlFooter);
+    PropsUi.setLook(wlFooter);
     FormData fdlFooter = new FormData();
     fdlFooter.left = new FormAttachment(0, 0);
     fdlFooter.top = new FormAttachment(wHeader, margin);
     fdlFooter.right = new FormAttachment(middle, -margin);
     wlFooter.setLayoutData(fdlFooter);
     wFooter = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wFooter);
+    PropsUi.setLook(wFooter);
     FormData fdFooter = new FormData();
     fdFooter.left = new FormAttachment(middle, 0);
     fdFooter.top = new FormAttachment(wlFooter, 0, SWT.CENTER);
@@ -1025,14 +1029,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // NrFooter
     wlNrFooter = new Label(wContentComp, SWT.RIGHT);
     wlNrFooter.setText(BaseMessages.getString(PKG, "TextFileInputDialog.NrFooter.Label"));
-    props.setLook(wlNrFooter);
+    PropsUi.setLook(wlNrFooter);
     FormData fdlNrFooter = new FormData();
     fdlNrFooter.left = new FormAttachment(wFooter, margin);
     fdlNrFooter.top = new FormAttachment(wlFooter, 0, SWT.CENTER);
     wlNrFooter.setLayoutData(fdlNrFooter);
     wNrFooter = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wNrFooter.setTextLimit(3);
-    props.setLook(wNrFooter);
+    PropsUi.setLook(wNrFooter);
     wNrFooter.addModifyListener(lsMod);
     FormData fdNrFooter = new FormData();
     fdNrFooter.left = new FormAttachment(wlNrFooter, margin);
@@ -1043,14 +1047,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Wraps
     Label wlWraps = new Label(wContentComp, SWT.RIGHT);
     wlWraps.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Wraps.Label"));
-    props.setLook(wlWraps);
+    PropsUi.setLook(wlWraps);
     FormData fdlWraps = new FormData();
     fdlWraps.left = new FormAttachment(0, 0);
     fdlWraps.top = new FormAttachment(wFooter, margin);
     fdlWraps.right = new FormAttachment(middle, -margin);
     wlWraps.setLayoutData(fdlWraps);
     wWraps = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wWraps);
+    PropsUi.setLook(wWraps);
     FormData fdWraps = new FormData();
     fdWraps.left = new FormAttachment(middle, 0);
     fdWraps.top = new FormAttachment(wlWraps, 0, SWT.CENTER);
@@ -1059,14 +1063,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // NrWraps
     wlNrWraps = new Label(wContentComp, SWT.RIGHT);
     wlNrWraps.setText(BaseMessages.getString(PKG, "TextFileInputDialog.NrWraps.Label"));
-    props.setLook(wlNrWraps);
+    PropsUi.setLook(wlNrWraps);
     FormData fdlNrWraps = new FormData();
     fdlNrWraps.left = new FormAttachment(wWraps, margin);
     fdlNrWraps.top = new FormAttachment(wlWraps, 0, SWT.CENTER);
     wlNrWraps.setLayoutData(fdlNrWraps);
     wNrWraps = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wNrWraps.setTextLimit(3);
-    props.setLook(wNrWraps);
+    PropsUi.setLook(wNrWraps);
     wNrWraps.addModifyListener(lsMod);
     FormData fdNrWraps = new FormData();
     fdNrWraps.left = new FormAttachment(wlNrWraps, margin);
@@ -1077,14 +1081,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Pages
     Label wlLayoutPaged = new Label(wContentComp, SWT.RIGHT);
     wlLayoutPaged.setText(BaseMessages.getString(PKG, "TextFileInputDialog.LayoutPaged.Label"));
-    props.setLook(wlLayoutPaged);
+    PropsUi.setLook(wlLayoutPaged);
     FormData fdlLayoutPaged = new FormData();
     fdlLayoutPaged.left = new FormAttachment(0, 0);
     fdlLayoutPaged.top = new FormAttachment(wWraps, margin);
     fdlLayoutPaged.right = new FormAttachment(middle, -margin);
     wlLayoutPaged.setLayoutData(fdlLayoutPaged);
     wLayoutPaged = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wLayoutPaged);
+    PropsUi.setLook(wLayoutPaged);
     FormData fdLayoutPaged = new FormData();
     fdLayoutPaged.left = new FormAttachment(middle, 0);
     fdLayoutPaged.top = new FormAttachment(wlLayoutPaged, 0, SWT.CENTER);
@@ -1094,14 +1098,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlNrLinesPerPage = new Label(wContentComp, SWT.RIGHT);
     wlNrLinesPerPage.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.NrLinesPerPage.Label"));
-    props.setLook(wlNrLinesPerPage);
+    PropsUi.setLook(wlNrLinesPerPage);
     FormData fdlNrLinesPerPage = new FormData();
     fdlNrLinesPerPage.left = new FormAttachment(wLayoutPaged, margin);
     fdlNrLinesPerPage.top = new FormAttachment(wlLayoutPaged, 0, SWT.CENTER);
     wlNrLinesPerPage.setLayoutData(fdlNrLinesPerPage);
     wNrLinesPerPage = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wNrLinesPerPage.setTextLimit(3);
-    props.setLook(wNrLinesPerPage);
+    PropsUi.setLook(wNrLinesPerPage);
     wNrLinesPerPage.addModifyListener(lsMod);
     FormData fdNrLinesPerPage = new FormData();
     fdNrLinesPerPage.left = new FormAttachment(wlNrLinesPerPage, margin);
@@ -1113,14 +1117,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlNrLinesDocHeader = new Label(wContentComp, SWT.RIGHT);
     wlNrLinesDocHeader.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.NrLinesDocHeader.Label"));
-    props.setLook(wlNrLinesDocHeader);
+    PropsUi.setLook(wlNrLinesDocHeader);
     FormData fdlNrLinesDocHeader = new FormData();
     fdlNrLinesDocHeader.left = new FormAttachment(wLayoutPaged, margin);
     fdlNrLinesDocHeader.top = new FormAttachment(wNrLinesPerPage, margin);
     wlNrLinesDocHeader.setLayoutData(fdlNrLinesDocHeader);
     wNrLinesDocHeader = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wNrLinesDocHeader.setTextLimit(3);
-    props.setLook(wNrLinesDocHeader);
+    PropsUi.setLook(wNrLinesDocHeader);
     wNrLinesDocHeader.addModifyListener(lsMod);
     FormData fdNrLinesDocHeader = new FormData();
 
@@ -1132,7 +1136,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Compression type (None, Zip or GZip
     Label wlCompression = new Label(wContentComp, SWT.RIGHT);
     wlCompression.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Compression.Label"));
-    props.setLook(wlCompression);
+    PropsUi.setLook(wlCompression);
     FormData fdlCompression = new FormData();
     fdlCompression.left = new FormAttachment(0, 0);
     fdlCompression.top = new FormAttachment(wNrLinesDocHeader, margin);
@@ -1142,7 +1146,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wCompression.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Compression.Label"));
     wCompression.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.Compression.Tooltip"));
-    props.setLook(wCompression);
+    PropsUi.setLook(wCompression);
     wCompression.setItems(CompressionProviderFactory.getInstance().getCompressionProviderNames());
 
     wCompression.addModifyListener(lsMod);
@@ -1154,14 +1158,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Label wlNoempty = new Label(wContentComp, SWT.RIGHT);
     wlNoempty.setText(BaseMessages.getString(PKG, "TextFileInputDialog.NoEmpty.Label"));
-    props.setLook(wlNoempty);
+    PropsUi.setLook(wlNoempty);
     FormData fdlNoempty = new FormData();
     fdlNoempty.left = new FormAttachment(0, 0);
     fdlNoempty.top = new FormAttachment(wCompression, margin);
     fdlNoempty.right = new FormAttachment(middle, -margin);
     wlNoempty.setLayoutData(fdlNoempty);
     wNoempty = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wNoempty);
+    PropsUi.setLook(wNoempty);
     wNoempty.setToolTipText(BaseMessages.getString(PKG, "TextFileInputDialog.NoEmpty.Tooltip"));
     FormData fdNoempty = new FormData();
     fdNoempty.left = new FormAttachment(middle, 0);
@@ -1171,14 +1175,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Label wlInclFilename = new Label(wContentComp, SWT.RIGHT);
     wlInclFilename.setText(BaseMessages.getString(PKG, "TextFileInputDialog.InclFilename.Label"));
-    props.setLook(wlInclFilename);
+    PropsUi.setLook(wlInclFilename);
     FormData fdlInclFilename = new FormData();
     fdlInclFilename.left = new FormAttachment(0, 0);
     fdlInclFilename.top = new FormAttachment(wNoempty, margin);
     fdlInclFilename.right = new FormAttachment(middle, -margin);
     wlInclFilename.setLayoutData(fdlInclFilename);
     wInclFilename = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wInclFilename);
+    PropsUi.setLook(wInclFilename);
     wInclFilename.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.InclFilename.Tooltip"));
     FormData fdInclFilename = new FormData();
@@ -1189,13 +1193,13 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlInclFilenameField = new Label(wContentComp, SWT.LEFT);
     wlInclFilenameField.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.InclFilenameField.Label"));
-    props.setLook(wlInclFilenameField);
+    PropsUi.setLook(wlInclFilenameField);
     FormData fdlInclFilenameField = new FormData();
     fdlInclFilenameField.left = new FormAttachment(wInclFilename, margin);
     fdlInclFilenameField.top = new FormAttachment(wlInclFilename, 0, SWT.CENTER);
     wlInclFilenameField.setLayoutData(fdlInclFilenameField);
     wInclFilenameField = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclFilenameField);
+    PropsUi.setLook(wInclFilenameField);
     wInclFilenameField.addModifyListener(lsMod);
     FormData fdInclFilenameField = new FormData();
     fdInclFilenameField.left = new FormAttachment(wlInclFilenameField, margin);
@@ -1205,14 +1209,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Label wlInclRownum = new Label(wContentComp, SWT.RIGHT);
     wlInclRownum.setText(BaseMessages.getString(PKG, "TextFileInputDialog.InclRownum.Label"));
-    props.setLook(wlInclRownum);
+    PropsUi.setLook(wlInclRownum);
     FormData fdlInclRownum = new FormData();
     fdlInclRownum.left = new FormAttachment(0, 0);
     fdlInclRownum.top = new FormAttachment(wInclFilenameField, margin);
     fdlInclRownum.right = new FormAttachment(middle, -margin);
     wlInclRownum.setLayoutData(fdlInclRownum);
     wInclRownum = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wInclRownum);
+    PropsUi.setLook(wInclRownum);
     wInclRownum.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.InclRownum.Tooltip"));
     FormData fdRownum = new FormData();
@@ -1223,13 +1227,13 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlInclRownumField = new Label(wContentComp, SWT.RIGHT);
     wlInclRownumField.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.InclRownumField.Label"));
-    props.setLook(wlInclRownumField);
+    PropsUi.setLook(wlInclRownumField);
     FormData fdlInclRownumField = new FormData();
     fdlInclRownumField.left = new FormAttachment(wInclRownum, margin);
     fdlInclRownumField.top = new FormAttachment(wlInclRownum, 0, SWT.CENTER);
     wlInclRownumField.setLayoutData(fdlInclRownumField);
     wInclRownumField = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclRownumField);
+    PropsUi.setLook(wInclRownumField);
     wInclRownumField.addModifyListener(lsMod);
     FormData fdInclRownumField = new FormData();
     fdInclRownumField.left = new FormAttachment(wlInclRownumField, margin);
@@ -1240,13 +1244,13 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlRownumByFileField = new Label(wContentComp, SWT.RIGHT);
     wlRownumByFileField.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.RownumByFile.Label"));
-    props.setLook(wlRownumByFileField);
+    PropsUi.setLook(wlRownumByFileField);
     FormData fdlRownumByFile = new FormData();
     fdlRownumByFile.left = new FormAttachment(wInclRownum, margin);
     fdlRownumByFile.top = new FormAttachment(wInclRownumField, margin);
     wlRownumByFileField.setLayoutData(fdlRownumByFile);
     wRownumByFile = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wRownumByFile);
+    PropsUi.setLook(wRownumByFile);
     wRownumByFile.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.RownumByFile.Tooltip"));
     FormData fdRownumByFile = new FormData();
@@ -1256,7 +1260,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Label wlFormat = new Label(wContentComp, SWT.RIGHT);
     wlFormat.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Format.Label"));
-    props.setLook(wlFormat);
+    PropsUi.setLook(wlFormat);
     FormData fdlFormat = new FormData();
     fdlFormat.left = new FormAttachment(0, 0);
     fdlFormat.top = new FormAttachment(wRownumByFile, margin * 2);
@@ -1264,7 +1268,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlFormat.setLayoutData(fdlFormat);
     wFormat = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
     wFormat.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Format.Label"));
-    props.setLook(wFormat);
+    PropsUi.setLook(wFormat);
     wFormat.add("DOS");
     wFormat.add("Unix");
     wFormat.add("mixed");
@@ -1278,7 +1282,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Label wlEncoding = new Label(wContentComp, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Encoding.Label"));
-    props.setLook(wlEncoding);
+    PropsUi.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment(0, 0);
     fdlEncoding.top = new FormAttachment(wFormat, margin);
@@ -1286,7 +1290,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
     wEncoding.setEditable(true);
-    props.setLook(wEncoding);
+    PropsUi.setLook(wEncoding);
     wEncoding.addModifyListener(lsMod);
     FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment(middle, 0);
@@ -1310,7 +1314,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Label wlLength = new Label(wContentComp, SWT.RIGHT);
     wlLength.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Length.Label"));
-    props.setLook(wlLength);
+    PropsUi.setLook(wlLength);
     FormData fdlLength = new FormData();
     fdlLength.left = new FormAttachment(0, 0);
     fdlLength.top = new FormAttachment(wEncoding, margin);
@@ -1318,7 +1322,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlLength.setLayoutData(fdlLength);
     wLength = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
     wLength.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Length.Label"));
-    props.setLook(wLength);
+    PropsUi.setLook(wLength);
     wLength.add("Characters");
     wLength.add("Bytes");
     wLength.select(0);
@@ -1331,14 +1335,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Label wlLimit = new Label(wContentComp, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Limit.Label"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.top = new FormAttachment(wLength, margin);
     fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
@@ -1349,7 +1353,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Date Lenient checkbox
     Label wlDateLenient = new Label(wContentComp, SWT.RIGHT);
     wlDateLenient.setText(BaseMessages.getString(PKG, "TextFileInputDialog.DateLenient.Label"));
-    props.setLook(wlDateLenient);
+    PropsUi.setLook(wlDateLenient);
     FormData fdlDateLenient = new FormData();
     fdlDateLenient.left = new FormAttachment(0, 0);
     fdlDateLenient.top = new FormAttachment(wLimit, margin);
@@ -1358,7 +1362,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wDateLenient = new Button(wContentComp, SWT.CHECK);
     wDateLenient.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.DateLenient.Tooltip"));
-    props.setLook(wDateLenient);
+    PropsUi.setLook(wDateLenient);
     FormData fdDateLenient = new FormData();
     fdDateLenient.left = new FormAttachment(middle, 0);
     fdDateLenient.top = new FormAttachment(wlDateLenient, 0, SWT.CENTER);
@@ -1366,7 +1370,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Label wlDateLocale = new Label(wContentComp, SWT.RIGHT);
     wlDateLocale.setText(BaseMessages.getString(PKG, "TextFileInputDialog.DateLocale.Label"));
-    props.setLook(wlDateLocale);
+    PropsUi.setLook(wlDateLocale);
     FormData fdlDateLocale = new FormData();
     fdlDateLocale.left = new FormAttachment(0, 0);
     fdlDateLocale.top = new FormAttachment(wDateLenient, margin);
@@ -1375,7 +1379,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wDateLocale = new CCombo(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wDateLocale.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.DateLocale.Tooltip"));
-    props.setLook(wDateLocale);
+    PropsUi.setLook(wDateLocale);
     wDateLocale.addModifyListener(lsMod);
     FormData fdDateLocale = new FormData();
     fdDateLocale.left = new FormAttachment(middle, 0);
@@ -1402,7 +1406,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // ///////////////////////////////
 
     Group wAddFileResult = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wAddFileResult);
+    PropsUi.setLook(wAddFileResult);
     wAddFileResult.setText(BaseMessages.getString(PKG, "TextFileInputDialog.wAddFileResult.Label"));
 
     FormLayout addFileResultgroupLayout = new FormLayout();
@@ -1412,14 +1416,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Label wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "TextFileInputDialog.AddResult.Label"));
-    props.setLook(wlAddResult);
+    PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
     fdlAddResult.top = new FormAttachment(wDateLocale, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(wAddFileResult, SWT.CHECK);
-    props.setLook(wAddResult);
+    PropsUi.setLook(wAddResult);
     wAddResult.setToolTipText(BaseMessages.getString(PKG, "TextFileInputDialog.AddResult.Tooltip"));
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment(middle, 0);
@@ -1477,6 +1481,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // START OF ERROR TAB ///
     // /
     CTabItem wErrorTab = new CTabItem(wTabFolder, SWT.NONE);
+    wErrorTab.setFont(GuiResource.getInstance().getFontDefault());
     wErrorTab.setText(BaseMessages.getString(PKG, "TextFileInputDialog.ErrorTab.TabTitle"));
 
     ScrolledComposite wErrorSComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
@@ -1487,7 +1492,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     errorLayout.marginHeight = 3;
 
     Composite wErrorComp = new Composite(wErrorSComp, SWT.NONE);
-    props.setLook(wErrorComp);
+    PropsUi.setLook(wErrorComp);
     wErrorComp.setLayout(errorLayout);
 
     // ERROR HANDLING...
@@ -1495,14 +1500,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // ERROR HANDLING...
     Label wlErrorIgnored = new Label(wErrorComp, SWT.RIGHT);
     wlErrorIgnored.setText(BaseMessages.getString(PKG, "TextFileInputDialog.ErrorIgnored.Label"));
-    props.setLook(wlErrorIgnored);
+    PropsUi.setLook(wlErrorIgnored);
     FormData fdlErrorIgnored = new FormData();
     fdlErrorIgnored.left = new FormAttachment(0, 0);
     fdlErrorIgnored.top = new FormAttachment(0, margin);
     fdlErrorIgnored.right = new FormAttachment(middle, -margin);
     wlErrorIgnored.setLayoutData(fdlErrorIgnored);
     wErrorIgnored = new Button(wErrorComp, SWT.CHECK);
-    props.setLook(wErrorIgnored);
+    PropsUi.setLook(wErrorIgnored);
     wErrorIgnored.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.ErrorIgnored.Tooltip"));
     FormData fdErrorIgnored = new FormData();
@@ -1513,14 +1518,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Skip bad files?
     Label wlSkipBadFiles = new Label(wErrorComp, SWT.RIGHT);
     wlSkipBadFiles.setText(BaseMessages.getString(PKG, "TextFileInputDialog.SkipBadFiles.Label"));
-    props.setLook(wlSkipBadFiles);
+    PropsUi.setLook(wlSkipBadFiles);
     FormData fdlSkipBadFiles = new FormData();
     fdlSkipBadFiles.left = new FormAttachment(0, 0);
     fdlSkipBadFiles.top = new FormAttachment(wErrorIgnored, margin);
     fdlSkipBadFiles.right = new FormAttachment(middle, -margin);
     wlSkipBadFiles.setLayoutData(fdlSkipBadFiles);
     wSkipBadFiles = new Button(wErrorComp, SWT.CHECK);
-    props.setLook(wSkipBadFiles);
+    PropsUi.setLook(wSkipBadFiles);
     wSkipBadFiles.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.SkipBadFiles.Tooltip"));
     FormData fdSkipBadFiles = new FormData();
@@ -1531,14 +1536,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     // field for rejected file
     Label wlBadFileField = new Label(wErrorComp, SWT.RIGHT);
     wlBadFileField.setText(BaseMessages.getString(PKG, "TextFileInputDialog.BadFileField.Label"));
-    props.setLook(wlBadFileField);
+    PropsUi.setLook(wlBadFileField);
     FormData fdlBadFileField = new FormData();
     fdlBadFileField.left = new FormAttachment(0, 0);
     fdlBadFileField.top = new FormAttachment(wSkipBadFiles, margin);
     fdlBadFileField.right = new FormAttachment(middle, -margin);
     wlBadFileField.setLayoutData(fdlBadFileField);
     wBadFileField = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBadFileField);
+    PropsUi.setLook(wBadFileField);
     wBadFileField.addModifyListener(lsMod);
     FormData fdBadFileField = new FormData();
     fdBadFileField.left = new FormAttachment(middle, 0);
@@ -1550,14 +1555,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     Label wlBadFileMessageField = new Label(wErrorComp, SWT.RIGHT);
     wlBadFileMessageField.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.BadFileMessageField.Label"));
-    props.setLook(wlBadFileMessageField);
+    PropsUi.setLook(wlBadFileMessageField);
     FormData fdlBadFileMessageField = new FormData();
     fdlBadFileMessageField.left = new FormAttachment(0, 0);
     fdlBadFileMessageField.top = new FormAttachment(wBadFileField, margin);
     fdlBadFileMessageField.right = new FormAttachment(middle, -margin);
     wlBadFileMessageField.setLayoutData(fdlBadFileMessageField);
     wBadFileMessageField = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBadFileMessageField);
+    PropsUi.setLook(wBadFileMessageField);
     wBadFileMessageField.addModifyListener(lsMod);
     FormData fdBadFileMessageField = new FormData();
     fdBadFileMessageField.left = new FormAttachment(middle, 0);
@@ -1569,14 +1574,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlSkipErrorLines = new Label(wErrorComp, SWT.RIGHT);
     wlSkipErrorLines.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.SkipErrorLines.Label"));
-    props.setLook(wlSkipErrorLines);
+    PropsUi.setLook(wlSkipErrorLines);
     FormData fdlSkipErrorLines = new FormData();
     fdlSkipErrorLines.left = new FormAttachment(0, 0);
     fdlSkipErrorLines.top = new FormAttachment(wBadFileMessageField, margin);
     fdlSkipErrorLines.right = new FormAttachment(middle, -margin);
     wlSkipErrorLines.setLayoutData(fdlSkipErrorLines);
     wSkipErrorLines = new Button(wErrorComp, SWT.CHECK);
-    props.setLook(wSkipErrorLines);
+    PropsUi.setLook(wSkipErrorLines);
     wSkipErrorLines.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.SkipErrorLines.Tooltip"));
     FormData fdSkipErrorLines = new FormData();
@@ -1586,14 +1591,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wlErrorCount = new Label(wErrorComp, SWT.RIGHT);
     wlErrorCount.setText(BaseMessages.getString(PKG, "TextFileInputDialog.ErrorCount.Label"));
-    props.setLook(wlErrorCount);
+    PropsUi.setLook(wlErrorCount);
     FormData fdlErrorCount = new FormData();
     fdlErrorCount.left = new FormAttachment(0, 0);
     fdlErrorCount.top = new FormAttachment(wSkipErrorLines, margin);
     fdlErrorCount.right = new FormAttachment(middle, -margin);
     wlErrorCount.setLayoutData(fdlErrorCount);
     wErrorCount = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrorCount);
+    PropsUi.setLook(wErrorCount);
     wErrorCount.addModifyListener(lsMod);
     FormData fdErrorCount = new FormData();
     fdErrorCount.left = new FormAttachment(middle, 0);
@@ -1603,14 +1608,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wlErrorFields = new Label(wErrorComp, SWT.RIGHT);
     wlErrorFields.setText(BaseMessages.getString(PKG, "TextFileInputDialog.ErrorFields.Label"));
-    props.setLook(wlErrorFields);
+    PropsUi.setLook(wlErrorFields);
     FormData fdlErrorFields = new FormData();
     fdlErrorFields.left = new FormAttachment(0, 0);
     fdlErrorFields.top = new FormAttachment(wErrorCount, margin);
     fdlErrorFields.right = new FormAttachment(middle, -margin);
     wlErrorFields.setLayoutData(fdlErrorFields);
     wErrorFields = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrorFields);
+    PropsUi.setLook(wErrorFields);
     wErrorFields.addModifyListener(lsMod);
     FormData fdErrorFields = new FormData();
     fdErrorFields.left = new FormAttachment(middle, 0);
@@ -1620,14 +1625,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wlErrorText = new Label(wErrorComp, SWT.RIGHT);
     wlErrorText.setText(BaseMessages.getString(PKG, "TextFileInputDialog.ErrorText.Label"));
-    props.setLook(wlErrorText);
+    PropsUi.setLook(wlErrorText);
     FormData fdlErrorText = new FormData();
     fdlErrorText.left = new FormAttachment(0, 0);
     fdlErrorText.top = new FormAttachment(wErrorFields, margin);
     fdlErrorText.right = new FormAttachment(middle, -margin);
     wlErrorText.setLayoutData(fdlErrorText);
     wErrorText = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrorText);
+    PropsUi.setLook(wErrorText);
     wErrorText.addModifyListener(lsMod);
     FormData fdErrorText = new FormData();
     fdErrorText.left = new FormAttachment(middle, 0);
@@ -1641,7 +1646,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // BadDestDir line
     wlWarnDestDir = new Label(wErrorComp, SWT.RIGHT);
     wlWarnDestDir.setText(BaseMessages.getString(PKG, "TextFileInputDialog.WarnDestDir.Label"));
-    props.setLook(wlWarnDestDir);
+    PropsUi.setLook(wlWarnDestDir);
     FormData fdlWarnDestDir = new FormData();
     fdlWarnDestDir.left = new FormAttachment(0, 0);
     fdlWarnDestDir.top = new FormAttachment(previous, margin * 4);
@@ -1649,7 +1654,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlWarnDestDir.setLayoutData(fdlWarnDestDir);
 
     wbbWarnDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbWarnDestDir);
+    PropsUi.setLook(wbbWarnDestDir);
     wbbWarnDestDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbWarnDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.BrowseForDir"));
     FormData fdbBadDestDir = new FormData();
@@ -1658,7 +1663,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wbbWarnDestDir.setLayoutData(fdbBadDestDir);
 
     wWarnExt = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wWarnExt);
+    PropsUi.setLook(wWarnExt);
     wWarnExt.addModifyListener(lsMod);
     FormData fdWarnDestExt = new FormData();
     fdWarnDestExt.left = new FormAttachment(wbbWarnDestDir, -150);
@@ -1668,14 +1673,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wlWarnExt = new Label(wErrorComp, SWT.RIGHT);
     wlWarnExt.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
-    props.setLook(wlWarnExt);
+    PropsUi.setLook(wlWarnExt);
     FormData fdlWarnDestExt = new FormData();
     fdlWarnDestExt.top = new FormAttachment(previous, margin * 4);
     fdlWarnDestExt.right = new FormAttachment(wWarnExt, -margin);
     wlWarnExt.setLayoutData(fdlWarnDestExt);
 
     wWarnDestDir = new TextVar(variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wWarnDestDir);
+    PropsUi.setLook(wWarnDestDir);
     wWarnDestDir.addModifyListener(lsMod);
     FormData fdBadDestDir = new FormData();
     fdBadDestDir.left = new FormAttachment(middle, 0);
@@ -1696,7 +1701,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // ErrorDestDir line
     wlErrorDestDir = new Label(wErrorComp, SWT.RIGHT);
     wlErrorDestDir.setText(BaseMessages.getString(PKG, "TextFileInputDialog.ErrorDestDir.Label"));
-    props.setLook(wlErrorDestDir);
+    PropsUi.setLook(wlErrorDestDir);
     FormData fdlErrorDestDir = new FormData();
     fdlErrorDestDir.left = new FormAttachment(0, 0);
     fdlErrorDestDir.top = new FormAttachment(previous, margin);
@@ -1704,7 +1709,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlErrorDestDir.setLayoutData(fdlErrorDestDir);
 
     wbbErrorDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbErrorDestDir);
+    PropsUi.setLook(wbbErrorDestDir);
     wbbErrorDestDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbErrorDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.BrowseForDir"));
     FormData fdbErrorDestDir = new FormData();
@@ -1713,7 +1718,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wbbErrorDestDir.setLayoutData(fdbErrorDestDir);
 
     wErrorExt = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrorExt);
+    PropsUi.setLook(wErrorExt);
     wErrorExt.addModifyListener(lsMod);
     FormData fdErrorDestExt = new FormData();
     fdErrorDestExt.left = new FormAttachment(wWarnExt, 0, SWT.LEFT);
@@ -1723,14 +1728,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wlErrorExt = new Label(wErrorComp, SWT.RIGHT);
     wlErrorExt.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
-    props.setLook(wlErrorExt);
+    PropsUi.setLook(wlErrorExt);
     FormData fdlErrorDestExt = new FormData();
     fdlErrorDestExt.top = new FormAttachment(previous, margin);
     fdlErrorDestExt.right = new FormAttachment(wErrorExt, -margin);
     wlErrorExt.setLayoutData(fdlErrorDestExt);
 
     wErrorDestDir = new TextVar(variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrorDestDir);
+    PropsUi.setLook(wErrorDestDir);
     wErrorDestDir.addModifyListener(lsMod);
     FormData fdErrorDestDir = new FormData();
     fdErrorDestDir.left = new FormAttachment(middle, 0);
@@ -1751,7 +1756,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // LineNrDestDir line
     wlLineNrDestDir = new Label(wErrorComp, SWT.RIGHT);
     wlLineNrDestDir.setText(BaseMessages.getString(PKG, "TextFileInputDialog.LineNrDestDir.Label"));
-    props.setLook(wlLineNrDestDir);
+    PropsUi.setLook(wlLineNrDestDir);
     FormData fdlLineNrDestDir = new FormData();
     fdlLineNrDestDir.left = new FormAttachment(0, 0);
     fdlLineNrDestDir.top = new FormAttachment(previous, margin);
@@ -1759,7 +1764,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlLineNrDestDir.setLayoutData(fdlLineNrDestDir);
 
     wbbLineNrDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbLineNrDestDir);
+    PropsUi.setLook(wbbLineNrDestDir);
     wbbLineNrDestDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbLineNrDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.Browse"));
     FormData fdbLineNrDestDir = new FormData();
@@ -1768,7 +1773,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wbbLineNrDestDir.setLayoutData(fdbLineNrDestDir);
 
     wLineNrExt = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLineNrExt);
+    PropsUi.setLook(wLineNrExt);
     wLineNrExt.addModifyListener(lsMod);
     FormData fdLineNrDestExt = new FormData();
     fdLineNrDestExt.left = new FormAttachment(wErrorExt, 0, SWT.LEFT);
@@ -1778,14 +1783,14 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wlLineNrExt = new Label(wErrorComp, SWT.RIGHT);
     wlLineNrExt.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
-    props.setLook(wlLineNrExt);
+    PropsUi.setLook(wlLineNrExt);
     FormData fdlLineNrDestExt = new FormData();
     fdlLineNrDestExt.top = new FormAttachment(previous, margin);
     fdlLineNrDestExt.right = new FormAttachment(wLineNrExt, -margin);
     wlLineNrExt.setLayoutData(fdlLineNrDestExt);
 
     wLineNrDestDir = new TextVar(variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLineNrDestDir);
+    PropsUi.setLook(wLineNrDestDir);
     wLineNrDestDir.addModifyListener(lsMod);
     FormData fdLineNrDestDir = new FormData();
     fdLineNrDestDir.left = new FormAttachment(middle, 0);
@@ -1829,6 +1834,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Filters tab...
     //
     CTabItem wFilterTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFilterTab.setFont(GuiResource.getInstance().getFontDefault());
     wFilterTab.setText(BaseMessages.getString(PKG, "TextFileInputDialog.FilterTab.TabTitle"));
 
     FormLayout filterLayout = new FormLayout();
@@ -1837,7 +1843,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Composite wFilterComp = new Composite(wTabFolder, SWT.NONE);
     wFilterComp.setLayout(filterLayout);
-    props.setLook(wFilterComp);
+    PropsUi.setLook(wFilterComp);
 
     final int FilterRows = input.getFilter().length;
 
@@ -1898,6 +1904,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // Fields tab...
     //
     CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wFieldsTab.setText(BaseMessages.getString(PKG, "TextFileInputDialog.FieldsTab.TabTitle"));
 
     FormLayout fieldsLayout = new FormLayout();
@@ -1906,7 +1913,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     wFieldsComp.setLayout(fieldsLayout);
-    props.setLook(wFieldsComp);
+    PropsUi.setLook(wFieldsComp);
 
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
@@ -2949,11 +2956,12 @@ public class TextFileInputDialog extends BaseTransformDialog
     // START OF ADDITIONAL FIELDS TAB ///
     // ////////////////////////
     CTabItem wAdditionalFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdditionalFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdditionalFieldsTab.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.AdditionalFieldsTab.TabTitle"));
 
     Composite wAdditionalFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wAdditionalFieldsComp);
+    PropsUi.setLook(wAdditionalFieldsComp);
 
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = 3;
@@ -2964,7 +2972,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     Label wlShortFileFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlShortFileFieldName.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.ShortFileFieldName.Label"));
-    props.setLook(wlShortFileFieldName);
+    PropsUi.setLook(wlShortFileFieldName);
     FormData fdlShortFileFieldName = new FormData();
     fdlShortFileFieldName.left = new FormAttachment(0, 0);
     fdlShortFileFieldName.top = new FormAttachment(margin, margin);
@@ -2973,7 +2981,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wShortFileFieldName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wShortFileFieldName);
+    PropsUi.setLook(wShortFileFieldName);
     wShortFileFieldName.addModifyListener(lsMod);
     FormData fdShortFileFieldName = new FormData();
     fdShortFileFieldName.left = new FormAttachment(middle, 0);
@@ -2985,7 +2993,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     Label wlExtensionFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlExtensionFieldName.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.ExtensionFieldName.Label"));
-    props.setLook(wlExtensionFieldName);
+    PropsUi.setLook(wlExtensionFieldName);
     FormData fdlExtensionFieldName = new FormData();
     fdlExtensionFieldName.left = new FormAttachment(0, 0);
     fdlExtensionFieldName.top = new FormAttachment(wShortFileFieldName, margin);
@@ -2994,7 +3002,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wExtensionFieldName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wExtensionFieldName);
+    PropsUi.setLook(wExtensionFieldName);
     wExtensionFieldName.addModifyListener(lsMod);
     FormData fdExtensionFieldName = new FormData();
     fdExtensionFieldName.left = new FormAttachment(middle, 0);
@@ -3005,7 +3013,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // PathFieldName line
     Label wlPathFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlPathFieldName.setText(BaseMessages.getString(PKG, "TextFileInputDialog.PathFieldName.Label"));
-    props.setLook(wlPathFieldName);
+    PropsUi.setLook(wlPathFieldName);
     FormData fdlPathFieldName = new FormData();
     fdlPathFieldName.left = new FormAttachment(0, 0);
     fdlPathFieldName.top = new FormAttachment(wExtensionFieldName, margin);
@@ -3014,7 +3022,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wPathFieldName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPathFieldName);
+    PropsUi.setLook(wPathFieldName);
     wPathFieldName.addModifyListener(lsMod);
     FormData fdPathFieldName = new FormData();
     fdPathFieldName.left = new FormAttachment(middle, 0);
@@ -3025,7 +3033,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // SizeFieldName line
     Label wlSizeFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlSizeFieldName.setText(BaseMessages.getString(PKG, "TextFileInputDialog.SizeFieldName.Label"));
-    props.setLook(wlSizeFieldName);
+    PropsUi.setLook(wlSizeFieldName);
     FormData fdlSizeFieldName = new FormData();
     fdlSizeFieldName.left = new FormAttachment(0, 0);
     fdlSizeFieldName.top = new FormAttachment(wPathFieldName, margin);
@@ -3034,7 +3042,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wSizeFieldName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSizeFieldName);
+    PropsUi.setLook(wSizeFieldName);
     wSizeFieldName.addModifyListener(lsMod);
     FormData fdSizeFieldName = new FormData();
     fdSizeFieldName.left = new FormAttachment(middle, 0);
@@ -3045,7 +3053,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // IsHiddenName line
     Label wlIsHiddenName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlIsHiddenName.setText(BaseMessages.getString(PKG, "TextFileInputDialog.IsHiddenName.Label"));
-    props.setLook(wlIsHiddenName);
+    PropsUi.setLook(wlIsHiddenName);
     FormData fdlIsHiddenName = new FormData();
     fdlIsHiddenName.left = new FormAttachment(0, 0);
     fdlIsHiddenName.top = new FormAttachment(wSizeFieldName, margin);
@@ -3054,7 +3062,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wIsHiddenName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wIsHiddenName);
+    PropsUi.setLook(wIsHiddenName);
     wIsHiddenName.addModifyListener(lsMod);
     FormData fdIsHiddenName = new FormData();
     fdIsHiddenName.left = new FormAttachment(middle, 0);
@@ -3066,7 +3074,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     Label wlLastModificationTimeName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlLastModificationTimeName.setText(
         BaseMessages.getString(PKG, "TextFileInputDialog.LastModificationTimeName.Label"));
-    props.setLook(wlLastModificationTimeName);
+    PropsUi.setLook(wlLastModificationTimeName);
     FormData fdlLastModificationTimeName = new FormData();
     fdlLastModificationTimeName.left = new FormAttachment(0, 0);
     fdlLastModificationTimeName.top = new FormAttachment(wIsHiddenName, margin);
@@ -3075,7 +3083,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wLastModificationTimeName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLastModificationTimeName);
+    PropsUi.setLook(wLastModificationTimeName);
     wLastModificationTimeName.addModifyListener(lsMod);
     FormData fdLastModificationTimeName = new FormData();
     fdLastModificationTimeName.left = new FormAttachment(middle, 0);
@@ -3086,7 +3094,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // UriName line
     Label wlUriName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlUriName.setText(BaseMessages.getString(PKG, "TextFileInputDialog.UriName.Label"));
-    props.setLook(wlUriName);
+    PropsUi.setLook(wlUriName);
     FormData fdlUriName = new FormData();
     fdlUriName.left = new FormAttachment(0, 0);
     fdlUriName.top = new FormAttachment(wLastModificationTimeName, margin);
@@ -3094,7 +3102,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wlUriName.setLayoutData(fdlUriName);
 
     wUriName = new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUriName);
+    PropsUi.setLook(wUriName);
     wUriName.addModifyListener(lsMod);
     FormData fdUriName = new FormData();
     fdUriName.left = new FormAttachment(middle, 0);
@@ -3105,7 +3113,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     // RootUriName line
     Label wlRootUriName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlRootUriName.setText(BaseMessages.getString(PKG, "TextFileInputDialog.RootUriName.Label"));
-    props.setLook(wlRootUriName);
+    PropsUi.setLook(wlRootUriName);
     FormData fdlRootUriName = new FormData();
     fdlRootUriName.left = new FormAttachment(0, 0);
     fdlRootUriName.top = new FormAttachment(wUriName, margin);
@@ -3114,7 +3122,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     wRootUriName =
         new TextVar(variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wRootUriName);
+    PropsUi.setLook(wRootUriName);
     wRootUriName.addModifyListener(lsMod);
     FormData fdRootUriName = new FormData();
     fdRootUriName.left = new FormAttachment(middle, 0);

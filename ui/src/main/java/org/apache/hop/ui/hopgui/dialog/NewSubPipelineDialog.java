@@ -49,7 +49,7 @@ public class NewSubPipelineDialog extends Dialog {
     Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 15;
@@ -62,7 +62,7 @@ public class NewSubPipelineDialog extends Dialog {
     Label wiInfo = new Label(shell, SWT.NONE);
     wiInfo.setImage(display.getSystemImage(SWT.ICON_INFORMATION));
 
-    props.setLook(wiInfo);
+    PropsUi.setLook(wiInfo);
     FormData fdiInfo = new FormData();
     fdiInfo.left = new FormAttachment(0, 0);
     fdiInfo.top = new FormAttachment(0, 0);
@@ -71,7 +71,7 @@ public class NewSubPipelineDialog extends Dialog {
     Label wlInfo = new Label(shell, SWT.WRAP);
     wlInfo.setText(BaseMessages.getString(PKG, "NewSubPipelineDialog.PipelineCreated"));
 
-    props.setLook(wlInfo);
+    PropsUi.setLook(wlInfo);
     FormData fdlInfo = new FormData();
     fdlInfo.left = new FormAttachment(wiInfo, 15);
     fdlInfo.right = new FormAttachment(100, 0);
@@ -83,7 +83,7 @@ public class NewSubPipelineDialog extends Dialog {
     wShow = new Button(shell, SWT.CHECK);
     wShow.setText(BaseMessages.getString(PKG, "NewSubPipelineDialog.DoNotShowAgain"));
     wShow.setLayoutData(new FormDataBuilder().left().result());
-    props.setLook(wShow);
+    PropsUi.setLook(wShow);
     FormData fdShowButton = new FormData();
     fdShowButton.left = new FormAttachment(wlInfo, 0, SWT.LEFT);
     fdShowButton.right = new FormAttachment(wlInfo, 0, SWT.RIGHT);

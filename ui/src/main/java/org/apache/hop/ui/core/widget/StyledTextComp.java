@@ -85,7 +85,7 @@ public class StyledTextComp extends Composite {
       image = GuiResource.getInstance().getImageVariable();
       if (variableIconOnTop) {
         final Label wIcon = new Label(this, SWT.RIGHT);
-        PropsUi.getInstance().setLook(wIcon);
+        PropsUi.setLook(wIcon);
         wIcon.setToolTipText(BaseMessages.getString(PKG, "StyledTextComp.tooltip.InsertVariable"));
         wIcon.setImage(image);
         wIcon.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
@@ -101,7 +101,7 @@ public class StyledTextComp extends Composite {
         controlDecoration.setImage(image);
         controlDecoration.setToolTipText(
             BaseMessages.getString(PKG, "StyledTextComp.tooltip.InsertVariable"));
-        PropsUi.getInstance().setLook(controlDecoration);
+        PropsUi.setLook(controlDecoration);
         controlDecoration.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
         textWidget.setLayoutData(
             new FormDataBuilder()

@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -83,7 +84,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -114,7 +115,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "MongoDbInputDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -122,7 +123,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -132,14 +133,15 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     Control lastControl = wTransformName;
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // Input options tab -----
     CTabItem wInputOptionsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wInputOptionsTab.setFont(GuiResource.getInstance().getFontDefault());
     wInputOptionsTab.setText(
         BaseMessages.getString(PKG, "MongoDbInputDialog.InputOptionsTab.TabTitle"));
     Composite wInputOptionsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wInputOptionsComp);
+    PropsUi.setLook(wInputOptionsComp);
     FormLayout inputLayout = new FormLayout();
     inputLayout.marginWidth = 3;
     inputLayout.marginHeight = 3;
@@ -173,7 +175,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     //
     Label wlCollection = new Label(wInputOptionsComp, SWT.RIGHT);
     wlCollection.setText(BaseMessages.getString(PKG, "MongoDbInputDialog.Collection.Label"));
-    props.setLook(wlCollection);
+    PropsUi.setLook(wlCollection);
     FormData fdlCollection = new FormData();
     fdlCollection.left = new FormAttachment(0, 0);
     fdlCollection.right = new FormAttachment(middle, -margin);
@@ -181,7 +183,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     wlCollection.setLayoutData(fdlCollection);
 
     Button wbGetCollections = new Button(wInputOptionsComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGetCollections);
+    PropsUi.setLook(wbGetCollections);
     wbGetCollections.setText(
         BaseMessages.getString(PKG, "MongoDbInputDialog.GetCollections.Button"));
     FormData fd = new FormData();
@@ -191,7 +193,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     wbGetCollections.addListener(SWT.Selection, e -> getCollectionNames());
 
     wCollection = new CCombo(wInputOptionsComp, SWT.BORDER);
-    props.setLook(wCollection);
+    PropsUi.setLook(wCollection);
     wCollection.addModifyListener(lsMod);
     FormData fdCollection = new FormData();
     fdCollection.left = new FormAttachment(middle, 0);
@@ -214,9 +216,10 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
     // Query tab -----
     CTabItem wMongoQueryTab = new CTabItem(wTabFolder, SWT.NONE);
+    wMongoQueryTab.setFont(GuiResource.getInstance().getFontDefault());
     wMongoQueryTab.setText(BaseMessages.getString(PKG, "MongoDbInputDialog.QueryTab.TabTitle"));
     Composite wQueryComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wQueryComp);
+    PropsUi.setLook(wQueryComp);
     FormLayout queryLayout = new FormLayout();
     queryLayout.marginWidth = 3;
     queryLayout.marginHeight = 3;
@@ -226,14 +229,14 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     //
     Label wlFieldsName = new Label(wQueryComp, SWT.RIGHT);
     wlFieldsName.setText(BaseMessages.getString(PKG, "MongoDbInputDialog.FieldsName.Label"));
-    props.setLook(wlFieldsName);
+    PropsUi.setLook(wlFieldsName);
     FormData fdlFieldsName = new FormData();
     fdlFieldsName.left = new FormAttachment(0, 0);
     fdlFieldsName.right = new FormAttachment(middle, -margin);
     fdlFieldsName.bottom = new FormAttachment(100, -margin);
     wlFieldsName.setLayoutData(fdlFieldsName);
     wFieldsName = new TextVar(variables, wQueryComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFieldsName);
+    PropsUi.setLook(wFieldsName);
     wFieldsName.addModifyListener(lsMod);
     FormData fdFieldsName = new FormData();
     fdFieldsName.left = new FormAttachment(middle, 0);
@@ -245,14 +248,14 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     Label executeForEachRLab = new Label(wQueryComp, SWT.RIGHT);
     executeForEachRLab.setText(
         BaseMessages.getString(PKG, "MongoDbInputDialog.ExecuteForEachRow.Label"));
-    props.setLook(executeForEachRLab);
+    PropsUi.setLook(executeForEachRLab);
     fd = new FormData();
     fd.left = new FormAttachment(0, -margin);
     fd.bottom = new FormAttachment(lastControl, -2 * margin);
     fd.right = new FormAttachment(middle, -margin);
     executeForEachRLab.setLayoutData(fd);
     wbExecuteForEachRow = new Button(wQueryComp, SWT.CHECK);
-    props.setLook(wbExecuteForEachRow);
+    PropsUi.setLook(wbExecuteForEachRow);
     fd = new FormData();
     fd.left = new FormAttachment(middle, 0);
     fd.right = new FormAttachment(100, 0);
@@ -262,14 +265,14 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
     Label queryIsPipelineL = new Label(wQueryComp, SWT.RIGHT);
     queryIsPipelineL.setText(BaseMessages.getString(PKG, "MongoDbInputDialog.Pipeline.Label"));
-    props.setLook(queryIsPipelineL);
+    PropsUi.setLook(queryIsPipelineL);
     fd = new FormData();
     fd.bottom = new FormAttachment(lastControl, -2 * margin);
     fd.left = new FormAttachment(0, -margin);
     fd.right = new FormAttachment(middle, -margin);
     queryIsPipelineL.setLayoutData(fd);
     wbQueryIsPipeline = new Button(wQueryComp, SWT.CHECK);
-    props.setLook(wbQueryIsPipeline);
+    PropsUi.setLook(wbQueryIsPipeline);
     fd = new FormData();
     fd.top = new FormAttachment(queryIsPipelineL, 0, SWT.CENTER);
     fd.left = new FormAttachment(middle, 0);
@@ -282,7 +285,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     //
     wlJsonQuery = new Label(wQueryComp, SWT.NONE);
     wlJsonQuery.setText(BaseMessages.getString(PKG, "MongoDbInputDialog.JsonQuery.Label"));
-    props.setLook(wlJsonQuery);
+    PropsUi.setLook(wlJsonQuery);
     FormData fdlJsonQuery = new FormData();
     fdlJsonQuery.left = new FormAttachment(0, 0);
     fdlJsonQuery.right = new FormAttachment(100, -margin);
@@ -292,7 +295,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     wJsonQuery =
         new StyledTextComp(
             variables, wQueryComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wJsonQuery, PropsUi.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wJsonQuery, PropsUi.WIDGET_STYLE_FIXED);
     wJsonQuery.addModifyListener(lsMod);
 
     FormData fdJsonQuery = new FormData();
@@ -315,9 +318,10 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
     // fields tab -----
     CTabItem wMongoFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wMongoFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wMongoFieldsTab.setText(BaseMessages.getString(PKG, "MongoDbInputDialog.FieldsTab.TabTitle"));
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFieldsComp);
+    PropsUi.setLook(wFieldsComp);
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = 3;
     fieldsLayout.marginHeight = 3;
@@ -326,14 +330,14 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     // Output as Json check box
     Label outputJLab = new Label(wFieldsComp, SWT.RIGHT);
     outputJLab.setText(BaseMessages.getString(PKG, "MongoDbInputDialog.OutputJson.Label"));
-    props.setLook(outputJLab);
+    PropsUi.setLook(outputJLab);
     fd = new FormData();
     fd.top = new FormAttachment(0, 0);
     fd.left = new FormAttachment(0, 0);
     fd.right = new FormAttachment(middle, -2 * margin);
     outputJLab.setLayoutData(fd);
     wbOutputAsJson = new Button(wFieldsComp, SWT.CHECK);
-    props.setLook(wbOutputAsJson);
+    PropsUi.setLook(wbOutputAsJson);
     fd = new FormData();
     fd.top = new FormAttachment(outputJLab, 0, SWT.CENTER);
     fd.left = new FormAttachment(middle, 0);
@@ -352,14 +356,14 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     //
     Label wlJsonField = new Label(wFieldsComp, SWT.RIGHT);
     wlJsonField.setText(BaseMessages.getString(PKG, "MongoDbInputDialog.JsonField.Label"));
-    props.setLook(wlJsonField);
+    PropsUi.setLook(wlJsonField);
     FormData fdlJsonField = new FormData();
     fdlJsonField.left = new FormAttachment(0, 0);
     fdlJsonField.right = new FormAttachment(middle, -margin);
     fdlJsonField.top = new FormAttachment(lastControl, 2 * margin);
     wlJsonField.setLayoutData(fdlJsonField);
     wJsonField = new TextVar(variables, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wJsonField);
+    PropsUi.setLook(wJsonField);
     wJsonField.addModifyListener(lsMod);
     FormData fdJsonField = new FormData();
     fdJsonField.left = new FormAttachment(middle, 0);
@@ -371,7 +375,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     // get fields button
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "MongoDbInputDialog.Button.GetFields"));
-    props.setLook(wGet);
+    PropsUi.setLook(wGet);
     fd = new FormData();
     fd.right = new FormAttachment(100, 0);
     fd.bottom = new FormAttachment(100, 0);

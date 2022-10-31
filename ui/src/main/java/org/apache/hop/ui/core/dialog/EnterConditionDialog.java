@@ -57,7 +57,7 @@ public class EnterConditionDialog extends Dialog {
   public Condition open() {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setText(BaseMessages.getString(PKG, "EnterConditionDialog.Title"));
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
@@ -71,7 +71,7 @@ public class EnterConditionDialog extends Dialog {
 
     // Condition widget
     wCond = new ConditionEditor(shell, SWT.NONE, condition, fields);
-    props.setLook(wCond, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wCond, Props.WIDGET_STYLE_FIXED);
 
     if (!getData()) {
       return null;

@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -66,7 +67,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -85,14 +86,14 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionTelnet.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -103,7 +104,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     // hostname line
     Label wlHostname = new Label(shell, SWT.RIGHT);
     wlHostname.setText(BaseMessages.getString(PKG, "ActionTelnet.Hostname.Label"));
-    props.setLook(wlHostname);
+    PropsUi.setLook(wlHostname);
     FormData fdlHostname = new FormData();
     fdlHostname.left = new FormAttachment(0, -margin);
     fdlHostname.top = new FormAttachment(wName, margin);
@@ -111,7 +112,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     wlHostname.setLayoutData(fdlHostname);
 
     wHostname = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wHostname);
+    PropsUi.setLook(wHostname);
     wHostname.addModifyListener(lsMod);
     FormData fdHostname = new FormData();
     fdHostname.left = new FormAttachment(middle, 0);
@@ -125,7 +126,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
 
     Label wlPort = new Label(shell, SWT.RIGHT);
     wlPort.setText(BaseMessages.getString(PKG, "ActionTelnet.Port.Label"));
-    props.setLook(wlPort);
+    PropsUi.setLook(wlPort);
     FormData fdlPort = new FormData();
     fdlPort.left = new FormAttachment(0, -margin);
     fdlPort.right = new FormAttachment(middle, -margin);
@@ -133,7 +134,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     wlPort.setLayoutData(fdlPort);
 
     wPort = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPort);
+    PropsUi.setLook(wPort);
     wPort.addModifyListener(lsMod);
     FormData fdPort = new FormData();
     fdPort.left = new FormAttachment(middle, 0);
@@ -143,7 +144,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
 
     Label wlTimeOut = new Label(shell, SWT.RIGHT);
     wlTimeOut.setText(BaseMessages.getString(PKG, "ActionTelnet.TimeOut.Label"));
-    props.setLook(wlTimeOut);
+    PropsUi.setLook(wlTimeOut);
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, -margin);
     fdlTimeOut.right = new FormAttachment(middle, -margin);
@@ -151,7 +152,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     wlTimeOut.setLayoutData(fdlTimeOut);
 
     wTimeOut = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTimeOut);
+    PropsUi.setLook(wTimeOut);
     wTimeOut.addModifyListener(lsMod);
     FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment(middle, 0);

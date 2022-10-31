@@ -105,7 +105,7 @@ public class EnterPrintDialog extends Dialog {
         new Shell(
             parent,
             SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -120,13 +120,13 @@ public class EnterPrintDialog extends Dialog {
     // Canvas
     Label wlCanvas = new Label(shell, SWT.NONE);
     wlCanvas.setText(BaseMessages.getString(PKG, "EnterPrintDialog.PrintArea.Label"));
-    props.setLook(wlCanvas);
+    PropsUi.setLook(wlCanvas);
     FormData fdlCanvas = new FormData();
     fdlCanvas.left = new FormAttachment(0, 0);
     fdlCanvas.top = new FormAttachment(0, margin);
     wlCanvas.setLayoutData(fdlCanvas);
     wCanvas = new Canvas(shell, SWT.BORDER);
-    props.setLook(wCanvas);
+    PropsUi.setLook(wCanvas);
     wCanvas.addPaintListener(pe -> repaint(pe.gc, pe.width, pe.height));
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
@@ -138,7 +138,7 @@ public class EnterPrintDialog extends Dialog {
     // Rows
     Label wlRows = new Label(shell, SWT.NONE);
     wlRows.setText(BaseMessages.getString(PKG, "EnterPrintDialog.Rows.Label"));
-    props.setLook(wlRows);
+    PropsUi.setLook(wlRows);
     FormData fdlRows = new FormData();
     fdlRows.left = new FormAttachment(0, 0);
     fdlRows.right = new FormAttachment(middle, -margin);
@@ -158,7 +158,7 @@ public class EnterPrintDialog extends Dialog {
             wCanvas.redraw();
           }
         });
-    props.setLook(wRows);
+    PropsUi.setLook(wRows);
     FormData fdRows = new FormData();
     fdRows.left = new FormAttachment(middle, 0);
     fdRows.top = new FormAttachment(wCanvas, margin);
@@ -168,7 +168,7 @@ public class EnterPrintDialog extends Dialog {
     // Cols
     Label wlCols = new Label(shell, SWT.NONE);
     wlCols.setText(BaseMessages.getString(PKG, "EnterPrintDialog.Cols.Label"));
-    props.setLook(wlCols);
+    PropsUi.setLook(wlCols);
     FormData fdlCols = new FormData();
     fdlCols.left = new FormAttachment(0, 0);
     fdlCols.right = new FormAttachment(middle, -margin);
@@ -188,7 +188,7 @@ public class EnterPrintDialog extends Dialog {
             wCanvas.redraw();
           }
         });
-    props.setLook(wCols);
+    PropsUi.setLook(wCols);
     FormData fdCols = new FormData();
     fdCols.left = new FormAttachment(middle, 0);
     fdCols.top = new FormAttachment(wRows, margin);
@@ -198,7 +198,7 @@ public class EnterPrintDialog extends Dialog {
     // Scale
     Label wlScale = new Label(shell, SWT.NONE);
     wlScale.setText(BaseMessages.getString(PKG, "EnterPrintDialog.Scaling.Label"));
-    props.setLook(wlScale);
+    PropsUi.setLook(wlScale);
     FormData fdlScale = new FormData();
     fdlScale.left = new FormAttachment(0, 0);
     fdlScale.right = new FormAttachment(middle, -margin);
@@ -219,7 +219,7 @@ public class EnterPrintDialog extends Dialog {
             wCanvas.redraw();
           }
         });
-    props.setLook(wScale);
+    PropsUi.setLook(wScale);
     FormData fdScale = new FormData();
     fdScale.left = new FormAttachment(middle, 0);
     fdScale.top = new FormAttachment(wCols, margin);
@@ -229,7 +229,7 @@ public class EnterPrintDialog extends Dialog {
     // Left
     Label wlLeft = new Label(shell, SWT.NONE);
     wlLeft.setText(BaseMessages.getString(PKG, "EnterPrintDialog.LeftMargin.Label"));
-    props.setLook(wlLeft);
+    PropsUi.setLook(wlLeft);
     FormData fdlLeft = new FormData();
     fdlLeft.left = new FormAttachment(0, 0);
     fdlLeft.right = new FormAttachment(middle, -margin);
@@ -241,7 +241,7 @@ public class EnterPrintDialog extends Dialog {
           Text w = (Text) e.widget;
           leftMargin = Const.toDouble(w.getText(), 0.00);
         });
-    props.setLook(wLeft);
+    PropsUi.setLook(wLeft);
     FormData fdLeft = new FormData();
     fdLeft.left = new FormAttachment(middle, 0);
     fdLeft.top = new FormAttachment(wScale, margin);
@@ -251,7 +251,7 @@ public class EnterPrintDialog extends Dialog {
     // Right
     Label wlRight = new Label(shell, SWT.NONE);
     wlRight.setText(BaseMessages.getString(PKG, "EnterPrintDialog.RightMargin.Label"));
-    props.setLook(wlRight);
+    PropsUi.setLook(wlRight);
     FormData fdlRight = new FormData();
     fdlRight.left = new FormAttachment(0, 0);
     fdlRight.right = new FormAttachment(middle, -margin);
@@ -263,7 +263,7 @@ public class EnterPrintDialog extends Dialog {
           Text w = (Text) e.widget;
           rightMargin = Const.toDouble(w.getText(), 0.00);
         });
-    props.setLook(wRight);
+    PropsUi.setLook(wRight);
     FormData fdRight = new FormData();
     fdRight.left = new FormAttachment(middle, 0);
     fdRight.top = new FormAttachment(wLeft, margin);
@@ -273,7 +273,7 @@ public class EnterPrintDialog extends Dialog {
     // Top
     Label wlTop = new Label(shell, SWT.NONE);
     wlTop.setText(BaseMessages.getString(PKG, "EnterPrintDialog.TopMargin.Label"));
-    props.setLook(wlTop);
+    PropsUi.setLook(wlTop);
     FormData fdlTop = new FormData();
     fdlTop.left = new FormAttachment(0, 0);
     fdlTop.right = new FormAttachment(middle, -margin);
@@ -285,7 +285,7 @@ public class EnterPrintDialog extends Dialog {
           Text w = (Text) e.widget;
           topMargin = Const.toDouble(w.getText(), 0.00);
         });
-    props.setLook(wTop);
+    PropsUi.setLook(wTop);
     FormData fdTop = new FormData();
     fdTop.left = new FormAttachment(middle, 0);
     fdTop.top = new FormAttachment(wRight, margin);
@@ -295,7 +295,7 @@ public class EnterPrintDialog extends Dialog {
     // Bottom
     Label wlBottom = new Label(shell, SWT.NONE);
     wlBottom.setText(BaseMessages.getString(PKG, "EnterPrintDialog.BottomMargin.Label"));
-    props.setLook(wlBottom);
+    PropsUi.setLook(wlBottom);
     FormData fdlBottom = new FormData();
     fdlBottom.left = new FormAttachment(0, 0);
     fdlBottom.right = new FormAttachment(middle, -margin);
@@ -307,7 +307,7 @@ public class EnterPrintDialog extends Dialog {
           Text w = (Text) e.widget;
           bottomMargin = Const.toDouble(w.getText(), 0.00);
         });
-    props.setLook(wBottom);
+    PropsUi.setLook(wBottom);
     FormData fdBottom = new FormData();
     fdBottom.left = new FormAttachment(middle, 0);
     fdBottom.top = new FormAttachment(wTop, margin);

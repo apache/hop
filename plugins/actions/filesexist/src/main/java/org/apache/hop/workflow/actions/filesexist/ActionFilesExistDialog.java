@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -75,7 +76,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -104,14 +105,14 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionFilesExist.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -122,7 +123,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     // Filename line
     Label wlFilename = new Label(shell, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(wName, 2 * margin);
@@ -131,7 +132,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
     // Browse Source folders button ...
     Button wbDirectory = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbDirectory);
+    PropsUi.setLook(wbDirectory);
     wbDirectory.setText(BaseMessages.getString(PKG, "ActionFilesExist.BrowseFolders.Label"));
     FormData fdbDirectory = new FormData();
     fdbDirectory.right = new FormAttachment(100, -margin);
@@ -142,7 +143,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
         SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wFilename, variables));
 
     Button wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbFilename);
+    PropsUi.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.BrowseFiles.Label"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
@@ -152,7 +153,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
     // Add or change
     Button wbaFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbaFilename);
+    PropsUi.setLook(wbaFilename);
     wbaFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.FilenameAdd.Button"));
     FormData fdbaFilename = new FormData();
     fdbaFilename.right = new FormAttachment(wbFilename, -margin);
@@ -160,7 +161,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     wbaFilename.setLayoutData(fdbaFilename);
 
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -179,7 +180,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionFilesExist.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
@@ -189,7 +190,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     // Buttons to the right of the screen...
     // Delete
     Button wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdFilename);
+    PropsUi.setLook(wbdFilename);
     wbdFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.FilenameDelete.Button"));
     wbdFilename.setToolTipText(
         BaseMessages.getString(PKG, "ActionFilesExist.FilenameDelete.Tooltip"));
@@ -200,7 +201,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
     // Edit
     Button wbeFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeFilename);
+    PropsUi.setLook(wbeFilename);
     wbeFilename.setText(BaseMessages.getString(PKG, "ActionFilesExist.FilenameEdit.Button"));
     wbeFilename.setToolTipText(
         BaseMessages.getString(PKG, "ActionFilesExist.FilenameEdit.Tooltip"));

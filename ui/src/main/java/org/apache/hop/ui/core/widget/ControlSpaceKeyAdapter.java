@@ -131,7 +131,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       shell.setLocation(location.x, location.y + bounds.height);
       shell.setLayout(new FormLayout());
       final List list = new List(shell, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
-      props.setLook(list);
+      PropsUi.setLook(list);
       list.setLayoutData(new FormDataBuilder().fullSize().result());
       list.setItems(getVariableNames(variables));
       final ToolTip toolTip = new ToolTip(list.getShell(), SWT.BALLOON);

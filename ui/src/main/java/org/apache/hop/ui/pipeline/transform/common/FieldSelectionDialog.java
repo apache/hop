@@ -19,6 +19,7 @@ package org.apache.hop.ui.pipeline.transform.common;
 
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -55,17 +56,17 @@ public class FieldSelectionDialog extends BaseDialog {
     final Label message = new Label(shell, SWT.WRAP | SWT.LEFT);
     message.setText(
         BaseMessages.getString(PKG, "FieldSelectionDialog.NewFieldsFound.Message", numFields));
-    props.setLook(message);
+    PropsUi.setLook(message);
     message.setLayoutData(new FormDataBuilder().top().left().right(100, 0).result());
 
     final Button newFieldsOnly = new Button(shell, SWT.RADIO);
     newFieldsOnly.setSelection(true);
-    props.setLook(newFieldsOnly);
+    PropsUi.setLook(newFieldsOnly);
     newFieldsOnly.setText(BaseMessages.getString(PKG, "FieldSelectionDialog.AddNewOnly.Label"));
     newFieldsOnly.setLayoutData(new FormDataBuilder().top(message, MARGIN_SIZE).left().result());
 
     final Button clearAndAddAll = new Button(shell, SWT.RADIO);
-    props.setLook(clearAndAddAll);
+    PropsUi.setLook(clearAndAddAll);
     clearAndAddAll.setText(
         BaseMessages.getString(PKG, "FieldSelectionDialog.ClearAndAddAll.Label"));
     clearAndAddAll.setLayoutData(

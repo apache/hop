@@ -143,7 +143,7 @@ public class GuiCompositeWidgets {
           && elementType != GuiElementType.BUTTON
           && elementType != GuiElementType.LINK) {
         label = new Label(parent, SWT.RIGHT | SWT.SINGLE);
-        props.setLook(label);
+        PropsUi.setLook(label);
         label.setText(Const.NVL(guiElements.getLabel(), ""));
         if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
           label.setToolTipText(guiElements.getToolTip());
@@ -227,13 +227,13 @@ public class GuiCompositeWidgets {
     }
     if (guiElements.isVariablesEnabled()) {
       ComboVar comboVar = new ComboVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-      props.setLook(comboVar);
+      PropsUi.setLook(comboVar);
       widgetsMap.put(guiElements.getId(), comboVar);
       comboVar.setItems(comboItems);
       control = comboVar;
     } else {
       Combo combo = new Combo(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-      props.setLook(combo);
+      PropsUi.setLook(combo);
       combo.setItems(comboItems);
       widgetsMap.put(guiElements.getId(), combo);
       control = combo;
@@ -286,7 +286,7 @@ public class GuiCompositeWidgets {
       Control lastControl) {
 
     Button button = new Button(parent, SWT.PUSH);
-    props.setLook(button);
+    PropsUi.setLook(button);
     button.setText(Const.NVL(guiElements.getLabel(), ""));
     if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
       button.setToolTipText(guiElements.getToolTip());
@@ -332,7 +332,7 @@ public class GuiCompositeWidgets {
       Control lastControl) {
 
     Link link = new Link(parent, SWT.NONE);
-    props.setLook(link);
+    PropsUi.setLook(link);
     link.setText(Const.NVL(guiElements.getLabel(), ""));
     if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
       link.setToolTipText(guiElements.getToolTip());
@@ -409,7 +409,7 @@ public class GuiCompositeWidgets {
       Composite parent, GuiElements guiElements, PropsUi props, Control lastControl, Label label) {
     Control control;
     Button button = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(button);
+    PropsUi.setLook(button);
     widgetsMap.put(guiElements.getId(), button);
     addModifyListener(button, guiElements.getId());
     control = button;
@@ -444,7 +444,7 @@ public class GuiCompositeWidgets {
 
     if (guiElements.isVariablesEnabled()) {
       TextVar textVar = new TextVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-      props.setLook(textVar);
+      PropsUi.setLook(textVar);
       if (guiElements.isPassword()) {
         textVar.setEchoChar('*');
       }
@@ -454,7 +454,7 @@ public class GuiCompositeWidgets {
       text = textVar.getTextWidget();
     } else {
       text = new Text(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-      props.setLook(text);
+      PropsUi.setLook(text);
       if (guiElements.isPassword()) {
         text.setEchoChar('*');
       }

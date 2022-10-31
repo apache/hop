@@ -22,7 +22,9 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -118,7 +120,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -147,14 +149,14 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -163,17 +165,18 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -186,7 +189,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     //
 
     Group wSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wSettings);
+    PropsUi.setLook(wSettings);
     wSettings.setText(BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Settings.Label"));
 
     FormLayout groupLayout = new FormLayout();
@@ -198,7 +201,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     Label wlSourceFiles = new Label(wSettings, SWT.RIGHT);
     wlSourceFiles.setText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetricsDialog.SourceFiles.Label"));
-    props.setLook(wlSourceFiles);
+    PropsUi.setLook(wlSourceFiles);
     FormData fdlSourceFiles = new FormData();
     fdlSourceFiles.left = new FormAttachment(0, 0);
     fdlSourceFiles.right = new FormAttachment(middle, -margin);
@@ -209,7 +212,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wSourceFiles.setItems(ActionEvalFilesMetrics.SourceFilesDesc);
     wSourceFiles.select(0); // +1: starts at -1
 
-    props.setLook(wSourceFiles);
+    PropsUi.setLook(wSourceFiles);
     FormData fdSourceFiles = new FormData();
     fdSourceFiles.left = new FormAttachment(middle, 0);
     fdSourceFiles.top = new FormAttachment(wName, margin);
@@ -228,7 +231,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wlResultFilenamesWildcard = new Label(wSettings, SWT.RIGHT);
     wlResultFilenamesWildcard.setText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetrics.ResultFilenamesWildcard.Label"));
-    props.setLook(wlResultFilenamesWildcard);
+    PropsUi.setLook(wlResultFilenamesWildcard);
     FormData fdlResultFilenamesWildcard = new FormData();
     fdlResultFilenamesWildcard.left = new FormAttachment(0, 0);
     fdlResultFilenamesWildcard.top = new FormAttachment(wSourceFiles, margin);
@@ -239,7 +242,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
         new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wResultFilenamesWildcard.setToolTipText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetrics.ResultFilenamesWildcard.Tooltip"));
-    props.setLook(wResultFilenamesWildcard);
+    PropsUi.setLook(wResultFilenamesWildcard);
     wResultFilenamesWildcard.addModifyListener(lsMod);
     FormData fdResultFilenamesWildcard = new FormData();
     fdResultFilenamesWildcard.left = new FormAttachment(middle, 0);
@@ -251,7 +254,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wlResultFieldFile = new Label(wSettings, SWT.RIGHT);
     wlResultFieldFile.setText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetrics.ResultFieldFile.Label"));
-    props.setLook(wlResultFieldFile);
+    PropsUi.setLook(wlResultFieldFile);
     FormData fdlResultFieldFile = new FormData();
     fdlResultFieldFile.left = new FormAttachment(0, 0);
     fdlResultFieldFile.top = new FormAttachment(wResultFilenamesWildcard, margin);
@@ -261,7 +264,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wResultFieldFile = new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wResultFieldFile.setToolTipText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetrics.ResultFieldFile.Tooltip"));
-    props.setLook(wResultFieldFile);
+    PropsUi.setLook(wResultFieldFile);
     wResultFieldFile.addModifyListener(lsMod);
     FormData fdResultFieldFile = new FormData();
     fdResultFieldFile.left = new FormAttachment(middle, 0);
@@ -273,7 +276,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wlResultFieldWildcard = new Label(wSettings, SWT.RIGHT);
     wlResultFieldWildcard.setText(
         BaseMessages.getString(PKG, "ActionEvalWildcardsMetrics.ResultFieldWildcard.Label"));
-    props.setLook(wlResultFieldWildcard);
+    PropsUi.setLook(wlResultFieldWildcard);
     FormData fdlResultFieldWildcard = new FormData();
     fdlResultFieldWildcard.left = new FormAttachment(0, 0);
     fdlResultFieldWildcard.top = new FormAttachment(wResultFieldFile, margin);
@@ -283,7 +286,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wResultFieldWildcard = new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wResultFieldWildcard.setToolTipText(
         BaseMessages.getString(PKG, "ActionEvalWildcardsMetrics.ResultFieldWildcard.Tooltip"));
-    props.setLook(wResultFieldWildcard);
+    PropsUi.setLook(wResultFieldWildcard);
     wResultFieldWildcard.addModifyListener(lsMod);
     FormData fdResultFieldWildcard = new FormData();
     fdResultFieldWildcard.left = new FormAttachment(middle, 0);
@@ -296,7 +299,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wlResultFieldIncludeSubFolders.setText(
         BaseMessages.getString(
             PKG, "ActionEvalIncludeSubFolderssMetrics.ResultFieldIncludeSubFolders.Label"));
-    props.setLook(wlResultFieldIncludeSubFolders);
+    PropsUi.setLook(wlResultFieldIncludeSubFolders);
     FormData fdlResultFieldIncludeSubFolders = new FormData();
     fdlResultFieldIncludeSubFolders.left = new FormAttachment(0, 0);
     fdlResultFieldIncludeSubFolders.top = new FormAttachment(wResultFieldWildcard, margin);
@@ -308,7 +311,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wResultFieldIncludeSubFolders.setToolTipText(
         BaseMessages.getString(
             PKG, "ActionEvalIncludeSubFolderssMetrics.ResultFieldIncludeSubFolders.Tooltip"));
-    props.setLook(wResultFieldIncludeSubFolders);
+    PropsUi.setLook(wResultFieldIncludeSubFolders);
     wResultFieldIncludeSubFolders.addModifyListener(lsMod);
     FormData fdResultFieldIncludeSubFolders = new FormData();
     fdResultFieldIncludeSubFolders.left = new FormAttachment(middle, 0);
@@ -320,7 +323,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     Label wlEvaluationType = new Label(wSettings, SWT.RIGHT);
     wlEvaluationType.setText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetricsDialog.EvaluationType.Label"));
-    props.setLook(wlEvaluationType);
+    PropsUi.setLook(wlEvaluationType);
     FormData fdlEvaluationType = new FormData();
     fdlEvaluationType.left = new FormAttachment(0, 0);
     fdlEvaluationType.right = new FormAttachment(middle, -margin);
@@ -331,7 +334,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wEvaluationType.setItems(ActionEvalFilesMetrics.EvaluationTypeDesc);
     wEvaluationType.select(0); // +1: starts at -1
 
-    props.setLook(wEvaluationType);
+    PropsUi.setLook(wEvaluationType);
     FormData fdEvaluationType = new FormData();
     fdEvaluationType.left = new FormAttachment(middle, 0);
     fdEvaluationType.top = new FormAttachment(wResultFieldIncludeSubFolders, margin);
@@ -360,7 +363,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wlSourceFileFolder = new Label(wGeneralComp, SWT.RIGHT);
     wlSourceFileFolder.setText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetrics.SourceFileFolder.Label"));
-    props.setLook(wlSourceFileFolder);
+    PropsUi.setLook(wlSourceFileFolder);
     FormData fdlSourceFileFolder = new FormData();
     fdlSourceFileFolder.left = new FormAttachment(0, 0);
     fdlSourceFileFolder.top = new FormAttachment(wSettings, 2 * margin);
@@ -369,7 +372,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
 
     // Browse Source folders button ...
     wbSourceDirectory = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSourceDirectory);
+    PropsUi.setLook(wbSourceDirectory);
     wbSourceDirectory.setText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetrics.BrowseFolders.Label"));
     FormData fdbSourceDirectory = new FormData();
@@ -382,7 +385,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
 
     // Browse Source files button ...
     wbSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSourceFileFolder);
+    PropsUi.setLook(wbSourceFileFolder);
     wbSourceFileFolder.setText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetrics.BrowseFiles.Label"));
     FormData fdbSourceFileFolder = new FormData();
@@ -392,7 +395,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
 
     // Browse Destination file add button ...
     wbaSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbaSourceFileFolder);
+    PropsUi.setLook(wbaSourceFileFolder);
     wbaSourceFileFolder.setText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetrics.FilenameAdd.Button"));
     FormData fdbaSourceFileFolder = new FormData();
@@ -404,7 +407,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wSourceFileFolder.setToolTipText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetrics.SourceFileFolder.Tooltip"));
 
-    props.setLook(wSourceFileFolder);
+    PropsUi.setLook(wSourceFileFolder);
     wSourceFileFolder.addModifyListener(lsMod);
     FormData fdSourceFileFolder = new FormData();
     fdSourceFileFolder.left = new FormAttachment(middle, 0);
@@ -425,7 +428,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     // Wildcard
     wlWildcard = new Label(wGeneralComp, SWT.RIGHT);
     wlWildcard.setText(BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Wildcard.Label"));
-    props.setLook(wlWildcard);
+    PropsUi.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
     fdlWildcard.top = new FormAttachment(wSourceFileFolder, margin);
@@ -435,7 +438,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wWildcard = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wWildcard.setToolTipText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Wildcard.Tooltip"));
-    props.setLook(wWildcard);
+    PropsUi.setLook(wWildcard);
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment(middle, 0);
@@ -445,7 +448,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
 
     wlFields = new Label(wGeneralComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
@@ -454,7 +457,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
 
     // Buttons to the right of the screen...
     wbdSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdSourceFileFolder);
+    PropsUi.setLook(wbdSourceFileFolder);
     wbdSourceFileFolder.setText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetrics.FilenameDelete.Button"));
     wbdSourceFileFolder.setToolTipText(
@@ -465,7 +468,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wbdSourceFileFolder.setLayoutData(fdbdSourceFileFolder);
 
     wbeSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeSourceFileFolder);
+    PropsUi.setLook(wbeSourceFileFolder);
     wbeSourceFileFolder.setText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetrics.FilenameEdit.Button"));
     FormData fdbeSourceFileFolder = new FormData();
@@ -575,7 +578,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
 
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -586,6 +589,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     // ///////////////////////////////////
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdvancedTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdvancedTab.setText(BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Tab.Advanced.Label"));
 
     FormLayout contentLayout = new FormLayout();
@@ -593,7 +597,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     contentLayout.marginHeight = 3;
 
     Composite wAdvancedComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wAdvancedComp);
+    PropsUi.setLook(wAdvancedComp);
     wAdvancedComp.setLayout(contentLayout);
 
     // SuccessOngrouping?
@@ -601,7 +605,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     // START OF SUCCESS ON GROUP///
     // /
     Group wSuccessOn = new Group(wAdvancedComp, SWT.SHADOW_NONE);
-    props.setLook(wSuccessOn);
+    PropsUi.setLook(wSuccessOn);
     wSuccessOn.setText(BaseMessages.getString(PKG, "ActionEvalFilesMetrics.SuccessOn.Group.Label"));
 
     FormLayout successongroupLayout = new FormLayout();
@@ -613,7 +617,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     // Scale
     wlScale = new Label(wSuccessOn, SWT.RIGHT);
     wlScale.setText(BaseMessages.getString(PKG, "ActionEvalFilesMetricsDialog.Scale.Label"));
-    props.setLook(wlScale);
+    PropsUi.setLook(wlScale);
     FormData fdlScale = new FormData();
     fdlScale.left = new FormAttachment(0, 0);
     fdlScale.right = new FormAttachment(middle, -margin);
@@ -624,7 +628,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wScale.setItems(ActionEvalFilesMetrics.scaleDesc);
     wScale.select(0); // +1: starts at -1
 
-    props.setLook(wScale);
+    PropsUi.setLook(wScale);
     FormData fdScale = new FormData();
     fdScale.left = new FormAttachment(middle, 0);
     fdScale.top = new FormAttachment(0, margin);
@@ -642,7 +646,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     Label wlSuccessNumberCondition = new Label(wSuccessOn, SWT.RIGHT);
     wlSuccessNumberCondition.setText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetricsDialog.SuccessCondition.Label"));
-    props.setLook(wlSuccessNumberCondition);
+    PropsUi.setLook(wlSuccessNumberCondition);
     FormData fdlSuccessNumberCondition = new FormData();
     fdlSuccessNumberCondition.left = new FormAttachment(0, 0);
     fdlSuccessNumberCondition.right = new FormAttachment(middle, -margin);
@@ -653,7 +657,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wSuccessNumberCondition.setItems(ActionEvalFilesMetrics.successNumberConditionDesc);
     wSuccessNumberCondition.select(0); // +1: starts at -1
 
-    props.setLook(wSuccessNumberCondition);
+    PropsUi.setLook(wSuccessNumberCondition);
     FormData fdSuccessNumberCondition = new FormData();
     fdSuccessNumberCondition.left = new FormAttachment(middle, 0);
     fdSuccessNumberCondition.top = new FormAttachment(wScale, margin);
@@ -672,7 +676,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wlCompareValue = new Label(wSuccessOn, SWT.RIGHT);
     wlCompareValue.setText(
         BaseMessages.getString(PKG, "ActionEvalFilesMetricsDialog.CompareValue.Label"));
-    props.setLook(wlCompareValue);
+    PropsUi.setLook(wlCompareValue);
     FormData fdlCompareValue = new FormData();
     fdlCompareValue.left = new FormAttachment(0, 0);
     fdlCompareValue.top = new FormAttachment(wSuccessNumberCondition, margin);
@@ -685,7 +689,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
             wSuccessOn,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionEvalFilesMetricsDialog.CompareValue.Tooltip"));
-    props.setLook(wCompareValue);
+    PropsUi.setLook(wCompareValue);
     wCompareValue.addModifyListener(lsMod);
     FormData fdCompareValue = new FormData();
     fdCompareValue.left = new FormAttachment(middle, 0);
@@ -696,7 +700,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     // Min value
     wlMinValue = new Label(wSuccessOn, SWT.RIGHT);
     wlMinValue.setText(BaseMessages.getString(PKG, "ActionEvalFilesMetricsDialog.MinValue.Label"));
-    props.setLook(wlMinValue);
+    PropsUi.setLook(wlMinValue);
     FormData fdlMinValue = new FormData();
     fdlMinValue.left = new FormAttachment(0, 0);
     fdlMinValue.top = new FormAttachment(wSuccessNumberCondition, margin);
@@ -709,7 +713,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
             wSuccessOn,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionEvalFilesMetricsDialog.MinValue.Tooltip"));
-    props.setLook(wMinValue);
+    PropsUi.setLook(wMinValue);
     wMinValue.addModifyListener(lsMod);
     FormData fdMinValue = new FormData();
     fdMinValue.left = new FormAttachment(middle, 0);
@@ -720,7 +724,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     // Maximum value
     wlMaxValue = new Label(wSuccessOn, SWT.RIGHT);
     wlMaxValue.setText(BaseMessages.getString(PKG, "ActionEvalFilesMetricsDialog.MaxValue.Label"));
-    props.setLook(wlMaxValue);
+    PropsUi.setLook(wlMaxValue);
     FormData fdlMaxValue = new FormData();
     fdlMaxValue.left = new FormAttachment(0, 0);
     fdlMaxValue.top = new FormAttachment(wMinValue, margin);
@@ -733,7 +737,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
             wSuccessOn,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionEvalFilesMetricsDialog.MaxValue.Tooltip"));
-    props.setLook(wMaxValue);
+    PropsUi.setLook(wMaxValue);
     wMaxValue.addModifyListener(lsMod);
     FormData fdMaxValue = new FormData();
     fdMaxValue.left = new FormAttachment(middle, 0);

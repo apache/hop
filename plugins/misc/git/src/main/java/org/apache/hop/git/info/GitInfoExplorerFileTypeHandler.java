@@ -113,7 +113,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     // A label showing the file/folder
     //
     Label wlFile = new Label(composite, SWT.LEFT | SWT.SINGLE);
-    props.setLook(wlFile);
+    PropsUi.setLook(wlFile);
     wlFile.setText("File or folder");
     FormData fdlFile = new FormData();
     fdlFile.left = new FormAttachment(0, 0);
@@ -121,7 +121,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     wlFile.setLayoutData(fdlFile);
     wFile = new Text(composite, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
     wFile.setEditable(false);
-    props.setLook(wFile);
+    PropsUi.setLook(wFile);
     FormData fdFile = new FormData();
     fdFile.left = new FormAttachment(wlFile, 2 * margin);
     fdFile.top = new FormAttachment(wlFile, 0, SWT.CENTER);
@@ -132,14 +132,14 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     // The file status:
     //
     Label wlStatus = new Label(composite, SWT.LEFT | SWT.SINGLE);
-    props.setLook(wlStatus);
+    PropsUi.setLook(wlStatus);
     wlStatus.setText("Status");
     FormData fdlStatus = new FormData();
     fdlStatus.left = new FormAttachment(0, 0);
     fdlStatus.top = new FormAttachment(lastControl, margin);
     wlStatus.setLayoutData(fdlStatus);
     wStatus = new Text(composite, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
-    props.setLook(wStatus);
+    PropsUi.setLook(wStatus);
     wStatus.setEditable(false);
     FormData fdStatus = new FormData();
     fdStatus.left = new FormAttachment(wlFile, 2 * margin);
@@ -151,14 +151,14 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     // The branch we're in
     //
     Label wlBranch = new Label(composite, SWT.LEFT | SWT.SINGLE);
-    props.setLook(wlBranch);
+    PropsUi.setLook(wlBranch);
     wlBranch.setText("Branch");
     FormData fdlBranch = new FormData();
     fdlBranch.left = new FormAttachment(0, 0);
     fdlBranch.top = new FormAttachment(lastControl, margin);
     wlBranch.setLayoutData(fdlBranch);
     wBranch = new Text(composite, SWT.LEFT | SWT.SINGLE | SWT.BORDER);
-    props.setLook(wBranch);
+    PropsUi.setLook(wBranch);
     wBranch.setEditable(false);
     FormData fdBranch = new FormData();
     fdBranch.left = new FormAttachment(wlFile, 2 * margin);
@@ -170,7 +170,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     // The revisions
     //
     Label wlRevisions = new Label(composite, SWT.LEFT | SWT.SINGLE);
-    props.setLook(wlRevisions);
+    PropsUi.setLook(wlRevisions);
     wlRevisions.setText("Revisions");
     FormData fdlRevisions = new FormData();
     fdlRevisions.left = new FormAttachment(0, 0);
@@ -188,7 +188,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     wRevisions =
         new TableView(hopGui.getVariables(), composite, SWT.NONE, revisionColumns, 1, null, props);
     wRevisions.setReadonly(true);
-    props.setLook(wRevisions);
+    PropsUi.setLook(wRevisions);
     FormData fdRevisions = new FormData();
     fdRevisions.left = new FormAttachment(0, margin);
     fdRevisions.top = new FormAttachment(lastControl, margin);
@@ -199,7 +199,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     lastControl = wRevisions;
 
     Label wlFiles = new Label(composite, SWT.LEFT | SWT.SINGLE);
-    props.setLook(wlFiles);
+    PropsUi.setLook(wlFiles);
     wlFiles.setText("Changed files");
     FormData fdlFiles = new FormData();
     fdlFiles.left = new FormAttachment(0, 0);
@@ -211,7 +211,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     // The files
     //
     SashForm sashForm = new SashForm(composite, SWT.HORIZONTAL);
-    props.setLook(sashForm);
+    PropsUi.setLook(sashForm);
     FormData fdSashForm = new FormData();
     fdSashForm.left = new FormAttachment(0, 0);
     fdSashForm.right = new FormAttachment(100, 0);
@@ -226,14 +226,14 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     };
     wFiles = new TableView(hopGui.getVariables(), sashForm, SWT.NONE, filesColumns, 1, null, props);
     wFiles.setReadonly(true);
-    props.setLook(wFiles);
+    PropsUi.setLook(wFiles);
     wFiles.table.addListener(SWT.Selection, e -> fileSelected());
 
     wDiffComposite = new Composite(sashForm, SWT.NONE);
     wDiffComposite.setLayout(new FormLayout());
 
     wbDiff = new Button(wDiffComposite, SWT.PUSH);
-    props.setLook(wbDiff);
+    PropsUi.setLook(wbDiff);
     wbDiff.setEnabled(false);
     wbDiff.setText("Visual diff");
     wbDiff.addListener(SWT.Selection, e -> showHopFileDiff());
@@ -243,7 +243,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     wbDiff.setLayoutData(fdbDiff);
 
     Label wlDiff = new Label(wDiffComposite, SWT.LEFT | SWT.SINGLE);
-    props.setLook(wlDiff);
+    PropsUi.setLook(wlDiff);
     wlDiff.setText("Select a file to see the text diff below:");
     FormData fdlDiff = new FormData();
     fdlDiff.left = new FormAttachment(0, 0);
@@ -252,7 +252,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     wlDiff.setLayoutData(fdlDiff);
 
     wDiff = new Text(wDiffComposite, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wDiff);
+    PropsUi.setLook(wDiff);
     FormData fdDiff = new FormData();
     fdDiff.left = new FormAttachment(0, 0);
     fdDiff.right = new FormAttachment(100, 0);

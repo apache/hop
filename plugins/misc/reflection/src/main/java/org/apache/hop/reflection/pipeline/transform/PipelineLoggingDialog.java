@@ -24,6 +24,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -55,7 +56,7 @@ public class PipelineLoggingDialog extends BaseTransformDialog implements ITrans
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -75,14 +76,14 @@ public class PipelineLoggingDialog extends BaseTransformDialog implements ITrans
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "PipelineLoggingDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -95,14 +96,14 @@ public class PipelineLoggingDialog extends BaseTransformDialog implements ITrans
     Label wlLoggingTransforms = new Label(shell, SWT.RIGHT);
     wlLoggingTransforms.setText(
         BaseMessages.getString(PKG, "PipelineLoggingDialog.LoggingTransforms.Label"));
-    props.setLook(wlLoggingTransforms);
+    PropsUi.setLook(wlLoggingTransforms);
     FormData fdlLoggingTransforms = new FormData();
     fdlLoggingTransforms.left = new FormAttachment(0, 0);
     fdlLoggingTransforms.right = new FormAttachment(middle, -margin);
     fdlLoggingTransforms.top = new FormAttachment(lastControl, margin);
     wlLoggingTransforms.setLayoutData(fdlLoggingTransforms);
     wLoggingTransforms = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLoggingTransforms);
+    PropsUi.setLook(wLoggingTransforms);
     FormData fdLoggingTransforms = new FormData();
     fdLoggingTransforms.left = new FormAttachment(middle, margin);
     fdLoggingTransforms.top = new FormAttachment(wlLoggingTransforms, 0, SWT.CENTER);

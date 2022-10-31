@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline;
 
 import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -38,7 +39,7 @@ public class PipelinePainterExtension {
   public int y2;
   public int mx;
   public int my;
-  public Point offset;
+  public DPoint offset;
   public int iconSize;
   public Map<String, Object> stateMap;
 
@@ -54,7 +55,7 @@ public class PipelinePainterExtension {
       int y2,
       int mx,
       int my,
-      Point offset,
+      DPoint offset,
       int iconSize,
       Map<String, Object> stateMap) {
     super();

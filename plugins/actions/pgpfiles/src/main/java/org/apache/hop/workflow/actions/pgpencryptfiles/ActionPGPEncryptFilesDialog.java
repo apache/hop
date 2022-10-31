@@ -22,7 +22,9 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -159,7 +161,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -188,14 +190,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
@@ -204,17 +206,18 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Tab.General.Label"));
 
     Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -227,7 +230,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     //
 
     Group wSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wSettings);
+    PropsUi.setLook(wSettings);
     wSettings.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Settings.Label"));
 
     FormLayout groupLayout = new FormLayout();
@@ -238,7 +241,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // GPG Program
     Label wlGpgExe = new Label(wSettings, SWT.RIGHT);
     wlGpgExe.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.GpgExe.Label"));
-    props.setLook(wlGpgExe);
+    PropsUi.setLook(wlGpgExe);
     FormData fdlGpgExe = new FormData();
     fdlGpgExe.left = new FormAttachment(0, 0);
     fdlGpgExe.top = new FormAttachment(wName, margin);
@@ -247,7 +250,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     // Browse Source files button ...
     Button wbbGpgExe = new Button(wSettings, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbGpgExe);
+    PropsUi.setLook(wbbGpgExe);
     wbbGpgExe.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.BrowseFiles.Label"));
     FormData fdbbGpgExe = new FormData();
     fdbbGpgExe.right = new FormAttachment(100, -margin);
@@ -262,7 +265,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     wGpgExe = new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wGpgExe.setToolTipText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.GpgExe.Tooltip"));
-    props.setLook(wGpgExe);
+    PropsUi.setLook(wGpgExe);
     wGpgExe.addModifyListener(lsMod);
     FormData fdGpgExe = new FormData();
     fdGpgExe.left = new FormAttachment(middle, 0);
@@ -272,14 +275,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     Label wlAsciiMode = new Label(wSettings, SWT.RIGHT);
     wlAsciiMode.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.asciiMode.Label"));
-    props.setLook(wlAsciiMode);
+    PropsUi.setLook(wlAsciiMode);
     FormData fdlAsciiMode = new FormData();
     fdlAsciiMode.left = new FormAttachment(0, 0);
     fdlAsciiMode.top = new FormAttachment(wGpgExe, margin);
     fdlAsciiMode.right = new FormAttachment(middle, -margin);
     wlAsciiMode.setLayoutData(fdlAsciiMode);
     wAsciiMode = new Button(wSettings, SWT.CHECK);
-    props.setLook(wAsciiMode);
+    PropsUi.setLook(wAsciiMode);
     wAsciiMode.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.asciiMode.Tooltip"));
     FormData fdAsciiMode = new FormData();
@@ -298,14 +301,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     Label wlIncludeSubfolders = new Label(wSettings, SWT.RIGHT);
     wlIncludeSubfolders.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.IncludeSubfolders.Label"));
-    props.setLook(wlIncludeSubfolders);
+    PropsUi.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
     fdlIncludeSubfolders.left = new FormAttachment(0, 0);
     fdlIncludeSubfolders.top = new FormAttachment(wlAsciiMode, 2 * margin);
     fdlIncludeSubfolders.right = new FormAttachment(middle, -margin);
     wlIncludeSubfolders.setLayoutData(fdlIncludeSubfolders);
     wIncludeSubfolders = new Button(wSettings, SWT.CHECK);
-    props.setLook(wIncludeSubfolders);
+    PropsUi.setLook(wIncludeSubfolders);
     wIncludeSubfolders.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.IncludeSubfolders.Tooltip"));
     FormData fdIncludeSubfolders = new FormData();
@@ -325,14 +328,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // previous
     Label wlPrevious = new Label(wSettings, SWT.RIGHT);
     wlPrevious.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Previous.Label"));
-    props.setLook(wlPrevious);
+    PropsUi.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
     fdlPrevious.top = new FormAttachment(wlIncludeSubfolders, 2 * margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK);
-    props.setLook(wPrevious);
+    PropsUi.setLook(wPrevious);
     wPrevious.setSelection(action.argFromPrevious);
     wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
@@ -362,7 +365,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlSourceFileFolder = new Label(wGeneralComp, SWT.RIGHT);
     wlSourceFileFolder.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.SourceFileFolder.Label"));
-    props.setLook(wlSourceFileFolder);
+    PropsUi.setLook(wlSourceFileFolder);
     FormData fdlSourceFileFolder = new FormData();
     fdlSourceFileFolder.left = new FormAttachment(0, 0);
     fdlSourceFileFolder.top = new FormAttachment(wSettings, 2 * margin);
@@ -371,7 +374,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     // Browse Source folders button ...
     wbSourceDirectory = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSourceDirectory);
+    PropsUi.setLook(wbSourceDirectory);
     wbSourceDirectory.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.BrowseFolders.Label"));
     FormData fdbSourceDirectory = new FormData();
@@ -383,7 +386,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     // Browse Source files button ...
     wbSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbSourceFileFolder);
+    PropsUi.setLook(wbSourceFileFolder);
     wbSourceFileFolder.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.BrowseFiles.Label"));
     FormData fdbSourceFileFolder = new FormData();
@@ -393,7 +396,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     // Browse Destination file add button ...
     wbaSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbaSourceFileFolder);
+    PropsUi.setLook(wbaSourceFileFolder);
     wbaSourceFileFolder.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.FilenameAdd.Button"));
     FormData fdbaSourceFileFolder = new FormData();
@@ -405,7 +408,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wSourceFileFolder.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.SourceFileFolder.Tooltip"));
 
-    props.setLook(wSourceFileFolder);
+    PropsUi.setLook(wSourceFileFolder);
     wSourceFileFolder.addModifyListener(lsMod);
     FormData fdSourceFileFolder = new FormData();
     fdSourceFileFolder.left = new FormAttachment(middle, 0);
@@ -427,7 +430,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlDestinationFileFolder = new Label(wGeneralComp, SWT.RIGHT);
     wlDestinationFileFolder.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.DestinationFileFolder.Label"));
-    props.setLook(wlDestinationFileFolder);
+    PropsUi.setLook(wlDestinationFileFolder);
     FormData fdlDestinationFileFolder = new FormData();
     fdlDestinationFileFolder.left = new FormAttachment(0, 0);
     fdlDestinationFileFolder.top = new FormAttachment(wSourceFileFolder, margin);
@@ -436,7 +439,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     // Browse Destination folders button ...
     wbDestinationDirectory = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbDestinationDirectory);
+    PropsUi.setLook(wbDestinationDirectory);
     wbDestinationDirectory.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.BrowseFolders.Label"));
     FormData fdbDestinationDirectory = new FormData();
@@ -449,7 +452,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     // Browse Destination file browse button ...
     wbDestinationFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbDestinationFileFolder);
+    PropsUi.setLook(wbDestinationFileFolder);
     wbDestinationFileFolder.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.BrowseFiles.Label"));
     FormData fdbDestinationFileFolder = new FormData();
@@ -461,7 +464,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
         new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wDestinationFileFolder.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.DestinationFileFolder.Tooltip"));
-    props.setLook(wDestinationFileFolder);
+    PropsUi.setLook(wDestinationFileFolder);
     wDestinationFileFolder.addModifyListener(lsMod);
     FormData fdDestinationFileFolder = new FormData();
     fdDestinationFileFolder.left = new FormAttachment(middle, 0);
@@ -478,7 +481,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // Wildcard
     wlWildcard = new Label(wGeneralComp, SWT.RIGHT);
     wlWildcard.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Wildcard.Label"));
-    props.setLook(wlWildcard);
+    PropsUi.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
     fdlWildcard.top = new FormAttachment(wDestinationFileFolder, margin);
@@ -487,7 +490,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     wWildcard = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wWildcard.setToolTipText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Wildcard.Tooltip"));
-    props.setLook(wWildcard);
+    PropsUi.setLook(wWildcard);
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment(middle, 0);
@@ -497,7 +500,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     wlFields = new Label(wGeneralComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
@@ -506,7 +509,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     // Buttons to the right of the screen...
     wbdSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdSourceFileFolder);
+    PropsUi.setLook(wbdSourceFileFolder);
     wbdSourceFileFolder.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.FilenameDelete.Button"));
     wbdSourceFileFolder.setToolTipText(
@@ -517,7 +520,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wbdSourceFileFolder.setLayoutData(fdbdSourceFileFolder);
 
     wbeSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeSourceFileFolder);
+    PropsUi.setLook(wbeSourceFileFolder);
     wbeSourceFileFolder.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.FilenameEdit.Button"));
     wbeSourceFileFolder.setToolTipText(
@@ -655,7 +658,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
-    props.setLook(wGeneralComp);
+    PropsUi.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -666,6 +669,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // ///////////////////////////////////
 
     CTabItem wDestinationFileTab = new CTabItem(wTabFolder, SWT.NONE);
+    wDestinationFileTab.setFont(GuiResource.getInstance().getFontDefault());
     wDestinationFileTab.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.DestinationFileTab.Label"));
 
@@ -674,7 +678,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     destcontentLayout.marginHeight = 3;
 
     Composite wDestinationFileComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wDestinationFileComp);
+    PropsUi.setLook(wDestinationFileComp);
     wDestinationFileComp.setLayout(destcontentLayout);
 
     // DestinationFile grouping?
@@ -683,7 +687,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     //
 
     Group wDestinationFile = new Group(wDestinationFileComp, SWT.SHADOW_NONE);
-    props.setLook(wDestinationFile);
+    PropsUi.setLook(wDestinationFile);
     wDestinationFile.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.GroupDestinationFile.Label"));
 
@@ -696,14 +700,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     Label wlCreateDestinationFolder = new Label(wDestinationFile, SWT.RIGHT);
     wlCreateDestinationFolder.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.CreateDestinationFolder.Label"));
-    props.setLook(wlCreateDestinationFolder);
+    PropsUi.setLook(wlCreateDestinationFolder);
     FormData fdlCreateDestinationFolder = new FormData();
     fdlCreateDestinationFolder.left = new FormAttachment(0, 0);
     fdlCreateDestinationFolder.top = new FormAttachment(0, margin);
     fdlCreateDestinationFolder.right = new FormAttachment(middle, -margin);
     wlCreateDestinationFolder.setLayoutData(fdlCreateDestinationFolder);
     wCreateDestinationFolder = new Button(wDestinationFile, SWT.CHECK);
-    props.setLook(wCreateDestinationFolder);
+    PropsUi.setLook(wCreateDestinationFolder);
     wCreateDestinationFolder.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.CreateDestinationFolder.Tooltip"));
     FormData fdCreateDestinationFolder = new FormData();
@@ -723,14 +727,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     Label wlDestinationIsAFile = new Label(wDestinationFile, SWT.RIGHT);
     wlDestinationIsAFile.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.DestinationIsAFile.Label"));
-    props.setLook(wlDestinationIsAFile);
+    PropsUi.setLook(wlDestinationIsAFile);
     FormData fdlDestinationIsAFile = new FormData();
     fdlDestinationIsAFile.left = new FormAttachment(0, 0);
     fdlDestinationIsAFile.top = new FormAttachment(wlCreateDestinationFolder, 2 * margin);
     fdlDestinationIsAFile.right = new FormAttachment(middle, -margin);
     wlDestinationIsAFile.setLayoutData(fdlDestinationIsAFile);
     wDestinationIsAFile = new Button(wDestinationFile, SWT.CHECK);
-    props.setLook(wDestinationIsAFile);
+    PropsUi.setLook(wDestinationIsAFile);
     wDestinationIsAFile.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.DestinationIsAFile.Tooltip"));
     FormData fdDestinationIsAFile = new FormData();
@@ -751,14 +755,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlDoNotKeepFolderStructure = new Label(wDestinationFile, SWT.RIGHT);
     wlDoNotKeepFolderStructure.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.DoNotKeepFolderStructure.Label"));
-    props.setLook(wlDoNotKeepFolderStructure);
+    PropsUi.setLook(wlDoNotKeepFolderStructure);
     FormData fdlDoNotKeepFolderStructure = new FormData();
     fdlDoNotKeepFolderStructure.left = new FormAttachment(0, 0);
     fdlDoNotKeepFolderStructure.top = new FormAttachment(wlDestinationIsAFile, 2 * margin);
     fdlDoNotKeepFolderStructure.right = new FormAttachment(middle, -margin);
     wlDoNotKeepFolderStructure.setLayoutData(fdlDoNotKeepFolderStructure);
     wDoNotKeepFolderStructure = new Button(wDestinationFile, SWT.CHECK);
-    props.setLook(wDoNotKeepFolderStructure);
+    PropsUi.setLook(wDoNotKeepFolderStructure);
     wDoNotKeepFolderStructure.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.DoNotKeepFolderStructure.Tooltip"));
     FormData fdDoNotKeepFolderStructure = new FormData();
@@ -777,14 +781,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // Create multi-part file?
     wlAddDate = new Label(wDestinationFile, SWT.RIGHT);
     wlAddDate.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddDate.Label"));
-    props.setLook(wlAddDate);
+    PropsUi.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment(0, 0);
     fdlAddDate.top = new FormAttachment(wlDoNotKeepFolderStructure, 2 * margin);
     fdlAddDate.right = new FormAttachment(middle, -margin);
     wlAddDate.setLayoutData(fdlAddDate);
     wAddDate = new Button(wDestinationFile, SWT.CHECK);
-    props.setLook(wAddDate);
+    PropsUi.setLook(wAddDate);
     wAddDate.setToolTipText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddDate.Tooltip"));
     FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment(middle, 0);
@@ -802,14 +806,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // Create multi-part file?
     wlAddTime = new Label(wDestinationFile, SWT.RIGHT);
     wlAddTime.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddTime.Label"));
-    props.setLook(wlAddTime);
+    PropsUi.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
     fdlAddTime.top = new FormAttachment(wlAddDate, 2 * margin);
     fdlAddTime.right = new FormAttachment(middle, -margin);
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(wDestinationFile, SWT.CHECK);
-    props.setLook(wAddTime);
+    PropsUi.setLook(wAddTime);
     wAddTime.setToolTipText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddTime.Tooltip"));
     FormData fdAddTime = new FormData();
     fdAddTime.left = new FormAttachment(middle, 0);
@@ -829,14 +833,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     Label wlSpecifyFormat = new Label(wDestinationFile, SWT.RIGHT);
     wlSpecifyFormat.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.SpecifyFormat.Label"));
-    props.setLook(wlSpecifyFormat);
+    PropsUi.setLook(wlSpecifyFormat);
     FormData fdlSpecifyFormat = new FormData();
     fdlSpecifyFormat.left = new FormAttachment(0, 0);
     fdlSpecifyFormat.top = new FormAttachment(wlAddTime, 2 * margin);
     fdlSpecifyFormat.right = new FormAttachment(middle, -margin);
     wlSpecifyFormat.setLayoutData(fdlSpecifyFormat);
     wSpecifyFormat = new Button(wDestinationFile, SWT.CHECK);
-    props.setLook(wSpecifyFormat);
+    PropsUi.setLook(wSpecifyFormat);
     wSpecifyFormat.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.SpecifyFormat.Tooltip"));
     FormData fdSpecifyFormat = new FormData();
@@ -858,7 +862,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlDateTimeFormat = new Label(wDestinationFile, SWT.RIGHT);
     wlDateTimeFormat.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.DateTimeFormat.Label"));
-    props.setLook(wlDateTimeFormat);
+    PropsUi.setLook(wlDateTimeFormat);
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment(0, 0);
     fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
@@ -866,7 +870,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlDateTimeFormat.setLayoutData(fdlDateTimeFormat);
     wDateTimeFormat = new CCombo(wDestinationFile, SWT.BORDER | SWT.READ_ONLY);
     wDateTimeFormat.setEditable(true);
-    props.setLook(wDateTimeFormat);
+    PropsUi.setLook(wDateTimeFormat);
     wDateTimeFormat.addModifyListener(lsMod);
     FormData fdDateTimeFormat = new FormData();
     fdDateTimeFormat.left = new FormAttachment(middle, 0);
@@ -883,14 +887,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlAddDateBeforeExtension = new Label(wDestinationFile, SWT.RIGHT);
     wlAddDateBeforeExtension.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddDateBeforeExtension.Label"));
-    props.setLook(wlAddDateBeforeExtension);
+    PropsUi.setLook(wlAddDateBeforeExtension);
     FormData fdlAddDateBeforeExtension = new FormData();
     fdlAddDateBeforeExtension.left = new FormAttachment(0, 0);
     fdlAddDateBeforeExtension.top = new FormAttachment(wDateTimeFormat, margin);
     fdlAddDateBeforeExtension.right = new FormAttachment(middle, -margin);
     wlAddDateBeforeExtension.setLayoutData(fdlAddDateBeforeExtension);
     wAddDateBeforeExtension = new Button(wDestinationFile, SWT.CHECK);
-    props.setLook(wAddDateBeforeExtension);
+    PropsUi.setLook(wAddDateBeforeExtension);
     wAddDateBeforeExtension.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddDateBeforeExtension.Tooltip"));
     FormData fdAddDateBeforeExtension = new FormData();
@@ -909,7 +913,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // If File Exists
     Label wlIfFileExists = new Label(wDestinationFile, SWT.RIGHT);
     wlIfFileExists.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.IfFileExists.Label"));
-    props.setLook(wlIfFileExists);
+    PropsUi.setLook(wlIfFileExists);
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
     fdlIfFileExists.right = new FormAttachment(middle, 0);
@@ -928,7 +932,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Move_To_Folder_IfFileExists.Label"));
     wIfFileExists.add(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fail_IfFileExists.Label"));
     wIfFileExists.select(0); // +1: starts at -1
-    props.setLook(wIfFileExists);
+    PropsUi.setLook(wIfFileExists);
     FormData fdIfFileExists = new FormData();
     fdIfFileExists.left = new FormAttachment(middle, 0);
     fdIfFileExists.top = new FormAttachment(wlAddDateBeforeExtension, 2 * margin);
@@ -962,7 +966,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     //
 
     Group wMoveToGroup = new Group(wDestinationFileComp, SWT.SHADOW_NONE);
-    props.setLook(wMoveToGroup);
+    PropsUi.setLook(wMoveToGroup);
     wMoveToGroup.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.GroupMoveToGroup.Label"));
 
@@ -975,7 +979,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlDestinationFolder = new Label(wMoveToGroup, SWT.RIGHT);
     wlDestinationFolder.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.DestinationFolder.Label"));
-    props.setLook(wlDestinationFolder);
+    PropsUi.setLook(wlDestinationFolder);
     FormData fdlDestinationFolder = new FormData();
     fdlDestinationFolder.left = new FormAttachment(0, 0);
     fdlDestinationFolder.top = new FormAttachment(wDestinationFile, margin);
@@ -983,7 +987,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlDestinationFolder.setLayoutData(fdlDestinationFolder);
 
     wbDestinationFolder = new Button(wMoveToGroup, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbDestinationFolder);
+    PropsUi.setLook(wbDestinationFolder);
     wbDestinationFolder.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbDestinationFolder = new FormData();
     fdbDestinationFolder.right = new FormAttachment(100, 0);
@@ -991,7 +995,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wbDestinationFolder.setLayoutData(fdbDestinationFolder);
 
     wDestinationFolder = new TextVar(variables, wMoveToGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDestinationFolder);
+    PropsUi.setLook(wDestinationFolder);
     wDestinationFolder.addModifyListener(lsMod);
     FormData fdDestinationFolder = new FormData();
     fdDestinationFolder.left = new FormAttachment(middle, 0);
@@ -1010,14 +1014,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlCreateMoveToFolder = new Label(wMoveToGroup, SWT.RIGHT);
     wlCreateMoveToFolder.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.CreateMoveToFolder.Label"));
-    props.setLook(wlCreateMoveToFolder);
+    PropsUi.setLook(wlCreateMoveToFolder);
     FormData fdlCreateMoveToFolder = new FormData();
     fdlCreateMoveToFolder.left = new FormAttachment(0, 0);
     fdlCreateMoveToFolder.top = new FormAttachment(wDestinationFolder, margin);
     fdlCreateMoveToFolder.right = new FormAttachment(middle, -margin);
     wlCreateMoveToFolder.setLayoutData(fdlCreateMoveToFolder);
     wCreateMoveToFolder = new Button(wMoveToGroup, SWT.CHECK);
-    props.setLook(wCreateMoveToFolder);
+    PropsUi.setLook(wCreateMoveToFolder);
     wCreateMoveToFolder.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.CreateMoveToFolder.Tooltip"));
     FormData fdCreateMoveToFolder = new FormData();
@@ -1036,14 +1040,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // Create multi-part file?
     wlAddMovedDate = new Label(wMoveToGroup, SWT.RIGHT);
     wlAddMovedDate.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddMovedDate.Label"));
-    props.setLook(wlAddMovedDate);
+    PropsUi.setLook(wlAddMovedDate);
     FormData fdlAddMovedDate = new FormData();
     fdlAddMovedDate.left = new FormAttachment(0, 0);
     fdlAddMovedDate.top = new FormAttachment(wlCreateMoveToFolder, 2 * margin);
     fdlAddMovedDate.right = new FormAttachment(middle, -margin);
     wlAddMovedDate.setLayoutData(fdlAddMovedDate);
     wAddMovedDate = new Button(wMoveToGroup, SWT.CHECK);
-    props.setLook(wAddMovedDate);
+    PropsUi.setLook(wAddMovedDate);
     wAddMovedDate.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddMovedDate.Tooltip"));
     FormData fdAddMovedDate = new FormData();
@@ -1062,14 +1066,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // Create multi-part file?
     wlAddMovedTime = new Label(wMoveToGroup, SWT.RIGHT);
     wlAddMovedTime.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddMovedTime.Label"));
-    props.setLook(wlAddMovedTime);
+    PropsUi.setLook(wlAddMovedTime);
     FormData fdlAddMovedTime = new FormData();
     fdlAddMovedTime.left = new FormAttachment(0, 0);
     fdlAddMovedTime.top = new FormAttachment(wlAddMovedDate, 2 * margin);
     fdlAddMovedTime.right = new FormAttachment(middle, -margin);
     wlAddMovedTime.setLayoutData(fdlAddMovedTime);
     wAddMovedTime = new Button(wMoveToGroup, SWT.CHECK);
-    props.setLook(wAddMovedTime);
+    PropsUi.setLook(wAddMovedTime);
     wAddMovedTime.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddMovedTime.Tooltip"));
     FormData fdAddMovedTime = new FormData();
@@ -1090,14 +1094,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlSpecifyMoveFormat = new Label(wMoveToGroup, SWT.RIGHT);
     wlSpecifyMoveFormat.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.SpecifyMoveFormat.Label"));
-    props.setLook(wlSpecifyMoveFormat);
+    PropsUi.setLook(wlSpecifyMoveFormat);
     FormData fdlSpecifyMoveFormat = new FormData();
     fdlSpecifyMoveFormat.left = new FormAttachment(0, 0);
     fdlSpecifyMoveFormat.top = new FormAttachment(wlAddMovedTime, 2 * margin);
     fdlSpecifyMoveFormat.right = new FormAttachment(middle, -margin);
     wlSpecifyMoveFormat.setLayoutData(fdlSpecifyMoveFormat);
     wSpecifyMoveFormat = new Button(wMoveToGroup, SWT.CHECK);
-    props.setLook(wSpecifyMoveFormat);
+    PropsUi.setLook(wSpecifyMoveFormat);
     wSpecifyMoveFormat.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.SpecifyMoveFormat.Tooltip"));
     FormData fdSpecifyMoveFormat = new FormData();
@@ -1119,7 +1123,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlMovedDateTimeFormat = new Label(wMoveToGroup, SWT.RIGHT);
     wlMovedDateTimeFormat.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.MovedDateTimeFormat.Label"));
-    props.setLook(wlMovedDateTimeFormat);
+    PropsUi.setLook(wlMovedDateTimeFormat);
     FormData fdlMovedDateTimeFormat = new FormData();
     fdlMovedDateTimeFormat.left = new FormAttachment(0, 0);
     fdlMovedDateTimeFormat.top = new FormAttachment(wlSpecifyMoveFormat, 2 * margin);
@@ -1127,7 +1131,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlMovedDateTimeFormat.setLayoutData(fdlMovedDateTimeFormat);
     wMovedDateTimeFormat = new CCombo(wMoveToGroup, SWT.BORDER | SWT.READ_ONLY);
     wMovedDateTimeFormat.setEditable(true);
-    props.setLook(wMovedDateTimeFormat);
+    PropsUi.setLook(wMovedDateTimeFormat);
     wMovedDateTimeFormat.addModifyListener(lsMod);
     FormData fdMovedDateTimeFormat = new FormData();
     fdMovedDateTimeFormat.left = new FormAttachment(middle, 0);
@@ -1143,14 +1147,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlAddMovedDateBeforeExtension = new Label(wMoveToGroup, SWT.RIGHT);
     wlAddMovedDateBeforeExtension.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddMovedDateBeforeExtension.Label"));
-    props.setLook(wlAddMovedDateBeforeExtension);
+    PropsUi.setLook(wlAddMovedDateBeforeExtension);
     FormData fdlAddMovedDateBeforeExtension = new FormData();
     fdlAddMovedDateBeforeExtension.left = new FormAttachment(0, 0);
     fdlAddMovedDateBeforeExtension.top = new FormAttachment(wMovedDateTimeFormat, margin);
     fdlAddMovedDateBeforeExtension.right = new FormAttachment(middle, -margin);
     wlAddMovedDateBeforeExtension.setLayoutData(fdlAddMovedDateBeforeExtension);
     wAddMovedDateBeforeExtension = new Button(wMoveToGroup, SWT.CHECK);
-    props.setLook(wAddMovedDateBeforeExtension);
+    PropsUi.setLook(wAddMovedDateBeforeExtension);
     wAddMovedDateBeforeExtension.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddMovedDateBeforeExtension.Tooltip"));
     FormData fdAddMovedDateBeforeExtension = new FormData();
@@ -1171,7 +1175,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlIfMovedFileExists = new Label(wMoveToGroup, SWT.RIGHT);
     wlIfMovedFileExists.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.IfMovedFileExists.Label"));
-    props.setLook(wlIfMovedFileExists);
+    PropsUi.setLook(wlIfMovedFileExists);
     FormData fdlIfMovedFileExists = new FormData();
     fdlIfMovedFileExists.left = new FormAttachment(0, 0);
     fdlIfMovedFileExists.right = new FormAttachment(middle, 0);
@@ -1188,7 +1192,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wIfMovedFileExists.add(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fail_IfMovedFileExists.Label"));
     wIfMovedFileExists.select(0); // +1: starts at -1
-    props.setLook(wIfMovedFileExists);
+    PropsUi.setLook(wIfMovedFileExists);
     FormData fdIfMovedFileExists = new FormData();
     fdIfMovedFileExists.left = new FormAttachment(middle, 0);
     fdIfMovedFileExists.top = new FormAttachment(wlAddMovedDateBeforeExtension, 2 * margin);
@@ -1224,6 +1228,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // ///////////////////////////////////
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAdvancedTab.setFont(GuiResource.getInstance().getFontDefault());
     wAdvancedTab.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Tab.Advanced.Label"));
 
     FormLayout contentLayout = new FormLayout();
@@ -1231,7 +1236,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     contentLayout.marginHeight = 3;
 
     Composite wAdvancedComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wAdvancedComp);
+    PropsUi.setLook(wAdvancedComp);
     wAdvancedComp.setLayout(contentLayout);
 
     // SuccessOngrouping?
@@ -1239,7 +1244,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // START OF SUCCESS ON GROUP///
     // /
     Group wSuccessOn = new Group(wAdvancedComp, SWT.SHADOW_NONE);
-    props.setLook(wSuccessOn);
+    PropsUi.setLook(wSuccessOn);
     wSuccessOn.setText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.SuccessOn.Group.Label"));
 
     FormLayout successongroupLayout = new FormLayout();
@@ -1252,7 +1257,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     Label wlSuccessCondition = new Label(wSuccessOn, SWT.RIGHT);
     wlSuccessCondition.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.SuccessCondition.Label"));
-    props.setLook(wlSuccessCondition);
+    PropsUi.setLook(wlSuccessCondition);
     FormData fdlSuccessCondition = new FormData();
     fdlSuccessCondition.left = new FormAttachment(0, 0);
     fdlSuccessCondition.right = new FormAttachment(middle, 0);
@@ -1268,7 +1273,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     wSuccessCondition.select(0); // +1: starts at -1
 
-    props.setLook(wSuccessCondition);
+    PropsUi.setLook(wSuccessCondition);
     FormData fdSuccessCondition = new FormData();
     fdSuccessCondition.left = new FormAttachment(middle, 0);
     fdSuccessCondition.top = new FormAttachment(0, margin);
@@ -1286,7 +1291,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlNrErrorsLessThan = new Label(wSuccessOn, SWT.RIGHT);
     wlNrErrorsLessThan.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.NrErrorsLessThan.Label"));
-    props.setLook(wlNrErrorsLessThan);
+    PropsUi.setLook(wlNrErrorsLessThan);
     FormData fdlNrErrorsLessThan = new FormData();
     fdlNrErrorsLessThan.left = new FormAttachment(0, 0);
     fdlNrErrorsLessThan.top = new FormAttachment(wSuccessCondition, margin);
@@ -1299,7 +1304,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
             wSuccessOn,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionPGPEncryptFiles.NrErrorsLessThan.Tooltip"));
-    props.setLook(wNrErrorsLessThan);
+    PropsUi.setLook(wNrErrorsLessThan);
     wNrErrorsLessThan.addModifyListener(lsMod);
     FormData fdNrErrorsLessThan = new FormData();
     fdNrErrorsLessThan.left = new FormAttachment(middle, 0);
@@ -1321,7 +1326,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     // START OF LOGGING GROUP///
     // /
     Group wFileResult = new Group(wAdvancedComp, SWT.SHADOW_NONE);
-    props.setLook(wFileResult);
+    PropsUi.setLook(wFileResult);
     wFileResult.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.FileResult.Group.Label"));
 
@@ -1335,14 +1340,14 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     Label wlAddFileToResult = new Label(wFileResult, SWT.RIGHT);
     wlAddFileToResult.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddFileToResult.Label"));
-    props.setLook(wlAddFileToResult);
+    PropsUi.setLook(wlAddFileToResult);
     FormData fdlAddFileToResult = new FormData();
     fdlAddFileToResult.left = new FormAttachment(0, 0);
     fdlAddFileToResult.top = new FormAttachment(wSuccessOn, margin);
     fdlAddFileToResult.right = new FormAttachment(middle, -margin);
     wlAddFileToResult.setLayoutData(fdlAddFileToResult);
     wAddFileToResult = new Button(wFileResult, SWT.CHECK);
-    props.setLook(wAddFileToResult);
+    PropsUi.setLook(wAddFileToResult);
     wAddFileToResult.setToolTipText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.AddFileToResult.Tooltip"));
     FormData fdAddFileToResult = new FormData();

@@ -63,7 +63,7 @@ public class ActionDebugLevelDialog extends Dialog {
   public boolean open() {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageServer());
 
     int middle = props.getMiddlePct();
@@ -78,7 +78,7 @@ public class ActionDebugLevelDialog extends Dialog {
 
     // The name
     Label wlName = new Label(shell, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText("Log level ");
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin);
@@ -87,7 +87,7 @@ public class ActionDebugLevelDialog extends Dialog {
     wlName.setLayoutData(fdlName);
     wLogLevel = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wLogLevel.setItems(LogLevel.getLogLevelDescriptions());
-    props.setLook(wLogLevel);
+    PropsUi.setLook(wLogLevel);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, 0); // To the right of the label
@@ -97,7 +97,7 @@ public class ActionDebugLevelDialog extends Dialog {
 
     // Log result details?
     Label wlLoggingResult = new Label(shell, SWT.RIGHT);
-    props.setLook(wlLoggingResult);
+    PropsUi.setLook(wlLoggingResult);
     wlLoggingResult.setText("Log result?");
     FormData fdlLoggingResult = new FormData();
     fdlLoggingResult.top = new FormAttachment(lastControl, margin);
@@ -105,7 +105,7 @@ public class ActionDebugLevelDialog extends Dialog {
     fdlLoggingResult.right = new FormAttachment(middle, -margin);
     wlLoggingResult.setLayoutData(fdlLoggingResult);
     wLoggingResult = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLoggingResult);
+    PropsUi.setLook(wLoggingResult);
     FormData fdLoggingResult = new FormData();
     fdLoggingResult.top = new FormAttachment(wlLoggingResult, 0, SWT.CENTER);
     fdLoggingResult.left = new FormAttachment(middle, 0); // To the right of the label
@@ -115,7 +115,7 @@ public class ActionDebugLevelDialog extends Dialog {
 
     // Log result details?
     Label wlLoggingVariables = new Label(shell, SWT.RIGHT);
-    props.setLook(wlLoggingVariables);
+    PropsUi.setLook(wlLoggingVariables);
     wlLoggingVariables.setText("Log variables?");
     FormData fdlLoggingVariables = new FormData();
     fdlLoggingVariables.top = new FormAttachment(lastControl, margin);
@@ -123,7 +123,7 @@ public class ActionDebugLevelDialog extends Dialog {
     fdlLoggingVariables.right = new FormAttachment(middle, -margin);
     wlLoggingVariables.setLayoutData(fdlLoggingVariables);
     wLoggingVariables = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLoggingVariables);
+    PropsUi.setLook(wLoggingVariables);
     FormData fdLoggingVariables = new FormData();
     fdLoggingVariables.top = new FormAttachment(wlLoggingVariables, 0, SWT.CENTER);
     fdLoggingVariables.left = new FormAttachment(middle, 0); // To the right of the label
@@ -133,7 +133,7 @@ public class ActionDebugLevelDialog extends Dialog {
 
     // Log result details?
     Label wlLoggingRows = new Label(shell, SWT.RIGHT);
-    props.setLook(wlLoggingRows);
+    PropsUi.setLook(wlLoggingRows);
     wlLoggingRows.setText("Log result rows?");
     FormData fdlLoggingRows = new FormData();
     fdlLoggingRows.top = new FormAttachment(lastControl, margin);
@@ -141,7 +141,7 @@ public class ActionDebugLevelDialog extends Dialog {
     fdlLoggingRows.right = new FormAttachment(middle, -margin);
     wlLoggingRows.setLayoutData(fdlLoggingRows);
     wLoggingRows = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLoggingRows);
+    PropsUi.setLook(wLoggingRows);
     FormData fdLoggingRows = new FormData();
     fdLoggingRows.top = new FormAttachment(wlLoggingRows, 0, SWT.CENTER);
     fdLoggingRows.left = new FormAttachment(middle, 0); // To the right of the label
@@ -151,7 +151,7 @@ public class ActionDebugLevelDialog extends Dialog {
 
     // Log result details?
     Label wlLoggingFiles = new Label(shell, SWT.RIGHT);
-    props.setLook(wlLoggingFiles);
+    PropsUi.setLook(wlLoggingFiles);
     wlLoggingFiles.setText("Log result files?");
     FormData fdlLoggingFiles = new FormData();
     fdlLoggingFiles.top = new FormAttachment(lastControl, margin);
@@ -159,7 +159,7 @@ public class ActionDebugLevelDialog extends Dialog {
     fdlLoggingFiles.right = new FormAttachment(middle, -margin);
     wlLoggingFiles.setLayoutData(fdlLoggingFiles);
     wLoggingFiles = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLoggingFiles);
+    PropsUi.setLook(wLoggingFiles);
     FormData fdLoggingFiles = new FormData();
     fdLoggingFiles.top = new FormAttachment(wlLoggingFiles, 0, SWT.CENTER);
     fdLoggingFiles.left = new FormAttachment(middle, 0); // To the right of the label

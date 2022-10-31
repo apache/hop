@@ -147,9 +147,10 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     CTabFolder wTabFolder = new CTabFolder(parent, SWT.BORDER);
-    props.setLook(wTabFolder);
+    PropsUi.setLook(wTabFolder);
 
     CTabItem wMainTab = new CTabItem(wTabFolder, SWT.NONE);
+    wMainTab.setFont(GuiResource.getInstance().getFontDefault());
     wMainTab.setText(
         BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.MainTab.TabTitle"));
     wMainTab.setImage(GuiResource.getInstance().getImageRun());
@@ -158,7 +159,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wMainSComp.setLayout(new FillLayout());
 
     Composite wMainComp = new Composite(wMainSComp, SWT.NONE);
-    props.setLook(wMainComp);
+    PropsUi.setLook(wMainComp);
 
     FormLayout mainLayout = new FormLayout();
     mainLayout.marginWidth = 3;
@@ -170,7 +171,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     // What's the name
     //
     Label wlName = new Label(wMainComp, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.name"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin * 2);
@@ -178,7 +179,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
     wName = new Text(wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, margin); // To the right of the label
@@ -187,7 +188,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     Control lastControl = wName;
 
     Label wlDescription = new Label(wMainComp, SWT.RIGHT);
-    props.setLook(wlDescription);
+    PropsUi.setLook(wlDescription);
     wlDescription.setText(
         BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.Description"));
     FormData fdlDescription = new FormData();
@@ -196,7 +197,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     fdlDescription.right = new FormAttachment(middle, 0);
     wlDescription.setLayoutData(fdlDescription);
     wDescription = new Text(wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDescription);
+    PropsUi.setLook(wDescription);
     FormData fdDescription = new FormData();
     fdDescription.top = new FormAttachment(wlDescription, 0, SWT.CENTER);
     fdDescription.left = new FormAttachment(middle, margin); // To the right of the label
@@ -205,7 +206,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     lastControl = wDescription;
 
     Label wlDefault = new Label(wMainComp, SWT.RIGHT);
-    props.setLook(wlDefault);
+    PropsUi.setLook(wlDefault);
     wlDefault.setText(
             BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.Default"));
     FormData fdlDefault = new FormData();
@@ -214,7 +215,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     fdlDefault.right = new FormAttachment(middle, 0);
     wlDefault.setLayoutData(fdlDefault);
     wDefault = new Button(wMainComp, SWT.CHECK | SWT.LEFT );
-    props.setLook(wDefault);
+    PropsUi.setLook(wDefault);
     FormData fdDefault = new FormData();
     fdDefault.top = new FormAttachment(wlDefault, 0, SWT.CENTER);
     fdDefault.left = new FormAttachment(middle, margin); // To the right of the label
@@ -235,7 +236,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
                 PKG, "PipelineRunConfigurationDialog.label.ExecutionInfoLocation"),
             BaseMessages.getString(
                 PKG, "PipelineRunConfigurationDialog.toolTip.ExecutionInfoLocation"));
-    props.setLook(wExecutionInfoLocation);
+    PropsUi.setLook(wExecutionInfoLocation);
     FormData fdExecutionInfoLocation = new FormData();
     fdExecutionInfoLocation.top = new FormAttachment(lastControl, 2*margin);
     fdExecutionInfoLocation.left = new FormAttachment(0, 0); // To the right of the label
@@ -264,7 +265,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     // What's the type of engine?
     //
     Label wlPluginType = new Label(wMainComp, SWT.RIGHT);
-    props.setLook(wlPluginType);
+    PropsUi.setLook(wlPluginType);
     wlPluginType.setText(
         BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.EngineType"));
     FormData fdlPluginType = new FormData();
@@ -274,7 +275,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wlPluginType.setLayoutData(fdlPluginType);
     wPluginType =
         new ComboVar(manager.getVariables(), wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPluginType);
+    PropsUi.setLook(wPluginType);
     wPluginType.setItems(getPluginTypes());
     FormData fdPluginType = new FormData();
     fdPluginType.top = new FormAttachment(wlPluginType, 0, SWT.CENTER);
@@ -295,7 +296,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wsPluginSpecificComp.setLayoutData(fdsPluginSpecificComp);
 
     wPluginSpecificComp = new Composite(wsPluginSpecificComp, SWT.BACKGROUND);
-    props.setLook(wPluginSpecificComp);
+    PropsUi.setLook(wPluginSpecificComp);
     wPluginSpecificComp.setLayout(new FormLayout());
     FormData fdPluginSpecificComp = new FormData();
     fdPluginSpecificComp.left = new FormAttachment(0, 0);
@@ -338,6 +339,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     // Add the variables tab
     //
     CTabItem wVariablesTab = new CTabItem(wTabFolder, SWT.NONE);
+    wVariablesTab.setFont(GuiResource.getInstance().getFontDefault());
     wVariablesTab.setText(
         BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.VariablesTab.TabTitle"));
     wVariablesTab.setImage(GuiResource.getInstance().getImageVariable());
@@ -347,7 +349,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wVariablesSComp.setLayout(new FillLayout());
 
     Composite wVariablesComp = new Composite(wVariablesSComp, SWT.NONE);
-    props.setLook(wVariablesComp);
+    PropsUi.setLook(wVariablesComp);
 
     FormLayout variablesLayout = new FormLayout();
     variablesLayout.marginWidth = 0;
@@ -376,7 +378,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
             workingConfiguration.getConfigurationVariables().size(),
             e -> setChanged(),
             props);
-    props.setLook(wVariables);
+    PropsUi.setLook(wVariables);
     FormData fdVariables = new FormData();
     fdVariables.top = new FormAttachment(0, 0);
     fdVariables.left = new FormAttachment(0, 0);

@@ -34,10 +34,12 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -105,7 +107,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
 
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
@@ -132,7 +134,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.transformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -141,7 +143,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     FormData fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.right = new FormAttachment(100, 0);
@@ -149,14 +151,15 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wTransformName.setLayoutData(fdTransformName);
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // start of the connection tab
     CTabItem wConnectionTab = new CTabItem(wTabFolder, SWT.BORDER);
+    wConnectionTab.setFont(GuiResource.getInstance().getFontDefault());
     wConnectionTab.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.Tab.Connection"));
 
     Composite wConnectionComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wConnectionComp);
+    PropsUi.setLook(wConnectionComp);
 
     FormLayout connectionLayout = new FormLayout();
     connectionLayout.marginWidth = 3;
@@ -173,7 +176,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
             SWT.NONE,
             BaseMessages.getString(PKG, "CassandraOutputDialog.Connection.Label"),
             BaseMessages.getString(PKG, "CassandraOutputDialog.Connection.Tooltip"));
-    props.setLook(wConnection);
+    PropsUi.setLook(wConnection);
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
     fdConnection.right = new FormAttachment(100, 0);
@@ -198,9 +201,10 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // --- start of the write tab ---
     CTabItem wWriteTab = new CTabItem(wTabFolder, SWT.NONE);
+    wWriteTab.setFont(GuiResource.getInstance().getFontDefault());
     wWriteTab.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.Tab.Write"));
     Composite wWriteComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wWriteComp);
+    PropsUi.setLook(wWriteComp);
 
     FormLayout writeLayout = new FormLayout();
     writeLayout.marginWidth = 3;
@@ -209,7 +213,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // table line
     Label wlTable = new Label(wWriteComp, SWT.RIGHT);
-    props.setLook(wlTable);
+    PropsUi.setLook(wlTable);
     wlTable.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.Table.Label"));
     FormData fdlTable = new FormData();
     fdlTable.left = new FormAttachment(0, 0);
@@ -218,7 +222,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wlTable.setLayoutData(fdlTable);
 
     Button wbGetTables = new Button(wWriteComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGetTables);
+    PropsUi.setLook(wbGetTables);
     wbGetTables.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.GetTable.Button"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
@@ -227,7 +231,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wbGetTables.addListener(SWT.Selection, e -> setupTablesCombo());
 
     wTable = new CCombo(wWriteComp, SWT.BORDER);
-    props.setLook(wTable);
+    PropsUi.setLook(wTable);
     wTable.addModifyListener(e -> wTable.setToolTipText(variables.resolve(wTable.getText())));
     FormData fdTable = new FormData();
     fdTable.right = new FormAttachment(wbGetTables, -margin);
@@ -237,7 +241,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // consistency line
     Label wlConsistency = new Label(wWriteComp, SWT.RIGHT);
-    props.setLook(wlConsistency);
+    PropsUi.setLook(wlConsistency);
     wlConsistency.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.Consistency.Label"));
     wlConsistency.setToolTipText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.Consistency.Label.TipText"));
@@ -248,7 +252,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wlConsistency.setLayoutData(fdlConsistency);
 
     wConsistency = new TextVar(variables, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wConsistency);
+    PropsUi.setLook(wConsistency);
     wConsistency.addModifyListener(
         e -> wConsistency.setToolTipText(variables.resolve(wConsistency.getText())));
     FormData fdConsistency = new FormData();
@@ -259,7 +263,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // batch size line
     Label wlBatchSize = new Label(wWriteComp, SWT.RIGHT);
-    props.setLook(wlBatchSize);
+    PropsUi.setLook(wlBatchSize);
     wlBatchSize.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.BatchSize.Label"));
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
@@ -270,7 +274,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
         BaseMessages.getString(PKG, "CassandraOutputDialog.BatchSize.TipText"));
 
     wBatchSize = new TextVar(variables, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBatchSize);
+    PropsUi.setLook(wBatchSize);
     wBatchSize.addModifyListener(
         e -> wBatchSize.setToolTipText(variables.resolve(wBatchSize.getText())));
     FormData fdBatchSize = new FormData();
@@ -281,7 +285,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // batch insert timeout
     Label wlBatchInsertTimeout = new Label(wWriteComp, SWT.RIGHT);
-    props.setLook(wlBatchInsertTimeout);
+    PropsUi.setLook(wlBatchInsertTimeout);
     wlBatchInsertTimeout.setText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.BatchInsertTimeout.Label"));
     FormData fdlBatchInsertTimeout = new FormData();
@@ -293,7 +297,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
         BaseMessages.getString(PKG, "CassandraOutputDialog.BatchInsertTimeout.TipText"));
 
     wBatchInsertTimeout = new TextVar(variables, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBatchInsertTimeout);
+    PropsUi.setLook(wBatchInsertTimeout);
     wBatchInsertTimeout.addModifyListener(
         e -> wBatchInsertTimeout.setToolTipText(variables.resolve(wBatchInsertTimeout.getText())));
     FormData fdBatchInsertTimeout = new FormData();
@@ -304,7 +308,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // sub-batch size
     Label wlSubBatchSize = new Label(wWriteComp, SWT.RIGHT);
-    props.setLook(wlSubBatchSize);
+    PropsUi.setLook(wlSubBatchSize);
     wlSubBatchSize.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.SubBatchSize.Label"));
     wlSubBatchSize.setToolTipText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.SubBatchSize.TipText"));
@@ -315,7 +319,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wlSubBatchSize.setLayoutData(fdlSubBatchSize);
 
     wSubBatchSize = new TextVar(variables, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSubBatchSize);
+    PropsUi.setLook(wSubBatchSize);
     wSubBatchSize.addModifyListener(
         e -> wSubBatchSize.setToolTipText(variables.resolve(wSubBatchSize.getText())));
     FormData fdSubBatchSize = new FormData();
@@ -330,7 +334,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
         BaseMessages.getString(PKG, "CassandraOutputDialog.UnloggedBatch.Label"));
     wlUnloggedBatch.setToolTipText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.UnloggedBatch.TipText"));
-    props.setLook(wlUnloggedBatch);
+    PropsUi.setLook(wlUnloggedBatch);
     FormData fdlUnloggedBatch = new FormData();
     fdlUnloggedBatch.left = new FormAttachment(0, 0);
     fdlUnloggedBatch.top = new FormAttachment(wSubBatchSize, margin);
@@ -338,7 +342,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wlUnloggedBatch.setLayoutData(fdlUnloggedBatch);
 
     wUnloggedBatch = new Button(wWriteComp, SWT.CHECK);
-    props.setLook(wUnloggedBatch);
+    PropsUi.setLook(wUnloggedBatch);
     FormData fdUnloggedBatch = new FormData();
     fdUnloggedBatch.right = new FormAttachment(100, 0);
     fdUnloggedBatch.top = new FormAttachment(wlUnloggedBatch, 0, SWT.CENTER);
@@ -347,7 +351,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // TTL line
     Label wlTtl = new Label(wWriteComp, SWT.RIGHT);
-    props.setLook(wlTtl);
+    PropsUi.setLook(wlTtl);
     wlTtl.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.TTL.Label"));
     FormData fdlTtl = new FormData();
     fdlTtl.left = new FormAttachment(0, 0);
@@ -357,7 +361,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     wTtlUnits = new CCombo(wWriteComp, SWT.BORDER);
     wTtlUnits.setEditable(false);
-    props.setLook(wTtlUnits);
+    PropsUi.setLook(wTtlUnits);
     FormData fdTtl = new FormData();
     fdTtl.right = new FormAttachment(100, 0);
     fdTtl.top = new FormAttachment(wlTtl, 0, SWT.CENTER);
@@ -378,7 +382,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
         });
 
     wTtlValue = new TextVar(variables, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTtlValue);
+    PropsUi.setLook(wTtlValue);
     FormData fdTtlValue = new FormData();
     fdTtlValue.right = new FormAttachment(wTtlUnits, -2 * margin);
     fdTtlValue.top = new FormAttachment(wlTtl, 0, SWT.CENTER);
@@ -390,7 +394,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // key field line
     Label wlKeyField = new Label(wWriteComp, SWT.RIGHT);
-    props.setLook(wlKeyField);
+    PropsUi.setLook(wlKeyField);
     wlKeyField.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.KeyField.Label"));
     FormData fdlKeyField = new FormData();
     fdlKeyField.left = new FormAttachment(0, 0);
@@ -399,7 +403,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wlKeyField.setLayoutData(fdlKeyField);
 
     Button wbGetFields = new Button(wWriteComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGetFields);
+    PropsUi.setLook(wbGetFields);
     wbGetFields.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.GetFields.Button"));
     FormData fdbGetFields = new FormData();
     fdbGetFields.right = new FormAttachment(100, 0);
@@ -428,7 +432,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     // show schema button
     Button wbShowSchema = new Button(wWriteComp, SWT.PUSH | SWT.CENTER);
     wbShowSchema.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.Schema.Button"));
-    props.setLook(wbShowSchema);
+    PropsUi.setLook(wbShowSchema);
     FormData fdbShowSchema = new FormData();
     fdbShowSchema.right = new FormAttachment(100, 0);
     fdbShowSchema.bottom = new FormAttachment(100, -margin * 2);
@@ -437,10 +441,11 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // ---- start of the schema options tab ----
     CTabItem wSchemaTab = new CTabItem(wTabFolder, SWT.NONE);
+    wSchemaTab.setFont(GuiResource.getInstance().getFontDefault());
     wSchemaTab.setText(BaseMessages.getString(PKG, "CassandraOutputData.Tab.Schema"));
 
     Composite wSchemaComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wSchemaComp);
+    PropsUi.setLook(wSchemaComp);
 
     FormLayout schemaLayout = new FormLayout();
     schemaLayout.marginWidth = 3;
@@ -449,7 +454,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // create table line
     Label wlCreateTable = new Label(wSchemaComp, SWT.RIGHT);
-    props.setLook(wlCreateTable);
+    PropsUi.setLook(wlCreateTable);
     wlCreateTable.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.CreateTable.Label"));
     wlCreateTable.setToolTipText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.CreateTable.TipText"));
@@ -462,7 +467,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wbCreateTable = new Button(wSchemaComp, SWT.CHECK);
     wbCreateTable.setToolTipText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.CreateTable.TipText"));
-    props.setLook(wbCreateTable);
+    PropsUi.setLook(wbCreateTable);
     FormData fdCreateTable = new FormData();
     fdCreateTable.right = new FormAttachment(100, 0);
     fdCreateTable.top = new FormAttachment(wlCreateTable, 0, SWT.CENTER);
@@ -475,7 +480,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
         BaseMessages.getString(PKG, "CassandraOutputDialog.CreateTableWithClause.Label"));
     wlWithClause.setToolTipText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.CreateTableWithClause.TipText"));
-    props.setLook(wlWithClause);
+    PropsUi.setLook(wlWithClause);
     FormData fdlWithClause = new FormData();
     fdlWithClause.left = new FormAttachment(0, 0);
     fdlWithClause.top = new FormAttachment(wlCreateTable, 2 * margin);
@@ -483,7 +488,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wlWithClause.setLayoutData(fdlWithClause);
 
     wWithClause = new TextVar(variables, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wWithClause);
+    PropsUi.setLook(wWithClause);
     wWithClause.addModifyListener(
         e -> wWithClause.setToolTipText(variables.resolve(wWithClause.getText())));
     FormData fdWithClause = new FormData();
@@ -494,7 +499,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // truncate table line
     Label wlTruncateTable = new Label(wSchemaComp, SWT.RIGHT);
-    props.setLook(wlTruncateTable);
+    PropsUi.setLook(wlTruncateTable);
     wlTruncateTable.setText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.TruncateTable.Label"));
     wlTruncateTable.setToolTipText(
@@ -508,7 +513,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wTruncateTable = new Button(wSchemaComp, SWT.CHECK);
     wTruncateTable.setToolTipText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.TruncateTable.TipText"));
-    props.setLook(wTruncateTable);
+    PropsUi.setLook(wTruncateTable);
     FormData fdTruncateTable = new FormData();
     fdTruncateTable.right = new FormAttachment(100, 0);
     fdTruncateTable.top = new FormAttachment(wlTruncateTable, 0, SWT.CENTER);
@@ -517,7 +522,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // update table meta data line
     Label wlUpdateTableMetaData = new Label(wSchemaComp, SWT.RIGHT);
-    props.setLook(wlUpdateTableMetaData);
+    PropsUi.setLook(wlUpdateTableMetaData);
     wlUpdateTableMetaData.setText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.UpdateTableMetaData.Label"));
     wlUpdateTableMetaData.setToolTipText(
@@ -531,7 +536,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wUpdateTableMetaData = new Button(wSchemaComp, SWT.CHECK);
     wUpdateTableMetaData.setToolTipText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.UpdateTableMetaData.TipText"));
-    props.setLook(wUpdateTableMetaData);
+    PropsUi.setLook(wUpdateTableMetaData);
     FormData fdUpdateTableMetaData = new FormData();
     fdUpdateTableMetaData.right = new FormAttachment(100, 0);
     fdUpdateTableMetaData.top = new FormAttachment(wlUpdateTableMetaData, 0, SWT.CENTER);
@@ -540,7 +545,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
 
     // insert fields not in meta line
     Label wlInsertFieldsNotInTableMeta = new Label(wSchemaComp, SWT.RIGHT);
-    props.setLook(wlInsertFieldsNotInTableMeta);
+    PropsUi.setLook(wlInsertFieldsNotInTableMeta);
     wlInsertFieldsNotInTableMeta.setText(
         BaseMessages.getString(PKG, "CassandraOutputDialog.InsertFieldsNotInTableMetaData.Label"));
     wlInsertFieldsNotInTableMeta.setToolTipText(
@@ -556,7 +561,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wInsertFieldsNotInTableMeta.setToolTipText(
         BaseMessages.getString(
             PKG, "CassandraOutputDialog.InsertFieldsNotInTableMetaData.TipText"));
-    props.setLook(wInsertFieldsNotInTableMeta);
+    PropsUi.setLook(wInsertFieldsNotInTableMeta);
     FormData fdInsertFieldsNotInTableMeta = new FormData();
     fdInsertFieldsNotInTableMeta.right = new FormAttachment(100, 0);
     fdInsertFieldsNotInTableMeta.top =

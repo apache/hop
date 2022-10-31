@@ -65,6 +65,15 @@ public class Point {
     return Objects.hash(x, y);
   }
 
+  @Override
+  public String toString() {
+    return "Point("+x+","+y+")";
+  }
+
+  public DPoint toDouble() {
+    return new DPoint(x, y);
+  }
+
   /**
    * Gets x
    *

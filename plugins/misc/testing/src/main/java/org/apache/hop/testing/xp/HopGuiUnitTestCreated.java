@@ -55,7 +55,7 @@ public class HopGuiUnitTestCreated extends HopGuiUnitTestChanged implements IExt
 
     // Create this for the active pipeline...
     //
-    PipelineMeta pipelineMeta = testingGuiPlugin.getActivePipelineMeta();
+    PipelineMeta pipelineMeta = TestingGuiPlugin.getActivePipelineMeta();
     if (pipelineMeta == null) {
       return;
     }

@@ -29,6 +29,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -78,7 +79,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     backupChanged = action.hasChanged();
@@ -102,7 +103,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     wPassParams.setText(BaseMessages.getString(PKG, "ActionPipeline.PassAllParameters.Label"));
 
     wClearRows = new Button(gExecution, SWT.CHECK);
-    props.setLook(wClearRows);
+    PropsUi.setLook(wClearRows);
     wClearRows.setText(BaseMessages.getString(PKG, "ActionPipeline.ClearResultList.Label"));
     FormData fdbClearRows = new FormData();
     fdbClearRows.left = new FormAttachment(0, 0);
@@ -110,7 +111,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     wClearRows.setLayoutData(fdbClearRows);
 
     wClearFiles = new Button(gExecution, SWT.CHECK);
-    props.setLook(wClearFiles);
+    PropsUi.setLook(wClearFiles);
     wClearFiles.setText(BaseMessages.getString(PKG, "ActionPipeline.ClearResultFiles.Label"));
     FormData fdbClearFiles = new FormData();
     fdbClearFiles.left = new FormAttachment(0, 0);
@@ -118,7 +119,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     wClearFiles.setLayoutData(fdbClearFiles);
 
     wWaitingToFinish = new Button(gExecution, SWT.CHECK);
-    props.setLook(wWaitingToFinish);
+    PropsUi.setLook(wWaitingToFinish);
     wWaitingToFinish.setText(BaseMessages.getString(PKG, "ActionPipeline.WaitToFinish.Label"));
     FormData fdWait = new FormData();
     fdWait.top = new FormAttachment(wClearFiles, 10);

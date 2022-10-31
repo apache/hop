@@ -20,6 +20,7 @@ package org.apache.hop.ui.workflow.actions.start;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -73,7 +74,7 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     FormLayout formLayout = new FormLayout();
@@ -98,14 +99,14 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
 
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionStart.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
     fdName.top = new FormAttachment(0, margin);
@@ -114,14 +115,14 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
 
     Label wlRepeat = new Label(shell, SWT.RIGHT);
     wlRepeat.setText(BaseMessages.getString(PKG, "ActionStart.Repeat.Label"));
-    props.setLook(wlRepeat);
+    PropsUi.setLook(wlRepeat);
     FormData fdlRepeat = new FormData();
     fdlRepeat.left = new FormAttachment(0, 0);
     fdlRepeat.right = new FormAttachment(middle, -margin);
     fdlRepeat.top = new FormAttachment(wName, margin);
     wlRepeat.setLayoutData(fdlRepeat);
     wRepeat = new Button(shell, SWT.CHECK);
-    props.setLook(wRepeat);
+    PropsUi.setLook(wRepeat);
     FormData fdRepeat = new FormData();
     fdRepeat.left = new FormAttachment(middle, 0);
     fdRepeat.right = new FormAttachment(100, 0);
@@ -144,7 +145,7 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
     gRepeat.setLayout(groupLayout);
 
     Label wlType = new Label(gRepeat, SWT.RIGHT);
-    props.setLook(wlType);
+    PropsUi.setLook(wlType);
     wlType.setText(BaseMessages.getString(PKG, "ActionStart.Type.Label"));
     FormData fdlType = new FormData();
     fdlType.left = new FormAttachment(0, 0);
@@ -265,7 +266,7 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
 
     Label label = new Label(composite, SWT.RIGHT);
     label.setText(text);
-    props.setLook(label);
+    PropsUi.setLook(label);
     FormData formDataLabel = new FormData();
     formDataLabel.left = new FormAttachment(0, 0);
     if (under != null) {
@@ -276,7 +277,7 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
     formDataLabel.right = new FormAttachment(middle, 0);
     label.setLayoutData(formDataLabel);
 
-    props.setLook(control);
+    PropsUi.setLook(control);
     FormData formDataControl = new FormData();
     formDataControl.left = new FormAttachment(middle, 0);
     if (under != null) {

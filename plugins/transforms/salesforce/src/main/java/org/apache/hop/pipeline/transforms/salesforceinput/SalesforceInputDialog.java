@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnectionUtils;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformDialog;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.*;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.*;
@@ -141,7 +142,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -169,7 +170,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -177,7 +178,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -201,7 +202,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // The tabfolder in between the name and the buttons...
     //
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wTransformName, margin);
@@ -213,10 +214,11 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // START OF FILE TAB ///
     // ////////////////////////
     CTabItem wFileTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFileTab.setFont(GuiResource.getInstance().getFontDefault());
     wFileTab.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.File.Tab"));
 
     Composite wFileComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFileComp);
+    PropsUi.setLook(wFileComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -233,7 +235,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fconnLayout.marginWidth = 3;
     fconnLayout.marginHeight = 3;
     wConnectionGroup.setLayout(fconnLayout);
-    props.setLook(wConnectionGroup);
+    PropsUi.setLook(wConnectionGroup);
 
     // Webservice URL
     wURL =
@@ -242,7 +244,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
             wConnectionGroup,
             BaseMessages.getString(PKG, "SalesforceInputDialog.URL.Label"),
             BaseMessages.getString(PKG, "SalesforceInputDialog.URL.Tooltip"));
-    props.setLook(wURL);
+    PropsUi.setLook(wURL);
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(0, 0);
@@ -257,7 +259,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
             wConnectionGroup,
             BaseMessages.getString(PKG, "SalesforceInputDialog.User.Label"),
             BaseMessages.getString(PKG, "SalesforceInputDialog.User.Tooltip"));
-    props.setLook(wUserName);
+    PropsUi.setLook(wUserName);
     wUserName.addModifyListener(lsMod);
     FormData fdUserName = new FormData();
     fdUserName.left = new FormAttachment(0, 0);
@@ -273,7 +275,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
             BaseMessages.getString(PKG, "SalesforceInputDialog.Password.Label"),
             BaseMessages.getString(PKG, "SalesforceInputDialog.Password.Tooltip"),
             true);
-    props.setLook(wPassword);
+    PropsUi.setLook(wPassword);
     wPassword.addModifyListener(lsMod);
     FormData fdPassword = new FormData();
     fdPassword.left = new FormAttachment(0, 0);
@@ -284,7 +286,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // Test Salesforce connection button
     Button wTest = new Button(wConnectionGroup, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.TestConnection.Label"));
-    props.setLook(wTest);
+    PropsUi.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.TestConnection.Tooltip"));
@@ -311,18 +313,18 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fsettingsLayout.marginWidth = 3;
     fsettingsLayout.marginHeight = 3;
     wSettingsGroup.setLayout(fsettingsLayout);
-    props.setLook(wSettingsGroup);
+    PropsUi.setLook(wSettingsGroup);
 
     Label wlSpecifyQuery = new Label(wSettingsGroup, SWT.RIGHT);
     wlSpecifyQuery.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.specifyQuery.Label"));
-    props.setLook(wlSpecifyQuery);
+    PropsUi.setLook(wlSpecifyQuery);
     FormData fdlSpecifyQuery = new FormData();
     fdlSpecifyQuery.left = new FormAttachment(0, 0);
     fdlSpecifyQuery.top = new FormAttachment(wConnectionGroup, 2 * margin);
     fdlSpecifyQuery.right = new FormAttachment(middle, -margin);
     wlSpecifyQuery.setLayoutData(fdlSpecifyQuery);
     wSpecifyQuery = new Button(wSettingsGroup, SWT.CHECK);
-    props.setLook(wSpecifyQuery);
+    PropsUi.setLook(wSpecifyQuery);
     wSpecifyQuery.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.specifyQuery.Tooltip"));
     FormData fdSpecifyQuery = new FormData();
@@ -341,7 +343,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // Module
     wlModule = new Label(wSettingsGroup, SWT.RIGHT);
     wlModule.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.Module.Label"));
-    props.setLook(wlModule);
+    PropsUi.setLook(wlModule);
     FormData fdlModule = new FormData();
     fdlModule.left = new FormAttachment(0, 0);
     fdlModule.top = new FormAttachment(wlSpecifyQuery, 2 * margin);
@@ -349,7 +351,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlModule.setLayoutData(fdlModule);
     wModule = new ComboVar(variables, wSettingsGroup, SWT.BORDER | SWT.READ_ONLY);
     wModule.setEditable(true);
-    props.setLook(wModule);
+    PropsUi.setLook(wModule);
     wModule.addModifyListener(lsMod);
     FormData fdModule = new FormData();
     fdModule.left = new FormAttachment(middle, margin);
@@ -378,7 +380,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
         });
 
     wlPosition = new Label(wSettingsGroup, SWT.NONE);
-    props.setLook(wlPosition);
+    PropsUi.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(middle, 0);
     fdlPosition.right = new FormAttachment(100, 0);
@@ -388,7 +390,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // condition
     wlCondition = new Label(wSettingsGroup, SWT.RIGHT);
     wlCondition.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.Condition.Label"));
-    props.setLook(wlCondition);
+    PropsUi.setLook(wlCondition);
     FormData fdlCondition = new FormData();
     fdlCondition.left = new FormAttachment(0, -margin);
     fdlCondition.top = new FormAttachment(wModule, margin);
@@ -402,7 +404,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wCondition.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.Condition.Tooltip"));
-    props.setLook(wCondition, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wCondition, Props.WIDGET_STYLE_FIXED);
     wCondition.addModifyListener(lsMod);
     FormData fdCondition = new FormData();
     fdCondition.left = new FormAttachment(middle, margin);
@@ -461,7 +463,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // Query
     wlQuery = new Label(wSettingsGroup, SWT.RIGHT);
     wlQuery.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.Query.Label"));
-    props.setLook(wlQuery);
+    PropsUi.setLook(wlQuery);
     FormData fdlQuery = new FormData();
     fdlQuery.left = new FormAttachment(0, -margin);
     fdlQuery.top = new FormAttachment(wlSpecifyQuery, 2 * margin);
@@ -473,7 +475,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
             variables,
             wSettingsGroup,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wQuery, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wQuery, Props.WIDGET_STYLE_FIXED);
     wQuery.addModifyListener(lsMod);
     FormData fdQuery = new FormData();
     fdQuery.left = new FormAttachment(middle, 0);
@@ -553,6 +555,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // START OF CONTENT TAB///
     // /
     CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
+    wContentTab.setFont(GuiResource.getInstance().getFontDefault());
     wContentTab.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.Content.Tab"));
 
     FormLayout contentLayout = new FormLayout();
@@ -560,7 +563,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     contentLayout.marginHeight = 3;
 
     Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wContentComp);
+    PropsUi.setLook(wContentComp);
     wContentComp.setLayout(contentLayout);
 
     // ///////////////////////////////
@@ -568,7 +571,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // ///////////////////////////////
 
     Group wAdvancedGroup = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wAdvancedGroup);
+    PropsUi.setLook(wAdvancedGroup);
     wAdvancedGroup.setText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.AdvancedGroup.Label"));
 
@@ -581,7 +584,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlRecordsFilter = new Label(wAdvancedGroup, SWT.RIGHT);
     wlRecordsFilter.setText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.RecordsFilter.Label"));
-    props.setLook(wlRecordsFilter);
+    PropsUi.setLook(wlRecordsFilter);
     FormData fdlRecordsFilter = new FormData();
     fdlRecordsFilter.left = new FormAttachment(0, 0);
     fdlRecordsFilter.right = new FormAttachment(middle, -margin);
@@ -589,7 +592,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlRecordsFilter.setLayoutData(fdlRecordsFilter);
 
     wRecordsFilter = new CCombo(wAdvancedGroup, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wRecordsFilter);
+    PropsUi.setLook(wRecordsFilter);
     wRecordsFilter.addModifyListener(lsMod);
     FormData fdRecordsFilter = new FormData();
     fdRecordsFilter.left = new FormAttachment(middle, 0);
@@ -608,7 +611,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // Query All?
     wlQueryAll = new Label(wAdvancedGroup, SWT.RIGHT);
     wlQueryAll.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.QueryAll.Label"));
-    props.setLook(wlQueryAll);
+    PropsUi.setLook(wlQueryAll);
     FormData fdlQueryAll = new FormData();
     fdlQueryAll.left = new FormAttachment(0, 0);
     fdlQueryAll.top = new FormAttachment(wRecordsFilter, margin);
@@ -616,7 +619,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlQueryAll.setLayoutData(fdlQueryAll);
     wQueryAll = new Button(wAdvancedGroup, SWT.CHECK);
     wQueryAll.addSelectionListener(checkBoxModifyListener);
-    props.setLook(wQueryAll);
+    PropsUi.setLook(wQueryAll);
     wQueryAll.setToolTipText(BaseMessages.getString(PKG, "SalesforceInputDialog.QueryAll.Tooltip"));
     FormData fdQueryAll = new FormData();
     fdQueryAll.left = new FormAttachment(middle, 0);
@@ -680,7 +683,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
     wlReadFrom = new Label(wAdvancedGroup, SWT.RIGHT);
     wlReadFrom.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.ReadFrom.Label"));
-    props.setLook(wlReadFrom);
+    PropsUi.setLook(wlReadFrom);
     FormData fdlReadFrom = new FormData();
     fdlReadFrom.left = new FormAttachment(0, 0);
     fdlReadFrom.top = new FormAttachment(wQueryAll, margin);
@@ -688,7 +691,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlReadFrom.setLayoutData(fdlReadFrom);
     wReadFrom = new TextVar(variables, wAdvancedGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wReadFrom.setToolTipText(BaseMessages.getString(PKG, "SalesforceInputDialog.ReadFrom.Tooltip"));
-    props.setLook(wReadFrom);
+    PropsUi.setLook(wReadFrom);
     wReadFrom.addModifyListener(lsMod);
     FormData fdReadFrom = new FormData();
     fdReadFrom.left = new FormAttachment(middle, 0);
@@ -754,7 +757,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
     wlReadTo = new Label(wAdvancedGroup, SWT.RIGHT);
     wlReadTo.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.ReadTo.Label"));
-    props.setLook(wlReadTo);
+    PropsUi.setLook(wlReadTo);
     FormData fdlReadTo = new FormData();
     fdlReadTo.left = new FormAttachment(0, 0);
     fdlReadTo.top = new FormAttachment(wReadFrom, 2 * margin);
@@ -762,7 +765,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlReadTo.setLayoutData(fdlReadTo);
     wReadTo = new TextVar(variables, wAdvancedGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wReadTo.setToolTipText(BaseMessages.getString(PKG, "SalesforceInputDialog.ReadTo.Tooltip"));
-    props.setLook(wReadTo);
+    PropsUi.setLook(wReadTo);
     wReadTo.addModifyListener(lsMod);
     FormData fdReadTo = new FormData();
     fdReadTo.left = new FormAttachment(middle, 0);
@@ -785,7 +788,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // ///////////////////////////////
 
     Group wAdditionalFields = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wAdditionalFields);
+    PropsUi.setLook(wAdditionalFields);
     wAdditionalFields.setText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.wAdditionalFields.Label"));
 
@@ -797,14 +800,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // Add Salesforce URL in the output stream ?
     Label wlInclURL = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclURL.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.InclURL.Label"));
-    props.setLook(wlInclURL);
+    PropsUi.setLook(wlInclURL);
     FormData fdlInclURL = new FormData();
     fdlInclURL.left = new FormAttachment(0, 0);
     fdlInclURL.top = new FormAttachment(wAdvancedGroup, margin);
     fdlInclURL.right = new FormAttachment(middle, -margin);
     wlInclURL.setLayoutData(fdlInclURL);
     wInclURL = new Button(wAdditionalFields, SWT.CHECK);
-    props.setLook(wInclURL);
+    PropsUi.setLook(wInclURL);
     wInclURL.setToolTipText(BaseMessages.getString(PKG, "SalesforceInputDialog.InclURL.Tooltip"));
     FormData fdInclURL = new FormData();
     fdInclURL.left = new FormAttachment(middle, 0);
@@ -822,13 +825,13 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
     wlInclURLField = new Label(wAdditionalFields, SWT.LEFT);
     wlInclURLField.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.InclURLField.Label"));
-    props.setLook(wlInclURLField);
+    PropsUi.setLook(wlInclURLField);
     FormData fdlInclURLField = new FormData();
     fdlInclURLField.left = new FormAttachment(wInclURL, margin);
     fdlInclURLField.top = new FormAttachment(wAdvancedGroup, margin);
     wlInclURLField.setLayoutData(fdlInclURLField);
     wInclURLField = new TextVar(variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wlInclURLField);
+    PropsUi.setLook(wlInclURLField);
     wInclURLField.addModifyListener(lsMod);
     FormData fdInclURLField = new FormData();
     fdInclURLField.left = new FormAttachment(wlInclURLField, margin);
@@ -839,14 +842,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // Add module in the output stream ?
     wlInclModule = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclModule.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.InclModule.Label"));
-    props.setLook(wlInclModule);
+    PropsUi.setLook(wlInclModule);
     FormData fdlInclModule = new FormData();
     fdlInclModule.left = new FormAttachment(0, 0);
     fdlInclModule.top = new FormAttachment(wInclURLField, margin);
     fdlInclModule.right = new FormAttachment(middle, -margin);
     wlInclModule.setLayoutData(fdlInclModule);
     wInclModule = new Button(wAdditionalFields, SWT.CHECK);
-    props.setLook(wInclModule);
+    PropsUi.setLook(wInclModule);
     wInclModule.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.InclModule.Tooltip"));
     fdModule = new FormData();
@@ -867,14 +870,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlInclModuleField = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclModuleField.setText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.InclModuleField.Label"));
-    props.setLook(wlInclModuleField);
+    PropsUi.setLook(wlInclModuleField);
     FormData fdlInclModuleField = new FormData();
     fdlInclModuleField.left = new FormAttachment(wInclModule, margin);
     fdlInclModuleField.top = new FormAttachment(wInclURLField, margin);
     wlInclModuleField.setLayoutData(fdlInclModuleField);
     wInclModuleField =
         new TextVar(variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclModuleField);
+    PropsUi.setLook(wInclModuleField);
     wInclModuleField.addModifyListener(lsMod);
     FormData fdInclModuleField = new FormData();
     fdInclModuleField.left = new FormAttachment(wlInclModuleField, margin);
@@ -885,14 +888,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // Add SQL in the output stream ?
     Label wlInclSQL = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclSQL.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.InclSQL.Label"));
-    props.setLook(wlInclSQL);
+    PropsUi.setLook(wlInclSQL);
     FormData fdlInclSQL = new FormData();
     fdlInclSQL.left = new FormAttachment(0, 0);
     fdlInclSQL.top = new FormAttachment(wInclModuleField, margin);
     fdlInclSQL.right = new FormAttachment(middle, -margin);
     wlInclSQL.setLayoutData(fdlInclSQL);
     wInclSQL = new Button(wAdditionalFields, SWT.CHECK);
-    props.setLook(wInclSQL);
+    PropsUi.setLook(wInclSQL);
     wInclSQL.setToolTipText(BaseMessages.getString(PKG, "SalesforceInputDialog.InclSQL.Tooltip"));
     FormData fdInclSQL = new FormData();
     fdInclSQL.left = new FormAttachment(middle, 0);
@@ -910,13 +913,13 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
     wlInclSQLField = new Label(wAdditionalFields, SWT.LEFT);
     wlInclSQLField.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.InclSQLField.Label"));
-    props.setLook(wlInclSQLField);
+    PropsUi.setLook(wlInclSQLField);
     FormData fdlInclSQLField = new FormData();
     fdlInclSQLField.left = new FormAttachment(wInclSQL, margin);
     fdlInclSQLField.top = new FormAttachment(wInclModuleField, margin);
     wlInclSQLField.setLayoutData(fdlInclSQLField);
     wInclSQLField = new TextVar(variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wlInclSQLField);
+    PropsUi.setLook(wlInclSQLField);
     wInclSQLField.addModifyListener(lsMod);
     FormData fdInclSQLField = new FormData();
     fdInclSQLField.left = new FormAttachment(wlInclSQLField, margin);
@@ -928,14 +931,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     Label wlInclTimestamp = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclTimestamp.setText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.InclTimestamp.Label"));
-    props.setLook(wlInclTimestamp);
+    PropsUi.setLook(wlInclTimestamp);
     FormData fdlInclTimestamp = new FormData();
     fdlInclTimestamp.left = new FormAttachment(0, 0);
     fdlInclTimestamp.top = new FormAttachment(wInclSQLField, margin);
     fdlInclTimestamp.right = new FormAttachment(middle, -margin);
     wlInclTimestamp.setLayoutData(fdlInclTimestamp);
     wInclTimestamp = new Button(wAdditionalFields, SWT.CHECK);
-    props.setLook(wInclTimestamp);
+    PropsUi.setLook(wInclTimestamp);
     wInclTimestamp.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.InclTimestamp.Tooltip"));
     FormData fdInclTimestamp = new FormData();
@@ -955,14 +958,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlInclTimestampField = new Label(wAdditionalFields, SWT.LEFT);
     wlInclTimestampField.setText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.InclTimestampField.Label"));
-    props.setLook(wlInclTimestampField);
+    PropsUi.setLook(wlInclTimestampField);
     FormData fdlInclTimestampField = new FormData();
     fdlInclTimestampField.left = new FormAttachment(wInclTimestamp, margin);
     fdlInclTimestampField.top = new FormAttachment(wInclSQLField, margin);
     wlInclTimestampField.setLayoutData(fdlInclTimestampField);
     wInclTimestampField =
         new TextVar(variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wlInclTimestampField);
+    PropsUi.setLook(wlInclTimestampField);
     wInclTimestampField.addModifyListener(lsMod);
     FormData fdInclTimestampField = new FormData();
     fdInclTimestampField.left = new FormAttachment(wlInclTimestampField, margin);
@@ -973,14 +976,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // Include Rownum in output stream?
     Label wlInclRownum = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclRownum.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.InclRownum.Label"));
-    props.setLook(wlInclRownum);
+    PropsUi.setLook(wlInclRownum);
     FormData fdlInclRownum = new FormData();
     fdlInclRownum.left = new FormAttachment(0, 0);
     fdlInclRownum.top = new FormAttachment(wInclTimestampField, margin);
     fdlInclRownum.right = new FormAttachment(middle, -margin);
     wlInclRownum.setLayoutData(fdlInclRownum);
     wInclRownum = new Button(wAdditionalFields, SWT.CHECK);
-    props.setLook(wInclRownum);
+    PropsUi.setLook(wInclRownum);
     wInclRownum.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.InclRownum.Tooltip"));
     FormData fdRownum = new FormData();
@@ -1001,14 +1004,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlInclRownumField = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclRownumField.setText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.InclRownumField.Label"));
-    props.setLook(wlInclRownumField);
+    PropsUi.setLook(wlInclRownumField);
     FormData fdlInclRownumField = new FormData();
     fdlInclRownumField.left = new FormAttachment(wInclRownum, margin);
     fdlInclRownumField.top = new FormAttachment(wInclTimestampField, margin);
     wlInclRownumField.setLayoutData(fdlInclRownumField);
     wInclRownumField =
         new TextVar(variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclRownumField);
+    PropsUi.setLook(wInclRownumField);
     wInclRownumField.addModifyListener(lsMod);
     FormData fdInclRownumField = new FormData();
     fdInclRownumField.left = new FormAttachment(wlInclRownumField, margin);
@@ -1020,14 +1023,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlInclDeletionDate = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclDeletionDate.setText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.InclDeletionDate.Label"));
-    props.setLook(wlInclDeletionDate);
+    PropsUi.setLook(wlInclDeletionDate);
     FormData fdlInclDeletionDate = new FormData();
     fdlInclDeletionDate.left = new FormAttachment(0, 0);
     fdlInclDeletionDate.top = new FormAttachment(wInclRownumField, margin);
     fdlInclDeletionDate.right = new FormAttachment(middle, -margin);
     wlInclDeletionDate.setLayoutData(fdlInclDeletionDate);
     wInclDeletionDate = new Button(wAdditionalFields, SWT.CHECK);
-    props.setLook(wInclDeletionDate);
+    PropsUi.setLook(wInclDeletionDate);
     wInclDeletionDate.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.InclDeletionDate.Tooltip"));
     FormData fdDeletionDate = new FormData();
@@ -1048,14 +1051,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlInclDeletionDateField = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclDeletionDateField.setText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.InclDeletionDateField.Label"));
-    props.setLook(wlInclDeletionDateField);
+    PropsUi.setLook(wlInclDeletionDateField);
     FormData fdlInclDeletionDateField = new FormData();
     fdlInclDeletionDateField.left = new FormAttachment(wInclDeletionDate, margin);
     fdlInclDeletionDateField.top = new FormAttachment(wInclRownumField, margin);
     wlInclDeletionDateField.setLayoutData(fdlInclDeletionDateField);
     wInclDeletionDateField =
         new TextVar(variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wInclDeletionDateField);
+    PropsUi.setLook(wInclDeletionDateField);
     wInclDeletionDateField.addModifyListener(lsMod);
     FormData fdInclDeletionDateField = new FormData();
     fdInclDeletionDateField.left = new FormAttachment(wlInclDeletionDateField, margin);
@@ -1076,14 +1079,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // Timeout
     Label wlTimeOut = new Label(wContentComp, SWT.RIGHT);
     wlTimeOut.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.TimeOut.Label"));
-    props.setLook(wlTimeOut);
+    PropsUi.setLook(wlTimeOut);
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, 0);
     fdlTimeOut.top = new FormAttachment(wAdditionalFields, 2 * margin);
     fdlTimeOut.right = new FormAttachment(middle, -margin);
     wlTimeOut.setLayoutData(fdlTimeOut);
     wTimeOut = new TextVar(variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTimeOut);
+    PropsUi.setLook(wTimeOut);
     wTimeOut.addModifyListener(lsMod);
     FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment(middle, 0);
@@ -1095,7 +1098,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     Label wlUseCompression = new Label(wContentComp, SWT.RIGHT);
     wlUseCompression.setText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.UseCompression.Label"));
-    props.setLook(wlUseCompression);
+    PropsUi.setLook(wlUseCompression);
     FormData fdlUseCompression = new FormData();
     fdlUseCompression.left = new FormAttachment(0, 0);
     fdlUseCompression.top = new FormAttachment(wTimeOut, margin);
@@ -1103,7 +1106,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlUseCompression.setLayoutData(fdlUseCompression);
     wUseCompression = new Button(wContentComp, SWT.CHECK);
     wUseCompression.addSelectionListener(checkBoxModifyListener);
-    props.setLook(wUseCompression);
+    PropsUi.setLook(wUseCompression);
     wUseCompression.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.UseCompression.Tooltip"));
     FormData fdUseCompression = new FormData();
@@ -1115,14 +1118,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // Limit rows
     Label wlLimit = new Label(wContentComp, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.Limit.Label"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.top = new FormAttachment(wUseCompression, margin);
     fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new TextVar(variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
@@ -1147,6 +1150,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     // Fields tab...
     //
     CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wFieldsTab.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.Fields.Tab"));
 
     FormLayout fieldsLayout = new FormLayout();
@@ -1155,7 +1159,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     wFieldsComp.setLayout(fieldsLayout);
-    props.setLook(wFieldsComp);
+    PropsUi.setLook(wFieldsComp);
 
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.GetFields.Button"));

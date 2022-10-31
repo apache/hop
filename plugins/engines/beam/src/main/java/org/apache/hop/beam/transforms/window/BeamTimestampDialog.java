@@ -25,6 +25,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -54,7 +55,7 @@ public class BeamTimestampDialog extends BaseTransformDialog implements ITransfo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     changed = input.hasChanged();
@@ -80,7 +81,7 @@ public class BeamTimestampDialog extends BaseTransformDialog implements ITransfo
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -88,7 +89,7 @@ public class BeamTimestampDialog extends BaseTransformDialog implements ITransfo
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -98,14 +99,14 @@ public class BeamTimestampDialog extends BaseTransformDialog implements ITransfo
 
     Label wlFieldName = new Label(shell, SWT.RIGHT);
     wlFieldName.setText(BaseMessages.getString(PKG, "BeamTimestampDialog.FieldName"));
-    props.setLook(wlFieldName);
+    PropsUi.setLook(wlFieldName);
     FormData fdlFieldName = new FormData();
     fdlFieldName.left = new FormAttachment(0, 0);
     fdlFieldName.top = new FormAttachment(lastControl, margin);
     fdlFieldName.right = new FormAttachment(middle, -margin);
     wlFieldName.setLayoutData(fdlFieldName);
     wFieldName = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFieldName);
+    PropsUi.setLook(wFieldName);
     wFieldName.setItems(fieldNames);
     FormData fdFieldName = new FormData();
     fdFieldName.left = new FormAttachment(middle, 0);
@@ -116,14 +117,14 @@ public class BeamTimestampDialog extends BaseTransformDialog implements ITransfo
 
     Label wlReading = new Label(shell, SWT.RIGHT);
     wlReading.setText(BaseMessages.getString(PKG, "BeamTimestampDialog.Reading"));
-    props.setLook(wlReading);
+    PropsUi.setLook(wlReading);
     FormData fdlReading = new FormData();
     fdlReading.left = new FormAttachment(0, 0);
     fdlReading.top = new FormAttachment(lastControl, margin);
     fdlReading.right = new FormAttachment(middle, -margin);
     wlReading.setLayoutData(fdlReading);
     wReading = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wReading);
+    PropsUi.setLook(wReading);
     FormData fdReading = new FormData();
     fdReading.left = new FormAttachment(middle, 0);
     fdReading.top = new FormAttachment(wlReading, 0, SWT.CENTER);

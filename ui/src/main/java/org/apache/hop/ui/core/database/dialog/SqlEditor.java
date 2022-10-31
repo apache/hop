@@ -88,7 +88,7 @@ public class SqlEditor {
 
   public void open() {
     shell = new Shell(parentShell, style);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageDatabase());
 
     FormLayout formLayout = new FormLayout();
@@ -124,7 +124,7 @@ public class SqlEditor {
     // Script line
     Label wlScript = new Label(shell, SWT.NONE);
     wlScript.setText(BaseMessages.getString(PKG, "SQLEditor.Editor.Label"));
-    props.setLook(wlScript);
+    PropsUi.setLook(wlScript);
 
     FormData fdlScript = new FormData();
     fdlScript.left = new FormAttachment(0, 0);
@@ -134,7 +134,7 @@ public class SqlEditor {
         new StyledTextComp(
             this.variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wScript.setText("");
-    props.setLook(wScript, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
     FormData fdScript = new FormData();
     fdScript.left = new FormAttachment(0, 0);
     fdScript.top = new FormAttachment(wlScript, margin);
@@ -188,7 +188,7 @@ public class SqlEditor {
 
     wlPosition = new Label(shell, SWT.NONE);
     wlPosition.setText(BaseMessages.getString(PKG, "SQLEditor.LineNr.Label", "0"));
-    props.setLook(wlPosition);
+    PropsUi.setLook(wlPosition);
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);
     fdlPosition.top = new FormAttachment(wScript, margin);

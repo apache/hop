@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
@@ -78,7 +79,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -98,7 +99,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(
         BaseMessages.getString(PKG, "FieldsChangeSequenceDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -106,7 +107,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -117,14 +118,14 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     // Result line...
     Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "FieldsChangeSequenceDialog.Result.Label"));
-    props.setLook(wlResult);
+    PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
     fdlResult.top = new FormAttachment(wTransformName, 2 * margin);
     wlResult.setLayoutData(fdlResult);
     wResult = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wResult);
+    PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
@@ -135,14 +136,14 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     // Start
     Label wlStart = new Label(shell, SWT.RIGHT);
     wlStart.setText(BaseMessages.getString(PKG, "FieldsChangeSequenceDialog.Start.Label"));
-    props.setLook(wlStart);
+    PropsUi.setLook(wlStart);
     FormData fdlStart = new FormData();
     fdlStart.left = new FormAttachment(0, 0);
     fdlStart.right = new FormAttachment(middle, -margin);
     fdlStart.top = new FormAttachment(wResult, margin);
     wlStart.setLayoutData(fdlStart);
     wStart = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wStart);
+    PropsUi.setLook(wStart);
     FormData fdStart = new FormData();
     fdStart.left = new FormAttachment(middle, 0);
     fdStart.top = new FormAttachment(wResult, margin);
@@ -152,14 +153,14 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     // Increment
     Label wlIncrement = new Label(shell, SWT.RIGHT);
     wlIncrement.setText(BaseMessages.getString(PKG, "FieldsChangeSequenceDialog.Increment.Label"));
-    props.setLook(wlIncrement);
+    PropsUi.setLook(wlIncrement);
     FormData fdlIncrement = new FormData();
     fdlIncrement.left = new FormAttachment(0, 0);
     fdlIncrement.right = new FormAttachment(middle, -margin);
     fdlIncrement.top = new FormAttachment(wStart, margin);
     wlIncrement.setLayoutData(fdlIncrement);
     wIncrement = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wIncrement);
+    PropsUi.setLook(wIncrement);
     FormData fdIncrement = new FormData();
     fdIncrement.left = new FormAttachment(middle, 0);
     fdIncrement.top = new FormAttachment(wStart, margin);
@@ -178,7 +179,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     // Table with fields
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "FieldsChangeSequenceDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wIncrement, margin);

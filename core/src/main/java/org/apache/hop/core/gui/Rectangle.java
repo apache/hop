@@ -52,6 +52,10 @@ public class Rectangle {
     return x2 >= x && x2 <= x + width && y2 >= y && y2 <= y + height;
   }
 
+  public boolean contains(Point p) {
+    return contains(p.x, p.y);
+  }
+
   public int getCentreX() {
     return x + width / 2;
   }

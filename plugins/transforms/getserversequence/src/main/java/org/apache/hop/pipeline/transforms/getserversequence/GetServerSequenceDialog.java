@@ -25,6 +25,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.server.HopServer;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -63,7 +64,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -82,7 +83,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "GetSequenceDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -90,7 +91,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -101,7 +102,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     // Valuename line
     Label wlValuename = new Label(shell, SWT.RIGHT);
     wlValuename.setText(BaseMessages.getString(PKG, "GetSequenceDialog.Valuename.Label"));
-    props.setLook(wlValuename);
+    PropsUi.setLook(wlValuename);
     FormData fdlValuename = new FormData();
     fdlValuename.left = new FormAttachment(0, 0);
     fdlValuename.top = new FormAttachment(wTransformName, margin);
@@ -109,7 +110,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     wlValuename.setLayoutData(fdlValuename);
     wValuename = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wValuename.setText("");
-    props.setLook(wValuename);
+    PropsUi.setLook(wValuename);
     wValuename.addModifyListener(lsMod);
     FormData fdValuename = new FormData();
     fdValuename.left = new FormAttachment(middle, 0);
@@ -134,12 +135,12 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     fdHopServer.right = new FormAttachment(100, 0);
     wHopServer.setLayoutData(fdHopServer);
     wHopServer.addToConnectionLine(shell, wValuename, null, lsMod);
-    props.setLook(wHopServer);
+    PropsUi.setLook(wHopServer);
 
     // Sequence name line
     Label wlSeqname = new Label(shell, SWT.RIGHT);
     wlSeqname.setText(BaseMessages.getString(PKG, "GetSequenceDialog.Seqname.Label"));
-    props.setLook(wlSeqname);
+    PropsUi.setLook(wlSeqname);
     FormData fdlSeqname = new FormData();
     fdlSeqname.left = new FormAttachment(0, 0);
     fdlSeqname.right = new FormAttachment(middle, -margin);
@@ -148,7 +149,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
 
     wSeqname = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSeqname.setText("");
-    props.setLook(wSeqname);
+    PropsUi.setLook(wSeqname);
     wSeqname.addModifyListener(lsMod);
     FormData fdSeqname = new FormData();
     fdSeqname.left = new FormAttachment(middle, 0);
@@ -159,7 +160,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     // Increment line
     Label wlIncrement = new Label(shell, SWT.RIGHT);
     wlIncrement.setText(BaseMessages.getString(PKG, "GetSequenceDialog.Increment.Label"));
-    props.setLook(wlIncrement);
+    PropsUi.setLook(wlIncrement);
     FormData fdlIncrement = new FormData();
     fdlIncrement.left = new FormAttachment(0, 0);
     fdlIncrement.right = new FormAttachment(middle, -margin);
@@ -168,7 +169,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
 
     wIncrement = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wIncrement.setText("");
-    props.setLook(wIncrement);
+    PropsUi.setLook(wIncrement);
     wIncrement.addModifyListener(lsMod);
     FormData fdIncrement = new FormData();
     fdIncrement.left = new FormAttachment(middle, 0);

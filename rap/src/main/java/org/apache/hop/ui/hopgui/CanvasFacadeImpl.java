@@ -18,7 +18,9 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.base.AbstractMeta;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineHopMeta;
@@ -37,8 +39,13 @@ public class CanvasFacadeImpl extends CanvasFacade {
 
   @Override
   void setDataInternal(
-      Canvas canvas, float magnification, AbstractMeta meta, Class<?> type, IVariables variables) {
-    setDataCommon(canvas, magnification, meta);
+      Canvas canvas,
+      float magnification,
+      DPoint offset,
+      AbstractMeta meta,
+      Class<?> type,
+      IVariables variables) {
+    setDataCommon(canvas, magnification, offset, meta);
     if (type == HopGuiWorkflowGraph.class) {
       setDataWorkflow(canvas, magnification, meta, variables);
     } else {
@@ -46,15 +53,18 @@ public class CanvasFacadeImpl extends CanvasFacade {
     }
   }
 
-  private void setDataCommon(Canvas canvas, float magnification, AbstractMeta meta) {
+  private void setDataCommon(Canvas canvas, float magnification, DPoint offset, AbstractMeta meta) {
     JsonObject jsonProps = new JsonObject();
+    jsonProps.add("themeId", System.getProperty(HopWeb.HOP_WEB_THEME, "light"));
     jsonProps.add(
-        "gridsize",
+        "gridSize",
         PropsUi.getInstance().isShowCanvasGridEnabled()
             ? PropsUi.getInstance().getCanvasGridSize()
             : 1);
-    jsonProps.add("iconsize", PropsUi.getInstance().getIconSize());
-    jsonProps.add("magnification", magnification);
+    jsonProps.add("iconSize", PropsUi.getInstance().getIconSize());
+    jsonProps.add("magnification", (float) (magnification * PropsUi.getNativeZoomFactor()));
+    jsonProps.add("offsetX", offset.x);
+    jsonProps.add("offsetY", offset.y);
     canvas.setData("props", jsonProps);
 
     JsonArray jsonNotes = new JsonArray();
@@ -75,8 +85,6 @@ public class CanvasFacadeImpl extends CanvasFacade {
 
   private void setDataWorkflow(
       Canvas canvas, float magnification, AbstractMeta meta, IVariables variables) {
-    final int iconSize = HopGui.getInstance().getProps().getIconSize();
-
     WorkflowMeta workflowMeta = (WorkflowMeta) meta;
     JsonObject jsonNodes = new JsonObject();
 
@@ -115,8 +123,6 @@ public class CanvasFacadeImpl extends CanvasFacade {
 
   private void setDataPipeline(
       Canvas canvas, float magnification, AbstractMeta meta, IVariables variables) {
-    final int iconSize = HopGui.getInstance().getProps().getIconSize();
-
     PipelineMeta pipelineMeta = (PipelineMeta) meta;
     JsonObject jsonNodes = new JsonObject();
 

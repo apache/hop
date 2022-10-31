@@ -105,7 +105,7 @@ public class EnterStringDialog extends Dialog {
     Control lastControl;
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL | SWT.SHEET);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -120,7 +120,7 @@ public class EnterStringDialog extends Dialog {
     // The String line...
     Label wlString = new Label(shell, SWT.NONE);
     wlString.setText(lineText);
-    props.setLook(wlString);
+    PropsUi.setLook(wlString);
     FormData fdlString = new FormData();
     fdlString.left = new FormAttachment(0, 0);
     fdlString.top = new FormAttachment(0, margin);
@@ -128,12 +128,12 @@ public class EnterStringDialog extends Dialog {
     if (allowVariables) {
       wStringVar = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
       wStringVar.setText(string);
-      props.setLook(wStringVar);
+      PropsUi.setLook(wStringVar);
       lastControl = wStringVar;
     } else {
       wString = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
       wString.setText(string);
-      props.setLook(wString);
+      PropsUi.setLook(wString);
       lastControl = wString;
     }
 

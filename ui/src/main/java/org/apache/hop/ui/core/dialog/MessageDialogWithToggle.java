@@ -88,6 +88,7 @@ public class MessageDialogWithToggle {
     shell.setLayout(shellLayout);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.setText(Const.NVL(title, ""));
+    PropsUi.setLook(shell);
 
     // An image at the right hand side...
     //
@@ -105,6 +106,7 @@ public class MessageDialogWithToggle {
     // Add the message label...
     //
     Label wlMessage = new Label(shell, SWT.WRAP);
+    PropsUi.setLook(wlMessage);
     wlMessage.setText(Const.NVL(message, ""));
     FormData fdMessage = new FormData();
     fdMessage.left = new FormAttachment(0, 0);
@@ -115,6 +117,7 @@ public class MessageDialogWithToggle {
     // Below these 2 we put the checkbox with a label and a default state...
     //
     Button wToggle = new Button(shell, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wToggle);
     wToggle.setText(toggleLabel);
     wToggle.setSelection(toggleState);
     FormData fdToggle = new FormData();
@@ -131,6 +134,7 @@ public class MessageDialogWithToggle {
     for (int i = 0; i < buttons.length; i++) {
       final int index = i;
       buttons[i] = new Button(shell, SWT.PUSH);
+      PropsUi.setLook(buttons[i]);
       buttons[i].setText(buttonLabels[i]);
       buttons[i].addListener(
           SWT.Selection,

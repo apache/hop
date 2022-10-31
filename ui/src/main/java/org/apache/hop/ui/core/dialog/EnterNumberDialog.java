@@ -82,7 +82,7 @@ public class EnterNumberDialog extends Dialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
@@ -95,14 +95,14 @@ public class EnterNumberDialog extends Dialog {
     // From transform line
     Label wlNumber = new Label(shell, SWT.NONE);
     wlNumber.setText(lineText);
-    props.setLook(wlNumber);
+    PropsUi.setLook(wlNumber);
     FormData fdlNumber = new FormData();
     fdlNumber.left = new FormAttachment(0, 0);
     fdlNumber.top = new FormAttachment(0, 0);
     wlNumber.setLayoutData(fdlNumber);
     wNumber = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wNumber.setText("100");
-    props.setLook(wNumber);
+    PropsUi.setLook(wNumber);
     FormData fdNumber = new FormData();
     fdNumber.left = new FormAttachment(0, 0);
     fdNumber.top = new FormAttachment(wlNumber, BaseDialog.LABEL_SPACING);
@@ -112,7 +112,7 @@ public class EnterNumberDialog extends Dialog {
     Control lastControl = wNumber;
     if (StringUtils.isNotBlank(checkboxLabel)) {
       wCheckbox = new Button(shell, SWT.CHECK);
-      props.setLook(wCheckbox);
+      PropsUi.setLook(wCheckbox);
       FormData fdCheckbox = new FormData();
       fdCheckbox.left = new FormAttachment(0, 0);
       fdCheckbox.top = new FormAttachment(wNumber, BaseDialog.ELEMENT_SPACING);
@@ -129,7 +129,7 @@ public class EnterNumberDialog extends Dialog {
             }
           });
       wlCheckbox.setText(checkboxLabel);
-      props.setLook(wlCheckbox);
+      PropsUi.setLook(wlCheckbox);
       FormData fdlCheckbox = new FormData();
       fdlCheckbox.left = new FormAttachment(wCheckbox, 0);
       fdlCheckbox.top = new FormAttachment(wCheckbox, 0, SWT.CENTER);

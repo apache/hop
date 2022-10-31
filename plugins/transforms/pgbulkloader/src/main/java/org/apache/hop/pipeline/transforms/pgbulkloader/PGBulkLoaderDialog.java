@@ -35,6 +35,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -105,7 +106,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -131,7 +132,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -139,7 +140,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -153,7 +154,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     // Schema line...
     Label wlSchema = new Label(shell, SWT.RIGHT);
     wlSchema.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.TargetSchema.Label"));
-    props.setLook(wlSchema);
+    PropsUi.setLook(wlSchema);
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
@@ -161,7 +162,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     wlSchema.setLayoutData(fdlSchema);
 
     wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSchema);
+    PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsMod);
     wSchema.addFocusListener(lsFocusLost);
     FormData fdSchema = new FormData();
@@ -173,7 +174,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     // Table line...
     Label wlTable = new Label(shell, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.TargetTable.Label"));
-    props.setLook(wlTable);
+    PropsUi.setLook(wlTable);
     FormData fdlTable = new FormData();
     fdlTable.left = new FormAttachment(0, 0);
     fdlTable.right = new FormAttachment(middle, -margin);
@@ -181,14 +182,14 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     wlTable.setLayoutData(fdlTable);
 
     Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTable);
+    PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Browse.Button"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
     fdbTable.top = new FormAttachment(wSchema, margin);
     wbTable.setLayoutData(fdbTable);
     wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTable);
+    PropsUi.setLook(wTable);
     wTable.addModifyListener(lsMod);
     wTable.addFocusListener(lsFocusLost);
     FormData fdTable = new FormData();
@@ -200,7 +201,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     // Load Action line
     Label wlLoadAction = new Label(shell, SWT.RIGHT);
     wlLoadAction.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.LoadAction.Label"));
-    props.setLook(wlLoadAction);
+    PropsUi.setLook(wlLoadAction);
     FormData fdlLoadAction = new FormData();
     fdlLoadAction.left = new FormAttachment(0, 0);
     fdlLoadAction.right = new FormAttachment(middle, -margin);
@@ -213,7 +214,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     wLoadAction.select(0); // +1: starts at -1
     wLoadAction.addModifyListener(lsMod);
 
-    props.setLook(wLoadAction);
+    PropsUi.setLook(wLoadAction);
     FormData fdLoadAction = new FormData();
     fdLoadAction.left = new FormAttachment(middle, 0);
     fdLoadAction.top = new FormAttachment(wTable, margin);
@@ -230,14 +231,14 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     Label wlDbNameOverride = new Label(shell, SWT.RIGHT);
     wlDbNameOverride.setText(
         BaseMessages.getString(PKG, "PGBulkLoaderDialog.DbNameOverride.Label"));
-    props.setLook(wlDbNameOverride);
+    PropsUi.setLook(wlDbNameOverride);
     FormData fdlDbNameOverride = new FormData();
     fdlDbNameOverride.left = new FormAttachment(0, 0);
     fdlDbNameOverride.top = new FormAttachment(wLoadAction, margin);
     fdlDbNameOverride.right = new FormAttachment(middle, -margin);
     wlDbNameOverride.setLayoutData(fdlDbNameOverride);
     wDbNameOverride = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDbNameOverride);
+    PropsUi.setLook(wDbNameOverride);
     wDbNameOverride.addModifyListener(lsMod);
     FormData fdDbNameOverride = new FormData();
     fdDbNameOverride.left = new FormAttachment(middle, 0);
@@ -248,14 +249,14 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     // Enclosure line
     Label wlEnclosure = new Label(shell, SWT.RIGHT);
     wlEnclosure.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Enclosure.Label"));
-    props.setLook(wlEnclosure);
+    PropsUi.setLook(wlEnclosure);
     FormData fdlEnclosure = new FormData();
     fdlEnclosure.left = new FormAttachment(0, 0);
     fdlEnclosure.top = new FormAttachment(wDbNameOverride, margin);
     fdlEnclosure.right = new FormAttachment(middle, -margin);
     wlEnclosure.setLayoutData(fdlEnclosure);
     wEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wEnclosure);
+    PropsUi.setLook(wEnclosure);
     wEnclosure.addModifyListener(lsMod);
     FormData fdEnclosure = new FormData();
     fdEnclosure.left = new FormAttachment(middle, 0);
@@ -266,14 +267,14 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     // Delimiter
     Label wlDelimiter = new Label(shell, SWT.RIGHT);
     wlDelimiter.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Delimiter.Label"));
-    props.setLook(wlDelimiter);
+    PropsUi.setLook(wlDelimiter);
     FormData fdlDelimiter = new FormData();
     fdlDelimiter.left = new FormAttachment(0, 0);
     fdlDelimiter.top = new FormAttachment(wEnclosure, margin);
     fdlDelimiter.right = new FormAttachment(middle, -margin);
     wlDelimiter.setLayoutData(fdlDelimiter);
     wDelimiter = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDelimiter);
+    PropsUi.setLook(wDelimiter);
     wDelimiter.addModifyListener(lsMod);
     FormData fdDelimiter = new FormData();
     fdDelimiter.left = new FormAttachment(middle, 0);
@@ -284,14 +285,14 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     // Stop on Error line
     Label wlStopOnError = new Label(shell, SWT.RIGHT);
     wlStopOnError.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.StopOnError.Label"));
-    props.setLook(wlStopOnError);
+    PropsUi.setLook(wlStopOnError);
     FormData fdlStopOnError = new FormData();
     fdlStopOnError.left = new FormAttachment(0, 0);
     fdlStopOnError.top = new FormAttachment(wDelimiter, margin);
     fdlStopOnError.right = new FormAttachment(middle, -margin);
     wlStopOnError.setLayoutData(fdlStopOnError);
     wStopOnError = new Button(shell, SWT.CHECK);
-    props.setLook(wStopOnError);
+    PropsUi.setLook(wStopOnError);
     FormData fdStopOnError = new FormData();
     fdStopOnError.left = new FormAttachment(middle, 0);
     fdStopOnError.top = new FormAttachment(wlStopOnError, 0, SWT.CENTER);
@@ -318,7 +319,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     // The field Table
     Label wlReturn = new Label(shell, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Fields.Label"));
-    props.setLook(wlReturn);
+    PropsUi.setLook(wlReturn);
     FormData fdlReturn = new FormData();
     fdlReturn.left = new FormAttachment(0, 0);
     fdlReturn.top = new FormAttachment(wStopOnError, margin);

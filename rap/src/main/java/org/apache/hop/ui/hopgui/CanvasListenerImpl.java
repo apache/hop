@@ -22,6 +22,7 @@ import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.rap.rwt.scripting.ClientListener;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class CanvasListenerImpl extends ClientListener implements ISingletonProvider {
 
@@ -37,14 +38,9 @@ public class CanvasListenerImpl extends ClientListener implements ISingletonProv
   private static String getText() {
     String canvasScript = null;
     try {
-      String themeId = System.getProperty("HOP_WEB_THEME", "dark");
-      if ("dark".equalsIgnoreCase(themeId)) {
-        canvasScript =
-            IOUtils.toString(CanvasListenerImpl.class.getResourceAsStream("canvas-dark.js"));
-      } else {
-        canvasScript =
-            IOUtils.toString(CanvasListenerImpl.class.getResourceAsStream("canvas-light.js"));
-      }
+      canvasScript =
+          IOUtils.toString(
+              CanvasListenerImpl.class.getResourceAsStream("canvas.js"), StandardCharsets.UTF_8);
     } catch (IOException e1) {
       e1.printStackTrace();
     }

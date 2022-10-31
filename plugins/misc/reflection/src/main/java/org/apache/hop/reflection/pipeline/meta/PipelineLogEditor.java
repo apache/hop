@@ -84,11 +84,11 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     fdlIcon.top = new FormAttachment(0, 0);
     fdlIcon.right = new FormAttachment(100, 0);
     wIcon.setLayoutData(fdlIcon);
-    props.setLook(wIcon);
+    PropsUi.setLook(wIcon);
 
     // What's the name
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "PipelineLoggingEditor.Name.Label"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(wIcon, margin);
@@ -96,7 +96,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, margin);
@@ -114,7 +114,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     // Enabled?
     //
     Label wlEnabled = new Label(parent, SWT.RIGHT);
-    props.setLook(wlEnabled);
+    PropsUi.setLook(wlEnabled);
     wlEnabled.setText(BaseMessages.getString(PKG, "PipelineLoggingEditor.Enabled.Label"));
     FormData fdlEnabled = new FormData();
     fdlEnabled.left = new FormAttachment(0, 0);
@@ -122,7 +122,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     fdlEnabled.top = new FormAttachment(lastControl, margin);
     wlEnabled.setLayoutData(fdlEnabled);
     wEnabled = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wEnabled);
+    PropsUi.setLook(wEnabled);
     FormData fdEnabled = new FormData();
     fdEnabled.left = new FormAttachment(middle, margin);
     fdEnabled.right = new FormAttachment(100, 0);
@@ -133,7 +133,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     // LoggingParentsOnly?
     //
     Label wlLoggingParentsOnly = new Label(parent, SWT.RIGHT);
-    props.setLook(wlLoggingParentsOnly);
+    PropsUi.setLook(wlLoggingParentsOnly);
     wlLoggingParentsOnly.setText(
         BaseMessages.getString(PKG, "PipelineLoggingEditor.LoggingParentsOnly.Label"));
     FormData fdlLoggingParentsOnly = new FormData();
@@ -142,7 +142,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     fdlLoggingParentsOnly.top = new FormAttachment(lastControl, 2 * margin);
     wlLoggingParentsOnly.setLayoutData(fdlLoggingParentsOnly);
     wLoggingParentsOnly = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLoggingParentsOnly);
+    PropsUi.setLook(wLoggingParentsOnly);
     FormData fdLoggingParentsOnly = new FormData();
     fdLoggingParentsOnly.left = new FormAttachment(middle, margin);
     fdLoggingParentsOnly.right = new FormAttachment(100, 0);
@@ -151,7 +151,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     lastControl = wlLoggingParentsOnly;
 
     Label wlFilename = new Label(parent, SWT.RIGHT);
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     wlFilename.setText(BaseMessages.getString(PKG, "PipelineLoggingEditor.Filename.Label"));
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
@@ -160,7 +160,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     wlFilename.setLayoutData(fdlFilename);
 
     Button wbbFilename = new Button(parent, SWT.PUSH);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbbFilename = new FormData();
     fdbbFilename.right = new FormAttachment(100, 0);
@@ -169,7 +169,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     wbbFilename.addListener(SWT.Selection, e -> selectPipelineFilename(parent));
 
     Button wbnFilename = new Button(parent, SWT.PUSH);
-    props.setLook(wbnFilename);
+    PropsUi.setLook(wbnFilename);
     wbnFilename.setText(BaseMessages.getString(PKG, "System.Button.New"));
     FormData fdbnFilename = new FormData();
     fdbnFilename.right = new FormAttachment(wbbFilename, -margin);
@@ -178,7 +178,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     wbnFilename.addListener(SWT.Selection, e -> createPipelineFile(parent));
 
     Button wboFilename = new Button(parent, SWT.PUSH);
-    props.setLook(wboFilename);
+    PropsUi.setLook(wboFilename);
     wboFilename.setText(BaseMessages.getString(PKG, "System.Button.Open"));
     FormData fdboFilename = new FormData();
     fdboFilename.right = new FormAttachment(wbnFilename, -margin);
@@ -187,7 +187,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     wboFilename.addListener(SWT.Selection, e -> openPipelineFile(parent));
 
     wFilename = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, margin);
     fdFilename.right = new FormAttachment(wboFilename, -margin);
@@ -198,7 +198,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     // Execute at start
     //
     Label wlAtStart = new Label(parent, SWT.RIGHT);
-    props.setLook(wlAtStart);
+    PropsUi.setLook(wlAtStart);
     wlAtStart.setText(BaseMessages.getString(PKG, "PipelineLoggingEditor.AtStart.Label"));
     FormData fdlAtStart = new FormData();
     fdlAtStart.left = new FormAttachment(0, 0);
@@ -206,7 +206,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     fdlAtStart.top = new FormAttachment(lastControl, margin);
     wlAtStart.setLayoutData(fdlAtStart);
     wAtStart = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wAtStart);
+    PropsUi.setLook(wAtStart);
     FormData fdAtStart = new FormData();
     fdAtStart.left = new FormAttachment(middle, margin);
     fdAtStart.right = new FormAttachment(100, 0);
@@ -217,7 +217,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     // Execute at end
     //
     Label wlAtEnd = new Label(parent, SWT.RIGHT);
-    props.setLook(wlAtEnd);
+    PropsUi.setLook(wlAtEnd);
     wlAtEnd.setText(BaseMessages.getString(PKG, "PipelineLoggingEditor.AtEnd.Label"));
     FormData fdlAtEnd = new FormData();
     fdlAtEnd.left = new FormAttachment(0, 0);
@@ -225,7 +225,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     fdlAtEnd.top = new FormAttachment(lastControl, 2 * margin);
     wlAtEnd.setLayoutData(fdlAtEnd);
     wAtEnd = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wAtEnd);
+    PropsUi.setLook(wAtEnd);
     FormData fdAtEnd = new FormData();
     fdAtEnd.left = new FormAttachment(middle, margin);
     fdAtEnd.right = new FormAttachment(100, 0);
@@ -236,7 +236,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     // Execute periodically
     //
     Label wlPeriodic = new Label(parent, SWT.RIGHT);
-    props.setLook(wlPeriodic);
+    PropsUi.setLook(wlPeriodic);
     wlPeriodic.setText(BaseMessages.getString(PKG, "PipelineLoggingEditor.Periodic.Label"));
     FormData fdlPeriodic = new FormData();
     fdlPeriodic.left = new FormAttachment(0, 0);
@@ -244,7 +244,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     fdlPeriodic.top = new FormAttachment(lastControl, 2 * margin);
     wlPeriodic.setLayoutData(fdlPeriodic);
     wPeriodic = new Button(parent, SWT.CHECK | SWT.LEFT);
-    props.setLook(wPeriodic);
+    PropsUi.setLook(wPeriodic);
     FormData fdPeriodic = new FormData();
     fdPeriodic.left = new FormAttachment(middle, margin);
     fdPeriodic.right = new FormAttachment(100, 0);
@@ -255,7 +255,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     // Execute periodically
     //
     wlInterval = new Label(parent, SWT.RIGHT);
-    props.setLook(wlInterval);
+    PropsUi.setLook(wlInterval);
     wlInterval.setText(BaseMessages.getString(PKG, "PipelineLoggingEditor.Interval.Label"));
     FormData fdlInterval = new FormData();
     fdlInterval.left = new FormAttachment(0, 0);
@@ -263,7 +263,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     fdlInterval.top = new FormAttachment(lastControl, 2 * margin);
     wlInterval.setLayoutData(fdlInterval);
     wInterval = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    props.setLook(wInterval);
+    PropsUi.setLook(wInterval);
     FormData fdInterval = new FormData();
     fdInterval.left = new FormAttachment(middle, margin);
     fdInterval.right = new FormAttachment(100, 0);
@@ -275,7 +275,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     // The locations in a table view:
     //
     Label wlSources = new Label(parent, SWT.LEFT);
-    props.setLook(wlSources);
+    PropsUi.setLook(wlSources);
     wlSources.setText(BaseMessages.getString(PKG, "PipelineLoggingEditor.Sources.Label"));
     FormData fdlSources = new FormData();
     fdlSources.left = new FormAttachment(0, 0);

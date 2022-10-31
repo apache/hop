@@ -26,6 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -58,7 +59,7 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -77,7 +78,7 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "FilesToResultDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -86,7 +87,7 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -99,7 +100,7 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     // FilenameField line
     Label wlFilenameField = new Label(shell, SWT.RIGHT);
     wlFilenameField.setText(BaseMessages.getString(PKG, "FilesToResultDialog.FilenameField.Label"));
-    props.setLook(wlFilenameField);
+    PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, 0);
     fdlFilenameField.top = new FormAttachment(wTransformName, margin);
@@ -109,7 +110,7 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     wFilenameField = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFilenameField.setToolTipText(
         BaseMessages.getString(PKG, "FilesToResultDialog.FilenameField.Tooltip"));
-    props.setLook(wFilenameField);
+    PropsUi.setLook(wFilenameField);
     wFilenameField.addModifyListener(lsMod);
     FormData fdFilenameField = new FormData();
     fdFilenameField.left = new FormAttachment(middle, 0);
@@ -150,7 +151,7 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     // Include Files?
     Label wlTypes = new Label(shell, SWT.RIGHT);
     wlTypes.setText(BaseMessages.getString(PKG, "FilesToResultDialog.TypeOfFile.Label"));
-    props.setLook(wlTypes);
+    PropsUi.setLook(wlTypes);
     FormData fdlTypes = new FormData();
     fdlTypes.left = new FormAttachment(0, 0);
     fdlTypes.top = new FormAttachment(wFilenameField, margin);
@@ -158,7 +159,7 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     wlTypes.setLayoutData(fdlTypes);
     wTypes = new List(shell, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     wTypes.setToolTipText(BaseMessages.getString(PKG, "FilesToResultDialog.TypeOfFile.Tooltip"));
-    props.setLook(wTypes);
+    PropsUi.setLook(wTypes);
     FormData fdTypes = new FormData();
     fdTypes.left = new FormAttachment(middle, 0);
     fdTypes.top = new FormAttachment(wFilenameField, margin);

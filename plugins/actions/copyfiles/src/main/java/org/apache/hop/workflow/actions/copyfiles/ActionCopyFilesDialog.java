@@ -22,6 +22,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -92,7 +93,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = e -> action.setChanged();
@@ -121,14 +122,14 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Name.Label"));
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(wlName, margin);
@@ -137,7 +138,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
@@ -151,10 +152,11 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     // ///////////////////////////////////////////////////////////
 
     CTabItem wFilesTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFilesTab.setFont(GuiResource.getInstance().getFontDefault());
     wFilesTab.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Tab.Files.Label"));
 
     Composite wFilesComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFilesComp);
+    PropsUi.setLook(wFilesComp);
 
     FormLayout filesLayout = new FormLayout();
     filesLayout.marginWidth = 3;
@@ -180,10 +182,11 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     // ////////////////////////
 
     CTabItem wSettingsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wSettingsTab.setFont(GuiResource.getInstance().getFontDefault());
     wSettingsTab.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Settings.Label"));
 
     Composite wSettingsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wSettingsComp);
+    PropsUi.setLook(wSettingsComp);
 
     FormLayout settingsLayout = new FormLayout();
     settingsLayout.marginWidth = 3;
@@ -271,14 +274,14 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
     wSettingsComp.layout();
     wSettingsTab.setControl(wSettingsComp);
-    props.setLook(wSettingsComp);
+    PropsUi.setLook(wSettingsComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF SETTINGS TAB
     // ///////////////////////////////////////////////////////////
 
     ToolBar tb = new ToolBar(wFilesComp, SWT.HORIZONTAL | SWT.FLAT);
-    props.setLook(tb);
+    PropsUi.setLook(tb);
     FormData fdTb = new FormData();
     fdTb.right = new FormAttachment(100, 0);
     fdTb.top = new FormAttachment(wFilesComp, margin);
@@ -301,7 +304,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
     wlFields = new Label(wFilesComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, margin);
     fdlFields.top = new FormAttachment(tb, 0, SWT.CENTER);
@@ -400,7 +403,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     Button button = new Button(p, SWT.CHECK);
     button.setText(text);
     button.setToolTipText(title);
-    props.setLook(button);
+    PropsUi.setLook(button);
     FormData fd = new FormData();
     fd.left = new FormAttachment(props.getMiddlePct(), Const.MARGIN * 2);
     if (top == null) {

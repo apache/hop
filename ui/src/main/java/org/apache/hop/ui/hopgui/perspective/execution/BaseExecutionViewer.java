@@ -19,6 +19,7 @@
 package org.apache.hop.ui.hopgui.perspective.execution;
 
 import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.IVariables;
@@ -67,7 +68,7 @@ public abstract class BaseExecutionViewer extends Composite implements KeyListen
   protected Canvas canvas;
   protected float magnification = 1.0f;
   protected CTabFolder tabFolder;
-  protected Point offset;
+  protected DPoint offset;
 
   public BaseExecutionViewer(Composite parent, HopGui hopGui) {
     super(parent, SWT.NO_BACKGROUND);
@@ -75,7 +76,7 @@ public abstract class BaseExecutionViewer extends Composite implements KeyListen
     this.props = PropsUi.getInstance();
     this.iconSize = hopGui.getProps().getIconSize();
     this.areaOwners = new ArrayList<>();
-    this.offset = new Point(0, 0);
+    this.offset = new DPoint(0, 0);
   }
 
   protected Display hopDisplay() {
@@ -91,13 +92,11 @@ public abstract class BaseExecutionViewer extends Composite implements KeyListen
     return (float) (magnification * PropsUi.getInstance().getZoomFactor());
   }
 
-  public Point screen2real(int x, int y) {
+  public DPoint screen2real(int x, int y) {
     float correctedMagnification = calculateCorrectedMagnification();
-    Point real;
-    real =
-        new Point(
-            Math.round((x / correctedMagnification - offset.x)),
-            Math.round((y / correctedMagnification - offset.y)));
+    DPoint real =
+        new DPoint(
+            (x / correctedMagnification - offset.x), (y / correctedMagnification - offset.y));
 
     return real;
   }
@@ -119,7 +118,7 @@ public abstract class BaseExecutionViewer extends Composite implements KeyListen
     return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date);
   }
 
-  public abstract void drillDownOnLocation(Point location);
+  public abstract void drillDownOnLocation(DPoint location);
 
   @Override
   public void keyPressed(KeyEvent keyEvent) {}

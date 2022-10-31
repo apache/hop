@@ -23,6 +23,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.metadata.MetadataManager;
@@ -98,7 +99,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     FormLayout formLayout = new FormLayout();
@@ -113,14 +114,14 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText("Action name");
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
     fdName.top = new FormAttachment(0, margin);
@@ -130,7 +131,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     Label wlFilename = new Label(shell, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "Repeat.FileToRepeat.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.right = new FormAttachment(middle, -margin);
@@ -141,7 +142,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     //
     // Browse for a file
     Button wbbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -152,7 +153,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     wbbFilename.addListener(SWT.Selection, e -> browseForFile());
 
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.right = new FormAttachment(wbbFilename, -margin);
@@ -162,7 +163,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     Label wlRunConfiguration = new Label(shell, SWT.RIGHT);
     wlRunConfiguration.setText(BaseMessages.getString(PKG, "Repeat.RunConfiguration.Label"));
-    props.setLook(wlRunConfiguration);
+    PropsUi.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
     fdlRunConfiguration.top = new FormAttachment(lastControl, Const.isOSX() ? 0 : 5);
@@ -170,7 +171,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     wlRunConfiguration.setLayoutData(fdlRunConfiguration);
 
     wRunConfiguration = new ComboVar(variables, shell, SWT.LEFT | SWT.BORDER);
-    props.setLook(wRunConfiguration);
+    PropsUi.setLook(wRunConfiguration);
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.left = new FormAttachment(middle, 0);
     fdRunConfiguration.top = new FormAttachment(wlRunConfiguration, 0, SWT.CENTER);
@@ -180,14 +181,14 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     Label wlVariableName = new Label(shell, SWT.RIGHT);
     wlVariableName.setText(BaseMessages.getString(PKG, "Repeat.StopRepeatingVar.Label"));
-    props.setLook(wlVariableName);
+    PropsUi.setLook(wlVariableName);
     FormData fdlVariableName = new FormData();
     fdlVariableName.left = new FormAttachment(0, 0);
     fdlVariableName.right = new FormAttachment(middle, 0);
     fdlVariableName.top = new FormAttachment(lastControl, margin);
     wlVariableName.setLayoutData(fdlVariableName);
     wVariableName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wVariableName);
+    PropsUi.setLook(wVariableName);
     FormData fdVariableName = new FormData();
     fdVariableName.left = new FormAttachment(middle, 0);
     fdVariableName.right = new FormAttachment(100, 0);
@@ -197,14 +198,14 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     Label wlVariableValue = new Label(shell, SWT.RIGHT);
     wlVariableValue.setText(BaseMessages.getString(PKG, "Repeat.OptionalVarValue.Label"));
-    props.setLook(wlVariableValue);
+    PropsUi.setLook(wlVariableValue);
     FormData fdlVariableValue = new FormData();
     fdlVariableValue.left = new FormAttachment(0, 0);
     fdlVariableValue.right = new FormAttachment(middle, -margin);
     fdlVariableValue.top = new FormAttachment(lastControl, margin);
     wlVariableValue.setLayoutData(fdlVariableValue);
     wVariableValue = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wVariableValue);
+    PropsUi.setLook(wVariableValue);
     FormData fdVariableValue = new FormData();
     fdVariableValue.left = new FormAttachment(middle, 0);
     fdVariableValue.right = new FormAttachment(100, 0);
@@ -214,14 +215,14 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     Label wlDelay = new Label(shell, SWT.RIGHT);
     wlDelay.setText(BaseMessages.getString(PKG, "Repeat.Delay.Label"));
-    props.setLook(wlDelay);
+    PropsUi.setLook(wlDelay);
     FormData fdlDelay = new FormData();
     fdlDelay.left = new FormAttachment(0, 0);
     fdlDelay.right = new FormAttachment(middle, -margin);
     fdlDelay.top = new FormAttachment(lastControl, margin);
     wlDelay.setLayoutData(fdlDelay);
     wDelay = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDelay);
+    PropsUi.setLook(wDelay);
     FormData fdDelay = new FormData();
     fdDelay.left = new FormAttachment(middle, 0);
     fdDelay.right = new FormAttachment(100, 0);
@@ -231,14 +232,14 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     Label wlKeepValues = new Label(shell, SWT.RIGHT);
     wlKeepValues.setText(BaseMessages.getString(PKG, "Repeat.KeepVariableValues.Label"));
-    props.setLook(wlKeepValues);
+    PropsUi.setLook(wlKeepValues);
     FormData fdlKeepValues = new FormData();
     fdlKeepValues.left = new FormAttachment(0, 0);
     fdlKeepValues.right = new FormAttachment(middle, -margin);
     fdlKeepValues.top = new FormAttachment(lastControl, margin);
     wlKeepValues.setLayoutData(fdlKeepValues);
     wKeepValues = new Button(shell, SWT.CHECK | SWT.LEFT);
-    props.setLook(wKeepValues);
+    PropsUi.setLook(wKeepValues);
     FormData fdKeepValues = new FormData();
     fdKeepValues.left = new FormAttachment(middle, 0);
     fdKeepValues.right = new FormAttachment(100, 0);
@@ -247,7 +248,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastControl = wlKeepValues;
 
     Group wLogFileGroup = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(wLogFileGroup);
+    PropsUi.setLook(wLogFileGroup);
     wLogFileGroup.setText(BaseMessages.getString(PKG, "Repeat.LoggingFileGroup.Label"));
     FormLayout logFileGroupLayout = new FormLayout();
     logFileGroupLayout.marginLeft = Const.MARGIN;
@@ -258,14 +259,14 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     Label wlLogFileEnabled = new Label(wLogFileGroup, SWT.RIGHT);
     wlLogFileEnabled.setText(BaseMessages.getString(PKG, "Repeat.LogToFile.Label"));
-    props.setLook(wlLogFileEnabled);
+    PropsUi.setLook(wlLogFileEnabled);
     FormData fdlLogFileEnabled = new FormData();
     fdlLogFileEnabled.left = new FormAttachment(0, 0);
     fdlLogFileEnabled.right = new FormAttachment(middle, -margin);
     fdlLogFileEnabled.top = new FormAttachment(0, 0);
     wlLogFileEnabled.setLayoutData(fdlLogFileEnabled);
     wLogFileEnabled = new Button(wLogFileGroup, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLogFileEnabled);
+    PropsUi.setLook(wLogFileEnabled);
     FormData fdLogFileEnabled = new FormData();
     fdLogFileEnabled.left = new FormAttachment(middle, 0);
     fdLogFileEnabled.right = new FormAttachment(100, 0);
@@ -276,14 +277,14 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     wlLogFileBase = new Label(wLogFileGroup, SWT.RIGHT);
     wlLogFileBase.setText(BaseMessages.getString(PKG, "Repeat.BaseLogFilename.Label"));
-    props.setLook(wlLogFileBase);
+    PropsUi.setLook(wlLogFileBase);
     FormData fdlLogFileBase = new FormData();
     fdlLogFileBase.left = new FormAttachment(0, 0);
     fdlLogFileBase.right = new FormAttachment(middle, -margin);
     fdlLogFileBase.top = new FormAttachment(lastLogControl, margin);
     wlLogFileBase.setLayoutData(fdlLogFileBase);
     wLogFileBase = new TextVar(variables, wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLogFileBase);
+    PropsUi.setLook(wLogFileBase);
     FormData fdLogFileBase = new FormData();
     fdLogFileBase.left = new FormAttachment(middle, 0);
     fdLogFileBase.right = new FormAttachment(100, 0);
@@ -293,14 +294,14 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     wlLogFileExtension = new Label(wLogFileGroup, SWT.RIGHT);
     wlLogFileExtension.setText(BaseMessages.getString(PKG, "Repeat.LogFilenameExt.Label"));
-    props.setLook(wlLogFileExtension);
+    PropsUi.setLook(wlLogFileExtension);
     FormData fdlLogFileExtension = new FormData();
     fdlLogFileExtension.left = new FormAttachment(0, 0);
     fdlLogFileExtension.right = new FormAttachment(middle, -margin);
     fdlLogFileExtension.top = new FormAttachment(lastLogControl, margin);
     wlLogFileExtension.setLayoutData(fdlLogFileExtension);
     wLogFileExtension = new TextVar(variables, wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLogFileExtension);
+    PropsUi.setLook(wLogFileExtension);
     FormData fdLogFileExtension = new FormData();
     fdLogFileExtension.left = new FormAttachment(middle, 0);
     fdLogFileExtension.right = new FormAttachment(100, 0);
@@ -310,14 +311,14 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     wlLogFileDateAdded = new Label(wLogFileGroup, SWT.RIGHT);
     wlLogFileDateAdded.setText(BaseMessages.getString(PKG, "Repeat.AddDateToFilename.Label"));
-    props.setLook(wlLogFileDateAdded);
+    PropsUi.setLook(wlLogFileDateAdded);
     FormData fdlLogFileDateAdded = new FormData();
     fdlLogFileDateAdded.left = new FormAttachment(0, 0);
     fdlLogFileDateAdded.right = new FormAttachment(middle, -margin);
     fdlLogFileDateAdded.top = new FormAttachment(lastLogControl, margin);
     wlLogFileDateAdded.setLayoutData(fdlLogFileDateAdded);
     wLogFileDateAdded = new Button(wLogFileGroup, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLogFileDateAdded);
+    PropsUi.setLook(wLogFileDateAdded);
     FormData fdLogFileDateAdded = new FormData();
     fdLogFileDateAdded.left = new FormAttachment(middle, 0);
     fdLogFileDateAdded.right = new FormAttachment(100, 0);
@@ -327,14 +328,14 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     wlLogFileTimeAdded = new Label(wLogFileGroup, SWT.RIGHT);
     wlLogFileTimeAdded.setText(BaseMessages.getString(PKG, "Repeat.AddTimeToFilename.Label"));
-    props.setLook(wlLogFileTimeAdded);
+    PropsUi.setLook(wlLogFileTimeAdded);
     FormData fdlLogFileTimeAdded = new FormData();
     fdlLogFileTimeAdded.left = new FormAttachment(0, 0);
     fdlLogFileTimeAdded.right = new FormAttachment(middle, -margin);
     fdlLogFileTimeAdded.top = new FormAttachment(lastLogControl, margin);
     wlLogFileTimeAdded.setLayoutData(fdlLogFileTimeAdded);
     wLogFileTimeAdded = new Button(wLogFileGroup, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLogFileTimeAdded);
+    PropsUi.setLook(wLogFileTimeAdded);
     FormData fdLogFileTimeAdded = new FormData();
     fdLogFileTimeAdded.left = new FormAttachment(middle, 0);
     fdLogFileTimeAdded.right = new FormAttachment(100, 0);
@@ -344,14 +345,14 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     wlLogFileRepetitionAdded = new Label(wLogFileGroup, SWT.RIGHT);
     wlLogFileRepetitionAdded.setText(BaseMessages.getString(PKG, "Repeat.AddReptNumToFilename.Label"));
-    props.setLook(wlLogFileRepetitionAdded);
+    PropsUi.setLook(wlLogFileRepetitionAdded);
     FormData fdlLogFileRepetitionAdded = new FormData();
     fdlLogFileRepetitionAdded.left = new FormAttachment(0, 0);
     fdlLogFileRepetitionAdded.right = new FormAttachment(middle, -margin);
     fdlLogFileRepetitionAdded.top = new FormAttachment(lastLogControl, margin);
     wlLogFileRepetitionAdded.setLayoutData(fdlLogFileRepetitionAdded);
     wLogFileRepetitionAdded = new Button(wLogFileGroup, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLogFileRepetitionAdded);
+    PropsUi.setLook(wLogFileRepetitionAdded);
     FormData fdLogFileRepetitionAdded = new FormData();
     fdLogFileRepetitionAdded.left = new FormAttachment(middle, 0);
     fdLogFileRepetitionAdded.right = new FormAttachment(100, 0);
@@ -361,14 +362,14 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     wlLogFileAppended = new Label(wLogFileGroup, SWT.RIGHT);
     wlLogFileAppended.setText(BaseMessages.getString(PKG, "Repeat.AppendToExistingFile.Label"));
-    props.setLook(wlLogFileAppended);
+    PropsUi.setLook(wlLogFileAppended);
     FormData fdlLogFileAppended = new FormData();
     fdlLogFileAppended.left = new FormAttachment(0, 0);
     fdlLogFileAppended.right = new FormAttachment(middle, -margin);
     fdlLogFileAppended.top = new FormAttachment(lastLogControl, margin);
     wlLogFileAppended.setLayoutData(fdlLogFileAppended);
     wLogFileAppended = new Button(wLogFileGroup, SWT.CHECK | SWT.LEFT);
-    props.setLook(wLogFileAppended);
+    PropsUi.setLook(wLogFileAppended);
     FormData fdLogFileAppended = new FormData();
     fdLogFileAppended.left = new FormAttachment(middle, 0);
     fdLogFileAppended.right = new FormAttachment(100, 0);
@@ -378,7 +379,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     wlLogFileUpdateInterval = new Label(wLogFileGroup, SWT.RIGHT);
     wlLogFileUpdateInterval.setText(BaseMessages.getString(PKG, "Repeat.LogFileUpdateInterval.Label"));
-    props.setLook(wlLogFileUpdateInterval);
+    PropsUi.setLook(wlLogFileUpdateInterval);
     FormData fdlLogFileUpdateInterval = new FormData();
     fdlLogFileUpdateInterval.left = new FormAttachment(0, 0);
     fdlLogFileUpdateInterval.right = new FormAttachment(middle, -margin);
@@ -386,7 +387,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     wlLogFileUpdateInterval.setLayoutData(fdlLogFileUpdateInterval);
     wLogFileUpdateInterval =
         new TextVar(variables, wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLogFileUpdateInterval);
+    PropsUi.setLook(wLogFileUpdateInterval);
     FormData fdLogFileUpdateInterval = new FormData();
     fdLogFileUpdateInterval.left = new FormAttachment(middle, 0);
     fdLogFileUpdateInterval.right = new FormAttachment(100, 0);
@@ -406,7 +407,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     //
     Label wlParameters = new Label(shell, SWT.LEFT);
     wlParameters.setText(BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Label"));
-    props.setLook(wlParameters);
+    PropsUi.setLook(wlParameters);
     FormData fdlParameters = new FormData();
     fdlParameters.left = new FormAttachment(0, 0);
     fdlParameters.top = new FormAttachment(lastControl, 2 * margin);
@@ -443,7 +444,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     wParameters =
         new TableView(
             variables, shell, SWT.BORDER, columnInfos, action.getParameters().size(), null, props);
-    props.setLook(wParameters);
+    PropsUi.setLook(wParameters);
     FormData fdParameters = new FormData();
     fdParameters.left = new FormAttachment(0, 0);
     fdParameters.right = new FormAttachment(100, 0);

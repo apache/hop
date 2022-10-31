@@ -21,7 +21,11 @@ package org.apache.hop.ui.core.gui;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.plugins.*;
+import org.apache.hop.core.plugins.ActionPluginType;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.IPluginTypeListener;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.ui.core.ConstUi;
@@ -34,11 +38,24 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 /*
  * colors etc. are allocated once and released once at the end of the program.
@@ -114,6 +131,8 @@ public class GuiResource {
   private Color colorDeprecated;
 
   /* * * Fonts * * */
+  private ManagedFont fontDefault;
+
   private ManagedFont fontGraph;
 
   private ManagedFont fontNote;
@@ -384,6 +403,7 @@ public class GuiResource {
       // display shutdown, clean up our mess
 
       // Fonts
+      fontDefault.dispose();
       fontGraph.dispose();
       fontNote.dispose();
       fontFixed.dispose();
@@ -571,55 +591,66 @@ public class GuiResource {
   private void loadFonts() {
     PropsUi props = PropsUi.getInstance();
 
-    fontGraph = new ManagedFont(display, props.getGraphFont());
-    fontNote = new ManagedFont(display, props.getNoteFont());
-    fontFixed = new ManagedFont(display, props.getFixedFont());
+    // We want to re-size the default font according to the global zoom factor.
+    // This global zoom factor takes Hop Web (/0.75) sizing into account.
+    //
+    FontData defaultFontData = props.getDefaultFontData();
+    int defaultFontSize =
+        (int) Math.round(defaultFontData.getHeight() * PropsUi.getGlobalZoomFactor());
+    defaultFontData.setHeight(defaultFontSize);
+    fontDefault = new ManagedFont(display, defaultFontData);
+
+    // The graph font needs to be smaller because it gets magnified using a zoom factor on the canvas.
+    //
+    FontData graphFontData = props.getGraphFont();
+    int graphFontSize = (int) Math.round(1.5+graphFontData.getHeight() / PropsUi.getNativeZoomFactor());
+    graphFontData.setHeight(graphFontSize);
+    fontGraph = new ManagedFont(display, graphFontData);
+
+    FontData noteFontData = props.getNoteFont();
+    int noteFontSize = (int) Math.round(noteFontData.getHeight() * PropsUi.getGlobalZoomFactor());
+    noteFontData.setHeight(noteFontSize);
+    fontNote = new ManagedFont(display, noteFontData);
+
+    FontData fixedFontData = props.getFixedFont();
+    int fixedFontSize = (int) Math.round(fixedFontData.getHeight() * PropsUi.getGlobalZoomFactor());
+    fixedFontData.setHeight(fixedFontSize);
+    fontFixed = new ManagedFont(display, fixedFontData);
 
     // Create a medium size version of the graph font
+    int mediumFontSize = (int) Math.round(defaultFontSize * 1.2);
     FontData mediumFontData =
-        new FontData(
-            props.getGraphFont().getName(),
-            (int) Math.round(props.getGraphFont().getHeight() * 1.2),
-            props.getGraphFont().getStyle());
+        new FontData(graphFontData.getName(), mediumFontSize, graphFontData.getStyle());
     fontMedium = new ManagedFont(display, mediumFontData);
 
     // Create a medium bold size version of the graph font
     FontData mediumFontBoldData =
-        new FontData(
-            props.getGraphFont().getName(),
-            (int) Math.round(props.getGraphFont().getHeight() * 1.2),
-            props.getGraphFont().getStyle() | SWT.BOLD);
+        new FontData(graphFontData.getName(), mediumFontSize, graphFontData.getStyle() | SWT.BOLD);
     fontMediumBold = new ManagedFont(display, mediumFontBoldData);
 
     // Create a large version of the graph font
+    int largeFontSize = mediumFontSize + 2;
     FontData largeFontData =
-        new FontData(
-            props.getGraphFont().getName(),
-            mediumFontData.getHeight() + 2,
-            props.getGraphFont().getStyle());
+        new FontData(graphFontData.getName(), largeFontSize, graphFontData.getStyle());
     fontLarge = new ManagedFont(display, largeFontData);
 
     // Create a tiny version of the graph font
+    int tinyFontSize = mediumFontSize - 2;
     FontData tinyFontData =
-        new FontData(
-            props.getGraphFont().getName(),
-            mediumFontData.getHeight() - 2,
-            props.getGraphFont().getStyle());
+        new FontData(graphFontData.getName(), tinyFontSize, graphFontData.getStyle());
     fontTiny = new ManagedFont(display, tinyFontData);
 
     // Create a small version of the graph font
+    int smallFontSize = mediumFontSize - 1;
     FontData smallFontData =
-        new FontData(
-            props.getGraphFont().getName(),
-            mediumFontData.getHeight() - 1,
-            props.getGraphFont().getStyle());
+        new FontData(graphFontData.getName(), smallFontSize, graphFontData.getStyle());
     fontSmall = new ManagedFont(display, smallFontData);
 
     FontData boldFontData =
         new FontData(
-            props.getDefaultFontData().getName(),
-            props.getDefaultFontData().getHeight(),
-            props.getDefaultFontData().getStyle() | SWT.BOLD);
+            defaultFontData.getName(),
+            defaultFontData.getHeight(),
+            defaultFontData.getStyle() | SWT.BOLD);
     fontBold = new ManagedFont(display, boldFontData);
   }
 
@@ -1044,6 +1075,13 @@ public class GuiResource {
    */
   public Font getFontGraph() {
     return fontGraph.getFont();
+  }
+
+  /**
+   * @return Returns the default system font size adjusted for the global zoom factor.
+   */
+  public Font getFontDefault() {
+    return fontDefault.getFont();
   }
 
   /**

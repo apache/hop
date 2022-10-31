@@ -54,11 +54,26 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -177,7 +192,6 @@ public class BaseTransformDialog extends Dialog {
     this.backupChanged = baseTransformMeta.hasChanged();
     this.props = PropsUi.getInstance();
     this.metadataProvider = HopGui.getInstance().getMetadataProvider();
-
   }
 
   /**
@@ -234,10 +248,10 @@ public class BaseTransformDialog extends Dialog {
       addDeprecation();
     }
   }
-  
+
   public void setActive() {
-    if (shell != null && !shell.isDisposed() ) {
-      shell.setActive();      
+    if (shell != null && !shell.isDisposed()) {
+      shell.setActive();
     }
   }
 
@@ -310,6 +324,12 @@ public class BaseTransformDialog extends Dialog {
 
   public static final void positionBottomButtons(
       Composite composite, Button[] buttons, int margin, int alignment, Control lastControl) {
+    // Set a default font on all the buttons
+    //
+    for (Button button : buttons) {
+      button.setFont(GuiResource.getInstance().getFontDefault());
+    }
+
     // Determine the largest button in the array
     Rectangle largest = null;
     for (int i = 0; i < buttons.length; i++) {

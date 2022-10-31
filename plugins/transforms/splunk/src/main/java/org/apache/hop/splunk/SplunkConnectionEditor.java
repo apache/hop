@@ -63,7 +63,7 @@ public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {
 
     // The name
     Label wlName = new Label(parent, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "SplunkConnectionDialog.Name.Label"));
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(0, margin);
@@ -71,7 +71,7 @@ public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.left = new FormAttachment(middle, 0); // To the right of the label
@@ -81,7 +81,7 @@ public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {
 
     // The Hostname
     Label wlHostname = new Label(parent, SWT.RIGHT);
-    props.setLook(wlHostname);
+    PropsUi.setLook(wlHostname);
     wlHostname.setText(BaseMessages.getString(PKG, "SplunkConnectionDialog.Hostname.Label"));
     FormData fdlHostname = new FormData();
     fdlHostname.top = new FormAttachment(lastControl, margin);
@@ -89,7 +89,7 @@ public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {
     fdlHostname.right = new FormAttachment(middle, -margin);
     wlHostname.setLayoutData(fdlHostname);
     wHostname = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wHostname);
+    PropsUi.setLook(wHostname);
     FormData fdHostname = new FormData();
     fdHostname.top = new FormAttachment(wlHostname, 0, SWT.CENTER);
     fdHostname.left = new FormAttachment(middle, 0); // To the right of the label
@@ -99,7 +99,7 @@ public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {
 
     // port?
     Label wlPort = new Label(parent, SWT.RIGHT);
-    props.setLook(wlPort);
+    PropsUi.setLook(wlPort);
     wlPort.setText(BaseMessages.getString(PKG, "SplunkConnectionDialog.Port.Label"));
     FormData fdlPort = new FormData();
     fdlPort.top = new FormAttachment(lastControl, margin);
@@ -107,7 +107,7 @@ public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {
     fdlPort.right = new FormAttachment(middle, -margin);
     wlPort.setLayoutData(fdlPort);
     wPort = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPort);
+    PropsUi.setLook(wPort);
     FormData fdPort = new FormData();
     fdPort.top = new FormAttachment(wlPort, 0, SWT.CENTER);
     fdPort.left = new FormAttachment(middle, 0); // To the right of the label
@@ -118,14 +118,14 @@ public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {
     // Username
     Label wlUsername = new Label(parent, SWT.RIGHT);
     wlUsername.setText(BaseMessages.getString(PKG, "SplunkConnectionDialog.UserName.Label"));
-    props.setLook(wlUsername);
+    PropsUi.setLook(wlUsername);
     FormData fdlUsername = new FormData();
     fdlUsername.top = new FormAttachment(lastControl, margin);
     fdlUsername.left = new FormAttachment(0, 0);
     fdlUsername.right = new FormAttachment(middle, -margin);
     wlUsername.setLayoutData(fdlUsername);
     wUsername = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUsername);
+    PropsUi.setLook(wUsername);
     FormData fdUsername = new FormData();
     fdUsername.top = new FormAttachment(wlUsername, 0, SWT.CENTER);
     fdUsername.left = new FormAttachment(middle, 0);
@@ -136,7 +136,7 @@ public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {
     // Password
     Label wlPassword = new Label(parent, SWT.RIGHT);
     wlPassword.setText(BaseMessages.getString(PKG, "SplunkConnectionDialog.Password.Label"));
-    props.setLook(wlPassword);
+    PropsUi.setLook(wlPassword);
     FormData fdlPassword = new FormData();
     fdlPassword.top = new FormAttachment(lastControl, margin);
     fdlPassword.left = new FormAttachment(0, 0);
@@ -144,7 +144,7 @@ public class SplunkConnectionEditor extends MetadataEditor<SplunkConnection> {
     wlPassword.setLayoutData(fdlPassword);
     wPassword =
         new PasswordTextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPassword);
+    PropsUi.setLook(wPassword);
     FormData fdPassword = new FormData();
     fdPassword.top = new FormAttachment(wlPassword, 0, SWT.CENTER);
     fdPassword.left = new FormAttachment(middle, 0);

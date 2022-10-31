@@ -91,7 +91,7 @@ public class MetadataExplorerDialog {
     Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
@@ -130,7 +130,7 @@ public class MetadataExplorerDialog {
     closeButton.addListener(SWT.Selection, e -> close());
 
     tree = new Tree(shell, SWT.SINGLE | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(tree);
+    PropsUi.setLook(tree);
     tree.setHeaderVisible(true);
     FormData treeFormData = new FormData();
     treeFormData.left = new FormAttachment(0, 0); // To the right of the label

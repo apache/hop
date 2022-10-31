@@ -33,6 +33,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -69,7 +70,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
@@ -85,7 +86,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -93,7 +94,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
@@ -103,14 +104,14 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
 
     Label wlProjectId = new Label(shell, SWT.RIGHT);
     wlProjectId.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.ProjectId"));
-    props.setLook(wlProjectId);
+    PropsUi.setLook(wlProjectId);
     FormData fdlProjectId = new FormData();
     fdlProjectId.left = new FormAttachment(0, 0);
     fdlProjectId.top = new FormAttachment(lastControl, margin);
     fdlProjectId.right = new FormAttachment(middle, -margin);
     wlProjectId.setLayoutData(fdlProjectId);
     wProjectId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wProjectId);
+    PropsUi.setLook(wProjectId);
     FormData fdProjectId = new FormData();
     fdProjectId.left = new FormAttachment(middle, 0);
     fdProjectId.top = new FormAttachment(wlProjectId, 0, SWT.CENTER);
@@ -120,14 +121,14 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
 
     Label wlDatasetId = new Label(shell, SWT.RIGHT);
     wlDatasetId.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.DatasetId"));
-    props.setLook(wlDatasetId);
+    PropsUi.setLook(wlDatasetId);
     FormData fdlDatasetId = new FormData();
     fdlDatasetId.left = new FormAttachment(0, 0);
     fdlDatasetId.top = new FormAttachment(lastControl, margin);
     fdlDatasetId.right = new FormAttachment(middle, -margin);
     wlDatasetId.setLayoutData(fdlDatasetId);
     wDatasetId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDatasetId);
+    PropsUi.setLook(wDatasetId);
     FormData fdDatasetId = new FormData();
     fdDatasetId.left = new FormAttachment(middle, 0);
     fdDatasetId.top = new FormAttachment(wlDatasetId, 0, SWT.CENTER);
@@ -137,14 +138,14 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
 
     Label wlTableId = new Label(shell, SWT.RIGHT);
     wlTableId.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.TableId"));
-    props.setLook(wlTableId);
+    PropsUi.setLook(wlTableId);
     FormData fdlTableId = new FormData();
     fdlTableId.left = new FormAttachment(0, 0);
     fdlTableId.top = new FormAttachment(lastControl, margin);
     fdlTableId.right = new FormAttachment(middle, -margin);
     wlTableId.setLayoutData(fdlTableId);
     wTableId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTableId);
+    PropsUi.setLook(wTableId);
     FormData fdTableId = new FormData();
     fdTableId.left = new FormAttachment(middle, 0);
     fdTableId.top = new FormAttachment(wlTableId, 0, SWT.CENTER);
@@ -154,14 +155,14 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
 
     Label wlQuery = new Label(shell, SWT.LEFT);
     wlQuery.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.Query"));
-    props.setLook(wlQuery);
+    PropsUi.setLook(wlQuery);
     FormData fdlQuery = new FormData();
     fdlQuery.left = new FormAttachment(0, 0);
     fdlQuery.top = new FormAttachment(lastControl, margin);
     fdlQuery.right = new FormAttachment(100, 0);
     wlQuery.setLayoutData(fdlQuery);
     wQuery = new TextVar(variables, shell, SWT.LEFT | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wQuery, Props.WIDGET_STYLE_FIXED);
+    PropsUi.setLook(wQuery, Props.WIDGET_STYLE_FIXED);
     FormData fdQuery = new FormData();
     fdQuery.left = new FormAttachment(0, 0);
     fdQuery.top = new FormAttachment(wlQuery, margin);
@@ -172,7 +173,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
 
     Label wlFields = new Label(shell, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.Fields"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(lastControl, margin);
@@ -217,7 +218,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
             input.getFields().size(),
             null,
             props);
-    props.setLook(wFields);
+    PropsUi.setLook(wFields);
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);

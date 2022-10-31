@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -80,7 +81,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
 
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
@@ -96,7 +97,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     // transformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.transformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
 
     FormData fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -105,7 +106,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     wlTransformName.setLayoutData(fd);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
 
     // format the text field
     fd = new FormData();
@@ -117,7 +118,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     // yaml file line
     /** various UI bits and pieces for the dialog */
     Label wlYaml = new Label(shell, SWT.RIGHT);
-    props.setLook(wlYaml);
+    PropsUi.setLook(wlYaml);
     wlYaml.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.YAML.Label"));
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -126,7 +127,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     wlYaml.setLayoutData(fd);
 
     Button wbYaml = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbYaml);
+    PropsUi.setLook(wbYaml);
     wbYaml.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.YAML.Button"));
     fd = new FormData();
     fd.right = new FormAttachment(100, 0);
@@ -165,7 +166,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
         });
 
     wYaml = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wYaml);
+    PropsUi.setLook(wYaml);
     wYaml.addModifyListener(e -> wYaml.setToolTipText(variables.resolve(wYaml.getText())));
     fd = new FormData();
     fd.right = new FormAttachment(wbYaml, 0);
@@ -175,7 +176,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
 
     // directory line
     Label wlDirectory = new Label(shell, SWT.RIGHT);
-    props.setLook(wlDirectory);
+    PropsUi.setLook(wlDirectory);
     wlDirectory.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.Directory.Label"));
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -184,7 +185,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     wlDirectory.setLayoutData(fd);
 
     Button wbDirectory = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbDirectory);
+    PropsUi.setLook(wbDirectory);
     wbDirectory.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.Directory.Button"));
     fd = new FormData();
     fd.right = new FormAttachment(100, 0);
@@ -206,7 +207,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
         });
 
     wDirectory = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wDirectory);
+    PropsUi.setLook(wDirectory);
     wDirectory.addModifyListener(
         e -> wDirectory.setToolTipText(variables.resolve(wDirectory.getText())));
     fd = new FormData();
@@ -217,7 +218,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
 
     // keyspace line
     Label wlKeyspace = new Label(shell, SWT.RIGHT);
-    props.setLook(wlKeyspace);
+    PropsUi.setLook(wlKeyspace);
     wlKeyspace.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.Keyspace.Label"));
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -226,7 +227,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     wlKeyspace.setLayoutData(fd);
 
     wKeyspace = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wKeyspace);
+    PropsUi.setLook(wKeyspace);
     wKeyspace.addModifyListener(
         e -> wKeyspace.setToolTipText(variables.resolve(wKeyspace.getText())));
     fd = new FormData();
@@ -237,7 +238,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
 
     // table line
     Label wlTable = new Label(shell, SWT.RIGHT);
-    props.setLook(wlTable);
+    PropsUi.setLook(wlTable);
     wlTable.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.Table.Label"));
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -246,7 +247,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     wlTable.setLayoutData(fd);
 
     wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTable);
+    PropsUi.setLook(wTable);
     wTable.addModifyListener(e -> wTable.setToolTipText(variables.resolve(wTable.getText())));
     fd = new FormData();
     fd.right = new FormAttachment(100, 0);
@@ -256,7 +257,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
 
     // key field line
     wlKeyField = new Label(shell, SWT.RIGHT);
-    props.setLook(wlKeyField);
+    PropsUi.setLook(wlKeyField);
     wlKeyField.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.KeyField.Label"));
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -265,7 +266,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     wlKeyField.setLayoutData(fd);
 
     wbGetFields = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbGetFields);
+    PropsUi.setLook(wbGetFields);
     wbGetFields.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.GetFields.Button"));
 
     fd = new FormData();
@@ -292,7 +293,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
 
     // buffer size
     Label wlBufferSize = new Label(shell, SWT.RIGHT);
-    props.setLook(wlBufferSize);
+    PropsUi.setLook(wlBufferSize);
     wlBufferSize.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.BufferSize.Label"));
     fd = new FormData();
     fd.left = new FormAttachment(0, 0);
@@ -301,7 +302,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     wlBufferSize.setLayoutData(fd);
 
     wBufferSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wBufferSize);
+    PropsUi.setLook(wBufferSize);
     wBufferSize.addModifyListener(
         e -> wBufferSize.setToolTipText(variables.resolve(wBufferSize.getText())));
     fd = new FormData();

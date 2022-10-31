@@ -20,22 +20,17 @@ package org.apache.hop.ui.core.widget;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.plugin.IGuiActionLambda;
-import org.apache.hop.core.gui.plugin.action.GuiAction;
-import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataManager;
-import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.context.metadata.MetadataContextHandler;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
@@ -44,14 +39,15 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,7 +67,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   private Class<T> managedClass;
   private PropsUi props;
   private final Label wLabel;
-  private final ComboVar wCombo;
+  private ComboVar wCombo = null;
   private final ToolBar wToolBar;
 
   public MetaSelectionLine(
@@ -132,7 +128,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 
     this.manager = new MetadataManager<>(variables, metadataProvider, managedClass);
 
-    props.setLook(this);
+    PropsUi.setLook(this);
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
@@ -153,38 +149,59 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       labelFlags = SWT.RIGHT | SWT.SINGLE;
     }
     wLabel = new Label(this, labelFlags);
-    props.setLook(wLabel);
+    PropsUi.setLook(wLabel);
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment(0, 0);
     if (!leftAlignedLabel) {
       fdLabel.right = new FormAttachment(middle, negativeMargin ? -margin : 0);
     }
-    fdLabel.top = new FormAttachment(0, margin+(EnvironmentUtils.getInstance().isWeb()?3:0));
+    fdLabel.top = new FormAttachment(0, margin + (EnvironmentUtils.getInstance().isWeb() ? 3 : 0));
     wLabel.setLayoutData(fdLabel);
     wLabel.setText(labelText);
     wLabel.setToolTipText(toolTipText);
     wLabel.requestLayout(); // Avoid GTK error in log
 
-    // Toolbar for default actions
-    //
     HopMetadata metadata = HopMetadataUtil.getHopMetadataAnnotation(managedClass);
-    Image image =
+    Image editImage =
         SwtSvgImageUtil.getImage(
             getDisplay(),
             managedClass.getClassLoader(),
             metadata.image(),
             (int) (ConstUi.SMALL_ICON_SIZE * props.getZoomFactor()),
             (int) (ConstUi.SMALL_ICON_SIZE * props.getZoomFactor()));
+    addListener(SWT.Dispose, e -> editImage.dispose());
 
+    // Toolbar for default actions
+    //
     wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL);
     FormData fdToolBar = new FormData();
     fdToolBar.right = new FormAttachment(100, 0);
     fdToolBar.top = new FormAttachment(0, 0);
     wToolBar.setLayoutData(fdToolBar);
-    props.setLook(wToolBar);
+    PropsUi.setLook(wToolBar);
 
-    ToolItem item = new ToolItem(wToolBar, SWT.DROP_DOWN);
-    item.setImage(image);
+    // Edit
+    ToolItem editItem = new ToolItem(wToolBar, SWT.PUSH);
+    editItem.setImage(editImage);
+    editItem.setToolTipText("Edit this metadata object");
+    editItem.addListener(
+        SWT.Selection,
+        event -> {
+          if (Utils.isEmpty(wCombo.getText())) this.newMetadata();
+          else this.editMetadata();
+        });
+    // New
+    ToolItem newItem = new ToolItem(wToolBar, SWT.PUSH);
+    newItem.setImage(GuiResource.getInstance().getImageNew());
+    newItem.setToolTipText("Create a new " + getMetadataDescription());
+    newItem.addListener(
+        SWT.Selection,
+        event -> {
+          T element = newMetadata();
+          if (element != null) {
+            wCombo.setText(Const.NVL(element.getName(), ""));
+          }
+        });
 
     int textFlags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
     if (flags != SWT.NONE) {
@@ -202,67 +219,13 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     wCombo.setLayoutData(fdCombo);
     wCombo.setToolTipText(toolTipText);
 
-    // Menu for gui actions
-    //
-    final Menu menu = new Menu(getShell(), SWT.POP_UP);
-
-    MenuItem itemNew = new MenuItem(menu, SWT.PUSH);
-    itemNew.setText(BaseMessages.getString(PKG, "System.Button.New"));
-    itemNew.addListener(SWT.Selection, e -> newMetadata());
-    final MenuItem itemEdit = new MenuItem(menu, SWT.PUSH);
-    itemEdit.setText(BaseMessages.getString(PKG, "System.Button.Edit"));
-    itemEdit.addListener(SWT.Selection, e -> editMetadata());
-
-    MetadataContextHandler contextHandler =
-        new MetadataContextHandler(HopGui.getInstance(), metadataProvider, managedClass);
-
-    // Filter custom action
-    //
-    List<GuiAction> actions = new ArrayList<>();
-    for (GuiAction action : contextHandler.getSupportedActions()) {
-      if (action.getType() == GuiActionType.Custom) {
-        actions.add(action);
-      }
-    }
-
-    if (!actions.isEmpty()) {
-      new MenuItem(menu, SWT.SEPARATOR);
-      // Add custom action
-      for (GuiAction action : actions) {
-        if (action.getType() == GuiActionType.Custom) {
-          MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
-          menuItem.setText(action.getShortName());
-          if (!EnvironmentUtils.getInstance().isWeb()) {
-            menuItem.setToolTipText(Const.NVL(action.getTooltip(), ""));
-          }
-          menuItem.addListener(
-              SWT.Selection,
-              e -> {
-                IGuiActionLambda actionLambda = action.getActionLambda();
-                actionLambda.executeAction(false, false, wCombo.getText());
-              });
-        }
-      }
-    }
-
-    props.setLook(wCombo);
-
-    item.addListener(
-        SWT.Selection,
-        event -> {
-          if (event.detail == SWT.ARROW) {
-            Rectangle rect = item.getBounds();
-            Point pt = new Point(rect.x, rect.y + rect.height);
-            pt = wToolBar.toDisplay(pt);
-            menu.setLocation(pt.x, pt.y);
-            menu.setVisible(true);
-          } else {
-            if (Utils.isEmpty(wCombo.getText())) this.newMetadata();
-            else this.editMetadata();
-          }
-        });
+    PropsUi.setLook(wCombo);
 
     layout(true, true);
+  }
+
+  private String getMetadataDescription() {
+    return managedClass.getAnnotation(HopMetadata.class).name();
   }
 
   protected void manageMetadata() {}

@@ -65,7 +65,7 @@ public class WelcomeBeam {
     fdParentComposite.top = new FormAttachment(0, 0);
     fdParentComposite.bottom = new FormAttachment(100, 0);
     parentComposite.setLayoutData(fdParentComposite);
-    props.setLook(parentComposite);
+    PropsUi.setLook(parentComposite);
 
     GuiCompositeWidgets compositeWidgets =
         new GuiCompositeWidgets(HopGui.getInstance().getVariables());

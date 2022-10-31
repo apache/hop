@@ -28,6 +28,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -76,7 +77,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
     backupChanged = action.hasChanged();
@@ -100,7 +101,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     wPassParams.setText(BaseMessages.getString(PKG, "ActionWorkflow.PassAllParameters.Label"));
 
     wWaitingToFinish = new Button(gExecution, SWT.CHECK);
-    props.setLook(wWaitingToFinish);
+    PropsUi.setLook(wWaitingToFinish);
     wWaitingToFinish.setText(BaseMessages.getString(PKG, "ActionWorkflow.WaitToFinish.Label"));
     FormData fdWait = new FormData();
     fdWait.top = new FormAttachment(wEveryRow, 10);
@@ -111,7 +112,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
     Composite cRunConfiguration = new Composite(wOptions, SWT.NONE);
     cRunConfiguration.setLayout(new FormLayout());
-    props.setLook(cRunConfiguration);
+    PropsUi.setLook(cRunConfiguration);
     FormData fdLocal = new FormData();
     fdLocal.top = new FormAttachment(0);
     fdLocal.right = new FormAttachment(100);

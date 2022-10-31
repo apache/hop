@@ -21,7 +21,6 @@ package org.apache.hop.ui.hopgui.welcome;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -30,8 +29,6 @@ import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 
@@ -59,7 +56,7 @@ public class WelcomeWelcome {
     fdParentComposite.top = new FormAttachment(0, 0);
     fdParentComposite.bottom = new FormAttachment(100, 0);
     parentComposite.setLayoutData(fdParentComposite);
-    props.setLook(parentComposite);
+    PropsUi.setLook(parentComposite);
 
     GuiCompositeWidgets compositeWidgets =
         new GuiCompositeWidgets(HopGui.getInstance().getVariables());

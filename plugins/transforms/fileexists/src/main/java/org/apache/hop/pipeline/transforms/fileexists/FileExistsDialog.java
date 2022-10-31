@@ -26,6 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -67,7 +68,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -96,7 +97,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "FileExistsDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -104,7 +105,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -115,7 +116,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     // filename field
     Label wlFileName = new Label(shell, SWT.RIGHT);
     wlFileName.setText(BaseMessages.getString(PKG, "FileExistsDialog.FileName.Label"));
-    props.setLook(wlFileName);
+    PropsUi.setLook(wlFileName);
     FormData fdlFileName = new FormData();
     fdlFileName.left = new FormAttachment(0, 0);
     fdlFileName.right = new FormAttachment(middle, -margin);
@@ -123,7 +124,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     wlFileName.setLayoutData(fdlFileName);
 
     wFileName = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(wFileName);
+    PropsUi.setLook(wFileName);
     wFileName.addModifyListener(lsMod);
     FormData fdFileName = new FormData();
     fdFileName.left = new FormAttachment(middle, 0);
@@ -150,7 +151,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     // Result fieldname ...
     Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "FileExistsDialog.ResultField.Label"));
-    props.setLook(wlResult);
+    PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
@@ -159,7 +160,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
 
     wResult = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wResult.setToolTipText(BaseMessages.getString(PKG, "FileExistsDialog.ResultField.Tooltip"));
-    props.setLook(wResult);
+    PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
@@ -170,14 +171,14 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     // Add filename to result filenames?
     Label wlAddResult = new Label(shell, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "FileExistsDialog.AddResult.Label"));
-    props.setLook(wlAddResult);
+    PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
     fdlAddResult.top = new FormAttachment(wResult, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(shell, SWT.CHECK);
-    props.setLook(wAddResult);
+    PropsUi.setLook(wAddResult);
     wAddResult.setToolTipText(BaseMessages.getString(PKG, "FileExistsDialog.AddResult.Tooltip"));
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment(middle, 0);
@@ -190,7 +191,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     // ///////////////////////////////
 
     Group wAdditionalFields = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(wAdditionalFields);
+    PropsUi.setLook(wAdditionalFields);
     wAdditionalFields.setText(
         BaseMessages.getString(PKG, "FileExistsDialog.wAdditionalFields.Label"));
 
@@ -202,14 +203,14 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     // include filetype?
     Label wlInclFileType = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclFileType.setText(BaseMessages.getString(PKG, "FileExistsDialog.InclFileType.Label"));
-    props.setLook(wlInclFileType);
+    PropsUi.setLook(wlInclFileType);
     FormData fdlInclFileType = new FormData();
     fdlInclFileType.left = new FormAttachment(0, 0);
     fdlInclFileType.top = new FormAttachment(wResult, margin);
     fdlInclFileType.right = new FormAttachment(middle, -margin);
     wlInclFileType.setLayoutData(fdlInclFileType);
     wInclFileType = new Button(wAdditionalFields, SWT.CHECK);
-    props.setLook(wInclFileType);
+    PropsUi.setLook(wInclFileType);
     wInclFileType.setToolTipText(
         BaseMessages.getString(PKG, "FileExistsDialog.InclFileType.Tooltip"));
     FormData fdInclFileType = new FormData();
@@ -230,7 +231,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     // FileType fieldname ...
     wlFileType = new Label(wAdditionalFields, SWT.RIGHT);
     wlFileType.setText(BaseMessages.getString(PKG, "FileExistsDialog.FileTypeField.Label"));
-    props.setLook(wlFileType);
+    PropsUi.setLook(wlFileType);
     FormData fdlFileType = new FormData();
     fdlFileType.left = new FormAttachment(wInclFileType, 2 * margin);
     fdlFileType.top = new FormAttachment(wResult, margin);
@@ -238,7 +239,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
 
     wFileType = new TextVar(variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFileType.setToolTipText(BaseMessages.getString(PKG, "FileExistsDialog.FileTypeField.Tooltip"));
-    props.setLook(wFileType);
+    PropsUi.setLook(wFileType);
     wFileType.addModifyListener(lsMod);
     FormData fdFileType = new FormData();
     fdFileType.left = new FormAttachment(wlFileType, margin);

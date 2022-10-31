@@ -30,9 +30,11 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -114,7 +116,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -142,7 +144,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -150,7 +152,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -159,16 +161,17 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF FILE TAB///
     // /
     CTabItem wFileTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFileTab.setFont(GuiResource.getInstance().getFontDefault());
     wFileTab.setText(BaseMessages.getString(PKG, "XMLOutputDialog.FileTab.Tab"));
 
     Composite wFileComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFileComp);
+    PropsUi.setLook(wFileComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -178,7 +181,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     // Filename line
     Label wlFilename = new Label(wFileComp, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "XMLOutputDialog.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(0, margin);
@@ -186,7 +189,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wlFilename.setLayoutData(fdlFilename);
 
     Button wbFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbFilename);
+    PropsUi.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "XMLOutputDialog.Browse.Button"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
@@ -194,7 +197,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wbFilename.setLayoutData(fdbFilename);
 
     wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -206,7 +209,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     Label wlDoNotOpenNewFileInit = new Label(wFileComp, SWT.RIGHT);
     wlDoNotOpenNewFileInit.setText(
         BaseMessages.getString(PKG, "XMLOutputDialog.DoNotOpenNewFileInit.Label"));
-    props.setLook(wlDoNotOpenNewFileInit);
+    PropsUi.setLook(wlDoNotOpenNewFileInit);
     FormData fdlDoNotOpenNewFileInit = new FormData();
     fdlDoNotOpenNewFileInit.left = new FormAttachment(0, 0);
     fdlDoNotOpenNewFileInit.top = new FormAttachment(wFilename, margin);
@@ -215,7 +218,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wDoNotOpenNewFileInit = new Button(wFileComp, SWT.CHECK);
     wDoNotOpenNewFileInit.setToolTipText(
         BaseMessages.getString(PKG, "XMLOutputDialog.DoNotOpenNewFileInit.Tooltip"));
-    props.setLook(wDoNotOpenNewFileInit);
+    PropsUi.setLook(wDoNotOpenNewFileInit);
     FormData fdDoNotOpenNewFileInit = new FormData();
     fdDoNotOpenNewFileInit.left = new FormAttachment(middle, 0);
     fdDoNotOpenNewFileInit.top = new FormAttachment(wlDoNotOpenNewFileInit, 0, SWT.CENTER);
@@ -232,7 +235,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     // Extension line
     Label wlExtension = new Label(wFileComp, SWT.RIGHT);
     wlExtension.setText(BaseMessages.getString(PKG, "XMLOutputDialog.Extension.Label"));
-    props.setLook(wlExtension);
+    PropsUi.setLook(wlExtension);
     FormData fdlExtension = new FormData();
     fdlExtension.left = new FormAttachment(0, 0);
     fdlExtension.top = new FormAttachment(wlDoNotOpenNewFileInit, 2 * margin);
@@ -240,7 +243,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wlExtension.setLayoutData(fdlExtension);
     wExtension = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wExtension.setText("");
-    props.setLook(wExtension);
+    PropsUi.setLook(wExtension);
     wExtension.addModifyListener(lsMod);
     FormData fdExtension = new FormData();
     fdExtension.left = new FormAttachment(middle, 0);
@@ -251,14 +254,14 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     // Create multi-part file?
     Label wlAddTransformnr = new Label(wFileComp, SWT.RIGHT);
     wlAddTransformnr.setText(BaseMessages.getString(PKG, "XMLOutputDialog.AddTransformNr.Label"));
-    props.setLook(wlAddTransformnr);
+    PropsUi.setLook(wlAddTransformnr);
     FormData fdlAddTransformnr = new FormData();
     fdlAddTransformnr.left = new FormAttachment(0, 0);
     fdlAddTransformnr.top = new FormAttachment(wExtension, margin);
     fdlAddTransformnr.right = new FormAttachment(middle, -margin);
     wlAddTransformnr.setLayoutData(fdlAddTransformnr);
     wAddTransformnr = new Button(wFileComp, SWT.CHECK);
-    props.setLook(wAddTransformnr);
+    PropsUi.setLook(wAddTransformnr);
     FormData fdAddTransformnr = new FormData();
     fdAddTransformnr.left = new FormAttachment(middle, 0);
     fdAddTransformnr.top = new FormAttachment(wlAddTransformnr, 0, SWT.CENTER);
@@ -275,14 +278,14 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     // Create multi-part file?
     wlAddDate = new Label(wFileComp, SWT.RIGHT);
     wlAddDate.setText(BaseMessages.getString(PKG, "XMLOutputDialog.AddDate.Label"));
-    props.setLook(wlAddDate);
+    PropsUi.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment(0, 0);
     fdlAddDate.top = new FormAttachment(wAddTransformnr, margin);
     fdlAddDate.right = new FormAttachment(middle, -margin);
     wlAddDate.setLayoutData(fdlAddDate);
     wAddDate = new Button(wFileComp, SWT.CHECK);
-    props.setLook(wAddDate);
+    PropsUi.setLook(wAddDate);
     FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment(middle, 0);
     fdAddDate.top = new FormAttachment(wlAddDate, 0, SWT.CENTER);
@@ -298,14 +301,14 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     // Create multi-part file?
     wlAddTime = new Label(wFileComp, SWT.RIGHT);
     wlAddTime.setText(BaseMessages.getString(PKG, "XMLOutputDialog.AddTime.Label"));
-    props.setLook(wlAddTime);
+    PropsUi.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
     fdlAddTime.top = new FormAttachment(wAddDate, margin);
     fdlAddTime.right = new FormAttachment(middle, -margin);
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(wFileComp, SWT.CHECK);
-    props.setLook(wAddTime);
+    PropsUi.setLook(wAddTime);
     FormData fdAddTime = new FormData();
     fdAddTime.left = new FormAttachment(middle, 0);
     fdAddTime.top = new FormAttachment(wlAddTime, 0, SWT.CENTER);
@@ -322,14 +325,14 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     // Specify date time format?
     Label wlSpecifyFormat = new Label(wFileComp, SWT.RIGHT);
     wlSpecifyFormat.setText(BaseMessages.getString(PKG, "XMLOutputDialog.SpecifyFormat.Label"));
-    props.setLook(wlSpecifyFormat);
+    PropsUi.setLook(wlSpecifyFormat);
     FormData fdlSpecifyFormat = new FormData();
     fdlSpecifyFormat.left = new FormAttachment(0, 0);
     fdlSpecifyFormat.top = new FormAttachment(wAddTime, margin);
     fdlSpecifyFormat.right = new FormAttachment(middle, -margin);
     wlSpecifyFormat.setLayoutData(fdlSpecifyFormat);
     wSpecifyFormat = new Button(wFileComp, SWT.CHECK);
-    props.setLook(wSpecifyFormat);
+    PropsUi.setLook(wSpecifyFormat);
     wSpecifyFormat.setToolTipText(
         BaseMessages.getString(PKG, "XMLOutputDialog.SpecifyFormat.Tooltip"));
     FormData fdSpecifyFormat = new FormData();
@@ -352,7 +355,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     // DateTimeFormat
     wlDateTimeFormat = new Label(wFileComp, SWT.RIGHT);
     wlDateTimeFormat.setText(BaseMessages.getString(PKG, "XMLOutputDialog.DateTimeFormat.Label"));
-    props.setLook(wlDateTimeFormat);
+    PropsUi.setLook(wlDateTimeFormat);
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment(0, 0);
     fdlDateTimeFormat.top = new FormAttachment(wSpecifyFormat, margin);
@@ -360,7 +363,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wlDateTimeFormat.setLayoutData(fdlDateTimeFormat);
     wDateTimeFormat = new CCombo(wFileComp, SWT.BORDER | SWT.READ_ONLY);
     wDateTimeFormat.setEditable(true);
-    props.setLook(wDateTimeFormat);
+    PropsUi.setLook(wDateTimeFormat);
     wDateTimeFormat.addModifyListener(lsMod);
     FormData fdDateTimeFormat = new FormData();
     fdDateTimeFormat.left = new FormAttachment(middle, 0);
@@ -372,7 +375,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     }
 
     Button wbShowFiles = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbShowFiles);
+    PropsUi.setLook(wbShowFiles);
     wbShowFiles.setText(BaseMessages.getString(PKG, "XMLOutputDialog.ShowFiles.Button"));
     FormData fdbShowFiles = new FormData();
     fdbShowFiles.left = new FormAttachment(middle, 0);
@@ -407,7 +410,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     // Add File to the result files name
     Label wlAddToResult = new Label(wFileComp, SWT.RIGHT);
     wlAddToResult.setText(BaseMessages.getString(PKG, "XMLOutputDialog.AddFileToResult.Label"));
-    props.setLook(wlAddToResult);
+    PropsUi.setLook(wlAddToResult);
     FormData fdlAddToResult = new FormData();
     fdlAddToResult.left = new FormAttachment(0, 0);
     fdlAddToResult.top = new FormAttachment(wbShowFiles, 2 * margin);
@@ -416,7 +419,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wAddToResult = new Button(wFileComp, SWT.CHECK);
     wAddToResult.setToolTipText(
         BaseMessages.getString(PKG, "XMLOutputDialog.AddFileToResult.Tooltip"));
-    props.setLook(wAddToResult);
+    PropsUi.setLook(wAddToResult);
     FormData fdAddToResult = new FormData();
     fdAddToResult.left = new FormAttachment(middle, 0);
     fdAddToResult.top = new FormAttachment(wlAddToResult, 0, SWT.CENTER);
@@ -449,6 +452,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     // START OF CONTENT TAB///
     // /
     CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
+    wContentTab.setFont(GuiResource.getInstance().getFontDefault());
     wContentTab.setText(BaseMessages.getString(PKG, "XMLOutputDialog.ContentTab.TabTitle"));
 
     FormLayout contentLayout = new FormLayout();
@@ -456,19 +460,19 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     contentLayout.marginHeight = 3;
 
     Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wContentComp);
+    PropsUi.setLook(wContentComp);
     wContentComp.setLayout(contentLayout);
 
     Label wlZipped = new Label(wContentComp, SWT.RIGHT);
     wlZipped.setText(BaseMessages.getString(PKG, "XMLOutputDialog.Zipped.Label"));
-    props.setLook(wlZipped);
+    PropsUi.setLook(wlZipped);
     FormData fdlZipped = new FormData();
     fdlZipped.left = new FormAttachment(0, 0);
     fdlZipped.top = new FormAttachment(0, 0);
     fdlZipped.right = new FormAttachment(middle, -margin);
     wlZipped.setLayoutData(fdlZipped);
     wZipped = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wZipped);
+    PropsUi.setLook(wZipped);
     FormData fdZipped = new FormData();
     fdZipped.left = new FormAttachment(middle, 0);
     fdZipped.top = new FormAttachment(wlZipped, 0, SWT.CENTER);
@@ -484,7 +488,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
     Label wlEncoding = new Label(wContentComp, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "XMLOutputDialog.Encoding.Label"));
-    props.setLook(wlEncoding);
+    PropsUi.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment(0, 0);
     fdlEncoding.top = new FormAttachment(wZipped, margin);
@@ -492,7 +496,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
     wEncoding.setEditable(true);
-    props.setLook(wEncoding);
+    PropsUi.setLook(wEncoding);
     wEncoding.addModifyListener(lsMod);
     FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment(middle, 0);
@@ -518,14 +522,14 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
     Label wlNameSpace = new Label(wContentComp, SWT.RIGHT);
     wlNameSpace.setText(BaseMessages.getString(PKG, "XMLOutputDialog.NameSpace.Label"));
-    props.setLook(wlNameSpace);
+    PropsUi.setLook(wlNameSpace);
     FormData fdlNameSpace = new FormData();
     fdlNameSpace.left = new FormAttachment(0, 0);
     fdlNameSpace.top = new FormAttachment(wEncoding, margin);
     fdlNameSpace.right = new FormAttachment(middle, -margin);
     wlNameSpace.setLayoutData(fdlNameSpace);
     wNameSpace = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wNameSpace);
+    PropsUi.setLook(wNameSpace);
     wNameSpace.addModifyListener(lsMod);
     FormData fdNameSpace = new FormData();
     fdNameSpace.left = new FormAttachment(middle, 0);
@@ -535,7 +539,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
     Label wlMainElement = new Label(wContentComp, SWT.RIGHT);
     wlMainElement.setText(BaseMessages.getString(PKG, "XMLOutputDialog.MainElement.Label"));
-    props.setLook(wlMainElement);
+    PropsUi.setLook(wlMainElement);
     FormData fdlMainElement = new FormData();
     fdlMainElement.left = new FormAttachment(0, 0);
     fdlMainElement.top = new FormAttachment(wNameSpace, margin);
@@ -543,7 +547,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wlMainElement.setLayoutData(fdlMainElement);
     wMainElement = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
     wMainElement.setEditable(true);
-    props.setLook(wMainElement);
+    PropsUi.setLook(wMainElement);
     wMainElement.addModifyListener(lsMod);
     FormData fdMainElement = new FormData();
     fdMainElement.left = new FormAttachment(middle, 0);
@@ -553,7 +557,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
     Label wlRepeatElement = new Label(wContentComp, SWT.RIGHT);
     wlRepeatElement.setText(BaseMessages.getString(PKG, "XMLOutputDialog.RepeatElement.Label"));
-    props.setLook(wlRepeatElement);
+    PropsUi.setLook(wlRepeatElement);
     FormData fdlRepeatElement = new FormData();
     fdlRepeatElement.left = new FormAttachment(0, 0);
     fdlRepeatElement.top = new FormAttachment(wMainElement, margin);
@@ -561,7 +565,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wlRepeatElement.setLayoutData(fdlRepeatElement);
     wRepeatElement = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
     wRepeatElement.setEditable(true);
-    props.setLook(wRepeatElement);
+    PropsUi.setLook(wRepeatElement);
     wRepeatElement.addModifyListener(lsMod);
     FormData fdRepeatElement = new FormData();
     fdRepeatElement.left = new FormAttachment(middle, 0);
@@ -571,14 +575,14 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
     Label wlSplitEvery = new Label(wContentComp, SWT.RIGHT);
     wlSplitEvery.setText(BaseMessages.getString(PKG, "XMLOutputDialog.SplitEvery.Label"));
-    props.setLook(wlSplitEvery);
+    PropsUi.setLook(wlSplitEvery);
     FormData fdlSplitEvery = new FormData();
     fdlSplitEvery.left = new FormAttachment(0, 0);
     fdlSplitEvery.top = new FormAttachment(wRepeatElement, margin);
     fdlSplitEvery.right = new FormAttachment(middle, -margin);
     wlSplitEvery.setLayoutData(fdlSplitEvery);
     wSplitEvery = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSplitEvery);
+    PropsUi.setLook(wSplitEvery);
     wSplitEvery.addModifyListener(lsMod);
     FormData fdSplitEvery = new FormData();
     fdSplitEvery.left = new FormAttachment(middle, 0);
@@ -588,14 +592,14 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
     Label wlOmitNullValues = new Label(wContentComp, SWT.RIGHT);
     wlOmitNullValues.setText(BaseMessages.getString(PKG, "XMLOutputDialog.OmitNullValues.Label"));
-    props.setLook(wlOmitNullValues);
+    PropsUi.setLook(wlOmitNullValues);
     FormData fdlOmitNullValues = new FormData();
     fdlOmitNullValues.left = new FormAttachment(0, 0);
     fdlOmitNullValues.top = new FormAttachment(wSplitEvery, margin);
     fdlOmitNullValues.right = new FormAttachment(middle, -margin);
     wlOmitNullValues.setLayoutData(fdlOmitNullValues);
     wOmitNullValues = new Button(wContentComp, SWT.CHECK);
-    props.setLook(wOmitNullValues);
+    PropsUi.setLook(wOmitNullValues);
     FormData fdOmitNullValues = new FormData();
     fdOmitNullValues.left = new FormAttachment(middle, 0);
     fdOmitNullValues.top = new FormAttachment(wlOmitNullValues, 0, SWT.CENTER);
@@ -626,6 +630,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     // Fields tab...
     //
     CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wFieldsTab.setText(BaseMessages.getString(PKG, "XMLOutputDialog.FieldsTab.TabTitle"));
 
     FormLayout fieldsLayout = new FormLayout();
@@ -634,7 +639,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     wFieldsComp.setLayout(fieldsLayout);
-    props.setLook(wFieldsComp);
+    PropsUi.setLook(wFieldsComp);
 
     wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "XMLOutputDialog.Get.Button"));

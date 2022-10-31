@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.CalculationType;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -79,7 +80,7 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, currentMeta);
 
     ModifyListener lsMod = e -> currentMeta.setChanged();
@@ -114,19 +115,19 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     fdlIcon.top = new FormAttachment(0, 0);
     fdlIcon.right = new FormAttachment(100, 0);
     wIcon.setLayoutData(fdlIcon);
-    props.setLook(wIcon);
+    PropsUi.setLook(wIcon);
 
     // TransformName line
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.bottom = new FormAttachment(wIcon, 0, SWT.CENTER);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     FormData fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(wlTransformName, margin);
@@ -144,7 +145,7 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
 
     // Fail if no File line
     wFailIfNoFile = new Button(shell, SWT.CHECK);
-    props.setLook(wFailIfNoFile);
+    PropsUi.setLook(wFailIfNoFile);
     wFailIfNoFile.setToolTipText(
         BaseMessages.getString(PKG, "CalculatorDialog.FailIfNoFileTooltip"));
     wFailIfNoFile.setText(BaseMessages.getString(PKG, "CalculatorDialog.FailIfNoFile"));
@@ -156,7 +157,7 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "CalculatorDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wFailIfNoFile, fdMargin);

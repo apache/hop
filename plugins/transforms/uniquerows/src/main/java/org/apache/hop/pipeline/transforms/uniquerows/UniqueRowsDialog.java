@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
@@ -81,7 +82,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -100,7 +101,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -108,7 +109,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -121,7 +122,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     // ///////////////////////////////
 
     Group wSettings = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(wSettings);
+    PropsUi.setLook(wSettings);
     wSettings.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.Settings.Label"));
 
     FormLayout settingsgroupLayout = new FormLayout();
@@ -131,14 +132,14 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
 
     Label wlCount = new Label(wSettings, SWT.RIGHT);
     wlCount.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.Count.Label"));
-    props.setLook(wlCount);
+    PropsUi.setLook(wlCount);
     FormData fdlCount = new FormData();
     fdlCount.left = new FormAttachment(0, 0);
     fdlCount.top = new FormAttachment(wTransformName, margin);
     fdlCount.right = new FormAttachment(middle, -margin);
     wlCount.setLayoutData(fdlCount);
     wCount = new Button(wSettings, SWT.CHECK);
-    props.setLook(wCount);
+    PropsUi.setLook(wCount);
     wCount.setToolTipText(BaseMessages.getString(PKG, "UniqueRowsDialog.Count.ToolTip", Const.CR));
     FormData fdCount = new FormData();
     fdCount.left = new FormAttachment(middle, 0);
@@ -153,13 +154,13 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
 
     wlCountField = new Label(wSettings, SWT.LEFT);
     wlCountField.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.CounterField.Label"));
-    props.setLook(wlCountField);
+    PropsUi.setLook(wlCountField);
     FormData fdlCountField = new FormData();
     fdlCountField.left = new FormAttachment(wCount, margin);
     fdlCountField.top = new FormAttachment(wTransformName, margin);
     wlCountField.setLayoutData(fdlCountField);
     wCountField = new Text(wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wCountField);
+    PropsUi.setLook(wCountField);
     wCountField.addModifyListener(lsMod);
     FormData fdCountField = new FormData();
     fdCountField.left = new FormAttachment(wlCountField, margin);
@@ -170,14 +171,14 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     Label wlRejectDuplicateRow = new Label(wSettings, SWT.RIGHT);
     wlRejectDuplicateRow.setText(
         BaseMessages.getString(PKG, "UniqueRowsDialog.RejectDuplicateRow.Label"));
-    props.setLook(wlRejectDuplicateRow);
+    PropsUi.setLook(wlRejectDuplicateRow);
     FormData fdlRejectDuplicateRow = new FormData();
     fdlRejectDuplicateRow.left = new FormAttachment(0, 0);
     fdlRejectDuplicateRow.top = new FormAttachment(wCountField, margin);
     fdlRejectDuplicateRow.right = new FormAttachment(middle, -margin);
     wlRejectDuplicateRow.setLayoutData(fdlRejectDuplicateRow);
     wRejectDuplicateRow = new Button(wSettings, SWT.CHECK);
-    props.setLook(wRejectDuplicateRow);
+    PropsUi.setLook(wRejectDuplicateRow);
     wRejectDuplicateRow.setToolTipText(
         BaseMessages.getString(PKG, "UniqueRowsDialog.RejectDuplicateRow.ToolTip", Const.CR));
     FormData fdRejectDuplicateRow = new FormData();
@@ -193,13 +194,13 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
 
     wlErrorDesc = new Label(wSettings, SWT.LEFT);
     wlErrorDesc.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.ErrorDescription.Label"));
-    props.setLook(wlErrorDesc);
+    PropsUi.setLook(wlErrorDesc);
     FormData fdlErrorDesc = new FormData();
     fdlErrorDesc.left = new FormAttachment(wRejectDuplicateRow, margin);
     fdlErrorDesc.top = new FormAttachment(wCountField, margin);
     wlErrorDesc.setLayoutData(fdlErrorDesc);
     wErrorDesc = new TextVar(variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wErrorDesc);
+    PropsUi.setLook(wErrorDesc);
     wErrorDesc.addModifyListener(lsMod);
     FormData fdErrorDesc = new FormData();
     fdErrorDesc.left = new FormAttachment(wlErrorDesc, margin);
@@ -228,7 +229,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wSettings, margin);

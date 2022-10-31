@@ -107,7 +107,7 @@ public class ErrorDialog extends Dialog {
         new Shell(
             parent,
             SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.APPLICATION_MODAL | SWT.SHEET);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageError());
 
     FormLayout formLayout = new FormLayout();
@@ -150,7 +150,7 @@ public class ErrorDialog extends Dialog {
     // From transform line
     Label wlDesc = new Label(shell, SWT.NONE);
     wlDesc.setText(message);
-    props.setLook(wlDesc);
+    PropsUi.setLook(wlDesc);
     FormData fdlDesc = new FormData();
     fdlDesc.left = new FormAttachment(0, 0);
     fdlDesc.top = new FormAttachment(0, margin);
@@ -158,7 +158,7 @@ public class ErrorDialog extends Dialog {
     wlDesc.setFont(largeFont);
 
     Text wDesc = new Text(shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    props.setLook(wDesc);
+    PropsUi.setLook(wDesc);
     wDesc.setText(exMsgFunction.apply(text.toString()));
 
     wDesc.setBackground(gray);

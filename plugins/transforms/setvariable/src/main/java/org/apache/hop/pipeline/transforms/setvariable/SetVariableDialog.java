@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
@@ -73,7 +74,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -104,14 +105,14 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
     // TransformName line
     Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "SetVariableDialog.TransformName.Label"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     FormData fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -122,7 +123,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
     Label wlFormat = new Label(shell, SWT.RIGHT);
     wlFormat.setText(BaseMessages.getString(PKG, "SetVariableDialog.Format.Label"));
     wlFormat.setToolTipText(BaseMessages.getString(PKG, "SetVariableDialog.Format.Tooltip"));
-    props.setLook(wlFormat);
+    PropsUi.setLook(wlFormat);
     FormData fdlFormat = new FormData();
     fdlFormat.left = new FormAttachment(0, 0);
     fdlFormat.right = new FormAttachment(middle, -margin);
@@ -130,7 +131,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
     wlFormat.setLayoutData(fdlFormat);
     wFormat = new Button(shell, SWT.CHECK);
     wFormat.setToolTipText(BaseMessages.getString(PKG, "SetVariableDialog.Format.Tooltip"));
-    props.setLook(wFormat);
+    PropsUi.setLook(wFormat);
     FormData fdFormat = new FormData();
     fdFormat.left = new FormAttachment(middle, 0);
     fdFormat.top = new FormAttachment(wlFormat, 0, SWT.CENTER);
@@ -139,7 +140,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "SetVariableDialog.Fields.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(wFormat, margin);

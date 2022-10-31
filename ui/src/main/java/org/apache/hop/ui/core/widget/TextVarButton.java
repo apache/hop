@@ -63,7 +63,7 @@ public class TextVarButton extends TextVar {
     this.insertTextInterface = insertTextInterface;
     this.variables = variables;
 
-    PropsUi.getInstance().setLook(this);
+    PropsUi.setLook(this);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
@@ -73,7 +73,7 @@ public class TextVarButton extends TextVar {
     this.setLayout(formLayout);
 
     Button button = new Button(this, SWT.PUSH);
-    PropsUi.getInstance().setLook(button);
+    PropsUi.setLook(button);
     button.setText("...");
     FormData fdButton = new FormData();
     fdButton.top = new FormAttachment(0, 0);

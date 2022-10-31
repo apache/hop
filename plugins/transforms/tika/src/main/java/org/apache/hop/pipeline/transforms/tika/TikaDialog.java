@@ -31,7 +31,9 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -127,7 +129,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     }
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     FormLayout formLayout = new FormLayout();
@@ -156,7 +158,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.top = new FormAttachment(0, margin);
@@ -164,7 +166,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
@@ -172,16 +174,17 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     wTransformName.setLayoutData(fdTransformName);
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     //////////////////////////
     // START OF FILE TAB   ///
     //////////////////////////
     CTabItem wFileTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFileTab.setFont(GuiResource.getInstance().getFontDefault());
     wFileTab.setText(BaseMessages.getString(PKG, "TikaDialog.File.Tab"));
 
     Composite wFileComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFileComp);
+    PropsUi.setLook(wFileComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -193,7 +196,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     /////////////////////////////////
 
     Group wOutputField = new Group(wFileComp, SWT.SHADOW_NONE);
-    props.setLook(wOutputField);
+    PropsUi.setLook(wOutputField);
     wOutputField.setText(BaseMessages.getString(PKG, "TikaDialog.wOutputField.Label"));
 
     FormLayout outputfieldgroupLayout = new FormLayout();
@@ -204,7 +207,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     // Is filename defined in a Field
     Label wlFilenameInField = new Label(wOutputField, SWT.RIGHT);
     wlFilenameInField.setText(BaseMessages.getString(PKG, "TikaDialog.FilenameInField.Label"));
-    props.setLook(wlFilenameInField);
+    PropsUi.setLook(wlFilenameInField);
     FormData fdlFilenameInField = new FormData();
     fdlFilenameInField.left = new FormAttachment(0, -margin);
     fdlFilenameInField.top = new FormAttachment(0, margin);
@@ -212,7 +215,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     wlFilenameInField.setLayoutData(fdlFilenameInField);
 
     wFilenameInField = new Button(wOutputField, SWT.CHECK);
-    props.setLook(wFilenameInField);
+    PropsUi.setLook(wFilenameInField);
     wFilenameInField.setToolTipText(
         BaseMessages.getString(PKG, "TikaDialog.FilenameInField.Tooltip"));
     FormData fdFileNameInField = new FormData();
@@ -229,7 +232,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     // If Filename defined in a Field
     Label wlFilenameField = new Label(wOutputField, SWT.RIGHT);
     wlFilenameField.setText(BaseMessages.getString(PKG, "TikaDialog.FilenameField.Label"));
-    props.setLook(wlFilenameField);
+    PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, margin);
     fdlFilenameField.top = new FormAttachment(wlFilenameInField, 2 * margin);
@@ -238,7 +241,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
     wFilenameField = new CCombo(wOutputField, SWT.BORDER | SWT.READ_ONLY);
     wFilenameField.setEditable(true);
-    props.setLook(wFilenameField);
+    PropsUi.setLook(wFilenameField);
     FormData fdFilenameField = new FormData();
     fdFilenameField.left = new FormAttachment(middle, -margin);
     fdFilenameField.top = new FormAttachment(wlFilenameField, 0, SWT.CENTER);
@@ -269,7 +272,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     // Filename line
     wlFilename = new Label(wFileComp, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "TikaDialog.Filename.Label"));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.top = new FormAttachment(wOutputField, margin);
@@ -277,7 +280,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     wlFilename.setLayoutData(fdlFilename);
 
     wbbFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbbFilename);
+    PropsUi.setLook(wbbFilename);
     wbbFilename.setText(BaseMessages.getString(PKG, "TikaDialog.FilenameBrowse.Button"));
     wbbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
@@ -287,7 +290,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     wbbFilename.setLayoutData(fdbFilename);
 
     wbaFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbaFilename);
+    PropsUi.setLook(wbaFilename);
     wbaFilename.setText(BaseMessages.getString(PKG, "TikaDialog.FilenameAdd.Button"));
     wbaFilename.setToolTipText(BaseMessages.getString(PKG, "TikaDialog.FilenameAdd.Tooltip"));
     FormData fdbaFilename = new FormData();
@@ -296,7 +299,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     wbaFilename.setLayoutData(fdbaFilename);
 
     wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilename);
+    PropsUi.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.right = new FormAttachment(wbaFilename, -margin);
@@ -305,14 +308,14 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
     wlFilemask = new Label(wFileComp, SWT.RIGHT);
     wlFilemask.setText(BaseMessages.getString(PKG, "TikaDialog.RegExp.Label"));
-    props.setLook(wlFilemask);
+    PropsUi.setLook(wlFilemask);
     FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
     fdlFilemask.top = new FormAttachment(wFilename, 2 * margin);
     fdlFilemask.right = new FormAttachment(middle, -margin);
     wlFilemask.setLayoutData(fdlFilemask);
     wFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wFilemask);
+    PropsUi.setLook(wFilemask);
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
     fdFilemask.top = new FormAttachment(wFilename, 2 * margin);
@@ -321,14 +324,14 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
     wlExcludeFilemask = new Label(wFileComp, SWT.RIGHT);
     wlExcludeFilemask.setText(BaseMessages.getString(PKG, "TikaDialog.ExcludeFilemask.Label"));
-    props.setLook(wlExcludeFilemask);
+    PropsUi.setLook(wlExcludeFilemask);
     FormData fdlExcludeFilemask = new FormData();
     fdlExcludeFilemask.left = new FormAttachment(0, 0);
     fdlExcludeFilemask.top = new FormAttachment(wFilemask, margin);
     fdlExcludeFilemask.right = new FormAttachment(middle, -margin);
     wlExcludeFilemask.setLayoutData(fdlExcludeFilemask);
     wExcludeFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wExcludeFilemask);
+    PropsUi.setLook(wExcludeFilemask);
     FormData fdExcludeFilemask = new FormData();
     fdExcludeFilemask.left = new FormAttachment(middle, 0);
     fdExcludeFilemask.top = new FormAttachment(wFilemask, margin);
@@ -338,7 +341,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     // Filename list line
     wlFilenameList = new Label(wFileComp, SWT.RIGHT);
     wlFilenameList.setText(BaseMessages.getString(PKG, "TikaDialog.FilenameList.Label"));
-    props.setLook(wlFilenameList);
+    PropsUi.setLook(wlFilenameList);
     FormData fdlFilenameList = new FormData();
     fdlFilenameList.left = new FormAttachment(0, 0);
     fdlFilenameList.top = new FormAttachment(wExcludeFilemask, margin);
@@ -347,7 +350,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
     // Buttons to the right of the screen...
     wbdFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbdFilename);
+    PropsUi.setLook(wbdFilename);
     wbdFilename.setText(BaseMessages.getString(PKG, "TikaDialog.FilenameRemove.Label"));
     wbdFilename.setToolTipText(BaseMessages.getString(PKG, "TikaDialog.FilenameRemove.Tooltip"));
     FormData fdbdFilename = new FormData();
@@ -356,7 +359,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     wbdFilename.setLayoutData(fdbdFilename);
 
     wbeFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbeFilename);
+    PropsUi.setLook(wbeFilename);
     wbeFilename.setText(BaseMessages.getString(PKG, "TikaDialog.FilenameEdit.Label"));
     wbeFilename.setToolTipText(BaseMessages.getString(PKG, "TikaDialog.FilenameEdit.Tooltip"));
     FormData fdbeFilename = new FormData();
@@ -365,7 +368,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     wbeFilename.setLayoutData(fdbeFilename);
 
     wbShowFiles = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbShowFiles);
+    PropsUi.setLook(wbShowFiles);
     wbShowFiles.setText(BaseMessages.getString(PKG, "TikaDialog.ShowFiles.Button"));
     FormData fdbShowFiles = new FormData();
     fdbShowFiles.left = new FormAttachment(middle, 0);
@@ -417,7 +420,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
             2,
             null,
             props);
-    props.setLook(wFilenameList);
+    PropsUi.setLook(wFilenameList);
     FormData fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment(middle, 0);
     fdFilenameList.right = new FormAttachment(wbdFilename, -margin);
@@ -444,6 +447,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     // START OF CONTENT TAB///
     ///
     CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
+    wContentTab.setFont(GuiResource.getInstance().getFontDefault());
     wContentTab.setText(BaseMessages.getString(PKG, "TikaDialog.Content.Tab"));
 
     FormLayout contentLayout = new FormLayout();
@@ -451,7 +455,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     contentLayout.marginHeight = 3;
 
     Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wContentComp);
+    PropsUi.setLook(wContentComp);
     wContentComp.setLayout(contentLayout);
 
     // ///////////////////////////////
@@ -459,7 +463,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     /////////////////////////////////
 
     Group wFileConf = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wFileConf);
+    PropsUi.setLook(wFileConf);
     wFileConf.setText(BaseMessages.getString(PKG, "TikaDialog.FileConf.Label"));
 
     FormLayout xmlConfgroupLayout = new FormLayout();
@@ -469,7 +473,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
     wlEncoding = new Label(wFileConf, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "TikaDialog.Encoding.Label"));
-    props.setLook(wlEncoding);
+    PropsUi.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment(0, 0);
     fdlEncoding.top = new FormAttachment(0, margin);
@@ -477,7 +481,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new CCombo(wFileConf, SWT.BORDER | SWT.READ_ONLY);
     wEncoding.setEditable(true);
-    props.setLook(wEncoding);
+    PropsUi.setLook(wEncoding);
     FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment(middle, 0);
     fdEncoding.top = new FormAttachment(0, margin);
@@ -495,14 +499,14 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     // Ignore Empty File
     Label wlIgnoreEmptyFile = new Label(wFileConf, SWT.RIGHT);
     wlIgnoreEmptyFile.setText(BaseMessages.getString(PKG, "TikaDialog.IgnoreEmptyFile.Label"));
-    props.setLook(wlIgnoreEmptyFile);
+    PropsUi.setLook(wlIgnoreEmptyFile);
     FormData fdlIgnoreEmptyFile = new FormData();
     fdlIgnoreEmptyFile.left = new FormAttachment(0, 0);
     fdlIgnoreEmptyFile.top = new FormAttachment(wEncoding, margin);
     fdlIgnoreEmptyFile.right = new FormAttachment(middle, -margin);
     wlIgnoreEmptyFile.setLayoutData(fdlIgnoreEmptyFile);
     wIgnoreEmptyFile = new Button(wFileConf, SWT.CHECK);
-    props.setLook(wIgnoreEmptyFile);
+    PropsUi.setLook(wIgnoreEmptyFile);
     wIgnoreEmptyFile.setToolTipText(
         BaseMessages.getString(PKG, "TikaDialog.IgnoreEmptyFile.Tooltip"));
     FormData fdIgnoreEmptyFile = new FormData();
@@ -513,14 +517,14 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     // preview limit
     Label wlLimit = new Label(wFileConf, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "TikaDialog.Limit.Label"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.top = new FormAttachment(wlIgnoreEmptyFile, 2 * margin);
     fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(wFileConf, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
     fdLimit.top = new FormAttachment(wlLimit, 0, SWT.CENTER);
@@ -529,7 +533,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
     Label wlOutputFormat = new Label(wFileConf, SWT.RIGHT);
     wlOutputFormat.setText(BaseMessages.getString(PKG, "TikaDialog.OutputFormat.Label"));
-    props.setLook(wlOutputFormat);
+    PropsUi.setLook(wlOutputFormat);
     FormData fdlOutputFormat = new FormData();
     fdlOutputFormat.left = new FormAttachment(0, 0);
     fdlOutputFormat.top = new FormAttachment(wLimit, margin);
@@ -537,7 +541,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     wlOutputFormat.setLayoutData(fdlOutputFormat);
     wOutputFormat = new CCombo(wFileConf, SWT.BORDER | SWT.READ_ONLY);
     wOutputFormat.setText(BaseMessages.getString(PKG, "TikaDialog.OutputFormat.Label"));
-    props.setLook(wOutputFormat);
+    PropsUi.setLook(wOutputFormat);
 
     wOutputFormat.setItems(tikaOutput.getFileOutputTypeCodes().keySet().toArray(new String[] {}));
     FormData fdOutputFormat = new FormData();
@@ -557,7 +561,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     /////////////////////////////////
 
     Group wAddFileResultGroup = new Group(wContentComp, SWT.SHADOW_NONE);
-    props.setLook(wAddFileResultGroup);
+    PropsUi.setLook(wAddFileResultGroup);
     wAddFileResultGroup.setText(BaseMessages.getString(PKG, "TikaDialog.wAddFileResult.Label"));
 
     FormLayout addFileResultGroupLayout = new FormLayout();
@@ -567,14 +571,14 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
     wlAddResult = new Label(wAddFileResultGroup, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "TikaDialog.AddResult.Label"));
-    props.setLook(wlAddResult);
+    PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
     fdlAddResult.top = new FormAttachment(0, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(wAddFileResultGroup, SWT.CHECK);
-    props.setLook(wAddResult);
+    PropsUi.setLook(wAddResult);
     wAddResult.setToolTipText(BaseMessages.getString(PKG, "TikaDialog.AddResult.Tooltip"));
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment(middle, 0);
@@ -1000,10 +1004,11 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
   private void addOutputFieldsTab() {
     CTabItem wOutputFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wOutputFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wOutputFieldsTab.setText(BaseMessages.getString(PKG, "TikaDialog.OutputFieldsTab.TabTitle"));
 
     Composite wOutputFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wOutputFieldsComp);
+    PropsUi.setLook(wOutputFieldsComp);
 
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = 3;
@@ -1016,7 +1021,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       // ContentFieldName line
       Label wlContentFieldName = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlContentFieldName.setText(BaseMessages.getString(PKG, "TikaDialog.ContentFieldName.Label"));
-      props.setLook(wlContentFieldName);
+      PropsUi.setLook(wlContentFieldName);
       FormData fdlContentFieldName = new FormData();
       fdlContentFieldName.left = new FormAttachment(0, 0);
       fdlContentFieldName.top = new FormAttachment(0, margin);
@@ -1024,7 +1029,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       wlContentFieldName.setLayoutData(fdlContentFieldName);
       wContentFieldName =
           new TextVar(variables, wOutputFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wContentFieldName);
+      PropsUi.setLook(wContentFieldName);
       FormData fdContentFieldName = new FormData();
       fdContentFieldName.left = new FormAttachment(middle, 0);
       fdContentFieldName.right = new FormAttachment(100, -margin);
@@ -1038,7 +1043,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       Label wlFileSizeFieldName = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlFileSizeFieldName.setText(
           BaseMessages.getString(PKG, "TikaDialog.FileSizeFieldName.Label"));
-      props.setLook(wlFileSizeFieldName);
+      PropsUi.setLook(wlFileSizeFieldName);
       FormData fdlFileSizeFieldName = new FormData();
       fdlFileSizeFieldName.left = new FormAttachment(0, 0);
       fdlFileSizeFieldName.top = new FormAttachment(lastControl, margin);
@@ -1047,7 +1052,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
       wFileSizeFieldName =
           new TextVar(variables, wOutputFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wFileSizeFieldName);
+      PropsUi.setLook(wFileSizeFieldName);
       FormData fdFileSizeFieldName = new FormData();
       fdFileSizeFieldName.left = new FormAttachment(middle, 0);
       fdFileSizeFieldName.right = new FormAttachment(100, -margin);
@@ -1060,7 +1065,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       Label wlMetadataFieldName = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlMetadataFieldName.setText(
           BaseMessages.getString(PKG, "TikaDialog.MetadataFieldName.Label"));
-      props.setLook(wlMetadataFieldName);
+      PropsUi.setLook(wlMetadataFieldName);
       FormData fdlMetadataFieldName = new FormData();
       fdlMetadataFieldName.left = new FormAttachment(0, 0);
       fdlMetadataFieldName.top = new FormAttachment(lastControl, margin);
@@ -1069,7 +1074,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
       wMetadataFieldName =
           new TextVar(variables, wOutputFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wMetadataFieldName);
+      PropsUi.setLook(wMetadataFieldName);
       FormData fdMetadataFieldName = new FormData();
       fdMetadataFieldName.left = new FormAttachment(middle, 0);
       fdMetadataFieldName.right = new FormAttachment(100, -margin);
@@ -1082,7 +1087,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       Label wlInclFilenameField = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlInclFilenameField.setText(
           BaseMessages.getString(PKG, "TikaDialog.InclFilenameField.Label"));
-      props.setLook(wlInclFilenameField);
+      PropsUi.setLook(wlInclFilenameField);
       FormData fdlInclFilenameField = new FormData();
       fdlInclFilenameField.left = new FormAttachment(0, 0);
       fdlInclFilenameField.top = new FormAttachment(lastControl, margin);
@@ -1091,7 +1096,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
       wInclFilenameField =
           new TextVar(variables, wOutputFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wInclFilenameField);
+      PropsUi.setLook(wInclFilenameField);
       FormData fdInclFilenameField = new FormData();
       fdInclFilenameField.left = new FormAttachment(middle, 0);
       fdInclFilenameField.top = new FormAttachment(wlInclFilenameField, 0, SWT.CENTER);
@@ -1103,7 +1108,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     {
       Label wlRowNumField = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlRowNumField.setText(BaseMessages.getString(PKG, "TikaDialog.RowNum.Label"));
-      props.setLook(wlRowNumField);
+      PropsUi.setLook(wlRowNumField);
       FormData fdlRowNumField = new FormData();
       fdlRowNumField.left = new FormAttachment(0, 0);
       fdlRowNumField.top = new FormAttachment(lastControl, margin);
@@ -1111,7 +1116,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       wlRowNumField.setLayoutData(fdlRowNumField);
 
       wRowNumField = new TextVar(variables, wOutputFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wRowNumField);
+      PropsUi.setLook(wRowNumField);
       FormData fdRowNumField = new FormData();
       fdRowNumField.left = new FormAttachment(middle, 0);
       fdRowNumField.right = new FormAttachment(100, -margin);
@@ -1125,7 +1130,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       Label wlShortFileFieldName = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlShortFileFieldName.setText(
           BaseMessages.getString(PKG, "TikaDialog.ShortFileFieldName.Label"));
-      props.setLook(wlShortFileFieldName);
+      PropsUi.setLook(wlShortFileFieldName);
       FormData fdlShortFileFieldName = new FormData();
       fdlShortFileFieldName.left = new FormAttachment(0, 0);
       fdlShortFileFieldName.top = new FormAttachment(lastControl, margin);
@@ -1134,7 +1139,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
       wShortFileFieldName =
           new TextVar(variables, wOutputFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wShortFileFieldName);
+      PropsUi.setLook(wShortFileFieldName);
       FormData fdShortFileFieldName = new FormData();
       fdShortFileFieldName.left = new FormAttachment(middle, 0);
       fdShortFileFieldName.right = new FormAttachment(100, -margin);
@@ -1148,7 +1153,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       Label wlExtensionFieldName = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlExtensionFieldName.setText(
           BaseMessages.getString(PKG, "TikaDialog.ExtensionFieldName.Label"));
-      props.setLook(wlExtensionFieldName);
+      PropsUi.setLook(wlExtensionFieldName);
       FormData fdlExtensionFieldName = new FormData();
       fdlExtensionFieldName.left = new FormAttachment(0, 0);
       fdlExtensionFieldName.top = new FormAttachment(lastControl, margin);
@@ -1157,7 +1162,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
       wExtensionFieldName =
           new TextVar(variables, wOutputFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wExtensionFieldName);
+      PropsUi.setLook(wExtensionFieldName);
       FormData fdExtensionFieldName = new FormData();
       fdExtensionFieldName.left = new FormAttachment(middle, 0);
       fdExtensionFieldName.right = new FormAttachment(100, -margin);
@@ -1170,7 +1175,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       // PathFieldName line
       Label wlPathFieldName = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlPathFieldName.setText(BaseMessages.getString(PKG, "TikaDialog.PathFieldName.Label"));
-      props.setLook(wlPathFieldName);
+      PropsUi.setLook(wlPathFieldName);
       FormData fdlPathFieldName = new FormData();
       fdlPathFieldName.left = new FormAttachment(0, 0);
       fdlPathFieldName.top = new FormAttachment(lastControl, margin);
@@ -1179,7 +1184,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
       wPathFieldName =
           new TextVar(variables, wOutputFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wPathFieldName);
+      PropsUi.setLook(wPathFieldName);
       FormData fdPathFieldName = new FormData();
       fdPathFieldName.left = new FormAttachment(middle, 0);
       fdPathFieldName.right = new FormAttachment(100, -margin);
@@ -1192,7 +1197,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       // IsHiddenName line
       Label wlIsHiddenName = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlIsHiddenName.setText(BaseMessages.getString(PKG, "TikaDialog.IsHiddenName.Label"));
-      props.setLook(wlIsHiddenName);
+      PropsUi.setLook(wlIsHiddenName);
       FormData fdlIsHiddenName = new FormData();
       fdlIsHiddenName.left = new FormAttachment(0, 0);
       fdlIsHiddenName.top = new FormAttachment(lastControl, margin);
@@ -1200,7 +1205,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       wlIsHiddenName.setLayoutData(fdlIsHiddenName);
 
       wIsHiddenName = new TextVar(variables, wOutputFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wIsHiddenName);
+      PropsUi.setLook(wIsHiddenName);
       FormData fdIsHiddenName = new FormData();
       fdIsHiddenName.left = new FormAttachment(middle, 0);
       fdIsHiddenName.right = new FormAttachment(100, -margin);
@@ -1214,7 +1219,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       Label wlLastModificationTimeName = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlLastModificationTimeName.setText(
           BaseMessages.getString(PKG, "TikaDialog.LastModificationTimeName.Label"));
-      props.setLook(wlLastModificationTimeName);
+      PropsUi.setLook(wlLastModificationTimeName);
       FormData fdlLastModificationTimeName = new FormData();
       fdlLastModificationTimeName.left = new FormAttachment(0, 0);
       fdlLastModificationTimeName.top = new FormAttachment(lastControl, margin);
@@ -1223,7 +1228,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
 
       wLastModificationTimeName =
           new TextVar(variables, wOutputFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wLastModificationTimeName);
+      PropsUi.setLook(wLastModificationTimeName);
       FormData fdLastModificationTimeName = new FormData();
       fdLastModificationTimeName.left = new FormAttachment(middle, 0);
       fdLastModificationTimeName.right = new FormAttachment(100, -margin);
@@ -1237,7 +1242,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       // UriName line
       Label wlUriName = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlUriName.setText(BaseMessages.getString(PKG, "TikaDialog.UriName.Label"));
-      props.setLook(wlUriName);
+      PropsUi.setLook(wlUriName);
       FormData fdlUriName = new FormData();
       fdlUriName.left = new FormAttachment(0, 0);
       fdlUriName.top = new FormAttachment(lastControl, margin);
@@ -1245,7 +1250,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       wlUriName.setLayoutData(fdlUriName);
 
       wUriName = new TextVar(variables, wOutputFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wUriName);
+      PropsUi.setLook(wUriName);
       FormData fdUriName = new FormData();
       fdUriName.left = new FormAttachment(middle, 0);
       fdUriName.right = new FormAttachment(100, -margin);
@@ -1258,7 +1263,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       // RootUriName line
       Label wlRootUriName = new Label(wOutputFieldsComp, SWT.RIGHT);
       wlRootUriName.setText(BaseMessages.getString(PKG, "TikaDialog.RootUriName.Label"));
-      props.setLook(wlRootUriName);
+      PropsUi.setLook(wlRootUriName);
       FormData fdlRootUriName = new FormData();
       fdlRootUriName.left = new FormAttachment(0, 0);
       fdlRootUriName.top = new FormAttachment(lastControl, margin);
@@ -1266,7 +1271,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
       wlRootUriName.setLayoutData(fdlRootUriName);
 
       wRootUriName = new TextVar(variables, wOutputFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-      props.setLook(wRootUriName);
+      PropsUi.setLook(wRootUriName);
       FormData fdRootUriName = new FormData();
       fdRootUriName.left = new FormAttachment(middle, 0);
       fdRootUriName.right = new FormAttachment(100, -margin);
