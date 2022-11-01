@@ -58,6 +58,8 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.CanvasFacade;
+import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
@@ -65,6 +67,7 @@ import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.shared.BaseExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowPainter;
@@ -86,6 +89,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -190,7 +194,12 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     //
     // The canvas at the top
     //
-    canvas = new Canvas(sash, SWT.NO_BACKGROUND);
+    canvas = new Canvas(sash, SWT.NO_BACKGROUND | SWT.BORDER);
+    Listener listener = CanvasListener.getInstance();
+    canvas.addListener(SWT.MouseDown, listener);
+    canvas.addListener(SWT.MouseMove, listener);
+    canvas.addListener(SWT.MouseUp, listener);
+    canvas.addListener(SWT.Paint, listener);
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
     fdCanvas.top = new FormAttachment(0, 0);
@@ -200,6 +209,9 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     canvas.addPaintListener(this);
     canvas.addMouseListener(this);
     canvas.addKeyListener(this);
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      canvas.addMouseMoveListener(this);
+    }
 
     // The execution information tabs at the bottom
     //
@@ -211,7 +223,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     addDataTab();
 
     refresh();
-
 
     tabFolder.setSelection(0);
     sash.setWeights(60, 40);
@@ -615,6 +626,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     } finally {
       gc.dispose();
     }
+    CanvasFacade.setData(canvas, magnification, offset, workflowMeta);
   }
 
   @Override

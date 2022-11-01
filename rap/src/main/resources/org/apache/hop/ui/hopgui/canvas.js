@@ -70,9 +70,6 @@ const handleEvent = function (event) {
     const hops = event.widget.getData("hops");
     const notes = event.widget.getData("notes");
     const props = event.widget.getData("props");
-    const svg = event.widget.getData("svg");
-
-    getThemeColors(props.themeId);
 
     // Global vars to make the coordinate calculation function simpler.
     //
@@ -117,6 +114,8 @@ const handleEvent = function (event) {
                 break;
             }
 
+            getThemeColors(props.themeId);
+
             const gc = event.gc;
             const dx = x2 - x1;
             const dy = y2 - y1;
@@ -129,20 +128,17 @@ const handleEvent = function (event) {
             let newSize = Math.round(oldSize * magnification);
             gc.font = newSize + fontString.substring(pxIdx);
 
-            // Clear the canvas, regardless of what happens below
-            //
-            gc.rect(0, 0, gc.canvas.width / magnification, gc.canvas.height / magnification);
-            gc.fillStyle = bgColor;
-            gc.fill();
-
             // If we're not dragging the cursor with the mouse
             //
-            if (dx === 0 && dy === 0) {
-                // Draw the SVG
+            if (dx > 0 || dy > 0) {
+                // Clear the canvas, regardless of what happens below
                 //
-                drawInlineSVG(gc, svg, 0.0, 0.0);
-            } else {
+                gc.rect(0, 0, gc.canvas.width / magnification, gc.canvas.height / magnification);
+                gc.fillStyle = bgColor;
+                gc.fill();
+
                 // Draw grids
+                //
                 if (gridSize > 1) {
                     drawGrid(gc, gridSize);
                 }
@@ -208,8 +204,6 @@ const handleEvent = function (event) {
 
                     // Calculate the font size and magnify it as well.
                     //
-
-
                     gc.fillText(nodeName,
                         fx(x) + iconSize / 2 - gc.measureText(nodeName).width / 2,
                         fy(y) + iconSize + 7);
@@ -257,21 +251,6 @@ const handleEvent = function (event) {
             break;
     }
 };
-
-
-function drawInlineSVG(gc, rawSVG, posX, posY) {
-    let svg = new Blob([rawSVG], {type: "image/svg+xml;charset=utf-8"});
-    let domURL = self.URL || self.webkitURL || self;
-    let url = domURL.createObjectURL(svg);
-    let img = new Image;
-
-    img.onload = function () {
-        gc.drawImage(this, posX, posY);
-        domURL.revokeObjectURL(url);
-    };
-
-    img.src = url;
-}
 
 function fx(x) {
     return (x + offsetX) * magnification + offsetX;

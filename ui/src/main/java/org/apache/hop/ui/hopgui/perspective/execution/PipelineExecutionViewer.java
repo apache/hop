@@ -63,6 +63,8 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.CanvasFacade;
+import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
@@ -92,6 +94,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -202,7 +205,12 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     //
     // The canvas at the top
     //
-    canvas = new Canvas(sash, SWT.NO_BACKGROUND);
+    canvas = new Canvas(sash, SWT.NO_BACKGROUND | SWT.BORDER);
+    Listener listener = CanvasListener.getInstance();
+    canvas.addListener(SWT.MouseDown, listener);
+    canvas.addListener(SWT.MouseMove, listener);
+    canvas.addListener(SWT.MouseUp, listener);
+    canvas.addListener(SWT.Paint, listener);
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
     fdCanvas.top = new FormAttachment(0, 0);
@@ -211,7 +219,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     canvas.setLayoutData(fdCanvas);
     canvas.addPaintListener(this);
     canvas.addMouseListener(this);
-    canvas.addMouseMoveListener(this);
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      canvas.addMouseMoveListener(this);
+    }
     canvas.addKeyListener(this);
 
     // The execution information tabs at the bottom
@@ -611,11 +621,11 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   }
 
   @GuiToolbarElement(
-          root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-          id = TOOLBAR_ITEM_ZOOM_FIT_TO_SCREEN,
-          toolTip = "i18n::ExecutionViewer.GuiAction.ZoomFitToScreen.Tooltip",
-          type = GuiToolbarElementType.BUTTON,
-          image = "ui/images/zoom-fit.svg")
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_ZOOM_FIT_TO_SCREEN,
+      toolTip = "i18n::ExecutionViewer.GuiAction.ZoomFitToScreen.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/zoom-fit.svg")
   public void zoomFitToScreen() {
     super.zoomFitToScreen();
   }
@@ -681,7 +691,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     } finally {
       gc.dispose();
     }
+    CanvasFacade.setData(canvas, magnification, offset, pipelineMeta);
   }
+
 
   @Override
   public Control getControl() {

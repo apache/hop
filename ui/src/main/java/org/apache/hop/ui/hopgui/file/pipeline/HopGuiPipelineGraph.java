@@ -3248,7 +3248,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       swtGc = new GC(image);
     }
 
-    drawPipelineImage(swtGc, area.x, area.y, magnification);
+    drawPipelineImage(swtGc, area.x, area.y);
 
     if (needsDoubleBuffering) {
       // Draw the image onto the canvas and get rid of the resources
@@ -3259,7 +3259,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
-  public void drawPipelineImage(GC swtGc, int width, int height, float magnificationFactor) {
+  public void drawPipelineImage(GC swtGc, int width, int height) {
+
+    if (EnvironmentUtils.getInstance().isWeb()) {}
 
     IGc gc = new SwtGc(swtGc, width, height, iconSize);
     try {
@@ -3332,8 +3334,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
-    CanvasFacade.setData(
-        canvas, magnification, offset, pipelineMeta, HopGuiPipelineGraph.class, variables);
+    CanvasFacade.setData(canvas, magnification, offset, pipelineMeta);
   }
 
   private void editTransform(TransformMeta transformMeta) {
