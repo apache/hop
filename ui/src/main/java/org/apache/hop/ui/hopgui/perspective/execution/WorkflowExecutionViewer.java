@@ -63,6 +63,7 @@ import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.ui.hopgui.shared.BaseExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -85,7 +86,6 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -108,6 +108,9 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   public static final String TOOLBAR_ITEM_REFRESH = "WorkflowExecutionViewer-Toolbar-10100-Refresh";
   public static final String TOOLBAR_ITEM_ZOOM_LEVEL =
       "WorkflowExecutionViewer-ToolBar-10500-Zoom-Level";
+  public static final String TOOLBAR_ITEM_ZOOM_FIT_TO_SCREEN =
+      "WorkflowExecutionViewer-ToolBar-10600-Zoom-Fit-To-Screen";
+
   public static final String TOOLBAR_ITEM_TO_EDITOR =
       "WorkflowExecutionViewer-Toolbar-11100-GoToEditor";
   public static final String TOOLBAR_ITEM_DRILL_DOWN =
@@ -208,6 +211,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     addDataTab();
 
     refresh();
+
 
     tabFolder.setSelection(0);
     sash.setWeights(60, 40);
@@ -426,7 +430,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       layout(true, true);
       dataSash.setWeights(weights);
     }
-    canvas.redraw();
+    redraw();
   }
 
   private void addLogTab() {
@@ -496,6 +500,16 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     }
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_ZOOM_FIT_TO_SCREEN,
+      toolTip = "i18n::ExecutionViewer.GuiAction.ZoomFitToScreen.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/zoom-fit.svg")
+  public void zoomFitToScreen() {
+    super.zoomFitToScreen();
+  }
+
   protected Point getArea() {
     org.eclipse.swt.graphics.Rectangle rect = canvas.getClientArea();
     Point area = new Point(rect.width, rect.height);
@@ -510,9 +524,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       PropsUi propsUi = PropsUi.getInstance();
 
       int gridSize = propsUi.isShowCanvasGridEnabled() ? propsUi.getCanvasGridSize() : 1;
-
-      ScrollBar horizontalScrollBar = canvas.getHorizontalBar();
-      ScrollBar verticalScrollBar = canvas.getVerticalBar();
 
       WorkflowPainter workflowPainter =
           new WorkflowPainter(
@@ -538,6 +549,12 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
       workflowPainter.setMagnification(correctedMagnification);
       workflowPainter.setOffset(offset);
+
+      // Draw the navigation viewport at the bottom right
+      //
+      workflowPainter.setMaximum(maximum);
+      workflowPainter.setShowingNavigationView(true);
+      workflowPainter.setScreenMagnification(magnification);
 
       // See if we can get status' information for the actions...
       //
@@ -589,8 +606,11 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
       try {
         workflowPainter.drawWorkflow();
+
+        viewPort = workflowPainter.getViewPort();
+        graphPort = workflowPainter.getGraphPort();
       } catch (Exception e) {
-        new ErrorDialog(hopGui.getShell(), "Error", "Error drawing pipeline image", e);
+        new ErrorDialog(hopGui.getShell(), "Error", "Error drawing workflow image", e);
       }
     } finally {
       gc.dispose();
@@ -626,7 +646,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       comboValuesMethod = "getZoomLevels")
   public void zoomLevel() {
     readMagnification();
-    canvas.redraw();
+    redraw();
   }
 
   @GuiToolbarElement(
@@ -706,13 +726,20 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
   @Override
   public void mouseDown(MouseEvent e) {
-    DPoint real = screen2real(e.x, e.y);
-    AreaOwner areaOwner = getVisibleAreaOwner((int)real.x, (int)real.y);
-    if (areaOwner == null) {
+    workflowMeta.unselectAll();
+    Point real = screen2real(e.x, e.y);
+
+    lastClick = new Point(real.x, real.y);
+    boolean control = (e.stateMask & SWT.MOD1) != 0;
+
+    if (setupDragView(e.button, control, new Point(e.x, e.y))) {
       return;
     }
 
-    workflowMeta.unselectAll();
+    AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
+    if (areaOwner == null) {
+      return;
+    }
 
     switch (areaOwner.getAreaType()) {
       case ACTION_ICON:
@@ -723,7 +750,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
         break;
     }
 
-    canvas.redraw();
+    redraw();
   }
 
   public void refreshActionData() {
@@ -781,14 +808,11 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     }
   }
 
-  @Override
-  public void mouseUp(MouseEvent e) {}
-
-  public void drillDownOnLocation(DPoint location) {
+  public void drillDownOnLocation(Point location) {
     if (location == null) {
       return;
     }
-    AreaOwner areaOwner = getVisibleAreaOwner((int)location.x, (int)location.y);
+    AreaOwner areaOwner = getVisibleAreaOwner((int) location.x, (int) location.y);
     if (areaOwner == null) {
       return;
     }

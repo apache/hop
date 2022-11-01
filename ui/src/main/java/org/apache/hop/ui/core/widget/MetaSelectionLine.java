@@ -20,6 +20,8 @@ package org.apache.hop.ui.core.widget;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -30,7 +32,10 @@ import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
@@ -57,8 +62,13 @@ import java.util.List;
  * connection values in the MetaStore) - New and Edit buttons (The latter opens up a generic
  * Metadata editor)
  */
+@GuiPlugin
 public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   private static final Class<?> PKG = MetaSelectionLine.class; // For Translator
+
+  public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "MetaSelectionLine-Toolbar";
+  public static final String TOOLBAR_ITEM_NEW = "10020-metadata-new";
+  public static final String TOOLBAR_ITEM_META = "10030-metadata-perspective";
 
   private IHopMetadataProvider metadataProvider;
   private IVariables variables;
@@ -190,18 +200,12 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
           if (Utils.isEmpty(wCombo.getText())) this.newMetadata();
           else this.editMetadata();
         });
-    // New
-    ToolItem newItem = new ToolItem(wToolBar, SWT.PUSH);
-    newItem.setImage(GuiResource.getInstance().getImageNew());
-    newItem.setToolTipText("Create a new " + getMetadataDescription());
-    newItem.addListener(
-        SWT.Selection,
-        event -> {
-          T element = newMetadata();
-          if (element != null) {
-            wCombo.setText(Const.NVL(element.getName(), ""));
-          }
-        });
+
+    // Add more toolbar items from plugins.
+    //
+    GuiToolbarWidgets toolbarWidgets = new GuiToolbarWidgets();
+    toolbarWidgets.registerGuiPluginObject(this);
+    toolbarWidgets.createToolbarWidgets(wToolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
 
     int textFlags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
     if (flags != SWT.NONE) {
@@ -222,6 +226,39 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     PropsUi.setLook(wCombo);
 
     layout(true, true);
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_NEW,
+      toolTip = "Create a new metadata element",
+      image = "ui/images/new.svg")
+  public void newMetadataElement() {
+    T element = newMetadata();
+    if (element != null) {
+      wCombo.setText(Const.NVL(element.getName(), ""));
+    }
+  }
+
+  @GuiToolbarElement(
+          root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+          id = TOOLBAR_ITEM_META,
+          toolTip = "View the element in the metadata perspective",
+          image = "ui/images/metadata.svg")
+  public void viewInPerspective() {
+    MetadataPerspective perspective = HopGui.getMetadataPerspective();
+    perspective.activate();
+    String elementName = variables.resolve(wCombo.getText());
+    if (StringUtils.isEmpty(elementName)) {
+      // Visit the type of metadata
+      //
+      perspective.goToType(managedClass);
+    } else {
+      // Open the element in the perspective
+      //
+      perspective.goToElement(managedClass, elementName);
+    }
+    // Leave the current dialog in which the line is used open.
   }
 
   private String getMetadataDescription() {
@@ -420,5 +457,59 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
    */
   public IVariables getSpace() {
     return variables;
+  }
+
+  /**
+   * Gets managedClass
+   *
+   * @return value of managedClass
+   */
+  public Class<T> getManagedClass() {
+    return managedClass;
+  }
+
+  /**
+   * Gets variables
+   *
+   * @return value of variables
+   */
+  public IVariables getVariables() {
+    return variables;
+  }
+
+  /**
+   * Gets manager
+   *
+   * @return value of manager
+   */
+  public MetadataManager<T> getManager() {
+    return manager;
+  }
+
+  /**
+   * Gets wLabel
+   *
+   * @return value of wLabel
+   */
+  public Label getwLabel() {
+    return wLabel;
+  }
+
+  /**
+   * Gets wCombo
+   *
+   * @return value of wCombo
+   */
+  public ComboVar getwCombo() {
+    return wCombo;
+  }
+
+  /**
+   * Gets wToolBar
+   *
+   * @return value of wToolBar
+   */
+  public ToolBar getwToolBar() {
+    return wToolBar;
   }
 }

@@ -91,7 +91,7 @@ import java.util.List;
     description = "i18n::MetadataPerspective.Description",
     image = "ui/images/metadata.svg")
 @GuiPlugin(description = "i18n::MetadataPerspective.GuiPlugin.Description")
-public class MetadataPerspective implements IHopPerspective , TabClosable {
+public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   public static final Class<?> PKG = MetadataPerspective.class; // i18n
   private static final String METADATA_PERSPECTIVE_TREE = "Metadata perspective tree";
@@ -176,7 +176,7 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
     createTree(sash);
     createTabFolder(sash);
 
-    sash.setWeights(new int[] {20, 80});
+    sash.setWeights(20, 80);
 
     this.refresh();
     this.updateSelection();
@@ -486,10 +486,10 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
   }
 
   @GuiToolbarElement(
-          root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-          id = TOOLBAR_ITEM_NEW,
-          toolTip = "i18n::MetadataPerspective.ToolbarElement.New.Tooltip",
-          image = "ui/images/new.svg")
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_NEW,
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.New.Tooltip",
+      image = "ui/images/new.svg")
   public void onNewMetadata() {
     if (tree.getSelectionCount() != 1) {
       return;
@@ -525,7 +525,6 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
   }
 
   public void onEditMetadata() {
-
     if (tree.getSelectionCount() != 1) {
       return;
     }
@@ -714,11 +713,9 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
     this.updateGui();
   }
 
-  /**
-   *  Update HopGui menu and toolbar...
-   */
+  /** Update HopGui menu and toolbar... */
   public void updateGui() {
-    final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();    
+    final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
     activeHandler.updateGui();
   }
 
@@ -881,7 +878,8 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
 
   @Override
   public boolean hasNavigationNextFile() {
-    return ( tabFolder.getItemCount() > 0 ) && ( tabFolder.getSelectionIndex() < (tabFolder.getItemCount() - 1) );
+    return (tabFolder.getItemCount() > 0)
+        && (tabFolder.getSelectionIndex() < (tabFolder.getItemCount() - 1));
   }
 
   @Override
@@ -926,5 +924,47 @@ public class MetadataPerspective implements IHopPerspective , TabClosable {
   @Override
   public CTabFolder getTabFolder() {
     return tabFolder;
+  }
+
+  private String getKeyOfMetadataClass(Class<? extends IHopMetadata> managedClass) {
+    HopMetadata annotation = managedClass.getAnnotation(HopMetadata.class);
+    assert annotation!=null : "Metadata classes need to be annotated with @HopMetadata";
+    return annotation.key();
+  }
+
+  public void goToType(Class<? extends IHopMetadata> managedClass) {
+    String key = getKeyOfMetadataClass(managedClass);
+    // Look at all the top level items in the tree
+    //
+    for (TreeItem item : tree.getItems()) {
+      String classKey = (String)item.getData();
+      if (key.equals(classKey)) {
+        // Found the item.
+        //
+        tree.setSelection(item);
+        tree.showSelection();
+        return;
+      }
+    }
+  }
+
+  public void goToElement(Class<? extends IHopMetadata> managedClass, String elementName) {
+    String key = getKeyOfMetadataClass(managedClass);
+    for (TreeItem item : tree.getItems()) {
+      String classKey = (String)item.getData();
+      if (key.equals(classKey)) {
+        // Found the type.
+        //
+        for (TreeItem elementItem : item.getItems()) {
+          if (elementName.equals(elementItem.getText())) {
+            tree.setSelection(elementItem);
+            tree.showSelection();
+            onEditMetadata();
+            return;
+          }
+        }
+        goToType(managedClass);
+      }
+    }
   }
 }

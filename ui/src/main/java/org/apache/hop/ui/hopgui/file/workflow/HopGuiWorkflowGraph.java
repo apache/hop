@@ -213,6 +213,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_ZOOM_100PCT =
       "HopGuiWorkflowGraph-ToolBar-10530-Zoom-100Pct";
 
+  public static final String TOOLBAR_ITEM_ZOOM_TO_FIT =
+      "HopGuiWorkflowGraph-ToolBar-10530-Zoom-To-Fit";
+
   public static final String TOOLBAR_ITEM_EDIT_WORKFLOW =
       "HopGuiWorkflowGraph-ToolBar-10450-EditWorkflow";
 
@@ -432,6 +435,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (!EnvironmentUtils.getInstance().isWeb()) {
       canvas.addMouseMoveListener(this);
       canvas.addMouseTrackListener(this);
+      canvas.addMouseWheelListener(this::mouseScrolled);
     }
 
     hopGui.replaceKeyboardShortcutListeners(this);
@@ -1418,6 +1422,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       image = "ui/images/zoom-100.svg")
   public void zoom100Percent() {
     super.zoom100Percent();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_ZOOM_TO_FIT,
+      toolTip = "i18n::HopGuiPipelineGraph.GuiAction.ZoomFitToScreen.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/zoom-fit.svg")
+  public void zoomFitToScreen() {
+    super.zoomFitToScreen();
   }
 
   public List<String> getZoomLevels() {
@@ -2941,91 +2955,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return false;
   }
 
-  protected SnapAllignDistribute createSnapAllignDistribute() {
-
+  @Override
+  public SnapAllignDistribute createSnapAlignDistribute() {
     List<ActionMeta> elements = workflowMeta.getSelectedActions();
     int[] indices = workflowMeta.getActionIndexes(elements);
     return new SnapAllignDistribute(workflowMeta, elements, indices, hopGui.undoDelegate, this);
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_SNAP_TO_GRID,
-      // label = "Snap to grid",
-      toolTip = "i18n::WorkflowGraph.Toolbar.SnapToGrid.Tooltip",
-      image = "ui/images/snap-to-grid.svg")
-  public void snapToGrid() {
-    snapToGrid(ConstUi.GRID_SIZE);
-  }
-
-  protected void snapToGrid(int size) {
-    createSnapAllignDistribute().snapToGrid(size);
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_ALIGN_LEFT,
-      toolTip = "i18n::WorkflowGraph.Toolbar.AlignLeft.Tooltip",
-      image = "ui/images/align-left.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
-  public void alignLeft() {
-    createSnapAllignDistribute().allignleft();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_ALIGN_RIGHT,
-      toolTip = "i18n::WorkflowGraph.Toolbar.AlignRight.Tooltip",
-      image = "ui/images/align-right.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_RIGHT)
-  public void alignRight() {
-    createSnapAllignDistribute().allignright();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_ALIGN_TOP,
-      toolTip = "i18n::WorkflowGraph.Toolbar.AlignTop.Tooltip",
-      image = "ui/images/align-top.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
-  public void alignTop() {
-    createSnapAllignDistribute().alligntop();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_ALIGN_BOTTOM,
-      toolTip = "i18n::WorkflowGraph.Toolbar.AlignBottom.Tooltip",
-      image = "ui/images/align-bottom.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_DOWN)
-  public void alignBottom() {
-    createSnapAllignDistribute().allignbottom();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY,
-      toolTip = "i18n::WorkflowGraph.Toolbar.DistributeHorizontal.Tooltip",
-      image = "ui/images/distribute-horizontally.svg")
-  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
-  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
-  public void distributeHorizontal() {
-    createSnapAllignDistribute().distributehorizontal();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY,
-      toolTip = "i18n::WorkflowGraph.Toolbar.DistributeVertical.Tooltip",
-      image = "ui/images/distribute-vertically.svg")
-  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
-  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
-  public void distributeVertical() {
-    createSnapAllignDistribute().distributevertical();
   }
 
   @GuiContextAction(
@@ -3195,6 +3129,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
               hopGui.setUndoMenu(workflowMeta);
               hopGui.handleFileCapabilities(fileType, workflowMeta.hasChanged(), running, false);
+
+              // Enable the align/distribute toolbar menus if one or more actions are selected.
+              //
+              super.enableSnapAlignDistributeMenuItems(
+                  fileType, !workflowMeta.getSelectedActions().isEmpty());
 
               HopGuiWorkflowGraph.super.redraw();
             });

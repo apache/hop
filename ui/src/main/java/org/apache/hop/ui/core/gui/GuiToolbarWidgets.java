@@ -24,6 +24,8 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItemFilter;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
@@ -39,6 +41,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +77,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     // Loop over the toolbar items, create and remember the widgets...
     //
     for (GuiToolbarItem toolbarItem : toolbarItems) {
-      addToolbarWidgets(parent, toolbarItem);
+      boolean add = lookupToolbarItemFilter(toolbarItem, root);
+      if (add) {
+        addToolbarWidgets(parent, toolbarItem);
+      }
     }
 
     // Force re-layout
@@ -84,6 +90,41 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     // Clean up when the parent is disposed
     //
     addDeRegisterGuiPluginObjectListener(parent);
+  }
+
+  private boolean lookupToolbarItemFilter(GuiToolbarItem toolbarItem, String root) {
+    boolean show = true;
+    try {
+      Object guiPluginInstance =
+          findGuiPluginInstance(
+              toolbarItem.getClassLoader(), guiPluginClassName, instanceId);
+      List<GuiToolbarItemFilter> itemFilters =
+          GuiRegistry.getInstance().getToolbarItemFiltersMap().get(root);
+      if (itemFilters != null && !itemFilters.isEmpty()) {
+        for (GuiToolbarItemFilter itemFilter : itemFilters) {
+          Class<?> guiPluginClass =
+              itemFilter.getClassLoader().loadClass(itemFilter.getGuiPluginClassName());
+          Method guiPluginMethod =
+              guiPluginClass.getMethod(
+                  itemFilter.getGuiPluginMethodName(), String.class, Object.class);
+          boolean showItem =
+              (boolean)
+                  guiPluginMethod.invoke(null, toolbarItem.getId(), guiPluginInstance);
+          if (!showItem) {
+            show = false;
+            break;
+          }
+        }
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError(
+          "Error finding GUI plugin instance for class "
+              + toolbarItem.getListenerClass()
+              + " and instanceId="
+              + instanceId,
+          e);
+    }
+    return show;
   }
 
   private void addToolbarWidgets(Composite parent, GuiToolbarItem toolbarItem) {

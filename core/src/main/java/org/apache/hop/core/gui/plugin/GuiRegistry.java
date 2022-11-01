@@ -32,7 +32,9 @@ import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.core.gui.plugin.tab.GuiTabItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItemFilter;
 import org.apache.hop.core.util.TranslateUtil;
 
 import java.lang.reflect.Field;
@@ -62,6 +64,8 @@ public class GuiRegistry {
    */
   private Map<String, Map<String, GuiMenuItem>> guiMenuMap;
   private Map<String, Map<String, GuiToolbarItem>> guiToolbarMap;
+  private Map<String, List<GuiToolbarItemFilter>> toolbarItemFiltersMap;
+
   private Map<String, Map<String, GuiElements>> dataElementsMap;
   private Map<String, List<KeyboardShortcut>> shortCutsMap;
   private Map<String, List<GuiAction>> contextActionsMap;
@@ -79,6 +83,7 @@ public class GuiRegistry {
   private GuiRegistry() {
     guiMenuMap = new HashMap<>();
     guiToolbarMap = new HashMap<>();
+    toolbarItemFiltersMap = new HashMap<>();
     dataElementsMap = new HashMap<>();
     shortCutsMap = new HashMap<>();
     contextActionsMap = new HashMap<>();
@@ -428,6 +433,23 @@ public class GuiRegistry {
     // Store the toolbar item under its root
     //
     addGuiToolbarItem(toolbarElement.root(), toolbarItem);
+  }
+
+  public void addGuiToolbarItemFilter(
+      String guiPluginClassName,
+      Method method,
+      GuiToolbarElementFilter filter,
+      ClassLoader classLoader) {
+
+    GuiToolbarItemFilter itemFilter = new GuiToolbarItemFilter();
+    itemFilter.setGuiPluginClassName(guiPluginClassName);
+    itemFilter.setGuiPluginMethodName(method.getName());
+    itemFilter.setClassLoader(classLoader);
+    itemFilter.setId(guiPluginClassName.getClass().getName() + "." + method.getName());
+
+    List<GuiToolbarItemFilter> itemFilters =
+        toolbarItemFiltersMap.computeIfAbsent(filter.parentId(), k -> new ArrayList<>());
+    itemFilters.add(itemFilter);
   }
 
   /**
@@ -782,5 +804,23 @@ public class GuiRegistry {
    */
   public void setCompositeGuiElements(Map<String, List<GuiElements>> compositeGuiElements) {
     this.compositeGuiElements = compositeGuiElements;
+  }
+
+  /**
+   * Gets toolbarItemFiltersMap
+   *
+   * @return value of toolbarItemFiltersMap
+   */
+  public Map<String, List<GuiToolbarItemFilter>> getToolbarItemFiltersMap() {
+    return toolbarItemFiltersMap;
+  }
+
+  /**
+   * Sets toolbarItemFiltersMap
+   *
+   * @param toolbarItemFiltersMap value of toolbarItemFiltersMap
+   */
+  public void setToolbarItemFiltersMap(Map<String, List<GuiToolbarItemFilter>> toolbarItemFiltersMap) {
+    this.toolbarItemFiltersMap = toolbarItemFiltersMap;
   }
 }

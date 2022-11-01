@@ -236,21 +236,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_UNDO_ID = "HopGuiPipelineGraph-ToolBar-10100-Undo";
   public static final String TOOLBAR_ITEM_REDO_ID = "HopGuiPipelineGraph-ToolBar-10110-Redo";
 
-  public static final String TOOLBAR_ITEM_SNAP_TO_GRID =
-      "HopGuiPipelineGraph-ToolBar-10190-Snap-To-Grid";
-  public static final String TOOLBAR_ITEM_ALIGN_LEFT =
-      "HopGuiPipelineGraph-ToolBar-10200-Align-Left";
-  public static final String TOOLBAR_ITEM_ALIGN_RIGHT =
-      "HopGuiPipelineGraph-ToolBar-10210-Align-Right";
-  public static final String TOOLBAR_ITEM_ALIGN_TOP =
-      "HopGuiPipelineGraph-ToolBar-10250-Align-Ttop";
-  public static final String TOOLBAR_ITEM_ALIGN_BOTTOM =
-      "HopGuiPipelineGraph-ToolBar-10260-Align-Bottom";
-  public static final String TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY =
-      "HopGuiPipelineGraph-ToolBar-10300-Distribute-Horizontally";
-  public static final String TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY =
-      "HopGuiPipelineGraph-ToolBar-10310-Distribute-Vertically";
-
   public static final String TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS =
       "HopGuiPipelineGraph-ToolBar-10400-Execution-Results";
 
@@ -263,6 +248,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public static final String TOOLBAR_ITEM_ZOOM_100PCT =
       "HopGuiPipelineGraph-ToolBar-10530-Zoom-100Pct";
+  public static final String TOOLBAR_ITEM_ZOOM_TO_FIT =
+      "HopGuiPipelineGraph-ToolBar-10540-Zoom-To-Fit";
 
   public static final String TOOLBAR_ITEM_EDIT_PIPELINE =
       "HopGuiPipelineGraph-ToolBar-10450-EditPipeline";
@@ -550,6 +537,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (!EnvironmentUtils.getInstance().isWeb()) {
       canvas.addMouseMoveListener(this);
       canvas.addMouseTrackListener(this);
+      canvas.addMouseWheelListener(this::mouseScrolled);
     }
 
     setBackground(GuiResource.getInstance().getColorBackground());
@@ -1831,6 +1819,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       image = "ui/images/zoom-out.svg")
   public void zoomOut() {
     super.zoomOut();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_ZOOM_TO_FIT,
+      toolTip = "i18n::HopGuiPipelineGraph.GuiAction.ZoomFitToScreen.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/zoom-fit.svg")
+  public void zoomFitToScreen() {
+    super.zoomFitToScreen();
   }
 
   @Override
@@ -3452,96 +3450,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return false;
   }
 
-  private SnapAllignDistribute createSnapAllignDistribute() {
+  public SnapAllignDistribute createSnapAlignDistribute() {
     List<TransformMeta> selection = pipelineMeta.getSelectedTransforms();
     int[] indices = pipelineMeta.getTransformIndexes(selection);
 
     return new SnapAllignDistribute(pipelineMeta, selection, indices, hopGui.undoDelegate, this);
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_SNAP_TO_GRID,
-      // label = "Snap to grid",
-      toolTip = "i18n::PipelineGraph.Toolbar.SnapToGrid.Tooltip",
-      image = "ui/images/snap-to-grid.svg")
-  //  @GuiKeyboardShortcut(control = true, key = SWT.HOME)
-  //  @GuiOsxKeyboardShortcut(command = true, key = SWT.HOME)
-  public void snapToGrid() {
-    snapToGrid(ConstUi.GRID_SIZE);
-  }
-
-  private void snapToGrid(int size) {
-    createSnapAllignDistribute().snapToGrid(size);
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_ALIGN_LEFT,
-      toolTip = "i18n::PipelineGraph.Toolbar.AlignLeft.Tooltip",
-      image = "ui/images/align-left.svg")
-  //  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
-  //  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
-  public void alignLeft() {
-    createSnapAllignDistribute().allignleft();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_ALIGN_RIGHT,
-      toolTip = "i18n::PipelineGraph.Toolbar.AlignRight.Tooltip",
-      image = "ui/images/align-right.svg")
-  //  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
-  //  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_RIGHT)
-  public void alignRight() {
-    createSnapAllignDistribute().allignright();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_ALIGN_TOP,
-      toolTip = "i18n::PipelineGraph.Toolbar.AlignTop.Tooltip",
-      image = "ui/images/align-top.svg")
-  //  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
-  //  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
-  public void alignTop() {
-    createSnapAllignDistribute().alligntop();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_ALIGN_BOTTOM,
-      // label = "Bottom-align selected transforms",
-      toolTip = "i18n::PipelineGraph.Toolbar.AlignBottom.Tooltip",
-      image = "ui/images/align-bottom.svg")
-  //  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
-  //  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_DOWN)
-  public void alignBottom() {
-    createSnapAllignDistribute().allignbottom();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY,
-      // label = "Horizontally distribute selected transforms",
-      toolTip = "i18n::PipelineGraph.Toolbar.DistributeHorizontal.Tooltip",
-      image = "ui/images/distribute-horizontally.svg")
-  //  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
-  //  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
-  public void distributeHorizontal() {
-    createSnapAllignDistribute().distributehorizontal();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY,
-      // label = "Vertically distribute selected transforms",
-      toolTip = "i18n::PipelineGraph.Toolbar.DistributeVertical.Tooltip",
-      image = "ui/images/distribute-vertically.svg")
-  //  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
-  //  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
-  public void distributeVertical() {
-    createSnapAllignDistribute().distributevertical();
   }
 
   @GuiToolbarElement(
@@ -5139,7 +5052,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    */
   @Override
   public void updateGui() {
-
     if (hopGui == null || toolBarWidgets == null || toolBar == null || toolBar.isDisposed()) {
       return;
     }
@@ -5156,21 +5068,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               toolBarWidgets.enableToolbarItem(
                   TOOLBAR_ITEM_REDO_ID, pipelineMeta.viewNextUndo() != null);
 
-              // Enable/disable the align/distribute toolbar buttons
-              //
-              boolean selectedTransform = !pipelineMeta.getSelectedTransforms().isEmpty();
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_SNAP_TO_GRID, selectedTransform);
-
-              boolean selectedTransforms = pipelineMeta.getSelectedTransforms().size() > 1;
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ALIGN_LEFT, selectedTransforms);
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ALIGN_RIGHT, selectedTransforms);
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ALIGN_TOP, selectedTransforms);
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ALIGN_BOTTOM, selectedTransforms);
-              toolBarWidgets.enableToolbarItem(
-                  TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY, selectedTransforms);
-              toolBarWidgets.enableToolbarItem(
-                  TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedTransforms);
-
               boolean running = isRunning();
               boolean paused = running && pipeline.isPaused();
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_START, !running || paused);
@@ -5179,6 +5076,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
               hopGui.setUndoMenu(pipelineMeta);
               hopGui.handleFileCapabilities(fileType, pipelineMeta.hasChanged(), running, paused);
+
+              // Enable the align/distribute toolbar menus if one or more transforms are selected.
+              //
+              super.enableSnapAlignDistributeMenuItems(
+                  fileType, !pipelineMeta.getSelectedTransforms().isEmpty());
 
               try {
                 ExtensionPointHandler.callExtensionPoint(

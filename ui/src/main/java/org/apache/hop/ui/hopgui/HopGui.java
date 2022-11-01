@@ -85,6 +85,7 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiFileRefreshDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
 import org.apache.hop.ui.hopgui.dialog.AboutDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
+import org.apache.hop.ui.hopgui.file.IGraphSnapAlignDistribute;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
@@ -162,8 +163,19 @@ public class HopGui
   public static final String ID_MAIN_MENU_EDIT_PASTE = "20090-menu-edit-paste";
   public static final String ID_MAIN_MENU_EDIT_CUT = "20100-menu-edit-cut";
   public static final String ID_MAIN_MENU_EDIT_DELETE = "20110-menu-edit-delete";
-  public static final String ID_MAIN_MENU_EDIT_NAV_PREV = "20200-menu-edit-nav-previous";
-  public static final String ID_MAIN_MENU_EDIT_NAV_NEXT = "20210-menu-edit-nav-next";
+
+  public static final String ID_MAIN_MENU_EDIT_SNAP_TO_GRID = "20200-menu-edit-snap-to-grid";
+  public static final String ID_MAIN_MENU_EDIT_ALIGN_LEFT = "20210-menu-edit-align-left";
+  public static final String ID_MAIN_MENU_EDIT_ALIGN_RIGHT = "20220-menu-edit-align-right";
+  public static final String ID_MAIN_MENU_EDIT_ALIGN_TOP = "20230-menu-edit-align-top";
+  public static final String ID_MAIN_MENU_EDIT_ALIGN_BOTTOM = "20240-menu-edit-align-bottom";
+  public static final String ID_MAIN_MENU_EDIT_DISTRIBUTE_HORIZONTAL =
+      "20300-menu-edit-distribute-horizontal";
+  public static final String ID_MAIN_MENU_EDIT_DISTRIBUTE_VERTICAL =
+      "20320-menu-edit-distribute-vertical";
+
+  public static final String ID_MAIN_MENU_EDIT_NAV_PREV = "20400-menu-edit-nav-previous";
+  public static final String ID_MAIN_MENU_EDIT_NAV_NEXT = "20410-menu-edit-nav-next";
 
   public static final String ID_MAIN_MENU_RUN_PARENT_ID = "30000-menu-run";
   public static final String ID_MAIN_MENU_RUN_START = "30010-menu-run-execute";
@@ -587,10 +599,7 @@ public class HopGui
   public void menu() {
     GuiContextUtil.getInstance()
         .handleActionSelection(
-            shell,
-            "Menu actions...",
-            null,
-            new MenuContextHandler(ID_MAIN_MENU, mainMenuWidgets));
+            shell, "Menu actions...", null, new MenuContextHandler(ID_MAIN_MENU, mainMenuWidgets));
   }
 
   @GuiMenuElement(
@@ -859,6 +868,112 @@ public class HopGui
   @GuiOsxKeyboardShortcut(command = false, key = SWT.DEL)
   public void menuEditDeleteSelected() {
     getActiveFileTypeHandler().deleteSelected();
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_SNAP_TO_GRID,
+      label = "i18n::HopGui.Menu.Edit.SnapToGrid",
+      image = "ui/images/snap-to-grid.svg",
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      separator = true)
+  @GuiKeyboardShortcut(control = true, key = SWT.HOME)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.HOME)
+  public void menuEditSnapToGrid() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).snapToGrid();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_ALIGN_LEFT,
+          parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+          label = "i18n::HopGui.Menu.Edit.AlignLeft",
+      image = "ui/images/align-left.svg")
+  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
+  public void menuEditAlignLeft() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignLeft();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_ALIGN_RIGHT,
+          parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+          label = "i18n::HopGui.Menu.Edit.AlignRight",
+      image = "ui/images/align-right.svg")
+  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_RIGHT)
+  public void menuEditAlignRight() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignRight();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_ALIGN_TOP,
+          parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+          label = "i18n::HopGui.Menu.Edit.AlignTop",
+      image = "ui/images/align-top.svg")
+  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
+  public void menuEditAlignTop() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignTop();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_ALIGN_BOTTOM,
+          parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+          label = "i18n::HopGui.Menu.Edit.AlignBottom",
+      image = "ui/images/align-bottom.svg")
+  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_DOWN)
+  public void menuEditAlignBottom() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignBottom();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_DISTRIBUTE_HORIZONTAL,
+          parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+          label = "i18n::HopGui.Menu.Edit.DistributeHorizontally",
+      image = "ui/images/distribute-horizontally.svg")
+  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
+  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
+  public void menuEditDistributeHorizontal() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).distributeHorizontal();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_DISTRIBUTE_VERTICAL,
+          parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+          label = "i18n::HopGui.Menu.Edit.DistributeVertically",
+      image = "ui/images/distribute-vertically.svg")
+  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
+  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
+  public void menuEditDistributeVertical() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).distributeVertical();
+    }
   }
 
   @GuiMenuElement(

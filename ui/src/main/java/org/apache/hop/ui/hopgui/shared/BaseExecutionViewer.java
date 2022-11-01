@@ -16,10 +16,11 @@
  *
  */
 
-package org.apache.hop.ui.hopgui.perspective.execution;
+package org.apache.hop.ui.hopgui.shared;
 
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -32,6 +33,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.execution.DragViewZoomBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.SashForm;
@@ -39,6 +41,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -52,7 +55,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BaseExecutionViewer extends Composite implements KeyListener, MouseListener {
+public abstract class BaseExecutionViewer extends DragViewZoomBase
+    implements KeyListener, MouseListener, MouseMoveListener {
 
   public static final String STRING_STATE_STALE = "Stale";
 
@@ -64,10 +68,9 @@ public abstract class BaseExecutionViewer extends Composite implements KeyListen
   protected ToolBar toolBar;
   protected GuiToolbarWidgets toolBarWidgets;
   protected SashForm sash;
-  protected Canvas canvas;
-  protected float magnification = 1.0f;
   protected CTabFolder tabFolder;
-  protected DPoint offset;
+
+  protected Point lastClick;
 
   public BaseExecutionViewer(Composite parent, HopGui hopGui) {
     super(parent, SWT.NO_BACKGROUND);
@@ -87,17 +90,14 @@ public abstract class BaseExecutionViewer extends Composite implements KeyListen
     return canvas.setFocus();
   }
 
-  protected float calculateCorrectedMagnification() {
-    return (float) (magnification * PropsUi.getInstance().getZoomFactor());
+  @Override
+  public void redraw() {
+    canvas.redraw();
+    canvas.setFocus();
   }
 
-  public DPoint screen2real(int x, int y) {
-    float correctedMagnification = calculateCorrectedMagnification();
-    DPoint real =
-        new DPoint(
-            (x / correctedMagnification - offset.x), (y / correctedMagnification - offset.y));
-
-    return real;
+  protected float calculateCorrectedMagnification() {
+    return (float) (magnification * PropsUi.getInstance().getZoomFactor());
   }
 
   public synchronized AreaOwner getVisibleAreaOwner(int x, int y) {
@@ -117,7 +117,7 @@ public abstract class BaseExecutionViewer extends Composite implements KeyListen
     return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date);
   }
 
-  public abstract void drillDownOnLocation(DPoint location);
+  public abstract void drillDownOnLocation(Point location);
 
   @Override
   public void keyPressed(KeyEvent keyEvent) {}
@@ -128,6 +128,34 @@ public abstract class BaseExecutionViewer extends Composite implements KeyListen
   @Override
   public void mouseDoubleClick(MouseEvent mouseEvent) {
     drillDownOnLocation(screen2real(mouseEvent.x, mouseEvent.y));
+  }
+
+  @Override
+  public void mouseMove(MouseEvent e) {
+    // Check to see if we're navigating with the view port
+    //
+    if (viewPortNavigation) {
+      dragViewPort(new Point(e.x, e.y));
+    }
+
+    // Drag the view around with middle button on the background?
+    //
+    if (viewDrag && lastClick != null) {
+      dragView(viewDragStart, new Point(e.x, e.y));
+    }
+  }
+
+  @Override
+  public void mouseUp(MouseEvent e) {
+    if (viewPortNavigation || viewDrag) {
+      viewDrag = false;
+      viewPortNavigation = false;
+      viewPortStart = null;
+    }
+  }
+
+  public void mouseHover(MouseEvent e) {
+    // don't do anything for now
   }
 
   /**

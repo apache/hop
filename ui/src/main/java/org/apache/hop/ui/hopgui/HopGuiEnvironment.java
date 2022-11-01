@@ -32,6 +32,7 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -111,6 +112,10 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           if (toolbarElement != null) {
             guiRegistry.addGuiToolbarElement(
                 guiPluginClassName, toolbarElement, method, classLoader);
+          }
+          GuiToolbarElementFilter toolbarElementFilter = method.getAnnotation(GuiToolbarElementFilter.class);
+          if (toolbarElementFilter != null) {
+            guiRegistry.addGuiToolbarItemFilter(guiPluginClassName, method, toolbarElementFilter, classLoader);
           }
           GuiKeyboardShortcut shortcut = method.getAnnotation(GuiKeyboardShortcut.class);
           if (shortcut != null) {
