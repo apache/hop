@@ -129,10 +129,8 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
     }
     for (IValueMeta valueMeta : leftRowMeta.getValueMetaList()) {
       String valueName = valueMeta.getName();
-      if (Const.indexOfString(valueName, leftKeys) < 0) {
-        leftV.add(valueName);
-        leftVRowMeta.addValueMeta(valueMeta.clone());
-      }
+      leftV.add(valueName);
+      leftVRowMeta.addValueMeta(valueMeta.clone());
     }
 
     HopKeyValueFn leftKVFn =
@@ -156,10 +154,8 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
     }
     for (IValueMeta valueMeta : rightRowMeta.getValueMetaList()) {
       String valueName = valueMeta.getName();
-      if (Const.indexOfString(valueName, rightKeys) < 0) {
-        rightV.add(valueName);
-        rightVRowMeta.addValueMeta(valueMeta.clone());
-      }
+      rightV.add(valueName);
+      rightVRowMeta.addValueMeta(valueMeta.clone());
     }
 
     HopKeyValueFn rightKVFn =

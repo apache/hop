@@ -155,7 +155,6 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
       KV<HopRow, KV<HopRow, HopRow>> element = processContext.element();
       KV<HopRow, HopRow> value = element.getValue();
 
-      HopRow key = element.getKey();
       HopRow leftValue = value.getKey();
       HopRow rightValue = value.getValue();
 
@@ -169,7 +168,7 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
         if (leftValue.isNotEmpty()) {
           Integer keyIndex = leftKeyIndexes.get(i);
           if (keyIndex != null) {
-            outputRow[i] = key.getRow()[keyIndex];
+            outputRow[i] = leftValue.getRow()[keyIndex];
           }
           Integer valueIndex = leftValueIndexes.get(i);
           if (valueIndex != null) {
@@ -184,7 +183,7 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
         if (rightValue.isNotEmpty()) {
           Integer keyIndex = rightKeyIndexes.get(i);
           if (keyIndex != null) {
-            outputRow[leftRowMeta.size()+i] = key.getRow()[keyIndex];
+            outputRow[leftRowMeta.size()+i] = rightValue.getRow()[keyIndex];
           }
           Integer valueIndex = rightValueIndexes.get(i);
           if (valueIndex != null) {
@@ -192,48 +191,6 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
           }
         }
       }
-
-      /*// Hop style, first the left values
-      //
-      if (leftValue.allNull()) {
-        index += leftVRowMeta.size();
-      } else {
-        for (int i = 0; i < leftVRowMeta.size(); i++) {
-          outputRow[index++] = leftValue.getRow()[i];
-        }
-      }
-
-      // Now the left key
-      //
-      if (leftValue.allNull()) {
-        index += leftKRowMeta.size();
-      } else {
-        for (int i = 0; i < leftKRowMeta.size(); i++) {
-          outputRow[index++] = key.getRow()[i];
-        }
-      }
-
-      // Then the right key
-      //
-      if (rightValue.allNull()) {
-        // No right key given if the value is null
-        //
-        index += leftKRowMeta.size();
-      } else {
-        for (int i = 0; i < leftKRowMeta.size(); i++) {
-          outputRow[index++] = key.getRow()[i];
-        }
-      }
-
-      // Finally the right values
-      //
-      if (rightValue.allNull()) {
-        index += rightVRowMeta.size();
-      } else {
-        for (int i = 0; i < rightVRowMeta.size(); i++) {
-          outputRow[index++] = rightValue.getRow()[i];
-        }
-      }*/
 
       processContext.output(new HopRow(outputRow));
       writtenCounter.inc();
