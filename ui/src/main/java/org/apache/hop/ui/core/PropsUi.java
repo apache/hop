@@ -112,7 +112,8 @@ public class PropsUi extends Props {
   }
 
   /**
-   * Re-calculate the static native zoom factor.  Do not make this method static because Sonar recommends it.
+   * Re-calculate the static native zoom factor. Do not make this method static because Sonar
+   * recommends it.
    */
   public void reCalculateNativeZoomFactor() {
     double globalZoom = getGlobalZoomFactor();
@@ -478,10 +479,7 @@ public class PropsUi extends Props {
 
   public static void setLook(Widget widget) {
     int style = WIDGET_STYLE_DEFAULT;
-    if (widget instanceof Button) {
-      ((Button) widget).setFont(GuiResource.getInstance().getFontDefault());
-      return;
-    } else if (widget instanceof Table) {
+    if (widget instanceof Table) {
       style = WIDGET_STYLE_TABLE;
     } else if (widget instanceof ToolBar) {
       style = WIDGET_STYLE_TOOLBAR;
@@ -489,8 +487,12 @@ public class PropsUi extends Props {
       style = WIDGET_STYLE_TAB;
     } else if (OS.contains("mac") && (widget instanceof Group)) {
       style = WIDGET_STYLE_OSX_GROUP;
-    } else if ((widget instanceof Button) && ((widget.getStyle() & SWT.PUSH) != 0)) {
-      style = WIDGET_STYLE_PUSH_BUTTON;
+    } else if (widget instanceof Button) {
+      if (Const.isWindows() && ((widget.getStyle() & SWT.CHECK) != 0)) {
+        style = WIDGET_STYLE_DEFAULT;
+      } else {
+        style = WIDGET_STYLE_PUSH_BUTTON;
+      }
     }
 
     setLook(widget, style);
