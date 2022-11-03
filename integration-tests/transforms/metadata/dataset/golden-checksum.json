@@ -1,5 +1,5 @@
 {
-  "base_filename": "data-set-filename.csv",
+  "base_filename": "golden-checksum.csv",
   "name": "golden-checksum",
   "description": "",
   "dataset_fields": [
@@ -8,24 +8,24 @@
       "field_length": -1,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "####0;-####0",
-      "field_name": "row"
+      "field_name": "row",
+      "field_format": "####0;-####0"
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "value"
+      "field_name": "value",
+      "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "checksum"
+      "field_name": "checksum",
+      "field_format": ""
     }
   ],
   "folder_name": ""
