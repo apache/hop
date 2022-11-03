@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.commons.io.output.TeeOutputStream;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopEnvironment;
@@ -73,6 +74,8 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.core.widget.svg.SvgLabelFacade;
+import org.apache.hop.ui.core.widget.svg.SvgLabelListener;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -116,6 +119,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -392,9 +397,9 @@ public class HopGui
     addPerspectivesToolbar();
     addMainPerspectivesComposite();
 
-    handleFileCapabilities(new EmptyFileType(), false, false, false);
-
     loadPerspectives();
+
+    handleFileCapabilities(new EmptyFileType(), false, false, false);
 
     replaceKeyboardShortcutListeners(this);
 
@@ -478,7 +483,7 @@ public class HopGui
 
   private void loadPerspectives() {
     try {
-      // Pre-load the perspectives and store them in the manager as well as the GuiRegistry
+      // Preload the perspectives and store them in the manager as well as the GuiRegistry
       //
       perspectiveManager = new HopPerspectiveManager(this);
       PluginRegistry pluginRegistry = PluginRegistry.getInstance();
@@ -495,32 +500,44 @@ public class HopGui
 
         // Create a new instance & initialize.
         //
-        IHopPerspective perspective = perspectiveClass.newInstance();
+        final IHopPerspective perspective = perspectiveClass.getConstructor().newInstance();
         perspective.initialize(this, mainPerspectivesComposite);
         perspectiveManager.addPerspective(perspective);
 
         // Create a toolbar item
         //
-        ToolItem item = new ToolItem(this.perspectivesToolbar, SWT.RADIO);
-        item.setToolTipText(
+        String tooltip =
             Const.NVL(
                 TranslateUtil.translate(perspectivePlugin.getName(), perspectiveClass),
-                perspective.getId()));
-        item.setData(perspective);
-        item.addListener(
-            SWT.Selection, event -> setActivePerspective((IHopPerspective) event.widget.getData()));
-
+                perspective.getId());
+        Listener listener = event -> setActivePerspective(perspective);
         ClassLoader classLoader = pluginRegistry.getClassLoader(perspectivePlugin);
-        Image image =
-            GuiResource.getInstance()
-                .getImage(
-                    perspectivePlugin.getImageFile(),
-                    classLoader,
-                    ConstUi.SMALL_ICON_SIZE,
-                    ConstUi.SMALL_ICON_SIZE);
-        if (image != null) {
-          item.setImage(image);
+
+        ToolItem item;
+        if (EnvironmentUtils.getInstance().isWeb()) {
+          item =
+              addWebToolbarButton(
+                  perspectivePlugin.getIds()[0],
+                  this.perspectivesToolbar,
+                  perspectivePlugin.getImageFile(),
+                  tooltip,
+                  listener);
+        } else {
+          item = new ToolItem(this.perspectivesToolbar, SWT.RADIO);
+          item.setToolTipText(tooltip);
+          item.addListener(SWT.Selection, listener);
+          Image image =
+              GuiResource.getInstance()
+                  .getImage(
+                      perspectivePlugin.getImageFile(),
+                      classLoader,
+                      ConstUi.SMALL_ICON_SIZE,
+                      ConstUi.SMALL_ICON_SIZE);
+          if (image != null) {
+            item.setImage(image);
+          }
         }
+        item.setData(perspective);
 
         // See if there's a shortcut for the perspective, add it to tooltip...
         KeyboardShortcut shortcut =
@@ -535,9 +552,37 @@ public class HopGui
           item.setSelection(true);
         }
       }
+      perspectivesToolbar.pack();
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error loading perspectives", e);
     }
+  }
+
+  private ToolItem addWebToolbarButton(
+      String id,
+      ToolBar toolBar,
+      String filename,
+      String tooltip,
+      Listener listener) {
+    ToolItem item = new ToolItem(toolBar, SWT.SEPARATOR);
+
+    Label label = new Label(toolBar, SWT.NONE);
+    Listener webListener = SvgLabelListener.getInstance();
+    label.addListener(SWT.MouseDown, webListener);
+    label.addListener(SWT.Hide, webListener);
+    label.addListener(SWT.Show, webListener);
+    label.addListener(SWT.MouseDown, listener);
+    if (StringUtils.isNotEmpty(tooltip)) {
+      label.setToolTipText(tooltip);
+    }
+    label.pack();
+    int size = (int) (ConstUi.SMALL_ICON_SIZE * PropsUi.getNativeZoomFactor());
+    item.setWidth(size+PropsUi.getFormMargin());
+    item.setControl(label);
+
+    SvgLabelFacade.setData(id, label, filename, size);
+    item.setData("id", id);
+    return item;
   }
 
   private static Display setupDisplay() {
@@ -889,8 +934,8 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_ALIGN_LEFT,
-          parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
-          label = "i18n::HopGui.Menu.Edit.AlignLeft",
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      label = "i18n::HopGui.Menu.Edit.AlignLeft",
       image = "ui/images/align-left.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
@@ -904,8 +949,8 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_ALIGN_RIGHT,
-          parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
-          label = "i18n::HopGui.Menu.Edit.AlignRight",
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      label = "i18n::HopGui.Menu.Edit.AlignRight",
       image = "ui/images/align-right.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_RIGHT)
@@ -919,8 +964,8 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_ALIGN_TOP,
-          parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
-          label = "i18n::HopGui.Menu.Edit.AlignTop",
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      label = "i18n::HopGui.Menu.Edit.AlignTop",
       image = "ui/images/align-top.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
@@ -934,8 +979,8 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_ALIGN_BOTTOM,
-          parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
-          label = "i18n::HopGui.Menu.Edit.AlignBottom",
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      label = "i18n::HopGui.Menu.Edit.AlignBottom",
       image = "ui/images/align-bottom.svg")
   @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
   @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_DOWN)
@@ -949,8 +994,8 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_DISTRIBUTE_HORIZONTAL,
-          parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
-          label = "i18n::HopGui.Menu.Edit.DistributeHorizontally",
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      label = "i18n::HopGui.Menu.Edit.DistributeHorizontally",
       image = "ui/images/distribute-horizontally.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
@@ -964,8 +1009,8 @@ public class HopGui
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_DISTRIBUTE_VERTICAL,
-          parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
-          label = "i18n::HopGui.Menu.Edit.DistributeVertically",
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      label = "i18n::HopGui.Menu.Edit.DistributeVertically",
       image = "ui/images/distribute-vertically.svg")
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
@@ -1570,7 +1615,12 @@ public class HopGui
     //
     if (perspectivesToolbar != null && !perspectivesToolbar.isDisposed()) {
       for (ToolItem item : perspectivesToolbar.getItems()) {
-        item.setSelection(perspective.equals(item.getData()));
+        boolean shaded = perspective.equals(item.getData());
+        if (EnvironmentUtils.getInstance().isWeb()) {
+          SvgLabelFacade.shadeSvg((Label) item.getControl(), (String)item.getData("id"), shaded);
+        } else {
+          item.setSelection(shaded);
+        }
       }
     }
 

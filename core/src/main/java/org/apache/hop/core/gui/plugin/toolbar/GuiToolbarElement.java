@@ -70,11 +70,9 @@ public @interface GuiToolbarElement {
   String image() default "";
 
   /**
-   * The disabled image filename of the GUI Element, usually an SVG icon.
-   *
-   * @return The disabled image
+   * @return The name of the method which will give back the name of the toolbar icon.
    */
-  String disabledImage() default "";
+  String imageMethod() default "";
 
   /** @return True if the text element you define is a password with an asterisk mask */
   boolean password() default false;

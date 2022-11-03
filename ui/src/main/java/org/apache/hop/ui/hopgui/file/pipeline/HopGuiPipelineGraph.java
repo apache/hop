@@ -4288,9 +4288,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       extraViewTabFolder.setSelection(pipelineGridDelegate.getPipelineGridTab());
     }
 
-    ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
-    item.setImage(GuiResource.getInstance().getImageHideResults());
-    item.setToolTipText(BaseMessages.getString(PKG, "HopGui.Tooltip.HideExecutionResults"));
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
+      item.setImage(GuiResource.getInstance().getImageHideResults());
+      item.setToolTipText(BaseMessages.getString(PKG, "HopGui.Tooltip.HideExecutionResults"));
+    }
   }
 
   public synchronized void debug(

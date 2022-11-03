@@ -37,6 +37,7 @@ public class HopWebServletContextListener extends RWTServletContextListener {
     try {
       HopEnvironment.init();
       HopGuiEnvironment.init();
+      System.out.println("First init");
     } catch (HopException e) {
       e.printStackTrace();
     }

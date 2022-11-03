@@ -476,11 +476,11 @@ public class ContextDialog extends Dialog {
       }
       org.eclipse.swt.graphics.Rectangle displayPosition = monitor.getBounds();
       // Make sure the dialog fits on the display
-      if (width>displayPosition.width) {
-        width=displayPosition.width;
+      if (width > displayPosition.width) {
+        width = displayPosition.width;
       }
-      if (height>displayPosition.height) {
-        height=displayPosition.height;
+      if (height > displayPosition.height) {
+        height = displayPosition.height;
       }
       if (!fitOtherMonitors) {
         if ((location.x - displayPosition.x) > monitor.getClientArea().width - width)
@@ -1050,27 +1050,29 @@ public class ContextDialog extends Dialog {
 
       // See if we need to show the selected item.
       //
-      if (scroll && totalContentHeight > 0) {
-        Rectangle itemArea = selectedItem.getAreaOwner().getArea();
-        org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        if (scroll && totalContentHeight > 0) {
+          Rectangle itemArea = selectedItem.getAreaOwner().getArea();
+          org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
 
-        ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
-        // Scroll down
-        //
-        while (itemArea.y + itemArea.height + 2 * yMargin
-            > verticalBar.getSelection() + clientArea.height) {
-          wScrolledComposite.setOrigin(
-              0,
-              Math.min(
-                  verticalBar.getSelection() + verticalBar.getPageIncrement(),
-                  verticalBar.getMaximum() - verticalBar.getThumb()));
-        }
+          ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
+          // Scroll down
+          //
+          while (itemArea.y + itemArea.height + 2 * yMargin
+              > verticalBar.getSelection() + clientArea.height) {
+            wScrolledComposite.setOrigin(
+                0,
+                Math.min(
+                    verticalBar.getSelection() + verticalBar.getPageIncrement(),
+                    verticalBar.getMaximum() - verticalBar.getThumb()));
+          }
 
-        // Scroll up
-        //
-        while (itemArea.y < verticalBar.getSelection()) {
-          wScrolledComposite.setOrigin(
-              0, Math.max(verticalBar.getSelection() - verticalBar.getPageIncrement(), 0));
+          // Scroll up
+          //
+          while (itemArea.y < verticalBar.getSelection()) {
+            wScrolledComposite.setOrigin(
+                0, Math.max(verticalBar.getSelection() - verticalBar.getPageIncrement(), 0));
+          }
         }
       }
     }

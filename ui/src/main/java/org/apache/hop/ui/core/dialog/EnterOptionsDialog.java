@@ -187,7 +187,7 @@ public class EnterOptionsDialog extends Dialog {
     shell.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.Title"));
 
     middle = props.getMiddlePct();
-    margin = props.getMargin();
+    margin = PropsUi.getMargin();
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -485,7 +485,7 @@ public class EnterOptionsDialog extends Dialog {
     fdlGlobalZoom.top = new FormAttachment(wMiddlePct, margin);
     wlGlobalZoom.setLayoutData(fdlGlobalZoom);
     wGlobalZoom = new Combo(wLookComp, SWT.SINGLE | SWT.READ_ONLY | SWT.LEFT | SWT.BORDER);
-    wGlobalZoom.setItems(PropsUi.globalZoomFactorLevels);
+    wGlobalZoom.setItems(PropsUi.getGlobalZoomFactorLevels());
     PropsUi.setLook(wGlobalZoom);
     FormData fdGlobalZoom = new FormData();
     fdGlobalZoom.left = new FormAttachment(middle, 0);

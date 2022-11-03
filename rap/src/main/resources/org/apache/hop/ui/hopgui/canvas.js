@@ -43,25 +43,6 @@ function getThemeColors(theme) {
     }
 }
 
-// This gets called by the RAP code for the Canvas widget.
-function drawGrid(gc, gridSize) {
-    gc.fillStyle = fgColor;
-    gc.beginPath();
-    gc.setLineDash([1, gridSize - 1]);
-    // vertical grid
-    for (let i = gridSize; i < gc.canvas.width / magnification; i += gridSize) {
-        gc.moveTo(fx(i), fy(0));
-        gc.lineTo(fx(i), fy(gc.canvas.height / magnification));
-    }
-    // horizontal grid
-    for (let j = gridSize; j < gc.canvas.height / magnification; j += gridSize) {
-        gc.moveTo(fx(0), fy(j));
-        gc.lineTo(fx(gc.canvas.width / magnification), fy(j));
-    }
-    gc.stroke();
-    gc.setLineDash([]);
-    gc.fillStyle = bgColor;
-}
 
 //
 const handleEvent = function (event) {
@@ -144,104 +125,42 @@ const handleEvent = function (event) {
                 }
 
                 // Draw hops
-                hops.forEach(function (hop) {
-                    gc.beginPath();
-                    if (mode === "drag" && nodes[hop.from].selected) {
-                        gc.moveTo(
-                            fx(nodes[hop.from].x + dx) + iconSize / 2,
-                            fy(nodes[hop.from].y + dy) + iconSize / 2);
-                    } else {
-                        gc.moveTo(
-                            fx(nodes[hop.from].x) + iconSize / 2,
-                            fy(nodes[hop.from].y) + iconSize / 2);
-                    }
-                    if (mode === "drag" && nodes[hop.to].selected) {
-                        gc.lineTo(
-                            fx(nodes[hop.to].x + dx) + iconSize / 2,
-                            fy(nodes[hop.to].y + dy) + iconSize / 2);
-                    } else {
-                        gc.lineTo(
-                            fx(nodes[hop.to].x) + iconSize / 2,
-                            fy(nodes[hop.to].y) + iconSize / 2);
-                    }
-                    gc.stroke();
-                });
+                drawHops(hops, gc, mode, nodes, dx, iconSize, dy);
 
                 // The nodes are action or transform icons
                 //
-                for (let nodeName in nodes) {
-                    const node = nodes[nodeName];
-                    let x = node.x;
-                    let y = node.y;
-
-                    // Move selected nodes
-                    //
-                    if (mode === "drag" && (node.selected || node === clicked)) {
-                        x = node.x + dx;
-                        y = node.y + dy;
-                    }
-                    // Draw the icon background
-                    //
-                    gc.rect(fx(x), fy(y), iconSize, iconSize);
-                    gc.fillStyle = bgColor;
-                    gc.fill();
-
-                    // Draw a bounding rectangle
-                    //
-                    if (node.selected || node === clicked) {
-                        gc.lineWidth = 3;
-                        gc.strokeStyle = selectedNodeColor;
-                    } else {
-                        gc.strokeStyle = nodeColor; //colorCrystalText
-                    }
-                    drawRoundRectangle(gc, fx(x - 1), fy(y - 1), iconSize + 1, iconSize + 1, 8, 8, false);
-                    gc.strokeStyle = fgColor;
-                    gc.lineWidth = 1;
-
-                    // Draw node name
-                    //
-                    gc.fillStyle = fgColor;
-
-                    // Calculate the font size and magnify it as well.
-                    //
-                    gc.fillText(nodeName,
-                        fx(x) + iconSize / 2 - gc.measureText(nodeName).width / 2,
-                        fy(y) + iconSize + 7);
-                    gc.fillStyle = bgColor;
-                }
+                drawNodes(nodes, mode, dx, dy, gc, iconSize);
 
                 // Draw notes
-                notes.forEach(function (note) {
-                    gc.beginPath();
-                    if (mode === "drag" && note.selected) {
-                        gc.rect(
-                            fx(note.x + dx),
-                            fy(note.y + dy),
-                            note.width + 10, note.height + 10);
-                    } else {
-                        gc.rect(
-                            fx(note.x),
-                            fy(note.y),
-                            note.width + 10, note.height + 10);
-                    }
-                    gc.stroke();
-                });
+                drawNotes(notes, gc, mode, dx, dy);
 
                 // Draw a new hop
                 if (mode === "hop" && clicked) {
                     gc.beginPath();
                     gc.moveTo(
-                        fx(clicked.x + iconSize / 2),
-                        fy(clicked.y + iconSize / 2));
-                    gc.lineTo(x2, y2);
+                        fx(clicked.x) + iconSize / 2,
+                        fy(clicked.y) + iconSize / 2);
+                    gc.lineTo(fx(x2), fy(y2));
                     gc.stroke();
                 }
 
                 // Draw a selection rectangle
                 if (mode === "select") {
                     gc.beginPath();
-                    gc.rect(fx(x1), fy(y1), dx, dy);
+                    let rx = x1;
+                    let ry = y1;
+                    let rw = Math.abs(dx);
+                    let rh = Math.abs(dy);
+                    if (dx<0) {
+                        rx-=dx;
+                    }
+                    if (dy<0) {
+                        ry-=dy;
+                    }
+                    gc.setLineDash([5,15]);
+                    gc.rect(fx(rx), fy(ry), rw*magnification, rh*magnification);
                     gc.stroke();
+                    gc.setLineDash([]);
                 }
             }
 
@@ -251,6 +170,112 @@ const handleEvent = function (event) {
             break;
     }
 };
+
+// This gets called by the RAP code for the Canvas widget.
+function drawGrid(gc, gridSize) {
+    gc.fillStyle = fgColor;
+    gc.beginPath();
+    gc.setLineDash([1, gridSize - 1]);
+    // vertical grid
+    for (let i = gridSize; i < gc.canvas.width / magnification; i += gridSize) {
+        gc.moveTo(fx(i), fy(0));
+        gc.lineTo(fx(i), fy(gc.canvas.height / magnification));
+    }
+    // horizontal grid
+    for (let j = gridSize; j < gc.canvas.height / magnification; j += gridSize) {
+        gc.moveTo(fx(0), fy(j));
+        gc.lineTo(fx(gc.canvas.width / magnification), fy(j));
+    }
+    gc.stroke();
+    gc.setLineDash([]);
+    gc.fillStyle = bgColor;
+}
+
+function drawHops(hops, gc, mode, nodes, dx, iconSize, dy) {
+    hops.forEach(function (hop) {
+        gc.beginPath();
+        if (mode === "drag" && nodes[hop.from].selected) {
+            gc.moveTo(
+                fx(nodes[hop.from].x + dx) + iconSize / 2,
+                fy(nodes[hop.from].y + dy) + iconSize / 2);
+        } else {
+            gc.moveTo(
+                fx(nodes[hop.from].x) + iconSize / 2,
+                fy(nodes[hop.from].y) + iconSize / 2);
+        }
+        if (mode === "drag" && nodes[hop.to].selected) {
+            gc.lineTo(
+                fx(nodes[hop.to].x + dx) + iconSize / 2,
+                fy(nodes[hop.to].y + dy) + iconSize / 2);
+        } else {
+            gc.lineTo(
+                fx(nodes[hop.to].x) + iconSize / 2,
+                fy(nodes[hop.to].y) + iconSize / 2);
+        }
+        gc.stroke();
+    });
+}
+
+function drawNodes(nodes, mode, dx, dy, gc, iconSize) {
+    for (let nodeName in nodes) {
+        const node = nodes[nodeName];
+        let x = node.x;
+        let y = node.y;
+
+        // Move selected nodes
+        //
+        if (mode === "drag" && (node.selected || node === clicked)) {
+            x = node.x + dx;
+            y = node.y + dy;
+        }
+        // Draw the icon background
+        //
+        gc.rect(fx(x), fy(y), iconSize, iconSize);
+        gc.fillStyle = bgColor;
+        gc.fill();
+
+        // Draw a bounding rectangle
+        //
+        if (node.selected || node === clicked) {
+            gc.lineWidth = 3;
+            gc.strokeStyle = selectedNodeColor;
+        } else {
+            gc.strokeStyle = nodeColor; //colorCrystalText
+        }
+        drawRoundRectangle(gc, fx(x - 1), fy(y - 1), iconSize + 1, iconSize + 1, 8, 8, false);
+        gc.strokeStyle = fgColor;
+        gc.lineWidth = 1;
+
+        // Draw node name
+        //
+        gc.fillStyle = fgColor;
+
+        // Calculate the font size and magnify it as well.
+        //
+        gc.fillText(nodeName,
+            fx(x) + iconSize / 2 - gc.measureText(nodeName).width / 2,
+            fy(y) + iconSize + 7);
+        gc.fillStyle = bgColor;
+    }
+}
+
+function drawNotes(notes, gc, mode, dx, dy) {
+    notes.forEach(function (note) {
+        gc.beginPath();
+        if (mode === "drag" && note.selected) {
+            gc.rect(
+                fx(note.x + dx),
+                fy(note.y + dy),
+                note.width + 10, note.height + 10);
+        } else {
+            gc.rect(
+                fx(note.x),
+                fy(note.y),
+                note.width + 10, note.height + 10);
+        }
+        gc.stroke();
+    });
+}
 
 function fx(x) {
     return (x + offsetX) * magnification + offsetX;

@@ -331,7 +331,7 @@ public class TableView extends Composite {
 
     // Create table, add columns & rows...
     table = new Table(this, style | SWT.MULTI);
-    PropsUi.setLook(table, Props.WIDGET_STYLE_TABLE);
+    PropsUi.setLook(table);
     table.setLinesVisible(true);
 
     FormData fdTable = new FormData();
@@ -2377,7 +2377,7 @@ public class TableView extends Composite {
         textWidget.addListener(SWT.KeyUp, lsKeyUp);
       }
     }
-    PropsUi.setLook(text, Props.WIDGET_STYLE_TABLE);
+    PropsUi.setLook(text);
 
     // There's an issue with Hop web when editing in a table
     // The text is white on a white background for some reason
@@ -2526,7 +2526,7 @@ public class TableView extends Composite {
       } else {
         comboVar.setItems(opt);
       }
-      PropsUi.setLook(comboVar, Props.WIDGET_STYLE_TABLE);
+      PropsUi.setLook(comboVar);
       fixWebLook(comboVar.getCComboWidget());
       comboVar.addTraverseListener(lsTraverse);
       comboVar.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
@@ -2557,7 +2557,7 @@ public class TableView extends Composite {
       safelyDisposeControl(combo);
       String cellValue = item.getText(colNr);
       combo = new Combo(table, columnInfo.isReadOnly() ? SWT.READ_ONLY : SWT.NONE);
-      PropsUi.setLook(combo, Props.WIDGET_STYLE_TABLE);
+      PropsUi.setLook(combo);
       fixWebLook(combo);
       combo.addTraverseListener(lsTraverse);
       combo.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
@@ -2608,7 +2608,7 @@ public class TableView extends Composite {
     }
 
     button = new Button(table, SWT.PUSH);
-    PropsUi.setLook(button, Props.WIDGET_STYLE_TABLE);
+    PropsUi.setLook(button);
     String buttonText = columns[colNr - 1].getButtonText();
     if (buttonText != null) {
       button.setText(buttonText);

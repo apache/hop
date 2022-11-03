@@ -51,7 +51,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 
 import java.util.Collections;
 import java.util.List;
@@ -67,6 +66,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   private static final Class<?> PKG = MetaSelectionLine.class; // For Translator
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "MetaSelectionLine-Toolbar";
+  public static final String TOOLBAR_ITEM_EDIT = "10010-metadata-edit";
   public static final String TOOLBAR_ITEM_NEW = "10020-metadata-new";
   public static final String TOOLBAR_ITEM_META = "10030-metadata-perspective";
 
@@ -188,23 +188,14 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     fdToolBar.right = new FormAttachment(100, 0);
     fdToolBar.top = new FormAttachment(0, 0);
     wToolBar.setLayoutData(fdToolBar);
-    PropsUi.setLook(wToolBar);
-
-    // Edit
-    ToolItem editItem = new ToolItem(wToolBar, SWT.PUSH);
-    editItem.setImage(editImage);
-    editItem.setToolTipText("Edit this metadata object");
-    editItem.addListener(
-        SWT.Selection,
-        event -> {
-          if (Utils.isEmpty(wCombo.getText())) this.newMetadata();
-          else this.editMetadata();
-        });
+    wToolBar.setBackground(GuiResource.getInstance().getColorBackground());
+    wToolBar.setForeground(GuiResource.getInstance().getColorBackground());
 
     // Add more toolbar items from plugins.
     //
     GuiToolbarWidgets toolbarWidgets = new GuiToolbarWidgets();
     toolbarWidgets.registerGuiPluginObject(this);
+    toolbarWidgets.setItemBackgroundColor(GuiResource.getInstance().getColorBackground());
     toolbarWidgets.createToolbarWidgets(wToolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
 
     int textFlags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
@@ -230,6 +221,21 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_EDIT,
+      toolTip = "Edit this metadata element",
+      imageMethod = "getEditIcon")
+  public void editMetadataElement() {
+    if (Utils.isEmpty(wCombo.getText())) this.newMetadata();
+    else this.editMetadata();
+  }
+
+  public static String getEditIcon(Object guiPluginObject) {
+    MetaSelectionLine<?> line = (MetaSelectionLine<?>) guiPluginObject;
+    return line.getManagedClass().getAnnotation(HopMetadata.class).image();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_NEW,
       toolTip = "Create a new metadata element",
       image = "ui/images/new.svg")
@@ -241,10 +247,10 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   }
 
   @GuiToolbarElement(
-          root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-          id = TOOLBAR_ITEM_META,
-          toolTip = "View the element in the metadata perspective",
-          image = "ui/images/metadata.svg")
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_META,
+      toolTip = "View the element in the metadata perspective",
+      image = "ui/images/metadata.svg")
   public void viewInPerspective() {
     MetadataPerspective perspective = HopGui.getMetadataPerspective();
     perspective.activate();
