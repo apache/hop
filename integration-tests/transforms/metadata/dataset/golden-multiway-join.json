@@ -1,5 +1,5 @@
 {
-  "base_filename": "data-set-filename.csv",
+  "base_filename": "golden-multiway-join.csv",
   "name": "golden-multiway-join",
   "description": "",
   "dataset_fields": [
