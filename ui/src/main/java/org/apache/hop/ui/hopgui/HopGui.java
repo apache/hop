@@ -577,7 +577,11 @@ public class HopGui
     }
     label.pack();
     int size = (int) (ConstUi.SMALL_ICON_SIZE * PropsUi.getNativeZoomFactor());
-    item.setWidth(size+PropsUi.getFormMargin());
+    // Just make the items a tad wider.
+    // Hop Web/RAP isn't smart enough to know that the toolbar is vertical and this should be higher.
+    // We use this glitch to give the icons a tad more room on the right.
+    //
+    item.setWidth(size+2);
     item.setControl(label);
 
     SvgLabelFacade.setData(id, label, filename, size);
