@@ -26,12 +26,12 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
-import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
@@ -50,7 +50,7 @@ public class ExplorerPerspectiveConfigPlugin
 
   @GuiWidgetElement(
       id = WIDGET_ID_LAZY_LOADING_DEPTH,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
       label = "Lazy loading maximum initial depth")
@@ -61,10 +61,10 @@ public class ExplorerPerspectiveConfigPlugin
 
   @GuiWidgetElement(
       id = WIDGET_ID_FILE_LOADING_MAX_SIZE,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "The maxim file size to load (in MB)")
+      label = "The maximum file size to load (in MB)")
   @CommandLine.Option(
       names = {"-exms", "--explorer-file-loading-max-size"},
       description = "For the explorer: the maximum file size to load")
@@ -128,7 +128,9 @@ public class ExplorerPerspectiveConfigPlugin
 
   @Override
   public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {}
+      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+    persistContents(compositeWidgets);
+  }
 
   @Override
   public void persistContents(GuiCompositeWidgets compositeWidgets) {

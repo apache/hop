@@ -27,12 +27,12 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
-import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
@@ -51,7 +51,7 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
 
   @GuiWidgetElement(
       id = WIDGET_ID_AZURE_ACCOUNT,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
       label = "Your Azure account")
@@ -62,7 +62,7 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
 
   @GuiWidgetElement(
       id = WIDGET_ID_AZURE_KEY,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
       password = true,
@@ -74,7 +74,7 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
 
   @GuiWidgetElement(
       id = WIDGET_ID_AZURE_BLOCK_INCREMENT,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
       label = "File block increment size (multiples of 512 only)")
@@ -143,7 +143,9 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
 
   @Override
   public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {}
+      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+    persistContents(compositeWidgets);
+  }
 
   @Override
   public void persistContents(GuiCompositeWidgets compositeWidgets) {

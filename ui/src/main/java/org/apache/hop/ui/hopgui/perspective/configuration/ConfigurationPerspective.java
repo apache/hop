@@ -53,221 +53,217 @@ import java.util.Comparator;
 import java.util.List;
 
 @HopPerspectivePlugin(
-        id = "160-HopConfigurationPerspective",
-        name = "i18n::ConfigurationPerspective.Name",
-        description = "i18n::ConfigurationPerspective.Description",
-        image = "ui/images/gear.svg"
-)
+    id = "160-HopConfigurationPerspective",
+    name = "i18n::ConfigurationPerspective.Name",
+    description = "i18n::ConfigurationPerspective.Description",
+    image = "ui/images/gear.svg")
 @GuiPlugin(description = "i18n::HopConfigurationPerspective.GuiPlugin.Description")
 public class ConfigurationPerspective implements IHopPerspective, TabClosable {
+  private static final Class<?> PKG = ConfigurationPerspective.class;
 
-    private static final Class<?> PKG = ConfigurationPerspective.class;
+  public static final String CONFIG_PERSPECTIVE_TABS = "ConfigurationPerspective.Tabs.ID";
+  private HopGui hopGui;
+  private Composite composite;
+  public CTabFolder configTabs;
+  private static ConfigurationPerspective instance;
 
-    public static final String CONFIG_PERSPECTIVE_TABS = "ConfigurationPerspective.Tabs.ID";
-    private HopGui hopGui;
-    private Composite composite;
-    public CTabFolder configTabs;
-    private static ConfigurationPerspective instance;
-    public static ConfigurationPerspective getInstance(){
-        return instance;
-    }
+  public static ConfigurationPerspective getInstance() {
+    return instance;
+  }
 
-    public ConfigurationPerspective(){
-        instance = this;
-    }
+  public ConfigurationPerspective() {
+    instance = this;
+  }
 
-    @Override
-    public List<IGuiContextHandler> getContextHandlers() {
-        List<IGuiContextHandler> handlers = new ArrayList<>();
-        return handlers;
-    }
+  @Override
+  public List<IGuiContextHandler> getContextHandlers() {
+    List<IGuiContextHandler> handlers = new ArrayList<>();
+    return handlers;
+  }
 
-    @Override
-    public String getId() {
-        return "configuration";
-    }
+  @Override
+  public String getId() {
+    return "configuration";
+  }
 
-    @Override
-    public IHopFileTypeHandler getActiveFileTypeHandler() {
-        return new EmptyHopFileTypeHandler();
-    }
+  @Override
+  public IHopFileTypeHandler getActiveFileTypeHandler() {
+    return new EmptyHopFileTypeHandler();
+  }
 
-    @Override
-    public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {
+  @Override
+  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {}
 
-    }
+  @Override
+  public List<IHopFileType> getSupportedHopFileTypes() {
+    return Collections.emptyList();
+  }
 
-    @Override
-    public List<IHopFileType> getSupportedHopFileTypes() {
-        return Collections.emptyList();
-    }
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'c')
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'c')
+  @Override
+  public void activate() {
+    hopGui.setActivePerspective(this);
+  }
 
-    @GuiKeyboardShortcut(control = true, shift = true, key = 'c')
-    @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'c')
-    @Override
-    public void activate() {
-        hopGui.setActivePerspective(this);
-    }
+  @Override
+  public void perspectiveActivated() {}
 
-    @Override
-    public void perspectiveActivated() {
+  @Override
+  public void navigateToPreviousFile() {}
 
-    }
+  @Override
+  public void navigateToNextFile() {}
 
-    @Override
-    public void navigateToPreviousFile() {
+  @Override
+  public boolean isActive() {
+    return hopGui.isActivePerspective(this);
+  }
 
-    }
+  @Override
+  public void initialize(HopGui hopGui, Composite parent) {
+    this.hopGui = hopGui;
 
-    @Override
-    public void navigateToNextFile() {
+    composite = new Composite(parent, SWT.NONE);
+    FormLayout clayout = new FormLayout();
+    clayout.marginLeft = PropsUi.getMargin();
+    clayout.marginTop = PropsUi.getMargin();
+    clayout.marginLeft = PropsUi.getMargin();
+    clayout.marginBottom = PropsUi.getMargin();
+    composite.setLayout(clayout);
+    PropsUi.setLook(composite);
 
-    }
+    FormData cformData = new FormData();
+    cformData.left = new FormAttachment(0, 0);
+    cformData.top = new FormAttachment(0, 0);
+    cformData.right = new FormAttachment(100, -3);
+    cformData.bottom = new FormAttachment(100, -5);
+    composite.setLayoutData(cformData);
 
-    @Override
-    public boolean isActive() {
-        return hopGui.isActivePerspective(this);
-    }
+    configTabs = new CTabFolder(composite, SWT.BORDER);
+    PropsUi.setLook(configTabs, Props.WIDGET_STYLE_TAB);
 
-    @Override
-    public void initialize(HopGui hopGui, Composite parent) {
-        this.hopGui = hopGui;
-        PropsUi props = PropsUi.getInstance();
+    FormLayout layout = new FormLayout();
+    layout.marginLeft = PropsUi.getMargin();
+    layout.marginTop = PropsUi.getMargin();
+    layout.marginLeft = PropsUi.getMargin();
+    layout.marginBottom = PropsUi.getMargin();
+    configTabs.setLayout(layout);
+    PropsUi.setLook(configTabs);
 
-        composite = new Composite(parent, SWT.NONE);
-        FormLayout clayout = new FormLayout();
-        clayout.marginLeft = props.getMargin();
-        clayout.marginTop = props.getMargin();
-        clayout.marginLeft = props.getMargin();
-        clayout.marginBottom = props.getMargin();
-        composite.setLayout(clayout);
-        props.setLook(composite);
+    FormData formData = new FormData();
+    formData.left = new FormAttachment(00, 0);
+    formData.top = new FormAttachment(0, 00);
+    formData.right = new FormAttachment(100, -3);
+    formData.bottom = new FormAttachment(100, -5);
+    configTabs.setLayoutData(formData);
+    configTabs.setMaximized(true);
 
-        FormData cformData = new FormData();
-        cformData.left = new FormAttachment(0,0);
-        cformData.top = new FormAttachment(0,0);
-        cformData.right = new FormAttachment(100,-3);
-        cformData.bottom = new FormAttachment(100,-5);
-        composite.setLayoutData(cformData);
+    Label label = new Label(configTabs, SWT.LEFT);
+    label.setText("dummy text");
+    FormData fdlFields = new FormData();
+    fdlFields.left = new FormAttachment(0, 0);
+    fdlFields.top = new FormAttachment(0, PropsUi.getMargin());
+    label.setLayoutData(fdlFields);
+    PropsUi.setLook(label);
 
-        configTabs = new CTabFolder(composite, SWT.BORDER);
-        props.setLook(configTabs, Props.WIDGET_STYLE_TAB);
+    Label wlInfo = new Label(configTabs, SWT.LEFT);
+    PropsUi.setLook(wlInfo);
+    wlInfo.setText(BaseMessages.getString(PKG, "HopSearchPerspective.Header.Description.Text"));
+    wlInfo.setFont(GuiResource.getInstance().getFontBold());
+    FormData fdInfo = new FormData();
+    fdInfo.left = new FormAttachment(0, 0);
+    fdInfo.right = new FormAttachment(100, 0);
+    fdInfo.top = new FormAttachment(0, 0);
+    wlInfo.setLayoutData(fdInfo);
+    Control lastControl = wlInfo;
 
-        FormLayout layout = new FormLayout();
-        layout.marginLeft = props.getMargin();
-        layout.marginTop = props.getMargin();
-        layout.marginLeft = props.getMargin();
-        layout.marginBottom = props.getMargin();
-        configTabs.setLayout(layout);
-        props.setLook(configTabs);
+    Label wlSep1 = new Label(configTabs, SWT.SEPARATOR | SWT.HORIZONTAL);
+    PropsUi.setLook(wlSep1);
+    FormData fdlSep1 = new FormData();
+    fdlSep1.left = new FormAttachment(0, 0);
+    fdlSep1.right = new FormAttachment(100, 0);
+    fdlSep1.top = new FormAttachment(lastControl, 0);
+    wlSep1.setLayoutData(fdlSep1);
 
-        FormData formData = new FormData();
-        formData.left = new FormAttachment(00,0);
-        formData.top = new FormAttachment(0,00);
-        formData.right = new FormAttachment(100,-3);
-        formData.bottom = new FormAttachment(100,-5);
-        configTabs.setLayoutData(formData);
-        configTabs.setMaximized(true);
+    GuiRegistry guiRegistry = GuiRegistry.getInstance();
+    List<GuiTabItem> tabsList = guiRegistry.getGuiTabsMap().get(CONFIG_PERSPECTIVE_TABS);
 
-        Label label = new Label(configTabs, SWT.LEFT);
-        label.setText("dummy text");
-        FormData fdlFields = new FormData();
-        fdlFields.left = new FormAttachment(0, 0);
-        fdlFields.top = new FormAttachment(0, props.getMargin());
-        label.setLayoutData(fdlFields);
-        props.setLook(label);
-
-        Label wlInfo = new Label(configTabs, SWT.LEFT);
-        props.setLook(wlInfo);
-        wlInfo.setText(BaseMessages.getString(PKG, "HopSearchPerspective.Header.Description.Text"));
-        wlInfo.setFont(GuiResource.getInstance().getFontBold());
-        FormData fdInfo = new FormData();
-        fdInfo.left = new FormAttachment(0, 0);
-        fdInfo.right = new FormAttachment(100, 0);
-        fdInfo.top = new FormAttachment(0, 0);
-        wlInfo.setLayoutData(fdInfo);
-        Control lastControl = wlInfo;
-
-        Label wlSep1 = new Label(configTabs, SWT.SEPARATOR | SWT.HORIZONTAL);
-        props.setLook(wlSep1);
-        FormData fdlSep1 = new FormData();
-        fdlSep1.left = new FormAttachment(0, 0);
-        fdlSep1.right = new FormAttachment(100, 0);
-        fdlSep1.top = new FormAttachment(lastControl, 0);
-        wlSep1.setLayoutData(fdlSep1);
-
-        GuiRegistry guiRegistry = GuiRegistry.getInstance();
-        List<GuiTabItem> tabsList = guiRegistry.getGuiTabsMap().get(CONFIG_PERSPECTIVE_TABS);
-
-        if(tabsList != null){
-            tabsList.sort(Comparator.comparing(GuiTabItem::getId));
-            for(GuiTabItem tabItem : tabsList){
-                try {
-                    Object object = tabItem.getMethod().getDeclaringClass().getConstructor().newInstance();
-                    tabItem.getMethod().invoke(object, configTabs);
-                }catch(Exception e){
-                    throw new RuntimeException(
-                        "unable to invoke tab method with the parent composite as argument", e
-                    );
-                }
-            }
+    if (tabsList != null) {
+      tabsList.sort(Comparator.comparing(GuiTabItem::getId));
+      for (GuiTabItem tabItem : tabsList) {
+        try {
+          Object object = tabItem.getMethod().getDeclaringClass().getConstructor().newInstance();
+          tabItem.getMethod().invoke(object, configTabs);
+        } catch (Exception e) {
+          throw new RuntimeException(
+              "unable to invoke tab method with the parent composite as argument", e);
         }
+      }
+      if (configTabs.getItemCount() > 0) {
+        configTabs.setSelection(0);
+      }
     }
-
-    @Override
-    public boolean hasNavigationPreviousFile() {
-        return false;
-    }
-
-    @Override
-    public boolean hasNavigationNextFile() {
-        return false;
-    }
-
-    @Override
-    public Control getControl() {
-        return composite;
-    }
-
-    @Override
-    public boolean remove(IHopFileTypeHandler typeHandler) {
-        return false;
-    }
-
-    @Override
-    public List<TabItemHandler> getItems() {
-        return null;
-    }
-
-    @Override
-    public List<ISearchable> getSearchables() {
-        List<ISearchable> searchables = new ArrayList<>();
-        return searchables;
-    }
+  }
 
 
-    @Override
-    public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
+  public void showSystemVariablesTab() {
+    for (CTabItem tabItem : configTabs.getItems()) {
 
     }
+  }
 
-    @Override
-    public List<CTabItem> getTabsToRight(CTabItem selectedTabItem) {
-        return TabClosable.super.getTabsToRight(selectedTabItem);
-    }
+  @Override
+  public boolean hasNavigationPreviousFile() {
+    return false;
+  }
 
-    @Override
-    public List<CTabItem> getTabsToLeft(CTabItem selectedTabItem) {
-        return TabClosable.super.getTabsToLeft(selectedTabItem);
-    }
+  @Override
+  public boolean hasNavigationNextFile() {
+    return false;
+  }
 
-    @Override
-    public List<CTabItem> getOtherTabs(CTabItem selectedTabItem) {
-        return TabClosable.super.getOtherTabs(selectedTabItem);
-    }
+  @Override
+  public Control getControl() {
+    return composite;
+  }
 
-    @Override
-    public CTabFolder getTabFolder() {
-        return configTabs;
-    }
+  @Override
+  public boolean remove(IHopFileTypeHandler typeHandler) {
+    return false;
+  }
+
+  @Override
+  public List<TabItemHandler> getItems() {
+    return null;
+  }
+
+  @Override
+  public List<ISearchable> getSearchables() {
+    List<ISearchable> searchables = new ArrayList<>();
+    return searchables;
+  }
+
+  @Override
+  public void closeTab(CTabFolderEvent event, CTabItem tabItem) {}
+
+  @Override
+  public List<CTabItem> getTabsToRight(CTabItem selectedTabItem) {
+    return TabClosable.super.getTabsToRight(selectedTabItem);
+  }
+
+  @Override
+  public List<CTabItem> getTabsToLeft(CTabItem selectedTabItem) {
+    return TabClosable.super.getTabsToLeft(selectedTabItem);
+  }
+
+  @Override
+  public List<CTabItem> getOtherTabs(CTabItem selectedTabItem) {
+    return TabClosable.super.getOtherTabs(selectedTabItem);
+  }
+
+  @Override
+  public CTabFolder getTabFolder() {
+    return configTabs;
+  }
 }

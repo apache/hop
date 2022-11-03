@@ -81,7 +81,7 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
   @GuiWidgetElement(
       order = "60",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.TEXT,
+      type = GuiElementType.FOLDER,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.NamedResourceSourceFolder.Label",
       toolTip =

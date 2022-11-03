@@ -77,7 +77,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
   @GuiWidgetElement(
       order = "20020-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.TEXT,
+      type = GuiElementType.FOLDER,
       label = "Streaming: checkpoint directory",
       toolTip =
           "A checkpoint directory for streaming resilience, ignored in batch. "

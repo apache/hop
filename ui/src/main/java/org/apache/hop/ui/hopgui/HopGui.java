@@ -48,7 +48,6 @@ import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchableProvider;
 import org.apache.hop.core.search.ISearchablesLocation;
-import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -64,7 +63,6 @@ import org.apache.hop.server.HopServer;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEventsHandler;
-import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.HopDescribedVariablesDialog;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
@@ -98,6 +96,7 @@ import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectiveManager;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
@@ -191,8 +190,6 @@ public class HopGui
   public static final String ID_MAIN_MENU_RUN_DEBUG = "30060-menu-run-debug";
 
   public static final String ID_MAIN_MENU_TOOLS_PARENT_ID = "40000-menu-tools";
-  public static final String ID_MAIN_MENU_TOOLS_OPTIONS = "40010-menu-tools-options";
-  public static final String ID_MAIN_MENU_TOOLS_SYSPROPS = "40020-menu-tools-system-properties";
   public static final String ID_MAIN_MENU_TOOLS_DATABASE_CLEAR_CACHE =
       "40030-menu-tools-database-clearcache";
 
@@ -559,11 +556,7 @@ public class HopGui
   }
 
   private ToolItem addWebToolbarButton(
-      String id,
-      ToolBar toolBar,
-      String filename,
-      String tooltip,
-      Listener listener) {
+      String id, ToolBar toolBar, String filename, String tooltip, Listener listener) {
     ToolItem item = new ToolItem(toolBar, SWT.SEPARATOR);
 
     Label label = new Label(toolBar, SWT.NONE);
@@ -578,10 +571,11 @@ public class HopGui
     label.pack();
     int size = (int) (ConstUi.SMALL_ICON_SIZE * PropsUi.getNativeZoomFactor());
     // Just make the items a tad wider.
-    // Hop Web/RAP isn't smart enough to know that the toolbar is vertical and this should be higher.
+    // Hop Web/RAP isn't smart enough to know that the toolbar is vertical and this should be
+    // higher.
     // We use this glitch to give the icons a tad more room on the right.
     //
-    item.setWidth(size+2);
+    item.setWidth(size + 2);
     item.setControl(label);
 
     SvgLabelFacade.setData(id, label, filename, size);
@@ -1131,60 +1125,6 @@ public class HopGui
 
   @GuiMenuElement(
       root = ID_MAIN_MENU,
-      id = ID_MAIN_MENU_TOOLS_OPTIONS,
-      label = "i18n::HopGui.Menu.Edit.Options",
-      parentId = ID_MAIN_MENU_TOOLS_PARENT_ID,
-      image = "ui/images/settings.svg")
-  public void menuToolsOptions() {
-    if (new EnterOptionsDialog(getShell()).open() != null) {
-      try {
-        // Clear the images cache
-        SvgCache.getInstance().clear();
-        // Re-load icons
-        GuiResource.getInstance().reload();
-        // Save the configuration to disk
-        HopConfig.getInstance().saveToFile();
-      } catch (Exception e) {
-        new ErrorDialog(
-            getShell(),
-            "Error",
-            "Error saving the configuration file '"
-                + HopConfig.getInstance().getConfigFilename()
-                + "'",
-            e);
-      }
-    }
-  }
-
-  @GuiMenuElement(
-      root = ID_MAIN_MENU,
-      id = ID_MAIN_MENU_TOOLS_SYSPROPS,
-      label = "i18n::HopGui.Menu.Tools.EditConfigVariables",
-      parentId = ID_MAIN_MENU_TOOLS_PARENT_ID,
-      image = "ui/images/settings.svg")
-  public void menuToolsEditConfigVariables() {
-    List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
-    String message = "Editing file: " + HopConfig.getInstance().getConfigFilename();
-    HopDescribedVariablesDialog dialog =
-        new HopDescribedVariablesDialog(shell, message, describedVariables, null);
-    if (dialog.open() != null) {
-      try {
-        HopConfig.getInstance().setDescribedVariables(describedVariables);
-        HopConfig.getInstance().saveToFile();
-      } catch (Exception e) {
-        new ErrorDialog(
-            getShell(),
-            "Error",
-            "Error saving config variables to configuration file '"
-                + HopConfig.getInstance().getConfigFilename()
-                + "'",
-            e);
-      }
-    }
-  }
-
-  @GuiMenuElement(
-      root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_TOOLS_DATABASE_CLEAR_CACHE,
       label = "i18n::HopGui.Menu.Tools.DatabaseClearCache",
       parentId = ID_MAIN_MENU_TOOLS_PARENT_ID,
@@ -1621,7 +1561,7 @@ public class HopGui
       for (ToolItem item : perspectivesToolbar.getItems()) {
         boolean shaded = perspective.equals(item.getData());
         if (EnvironmentUtils.getInstance().isWeb()) {
-          SvgLabelFacade.shadeSvg((Label) item.getControl(), (String)item.getData("id"), shaded);
+          SvgLabelFacade.shadeSvg((Label) item.getControl(), (String) item.getData("id"), shaded);
         } else {
           item.setSelection(shaded);
         }
@@ -1738,6 +1678,13 @@ public class HopGui
   public static ExplorerPerspective getExplorerPerspective() {
     return (ExplorerPerspective)
         HopGui.getInstance().getPerspectiveManager().findPerspective(ExplorerPerspective.class);
+  }
+
+  public static ConfigurationPerspective getConfigurationPerspective() {
+    return (ConfigurationPerspective)
+        HopGui.getInstance()
+            .getPerspectiveManager()
+            .findPerspective(ConfigurationPerspective.class);
   }
 
   /**

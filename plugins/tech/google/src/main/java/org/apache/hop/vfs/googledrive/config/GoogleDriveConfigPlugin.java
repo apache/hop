@@ -27,12 +27,12 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
-import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
@@ -52,8 +52,8 @@ public class GoogleDriveConfigPlugin implements IConfigOptions, IGuiPluginCompos
 
   @GuiWidgetElement(
       id = WIDGET_ID_GOOGLE_DRIVE_VFS_CREDENTIALS_PATH,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
-      type = GuiElementType.TEXT,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.FILENAME,
       variables = true,
       label = "Path to a Google Drive credentials JSON file",
       toolTip =
@@ -65,8 +65,8 @@ public class GoogleDriveConfigPlugin implements IConfigOptions, IGuiPluginCompos
 
   @GuiWidgetElement(
       id = WIDGET_ID_GOOGLE_DRIVE_VFS_TOKENS_FOLDER,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
-      type = GuiElementType.TEXT,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.FOLDER,
       variables = true,
       label = "Path to a tokens folder for credential caching",
       toolTip = "Pick a safe folder to store these tokens")
@@ -128,7 +128,9 @@ public class GoogleDriveConfigPlugin implements IConfigOptions, IGuiPluginCompos
 
   @Override
   public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {}
+      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+    persistContents(compositeWidgets);
+  }
 
   @Override
   public void persistContents(GuiCompositeWidgets compositeWidgets) {
@@ -163,7 +165,9 @@ public class GoogleDriveConfigPlugin implements IConfigOptions, IGuiPluginCompos
     return credentialsFile;
   }
 
-  /** @param credentialsFile The credentialsFile to set */
+  /**
+   * @param credentialsFile The credentialsFile to set
+   */
   public void setCredentialsFile(String credentialsFile) {
     this.credentialsFile = credentialsFile;
   }
@@ -177,7 +181,9 @@ public class GoogleDriveConfigPlugin implements IConfigOptions, IGuiPluginCompos
     return tokensFolder;
   }
 
-  /** @param tokensFolder The tokensFolder to set */
+  /**
+   * @param tokensFolder The tokensFolder to set
+   */
   public void setTokensFolder(String tokensFolder) {
     this.tokensFolder = tokensFolder;
   }

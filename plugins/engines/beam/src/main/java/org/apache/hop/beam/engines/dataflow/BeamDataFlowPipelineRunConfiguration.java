@@ -76,7 +76,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
   @GuiWidgetElement(
       order = "20020-dataflow-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.TEXT,
+      type = GuiElementType.FOLDER,
       toolTip =
           "Cloud Storage path for staging local files.\n"
               + "Must be a valid Cloud Storage URL, beginning with gs://",
@@ -145,7 +145,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
       toolTip =
-          "he type of persistent disk to use, specified by a full URL of the disk type resource.\n"
+          "The type of persistent disk to use, specified by a full URL of the disk type resource.\n"
               + "For more information see:\n"
               + "https://cloud.google.com/compute/docs/disks#pdspecs",
       label = "Worker disk type")
