@@ -111,57 +111,55 @@ const handleEvent = function (event) {
 
             // If we're not dragging the cursor with the mouse
             //
-            if (dx > 0 || dy > 0) {
-                // Clear the canvas, regardless of what happens below
-                //
-                gc.rect(0, 0, gc.canvas.width / magnification, gc.canvas.height / magnification);
-                gc.fillStyle = bgColor;
-                gc.fill();
+            // Clear the canvas, regardless of what happens below
+            //
+            gc.rect(0, 0, gc.canvas.width / magnification, gc.canvas.height / magnification);
+            gc.fillStyle = bgColor;
+            gc.fill();
 
-                // Draw grids
-                //
-                if (gridSize > 1) {
-                    drawGrid(gc, gridSize);
+            // Draw grids
+            //
+            if (gridSize > 1) {
+                drawGrid(gc, gridSize);
+            }
+
+            // Draw hops
+            drawHops(hops, gc, mode, nodes, dx, iconSize, dy);
+
+            // The nodes are action or transform icons
+            //
+            drawNodes(nodes, mode, dx, dy, gc, iconSize);
+
+            // Draw notes
+            drawNotes(notes, gc, mode, dx, dy);
+
+            // Draw a new hop
+            if (mode === "hop" && clicked) {
+                gc.beginPath();
+                gc.moveTo(
+                    fx(clicked.x) + iconSize / 2,
+                    fy(clicked.y) + iconSize / 2);
+                gc.lineTo(fx(x2), fy(y2));
+                gc.stroke();
+            }
+
+            // Draw a selection rectangle
+            if (mode === "select") {
+                gc.beginPath();
+                let rx = x1;
+                let ry = y1;
+                let rw = Math.abs(dx);
+                let rh = Math.abs(dy);
+                if (dx < 0) {
+                    rx += dx;
                 }
-
-                // Draw hops
-                drawHops(hops, gc, mode, nodes, dx, iconSize, dy);
-
-                // The nodes are action or transform icons
-                //
-                drawNodes(nodes, mode, dx, dy, gc, iconSize);
-
-                // Draw notes
-                drawNotes(notes, gc, mode, dx, dy);
-
-                // Draw a new hop
-                if (mode === "hop" && clicked) {
-                    gc.beginPath();
-                    gc.moveTo(
-                        fx(clicked.x) + iconSize / 2,
-                        fy(clicked.y) + iconSize / 2);
-                    gc.lineTo(fx(x2), fy(y2));
-                    gc.stroke();
+                if (dy < 0) {
+                    ry += dy;
                 }
-
-                // Draw a selection rectangle
-                if (mode === "select") {
-                    gc.beginPath();
-                    let rx = x1;
-                    let ry = y1;
-                    let rw = Math.abs(dx);
-                    let rh = Math.abs(dy);
-                    if (dx<0) {
-                        rx-=dx;
-                    }
-                    if (dy<0) {
-                        ry-=dy;
-                    }
-                    gc.setLineDash([5,15]);
-                    gc.rect(fx(rx), fy(ry), rw*magnification, rh*magnification);
-                    gc.stroke();
-                    gc.setLineDash([]);
-                }
+                gc.setLineDash([5, 15]);
+                gc.rect(fx(rx), fy(ry), rw * magnification, rh * magnification);
+                gc.stroke();
+                gc.setLineDash([]);
             }
 
             // Put the font right back where it was.
@@ -278,10 +276,16 @@ function drawNotes(notes, gc, mode, dx, dy) {
 }
 
 function fx(x) {
+    if (x<0) {
+        return 0;
+    }
     return (x + offsetX) * magnification + offsetX;
 }
 
 function fy(y) {
+    if (y<0) {
+        return 0;
+    }
     return (y + offsetY) * magnification + offsetY;
 }
 
