@@ -314,12 +314,11 @@ public class ContextDialog extends Dialog {
     // Make the icons a bit smaller to fit more
     //
     iconSize = (int) Math.round(props.getZoomFactor() * props.getIconSize() * 0.75);
-    margin = (int) (PropsUi.getMargin() * props.getZoomFactor());
+    margin = PropsUi.getMargin();
     highlightColor = new Color(parent.getDisplay(), props.contrastColor(201, 232, 251));
   }
 
   public GuiAction open() {
-
     shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.RESIZE);
     shell.setText(getText());
     shell.setMinimumSize(200, 180);
@@ -335,19 +334,16 @@ public class ContextDialog extends Dialog {
     //
     categories = new ArrayList<>();
     for (GuiAction action : actions) {
+      CategoryAndOrder categoryAndOrder;
       if (StringUtils.isNotEmpty(action.getCategory())) {
-        CategoryAndOrder categoryAndOrder =
-            new CategoryAndOrder(
+        categoryAndOrder = new CategoryAndOrder(
                 action.getCategory(), Const.NVL(action.getCategoryOrder(), "0"), false);
-        if (!categories.contains(categoryAndOrder)) {
-          categories.add(categoryAndOrder);
-        }
       } else {
         // Add an "Other" category
-        CategoryAndOrder categoryAndOrder = new CategoryAndOrder(CATEGORY_OTHER, "9999", false);
-        if (!categories.contains(categoryAndOrder)) {
-          categories.add(categoryAndOrder);
-        }
+        categoryAndOrder = new CategoryAndOrder(CATEGORY_OTHER, "9999", false);
+      }
+      if (!categories.contains(categoryAndOrder)) {
+        categories.add(categoryAndOrder);
       }
     }
 
