@@ -100,7 +100,7 @@ public abstract class DragViewZoomBase extends Composite {
     redraw();
   }
 
-  @GuiKeyboardShortcut(control = true, key = '+')
+  @GuiKeyboardShortcut(control = true, key = '=')
   public void zoomIn() {
     magnification += 0.1f;
     // Minimum 1000%
