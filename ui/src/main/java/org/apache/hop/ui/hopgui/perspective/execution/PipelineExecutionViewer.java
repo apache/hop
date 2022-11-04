@@ -28,8 +28,10 @@ import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.tab.GuiTabItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.LogChannel;
@@ -100,9 +102,12 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.w3c.dom.Node;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -133,10 +138,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   public static final String TOOLBAR_ITEM_VIEW_METADATA =
       "PipelineExecutionViewer-Toolbar-12100-ViewMetadata";
 
+  public static final String PIPELINE_EXECUTION_VIEWER_TABS = "PipelineExecutionViewer.Tabs.ID";
+
   protected final PipelineMeta pipelineMeta;
-  protected final ExecutionPerspective perspective;
-  protected final String locationName;
-  protected final Execution execution;
 
   protected TransformMeta selectedTransform;
   private ExecutionState executionState;
@@ -160,11 +164,8 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       String locationName,
       ExecutionPerspective perspective,
       Execution execution) {
-    super(parent, hopGui);
+    super(parent, hopGui, perspective, locationName, execution);
     this.pipelineMeta = pipelineMeta;
-    this.locationName = locationName;
-    this.perspective = perspective;
-    this.execution = execution;
 
     // Calculate the pipeline size only once since the metadata is read-only
     //
@@ -233,6 +234,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     addLogTab();
     addMetricsTab();
     addDataTab();
+    addPluginTabs();
 
     layout();
 
@@ -335,6 +337,44 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       }
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error refreshing pipeline status", e);
+    }
+  }
+
+  private void addPluginTabs() {
+    GuiRegistry guiRegistry = GuiRegistry.getInstance();
+    List<GuiTabItem> tabsList = guiRegistry.getGuiTabsMap().get(PIPELINE_EXECUTION_VIEWER_TABS);
+
+    if (tabsList != null) {
+      tabsList.sort(Comparator.comparing(GuiTabItem::getId));
+      for (GuiTabItem tabItem : tabsList) {
+        try {
+          Class<?> pluginTabClass = tabItem.getMethod().getDeclaringClass();
+          boolean showTab = true;
+          try {
+            // Invoke static method showTab(PipelineExecutionViewer)
+            //
+            Method showTabMethod =
+                pluginTabClass.getMethod("showTab", PipelineExecutionViewer.class);
+            showTab = (boolean) showTabMethod.invoke(null, this);
+          } catch (NoSuchMethodException noSuchMethodException) {
+            // Just show the tab
+          }
+          if (showTab) {
+            Constructor<?> constructor = pluginTabClass.getConstructor(PipelineExecutionViewer.class);
+            Object object = constructor.newInstance(this);
+            tabItem.getMethod().invoke(object, tabFolder);
+          }
+        } catch (Exception e) {
+          new ErrorDialog(
+              hopGui.getShell(),
+              "Error",
+              "Hop was unable to invoke @GuiTab method "
+                  + tabItem.getMethod().getName()
+                  + " with the parent composite as argument",
+              e);
+        }
+      }
+      tabFolder.layout();
     }
   }
 
@@ -694,7 +734,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     }
     CanvasFacade.setData(canvas, magnification, offset, pipelineMeta);
   }
-
 
   @Override
   public Control getControl() {
@@ -1175,6 +1214,21 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   @Override
   public void keyReleased(KeyEvent keyEvent) {}
 
+  @Override
+  public String getActiveId() {
+    if (selectedTransform != null) {
+      // Find the log channel ID of the selected transform
+      //
+      for (ExecutionDataSetMeta setMeta : selectedTransformData.getSetMetaData().values()) {
+        if (selectedTransform.getName().equals(setMeta.getName())) {
+          // This is the one
+          return setMeta.getLogChannelId();
+        }
+      }
+    }
+    // If we're still here, return the pipeline log channel ID
+    return getLogChannelId();
+  }
   /**
    * Gets pipelineMeta
    *
@@ -1227,5 +1281,59 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
    */
   public void setExecutionState(ExecutionState executionState) {
     this.executionState = executionState;
+  }
+
+  /**
+   * Gets locationName
+   *
+   * @return value of locationName
+   */
+  public String getLocationName() {
+    return locationName;
+  }
+
+  /**
+   * Gets selectedTransformData
+   *
+   * @return value of selectedTransformData
+   */
+  public ExecutionData getSelectedTransformData() {
+    return selectedTransformData;
+  }
+
+  /**
+   * Sets selectedTransformData
+   *
+   * @param selectedTransformData value of selectedTransformData
+   */
+  public void setSelectedTransformData(ExecutionData selectedTransformData) {
+    this.selectedTransformData = selectedTransformData;
+  }
+
+  /**
+   * Gets dataList
+   *
+   * @return value of dataList
+   */
+  public org.eclipse.swt.widgets.List getDataList() {
+    return dataList;
+  }
+
+  /**
+   * Sets dataList
+   *
+   * @param dataList value of dataList
+   */
+  public void setDataList(org.eclipse.swt.widgets.List dataList) {
+    this.dataList = dataList;
+  }
+
+  /**
+   * Gets perspective
+   *
+   * @return value of perspective
+   */
+  public ExecutionPerspective getPerspective() {
+    return perspective;
   }
 }

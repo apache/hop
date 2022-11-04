@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.execution.DragViewZoomBase;
+import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.SashForm;
@@ -42,7 +43,6 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ToolBar;
@@ -61,9 +61,13 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
   public static final String STRING_STATE_STALE = "Stale";
 
   protected final HopGui hopGui;
+  protected final ExecutionPerspective perspective;
   protected final PropsUi props;
   protected final int iconSize;
   protected final List<AreaOwner> areaOwners;
+
+  protected final String locationName;
+  protected final Execution execution;
 
   protected ToolBar toolBar;
   protected GuiToolbarWidgets toolBarWidgets;
@@ -72,8 +76,16 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
 
   protected Point lastClick;
 
-  public BaseExecutionViewer(Composite parent, HopGui hopGui) {
+  public BaseExecutionViewer(
+      Composite parent,
+      HopGui hopGui,
+      ExecutionPerspective perspective,
+      String locationName,
+      Execution execution) {
     super(parent, SWT.NO_BACKGROUND);
+    this.perspective = perspective;
+    this.locationName = locationName;
+    this.execution = execution;
     this.hopGui = hopGui;
     this.props = PropsUi.getInstance();
     this.iconSize = hopGui.getProps().getIconSize();
@@ -223,5 +235,124 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error viewing the metadata", e);
     }
+  }
+
+  public abstract String getActiveId();
+
+  /**
+   * Gets perspective
+   *
+   * @return value of perspective
+   */
+  public ExecutionPerspective getPerspective() {
+    return perspective;
+  }
+
+  /**
+   * Gets areaOwners
+   *
+   * @return value of areaOwners
+   */
+  public List<AreaOwner> getAreaOwners() {
+    return areaOwners;
+  }
+
+  /**
+   * Gets locationName
+   *
+   * @return value of locationName
+   */
+  public String getLocationName() {
+    return locationName;
+  }
+
+  /**
+   * Gets execution
+   *
+   * @return value of execution
+   */
+  public Execution getExecution() {
+    return execution;
+  }
+
+  /**
+   * Gets toolBar
+   *
+   * @return value of toolBar
+   */
+  public ToolBar getToolBar() {
+    return toolBar;
+  }
+
+  /**
+   * Sets toolBar
+   *
+   * @param toolBar value of toolBar
+   */
+  public void setToolBar(ToolBar toolBar) {
+    this.toolBar = toolBar;
+  }
+
+  /**
+   * Sets toolBarWidgets
+   *
+   * @param toolBarWidgets value of toolBarWidgets
+   */
+  public void setToolBarWidgets(GuiToolbarWidgets toolBarWidgets) {
+    this.toolBarWidgets = toolBarWidgets;
+  }
+
+  /**
+   * Gets sash
+   *
+   * @return value of sash
+   */
+  public SashForm getSash() {
+    return sash;
+  }
+
+  /**
+   * Sets sash
+   *
+   * @param sash value of sash
+   */
+  public void setSash(SashForm sash) {
+    this.sash = sash;
+  }
+
+  /**
+   * Gets tabFolder
+   *
+   * @return value of tabFolder
+   */
+  public CTabFolder getTabFolder() {
+    return tabFolder;
+  }
+
+  /**
+   * Sets tabFolder
+   *
+   * @param tabFolder value of tabFolder
+   */
+  public void setTabFolder(CTabFolder tabFolder) {
+    this.tabFolder = tabFolder;
+  }
+
+  /**
+   * Gets lastClick
+   *
+   * @return value of lastClick
+   */
+  public Point getLastClick() {
+    return lastClick;
+  }
+
+  /**
+   * Sets lastClick
+   *
+   * @param lastClick value of lastClick
+   */
+  public void setLastClick(Point lastClick) {
+    this.lastClick = lastClick;
   }
 }

@@ -220,6 +220,14 @@ public class LoggingCore {
     return value.asLong();
   }
 
+  public static Integer getIntegerValue(Node node, String name) {
+    Value value = node.get(name);
+    if (value == null || value.isNull()) {
+      return null;
+    }
+    return value.asInt();
+  }
+
   public static Boolean getBooleanValue(Node node, String name) {
     Value value = node.get(name);
     if (value == null || value.isNull()) {
