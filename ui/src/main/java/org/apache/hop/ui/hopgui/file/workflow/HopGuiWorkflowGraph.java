@@ -719,6 +719,24 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError("Error calling WorkflowGraphMouseUp extension point", ex);
     }
 
+    // Did we select a region on the screen? Mark actions in region as selected
+    //
+    if (selectionRegion != null) {
+      selectionRegion.width = real.x - selectionRegion.x;
+      selectionRegion.height = real.y - selectionRegion.y;
+
+      if (selectionRegion.isEmpty()) {
+        singleClick = true;
+        singleClickType = SingleClickType.Workflow;
+      } else {
+        workflowMeta.unselectAll();
+        selectInRect(workflowMeta, selectionRegion);
+      }
+      selectionRegion = null;
+      updateGui();
+      return;
+    }
+
     // Quick new hop option? (drag from one action to another)
     //
     if (areaOwner != null && areaOwner.getAreaType() != null) {
@@ -749,35 +767,121 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
 
-    // Did we select a region on the screen? Mark actions in region as selected
+    // Clicked on an icon?
     //
-    if (selectionRegion != null) {
-      selectionRegion.width = real.x - selectionRegion.x;
-      selectionRegion.height = real.y - selectionRegion.y;
+    if (selectedAction != null && startHopAction == null) {
+      if (e.button == 1) {
+        Point realclick = screen2real(e.x, e.y);
+        if (lastClick.x == realclick.x && lastClick.y == realclick.y) {
+          // Flip selection when control is pressed!
+          if (control) {
+            selectedAction.flipSelected();
+          } else {
+            singleClick = true;
+            singleClickType = SingleClickType.Action;
+            singleClickAction = selectedAction;
+          }
+        } else {
+          // Find out which Transforms & Notes are selected
+          selectedActions = workflowMeta.getSelectedActions();
+          selectedNotes = workflowMeta.getSelectedNotes();
 
-      if (selectionRegion.isEmpty()) {
-        singleClick = true;
-        singleClickType = SingleClickType.Workflow;
-      } else {
-        workflowMeta.unselectAll();
-        selectInRect(workflowMeta, selectionRegion);
+          // We moved around some items: store undo info...
+          //
+          boolean also = false;
+          if (selectedNotes != null && selectedNotes.size() > 0 && previousNoteLocations != null) {
+            int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
+
+            addUndoPosition(
+                selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
+                indexes,
+                previousNoteLocations,
+                workflowMeta.getSelectedNoteLocations(),
+                also);
+            also = selectedActions != null && selectedActions.size() > 0;
+          }
+          if (selectedActions != null
+              && selectedActions.size() > 0
+              && previousTransformLocations != null) {
+            int[] indexes = workflowMeta.getActionIndexes(selectedActions);
+            addUndoPosition(
+                selectedActions.toArray(new ActionMeta[selectedActions.size()]),
+                indexes,
+                previousTransformLocations,
+                workflowMeta.getSelectedLocations(),
+                also);
+          }
+        }
       }
-      selectionRegion = null;
+
+      // OK, we moved the transform, did we move it across a hop?
+      // If so, ask to split the hop!
+      if (splitHop) {
+        WorkflowHopMeta hi = findHop(icon.x + iconSize / 2, icon.y + iconSize / 2, selectedAction);
+        if (hi != null) {
+          int id = 0;
+          if (!hopGui.getProps().getAutoSplit()) {
+            MessageDialogWithToggle md =
+                new MessageDialogWithToggle(
+                    hopShell(),
+                    BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Title"),
+                    BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Message")
+                        + Const.CR
+                        + hi.toString(),
+                    SWT.ICON_QUESTION,
+                    new String[] {
+                      BaseMessages.getString(PKG, "System.Button.Yes"),
+                      BaseMessages.getString(PKG, "System.Button.No")
+                    },
+                    BaseMessages.getString(
+                        PKG, "HopGuiWorkflowGraph.Dialog.Option.SplitHop.DoNotAskAgain"),
+                    hopGui.getProps().getAutoSplit());
+            id = md.open();
+            hopGui.getProps().setAutoSplit(md.getToggleState());
+          }
+
+          if ((id & 0xFF) == 0) {
+            // Means: "Yes" button clicked!
+
+            // Only split A-->--B by putting C in between IF...
+            // C-->--A or B-->--C don't exists...
+            // A ==> hi.getFromAction()
+            // B ==> hi.getToAction()
+            // C ==> selectedTransform
+            //
+            if (workflowMeta.findWorkflowHop(selectedAction, hi.getFromAction()) == null
+                && workflowMeta.findWorkflowHop(hi.getToAction(), selectedAction) == null) {
+
+              workflowActionDelegate.insetAction(workflowMeta, hi, selectedAction);
+            }
+            // else: Silently discard this hop-split attempt.
+          }
+        }
+        splitHop = false;
+      }
+
+      selectedActions = null;
+      selectedNotes = null;
+      selectedAction = null;
+      selectedNote = null;
+      startHopAction = null;
+      endHopLocation = null;
+
       updateGui();
     } else {
-      // Clicked on an icon?
-      //
-      if (selectedAction != null && startHopAction == null) {
+      // Notes?
+      if (selectedNote != null) {
         if (e.button == 1) {
-          Point realclick = screen2real(e.x, e.y);
-          if (lastClick.x == realclick.x && lastClick.y == realclick.y) {
+          if (lastClick.x == real.x && lastClick.y == real.y) {
             // Flip selection when control is pressed!
             if (control) {
-              selectedAction.flipSelected();
+              selectedNote.flipSelected();
             } else {
+              // single click on a note: ask what needs to happen...
+              //
               singleClick = true;
-              singleClickType = SingleClickType.Action;
-              singleClickAction = selectedAction;
+              singleClickType = SingleClickType.Note;
+              singleClickNote = selectedNote;
             }
           } else {
             // Find out which Transforms & Notes are selected
@@ -785,13 +889,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             selectedNotes = workflowMeta.getSelectedNotes();
 
             // We moved around some items: store undo info...
-            //
             boolean also = false;
             if (selectedNotes != null
                 && selectedNotes.size() > 0
                 && previousNoteLocations != null) {
               int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
-
               addUndoPosition(
                   selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
                   indexes,
@@ -814,118 +916,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           }
         }
 
-        // OK, we moved the transform, did we move it across a hop?
-        // If so, ask to split the hop!
-        if (splitHop) {
-          WorkflowHopMeta hi =
-              findHop(icon.x + iconSize / 2, icon.y + iconSize / 2, selectedAction);
-          if (hi != null) {
-            int id = 0;
-            if (!hopGui.getProps().getAutoSplit()) {
-              MessageDialogWithToggle md =
-                  new MessageDialogWithToggle(
-                      hopShell(),
-                      BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Title"),
-                      BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Message")
-                          + Const.CR
-                          + hi.toString(),
-                      SWT.ICON_QUESTION,
-                      new String[] {
-                        BaseMessages.getString(PKG, "System.Button.Yes"),
-                        BaseMessages.getString(PKG, "System.Button.No")
-                      },
-                      BaseMessages.getString(
-                          PKG, "HopGuiWorkflowGraph.Dialog.Option.SplitHop.DoNotAskAgain"),
-                      hopGui.getProps().getAutoSplit());
-              id = md.open();
-              hopGui.getProps().setAutoSplit(md.getToggleState());
-            }
-
-            if ((id & 0xFF) == 0) {
-              // Means: "Yes" button clicked!
-
-              // Only split A-->--B by putting C in between IF...
-              // C-->--A or B-->--C don't exists...
-              // A ==> hi.getFromAction()
-              // B ==> hi.getToAction()
-              // C ==> selectedTransform
-              //
-              if (workflowMeta.findWorkflowHop(selectedAction, hi.getFromAction()) == null
-                  && workflowMeta.findWorkflowHop(hi.getToAction(), selectedAction) == null) {
-
-                workflowActionDelegate.insetAction(workflowMeta, hi, selectedAction);
-              }
-              // else: Silently discard this hop-split attempt.
-            }
-          }
-          splitHop = false;
-        }
-
-        selectedActions = null;
         selectedNotes = null;
+        selectedActions = null;
         selectedAction = null;
         selectedNote = null;
         startHopAction = null;
         endHopLocation = null;
 
         updateGui();
-      } else {
-        // Notes?
-        if (selectedNote != null) {
-          if (e.button == 1) {
-            if (lastClick.x == real.x && lastClick.y == real.y) {
-              // Flip selection when control is pressed!
-              if (control) {
-                selectedNote.flipSelected();
-              } else {
-                // single click on a note: ask what needs to happen...
-                //
-                singleClick = true;
-                singleClickType = SingleClickType.Note;
-                singleClickNote = selectedNote;
-              }
-            } else {
-              // Find out which Transforms & Notes are selected
-              selectedActions = workflowMeta.getSelectedActions();
-              selectedNotes = workflowMeta.getSelectedNotes();
-
-              // We moved around some items: store undo info...
-              boolean also = false;
-              if (selectedNotes != null
-                  && selectedNotes.size() > 0
-                  && previousNoteLocations != null) {
-                int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
-                addUndoPosition(
-                    selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
-                    indexes,
-                    previousNoteLocations,
-                    workflowMeta.getSelectedNoteLocations(),
-                    also);
-                also = selectedActions != null && selectedActions.size() > 0;
-              }
-              if (selectedActions != null
-                  && selectedActions.size() > 0
-                  && previousTransformLocations != null) {
-                int[] indexes = workflowMeta.getActionIndexes(selectedActions);
-                addUndoPosition(
-                    selectedActions.toArray(new ActionMeta[selectedActions.size()]),
-                    indexes,
-                    previousTransformLocations,
-                    workflowMeta.getSelectedLocations(),
-                    also);
-              }
-            }
-          }
-
-          selectedNotes = null;
-          selectedActions = null;
-          selectedAction = null;
-          selectedNote = null;
-          startHopAction = null;
-          endHopLocation = null;
-
-          updateGui();
-        }
       }
     }
 
