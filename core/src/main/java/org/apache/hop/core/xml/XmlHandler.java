@@ -42,6 +42,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -728,6 +729,24 @@ public class XmlHandler {
       return dbf.newDocumentBuilder();
     } catch (ParserConfigurationException e) {
       throw new HopXmlException(e);
+    }
+  }
+
+  public static String getXmlString(Document document, boolean omitXmlDeclaration, boolean indent)
+      throws HopException {
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    Transformer transformer;
+    try {
+      transformer = transformerFactory.newTransformer();
+      transformer.setOutputProperty(
+          OutputKeys.OMIT_XML_DECLARATION, omitXmlDeclaration ? "yes" : "no");
+      transformer.setOutputProperty(OutputKeys.INDENT, indent ? "yes" : "no");
+      StringWriter writer = new StringWriter();
+      transformer.transform(new DOMSource(document), new StreamResult(writer));
+      // Return the XML string
+      return writer.getBuffer().toString();
+    } catch (TransformerException e) {
+      throw new HopException("Error converting Document to XML string", e);
     }
   }
 

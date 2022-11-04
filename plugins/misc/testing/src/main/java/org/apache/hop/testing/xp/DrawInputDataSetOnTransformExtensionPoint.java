@@ -114,7 +114,7 @@ public class DrawInputDataSetOnTransformExtensionPoint
             point.y,
             textExtent.x,
             textExtent.y,
-            new DPoint(0, 0),
+            ext.offset,
             DataSetConst.AREA_DRAWN_INPUT_DATA_SET,
             transformMeta.getName()));
   }

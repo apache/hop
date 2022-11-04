@@ -90,10 +90,10 @@ public class Props implements Cloneable {
   public static final int WIDGET_STYLE_DEFAULT = 0;
   public static final int WIDGET_STYLE_FIXED = 1;
   public static final int WIDGET_STYLE_TABLE = 2;
-  public static final int WIDGET_STYLE_NOTEPAD = 3;
-  public static final int WIDGET_STYLE_GRAPH = 4;
-  public static final int WIDGET_STYLE_TAB = 5;
-  public static final int WIDGET_STYLE_TOOLBAR = 6;
+  public static final int WIDGET_STYLE_OSX_GROUP = 3;
+  public static final int WIDGET_STYLE_TAB = 4;
+  public static final int WIDGET_STYLE_TOOLBAR = 5;
+  public static final int WIDGET_STYLE_PUSH_BUTTON = 6;
 
   public Props() {
     log = new LogChannel(STRING_USER_PREFERENCES);

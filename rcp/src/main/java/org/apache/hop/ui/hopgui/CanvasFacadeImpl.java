@@ -26,7 +26,7 @@ public class CanvasFacadeImpl extends CanvasFacade {
 
   @Override
   void setDataInternal(
-          Canvas canvas, float magnification, DPoint offset, AbstractMeta meta, Class type, IVariables variables) {
+          Canvas canvas, float magnification, DPoint offset, Object meta) {
     // do nothing
   }
 }

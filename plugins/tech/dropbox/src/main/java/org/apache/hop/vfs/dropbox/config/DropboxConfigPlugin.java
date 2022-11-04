@@ -27,12 +27,12 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
-import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
@@ -49,7 +49,7 @@ public class DropboxConfigPlugin implements IConfigOptions, IGuiPluginCompositeW
 
   @GuiWidgetElement(
       id = WIDGET_ID_DROPBOX_ACCESS_TOKEN,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
       label = "Access token")
@@ -104,7 +104,9 @@ public class DropboxConfigPlugin implements IConfigOptions, IGuiPluginCompositeW
 
   @Override
   public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {}
+      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+    persistContents(compositeWidgets);
+  }
 
   @Override
   public void persistContents(GuiCompositeWidgets compositeWidgets) {

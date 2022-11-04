@@ -37,7 +37,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
   @GuiWidgetElement(
       order = "90010-general-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.TEXT,
+      type = GuiElementType.FOLDER,
       label = "Temp location")
   @HopMetadataProperty
   protected String tempLocation;

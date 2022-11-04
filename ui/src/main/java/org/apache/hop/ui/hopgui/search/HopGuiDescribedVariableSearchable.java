@@ -23,6 +23,7 @@ import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 
 import java.io.File;
 
@@ -68,7 +69,9 @@ public class HopGuiDescribedVariableSearchable implements ISearchable<DescribedV
       String realConfigFilename = HopGui.getInstance().getVariables().resolve(configFilename);
 
       if (realConfigFilename == null) {
-        HopGui.getInstance().menuToolsEditConfigVariables();
+        ConfigurationPerspective perspective = HopGui.getConfigurationPerspective();
+        perspective.activate();
+        perspective.showSystemVariablesTab();
       } else {
         if (new File(realConfigFilename).exists()) {
           DescribedVariablesConfigFile configFile =
@@ -80,7 +83,7 @@ public class HopGuiDescribedVariableSearchable implements ISearchable<DescribedV
               configFile,
               searchResult.getComponent());
 
-          // TODO: if you change the file you want to refresh the project & environment
+          // Note: if you change the file you want to refresh the project & environment
         }
       }
     };

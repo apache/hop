@@ -115,7 +115,7 @@ public class PipelineEngineFactory {
    * @param configurationVariables
    * @param <T>
    */
-  private static <T extends PipelineMeta> void applyVariableDefinitions(
+  public static <T extends PipelineMeta> void applyVariableDefinitions(
       IPipelineEngine<T> pipelineEngine, List<DescribedVariable> configurationVariables) {
 
     for (DescribedVariable cv : configurationVariables) {

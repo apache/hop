@@ -30,7 +30,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.projects.util.ProjectsUtil;
-import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -38,6 +37,7 @@ import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
@@ -50,7 +50,7 @@ import java.util.List;
     id = "ProjectsConfigOptionPlugin",
     description = "Configuration options for the global projects plugin")
 @GuiPlugin(
-    description = "i18n::ProjectConfig.Tab.Name" // Tab label in options dialog
+    description = "i18n::ProjectConfig.Tab.Name" // label in options dialog
     )
 public class ProjectsConfigOptionPlugin
     implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
@@ -69,7 +69,7 @@ public class ProjectsConfigOptionPlugin
 
   @GuiWidgetElement(
       id = WIDGET_ID_ENABLE_PROJECTS,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::ProjectConfig.EnableProjectPlugin.Message")
   @CommandLine.Option(
@@ -79,7 +79,7 @@ public class ProjectsConfigOptionPlugin
 
   @GuiWidgetElement(
       id = WIDGET_ID_PROJECT_MANDATORY,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::ProjectConfig.ProjectMandatory.Message")
   @CommandLine.Option(
@@ -89,7 +89,7 @@ public class ProjectsConfigOptionPlugin
 
   @GuiWidgetElement(
       id = WIDGET_ID_ENVIRONMENT_MANDATORY,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "i18n::ProjectConfig.EnvironmentMandatory.Message")
   @CommandLine.Option(
@@ -99,7 +99,7 @@ public class ProjectsConfigOptionPlugin
 
   @GuiWidgetElement(
       id = WIDGET_ID_DEFAULT_PROJECT,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.COMBO,
       comboValuesMethod = "getProjectsList",
       variables = true,
@@ -111,7 +111,7 @@ public class ProjectsConfigOptionPlugin
 
   @GuiWidgetElement(
       id = WIDGET_ID_DEFAULT_ENVIRONMENT,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
       label = "i18n::ProjectConfig.DefaultEnvironment.Message")
@@ -122,7 +122,7 @@ public class ProjectsConfigOptionPlugin
 
   @GuiWidgetElement(
       id = WIDGET_ID_STANDARD_PARENT_PROJECT,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.COMBO,
       comboValuesMethod = "getProjectsList",
       variables = true,
@@ -135,24 +135,24 @@ public class ProjectsConfigOptionPlugin
 
   @GuiWidgetElement(
       id = WIDGET_ID_STANDARD_PROJECTS_FOLDER,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
-      type = GuiElementType.TEXT,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.FOLDER,
       variables = true,
       label = "i18n::ProjectConfig.StdProjectFolder.Message")
   @CommandLine.Option(
       names = {"-sj", "--standard-projects-folder"},
-      description = "GUI: The standard projects folder proposed when creating projects")
+      description = "The projects folder for new projects")
   private String standardProjectsFolder;
 
   @GuiWidgetElement(
       id = WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "The standard project configuration filename proposed when creating projects")
+      label = "The project configuration filename for new projects")
   @CommandLine.Option(
       names = {"-dc", "--default-projects-folder"},
-      description = "The standard project configuration filename proposed when creating projects")
+      description = "The project configuration filename for new projects")
   private String defaultProjectConfigFile;
 
   /**
@@ -262,7 +262,9 @@ public class ProjectsConfigOptionPlugin
 
   @Override
   public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {}
+      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+    persistContents(compositeWidgets);
+  }
 
   @Override
   public void persistContents(GuiCompositeWidgets compositeWidgets) {

@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.commons.io.output.TeeOutputStream;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopEnvironment;
@@ -47,7 +48,6 @@ import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchableProvider;
 import org.apache.hop.core.search.ISearchablesLocation;
-import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -63,7 +63,6 @@ import org.apache.hop.server.HopServer;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEventsHandler;
-import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.HopDescribedVariablesDialog;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
@@ -73,6 +72,8 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.core.widget.svg.SvgLabelFacade;
+import org.apache.hop.ui.core.widget.svg.SvgLabelListener;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -85,6 +86,7 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiFileRefreshDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
 import org.apache.hop.ui.hopgui.dialog.AboutDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
+import org.apache.hop.ui.hopgui.file.IGraphSnapAlignDistribute;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
@@ -94,6 +96,7 @@ import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectiveManager;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
@@ -115,6 +118,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -162,8 +167,19 @@ public class HopGui
   public static final String ID_MAIN_MENU_EDIT_PASTE = "20090-menu-edit-paste";
   public static final String ID_MAIN_MENU_EDIT_CUT = "20100-menu-edit-cut";
   public static final String ID_MAIN_MENU_EDIT_DELETE = "20110-menu-edit-delete";
-  public static final String ID_MAIN_MENU_EDIT_NAV_PREV = "20200-menu-edit-nav-previous";
-  public static final String ID_MAIN_MENU_EDIT_NAV_NEXT = "20210-menu-edit-nav-next";
+
+  public static final String ID_MAIN_MENU_EDIT_SNAP_TO_GRID = "20200-menu-edit-snap-to-grid";
+  public static final String ID_MAIN_MENU_EDIT_ALIGN_LEFT = "20210-menu-edit-align-left";
+  public static final String ID_MAIN_MENU_EDIT_ALIGN_RIGHT = "20220-menu-edit-align-right";
+  public static final String ID_MAIN_MENU_EDIT_ALIGN_TOP = "20230-menu-edit-align-top";
+  public static final String ID_MAIN_MENU_EDIT_ALIGN_BOTTOM = "20240-menu-edit-align-bottom";
+  public static final String ID_MAIN_MENU_EDIT_DISTRIBUTE_HORIZONTAL =
+      "20300-menu-edit-distribute-horizontal";
+  public static final String ID_MAIN_MENU_EDIT_DISTRIBUTE_VERTICAL =
+      "20320-menu-edit-distribute-vertical";
+
+  public static final String ID_MAIN_MENU_EDIT_NAV_PREV = "20400-menu-edit-nav-previous";
+  public static final String ID_MAIN_MENU_EDIT_NAV_NEXT = "20410-menu-edit-nav-next";
 
   public static final String ID_MAIN_MENU_RUN_PARENT_ID = "30000-menu-run";
   public static final String ID_MAIN_MENU_RUN_START = "30010-menu-run-execute";
@@ -174,8 +190,6 @@ public class HopGui
   public static final String ID_MAIN_MENU_RUN_DEBUG = "30060-menu-run-debug";
 
   public static final String ID_MAIN_MENU_TOOLS_PARENT_ID = "40000-menu-tools";
-  public static final String ID_MAIN_MENU_TOOLS_OPTIONS = "40010-menu-tools-options";
-  public static final String ID_MAIN_MENU_TOOLS_SYSPROPS = "40020-menu-tools-system-properties";
   public static final String ID_MAIN_MENU_TOOLS_DATABASE_CLEAR_CACHE =
       "40030-menu-tools-database-clearcache";
 
@@ -374,15 +388,17 @@ public class HopGui
               });
     }
 
+    PropsUi.setLook(shell);
+
     shell.setText(BaseMessages.getString(PKG, "HopGui.Application.Name"));
     addMainMenu();
     addMainToolbar();
     addPerspectivesToolbar();
     addMainPerspectivesComposite();
 
-    handleFileCapabilities(new EmptyFileType(), false, false, false);
-
     loadPerspectives();
+
+    handleFileCapabilities(new EmptyFileType(), false, false, false);
 
     replaceKeyboardShortcutListeners(this);
 
@@ -466,7 +482,7 @@ public class HopGui
 
   private void loadPerspectives() {
     try {
-      // Pre-load the perspectives and store them in the manager as well as the GuiRegistry
+      // Preload the perspectives and store them in the manager as well as the GuiRegistry
       //
       perspectiveManager = new HopPerspectiveManager(this);
       PluginRegistry pluginRegistry = PluginRegistry.getInstance();
@@ -483,32 +499,44 @@ public class HopGui
 
         // Create a new instance & initialize.
         //
-        IHopPerspective perspective = perspectiveClass.newInstance();
+        final IHopPerspective perspective = perspectiveClass.getConstructor().newInstance();
         perspective.initialize(this, mainPerspectivesComposite);
         perspectiveManager.addPerspective(perspective);
 
         // Create a toolbar item
         //
-        ToolItem item = new ToolItem(this.perspectivesToolbar, SWT.RADIO);
-        item.setToolTipText(
+        String tooltip =
             Const.NVL(
                 TranslateUtil.translate(perspectivePlugin.getName(), perspectiveClass),
-                perspective.getId()));
-        item.setData(perspective);
-        item.addListener(
-            SWT.Selection, event -> setActivePerspective((IHopPerspective) event.widget.getData()));
-
+                perspective.getId());
+        Listener listener = event -> setActivePerspective(perspective);
         ClassLoader classLoader = pluginRegistry.getClassLoader(perspectivePlugin);
-        Image image =
-            GuiResource.getInstance()
-                .getImage(
-                    perspectivePlugin.getImageFile(),
-                    classLoader,
-                    ConstUi.SMALL_ICON_SIZE,
-                    ConstUi.SMALL_ICON_SIZE);
-        if (image != null) {
-          item.setImage(image);
+
+        ToolItem item;
+        if (EnvironmentUtils.getInstance().isWeb()) {
+          item =
+              addWebToolbarButton(
+                  perspectivePlugin.getIds()[0],
+                  this.perspectivesToolbar,
+                  perspectivePlugin.getImageFile(),
+                  tooltip,
+                  listener);
+        } else {
+          item = new ToolItem(this.perspectivesToolbar, SWT.RADIO);
+          item.setToolTipText(tooltip);
+          item.addListener(SWT.Selection, listener);
+          Image image =
+              GuiResource.getInstance()
+                  .getImage(
+                      perspectivePlugin.getImageFile(),
+                      classLoader,
+                      ConstUi.SMALL_ICON_SIZE,
+                      ConstUi.SMALL_ICON_SIZE);
+          if (image != null) {
+            item.setImage(image);
+          }
         }
+        item.setData(perspective);
 
         // See if there's a shortcut for the perspective, add it to tooltip...
         KeyboardShortcut shortcut =
@@ -523,9 +551,38 @@ public class HopGui
           item.setSelection(true);
         }
       }
+      perspectivesToolbar.pack();
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error loading perspectives", e);
     }
+  }
+
+  private ToolItem addWebToolbarButton(
+      String id, ToolBar toolBar, String filename, String tooltip, Listener listener) {
+    ToolItem item = new ToolItem(toolBar, SWT.SEPARATOR);
+
+    Label label = new Label(toolBar, SWT.NONE);
+    Listener webListener = SvgLabelListener.getInstance();
+    label.addListener(SWT.MouseDown, webListener);
+    label.addListener(SWT.Hide, webListener);
+    label.addListener(SWT.Show, webListener);
+    label.addListener(SWT.MouseDown, listener);
+    if (StringUtils.isNotEmpty(tooltip)) {
+      label.setToolTipText(tooltip);
+    }
+    label.pack();
+    int size = (int) (ConstUi.SMALL_ICON_SIZE * PropsUi.getNativeZoomFactor());
+    // Just make the items a tad wider.
+    // Hop Web/RAP isn't smart enough to know that the toolbar is vertical and this should be
+    // higher.
+    // We use this glitch to give the icons a tad more room on the right.
+    //
+    item.setWidth(size + 2);
+    item.setControl(label);
+
+    SvgLabelFacade.setData(id, label, filename, size);
+    item.setData("id", id);
+    return item;
   }
 
   private static Display setupDisplay() {
@@ -587,10 +644,7 @@ public class HopGui
   public void menu() {
     GuiContextUtil.getInstance()
         .handleActionSelection(
-            shell,
-            "Menu actions...",
-            null,
-            new MenuContextHandler(ID_MAIN_MENU, mainMenuWidgets));
+            shell, "Menu actions...", null, new MenuContextHandler(ID_MAIN_MENU, mainMenuWidgets));
   }
 
   @GuiMenuElement(
@@ -863,6 +917,112 @@ public class HopGui
 
   @GuiMenuElement(
       root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_SNAP_TO_GRID,
+      label = "i18n::HopGui.Menu.Edit.SnapToGrid",
+      image = "ui/images/snap-to-grid.svg",
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      separator = true)
+  @GuiKeyboardShortcut(control = true, key = SWT.HOME)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.HOME)
+  public void menuEditSnapToGrid() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).snapToGrid();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_ALIGN_LEFT,
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      label = "i18n::HopGui.Menu.Edit.AlignLeft",
+      image = "ui/images/align-left.svg")
+  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
+  public void menuEditAlignLeft() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignLeft();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_ALIGN_RIGHT,
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      label = "i18n::HopGui.Menu.Edit.AlignRight",
+      image = "ui/images/align-right.svg")
+  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_RIGHT)
+  public void menuEditAlignRight() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignRight();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_ALIGN_TOP,
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      label = "i18n::HopGui.Menu.Edit.AlignTop",
+      image = "ui/images/align-top.svg")
+  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
+  public void menuEditAlignTop() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignTop();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_ALIGN_BOTTOM,
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      label = "i18n::HopGui.Menu.Edit.AlignBottom",
+      image = "ui/images/align-bottom.svg")
+  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_DOWN)
+  public void menuEditAlignBottom() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignBottom();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_DISTRIBUTE_HORIZONTAL,
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      label = "i18n::HopGui.Menu.Edit.DistributeHorizontally",
+      image = "ui/images/distribute-horizontally.svg")
+  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
+  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
+  public void menuEditDistributeHorizontal() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).distributeHorizontal();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_EDIT_DISTRIBUTE_VERTICAL,
+      parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
+      label = "i18n::HopGui.Menu.Edit.DistributeVertically",
+      image = "ui/images/distribute-vertically.svg")
+  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
+  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
+  public void menuEditDistributeVertical() {
+    IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
+    if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
+      ((IGraphSnapAlignDistribute) activeFileTypeHandler).distributeVertical();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_EDIT_NAV_PREV,
       label = "i18n::HopGui.Menu.Edit.Navigate.Previous",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
@@ -963,60 +1123,6 @@ public class HopGui
       parentId = ID_MAIN_MENU)
   public void menuTools() {
     // Nothing is done here.
-  }
-
-  @GuiMenuElement(
-      root = ID_MAIN_MENU,
-      id = ID_MAIN_MENU_TOOLS_OPTIONS,
-      label = "i18n::HopGui.Menu.Edit.Options",
-      parentId = ID_MAIN_MENU_TOOLS_PARENT_ID,
-      image = "ui/images/settings.svg")
-  public void menuToolsOptions() {
-    if (new EnterOptionsDialog(getShell()).open() != null) {
-      try {
-        // Clear the images cache
-        SvgCache.getInstance().clear();
-        // Re-load icons
-        GuiResource.getInstance().reload();
-        // Save the configuration to disk
-        HopConfig.getInstance().saveToFile();
-      } catch (Exception e) {
-        new ErrorDialog(
-            getShell(),
-            "Error",
-            "Error saving the configuration file '"
-                + HopConfig.getInstance().getConfigFilename()
-                + "'",
-            e);
-      }
-    }
-  }
-
-  @GuiMenuElement(
-      root = ID_MAIN_MENU,
-      id = ID_MAIN_MENU_TOOLS_SYSPROPS,
-      label = "i18n::HopGui.Menu.Tools.EditConfigVariables",
-      parentId = ID_MAIN_MENU_TOOLS_PARENT_ID,
-      image = "ui/images/settings.svg")
-  public void menuToolsEditConfigVariables() {
-    List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
-    String message = "Editing file: " + HopConfig.getInstance().getConfigFilename();
-    HopDescribedVariablesDialog dialog =
-        new HopDescribedVariablesDialog(shell, message, describedVariables, null);
-    if (dialog.open() != null) {
-      try {
-        HopConfig.getInstance().setDescribedVariables(describedVariables);
-        HopConfig.getInstance().saveToFile();
-      } catch (Exception e) {
-        new ErrorDialog(
-            getShell(),
-            "Error",
-            "Error saving config variables to configuration file '"
-                + HopConfig.getInstance().getConfigFilename()
-                + "'",
-            e);
-      }
-    }
   }
 
   @GuiMenuElement(
@@ -1455,7 +1561,12 @@ public class HopGui
     //
     if (perspectivesToolbar != null && !perspectivesToolbar.isDisposed()) {
       for (ToolItem item : perspectivesToolbar.getItems()) {
-        item.setSelection(perspective.equals(item.getData()));
+        boolean shaded = perspective.equals(item.getData());
+        if (EnvironmentUtils.getInstance().isWeb()) {
+          SvgLabelFacade.shadeSvg((Label) item.getControl(), (String) item.getData("id"), shaded);
+        } else {
+          item.setSelection(shaded);
+        }
       }
     }
 
@@ -1569,6 +1680,13 @@ public class HopGui
   public static ExplorerPerspective getExplorerPerspective() {
     return (ExplorerPerspective)
         HopGui.getInstance().getPerspectiveManager().findPerspective(ExplorerPerspective.class);
+  }
+
+  public static ConfigurationPerspective getConfigurationPerspective() {
+    return (ConfigurationPerspective)
+        HopGui.getInstance()
+            .getPerspectiveManager()
+            .findPerspective(ConfigurationPerspective.class);
   }
 
   /**

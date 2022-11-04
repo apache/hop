@@ -50,6 +50,8 @@ import java.util.Map;
 public interface IPipelineEngine<T extends PipelineMeta>
     extends IVariables, ILoggingObject, INamedParameters, IExtensionData {
 
+  public static final String PIPELINE_IN_PREVIEW_MODE = "PIPELINE_IN_PREVIEW_MODE";
+
   T getPipelineMeta();
 
   void setPipelineMeta(T t);

@@ -36,7 +36,7 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
   private GuiToolbarElementType type;
 
   private String image;
-  private String disabledImage;
+  private String imageMethod;
 
   private boolean password;
 
@@ -71,7 +71,7 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     this.type = toolbarElement.type();
     this.getComboValuesMethod = toolbarElement.comboValuesMethod();
     this.image = toolbarElement.image();
-    this.disabledImage = toolbarElement.disabledImage();
+    this.imageMethod = toolbarElement.imageMethod();
     this.password = toolbarElement.password();
     this.ignored = toolbarElement.ignored();
     this.addingSeparator = toolbarElement.separator();
@@ -205,17 +205,21 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
   }
 
   /**
-   * Gets disabledImage
+   * Gets imageMethod
    *
-   * @return value of disabledImage
+   * @return value of imageMethod
    */
-  public String getDisabledImage() {
-    return disabledImage;
+  public String getImageMethod() {
+    return imageMethod;
   }
 
-  /** @param disabledImage The disabledImage to set */
-  public void setDisabledImage(String disabledImage) {
-    this.disabledImage = disabledImage;
+  /**
+   * Sets imageMethod
+   *
+   * @param imageMethod value of imageMethod
+   */
+  public void setImageMethod(String imageMethod) {
+    this.imageMethod = imageMethod;
   }
 
   /**

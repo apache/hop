@@ -63,13 +63,17 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.CanvasFacade;
+import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.ui.hopgui.shared.BaseExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -90,7 +94,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -115,6 +119,8 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   public static final String TOOLBAR_ITEM_REFRESH = "PipelineExecutionViewer-Toolbar-10100-Refresh";
   public static final String TOOLBAR_ITEM_ZOOM_LEVEL =
       "PipelineExecutionViewer-ToolBar-10500-Zoom-Level";
+  public static final String TOOLBAR_ITEM_ZOOM_FIT_TO_SCREEN =
+      "PipelineExecutionViewer-ToolBar-10600-Zoom-Fit-To-Screen";
   public static final String TOOLBAR_ITEM_TO_EDITOR =
       "PipelineExecutionViewer-Toolbar-11100-GoToEditor";
 
@@ -160,6 +166,10 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     this.perspective = perspective;
     this.execution = execution;
 
+    // Calculate the pipeline size only once since the metadata is read-only
+    //
+    this.maximum = pipelineMeta.getMaximum();
+
     addWidgets();
   }
 
@@ -195,7 +205,12 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     //
     // The canvas at the top
     //
-    canvas = new Canvas(sash, SWT.NO_BACKGROUND);
+    canvas = new Canvas(sash, SWT.NO_BACKGROUND | SWT.BORDER);
+    Listener listener = CanvasListener.getInstance();
+    canvas.addListener(SWT.MouseDown, listener);
+    canvas.addListener(SWT.MouseMove, listener);
+    canvas.addListener(SWT.MouseUp, listener);
+    canvas.addListener(SWT.Paint, listener);
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
     fdCanvas.top = new FormAttachment(0, 0);
@@ -204,6 +219,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     canvas.setLayoutData(fdCanvas);
     canvas.addPaintListener(this);
     canvas.addMouseListener(this);
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      canvas.addMouseMoveListener(this);
+    }
     canvas.addKeyListener(this);
 
     // The execution information tabs at the bottom
@@ -216,7 +234,14 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     addMetricsTab();
     addDataTab();
 
+    layout();
+
     refresh();
+
+    // Add keyboard listeners from the main GUI and this class (toolbar etc) to the canvas. That's
+    // where the focus should be
+    //
+    hopGui.replaceKeyboardShortcutListeners(this);
 
     tabFolder.setSelection(0);
     sash.setWeights(60, 40);
@@ -326,6 +351,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     dataList =
         new org.eclipse.swt.widgets.List(
             dataSash, SWT.SINGLE | SWT.LEFT | SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(dataList);
     dataList.addListener(SWT.Selection, e -> showDataRows());
 
     // An empty table view on the right.  This will be populated during a refresh.
@@ -595,6 +621,16 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     }
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_ZOOM_FIT_TO_SCREEN,
+      toolTip = "i18n::ExecutionViewer.GuiAction.ZoomFitToScreen.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/zoom-fit.svg")
+  public void zoomFitToScreen() {
+    super.zoomFitToScreen();
+  }
+
   protected Point getArea() {
     org.eclipse.swt.graphics.Rectangle rect = canvas.getClientArea();
     Point area = new Point(rect.width, rect.height);
@@ -610,16 +646,13 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
       int gridSize = propsUi.isShowCanvasGridEnabled() ? propsUi.getCanvasGridSize() : 1;
 
-      ScrollBar horizontalScrollBar = canvas.getHorizontalBar();
-      ScrollBar verticalScrollBar = canvas.getVerticalBar();
-
       PipelinePainter pipelinePainter =
           new PipelinePainter(
               gc,
               hopGui.getVariables(),
               pipelineMeta,
               new Point(width, height),
-              new DPoint(0,0),
+              new DPoint(0, 0),
               null,
               null,
               areaOwners,
@@ -642,15 +675,26 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       pipelinePainter.setMagnification(correctedMagnification);
       pipelinePainter.setOffset(offset);
 
+      // Draw the navigation viewport at the bottom right
+      //
+      pipelinePainter.setMaximum(maximum);
+      pipelinePainter.setShowingNavigationView(true);
+      pipelinePainter.setScreenMagnification(magnification);
+
       try {
         pipelinePainter.drawPipelineImage();
+
+        viewPort = pipelinePainter.getViewPort();
+        graphPort = pipelinePainter.getGraphPort();
       } catch (Exception e) {
         new ErrorDialog(hopGui.getShell(), "Error", "Error drawing pipeline image", e);
       }
     } finally {
       gc.dispose();
     }
+    CanvasFacade.setData(canvas, magnification, offset, pipelineMeta);
   }
+
 
   @Override
   public Control getControl() {
@@ -662,7 +706,8 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REFRESH,
       toolTip = "i18n::PipelineExecutionViewer.ToolbarElement.Refresh.Tooltip",
-      image = "ui/images/refresh.svg")
+      image = "ui/images/refresh.svg",
+      separator = true)
   @GuiKeyboardShortcut(key = SWT.F5)
   @GuiOsxKeyboardShortcut(key = SWT.F5)
   public void refresh() {
@@ -682,7 +727,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       comboValuesMethod = "getZoomLevels")
   public void zoomLevel() {
     readMagnification();
-    canvas.redraw();
+    redraw();
   }
 
   /** Refresh the information in the execution panes */
@@ -767,8 +812,20 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   public void mouseDown(MouseEvent e) {
     pipelineMeta.unselectAll();
 
-    DPoint real = screen2real(e.x, e.y);
-    AreaOwner areaOwner = getVisibleAreaOwner((int)real.x, (int)real.y);
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // RAP does not support certain mouse events.
+      mouseHover(e);
+    }
+
+    Point real = screen2real(e.x, e.y);
+    lastClick = new Point(real.x, real.y);
+    boolean control = (e.stateMask & SWT.MOD1) != 0;
+
+    if (setupDragView(e.button, control, new Point(e.x, e.y))) {
+      return;
+    }
+
+    AreaOwner areaOwner = getVisibleAreaOwner((int) real.x, (int) real.y);
     if (areaOwner == null) {
       // Clicked on background: clear selection
       //
@@ -783,7 +840,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       }
     }
     refreshTransformData();
-    canvas.redraw();
+    redraw();
   }
 
   public void refreshTransformData() {
@@ -887,9 +944,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
     return data;
   }
-
-  @Override
-  public void mouseUp(MouseEvent e) {}
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
@@ -1049,11 +1103,11 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   }
 
   @Override
-  public void drillDownOnLocation(DPoint location) {
+  public void drillDownOnLocation(Point location) {
     if (location == null) {
       return;
     }
-    AreaOwner areaOwner = getVisibleAreaOwner((int)location.x, (int)location.y);
+    AreaOwner areaOwner = getVisibleAreaOwner(location.x, location.y);
     if (areaOwner == null) {
       return;
     }

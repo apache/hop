@@ -44,6 +44,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowSvgPainter;
 import org.eclipse.swt.SWT;
@@ -107,10 +108,13 @@ public class HopGuiFileDelegate {
     IHopFileTypeHandler fileTypeHandler = hopFile.openFile(hopGui, filename, hopGui.getVariables());
     if (fileTypeHandler != null) {
       hopGui.handleFileCapabilities(hopFile, fileTypeHandler.hasChanged(), false, false);
-
-      // Also save the state of Hop GUI
-      //
-      hopGui.auditDelegate.writeLastOpenFiles();
+      if (EnvironmentUtils.getInstance().isWeb()) {
+        // Do it again to test
+        hopGui.handleFileCapabilities(hopFile, fileTypeHandler.hasChanged(), false, false);
+      }
+        // Also save the state of Hop GUI
+        //
+        hopGui.auditDelegate.writeLastOpenFiles();
     }
 
     return fileTypeHandler;

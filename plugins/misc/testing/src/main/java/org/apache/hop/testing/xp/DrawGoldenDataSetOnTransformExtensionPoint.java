@@ -142,7 +142,7 @@ public class DrawGoldenDataSetOnTransformExtensionPoint
                     iconY + 5,
                     ConstUi.SMALL_ICON_SIZE,
                     ConstUi.SMALL_ICON_SIZE,
-                    new DPoint(0, 0),
+                        ext.offset,
                     DataSetConst.AREA_DRAWN_GOLDEN_DATA_RESULT,
                     transformMeta.getName()));
           } catch (Exception e) {

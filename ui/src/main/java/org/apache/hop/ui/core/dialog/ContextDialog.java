@@ -314,12 +314,11 @@ public class ContextDialog extends Dialog {
     // Make the icons a bit smaller to fit more
     //
     iconSize = (int) Math.round(props.getZoomFactor() * props.getIconSize() * 0.75);
-    margin = (int) (PropsUi.getMargin() * props.getZoomFactor());
+    margin = PropsUi.getMargin();
     highlightColor = new Color(parent.getDisplay(), props.contrastColor(201, 232, 251));
   }
 
   public GuiAction open() {
-
     shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.RESIZE);
     shell.setText(getText());
     shell.setMinimumSize(200, 180);
@@ -335,19 +334,16 @@ public class ContextDialog extends Dialog {
     //
     categories = new ArrayList<>();
     for (GuiAction action : actions) {
+      CategoryAndOrder categoryAndOrder;
       if (StringUtils.isNotEmpty(action.getCategory())) {
-        CategoryAndOrder categoryAndOrder =
-            new CategoryAndOrder(
+        categoryAndOrder = new CategoryAndOrder(
                 action.getCategory(), Const.NVL(action.getCategoryOrder(), "0"), false);
-        if (!categories.contains(categoryAndOrder)) {
-          categories.add(categoryAndOrder);
-        }
       } else {
         // Add an "Other" category
-        CategoryAndOrder categoryAndOrder = new CategoryAndOrder(CATEGORY_OTHER, "9999", false);
-        if (!categories.contains(categoryAndOrder)) {
-          categories.add(categoryAndOrder);
-        }
+        categoryAndOrder = new CategoryAndOrder(CATEGORY_OTHER, "9999", false);
+      }
+      if (!categories.contains(categoryAndOrder)) {
+        categories.add(categoryAndOrder);
       }
     }
 
@@ -476,11 +472,11 @@ public class ContextDialog extends Dialog {
       }
       org.eclipse.swt.graphics.Rectangle displayPosition = monitor.getBounds();
       // Make sure the dialog fits on the display
-      if (width>displayPosition.width) {
-        width=displayPosition.width;
+      if (width > displayPosition.width) {
+        width = displayPosition.width;
       }
-      if (height>displayPosition.height) {
-        height=displayPosition.height;
+      if (height > displayPosition.height) {
+        height = displayPosition.height;
       }
       if (!fitOtherMonitors) {
         if ((location.x - displayPosition.x) > monitor.getClientArea().width - width)
@@ -1050,27 +1046,29 @@ public class ContextDialog extends Dialog {
 
       // See if we need to show the selected item.
       //
-      if (scroll && totalContentHeight > 0) {
-        Rectangle itemArea = selectedItem.getAreaOwner().getArea();
-        org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        if (scroll && totalContentHeight > 0) {
+          Rectangle itemArea = selectedItem.getAreaOwner().getArea();
+          org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
 
-        ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
-        // Scroll down
-        //
-        while (itemArea.y + itemArea.height + 2 * yMargin
-            > verticalBar.getSelection() + clientArea.height) {
-          wScrolledComposite.setOrigin(
-              0,
-              Math.min(
-                  verticalBar.getSelection() + verticalBar.getPageIncrement(),
-                  verticalBar.getMaximum() - verticalBar.getThumb()));
-        }
+          ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
+          // Scroll down
+          //
+          while (itemArea.y + itemArea.height + 2 * yMargin
+              > verticalBar.getSelection() + clientArea.height) {
+            wScrolledComposite.setOrigin(
+                0,
+                Math.min(
+                    verticalBar.getSelection() + verticalBar.getPageIncrement(),
+                    verticalBar.getMaximum() - verticalBar.getThumb()));
+          }
 
-        // Scroll up
-        //
-        while (itemArea.y < verticalBar.getSelection()) {
-          wScrolledComposite.setOrigin(
-              0, Math.max(verticalBar.getSelection() - verticalBar.getPageIncrement(), 0));
+          // Scroll up
+          //
+          while (itemArea.y < verticalBar.getSelection()) {
+            wScrolledComposite.setOrigin(
+                0, Math.max(verticalBar.getSelection() - verticalBar.getPageIncrement(), 0));
+          }
         }
       }
     }

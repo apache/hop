@@ -99,6 +99,14 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
     capabilities.setProperty(IHopFileType.CAPABILITY_CUT, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_DELETE, "true");
 
+    capabilities.setProperty(IHopFileType.CAPABILITY_SNAP_TO_GRID, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_ALIGN_LEFT, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_ALIGN_RIGHT, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_ALIGN_TOP, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_ALIGN_BOTTOM, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_DISTRIBUTE_HORIZONTAL, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_DISTRIBUTE_VERTICAL, "true");
+
     capabilities.setProperty(IHopFileType.CAPABILITY_FILE_HISTORY, "true");
 
     return capabilities;

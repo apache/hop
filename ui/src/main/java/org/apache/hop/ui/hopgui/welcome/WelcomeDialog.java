@@ -75,8 +75,10 @@ public class WelcomeDialog {
       shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.RESIZE | SWT.MAX);
       shell.setLayout(new FormLayout());
       shell.setText("Apache Hop");
+      PropsUi.setLook(shell);
+
       PropsUi props = PropsUi.getInstance();
-      int margin = props.getMargin();
+      int margin = PropsUi.getMargin();
 
       // Logo at the top left
       //
@@ -96,6 +98,7 @@ public class WelcomeDialog {
       // Apache Hop
       //
       Label welcome = new Label(shell, SWT.CENTER);
+      PropsUi.setLook(welcome);
       welcome.setText("Apache Hop");
       titleFont =
           new Font(shell.getDisplay(), "Open Sans", (int) (18 * props.getZoomFactor()), SWT.NONE);

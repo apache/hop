@@ -35,7 +35,6 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -204,7 +203,11 @@ public class ShowHelpDialog extends Dialog {
           @Override
           public void changing(LocationEvent event) {
             if (event.location.endsWith(".pdf")) {
-              Program.launch(event.location);
+              try {
+                EnvironmentUtils.getInstance().openUrl(event.location);
+              } catch(Exception e) {
+                new ErrorDialog(shell, "Error", "Error opening URL", e);
+              }
               event.doit = false;
             }
           }

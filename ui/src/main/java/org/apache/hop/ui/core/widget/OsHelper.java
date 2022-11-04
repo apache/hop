@@ -129,7 +129,7 @@ public class OsHelper {
 
             break;
           case SWT.ID_PREFERENCES:
-            item.addListener(SWT.Selection, event -> HopGui.getInstance().menuToolsOptions());
+            item.addListener(SWT.Selection, event -> HopGui.getConfigurationPerspective().activate());
 
             break;
           default:

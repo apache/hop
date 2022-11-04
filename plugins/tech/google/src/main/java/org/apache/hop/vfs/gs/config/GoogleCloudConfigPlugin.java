@@ -27,12 +27,12 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
-import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
@@ -50,8 +50,8 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
 
   @GuiWidgetElement(
       id = WIDGET_ID_GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY_FILE,
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
-      type = GuiElementType.TEXT,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.FILENAME,
       variables = true,
       label = "Path to a Google Cloud service account JSON key file",
       toolTip =

@@ -28,9 +28,9 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
-import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
@@ -51,7 +51,7 @@ public class WelcomeDialogOptions implements IConfigOptions, IGuiPluginComposite
 
   @GuiWidgetElement(
       id = "NoWelcomeDialog",
-      parentId = EnterOptionsDialog.GUI_WIDGETS_PARENT_ID,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       label = "Present the welcome dialog at the startup of the Hop GUI")
   private boolean welcomeDialogShowAtStartup;
@@ -156,6 +156,7 @@ public class WelcomeDialogOptions implements IConfigOptions, IGuiPluginComposite
   public void widgetModified(
       GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
     this.welcomeDialogShowAtStartup = ((Button) changedWidget).getSelection();
+    persistContents(compositeWidgets);
   }
 
   @Override

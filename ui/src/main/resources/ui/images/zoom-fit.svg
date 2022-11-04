@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg x="0px"
+     y="0px"
+     width="24px"
+     height="24px"
+     viewBox="0 0 24 24"
+     enable-background="new 0 0 24 24"
+     xml:space="preserve"
+     xmlns="http://www.w3.org/2000/svg">
+
+    <circle fill="none"
+            stroke="#0E3A5A"
+            stroke-linecap="round"
+            cx="12.012"
+            cy="11.918"
+            r="11.059"/>
+
+    <rect style="fill:none;fill-rule:evenodd;stroke:#0e3a5a;stroke-opacity:1"
+          width="13.229713"
+          height="11.125264"
+          x="5.4395289"
+          y="6.4062395"/>
+
+</svg>

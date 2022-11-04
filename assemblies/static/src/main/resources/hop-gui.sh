@@ -36,14 +36,19 @@ fi
 if [ -z "$HOP_OPTIONS" ]; then
   HOP_OPTIONS="-Xmx2048m"
 fi
+
 # optional line for attaching a debugger
 #
-# HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+if [ "$1" = "debug" ] || [ "$1" = "DEBUG" ]; then
+ HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+fi
 
 # Add HOP variables if they're set:
 #
 if [ -n "${HOP_AUDIT_FOLDER}" ]; then
   HOP_OPTIONS="${HOP_OPTIONS} -DHOP_AUDIT_FOLDER=${HOP_AUDIT_FOLDER}"
+else
+  HOP_OPTIONS="${HOP_OPTIONS} -DHOP_AUDIT_FOLDER=./audit"
 fi
 if [ -n "${HOP_CONFIG_FOLDER}" ]; then
   HOP_OPTIONS="${HOP_OPTIONS} -DHOP_CONFIG_FOLDER=${HOP_CONFIG_FOLDER}"

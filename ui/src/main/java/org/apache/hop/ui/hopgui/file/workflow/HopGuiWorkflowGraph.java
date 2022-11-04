@@ -213,6 +213,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_ZOOM_100PCT =
       "HopGuiWorkflowGraph-ToolBar-10530-Zoom-100Pct";
 
+  public static final String TOOLBAR_ITEM_ZOOM_TO_FIT =
+      "HopGuiWorkflowGraph-ToolBar-10530-Zoom-To-Fit";
+
   public static final String TOOLBAR_ITEM_EDIT_WORKFLOW =
       "HopGuiWorkflowGraph-ToolBar-10450-EditWorkflow";
 
@@ -432,6 +435,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (!EnvironmentUtils.getInstance().isWeb()) {
       canvas.addMouseMoveListener(this);
       canvas.addMouseTrackListener(this);
+      canvas.addMouseWheelListener(this::mouseScrolled);
     }
 
     hopGui.replaceKeyboardShortcutListeners(this);
@@ -715,6 +719,24 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError("Error calling WorkflowGraphMouseUp extension point", ex);
     }
 
+    // Did we select a region on the screen? Mark actions in region as selected
+    //
+    if (selectionRegion != null) {
+      selectionRegion.width = real.x - selectionRegion.x;
+      selectionRegion.height = real.y - selectionRegion.y;
+
+      if (selectionRegion.isEmpty()) {
+        singleClick = true;
+        singleClickType = SingleClickType.Workflow;
+      } else {
+        workflowMeta.unselectAll();
+        selectInRect(workflowMeta, selectionRegion);
+        selectionRegion = null;
+        updateGui();
+        return;
+      }
+    }
+
     // Quick new hop option? (drag from one action to another)
     //
     if (areaOwner != null && areaOwner.getAreaType() != null) {
@@ -745,35 +767,121 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
 
-    // Did we select a region on the screen? Mark actions in region as selected
+    // Clicked on an icon?
     //
-    if (selectionRegion != null) {
-      selectionRegion.width = real.x - selectionRegion.x;
-      selectionRegion.height = real.y - selectionRegion.y;
+    if (selectedAction != null && startHopAction == null) {
+      if (e.button == 1) {
+        Point realclick = screen2real(e.x, e.y);
+        if (lastClick.x == realclick.x && lastClick.y == realclick.y) {
+          // Flip selection when control is pressed!
+          if (control) {
+            selectedAction.flipSelected();
+          } else {
+            singleClick = true;
+            singleClickType = SingleClickType.Action;
+            singleClickAction = selectedAction;
+          }
+        } else {
+          // Find out which Transforms & Notes are selected
+          selectedActions = workflowMeta.getSelectedActions();
+          selectedNotes = workflowMeta.getSelectedNotes();
 
-      if (selectionRegion.isEmpty()) {
-        singleClick = true;
-        singleClickType = SingleClickType.Workflow;
-      } else {
-        workflowMeta.unselectAll();
-        selectInRect(workflowMeta, selectionRegion);
+          // We moved around some items: store undo info...
+          //
+          boolean also = false;
+          if (selectedNotes != null && selectedNotes.size() > 0 && previousNoteLocations != null) {
+            int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
+
+            addUndoPosition(
+                selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
+                indexes,
+                previousNoteLocations,
+                workflowMeta.getSelectedNoteLocations(),
+                also);
+            also = selectedActions != null && selectedActions.size() > 0;
+          }
+          if (selectedActions != null
+              && selectedActions.size() > 0
+              && previousTransformLocations != null) {
+            int[] indexes = workflowMeta.getActionIndexes(selectedActions);
+            addUndoPosition(
+                selectedActions.toArray(new ActionMeta[selectedActions.size()]),
+                indexes,
+                previousTransformLocations,
+                workflowMeta.getSelectedLocations(),
+                also);
+          }
+        }
       }
-      selectionRegion = null;
+
+      // OK, we moved the transform, did we move it across a hop?
+      // If so, ask to split the hop!
+      if (splitHop) {
+        WorkflowHopMeta hi = findHop(icon.x + iconSize / 2, icon.y + iconSize / 2, selectedAction);
+        if (hi != null) {
+          int id = 0;
+          if (!hopGui.getProps().getAutoSplit()) {
+            MessageDialogWithToggle md =
+                new MessageDialogWithToggle(
+                    hopShell(),
+                    BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Title"),
+                    BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Message")
+                        + Const.CR
+                        + hi.toString(),
+                    SWT.ICON_QUESTION,
+                    new String[] {
+                      BaseMessages.getString(PKG, "System.Button.Yes"),
+                      BaseMessages.getString(PKG, "System.Button.No")
+                    },
+                    BaseMessages.getString(
+                        PKG, "HopGuiWorkflowGraph.Dialog.Option.SplitHop.DoNotAskAgain"),
+                    hopGui.getProps().getAutoSplit());
+            id = md.open();
+            hopGui.getProps().setAutoSplit(md.getToggleState());
+          }
+
+          if ((id & 0xFF) == 0) {
+            // Means: "Yes" button clicked!
+
+            // Only split A-->--B by putting C in between IF...
+            // C-->--A or B-->--C don't exists...
+            // A ==> hi.getFromAction()
+            // B ==> hi.getToAction()
+            // C ==> selectedTransform
+            //
+            if (workflowMeta.findWorkflowHop(selectedAction, hi.getFromAction()) == null
+                && workflowMeta.findWorkflowHop(hi.getToAction(), selectedAction) == null) {
+
+              workflowActionDelegate.insetAction(workflowMeta, hi, selectedAction);
+            }
+            // else: Silently discard this hop-split attempt.
+          }
+        }
+        splitHop = false;
+      }
+
+      selectedActions = null;
+      selectedNotes = null;
+      selectedAction = null;
+      selectedNote = null;
+      startHopAction = null;
+      endHopLocation = null;
+
       updateGui();
     } else {
-      // Clicked on an icon?
-      //
-      if (selectedAction != null && startHopAction == null) {
+      // Notes?
+      if (selectedNote != null) {
         if (e.button == 1) {
-          Point realclick = screen2real(e.x, e.y);
-          if (lastClick.x == realclick.x && lastClick.y == realclick.y) {
+          if (lastClick.x == real.x && lastClick.y == real.y) {
             // Flip selection when control is pressed!
             if (control) {
-              selectedAction.flipSelected();
+              selectedNote.flipSelected();
             } else {
+              // single click on a note: ask what needs to happen...
+              //
               singleClick = true;
-              singleClickType = SingleClickType.Action;
-              singleClickAction = selectedAction;
+              singleClickType = SingleClickType.Note;
+              singleClickNote = selectedNote;
             }
           } else {
             // Find out which Transforms & Notes are selected
@@ -781,13 +889,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             selectedNotes = workflowMeta.getSelectedNotes();
 
             // We moved around some items: store undo info...
-            //
             boolean also = false;
             if (selectedNotes != null
                 && selectedNotes.size() > 0
                 && previousNoteLocations != null) {
               int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
-
               addUndoPosition(
                   selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
                   indexes,
@@ -810,118 +916,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           }
         }
 
-        // OK, we moved the transform, did we move it across a hop?
-        // If so, ask to split the hop!
-        if (splitHop) {
-          WorkflowHopMeta hi =
-              findHop(icon.x + iconSize / 2, icon.y + iconSize / 2, selectedAction);
-          if (hi != null) {
-            int id = 0;
-            if (!hopGui.getProps().getAutoSplit()) {
-              MessageDialogWithToggle md =
-                  new MessageDialogWithToggle(
-                      hopShell(),
-                      BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Title"),
-                      BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Message")
-                          + Const.CR
-                          + hi.toString(),
-                      SWT.ICON_QUESTION,
-                      new String[] {
-                        BaseMessages.getString(PKG, "System.Button.Yes"),
-                        BaseMessages.getString(PKG, "System.Button.No")
-                      },
-                      BaseMessages.getString(
-                          PKG, "HopGuiWorkflowGraph.Dialog.Option.SplitHop.DoNotAskAgain"),
-                      hopGui.getProps().getAutoSplit());
-              id = md.open();
-              hopGui.getProps().setAutoSplit(md.getToggleState());
-            }
-
-            if ((id & 0xFF) == 0) {
-              // Means: "Yes" button clicked!
-
-              // Only split A-->--B by putting C in between IF...
-              // C-->--A or B-->--C don't exists...
-              // A ==> hi.getFromAction()
-              // B ==> hi.getToAction()
-              // C ==> selectedTransform
-              //
-              if (workflowMeta.findWorkflowHop(selectedAction, hi.getFromAction()) == null
-                  && workflowMeta.findWorkflowHop(hi.getToAction(), selectedAction) == null) {
-
-                workflowActionDelegate.insetAction(workflowMeta, hi, selectedAction);
-              }
-              // else: Silently discard this hop-split attempt.
-            }
-          }
-          splitHop = false;
-        }
-
-        selectedActions = null;
         selectedNotes = null;
+        selectedActions = null;
         selectedAction = null;
         selectedNote = null;
         startHopAction = null;
         endHopLocation = null;
 
         updateGui();
-      } else {
-        // Notes?
-        if (selectedNote != null) {
-          if (e.button == 1) {
-            if (lastClick.x == real.x && lastClick.y == real.y) {
-              // Flip selection when control is pressed!
-              if (control) {
-                selectedNote.flipSelected();
-              } else {
-                // single click on a note: ask what needs to happen...
-                //
-                singleClick = true;
-                singleClickType = SingleClickType.Note;
-                singleClickNote = selectedNote;
-              }
-            } else {
-              // Find out which Transforms & Notes are selected
-              selectedActions = workflowMeta.getSelectedActions();
-              selectedNotes = workflowMeta.getSelectedNotes();
-
-              // We moved around some items: store undo info...
-              boolean also = false;
-              if (selectedNotes != null
-                  && selectedNotes.size() > 0
-                  && previousNoteLocations != null) {
-                int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
-                addUndoPosition(
-                    selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
-                    indexes,
-                    previousNoteLocations,
-                    workflowMeta.getSelectedNoteLocations(),
-                    also);
-                also = selectedActions != null && selectedActions.size() > 0;
-              }
-              if (selectedActions != null
-                  && selectedActions.size() > 0
-                  && previousTransformLocations != null) {
-                int[] indexes = workflowMeta.getActionIndexes(selectedActions);
-                addUndoPosition(
-                    selectedActions.toArray(new ActionMeta[selectedActions.size()]),
-                    indexes,
-                    previousTransformLocations,
-                    workflowMeta.getSelectedLocations(),
-                    also);
-              }
-            }
-          }
-
-          selectedNotes = null;
-          selectedActions = null;
-          selectedAction = null;
-          selectedNote = null;
-          startHopAction = null;
-          endHopLocation = null;
-
-          updateGui();
-        }
       }
     }
 
@@ -1418,6 +1420,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       image = "ui/images/zoom-100.svg")
   public void zoom100Percent() {
     super.zoom100Percent();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_ZOOM_TO_FIT,
+      toolTip = "i18n::HopGuiPipelineGraph.GuiAction.ZoomFitToScreen.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/zoom-fit.svg")
+  public void zoomFitToScreen() {
+    super.zoomFitToScreen();
   }
 
   public List<String> getZoomLevels() {
@@ -2827,8 +2839,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
-    CanvasFacade.setData(
-        canvas, magnification, offset, workflowMeta, HopGuiWorkflowGraph.class, variables);
+    CanvasFacade.setData(canvas, magnification, offset, workflowMeta);
   }
 
   @Override
@@ -2941,91 +2952,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return false;
   }
 
-  protected SnapAllignDistribute createSnapAllignDistribute() {
-
+  @Override
+  public SnapAllignDistribute createSnapAlignDistribute() {
     List<ActionMeta> elements = workflowMeta.getSelectedActions();
     int[] indices = workflowMeta.getActionIndexes(elements);
     return new SnapAllignDistribute(workflowMeta, elements, indices, hopGui.undoDelegate, this);
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_SNAP_TO_GRID,
-      // label = "Snap to grid",
-      toolTip = "i18n::WorkflowGraph.Toolbar.SnapToGrid.Tooltip",
-      image = "ui/images/snap-to-grid.svg")
-  public void snapToGrid() {
-    snapToGrid(ConstUi.GRID_SIZE);
-  }
-
-  protected void snapToGrid(int size) {
-    createSnapAllignDistribute().snapToGrid(size);
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_ALIGN_LEFT,
-      toolTip = "i18n::WorkflowGraph.Toolbar.AlignLeft.Tooltip",
-      image = "ui/images/align-left.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_LEFT)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_LEFT)
-  public void alignLeft() {
-    createSnapAllignDistribute().allignleft();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_ALIGN_RIGHT,
-      toolTip = "i18n::WorkflowGraph.Toolbar.AlignRight.Tooltip",
-      image = "ui/images/align-right.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_RIGHT)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_RIGHT)
-  public void alignRight() {
-    createSnapAllignDistribute().allignright();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_ALIGN_TOP,
-      toolTip = "i18n::WorkflowGraph.Toolbar.AlignTop.Tooltip",
-      image = "ui/images/align-top.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_UP)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_UP)
-  public void alignTop() {
-    createSnapAllignDistribute().alligntop();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_ALIGN_BOTTOM,
-      toolTip = "i18n::WorkflowGraph.Toolbar.AlignBottom.Tooltip",
-      image = "ui/images/align-bottom.svg")
-  @GuiKeyboardShortcut(control = true, key = SWT.ARROW_DOWN)
-  @GuiOsxKeyboardShortcut(command = true, key = SWT.ARROW_DOWN)
-  public void alignBottom() {
-    createSnapAllignDistribute().allignbottom();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY,
-      toolTip = "i18n::WorkflowGraph.Toolbar.DistributeHorizontal.Tooltip",
-      image = "ui/images/distribute-horizontally.svg")
-  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
-  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
-  public void distributeHorizontal() {
-    createSnapAllignDistribute().distributehorizontal();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY,
-      toolTip = "i18n::WorkflowGraph.Toolbar.DistributeVertical.Tooltip",
-      image = "ui/images/distribute-vertically.svg")
-  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
-  @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
-  public void distributeVertical() {
-    createSnapAllignDistribute().distributevertical();
   }
 
   @GuiContextAction(
@@ -3195,6 +3126,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
               hopGui.setUndoMenu(workflowMeta);
               hopGui.handleFileCapabilities(fileType, workflowMeta.hasChanged(), running, false);
+
+              // Enable the align/distribute toolbar menus if one or more actions are selected.
+              //
+              super.enableSnapAlignDistributeMenuItems(
+                  fileType, !workflowMeta.getSelectedActions().isEmpty());
 
               HopGuiWorkflowGraph.super.redraw();
             });

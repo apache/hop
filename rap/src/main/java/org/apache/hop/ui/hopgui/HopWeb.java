@@ -22,18 +22,33 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.svg.SvgCache;
+import org.apache.hop.core.svg.SvgCacheEntry;
+import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.client.WebClient;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -43,6 +58,38 @@ public class HopWeb implements ApplicationConfiguration {
 
   @Override
   public void configure(Application application) {
+
+    try {
+      // Hop initialization is already done here.
+      // This means we can simply ask the gui registry for the toolbar images to register.
+      // Let's add all toolbar SVG files as static resources in the application.
+      // In GuiToolbarWidgets we can then add an exception for it.
+      //
+      GuiRegistry registry = GuiRegistry.getInstance();
+      Map<String, Map<String, GuiToolbarItem>> guiToolbarMap = registry.getGuiToolbarMap();
+      for (String toolbarId : guiToolbarMap.keySet()) {
+        Map<String, GuiToolbarItem> itemMap = guiToolbarMap.get(toolbarId);
+        for (String itemId : itemMap.keySet()) {
+          final GuiToolbarItem item = itemMap.get(itemId);
+          addResource(application, item.getImage(), item.getClassLoader());
+        }
+      }
+
+      // Find metadata, perspective plugins
+      //
+      List<IPlugin> plugins =
+              PluginRegistry.getInstance().getPlugins(MetadataPluginType.class);
+      plugins.addAll(PluginRegistry.getInstance().getPlugins(HopPerspectivePluginType.class));
+
+      // Add the plugin images as resources
+      //
+      for (IPlugin plugin : plugins) {
+        ClassLoader classLoader = PluginRegistry.getInstance().getClassLoader(plugin);
+        addResource(application, plugin.getImageFile(), classLoader);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
     application.addResource(
         "ui/images/logo_icon.png",
@@ -94,9 +141,10 @@ public class HopWeb implements ApplicationConfiguration {
     System.out.println("Hop web: selected theme is: " + themeId);
 
     Map<String, String> properties = new HashMap<>();
-    properties.put(WebClient.PAGE_TITLE, "Hop");
+    properties.put(WebClient.PAGE_TITLE, "Apache Hop Web");
     properties.put(WebClient.FAVICON, "ui/images/logo_icon.png");
     properties.put(WebClient.THEME_ID, themeId);
+    properties.put(WebClient.HEAD_HTML, readTextFromResource("head.html", "UTF-8"));
     application.addEntryPoint("/ui", HopWebEntryPoint.class, properties);
     application.setOperationMode(Application.OperationMode.SWT_COMPATIBILITY);
 
@@ -107,5 +155,57 @@ public class HopWeb implements ApplicationConfiguration {
     System.out.println("HOP_CONFIG_FOLDER: " + Const.HOP_CONFIG_FOLDER);
     System.out.println("HOP_AUDIT_FOLDER: " + Const.HOP_AUDIT_FOLDER);
     System.out.println("HOP_GUI_ZOOM_FACTOR: " + System.getProperty("HOP_GUI_ZOOM_FACTOR"));
+  }
+
+  private void addResource(
+      Application application, final String imageFilename, final ClassLoader classLoader) {
+    if (StringUtils.isEmpty(imageFilename)) {
+      return;
+    }
+    // See if the resource was already added.q
+    //
+    if (SvgCache.findSvg(imageFilename)!=null) {
+      return;
+    }
+
+    ResourceLoader loader =
+        filename -> {
+          try {
+            SvgFile svgFile = new SvgFile(filename, classLoader);
+            SvgCacheEntry cacheEntry = SvgCache.loadSvg(svgFile);
+            String svgXml = XmlHandler.getXmlString(cacheEntry.getSvgDocument(), false, false);
+            return new ByteArrayInputStream(svgXml.getBytes(StandardCharsets.UTF_8));
+          } catch (Exception e) {
+            throw new RuntimeException("Error loading SVG resource filename: " + imageFilename, e);
+          }
+        };
+    application.addResource(imageFilename, loader);
+  }
+
+  private static String readTextFromResource(String resourceName, String charset) {
+    String result;
+    try {
+      ClassLoader classLoader = HopWeb.class.getClassLoader();
+      InputStream inputStream = classLoader.getResourceAsStream(resourceName);
+      if (inputStream == null) {
+        throw new RuntimeException("Resource not found: " + resourceName);
+      }
+      try {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charset));
+        StringBuilder stringBuilder = new StringBuilder();
+        String line = reader.readLine();
+        while (line != null) {
+          stringBuilder.append(line);
+          stringBuilder.append('\n');
+          line = reader.readLine();
+        }
+        result = stringBuilder.toString();
+      } finally {
+        inputStream.close();
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to read text from resource: " + resourceName);
+    }
+    return result;
   }
 }

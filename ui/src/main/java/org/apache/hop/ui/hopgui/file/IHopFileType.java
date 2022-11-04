@@ -45,6 +45,14 @@ public interface IHopFileType {
   String CAPABILITY_CUT = "Cut";
   String CAPABILITY_DELETE = "Delete";
 
+  String CAPABILITY_SNAP_TO_GRID = "SnapToGrid";
+  String CAPABILITY_ALIGN_LEFT = "AlignLeft";
+  String CAPABILITY_ALIGN_RIGHT = "AlignRight";
+  String CAPABILITY_ALIGN_TOP = "AlignTop";
+  String CAPABILITY_ALIGN_BOTTOM = "AlignBottom";
+  String CAPABILITY_DISTRIBUTE_HORIZONTAL = "DistributeHorizontal";
+  String CAPABILITY_DISTRIBUTE_VERTICAL = "DistributeVertical";
+
   String CAPABILITY_FILE_HISTORY = "FileHistory";
 
   String CAPABILITY_HANDLE_METADATA = "HandleMetadata";

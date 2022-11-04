@@ -35,14 +35,11 @@ import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -50,7 +47,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.Widget;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -113,6 +111,10 @@ public class PropsUi extends Props {
     setDefault();
   }
 
+  /**
+   * Re-calculate the static native zoom factor. Do not make this method static because Sonar
+   * recommends it.
+   */
   public void reCalculateNativeZoomFactor() {
     double globalZoom = getGlobalZoomFactor();
     if (EnvironmentUtils.getInstance().isWeb()) {
@@ -124,7 +126,7 @@ public class PropsUi extends Props {
       //
       org.eclipse.swt.graphics.Point extent =
           TextSizeUtilFacade.textExtent("The quick brown fox jumped over the lazy dog!");
-      nativeZoomFactor = ((double) extent.y / (double) ConstUi.SMALL_ICON_SIZE) * globalZoom;
+      nativeZoomFactor = (extent.y / (double) ConstUi.SMALL_ICON_SIZE) * globalZoom;
     }
   }
 
@@ -135,62 +137,59 @@ public class PropsUi extends Props {
 
     populateContrastingColors();
 
-    if (OsHelper.isWindows()) {
-      // The user manually selected Dark Mode
-      // We'll try to change settings to make this possible.
-      //
-      if (isDarkMode()) {
-        display.setData("org.eclipse.swt.internal.win32.useDarkModeExplorerTheme", Boolean.TRUE);
-        display.setData(
-            "org.eclipse.swt.internal.win32.menuBarForegroundColor",
-            new Color(display, 0xD0, 0xD0, 0xD0));
-        display.setData(
-            "org.eclipse.swt.internal.win32.menuBarBackgroundColor",
-            new Color(display, 0x30, 0x30, 0x30));
-        display.setData(
-            "org.eclipse.swt.internal.win32.menuBarBorderColor",
-            new Color(display, 0x50, 0x50, 0x50));
-        display.setData("org.eclipse.swt.internal.win32.Canvas.use_WS_BORDER", Boolean.TRUE);
-        display.setData("org.eclipse.swt.internal.win32.List.use_WS_BORDER", Boolean.TRUE);
-        display.setData("org.eclipse.swt.internal.win32.Table.use_WS_BORDER", Boolean.TRUE);
-        display.setData("org.eclipse.swt.internal.win32.Combo.use_WS_BORDER", Boolean.TRUE);
-        display.setData("org.eclipse.swt.internal.win32.Text.use_WS_BORDER", Boolean.TRUE);
-        display.setData("org.eclipse.swt.internal.win32.Tree.use_WS_BORDER", Boolean.TRUE);
-        display.setData(
-            "org.eclipse.swt.internal.win32.Table.headerLineColor",
-            new Color(display, 0x50, 0x50, 0x50));
-        display.setData(
-            "org.eclipse.swt.internal.win32.Label.disabledForegroundColor",
-            new Color(display, 0x80, 0x80, 0x80));
-        display.setData("org.eclipse.swt.internal.win32.Combo.useDarkTheme", Boolean.TRUE);
-        display.setData(
-            "org.eclipse.swt.internal.win32.ToolBar.backgroundColor",
-            new Color(display, 0xD0, 0xD0, 0xD0));
-        display.setData(
-            "org.eclipse.swt.internal.win32.Combo.backgroundColor",
-            new Color(display, 0xD0, 0xD0, 0xD0));
-        display.setData("org.eclipse.swt.internal.win32.ProgressBar.useColors", Boolean.TRUE);
-      }
-    } else {
-      if (!EnvironmentUtils.getInstance().isWeb()) {
-        if (Display.isSystemDarkTheme()) {
-          // Only set OS look shown once in case we switch to dark mode
-          // and vice versa.  We don't want to override user choices all the time.
-          // If we do it like before it becomes impossible to choose your own font and colors.
-          //
-          if (!isDarkMode()) {
-            setDarkMode(true);
-          }
-        } else {
-          if (isDarkMode()) {
-            setDarkMode(false);
-          }
+    // The user manually selected Dark Mode
+    // We'll try to change settings to make this possible.
+    //
+    if (OsHelper.isWindows() && isDarkMode()) {
+      display.setData("org.eclipse.swt.internal.win32.useDarkModeExplorerTheme", Boolean.TRUE);
+      display.setData(
+          "org.eclipse.swt.internal.win32.menuBarForegroundColor",
+          new Color(display, 0xD0, 0xD0, 0xD0));
+      display.setData(
+          "org.eclipse.swt.internal.win32.menuBarBackgroundColor",
+          new Color(display, 0x30, 0x30, 0x30));
+      display.setData(
+          "org.eclipse.swt.internal.win32.menuBarBorderColor",
+          new Color(display, 0x50, 0x50, 0x50));
+      display.setData("org.eclipse.swt.internal.win32.Canvas.use_WS_BORDER", Boolean.TRUE);
+      display.setData("org.eclipse.swt.internal.win32.List.use_WS_BORDER", Boolean.TRUE);
+      display.setData("org.eclipse.swt.internal.win32.Table.use_WS_BORDER", Boolean.TRUE);
+      display.setData("org.eclipse.swt.internal.win32.Combo.use_WS_BORDER", Boolean.TRUE);
+      display.setData("org.eclipse.swt.internal.win32.Text.use_WS_BORDER", Boolean.TRUE);
+      display.setData("org.eclipse.swt.internal.win32.Tree.use_WS_BORDER", Boolean.TRUE);
+      display.setData(
+          "org.eclipse.swt.internal.win32.Table.headerLineColor",
+          new Color(display, 0x50, 0x50, 0x50));
+      display.setData(
+          "org.eclipse.swt.internal.win32.Label.disabledForegroundColor",
+          new Color(display, 0x80, 0x80, 0x80));
+      display.setData("org.eclipse.swt.internal.win32.Combo.useDarkTheme", Boolean.TRUE);
+      display.setData(
+          "org.eclipse.swt.internal.win32.ToolBar.backgroundColor",
+          new Color(display, 0xD0, 0xD0, 0xD0));
+      display.setData(
+          "org.eclipse.swt.internal.win32.Combo.backgroundColor",
+          new Color(display, 0xD0, 0xD0, 0xD0));
+      display.setData("org.eclipse.swt.internal.win32.ProgressBar.useColors", Boolean.TRUE);
+    }
+
+    // Only set OS look shown once in case we switch to dark mode
+    // and vice versa.  We don't want to override user choices all the time.
+    // If we do it like before it becomes impossible to choose your own font and colors.
+    //
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      if (Display.isSystemDarkTheme()) {
+        if (!isDarkMode()) {
+          setDarkMode(true);
+        }
+      } else {
+        if (isDarkMode()) {
+          setDarkMode(false);
         }
       }
     }
 
     if (display != null) {
-
       FontData fontData = getDefaultFont();
       setProperty(STRING_FONT_DEFAULT_NAME, fontData.getName());
       setProperty(STRING_FONT_DEFAULT_SIZE, "" + fontData.getHeight());
@@ -393,7 +392,6 @@ public class PropsUi extends Props {
     return (int) Math.round(5 * getNativeZoomFactor());
   }
 
-
   public void setScreen(WindowProperty windowProperty) {
     AuditManager.storeState(
         LogChannel.UI,
@@ -479,18 +477,25 @@ public class PropsUi extends Props {
     return YES.equalsIgnoreCase(show); // Default: show repositories dialog at startup
   }
 
-  public static void setGCFont(GC gc, Device device, FontData fontData) {
-    if (Const.getSystemOs().startsWith("Windows")) {
-      Font font = new Font(device, fontData);
-      gc.setFont(font);
-      font.dispose();
-    } else {
-      gc.setFont(device.getSystemFont());
+  public static void setLook(Widget widget) {
+    int style = WIDGET_STYLE_DEFAULT;
+    if (widget instanceof Table) {
+      style = WIDGET_STYLE_TABLE;
+    } else if (widget instanceof ToolBar) {
+      style = WIDGET_STYLE_TOOLBAR;
+    } else if (widget instanceof CTabFolder) {
+      style = WIDGET_STYLE_TAB;
+    } else if (OS.contains("mac") && (widget instanceof Group)) {
+      style = WIDGET_STYLE_OSX_GROUP;
+    } else if (widget instanceof Button) {
+      if (Const.isWindows() && ((widget.getStyle() & SWT.CHECK) != 0)) {
+        style = WIDGET_STYLE_DEFAULT;
+      } else {
+        style = WIDGET_STYLE_PUSH_BUTTON;
+      }
     }
-  }
 
-  public static void setLook(Control widget) {
-    setLook(widget, WIDGET_STYLE_DEFAULT);
+    setLook(widget, style);
 
     if (widget instanceof Composite) {
       for (Control child : ((Composite) widget).getChildren()) {
@@ -499,71 +504,40 @@ public class PropsUi extends Props {
     }
   }
 
-  public static void setLook(Composite shell) {
-    setLook(shell, WIDGET_STYLE_DEFAULT);
-    for (Control child : shell.getChildren()) {
-      setLook(child);
-    }
-  }
-
-  public static void setLook(Button button) {
-    button.setFont(GuiResource.getInstance().getFontDefault());
-  }
-
-  public static void setLook(final Control control, int style) {
+  public static void setLook(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
-    Color background = null;
-    Color foreground = null;
+    Color background = gui.getColorWhite();
+    Color foreground = gui.getColorBlack();
 
     switch (style) {
       case WIDGET_STYLE_DEFAULT:
+        break;
+      case WIDGET_STYLE_OSX_GROUP:
         background = gui.getColorWhite();
         foreground = gui.getColorBlack();
         font = gui.getFontDefault();
-
-        if (control instanceof Group && OS.contains("mac")) {
-          control.addPaintListener(
-              paintEvent -> {
-                paintEvent.gc.setForeground(gui.getColorBlack());
-                paintEvent.gc.setBackground(gui.getColorWhite());
-                paintEvent.gc.fillRectangle(
-                    2, 0, control.getBounds().width - 8, control.getBounds().height - 20);
-              });
-        } else if (control instanceof Combo) {
-          if (Const.isWindows() && PropsUi.getInstance().isDarkMode()) {
-            background = gui.getColorBackground();
-          } else {
-            return; // Just keep the default
-          }
-        }
+        Group group = ((Group) widget);
+        group.addPaintListener(
+            paintEvent -> {
+              paintEvent.gc.setForeground(gui.getColorBlack());
+              paintEvent.gc.setBackground(gui.getColorWhite());
+              paintEvent.gc.fillRectangle(
+                  2, 0, group.getBounds().width - 8, group.getBounds().height - 20);
+            });
         break;
       case WIDGET_STYLE_FIXED:
-        foreground = gui.getColorBlack();
-        background = gui.getColorWhite();
         font = gui.getFontFixed();
         break;
       case WIDGET_STYLE_TABLE:
         background = gui.getColorLightGray();
         foreground = gui.getColorDarkGray();
-        if (control instanceof Table) {
-          Table table = (Table) control;
-          table.setHeaderBackground(gui.getColorLightGray());
-          table.setHeaderForeground(gui.getColorDarkGray());
-        }
-        break;
-      case WIDGET_STYLE_NOTEPAD:
-        foreground = gui.getColorBlack();
-        background = gui.getColorWhite();
-        font = gui.getFontNote();
-        break;
-      case WIDGET_STYLE_GRAPH:
-        foreground = gui.getColorBlack();
-        background = gui.getColorWhite();
-        font = gui.getFontGraph();
+
+        Table table = (Table) widget;
+        table.setHeaderBackground(gui.getColorLightGray());
+        table.setHeaderForeground(gui.getColorDarkGray());
         break;
       case WIDGET_STYLE_TOOLBAR:
-        foreground = gui.getColorBlack();
         if (PropsUi.getInstance().isDarkMode()) {
           background = gui.getColorLightGray();
         } else {
@@ -571,12 +545,16 @@ public class PropsUi extends Props {
         }
         break;
       case WIDGET_STYLE_TAB:
-        CTabFolder tabFolder = (CTabFolder) control;
+        CTabFolder tabFolder = (CTabFolder) widget;
         tabFolder.setBorderVisible(true);
         tabFolder.setBackground(gui.getColorGray());
         tabFolder.setForeground(gui.getColorBlack());
         tabFolder.setSelectionBackground(gui.getColorWhite());
         tabFolder.setSelectionForeground(gui.getColorBlack());
+        break;
+      case WIDGET_STYLE_PUSH_BUTTON:
+        background = null;
+        foreground = null;
         break;
       default:
         background = gui.getColorBackground();
@@ -584,45 +562,16 @@ public class PropsUi extends Props {
         break;
     }
 
-    if (font != null && !font.isDisposed()) {
-      control.setFont(font);
+    if (font != null && !font.isDisposed() && (widget instanceof Control)) {
+      ((Control) widget).setFont(font);
     }
 
-    if (background != null && !background.isDisposed()) {
-      boolean setBackground = true;
-      if (control instanceof Button) {
-        Button b = (Button) control;
-        if ((b.getStyle() & SWT.PUSH) != 0) {
-          setBackground = false;
-        }
-      }
-      if (setBackground) {
-        control.setBackground(background);
-      }
+    if (background != null && !background.isDisposed() && (widget instanceof Control)) {
+      ((Control) widget).setBackground(background);
     }
 
-    if (foreground != null && !foreground.isDisposed()) {
-      boolean setForeground = true;
-      if (control instanceof Button) {
-        Button b = (Button) control;
-        if ((b.getStyle() & SWT.PUSH) != 0) {
-          setForeground = false;
-        }
-      }
-      if (setForeground) {
-        control.setForeground(foreground);
-      }
-    }
-  }
-
-  public static void setTableItemLook(TableItem item, Display disp) {
-    if (!Const.getSystemOs().startsWith("Windows")) {
-      return;
-    }
-
-    Color background = GuiResource.getInstance().getColorBackground();
-    if (background != null) {
-      item.setBackground(background);
+    if (foreground != null && !foreground.isDisposed() && (widget instanceof Control)) {
+      ((Control) widget).setForeground(foreground);
     }
   }
 
@@ -760,7 +709,8 @@ public class PropsUi extends Props {
       // Snap to grid...
       //
       return new Point(
-          gridSize * Math.round(p.x / gridSize), gridSize * Math.round(p.y / gridSize));
+          gridSize * Math.round((float) p.x / gridSize),
+          gridSize * Math.round((float) p.y / gridSize));
     } else {
       // Normal draw
       //
@@ -859,13 +809,17 @@ public class PropsUi extends Props {
 
   public Map<String, String> getContrastingColorStrings() {
     Map<String, String> map = new HashMap<>();
-    for (RGB rgb : contrastingColors.keySet()) {
-      RGB contrastingRGB = contrastingColors.get(rgb);
+    for (Map.Entry<RGB, RGB> entry : contrastingColors.entrySet()) {
+      RGB rgb = entry.getKey();
+      RGB contrastingRGB = entry.getValue();
 
-      // Lowercase
-      map.put(toColorString(rgb), toColorString(contrastingRGB));
-      // Uppercase
-      map.put(toColorString(rgb).toUpperCase(), toColorString(contrastingRGB));
+      String fromColor = toColorString(rgb);
+      String toColor = toColorString(contrastingRGB);
+
+      // Lowercase & uppercase
+      //
+      map.put(fromColor.toLowerCase(), toColor);
+      map.put(fromColor.toUpperCase(), toColor);
     }
     return map;
   }
@@ -904,10 +858,14 @@ public class PropsUi extends Props {
     setProperty(GLOBAL_ZOOMFACTOR, Double.toString(globalZoomFactor));
   }
 
-  public static final String[] globalZoomFactorLevels =
+  protected static final String[] globalZoomFactorLevels =
       new String[] {
         "200%", "175%", "150%", "140%", "130%", "120%", "110%", "100%", "90%", "80%", "70%"
       };
+
+  public static final String[] getGlobalZoomFactorLevels() {
+    return globalZoomFactorLevels;
+  }
 
   public Layout createFormLayout() {
     int margin = (int) (getMargin() * getZoomFactor());

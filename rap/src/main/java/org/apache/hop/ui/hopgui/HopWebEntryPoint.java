@@ -39,11 +39,10 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     WidgetUtil.registerDataKeys("nodes");
     WidgetUtil.registerDataKeys("hops");
     WidgetUtil.registerDataKeys("notes");
-    /*
-     *  The following lines were migrated from Spoon.main
-     *  because they are session specific.
-     */
-    // Options
+    // WidgetUtil.registerDataKeys("svg");
+
+    //  The following options are session specific.
+    //
     StartupParameters serviceParams = RWT.getClient().getService(StartupParameters.class);
     List<String> args = new ArrayList<>();
     String[] options = {"user", "pass", "file"};

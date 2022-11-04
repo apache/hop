@@ -52,6 +52,8 @@ set HOP_OPTIONS=%HOP_OPTIONS% -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:t
 REM Pass HOP variables if they're set.
 if not "%HOP_AUDIT_FOLDER%"=="" (
   set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_AUDIT_FOLDER=%HOP_AUDIT_FOLDER%
+) else (
+    set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_AUDIT_FOLDER=.\audit
 )
 if not "%HOP_CONFIG_FOLDER%"=="" (
   set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_CONFIG_FOLDER=%HOP_CONFIG_FOLDER%

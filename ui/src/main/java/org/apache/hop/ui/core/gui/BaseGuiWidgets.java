@@ -39,6 +39,11 @@ public class BaseGuiWidgets {
    */
   protected String instanceId;
 
+  /**
+   * For convenience, we remember the classname of the GUI plugin that creates and owns these widgets.
+   */
+  protected String guiPluginClassName;
+
   public BaseGuiWidgets(String instanceId) {
     this.instanceId = instanceId;
   }
@@ -52,7 +57,7 @@ public class BaseGuiWidgets {
    */
   public void registerGuiPluginObject(Object guiPluginObject) {
     GuiRegistry guiRegistry = GuiRegistry.getInstance();
-    String guiPluginClassName = guiPluginObject.getClass().getName();
+    guiPluginClassName = guiPluginObject.getClass().getName();
     guiRegistry.registerGuiPluginObject(
         HopGui.getInstance().getId(), guiPluginClassName, instanceId, guiPluginObject);
   }
