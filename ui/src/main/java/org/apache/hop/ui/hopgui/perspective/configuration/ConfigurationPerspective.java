@@ -24,9 +24,8 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.tab.GuiTabItem;
 import org.apache.hop.core.search.ISearchable;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -40,12 +39,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,66 +121,12 @@ public class ConfigurationPerspective implements IHopPerspective, TabClosable {
     this.hopGui = hopGui;
 
     composite = new Composite(parent, SWT.NONE);
-    FormLayout clayout = new FormLayout();
-    clayout.marginLeft = PropsUi.getMargin();
-    clayout.marginTop = PropsUi.getMargin();
-    clayout.marginLeft = PropsUi.getMargin();
-    clayout.marginBottom = PropsUi.getMargin();
-    composite.setLayout(clayout);
+    composite.setLayout(new FillLayout());
     PropsUi.setLook(composite);
-
-    FormData cformData = new FormData();
-    cformData.left = new FormAttachment(0, 0);
-    cformData.top = new FormAttachment(0, 0);
-    cformData.right = new FormAttachment(100, -3);
-    cformData.bottom = new FormAttachment(100, -5);
-    composite.setLayoutData(cformData);
 
     configTabs = new CTabFolder(composite, SWT.BORDER);
     PropsUi.setLook(configTabs, Props.WIDGET_STYLE_TAB);
-
-    FormLayout layout = new FormLayout();
-    layout.marginLeft = PropsUi.getMargin();
-    layout.marginTop = PropsUi.getMargin();
-    layout.marginLeft = PropsUi.getMargin();
-    layout.marginBottom = PropsUi.getMargin();
-    configTabs.setLayout(layout);
-    PropsUi.setLook(configTabs);
-
-    FormData formData = new FormData();
-    formData.left = new FormAttachment(00, 0);
-    formData.top = new FormAttachment(0, 00);
-    formData.right = new FormAttachment(100, -3);
-    formData.bottom = new FormAttachment(100, -5);
-    configTabs.setLayoutData(formData);
     configTabs.setMaximized(true);
-
-    Label label = new Label(configTabs, SWT.LEFT);
-    label.setText("dummy text");
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(0, PropsUi.getMargin());
-    label.setLayoutData(fdlFields);
-    PropsUi.setLook(label);
-
-    Label wlInfo = new Label(configTabs, SWT.LEFT);
-    PropsUi.setLook(wlInfo);
-    wlInfo.setText(BaseMessages.getString(PKG, "HopSearchPerspective.Header.Description.Text"));
-    wlInfo.setFont(GuiResource.getInstance().getFontBold());
-    FormData fdInfo = new FormData();
-    fdInfo.left = new FormAttachment(0, 0);
-    fdInfo.right = new FormAttachment(100, 0);
-    fdInfo.top = new FormAttachment(0, 0);
-    wlInfo.setLayoutData(fdInfo);
-    Control lastControl = wlInfo;
-
-    Label wlSep1 = new Label(configTabs, SWT.SEPARATOR | SWT.HORIZONTAL);
-    PropsUi.setLook(wlSep1);
-    FormData fdlSep1 = new FormData();
-    fdlSep1.left = new FormAttachment(0, 0);
-    fdlSep1.right = new FormAttachment(100, 0);
-    fdlSep1.top = new FormAttachment(lastControl, 0);
-    wlSep1.setLayoutData(fdlSep1);
 
     GuiRegistry guiRegistry = GuiRegistry.getInstance();
     List<GuiTabItem> tabsList = guiRegistry.getGuiTabsMap().get(CONFIG_PERSPECTIVE_TABS);
@@ -196,21 +138,25 @@ public class ConfigurationPerspective implements IHopPerspective, TabClosable {
           Object object = tabItem.getMethod().getDeclaringClass().getConstructor().newInstance();
           tabItem.getMethod().invoke(object, configTabs);
         } catch (Exception e) {
-          throw new RuntimeException(
-              "unable to invoke tab method with the parent composite as argument", e);
+          new ErrorDialog(
+              hopGui.getShell(),
+              "Error",
+              "Hop was unable to invoke @GuiTab method "
+                  + tabItem.getMethod().getName()
+                  + " with the parent composite as argument",
+              e);
         }
       }
       if (configTabs.getItemCount() > 0) {
         configTabs.setSelection(0);
       }
     }
+
+    configTabs.layout();
   }
 
-
   public void showSystemVariablesTab() {
-    for (CTabItem tabItem : configTabs.getItems()) {
-
-    }
+    for (CTabItem tabItem : configTabs.getItems()) {}
   }
 
   @Override

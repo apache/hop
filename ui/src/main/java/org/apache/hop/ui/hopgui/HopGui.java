@@ -388,6 +388,8 @@ public class HopGui
               });
     }
 
+    PropsUi.setLook(shell);
+
     shell.setText(BaseMessages.getString(PKG, "HopGui.Application.Name"));
     addMainMenu();
     addMainToolbar();
