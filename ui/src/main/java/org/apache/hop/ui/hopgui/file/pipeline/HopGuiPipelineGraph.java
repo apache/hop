@@ -1129,7 +1129,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Info,
       name = "i18n::HopGuiPipelineGraph.ViewOutput.GuiAction.Name",
       tooltip = "i18n::HopGuiPipelineGraph.ViewOutput.GuiAction.Tooltip",
-      image = "ui/images/database.svg",
+      image = "ui/images/data.svg",
       category = "Preview",
       categoryOrder = "3")
   public void showTransformOutputData(HopGuiPipelineTransformContext context) {
