@@ -897,10 +897,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       } else {
         pipelineMeta.unselectAll();
         selectInRect(pipelineMeta, selectionRegion);
+        selectionRegion = null;
+        updateGui();
+        return;
       }
-      selectionRegion = null;
-      updateGui();
-      return;
     }
 
     // Special cases...

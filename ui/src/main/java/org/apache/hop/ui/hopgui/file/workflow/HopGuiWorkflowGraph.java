@@ -731,10 +731,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       } else {
         workflowMeta.unselectAll();
         selectInRect(workflowMeta, selectionRegion);
+        selectionRegion = null;
+        updateGui();
+        return;
       }
-      selectionRegion = null;
-      updateGui();
-      return;
     }
 
     // Quick new hop option? (drag from one action to another)
