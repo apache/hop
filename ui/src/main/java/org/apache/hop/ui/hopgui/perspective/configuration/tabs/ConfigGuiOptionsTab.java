@@ -315,6 +315,7 @@ public class ConfigGuiOptionsTab {
     fdIconSize.right = new FormAttachment(100, -margin);
     fdIconSize.top = new FormAttachment(wlIconSize, 0, SWT.CENTER);
     wIconSize.setLayoutData(fdIconSize);
+    wIconSize.addListener(SWT.Modify, e->saveValues());
 
     // LineWidth line
     Label wlLineWidth = new Label(wLookComp, SWT.RIGHT);
@@ -333,6 +334,7 @@ public class ConfigGuiOptionsTab {
     fdLineWidth.right = new FormAttachment(100, -margin);
     fdLineWidth.top = new FormAttachment(wlLineWidth, 0, SWT.CENTER);
     wLineWidth.setLayoutData(fdLineWidth);
+    wLineWidth.addListener(SWT.Modify, e->saveValues());
 
     // MiddlePct line
     Label wlMiddlePct = new Label(wLookComp, SWT.RIGHT);
@@ -352,6 +354,7 @@ public class ConfigGuiOptionsTab {
     fdMiddlePct.right = new FormAttachment(100, -margin);
     fdMiddlePct.top = new FormAttachment(wlMiddlePct, 0, SWT.CENTER);
     wMiddlePct.setLayoutData(fdMiddlePct);
+    wMiddlePct.addListener(SWT.Modify, e->saveValues());
 
     // Global Zoom
     Label wlGlobalZoom = new Label(wLookComp, SWT.RIGHT);
@@ -373,6 +376,7 @@ public class ConfigGuiOptionsTab {
     // set the current value
     String globalZoomFactor = Integer.toString((int) (props.getGlobalZoomFactor() * 100)) + '%';
     wGlobalZoom.setText(globalZoomFactor);
+    wGlobalZoom.addListener(SWT.Modify, e->saveValues());
 
     // GridSize line
     Label wlGridSize = new Label(wLookComp, SWT.RIGHT);
@@ -393,6 +397,7 @@ public class ConfigGuiOptionsTab {
     fdGridSize.right = new FormAttachment(100, -margin);
     fdGridSize.top = new FormAttachment(wlGridSize, 0, SWT.CENTER);
     wGridSize.setLayoutData(fdGridSize);
+    wGridSize.addListener(SWT.Modify, e->saveValues());
 
     // Show Canvas Grid
     Label wlShowCanvasGrid = new Label(wLookComp, SWT.RIGHT);
@@ -414,6 +419,7 @@ public class ConfigGuiOptionsTab {
     fdShowCanvasGrid.right = new FormAttachment(100, -margin);
     fdShowCanvasGrid.top = new FormAttachment(wlShowCanvasGrid, 0, SWT.CENTER);
     wShowCanvasGrid.setLayoutData(fdShowCanvasGrid);
+    wShowCanvasGrid.addListener(SWT.Selection, e->saveValues());
 
     // Show Canvas Grid
     Label wlHideMenuBar = new Label(wLookComp, SWT.RIGHT);
@@ -434,6 +440,7 @@ public class ConfigGuiOptionsTab {
     fdHideMenuBar.right = new FormAttachment(100, -margin);
     fdHideMenuBar.top = new FormAttachment(wlHideMenuBar, 0, SWT.CENTER);
     wHideMenuBar.setLayoutData(fdHideMenuBar);
+    wHideMenuBar.addListener(SWT.Selection, e->saveValues());
 
     // Is Dark Mode enabled
     Label wlDarkMode = new Label(wLookComp, SWT.RIGHT);
@@ -454,6 +461,7 @@ public class ConfigGuiOptionsTab {
     wDarkMode.setLayoutData(fdDarkMode);
     wlDarkMode.setEnabled(Const.isWindows());
     wDarkMode.setEnabled(Const.isWindows());
+    wDarkMode.addListener(SWT.Selection, e->saveValues());
 
     // DefaultLocale line
     Label wlDefaultLocale = new Label(wLookComp, SWT.RIGHT);
@@ -472,6 +480,8 @@ public class ConfigGuiOptionsTab {
     fdDefaultLocale.right = new FormAttachment(100, -margin);
     fdDefaultLocale.top = new FormAttachment(wlDefaultLocale, 0, SWT.CENTER);
     wDefaultLocale.setLayoutData(fdDefaultLocale);
+    wDefaultLocale.addListener(SWT.Modify, e->saveValues());
+
     // language selections...
     int idxDefault =
             Const.indexOfString(
@@ -513,6 +523,7 @@ public class ConfigGuiOptionsTab {
     noteFont.dispose();
     noteFont = new Font(display, noteFontData);
     wNoteCanvas.redraw();
+    saveValues();
   }
 
   private void editNoteFont(Shell shell) {
@@ -524,6 +535,7 @@ public class ConfigGuiOptionsTab {
       noteFont.dispose();
       noteFont = new Font(shell.getDisplay(), noteFontData);
       wNoteCanvas.redraw();
+      saveValues();
     }
   }
 
@@ -545,6 +557,7 @@ public class ConfigGuiOptionsTab {
       graphFont.dispose();
       graphFont = new Font(shell.getDisplay(), graphFontData);
       wGraphCanvas.redraw();
+      saveValues();
     }
   }
 
@@ -554,6 +567,7 @@ public class ConfigGuiOptionsTab {
     graphFontData = props.getDefaultFontData();
     graphFont = new Font(shell.getDisplay(), graphFontData);
     wGraphCanvas.redraw();
+    saveValues();
   }
 
   private void resetFixedFont(Shell shell) {
@@ -565,6 +579,7 @@ public class ConfigGuiOptionsTab {
     fixedFont.dispose();
     fixedFont = new Font(shell.getDisplay(), fixedFontData);
     wFixedCanvas.redraw();
+    saveValues();
   }
 
   private void editFixedFont(Shell shell) {
@@ -576,6 +591,7 @@ public class ConfigGuiOptionsTab {
       fixedFont.dispose();
       fixedFont = new Font(shell.getDisplay(), fixedFontData);
       wFixedCanvas.redraw();
+      saveValues();
     }
   }
 
@@ -597,6 +613,7 @@ public class ConfigGuiOptionsTab {
     defaultFont.dispose();
     defaultFont = new Font(shell.getDisplay(), defaultFontData);
     wDefaultCanvas.redraw();
+    saveValues();
   }
 
   private void paintDefaultFont(PaintEvent pe) {
@@ -617,6 +634,7 @@ public class ConfigGuiOptionsTab {
       defaultFont.dispose();
       defaultFont = new Font(shell.getDisplay(), defaultFontData);
       wDefaultCanvas.redraw();
+      saveValues();
     }
   }
 
@@ -665,7 +683,7 @@ public class ConfigGuiOptionsTab {
     return fd;
   }
 
-  private void saveValues(Event event) {
+  private void saveValues() {
     PropsUi props = PropsUi.getInstance();
 
     props.setDefaultFont(defaultFontData);
