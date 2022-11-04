@@ -4014,10 +4014,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     int height = extraViewToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
     extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));
 
-    sashForm.setWeights(
-        new int[] {
-          60, 40,
-        });
+    sashForm.setWeights(60, 40);
   }
 
   public synchronized void start(PipelineExecutionConfiguration executionConfiguration)
@@ -4295,7 +4292,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   public synchronized void debug(
-      PipelineExecutionConfiguration executionConfiguration, PipelineDebugMeta pipelineDebugMeta) {
+      PipelineExecutionConfiguration executionConfiguration,
+      final PipelineDebugMeta pipelineDebugMeta) {
     if (!isRunning()) {
       try {
         this.lastPipelineDebugMeta = pipelineDebugMeta;
@@ -4322,6 +4320,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         //
         pipeline = new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject());
         pipeline.setPreview(true);
+        pipeline.setVariable(IPipelineEngine.PIPELINE_IN_PREVIEW_MODE, "Y");
         pipeline.setMetadataProvider(hopGui.getMetadataProvider());
 
         // Set the variables from the execution configuration
@@ -4336,12 +4335,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           }
         }
 
+        // Copy over the parameter definitions
+        //
+        pipeline.copyParametersFromDefinitions(pipelineMeta);
+
         // Set the named parameters
         //
         Map<String, String> parametersMap = executionConfiguration.getParametersMap();
         Set<String> parametersKeys = parametersMap.keySet();
         for (String key : parametersKeys) {
-          pipeline.setParameterValue(key, Const.NVL(parametersMap.get(key), ""));
+          String value = Const.NVL(parametersMap.get(key), "");
+          pipeline.setParameterValue(key, value);
+          pipeline.setVariable(key, value);
         }
 
         try {

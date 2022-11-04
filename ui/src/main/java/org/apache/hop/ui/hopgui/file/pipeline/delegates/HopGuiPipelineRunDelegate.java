@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -173,8 +174,19 @@ public class HopGuiPipelineRunDelegate {
 
     executionConfiguration.setVariablesMap(variableMap);
     executionConfiguration.getUsedVariables(pipelineGraph.getVariables(), pipelineMeta);
-
     executionConfiguration.setLogLevel(logLevel);
+
+    if (debug || preview) {
+      // Make sure to re-set the default parameter values. They could have been changed since the last execution.
+      //
+      for (String parameterName : pipelineMeta.listParameters()) {
+        String defaultValue = pipelineMeta.getParameterDefault(parameterName);
+        if ( StringUtils.isNotEmpty(defaultValue)) {
+          executionConfiguration.getParametersMap().put(parameterName, defaultValue);
+        }
+      }
+    }
+
 
     boolean execConfigAnswer = true;
 

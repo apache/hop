@@ -23,12 +23,12 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
@@ -46,7 +46,15 @@ public class HelpUtils {
 
   public static Button createHelpButton(final Composite parent, final String url) {
     Button button = newButton(parent);
-    button.addListener(SWT.Selection, e -> Program.launch(url));
+    button.addListener(
+        SWT.Selection,
+        e -> {
+          try {
+            EnvironmentUtils.getInstance().openUrl(url);
+          } catch (Exception ex) {
+            new ErrorDialog(parent.getShell(), "Error", "Error opening URL", ex);
+          }
+        });
     return button;
   }
 
@@ -74,7 +82,11 @@ public class HelpUtils {
       return;
     }
     if (isPluginDocumented(plugin)) {
-      Program.launch(getDocUrl(plugin.getDocumentationUrl()));
+      try {
+        EnvironmentUtils.getInstance().openUrl(getDocUrl(plugin.getDocumentationUrl()));
+      } catch (Exception ex) {
+        new ErrorDialog(shell, "Error", "Error opening URL", ex);
+      }
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       String msg = "";

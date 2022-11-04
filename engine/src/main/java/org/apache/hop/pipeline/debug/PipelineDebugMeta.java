@@ -40,8 +40,6 @@ public class PipelineDebugMeta {
 
   public static final String XML_TAG = "pipeline-debug-meta";
 
-  public static final String XML_TAG_TRANSFORM_DEBUG_METAS = "transform-debug-metas";
-
   private PipelineMeta pipelineMeta;
   private Map<TransformMeta, TransformDebugMeta> transformDebugMetaMap;
   private boolean dataShown = false;
@@ -236,5 +234,23 @@ public class PipelineDebugMeta {
     }
 
     return nr;
+  }
+
+  /**
+   * Gets dataShown
+   *
+   * @return value of dataShown
+   */
+  public boolean isDataShown() {
+    return dataShown;
+  }
+
+  /**
+   * Sets dataShown
+   *
+   * @param dataShown value of dataShown
+   */
+  public void setDataShown(boolean dataShown) {
+    this.dataShown = dataShown;
   }
 }

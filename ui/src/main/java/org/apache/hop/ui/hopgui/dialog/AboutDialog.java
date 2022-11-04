@@ -22,9 +22,11 @@ import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
@@ -34,7 +36,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
@@ -120,7 +121,13 @@ public class AboutDialog extends Dialog {
 
     Link wLink = new Link(composite, SWT.WRAP | SWT.MULTI);
     wLink.setText("<a href=\"https://hop.apache.org\">hop.apache.org</a>");
-    wLink.addListener(SWT.Selection, e -> Program.launch("https://hop.apache.org"));
+    wLink.addListener(SWT.Selection, e -> {
+      try {
+        EnvironmentUtils.getInstance().openUrl("https://hop.apache.org");
+      } catch(Exception ex) {
+        new ErrorDialog(shell, "Error", "Error opening URL", ex);
+      }
+    });
     wLink.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
     PropsUi.setLook(wLink);
 
