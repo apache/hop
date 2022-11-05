@@ -23,7 +23,7 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>transforms/dregexeval</baseDirectory>
+    <baseDirectory>transforms/regexeval</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
