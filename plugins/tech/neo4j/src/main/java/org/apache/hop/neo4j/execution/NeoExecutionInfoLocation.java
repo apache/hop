@@ -1621,4 +1621,22 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public void setConnectionName(String connectionName) {
     this.connectionName = connectionName;
   }
+
+  /**
+   * Gets driver
+   *
+   * @return value of driver
+   */
+  public Driver getDriver() {
+    return driver;
+  }
+
+  /**
+   * Gets session
+   *
+   * @return value of session
+   */
+  public Session getSession() {
+    return session;
+  }
 }
