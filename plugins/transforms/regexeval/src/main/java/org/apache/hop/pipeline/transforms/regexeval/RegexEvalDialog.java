@@ -35,6 +35,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
@@ -389,7 +390,8 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
           new ColumnInfo(
               BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Type"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
+              ValueMetaFactory.getValueMetaNames(),
+              true),
           new ColumnInfo(
               BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Length"),
               ColumnInfo.COLUMN_TYPE_TEXT,
@@ -445,7 +447,8 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(100, 0);
     wFields.setLayoutData(fdFields);
-
+    wFields.getTable().addListener(SWT.Resize, new ColumnsResizer(2, 20, 10, 5, 5, 10, 8, 8, 8, 8, 8, 8));
+    
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);
     fdGeneralComp.top = new FormAttachment(0, 0);
