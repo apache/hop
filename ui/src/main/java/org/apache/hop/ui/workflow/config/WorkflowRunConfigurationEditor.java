@@ -179,7 +179,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     Label wlDefault = new Label(parent, SWT.RIGHT);
     PropsUi.setLook(wlDefault);
     wlDefault.setText(
-            BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.Default"));
+            BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.Default"));
     FormData fdlDefault = new FormData();
     fdlDefault.top = new FormAttachment(lastControl, margin * 2);
     fdlDefault.left = new FormAttachment(0, 0); // First one in the left top corner
