@@ -54,8 +54,8 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     implements IGraphSnapAlignDistribute {
 
   public static final String STATE_MAGNIFICATION = "magnification";
-  public static final String STATE_SCROLL_X_SELECTION = "scroll-x-selection";
-  public static final String STATE_SCROLL_Y_SELECTION = "scroll-y-selection";
+  public static final String STATE_SCROLL_X_SELECTION = "offset-x";
+  public static final String STATE_SCROLL_Y_SELECTION = "offset-y";
 
   protected HopGui hopGui;
 
