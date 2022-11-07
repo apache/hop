@@ -27,8 +27,10 @@ import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.tab.GuiTabItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.LogChannel;
@@ -95,9 +97,12 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.w3c.dom.Node;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,10 +130,9 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   public static final String TOOLBAR_ITEM_VIEW_METADATA =
       "WorkflowExecutionViewer-Toolbar-12100-ViewMetadata";
 
+  public static final String WORKFLOW_EXECUTION_VIEWER_TABS = "WorkflowExecutionViewer.Tabs.ID";
+
   protected final WorkflowMeta workflowMeta;
-  protected final String locationName;
-  protected final ExecutionPerspective perspective;
-  protected final Execution execution;
 
   protected ActionMeta selectedAction;
   protected ExecutionData selectedExecutionData;
@@ -151,11 +155,8 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       String locationName,
       ExecutionPerspective perspective,
       Execution execution) {
-    super(parent, hopGui);
+    super(parent, hopGui, perspective, locationName, execution);
     this.workflowMeta = workflowMeta;
-    this.locationName = locationName;
-    this.perspective = perspective;
-    this.execution = execution;
 
     actionExecutions = new HashMap<>();
 
@@ -221,6 +222,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     addInfoTab();
     addLogTab();
     addDataTab();
+    addPluginTabs();
 
     refresh();
 
@@ -455,6 +457,45 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     PropsUi.setLook(loggingText);
 
     logTab.setControl(loggingText);
+  }
+
+  private void addPluginTabs() {
+    GuiRegistry guiRegistry = GuiRegistry.getInstance();
+    List<GuiTabItem> tabsList = guiRegistry.getGuiTabsMap().get(WORKFLOW_EXECUTION_VIEWER_TABS);
+
+    if (tabsList != null) {
+      tabsList.sort(Comparator.comparing(GuiTabItem::getId));
+      for (GuiTabItem tabItem : tabsList) {
+        try {
+          Class<?> pluginTabClass = tabItem.getMethod().getDeclaringClass();
+          boolean showTab = true;
+          try {
+            // Invoke static method showTab(WorkflowExecutionViewer)
+            //
+            Method showTabMethod =
+                pluginTabClass.getMethod("showTab", WorkflowExecutionViewer.class);
+            showTab = (boolean) showTabMethod.invoke(null, this);
+          } catch (NoSuchMethodException noSuchMethodException) {
+            // Just show the tab
+          }
+          if (showTab) {
+            Constructor<?> constructor =
+                pluginTabClass.getConstructor(WorkflowExecutionViewer.class);
+            Object object = constructor.newInstance(this);
+            tabItem.getMethod().invoke(object, tabFolder);
+          }
+        } catch (Exception e) {
+          new ErrorDialog(
+              hopGui.getShell(),
+              "Error",
+              "Hop was unable to invoke @GuiTab method "
+                  + tabItem.getMethod().getName()
+                  + " with the parent composite as argument",
+              e);
+        }
+      }
+      tabFolder.layout();
+    }
   }
 
   @Override
@@ -735,6 +776,18 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   @Override
   public String getLogChannelId() {
     return execution.getId();
+  }
+
+  @Override
+  public String getActiveId() {
+    if (selectedAction != null) {
+      if (selectedExecutionData.getOwnerId() == null) {
+        return selectedExecutionData.getParentId();
+      } else {
+        return selectedExecutionData.getOwnerId();
+      }
+    }
+    return getLogChannelId();
   }
 
   @Override
