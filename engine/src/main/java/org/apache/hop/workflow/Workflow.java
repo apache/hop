@@ -241,6 +241,7 @@ public abstract class Workflow extends Variables
     super();
     init();
     // Don't spam the logging backend for nothing. Don't create this.log here.
+    this.log = LogChannel.GENERAL;
     this.logLevel = LogLevel.BASIC;
   }
 
