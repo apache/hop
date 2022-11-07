@@ -3513,7 +3513,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
           runWorkflowMeta =
               new WorkflowMeta(
-                  hopGui.getVariables(),
+                  variables,
                   workflowMeta.getFilename(),
                   workflowMeta.getMetadataProvider());
 

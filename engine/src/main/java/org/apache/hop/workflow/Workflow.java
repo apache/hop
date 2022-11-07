@@ -173,8 +173,6 @@ public abstract class Workflow extends Variables
 
   protected IHopMetadataProvider metadataProvider;
 
-  protected boolean initializingVariablesOnStart;
-
   /**
    * This enum stores bit masks which are used to manipulate with statuses over field {@link
    * Workflow#status}
@@ -216,8 +214,6 @@ public abstract class Workflow extends Variables
     result = null;
     startActionMeta = null;
     startActionResult = null;
-
-    initializingVariablesOnStart = true;
   }
 
   public Workflow(WorkflowMeta workflowMeta) {
@@ -282,16 +278,7 @@ public abstract class Workflow extends Variables
       setFinished(false);
       setInitialized(true);
 
-      if (initializingVariablesOnStart) {
-        // Create a new variable name variables as we want workflows to have their own set of
-        // variables.
-        // initialize from parentWorkflow or null
-        //
-        initializeFrom(parentWorkflow);
-        setInternalHopVariables();
-        copyParametersFromDefinitions(workflowMeta);
-        activateParameters(this);
-      }
+      setInternalHopVariables();
 
       // Run the workflow
       //
@@ -1652,19 +1639,5 @@ public abstract class Workflow extends Variables
   @Override
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
-  }
-
-  /**
-   * Gets initializingVariablesOnStart
-   *
-   * @return value of initializingVariablesOnStart
-   */
-  public boolean isInitializingVariablesOnStart() {
-    return initializingVariablesOnStart;
-  }
-
-  /** @param initializingVariablesOnStart The initializingVariablesOnStart to set */
-  public void setInitializingVariablesOnStart(boolean initializingVariablesOnStart) {
-    this.initializingVariablesOnStart = initializingVariablesOnStart;
   }
 }
