@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 
 public class GoogleDriveConfigSingleton {
@@ -44,7 +45,7 @@ public class GoogleDriveConfigSingleton {
       // This way we can keep the class name out of the JSON as well.
       //
       try {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = HopJson.newMapper();
         googleDriveConfig =
             mapper.readValue(new Gson().toJson(configObject), GoogleDriveConfig.class);
       } catch (Exception e) {

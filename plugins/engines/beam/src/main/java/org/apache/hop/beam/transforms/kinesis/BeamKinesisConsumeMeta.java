@@ -238,8 +238,6 @@ public class BeamKinesisConsumeMeta extends BaseTransformMeta<BeamKinesisConsume
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -261,8 +259,6 @@ public class BeamKinesisConsumeMeta extends BaseTransformMeta<BeamKinesisConsume
             variables.resolve(secretKey),
             Regions.DEFAULT_REGION, // TODO : make configurable
             JsonRowMeta.toJson(outputRowMeta),
-            transformPluginClasses,
-            xpPluginClasses,
             variables.resolve(streamName),
             variables.resolve(uniqueIdField),
             variables.resolve(dataField),

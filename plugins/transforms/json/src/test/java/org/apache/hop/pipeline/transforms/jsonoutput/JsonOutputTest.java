@@ -24,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hop.TestUtilities;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -54,14 +55,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class JsonOutputTest extends TestCase {
 
@@ -233,9 +227,9 @@ public class JsonOutputTest extends TestCase {
 
     // initialize the fields
     List<JsonOutputField> fields = new ArrayList<>();
-//    for (int idx = 0; idx < fields.length; idx++) {
-//      fields[idx] = new JsonOutputField();
-//    }
+    //    for (int idx = 0; idx < fields.length; idx++) {
+    //      fields[idx] = new JsonOutputField();
+    //    }
 
     // populate the fields
     // it is important that the setPosition(int)
@@ -445,7 +439,7 @@ public class JsonOutputTest extends TestCase {
 
   /** compare json (deep equals ignoring order) */
   protected boolean jsonEquals(String json1, String json2) throws Exception {
-    ObjectMapper om = new ObjectMapper();
+    ObjectMapper om = HopJson.newMapper();
     JsonNode parsedJson1 = om.readTree(json1);
     JsonNode parsedJson2 = om.readTree(json2);
     return parsedJson1.equals(parsedJson2);

@@ -35,8 +35,6 @@ public class PublishStringsFn extends DoFn<HopRow, String> {
   private String rowMetaJson;
   private int fieldIndex;
   private String transformName;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   private static final Logger LOG = LoggerFactory.getLogger(PublishStringsFn.class);
   private final Counter numErrors = Metrics.counter("main", "BeamPublishTransformErrors");
@@ -49,14 +47,10 @@ public class PublishStringsFn extends DoFn<HopRow, String> {
   public PublishStringsFn(
       String transformName,
       int fieldIndex,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     this.transformName = transformName;
     this.fieldIndex = fieldIndex;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Setup
@@ -67,7 +61,7 @@ public class PublishStringsFn extends DoFn<HopRow, String> {
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
       rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
       Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();

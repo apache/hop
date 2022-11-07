@@ -26,6 +26,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
@@ -1071,7 +1072,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       // This means that the sampler needs to be present remotely before we can do this.
       // We need to serialize the sampler metadata to JSON and then send it over
       //
-      ObjectMapper mapper = new ObjectMapper();
+      ObjectMapper mapper = HopJson.newMapper();
       String json = mapper.writeValueAsString(sampler);
 
       // TODO: send this mapper over to the remote pipeline.

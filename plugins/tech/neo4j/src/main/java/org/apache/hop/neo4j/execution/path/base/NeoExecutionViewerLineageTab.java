@@ -127,7 +127,7 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
 
     // Populate the tree...
     //
-    String treeName = "Execution Lineage)";
+    String treeName = "Execution Lineage";
 
     for (int p = lineagePaths.size() - 1; p >= 0; p--) {
       List<PathResult> shortestPath = lineagePaths.get(p);

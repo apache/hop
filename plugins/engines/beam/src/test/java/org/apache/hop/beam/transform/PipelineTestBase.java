@@ -71,7 +71,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -113,7 +112,7 @@ public class PipelineTestBase {
             StreamLookupMeta.class.getName(),
             SwitchCaseMeta.class.getName());
 
-    BeamHop.init(beamTransforms, new ArrayList<>());
+    BeamHop.init();
 
     PluginRegistry.getInstance()
         .registerPluginClass(

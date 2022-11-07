@@ -27,6 +27,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -108,8 +109,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       if (!data.rowsAreSafe) {
         // Let's output the remaining unsafe data
         outPutRow(prevRow);
-        if (data.isWriteToFile)
-          writeJsonFile();
+        if (data.isWriteToFile) writeJsonFile();
       }
       setOutputDone();
       return false;
@@ -387,8 +387,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
   private boolean onFirstRecord(Object[] r) throws HopException {
 
-    nc = new ObjectMapper().getNodeFactory();
-    mapper = new ObjectMapper();
+    nc = HopJson.newMapper().getNodeFactory();
+    mapper = HopJson.newMapper();
 
     first = false;
     data.inputRowMeta = getInputRowMeta();

@@ -18,6 +18,7 @@
 
 package org.apache.hop.neo4j.execution.path.base;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.neo4j.execution.NeoExecutionInfoLocation;
@@ -59,16 +60,22 @@ public abstract class NeoExecutionViewerTabBase {
   }
 
   protected String getPathToRootCypher(String executionId) {
-    return "MATCH(top:Execution), (child:Execution {id: $executionId }), p=shortestPath((top)-[:EXECUTES*]-(child)) "
-        + Const.CR
-        + "WHERE top.parentId IS NULL "
-        + Const.CR
-        + "RETURN p "
-        + Const.CR
-        + "ORDER BY size(RELATIONSHIPS(p)) DESC "
-        + Const.CR
-        + "LIMIT 10 "
-        + Const.CR;
+    // Do we have a parent?  If not we can just return the cypher to the current execution node
+    //
+    if (StringUtils.isEmpty(viewer.getExecution().getParentId())) {
+      return "MATCH(e:Execution {id: $executionId }) " + Const.CR + "RETURN e " + Const.CR;
+    } else {
+      return "MATCH(top:Execution), (child:Execution {id: $executionId }), p=shortestPath((top)-[:EXECUTES*]-(child)) "
+          + Const.CR
+          + "WHERE top.parentId IS NULL "
+          + Const.CR
+          + "RETURN p "
+          + Const.CR
+          + "ORDER BY size(RELATIONSHIPS(p)) DESC "
+          + Const.CR
+          + "LIMIT 10 "
+          + Const.CR;
+    }
   }
 
   /**

@@ -109,8 +109,6 @@ public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -149,9 +147,7 @@ public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData
             variables.resolve(outputFileDefinition.getSeparator()),
             variables.resolve(outputFileDefinition.getEnclosure()),
             windowed,
-            JsonRowMeta.toJson(rowMeta),
-            transformPluginClasses,
-            xpPluginClasses);
+            JsonRowMeta.toJson(rowMeta));
 
     // Which transform do we apply this transform to?
     // Ignore info hops until we figure that out.

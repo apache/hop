@@ -83,8 +83,6 @@ public class TransformBatchTransform extends TransformTransform {
   public TransformBatchTransform(
       List<VariableValue> variableValues,
       String metastoreJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       int batchSize,
       int flushIntervalMs,
       String transformName,
@@ -102,8 +100,6 @@ public class TransformBatchTransform extends TransformTransform {
     super(
         variableValues,
         metastoreJson,
-        transformPluginClasses,
-        xpPluginClasses,
         batchSize,
         flushIntervalMs,
         transformName,
@@ -125,7 +121,7 @@ public class TransformBatchTransform extends TransformTransform {
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
 
       // Similar for the output : treat a TupleTag list for the target transforms...
       //
@@ -153,8 +149,6 @@ public class TransformBatchTransform extends TransformTransform {
           new TransformBatchFn(
               variableValues,
               metastoreJson,
-              transformPluginClasses,
-              xpPluginClasses,
               transformName,
               transformPluginId,
               transformMetaInterfaceXml,
@@ -206,8 +200,6 @@ public class TransformBatchTransform extends TransformTransform {
 
     protected List<VariableValue> variableValues;
     protected String metastoreJson;
-    protected List<String> transformPluginClasses;
-    protected List<String> xpPluginClasses;
     protected String transformPluginId;
     protected String transformMetaInterfaceXml;
     protected String inputRowMetaJson;
@@ -266,8 +258,6 @@ public class TransformBatchTransform extends TransformTransform {
     public TransformBatchFn(
         List<VariableValue> variableValues,
         String metastoreJson,
-        List<String> transformPluginClasses,
-        List<String> xpPluginClasses,
         String transformName,
         String transformPluginId,
         String transformMetaInterfaceXml,
@@ -282,8 +272,6 @@ public class TransformBatchTransform extends TransformTransform {
       super(parentLogChannelId, runConfigName, dataSamplersJson);
       this.variableValues = variableValues;
       this.metastoreJson = metastoreJson;
-      this.transformPluginClasses = transformPluginClasses;
-      this.xpPluginClasses = xpPluginClasses;
       this.transformName = transformName;
       this.transformPluginId = transformPluginId;
       this.transformMetaInterfaceXml = transformMetaInterfaceXml;
@@ -374,7 +362,7 @@ public class TransformBatchTransform extends TransformTransform {
 
           // Initialize Hop and load extra plugins as well
           //
-          BeamHop.init(transformPluginClasses, xpPluginClasses);
+          BeamHop.init();
 
           // The content of the metadata is JSON serialized and inflated below.
           //

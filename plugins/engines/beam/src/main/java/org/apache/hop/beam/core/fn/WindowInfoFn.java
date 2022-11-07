@@ -38,15 +38,12 @@ import java.util.List;
 
 public class WindowInfoFn extends DoFn<HopRow, HopRow> {
 
-  private String transformName;
-  private String maxWindowField;
-  private String startWindowField;
-  private String endWindowField;
-  private String rowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
+  private final String transformName;
+  private final String maxWindowField;
+  private final String startWindowField;
+  private final String endWindowField;
+  private final String rowMetaJson;
 
-  private transient Counter initCounter;
   private transient Counter readCounter;
   private transient Counter writtenCounter;
   private transient Counter errorCounter;
@@ -64,16 +61,12 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
       String maxWindowField,
       String startWindowField,
       String endWindowField,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     this.transformName = transformName;
     this.maxWindowField = maxWindowField;
     this.startWindowField = startWindowField;
     this.endWindowField = endWindowField;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Setup
@@ -85,7 +78,7 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
       inputRowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
       Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();

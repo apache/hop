@@ -13,30 +13,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.hop.beam.engines;
+package org.apache.hop.core.json;
 
-import org.apache.beam.sdk.options.PipelineOptions;
-import org.apache.hop.beam.metadata.RunnerType;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
-public interface IBeamPipelineEngineRunConfiguration extends IPipelineEngineRunConfiguration {
-
-  RunnerType getRunnerType();
-
-  PipelineOptions getPipelineOptions() throws HopException;
-
-  boolean isRunningAsynchronous();
-
-  String getUserAgent();
-
-  String getTempLocation();
-
-  String getStreamingHopTransformsFlushInterval();
-
-  String getStreamingHopTransformsBufferSize();
-
-  String getFatJar();
+public class HopJson {
+  /**
+   * @return Create a new ObjectMapper instance with the default options set for Hop file
+   *     serialization and de-serialization..
+   */
+  public static final ObjectMapper newMapper() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    objectMapper.configure(SerializationFeature.INDENT_OUTPUT, false);
+    return objectMapper;
+  }
 }

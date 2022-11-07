@@ -49,8 +49,6 @@ public class BigtableRowToHopRowFn extends DoFn<Row, HopRow> {
   private final String rowMetaJson;
   private final String keyField;
   private final String columnsJson;
-  private final List<String> transformPluginClasses;
-  private final List<String> xpPluginClasses;
 
   private transient List<BigtableSourceColumn> sourceColumns;
   private transient IRowMeta rowMeta;
@@ -67,15 +65,11 @@ public class BigtableRowToHopRowFn extends DoFn<Row, HopRow> {
       String counterName,
       String rowMetaJson,
       String keyField,
-      String columnsJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String columnsJson) {
     this.counterName = counterName;
     this.rowMetaJson = rowMetaJson;
     this.keyField = keyField;
     this.columnsJson = columnsJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Setup
@@ -88,7 +82,7 @@ public class BigtableRowToHopRowFn extends DoFn<Row, HopRow> {
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
       rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
       int indexIncrement = 0;

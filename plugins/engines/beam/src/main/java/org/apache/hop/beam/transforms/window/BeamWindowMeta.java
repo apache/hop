@@ -140,8 +140,6 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -228,9 +226,7 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
               variables.resolve(maxWindowField),
               variables.resolve(startWindowField),
               variables.resolve(endWindowField),
-              JsonRowMeta.toJson(rowMeta),
-              transformPluginClasses,
-              xpPluginClasses);
+              JsonRowMeta.toJson(rowMeta));
 
       transformPCollection = transformPCollection.apply(ParDo.of(windowInfoFn));
     }

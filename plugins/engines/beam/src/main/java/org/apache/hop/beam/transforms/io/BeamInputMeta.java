@@ -137,8 +137,6 @@ public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData>
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -162,9 +160,7 @@ public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData>
             transformMeta.getName(),
             fileInputLocation,
             variables.resolve(inputFileDefinition.getSeparator()),
-            JsonRowMeta.toJson(fileRowMeta),
-            transformPluginClasses,
-            xpPluginClasses);
+            JsonRowMeta.toJson(fileRowMeta));
     PCollection<HopRow> afterInput = pipeline.apply(beamInputTransform);
     transformCollectionMap.put(transformMeta.getName(), afterInput);
     log.logBasic("Handled transform (INPUT) : " + transformMeta.getName());

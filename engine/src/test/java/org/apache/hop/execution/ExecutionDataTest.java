@@ -20,6 +20,7 @@ package org.apache.hop.execution;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
@@ -121,7 +122,7 @@ public class ExecutionDataTest {
 
     // Serialize to JSON and back
     //
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = HopJson.newMapper();
     String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
 
     assertNotNull(json);

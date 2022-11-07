@@ -54,8 +54,6 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
   private boolean createIfNeeded;
   private boolean truncateTable;
   private boolean failIfNotEmpty;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   // Log and count errors.
   private static final Logger LOG = LoggerFactory.getLogger(BeamBQOutputTransform.class);
@@ -71,9 +69,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
       boolean createIfNeeded,
       boolean truncateTable,
       boolean failIfNotEmpty,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     this.transformName = transformName;
     this.projectId = projectId;
     this.datasetId = datasetId;
@@ -82,8 +78,6 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
     this.truncateTable = truncateTable;
     this.failIfNotEmpty = failIfNotEmpty;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Override
@@ -92,7 +86,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
 
       // Inflate the metadata on the node where this is running...
       //
@@ -144,7 +138,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
 
       SerializableFunction<HopRow, TableRow> formatFunction =
           new HopToBQTableRowFn(
-              transformName, rowMetaJson, transformPluginClasses, xpPluginClasses);
+              transformName, rowMetaJson);
 
       BigQueryIO.Write.CreateDisposition createDisposition;
       if (createIfNeeded) {

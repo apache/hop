@@ -19,7 +19,6 @@
 package org.apache.hop.beam.core.transform;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.values.TupleTag;
@@ -28,6 +27,7 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
@@ -82,7 +82,7 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
   }
 
   protected void sendSamplesToLocation(boolean finished) throws HopException {
-    if (executor==null || executor.getPipeline()==null) {
+    if (executor == null || executor.getPipeline() == null) {
       return;
     }
 
@@ -156,7 +156,7 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
             //
             if (StringUtils.isNotEmpty(dataSamplersJson)) {
               IExecutionDataSampler<?>[] extraSamplers =
-                  new ObjectMapper().readValue(dataSamplersJson, IExecutionDataSampler[].class);
+                  HopJson.newMapper().readValue(dataSamplersJson, IExecutionDataSampler[].class);
               dataSamplers.addAll(Arrays.asList(extraSamplers));
             }
 

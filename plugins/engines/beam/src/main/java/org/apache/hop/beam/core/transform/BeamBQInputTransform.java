@@ -45,8 +45,6 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
   private String tableId;
   private String query;
   private String rowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   // Log and count errors.
   private static final Logger LOG = LoggerFactory.getLogger(BeamBQInputTransform.class);
@@ -63,9 +61,7 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
       String datasetId,
       String tableId,
       String query,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     super(name);
     this.transformName = transformName;
     this.projectId = projectId;
@@ -73,8 +69,6 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
     this.tableId = tableId;
     this.query = query;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Override
@@ -82,13 +76,13 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
 
       // Function to convert from Avro to Hop rows
       //
       BQSchemaAndRecordToHopFn toHopFn =
           new BQSchemaAndRecordToHopFn(
-              transformName, rowMetaJson, transformPluginClasses, xpPluginClasses);
+              transformName, rowMetaJson);
 
       TableReference tableReference = new TableReference();
       if (StringUtils.isNotEmpty(projectId)) {

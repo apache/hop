@@ -40,8 +40,6 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
   protected List<VariableValue> variableValues;
   protected String metastoreJson;
-  protected List<String> transformPluginClasses;
-  protected List<String> xpPluginClasses;
   protected int batchSize;
   protected String transformName;
   protected String transformPluginId;
@@ -73,8 +71,6 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
   public TransformTransform(
       List<VariableValue> variableValues,
       String metastoreJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       int batchSize,
       int flushIntervalMs,
       String transformName,
@@ -91,8 +87,6 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
       String parentLogChannelId) {
     this.variableValues = variableValues;
     this.metastoreJson = metastoreJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
     this.batchSize = batchSize;
     this.flushIntervalMs = flushIntervalMs;
     this.transformName = transformName;
@@ -114,7 +108,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
 
       // Similar for the output : treat a TupleTag list for the target transforms...
       //
@@ -140,8 +134,6 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           new TransformFn(
               variableValues,
               metastoreJson,
-              transformPluginClasses,
-              xpPluginClasses,
               transformName,
               transformPluginId,
               transformMetaInterfaceXml,

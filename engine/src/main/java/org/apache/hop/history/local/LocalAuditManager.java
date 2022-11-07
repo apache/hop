@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditList;
@@ -74,11 +75,8 @@ public class LocalAuditManager implements IAuditManager {
 
       // write the event to JSON...
       //
-      ObjectMapper mapper = new ObjectMapper();
+      ObjectMapper mapper = HopJson.newMapper();
       mapper.writeValue(new File(filename), event);
-
-      // TODO: clean up old events
-      //
     } catch (IOException e) {
       throw new HopException("Unable to write event to filename '" + filename + "'", e);
     }
@@ -155,7 +153,7 @@ public class LocalAuditManager implements IAuditManager {
     String filename = calculateGroupPath(group) + File.separator + type + ".list";
     checkFileAndFolder(filename);
     try {
-      new ObjectMapper().writeValue(new File(filename), auditList);
+      HopJson.newMapper().writeValue(new File(filename), auditList);
     } catch (IOException e) {
       throw new HopException(
           "It was not possible to write to audit list file '" + filename + "'", e);
@@ -176,7 +174,7 @@ public class LocalAuditManager implements IAuditManager {
       return new AuditList();
     } else {
       try {
-        return new ObjectMapper().readValue(new File(filename), AuditList.class);
+        return HopJson.newMapper().readValue(new File(filename), AuditList.class);
       } catch (IOException e) {
         throw new HopException("It was not possible to read audit list file '" + filename + "'", e);
       }
@@ -245,7 +243,7 @@ public class LocalAuditManager implements IAuditManager {
         //
         return new AuditStateMap();
       } else {
-        return new ObjectMapper().readValue(new File(filename), AuditStateMap.class);
+        return HopJson.newMapper().readValue(new File(filename), AuditStateMap.class);
       }
     } catch (Exception e) {
       LogChannel.GENERAL.logError("Error loading state map from file '" + filename + "'", e);
@@ -259,7 +257,7 @@ public class LocalAuditManager implements IAuditManager {
     String filename = calculateStateFilename(group, type);
     try {
       checkFileAndFolder(filename);
-      new ObjectMapper().writeValue(new File(filename), auditStateMap);
+      HopJson.newMapper().writeValue(new File(filename), auditStateMap);
     } catch (Exception e) {
       throw new HopException("Error saving state map to file '" + filename + "'", e);
     }
@@ -333,7 +331,7 @@ public class LocalAuditManager implements IAuditManager {
         //
         return new HashMap<>();
       } else {
-        return new ObjectMapper().readValue(new File(filename), Map.class);
+        return HopJson.newMapper().readValue(new File(filename), Map.class);
       }
     } catch (Exception e) {
       LogChannel.GENERAL.logError("Error loading strings map from file '" + filename + "'", e);
@@ -346,7 +344,7 @@ public class LocalAuditManager implements IAuditManager {
     String filename = calculateMapFilename(group, type);
     try {
       checkFileAndFolder(filename);
-      new ObjectMapper().writeValue(new File(filename), map);
+      HopJson.newMapper().writeValue(new File(filename), map);
     } catch (Exception e) {
       throw new HopException("Error saving strings map to file '" + filename + "'", e);
     }

@@ -48,8 +48,6 @@ public class HopToBigtableFn extends DoFn<HopRow, KV<ByteString, Iterable<Mutati
   private final String counterName;
   private final String rowMetaJson;
   private final String columnsJson;
-  private final List<String> transformPluginClasses;
-  private final List<String> xpPluginClasses;
 
   private transient List<BigtableColumn> columns;
   private transient IRowMeta rowMeta;
@@ -66,15 +64,11 @@ public class HopToBigtableFn extends DoFn<HopRow, KV<ByteString, Iterable<Mutati
       int keyIndex,
       String columnsJson,
       String counterName,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     this.keyIndex = keyIndex;
     this.columnsJson = columnsJson;
     this.counterName = counterName;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Setup
@@ -87,7 +81,7 @@ public class HopToBigtableFn extends DoFn<HopRow, KV<ByteString, Iterable<Mutati
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
       rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
       // De-serialize the columns...

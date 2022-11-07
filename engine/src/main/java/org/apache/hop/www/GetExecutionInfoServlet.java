@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
@@ -148,7 +149,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
               }
               ExecutionState executionState =
                   location.getExecutionInfoLocation().getExecutionState(id);
-              new ObjectMapper().writeValue(out, executionState);
+              HopJson.newMapper().writeValue(out, executionState);
             }
             break;
           case ids:
@@ -160,7 +161,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
               int limitNr = Const.toInt(limit, 100);
               List<String> ids =
                   location.getExecutionInfoLocation().getExecutionIds(includeChildren, limitNr);
-              new ObjectMapper().writeValue(out, ids);
+              HopJson.newMapper().writeValue(out, ids);
             }
             break;
           case execution:
@@ -172,7 +173,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
                 throw new HopException("Please specify the execution ID with parameter 'id'");
               }
               Execution execution = location.getExecutionInfoLocation().getExecution(id);
-              new ObjectMapper().writeValue(out, execution);
+              HopJson.newMapper().writeValue(out, execution);
             }
             break;
           case children:
@@ -184,7 +185,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
               }
               List<Execution> children =
                   location.getExecutionInfoLocation().findExecutions(id);
-              new ObjectMapper().writeValue(out, children);
+              HopJson.newMapper().writeValue(out, children);
             }
             break;
           case data:
@@ -202,7 +203,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
               }
               ExecutionData data =
                   location.getExecutionInfoLocation().getExecutionData(parentId, id);
-              new ObjectMapper().writeValue(out, data);
+              HopJson.newMapper().writeValue(out, data);
             }
             break;
           case lastExecution:
@@ -223,7 +224,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
 
               Execution execution =
                   location.getExecutionInfoLocation().findLastExecution(executionType, name);
-              new ObjectMapper().writeValue(out, execution);
+              HopJson.newMapper().writeValue(out, execution);
             }
             break;
           case childIds:
@@ -243,7 +244,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
 
               List<String> ids =
                   location.getExecutionInfoLocation().findChildIds(executionType, id);
-              new ObjectMapper().writeValue(out, ids);
+              HopJson.newMapper().writeValue(out, ids);
             }
             break;
           case parentId:
@@ -254,7 +255,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
                     "Please specify the child execution ID to find the parent for with parameter 'id'");
               }
               String parentId = location.getExecutionInfoLocation().findParentId(id);
-              new ObjectMapper().writeValue(out, parentId);
+              HopJson.newMapper().writeValue(out, parentId);
             }
             break;
           default:
@@ -270,7 +271,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
       }
     } catch (Exception e) {
       String message = Const.getStackTracker(e);
-      new ObjectMapper().writeValue(out, message);
+      HopJson.newMapper().writeValue(out, message);
       response.setStatus(500);
     }
   }

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -133,7 +134,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       } else {
         // JSON
         //
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = HopJson.newMapper();
         String jsonString =
             mapper.writerWithDefaultPrettyPrinter().writeValueAsString(serverStatus);
         out.println(jsonString);

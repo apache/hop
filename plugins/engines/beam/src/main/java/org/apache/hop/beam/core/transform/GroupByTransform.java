@@ -47,8 +47,6 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
   private String[] subjects; // The subjects to aggregate on
   private String[] aggregations; // The aggregation types
   private String[] resultFields; // The result fields
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   private static final Logger LOG = LoggerFactory.getLogger(GroupByTransform.class);
   private final Counter numErrors = Metrics.counter("main", "GroupByTransformErrors");
@@ -62,16 +60,12 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
   public GroupByTransform(
       String transformName,
       String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       String[] groupFields,
       String[] subjects,
       String[] aggregations,
       String[] resultFields) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
     this.groupFields = groupFields;
     this.subjects = subjects;
     this.aggregations = aggregations;
@@ -82,7 +76,7 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
   public PCollection<HopRow> expand(PCollection<HopRow> input) {
     try {
       if (inputRowMeta == null) {
-        BeamHop.init(transformPluginClasses, xpPluginClasses);
+        BeamHop.init();
 
         inputRowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
@@ -103,8 +97,6 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
               ParDo.of(
                   new HopKeyValueFn(
                       rowMetaJson,
-                      transformPluginClasses,
-                      xpPluginClasses,
                       groupFields,
                       subjects,
                       transformName)));
@@ -127,8 +119,6 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
                   new GroupByFn(
                       counterName,
                       JsonRowMeta.toJson(groupRowMeta),
-                      transformPluginClasses,
-                      xpPluginClasses,
                       JsonRowMeta.toJson(subjectRowMeta),
                       aggregations)));
 

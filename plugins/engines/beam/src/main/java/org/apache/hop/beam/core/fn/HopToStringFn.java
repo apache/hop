@@ -30,8 +30,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 public class HopToStringFn extends DoFn<HopRow, String> {
 
   private String counterName;
@@ -39,8 +37,6 @@ public class HopToStringFn extends DoFn<HopRow, String> {
   private String separator;
   private String enclosure;
   private String rowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   private transient IRowMeta rowMeta;
   private transient Counter readCounter;
@@ -55,16 +51,12 @@ public class HopToStringFn extends DoFn<HopRow, String> {
       String outputLocation,
       String separator,
       String enclosure,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     this.counterName = counterName;
     this.outputLocation = outputLocation;
     this.separator = separator;
     this.enclosure = enclosure;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Setup
@@ -77,7 +69,7 @@ public class HopToStringFn extends DoFn<HopRow, String> {
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
       rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
       initCounter.inc();

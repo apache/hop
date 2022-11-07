@@ -48,8 +48,6 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
   //
   private String transformName;
   private String rowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   private String accessKey;
   private String secretKey;
@@ -86,8 +84,6 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
       String secretKey,
       Regions regions,
       String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       String streamName,
       String uniqueIdField,
       String dataField,
@@ -110,8 +106,6 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
     super(transformName);
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
     this.streamName = streamName;
     this.accessKey = accessKey;
     this.secretKey = secretKey;
@@ -150,7 +144,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
 
       PCollection<HopRow> output;
 
@@ -214,8 +208,6 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
           new KinesisRecordToHopRowFn(
               transformName,
               rowMetaJson,
-              transformPluginClasses,
-              xpPluginClasses,
               uniqueIdField,
               partitionKeyField,
               sequenceNumberField,
@@ -237,8 +229,6 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
 
     private final String rowMetaJson;
     private final String transformName;
-    private final List<String> transformPluginClasses;
-    private final List<String> xpPluginClasses;
 
     private final Logger LOG = LoggerFactory.getLogger(KVStringStringToHopRowFn.class);
     private final Counter numErrors = Metrics.counter("main", "BeamSubscribeTransformErrors");
@@ -249,13 +239,9 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
 
     public KVStringStringToHopRowFn(
         String transformName,
-        String rowMetaJson,
-        List<String> transformPluginClasses,
-        List<String> xpPluginClasses) {
+        String rowMetaJson) {
       this.transformName = transformName;
       this.rowMetaJson = rowMetaJson;
-      this.transformPluginClasses = transformPluginClasses;
-      this.xpPluginClasses = xpPluginClasses;
     }
 
     @Setup
@@ -266,7 +252,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
 
         // Initialize Hop Beam
         //
-        BeamHop.init(transformPluginClasses, xpPluginClasses);
+        BeamHop.init();
         rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
         Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();
@@ -303,8 +289,6 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
 
     private final String rowMetaJson;
     private final String transformName;
-    private final List<String> transformPluginClasses;
-    private final List<String> xpPluginClasses;
 
     private final Logger LOG = LoggerFactory.getLogger(KVStringGenericRecordToHopRowFn.class);
     private final Counter numErrors = Metrics.counter("main", "BeamSubscribeTransformErrors");
@@ -315,13 +299,9 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
 
     public KVStringGenericRecordToHopRowFn(
         String transformName,
-        String rowMetaJson,
-        List<String> transformPluginClasses,
-        List<String> xpPluginClasses) {
+        String rowMetaJson) {
       this.transformName = transformName;
       this.rowMetaJson = rowMetaJson;
-      this.transformPluginClasses = transformPluginClasses;
-      this.xpPluginClasses = xpPluginClasses;
     }
 
     @Setup
@@ -332,7 +312,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
 
         // Initialize Hop Beam
         //
-        BeamHop.init(transformPluginClasses, xpPluginClasses);
+        BeamHop.init();
         rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
         Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();
