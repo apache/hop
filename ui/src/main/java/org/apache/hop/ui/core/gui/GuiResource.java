@@ -228,6 +228,7 @@ public class GuiResource {
   private Image imageLabel;
   private Image imageFunction;
   private Image imageUser;
+  private Image imagePlugin;
   private Image imageEditOption;
   private Image imageColor;
   private Image imageNote;
@@ -455,6 +456,7 @@ public class GuiResource {
     imageMissing.dispose();
     imageVariable.dispose();
     imagePipeline.dispose();
+    imagePlugin.dispose();
     imagePartitionSchema.dispose();
     imageWorkflow.dispose();
     imageUser.dispose();
@@ -735,6 +737,7 @@ public class GuiResource {
         loadAsResource(display, "ui/images/minimize-panel.svg", ConstUi.SMALL_ICON_SIZE);
     imageNew = loadAsResource(display, "ui/images/new.svg", ConstUi.SMALL_ICON_SIZE);
     imageNote = loadAsResource(display, "ui/images/note.svg", ConstUi.SMALL_ICON_SIZE);
+    imagePlugin = loadAsResource(display, "ui/images/plugin.svg", ConstUi.SMALL_ICON_SIZE);
     imagePrint = loadAsResource(display, "ui/images/print.svg", ConstUi.SMALL_ICON_SIZE);
     imageRefresh = loadAsResource(display, "ui/images/refresh.svg", ConstUi.SMALL_ICON_SIZE);
     imageRegEx = loadAsResource(display, "ui/images/regex.svg", ConstUi.SMALL_ICON_SIZE);
@@ -1322,6 +1325,9 @@ public class GuiResource {
         imagePipeline, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
+  public Image getImagePlugin() {
+    return imagePlugin;
+  }
   public Image getImageUser() {
     return imageUser;
   }

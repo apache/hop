@@ -19,7 +19,6 @@
 package org.apache.hop.ui.hopgui.perspective.configuration.tabs;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
@@ -74,7 +73,7 @@ public class ConfigPluginOptionsTab {
     CTabItem wPluginsTab = new CTabItem(wTabFolder, SWT.NONE);
     wPluginsTab.setFont(GuiResource.getInstance().getFontDefault());
     wPluginsTab.setText("Plugins");
-    wPluginsTab.setImage(GuiResource.getInstance().getImageHopUi());
+    wPluginsTab.setImage(GuiResource.getInstance().getImagePlugin());
 
     Composite wPluginsTabComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wPluginsTabComp);

@@ -778,7 +778,7 @@ public class HopGui
       id = ID_MAIN_MENU_FILE_EXIT,
       label = "i18n::HopGui.Menu.File.Quit",
       parentId = ID_MAIN_MENU_FILE,
-      image = "ui/images/close-panel.svg",
+      image = "ui/images/shutdown.svg",
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'q')
   @GuiOsxKeyboardShortcut(command = true, key = 'q')
@@ -831,7 +831,7 @@ public class HopGui
       id = ID_MAIN_MENU_EDIT_SELECT_ALL,
       label = "i18n::HopGui.Menu.Edit.SelectAll",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
-      image = "ui/images/add_all.svg",
+      image = "ui/images/select-all.svg",
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'a')
   @GuiOsxKeyboardShortcut(command = true, key = 'a')
@@ -844,7 +844,7 @@ public class HopGui
       id = ID_MAIN_MENU_EDIT_UNSELECT_ALL,
       label = "i18n::HopGui.Menu.Edit.ClearSelection",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
-      image = "ui/images/cancel.svg")
+      image = "ui/images/unselect-all.svg")
   @GuiKeyboardShortcut(key = SWT.ESC)
   @GuiOsxKeyboardShortcut(key = SWT.ESC)
   public void menuEditUnselectAll() {
