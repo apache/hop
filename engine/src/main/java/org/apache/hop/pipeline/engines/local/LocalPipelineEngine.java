@@ -45,6 +45,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
@@ -399,11 +400,20 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                 iLocation.registerData(dataBuilder.build());
               }
 
-              // Also update the pipeline execution state regularly
+              // Update the pipeline execution state regularly
               //
-              ExecutionState executionState =
+              ExecutionState pipelineState =
                   ExecutionStateBuilder.fromExecutor(LocalPipelineEngine.this, -1).build();
-              iLocation.updateExecutionState(executionState);
+              iLocation.updateExecutionState(pipelineState);
+
+              // Update the state of all the transforms
+              //
+              for (IEngineComponent component : getComponents()) {
+                ExecutionState transformState =
+                    ExecutionStateBuilder.fromTransform(LocalPipelineEngine.this, component)
+                        .build();
+                iLocation.updateExecutionState(transformState);
+              }
             } catch (Exception e) {
               // This is probably cause by a race condition triggering this code after the pipeline
               // finished.  We're just going to log this as a warning.
@@ -481,6 +491,15 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
       ExecutionState executionState =
           ExecutionStateBuilder.fromExecutor(LocalPipelineEngine.this, -1).build();
       iLocation.updateExecutionState(executionState);
+
+      // Update the state of all the transforms one final time
+      //
+      for (IEngineComponent component : getComponents()) {
+        ExecutionState transformState =
+                ExecutionStateBuilder.fromTransform(LocalPipelineEngine.this, component)
+                        .build();
+        iLocation.updateExecutionState(transformState);
+      }
 
       // We're now certain all listeners fired. We can close the location.
       //

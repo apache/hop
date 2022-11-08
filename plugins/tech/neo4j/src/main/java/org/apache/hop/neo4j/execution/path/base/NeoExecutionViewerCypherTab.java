@@ -21,6 +21,7 @@ package org.apache.hop.neo4j.execution.path.base;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -79,9 +80,20 @@ public class NeoExecutionViewerCypherTab extends NeoExecutionViewerTabBase {
               + Const.CR
               + Const.CR;
     }
-    String rootCypher = getPathToRootCypher(getActiveLogChannelId());
+    String rootCypher = getPathToRootCypher();
     String activeId = getActiveLogChannelId();
     cypher += rootCypher.replace("$executionId", '"' + activeId + '"');
+
+    ExecutionState state = viewer.getExecutionState();
+    if (state != null) {
+      cypher += Const.CR + Const.CR;
+      cypher +=
+          "Execute this Cypher to get the paths to the lowest level failed execution nodes:"
+              + Const.CR
+              + Const.CR;
+      cypher += getPathToFailedCypher();
+    }
+    cypher = cypher.replace("$executionId", "\"" + getActiveLogChannelId() + "\"");
     wCypher.setText(cypher);
   }
 }

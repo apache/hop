@@ -154,8 +154,9 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       WorkflowMeta workflowMeta,
       String locationName,
       ExecutionPerspective perspective,
-      Execution execution) {
-    super(parent, hopGui, perspective, locationName, execution);
+      Execution execution,
+      ExecutionState executionState) {
+    super(parent, hopGui, perspective, locationName, execution, executionState);
     this.workflowMeta = workflowMeta;
 
     actionExecutions = new HashMap<>();
@@ -269,18 +270,19 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       }
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
-      ExecutionState state = iLocation.getExecutionState(execution.getId());
-      if (state == null) {
+      executionState = iLocation.getExecutionState(execution.getId());
+      if (executionState == null) {
         return;
       }
 
       // Calculate information staleness
       //
-      String statusDescription = state.getStatusDescription();
+      String statusDescription = executionState.getStatusDescription();
       if (Pipeline.STRING_RUNNING.equalsIgnoreCase(statusDescription)
           || Pipeline.STRING_INITIALIZING.equalsIgnoreCase(statusDescription)) {
         long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
-        if (System.currentTimeMillis() - state.getUpdateTime().getTime() > loggingInterval) {
+        if (System.currentTimeMillis() - executionState.getUpdateTime().getTime()
+            > loggingInterval) {
           // The information is stale, not getting updates!
           //
           TableItem item = infoView.add("Update state", STRING_STATE_STALE);
@@ -296,13 +298,13 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       infoView.add("Parent ID", execution.getParentId());
       infoView.add("Registration", formatDate(execution.getRegistrationDate()));
       infoView.add("Start", formatDate(execution.getExecutionStartDate()));
-      infoView.add("Type", state.getExecutionType().name());
+      infoView.add("Type", executionState.getExecutionType().name());
       infoView.add("Status", statusDescription);
-      infoView.add("Status Last updated", formatDate(state.getUpdateTime()));
+      infoView.add("Status Last updated", formatDate(executionState.getUpdateTime()));
 
       infoView.optimizeTableView();
 
-      loggingText.setText(Const.NVL(state.getLoggingText(), ""));
+      loggingText.setText(Const.NVL(executionState.getLoggingText(), ""));
       // Scroll to the bottom
       loggingText.setSelection(loggingText.getCharCount());
 
@@ -956,7 +958,8 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
       // Open this one
       //
-      perspective.createExecutionViewer(locationName, child);
+      perspective.createExecutionViewer(
+          locationName, child, iLocation.getExecutionState(child.getId()));
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error drilling down into selected action", e);
     }
@@ -992,7 +995,8 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
       // Open this one
       //
-      perspective.createExecutionViewer(locationName, grandParent);
+      perspective.createExecutionViewer(
+          locationName, grandParent, iLocation.getExecutionState(grandParent.getId()));
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error navigating up to parent execution", e);
     }

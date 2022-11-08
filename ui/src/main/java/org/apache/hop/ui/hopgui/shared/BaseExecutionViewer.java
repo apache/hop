@@ -25,6 +25,7 @@ import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.ui.core.PropsUi;
@@ -68,6 +69,7 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
 
   protected final String locationName;
   protected final Execution execution;
+  protected ExecutionState executionState;
 
   protected ToolBar toolBar;
   protected GuiToolbarWidgets toolBarWidgets;
@@ -81,11 +83,13 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
       HopGui hopGui,
       ExecutionPerspective perspective,
       String locationName,
-      Execution execution) {
+      Execution execution,
+      ExecutionState executionState) {
     super(parent, SWT.NO_BACKGROUND);
     this.perspective = perspective;
     this.locationName = locationName;
     this.execution = execution;
+    this.executionState = executionState;
     this.hopGui = hopGui;
     this.props = PropsUi.getInstance();
     this.iconSize = hopGui.getProps().getIconSize();
@@ -99,6 +103,9 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
 
   @Override
   public boolean setFocus() {
+    if (canvas.isDisposed()) {
+      return false;
+    }
     return canvas.setFocus();
   }
 
@@ -354,5 +361,23 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
    */
   public void setLastClick(Point lastClick) {
     this.lastClick = lastClick;
+  }
+
+  /**
+   * Gets executionState
+   *
+   * @return value of executionState
+   */
+  public ExecutionState getExecutionState() {
+    return executionState;
+  }
+
+  /**
+   * Sets executionState
+   *
+   * @param executionState value of executionState
+   */
+  public void setExecutionState(ExecutionState executionState) {
+    this.executionState = executionState;
   }
 }
