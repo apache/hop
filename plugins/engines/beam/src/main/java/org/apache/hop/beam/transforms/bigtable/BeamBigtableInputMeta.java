@@ -119,8 +119,6 @@ public class BeamBigtableInputMeta extends BaseTransformMeta<Dummy, DummyData>
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       Pipeline pipeline,
@@ -154,9 +152,7 @@ public class BeamBigtableInputMeta extends BaseTransformMeta<Dummy, DummyData>
             transformMeta.getName(),
             JsonRowMeta.toJson(rowMeta),
             variables.resolve(keyField),
-            j.toJSONString(),
-            transformPluginClasses,
-            xpPluginClasses);
+            j.toJSONString());
 
     PCollection<HopRow> output = rowPCollection.apply(ParDo.of(fn));
     transformCollectionMap.put(transformMeta.getName(), output);

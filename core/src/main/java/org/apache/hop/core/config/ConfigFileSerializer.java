@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.InputStream;
@@ -33,7 +34,7 @@ public class ConfigFileSerializer implements IHopConfigSerializer {
   @Override
   public void writeToFile(String filename, Map<String, Object> configMap) throws HopException {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
+      ObjectMapper objectMapper = HopJson.newMapper();
       String niceJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(configMap);
 
       // Write to a new new file...
@@ -81,7 +82,7 @@ public class ConfigFileSerializer implements IHopConfigSerializer {
         //
         return new HashMap<>();
       }
-      ObjectMapper objectMapper = new ObjectMapper();
+      ObjectMapper objectMapper = HopJson.newMapper();
       TypeReference<HashMap<String, Object>> typeRef =
           new TypeReference<HashMap<String, Object>>() {};
       try (InputStream inputStream = HopVfs.getInputStream(file)) {

@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.execution.Execution;
@@ -119,7 +120,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       // Write the execution information to disk...
       //
       try (OutputStream outputStream = HopVfs.getOutputStream(registrationFileName, false)) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = HopJson.newMapper();
         mapper.writerWithDefaultPrettyPrinter().writeValue(outputStream, execution);
       }
     } catch (Exception e) {
@@ -194,7 +195,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       HopVfs.getFileObject(updateFilename).getParent().createFolder();
 
       try (OutputStream outputStream = HopVfs.getOutputStream(updateFilename, false)) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = HopJson.newMapper();
         mapper.writerWithDefaultPrettyPrinter().writeValue(outputStream, executionState);
       }
 
@@ -217,7 +218,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
         return null;
       }
       try (InputStream inputStream = HopVfs.getInputStream(updateFilename)) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = HopJson.newMapper();
         return mapper.readValue(inputStream, ExecutionState.class);
       }
     } catch (Exception e) {
@@ -239,7 +240,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       String dataFilename = getDataFilename(data);
 
       try (OutputStream outputStream = HopVfs.getOutputStream(dataFilename, false)) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = HopJson.newMapper();
         mapper.writerWithDefaultPrettyPrinter().writeValue(outputStream, data);
       }
     } catch (Exception e) {
@@ -272,7 +273,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       for (FileObject subFolder : subFolders) {
         FileObject executionFileObject = subFolder.getChild(FILENAME_EXECUTION_JSON);
         if (executionFileObject != null && executionFileObject.exists()) {
-          ObjectMapper objectMapper = new ObjectMapper();
+          ObjectMapper objectMapper = HopJson.newMapper();
           Execution execution;
           ExecutionState state = null;
           try (InputStream inputStream = HopVfs.getInputStream(executionFileObject)) {
@@ -363,7 +364,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
           // No information for this ID
           return null;
         }
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = HopJson.newMapper();
         try (InputStream inputStream = HopVfs.getInputStream(executionFileObject)) {
           return objectMapper.readValue(inputStream, Execution.class);
         }
@@ -456,7 +457,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
           return null;
         }
         try (InputStream inputStream = HopVfs.getInputStream(dataFileObject)) {
-          ObjectMapper objectMapper = new ObjectMapper();
+          ObjectMapper objectMapper = HopJson.newMapper();
           return objectMapper.readValue(inputStream, ExecutionData.class);
         }
       }

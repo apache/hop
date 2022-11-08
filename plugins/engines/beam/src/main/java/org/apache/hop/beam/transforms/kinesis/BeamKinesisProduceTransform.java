@@ -44,8 +44,6 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
 
   private String transformName;
   private String rowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   private String accessKey;
   private String secretKey;
@@ -67,8 +65,6 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
   public BeamKinesisProduceTransform(
       String transformName,
       String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       String accessKey,
       String secretKey,
       Regions regions,
@@ -83,8 +79,6 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
     //
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
     this.accessKey = accessKey;
     this.secretKey = secretKey;
     this.regions = regions;
@@ -105,7 +99,7 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
 
       // Inflate the metadata on the node where this is running...
       //
@@ -135,8 +129,6 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
                   new HopRowToMessage(
                       transformName,
                       rowMetaJson,
-                      transformPluginClasses,
-                      xpPluginClasses,
                       messageIndex)));
 
       // Write to Kinesis stream with <String, byte[]>
@@ -162,8 +154,6 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
     private final int messageIndex;
     private final String transformName;
     private final String rowMetaJson;
-    private final List<String> transformPluginClasses;
-    private final List<String> xpPluginClasses;
 
     private transient IValueMeta valueMeta;
     private transient Counter outputCounter;
@@ -172,13 +162,9 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
     public HopRowToMessage(
         String transformName,
         String rowMetaJson,
-        List<String> transformPluginClasses,
-        List<String> xpPluginClasses,
         int messageIndex) {
       this.transformName = transformName;
       this.rowMetaJson = rowMetaJson;
-      this.transformPluginClasses = transformPluginClasses;
-      this.xpPluginClasses = xpPluginClasses;
       this.messageIndex = messageIndex;
     }
 
@@ -190,7 +176,7 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
 
         // Initialize Hop Beam
         //
-        BeamHop.init(transformPluginClasses, xpPluginClasses);
+        BeamHop.init();
         IRowMeta rowMeta = JsonRowMeta.fromJson(rowMetaJson);
         valueMeta = rowMeta.getValueMeta(messageIndex);
 

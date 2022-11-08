@@ -89,33 +89,21 @@ Make sure to check our v4 upgrade notes
 
 |===
 
-== Aura
+== Neo4j Aura Cloud Service
 
-To connect to an Aura version 4 database you can use the following options:
+To connect to an Aura version 4 or 5 database you can use the following options:
 
 |===
 |Option |Value
 
 |Automatic?
-|Disabled
+|Enabled
+
+|Protocol
+|`neo4j+s`
 
 |Server or IP address
 |the provided ....neo4j.io hostname
-
-|Database name
-|neo4j
-
-|Bolt port
-|7687
-
-|Use routing, neo4j:// protocol?
-|Enabled
-
-|Routing policy
-|neo4j+s
-
-|Use Encryption?
-|Enabled
 
 |Username
 |neo4j

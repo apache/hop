@@ -66,6 +66,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.history.AuditManager;
@@ -3513,9 +3514,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
           runWorkflowMeta =
               new WorkflowMeta(
-                  hopGui.getVariables(),
-                  workflowMeta.getFilename(),
-                  workflowMeta.getMetadataProvider());
+                  variables, workflowMeta.getFilename(), workflowMeta.getMetadataProvider());
 
           String hopGuiObjectId = UUID.randomUUID().toString();
           SimpleLoggingObject hopGuiLoggingObject =
@@ -4033,7 +4032,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
             Execution execution = iLocation.getExecution(workflow.getLogChannelId());
             if (execution != null) {
-              ep.createExecutionViewer(locationName, execution);
+              ExecutionState executionState = iLocation.getExecutionState(execution.getId());
+              ep.createExecutionViewer(locationName, execution, executionState);
               ep.activate();
               return;
             }
@@ -4147,7 +4147,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       List<Execution> executions = iLocation.findExecutions(actionId);
       if (executions.size() > 0) {
         Execution execution = executions.get(0);
-        executionPerspective.createExecutionViewer(locationName, execution);
+        ExecutionState executionState = iLocation.getExecutionState(execution.getId());
+        executionPerspective.createExecutionViewer(locationName, execution, executionState);
         executionPerspective.activate();
       }
     } catch (Exception e) {

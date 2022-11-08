@@ -64,8 +64,6 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
   private String messageField;
   private List<ConfigOption> configOptions;
   private String rowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   // Log and count errors.
   private static final Logger LOG = LoggerFactory.getLogger(BeamKafkaOutputTransform.class);
@@ -82,9 +80,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
       String[] configOptionParameters,
       String[] configOptionValues,
       String[] configOptionTypes,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     super(transformName);
     this.transformName = transformName;
     this.bootstrapServers = bootstrapServers;
@@ -92,8 +88,6 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
     this.keyField = keyField;
     this.messageField = messageField;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
     this.configOptions = new ArrayList<>();
     for (int i = 0; i < configOptionParameters.length; i++) {
       this.configOptions.add(
@@ -110,7 +104,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
 
       // Inflate the metadata on the node where this is running...
       //
@@ -175,9 +169,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
                         transformName,
                         keyIndex,
                         messageIndex,
-                        rowMetaJson,
-                        transformPluginClasses,
-                        xpPluginClasses);
+                        rowMetaJson);
 
         // Then write to Kafka topic
         //
@@ -200,9 +192,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
                         transformName,
                         keyIndex,
                         messageIndex,
-                        rowMetaJson,
-                        transformPluginClasses,
-                        xpPluginClasses);
+                        rowMetaJson);
 
         KafkaIO.Write<String, GenericRecord> stringsToKafka =
                 KafkaIO.<String, GenericRecord>write()
@@ -252,8 +242,6 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
     private String transformName;
     private int keyIndex;
     private int valueIndex;
-    private List<String> transformPluginClasses;
-    private List<String> xpPluginClasses;
 
     private static final Logger LOG = LoggerFactory.getLogger(HopRowToKVStringGenericRecordFn.class);
     private final Counter numErrors = Metrics.counter("main", "BeamKafkaProducerTransformErrors");
@@ -266,15 +254,11 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
             String transformName,
             int keyIndex,
             int valueIndex,
-            String rowMetaJson,
-            List<String> transformPluginClasses,
-            List<String> xpPluginClasses) {
+            String rowMetaJson) {
       this.transformName = transformName;
       this.keyIndex = keyIndex;
       this.valueIndex = valueIndex;
       this.rowMetaJson = rowMetaJson;
-      this.transformPluginClasses = transformPluginClasses;
-      this.xpPluginClasses = xpPluginClasses;
     }
 
     @Setup
@@ -285,7 +269,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
 
         // Initialize Hop Beam
         //
-        BeamHop.init(transformPluginClasses, xpPluginClasses);
+        BeamHop.init();
         rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
         Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();

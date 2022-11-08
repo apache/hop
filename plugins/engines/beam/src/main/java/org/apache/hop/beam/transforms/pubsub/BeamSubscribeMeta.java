@@ -124,8 +124,6 @@ public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubs
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -153,9 +151,7 @@ public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubs
             variables.resolve(subscription),
             variables.resolve(topic),
             messageType,
-            rowMetaJson,
-            transformPluginClasses,
-            xpPluginClasses);
+            rowMetaJson);
 
     PCollection<HopRow> afterInput = pipeline.apply(subscribeTransform);
     transformCollectionMap.put(transformMeta.getName(), afterInput);

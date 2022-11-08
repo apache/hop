@@ -49,8 +49,6 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
   private String rightKRowMetaJson;
   private String rightVRowMetaJson;
   private String counterName;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   private static final Logger LOG = LoggerFactory.getLogger(MergeJoinAssemblerFn.class);
 
@@ -79,9 +77,7 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
       String leftVRowMetaJson,
       String rightKRowMetaJson,
       String rightVRowMetaJson,
-      String counterName,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String counterName) {
     this.joinType = joinType;
     this.leftRowMetaJson = leftRowMetaJson;
     this.rightRowMetaJson = rightRowMetaJson;
@@ -90,8 +86,6 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
     this.rightKRowMetaJson = rightKRowMetaJson;
     this.rightVRowMetaJson = rightVRowMetaJson;
     this.counterName = counterName;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Setup
@@ -102,7 +96,7 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
       leftRowMeta = JsonRowMeta.fromJson(leftRowMetaJson);
       rightRowMeta = JsonRowMeta.fromJson(rightRowMetaJson);
       leftKRowMeta = JsonRowMeta.fromJson(leftKRowMetaJson);

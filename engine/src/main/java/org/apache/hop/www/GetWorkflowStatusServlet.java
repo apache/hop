@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
@@ -163,7 +164,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           } else {
             // JSON
             //
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = HopJson.newMapper();
             String jsonString =
                 mapper.writerWithDefaultPrettyPrinter().writeValueAsString(workflowStatus);
             byte[] data = jsonString.getBytes(Charset.forName(Const.XML_ENCODING));

@@ -43,8 +43,6 @@ public class StaticHopRowFn extends DoFn<KV<byte[], byte[]>, HopRow> {
   private final boolean neverEnding;
   private final int currentTimeFieldIndex;
   private final int previousTimeFieldIndex;
-  private final List<String> transformPluginClasses;
-  private final List<String> xpPluginClasses;
 
   private transient RowMetaAndData rowMetaAndData;
   private transient Counter writtenCounter;
@@ -56,17 +54,13 @@ public class StaticHopRowFn extends DoFn<KV<byte[], byte[]>, HopRow> {
       String rowDataXml,
       boolean neverEnding,
       int currentTimeFieldIndex,
-      int previousTimeFieldIndex,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      int previousTimeFieldIndex) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
     this.rowDataXml = rowDataXml;
     this.neverEnding = neverEnding;
     this.currentTimeFieldIndex = currentTimeFieldIndex;
     this.previousTimeFieldIndex = previousTimeFieldIndex;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Setup
@@ -76,7 +70,7 @@ public class StaticHopRowFn extends DoFn<KV<byte[], byte[]>, HopRow> {
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
 
       IRowMeta rowMeta = JsonRowMeta.fromJson(rowMetaJson);
       Document document = XmlHandler.loadXmlString(rowDataXml);

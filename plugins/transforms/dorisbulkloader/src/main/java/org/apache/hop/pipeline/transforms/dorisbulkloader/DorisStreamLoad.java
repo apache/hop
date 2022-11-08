@@ -21,6 +21,7 @@ package org.apache.hop.pipeline.transforms.dorisbulkloader;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.json.HopJson;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
@@ -41,7 +42,7 @@ public class DorisStreamLoad {
   private static final byte[] JSON_ARRAY_END =
       LoadConstants.JSON_ARRAY_END.getBytes(StandardCharsets.UTF_8);
   /** used to serialize or deserialize json string */
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static final ObjectMapper OBJECT_MAPPER = HopJson.newMapper();
 
   /** doris stream load http url */
   private String loadUrl;

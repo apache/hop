@@ -17,11 +17,11 @@
 
 package org.apache.hop.www;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
@@ -103,8 +103,6 @@ public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHo
         throw new HopException("Unable to find execution information location " + locationName);
       }
 
-
-
       // First read the complete JSON document in memory from the request
       //
       StringBuilder json = new StringBuilder(request.getContentLength());
@@ -117,16 +115,16 @@ public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHo
       //
       switch (type) {
         case TYPE_EXECUTION:
-          Execution execution = new ObjectMapper().readValue(json.toString(), Execution.class);
+          Execution execution = HopJson.newMapper().readValue(json.toString(), Execution.class);
           location.getExecutionInfoLocation().registerExecution(execution);
           break;
         case TYPE_STATE:
           ExecutionState state =
-              new ObjectMapper().readValue(json.toString(), ExecutionState.class);
+              HopJson.newMapper().readValue(json.toString(), ExecutionState.class);
           location.getExecutionInfoLocation().updateExecutionState(state);
           break;
         case TYPE_DATA:
-          ExecutionData data = new ObjectMapper().readValue(json.toString(), ExecutionData.class);
+          ExecutionData data = HopJson.newMapper().readValue(json.toString(), ExecutionData.class);
           location.getExecutionInfoLocation().registerData(data);
           break;
         default:
@@ -143,7 +141,9 @@ public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHo
 
       // Return the log channel id as well
       //
-      out.println(new WebResult(WebResult.STRING_OK, "Registration successful at location "+locationName));
+      out.println(
+          new WebResult(
+              WebResult.STRING_OK, "Registration successful at location " + locationName));
 
     } catch (Exception ex) {
 

@@ -123,6 +123,17 @@ public final class ExecutionStateBuilder {
     return builder;
   }
 
+  public static ExecutionStateBuilder fromTransform(
+      IPipelineEngine<PipelineMeta> pipeline, IEngineComponent component) {
+    return of().withExecutionType(ExecutionType.Transform)
+        .withId(component.getLogChannelId())
+        .withStatusDescription(component.getStatusDescription())
+        .withFailed(component.getErrors() > 0)
+        .withName(component.getName())
+        .withCopyNr(Integer.toString(component.getCopyNr()))
+        .withParentId(pipeline.getLogChannelId());
+  }
+
   private static void addMetric(
       ExecutionStateComponentMetrics componentMetrics,
       EngineMetrics engineMetrics,
@@ -145,19 +156,16 @@ public final class ExecutionStateBuilder {
     int lastNrInLogStore = HopLogStore.getLastBufferLineNr();
     Result result = workflow.getResult();
 
-    ExecutionStateBuilder builder =
-        of().withExecutionType(ExecutionType.Workflow)
-            .withParentId(parentLogChannelId)
-            .withId(workflow.getLogChannelId())
-            .withName(workflow.getWorkflowMeta().getName())
-            .withLoggingText(getLoggingText(workflow.getLogChannelId(), lastLogLineNr))
-            .withLastLogLineNr(lastNrInLogStore)
-            .withFailed(result != null && !result.getResult())
-            .withStatusDescription(workflow.getStatusDescription())
-            .withChildIds(
-                LoggingRegistry.getInstance().getChildrenMap().get(workflow.getLogChannelId()));
-
-    return builder;
+    return of().withExecutionType(ExecutionType.Workflow)
+        .withParentId(parentLogChannelId)
+        .withId(workflow.getLogChannelId())
+        .withName(workflow.getWorkflowMeta().getName())
+        .withLoggingText(getLoggingText(workflow.getLogChannelId(), lastLogLineNr))
+        .withLastLogLineNr(lastNrInLogStore)
+        .withFailed(result != null && !result.getResult())
+        .withStatusDescription(workflow.getStatusDescription())
+        .withChildIds(
+            LoggingRegistry.getInstance().getChildrenMap().get(workflow.getLogChannelId()));
   }
 
   public ExecutionStateBuilder withExecutionType(ExecutionType executionType) {
@@ -248,5 +256,4 @@ public final class ExecutionStateBuilder {
     state.setDetails(details);
     return state;
   }
-
 }

@@ -35,8 +35,6 @@ public class KVLongStringToHopRowFn extends DoFn<KV<Long, String>, HopRow> {
 
   private String rowMetaJson;
   private String transformName;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   private static final Logger LOG = LoggerFactory.getLogger(KVLongStringToHopRowFn.class);
   private final Counter numErrors = Metrics.counter("main", "BeamSubscribeTransformErrors");
@@ -48,13 +46,9 @@ public class KVLongStringToHopRowFn extends DoFn<KV<Long, String>, HopRow> {
 
   public KVLongStringToHopRowFn(
       String transformName,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Setup
@@ -65,7 +59,7 @@ public class KVLongStringToHopRowFn extends DoFn<KV<Long, String>, HopRow> {
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
       rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
       Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();

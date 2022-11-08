@@ -50,8 +50,6 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
   private String topic;
   private String messageType;
   private String rowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   // Log and count errors.
   private static final Logger LOG = LoggerFactory.getLogger(BeamSubscribeTransform.class);
@@ -70,17 +68,13 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
       String subscription,
       String topic,
       String messageType,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     super(name);
     this.transformName = transformName;
     this.subscription = subscription;
     this.topic = topic;
     this.messageType = messageType;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Override
@@ -90,7 +84,7 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
       if (rowMeta == null) {
         // Only initialize once on this node/vm
         //
-        BeamHop.init(transformPluginClasses, xpPluginClasses);
+        BeamHop.init();
 
         rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
@@ -119,7 +113,7 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
                 transformName,
                 ParDo.of(
                     new StringToHopRowFn(
-                        transformName, rowMetaJson, transformPluginClasses, xpPluginClasses)));
+                        transformName, rowMetaJson)));
 
       } else if (BeamDefaults.PUBSUB_MESSAGE_TYPE_MESSAGE.equalsIgnoreCase(messageType)) {
 
@@ -135,7 +129,7 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
                 transformName,
                 ParDo.of(
                     new PubsubMessageToHopRowFn(
-                        transformName, rowMetaJson, transformPluginClasses, xpPluginClasses)));
+                        transformName, rowMetaJson)));
 
       } else {
         throw new RuntimeException("Unsupported message type: " + messageType);

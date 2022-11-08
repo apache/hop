@@ -47,8 +47,6 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
   private String messageType;
   private String messageField;
   private String rowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   // Log and count errors.
   private static final Logger LOG = LoggerFactory.getLogger(BeamPublishTransform.class);
@@ -64,16 +62,12 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
       String topic,
       String messageType,
       String messageField,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     this.transformName = transformName;
     this.topic = topic;
     this.messageType = messageType;
     this.messageField = messageField;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Override
@@ -84,7 +78,7 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
       if (rowMeta == null) {
         // Only initialize once on this node/vm
         //
-        BeamHop.init(transformPluginClasses, xpPluginClasses);
+        BeamHop.init();
 
         // Inflate the metadata on the node where this is running...
         //
@@ -115,7 +109,7 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
 
         PublishStringsFn stringsFn =
             new PublishStringsFn(
-                transformName, fieldIndex, rowMetaJson, transformPluginClasses, xpPluginClasses);
+                transformName, fieldIndex, rowMetaJson);
         PCollection<String> stringPCollection = input.apply(transformName, ParDo.of(stringsFn));
         PDone done = PubsubIO.writeStrings().to(topic).expand(stringPCollection);
         return done;
@@ -126,7 +120,7 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
       if (BeamDefaults.PUBSUB_MESSAGE_TYPE_MESSAGE.equalsIgnoreCase(messageType)) {
         PublishMessagesFn messagesFn =
             new PublishMessagesFn(
-                transformName, fieldIndex, rowMetaJson, transformPluginClasses, xpPluginClasses);
+                transformName, fieldIndex, rowMetaJson);
         PCollection<PubsubMessage> messagesPCollection = input.apply(ParDo.of(messagesFn));
         PDone done = PubsubIO.writeMessages().to(topic).expand(messagesPCollection);
         return done;

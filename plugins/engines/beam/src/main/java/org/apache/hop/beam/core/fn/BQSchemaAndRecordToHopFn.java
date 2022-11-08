@@ -43,8 +43,6 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
 
   private String transformName;
   private String rowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   private transient Counter initCounter;
   private transient Counter inputCounter;
@@ -60,13 +58,9 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
 
   public BQSchemaAndRecordToHopFn(
       String transformName,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Override
@@ -85,7 +79,7 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
 
         // Initialize Hop
         //
-        BeamHop.init(transformPluginClasses, xpPluginClasses);
+        BeamHop.init();
         rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
         int[] valueTypes = new int[rowMeta.size()];

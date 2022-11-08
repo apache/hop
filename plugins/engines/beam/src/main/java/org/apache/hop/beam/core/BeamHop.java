@@ -46,11 +46,9 @@ public class BeamHop {
     return HopEnvironment.isInitialized();
   }
 
-  public static final void init(List<String> transformPluginClasses, List<String> xpPluginClasses)
+  public static final void init()
       throws HopException {
-    PluginRegistry registry = PluginRegistry.getInstance();
-    synchronized (registry) {
-
+    synchronized (PluginRegistry.getInstance()) {
       // Don't create hop config files everywhere...
       //
       System.setProperty(Const.HOP_AUTO_CREATE_CONFIG, "N");
@@ -60,74 +58,18 @@ public class BeamHop {
       HopEnvironment.init();
 
       XmlHandlerCache.getInstance();
-
-      // Register extra classes from the plugins...
-      // If they're already in the classpath, this should be fast.
-      //
-      TransformPluginType transformPluginType =
-          (TransformPluginType) registry.getPluginType(TransformPluginType.class);
-      for (String transformPluginClassName : transformPluginClasses) {
-        try {
-          // Only register if it doesn't exist yet.  This is not ideal if we want to replace old
-          // transforms with bug fixed new ones.
-          //
-          IPlugin exists =
-              findPlugin(registry, TransformPluginType.class, transformPluginClassName);
-          if (exists == null) {
-            // Class should be in the classpath since we put it there
-            //
-            Class<?> transformPluginClass = Class.forName(transformPluginClassName);
-            Transform annotation = transformPluginClass.getAnnotation(Transform.class);
-
-            // The plugin class is already in the classpath so we simply call Class.forName() on it.
-            //
-            transformPluginType.handlePluginAnnotation(
-                transformPluginClass, annotation, new ArrayList<>(), true, null);
-          } else {
-            LOG.debug("Plugin " + transformPluginClassName + " is already registered");
-          }
-        } catch (Exception e) {
-          LOG.error("Error registering transform plugin class : " + transformPluginClassName, e);
-        }
-      }
-
-      ExtensionPointPluginType xpPluginType =
-          (ExtensionPointPluginType) registry.getPluginType(ExtensionPointPluginType.class);
-      for (String xpPluginClassName : xpPluginClasses) {
-        try {
-          IPlugin exists = findPlugin(registry, ExtensionPointPluginType.class, xpPluginClassName);
-          // Only register if it doesn't exist yet. This is not ideal if we want to replace old
-          // transforms with bug fixed new ones.
-          //
-          if (exists == null) {
-            // Class should be in the classpath since we put it there
-            //
-            Class<?> xpPluginClass = Class.forName(xpPluginClassName);
-            ExtensionPoint annotation = xpPluginClass.getAnnotation(ExtensionPoint.class);
-
-            // The plugin class is already in the classpath so we simply call Class.forName() on it.
-
-            xpPluginType.handlePluginAnnotation(
-                xpPluginClass, annotation, new ArrayList<>(), true, null);
-          } else {
-            LOG.debug("Plugin " + xpPluginClassName + " is already registered");
-          }
-        } catch (Exception e) {
-          LOG.error("Error registering transform plugin class : " + xpPluginClassName, e);
-        }
-      }
     }
   }
 
   private static IPlugin findPlugin(
       PluginRegistry registry,
-      Class<? extends IPluginType> pluginTypeClass,
+      Class<? extends IPluginType<?>> pluginTypeClass,
       String pluginClassName) {
     PluginMainClassType classType = pluginTypeClass.getAnnotation(PluginMainClassType.class);
     List<IPlugin> plugins = registry.getPlugins(pluginTypeClass);
     for (IPlugin plugin : plugins) {
       String mainClassName = plugin.getClassMap().get(classType.value());
-      if (mainClassName != null && pluginClassName.equals(mainClassName)) {
+      if (pluginClassName.equals(mainClassName)) {
         return plugin;
       }
     }

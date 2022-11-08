@@ -117,8 +117,6 @@ public class BeamKinesisProduceMeta extends BaseTransformMeta<BeamKinesisProduce
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -147,8 +145,6 @@ public class BeamKinesisProduceMeta extends BaseTransformMeta<BeamKinesisProduce
         new BeamKinesisProduceTransform(
             transformMeta.getName(),
             JsonRowMeta.toJson(rowMeta),
-            transformPluginClasses,
-            xpPluginClasses,
             variables.resolve(accessKey),
             variables.resolve(secretKey),
             Regions.DEFAULT_REGION,

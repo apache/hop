@@ -68,8 +68,6 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       Pipeline pipeline,
@@ -136,8 +134,6 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
     HopKeyValueFn leftKVFn =
         new HopKeyValueFn(
             JsonRowMeta.toJson(leftRowMeta),
-            transformPluginClasses,
-            xpPluginClasses,
             leftK.toArray(new String[0]),
             leftV.toArray(new String[0]),
             transformMeta.getName());
@@ -161,8 +157,6 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
     HopKeyValueFn rightKVFn =
         new HopKeyValueFn(
             JsonRowMeta.toJson(rightRowMeta),
-            transformPluginClasses,
-            xpPluginClasses,
             rightK.toArray(new String[0]),
             rightV.toArray(new String[0]),
             transformMeta.getName());
@@ -225,9 +219,7 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler
             JsonRowMeta.toJson(leftVRowMeta),
             JsonRowMeta.toJson(rightKRowMeta),
             JsonRowMeta.toJson(rightVRowMeta),
-            transformMeta.getName(),
-            transformPluginClasses,
-            xpPluginClasses);
+            transformMeta.getName());
 
     // Apply the transform to the previous io transform PCollection(s)
     //

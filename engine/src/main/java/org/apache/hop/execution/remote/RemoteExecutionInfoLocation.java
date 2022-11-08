@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
@@ -128,7 +129,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private String getJson(Object object) throws JsonProcessingException {
-    return new ObjectMapper().writeValueAsString(object);
+    return HopJson.newMapper().writeValueAsString(object);
   }
 
   private void validateSettings() throws HopException {
@@ -227,7 +228,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .build();
 
       String json = server.execService(variables, uri.toString());
-      String[] ids = new ObjectMapper().readValue(json, String[].class);
+      String[] ids = HopJson.newMapper().readValue(json, String[].class);
       return Arrays.asList(ids);
     } catch (Exception e) {
       throw new HopException("Error get execution IDs from remote location", e);
@@ -248,8 +249,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .build();
 
       String json = server.execService(variables, uri.toString());
-      Execution execution = new ObjectMapper().readValue(json, Execution.class);
-      return execution;
+      return HopJson.newMapper().readValue(json, Execution.class);
     } catch (Exception e) {
       throw new HopException("Error getting execution from remote location", e);
     }
@@ -268,8 +268,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .build();
 
       String json = server.execService(variables, uri.toString());
-      ExecutionState executionState = new ObjectMapper().readValue(json, ExecutionState.class);
-      return executionState;
+      return HopJson.newMapper().readValue(json, ExecutionState.class);
     } catch (Exception e) {
       throw new HopException("Error getting execution state from remote location", e);
     }
@@ -289,7 +288,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .build();
 
       String json = server.execService(variables, uri.toString());
-      Execution[] executions = new ObjectMapper().readValue(json, Execution[].class);
+      Execution[] executions = HopJson.newMapper().readValue(json, Execution[].class);
       return Arrays.asList(executions);
     } catch (Exception e) {
       throw new HopException("Error getting execution state from remote location", e);
@@ -346,8 +345,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .build();
 
       String json = server.execService(variables, uri.toString());
-      ExecutionData executionData = new ObjectMapper().readValue(json, ExecutionData.class);
-      return executionData;
+      return HopJson.newMapper().readValue(json, ExecutionData.class);
     } catch (Exception e) {
       throw new HopException("Error getting execution data from remote location", e);
     }
@@ -368,8 +366,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .build();
 
       String json = server.execService(variables, uri.toString());
-      Execution execution = new ObjectMapper().readValue(json, Execution.class);
-      return execution;
+      return HopJson.newMapper().readValue(json, Execution.class);
     } catch (Exception e) {
       throw new HopException("Error finding last execution from remote location", e);
     }
@@ -391,7 +388,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .build();
 
       String json = server.execService(variables, uri.toString());
-      String[] ids = new ObjectMapper().readValue(json, String[].class);
+      String[] ids = HopJson.newMapper().readValue(json, String[].class);
       return Arrays.asList(ids);
     } catch (Exception e) {
       throw new HopException("Error finding execution child IDs from remote location", e);
@@ -412,8 +409,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .build();
 
       String json = server.execService(variables, uri.toString());
-      String parentId = new ObjectMapper().readValue(json, String.class);
-      return parentId;
+      return HopJson.newMapper().readValue(json, String.class);
     } catch (Exception e) {
       throw new HopException("Error finding parent execution ID from remote location", e);
     }

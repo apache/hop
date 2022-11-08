@@ -73,8 +73,6 @@ public class TransformFn extends TransformBaseFn {
 
   protected List<VariableValue> variableValues;
   protected String metastoreJson;
-  protected List<String> transformPluginClasses;
-  protected List<String> xpPluginClasses;
   protected String transformPluginId;
   protected String transformMetaInterfaceXml;
   protected String inputRowMetaJson;
@@ -116,8 +114,6 @@ public class TransformFn extends TransformBaseFn {
   public TransformFn(
       List<VariableValue> variableValues,
       String metastoreJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       String transformName,
       String transformPluginId,
       String transformMetaInterfaceXml,
@@ -133,8 +129,6 @@ public class TransformFn extends TransformBaseFn {
     super(parentLogChannelId, runConfigName, dataSamplersJson);
     this.variableValues = variableValues;
     this.metastoreJson = metastoreJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
     this.transformName = transformName;
     this.transformPluginId = transformPluginId;
     this.transformMetaInterfaceXml = transformMetaInterfaceXml;
@@ -211,7 +205,7 @@ public class TransformFn extends TransformBaseFn {
     initialize = false;
     // Initialize Hop and load extra plugins as well
     //
-    BeamHop.init(transformPluginClasses, xpPluginClasses);
+    BeamHop.init();
 
     // The content of the metadata is JSON serialized and inflated below.
     //

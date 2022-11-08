@@ -112,8 +112,6 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData>
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -173,9 +171,7 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData>
             keyIndex,
             j.toJSONString(),
             transformMeta.getName(),
-            JsonRowMeta.toJson(rowMeta),
-            transformPluginClasses,
-            xpPluginClasses);
+            JsonRowMeta.toJson(rowMeta));
 
     PCollection<KV<ByteString, Iterable<Mutation>>> bigtableInput =
         input.apply(transformMeta.getName(), ParDo.of(function));

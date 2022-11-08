@@ -61,6 +61,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
   private Text wName;
   private Label wlAutomatic;
   private CheckBoxVar wAutomatic;
+  private TextVar wProtocol;
   private Label wlServer;
   private TextVar wServer;
   private Label wlDatabaseName;
@@ -211,6 +212,26 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     wAutomatic.setLayoutData(fdAutomatic);
     wAutomatic.addListener(SWT.Selection, e -> enableFields());
     Control lastControl = wAutomatic;
+
+    // Protocol
+    Label wlProtocol = new Label(wBasicComp, SWT.RIGHT);
+    wlProtocol.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Protocol.Label"));
+    wlProtocol.setToolTipText(BaseMessages.getString(PKG, "NeoConnectionEditor.Protocol.Tooltip"));
+    PropsUi.setLook(wlProtocol);
+    FormData fdlProtocol = new FormData();
+    fdlProtocol.top = new FormAttachment(lastControl, margin);
+    fdlProtocol.left = new FormAttachment(0, 0);
+    fdlProtocol.right = new FormAttachment(middle, -margin);
+    wlProtocol.setLayoutData(fdlProtocol);
+    wProtocol = new TextVar(variables, wBasicComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wProtocol.setToolTipText(BaseMessages.getString(PKG, "NeoConnectionEditor.Protocol.Tooltip"));
+    PropsUi.setLook(wProtocol);
+    FormData fdProtocol = new FormData();
+    fdProtocol.top = new FormAttachment(wlProtocol, 0, SWT.CENTER);
+    fdProtocol.left = new FormAttachment(middle, 0);
+    fdProtocol.right = new FormAttachment(95, 0);
+    wProtocol.setLayoutData(fdProtocol);
+    lastControl = wProtocol;
 
     // The server
     wlServer = new Label(wBasicComp, SWT.RIGHT);
@@ -673,8 +694,6 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     boolean hasNoUrls = wUrls.nrNonEmpty() == 0;
     for (Control control :
         new Control[] {
-          wlAutomatic,
-          wAutomatic,
           wlServer,
           wServer,
           wlDatabaseName,
@@ -723,6 +742,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     wName.setText(Const.NVL(metadata.getName(), ""));
     wAutomatic.setSelection(metadata.isAutomatic());
     wAutomatic.setVariableName(Const.NVL(metadata.getAutomaticVariable(), ""));
+    wProtocol.setText(Const.NVL(metadata.getProtocol(), ""));
     wServer.setText(Const.NVL(metadata.getServer(), ""));
     wDatabaseName.setText(Const.NVL(metadata.getDatabaseName(), ""));
     wVersion4.setSelection(metadata.isVersion4());
@@ -763,6 +783,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     neoConnection.setName(wName.getText());
     neoConnection.setAutomatic(wAutomatic.getSelection());
     neoConnection.setAutomaticVariable(wAutomatic.getVariableName());
+    neoConnection.setProtocol(wProtocol.getText());
     neoConnection.setServer(wServer.getText());
     neoConnection.setDatabaseName(wDatabaseName.getText());
     neoConnection.setVersion4(wVersion4.getSelection());

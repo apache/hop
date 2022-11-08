@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 
 public class DropboxConfigSingleton {
@@ -35,14 +36,13 @@ public class DropboxConfigSingleton {
   private DropboxConfigSingleton() {
     // Load from the HopConfig store
     //
-    Object configObject =
-        HopConfig.getInstance().getConfigMap().get(HOP_CONFIG_DROPBOX_KEY);
+    Object configObject = HopConfig.getInstance().getConfigMap().get(HOP_CONFIG_DROPBOX_KEY);
     if (configObject == null) {
       config = new DropboxConfig();
     } else {
 
       try {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = HopJson.newMapper();
         config = mapper.readValue(new Gson().toJson(configObject), DropboxConfig.class);
       } catch (Exception e) {
         LogChannel.GENERAL.logError(
@@ -64,8 +64,7 @@ public class DropboxConfigSingleton {
   }
 
   public static void saveConfig() throws HopException {
-    HopConfig.getInstance()
-        .saveOption(HOP_CONFIG_DROPBOX_KEY, configSingleton.config);
+    HopConfig.getInstance().saveOption(HOP_CONFIG_DROPBOX_KEY, configSingleton.config);
     HopConfig.getInstance().saveToFile();
   }
 }

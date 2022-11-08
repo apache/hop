@@ -107,8 +107,6 @@ public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData> implem
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -127,9 +125,7 @@ public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData> implem
             creatingIfNeeded,
             truncatingTable,
             failingIfNotEmpty,
-            JsonRowMeta.toJson(rowMeta),
-            transformPluginClasses,
-            xpPluginClasses);
+            JsonRowMeta.toJson(rowMeta));
 
     // Which transform do we apply this transform to?
     // Ignore info hops until we figure that out.

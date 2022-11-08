@@ -104,8 +104,6 @@ public class BeamTimestampMeta extends BaseTransformMeta<Dummy, DummyData> imple
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -128,9 +126,7 @@ public class BeamTimestampMeta extends BaseTransformMeta<Dummy, DummyData> imple
                     transformMeta.getName(),
                     JsonRowMeta.toJson(rowMeta),
                     variables.resolve(fieldName),
-                    readingTimestamp,
-                    transformPluginClasses,
-                    xpPluginClasses)));
+                    readingTimestamp)));
 
     // Save this in the map
     //

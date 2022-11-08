@@ -116,8 +116,6 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> i
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -163,9 +161,7 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> i
             parameters,
             values,
             types,
-            JsonRowMeta.toJson(rowMeta),
-            transformPluginClasses,
-            xpPluginClasses);
+            JsonRowMeta.toJson(rowMeta));
 
     // Which transform do we apply this transform to?
     // Ignore info hops until we figure that out.

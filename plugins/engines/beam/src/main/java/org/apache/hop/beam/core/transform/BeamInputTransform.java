@@ -42,8 +42,6 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
   private String inputLocation;
   private String separator;
   private String rowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   // Log and count errors.
   private static final Logger LOG = LoggerFactory.getLogger(BeamInputTransform.class);
@@ -56,16 +54,12 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
       String transformName,
       String inputLocation,
       String separator,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     super(name);
     this.transformName = transformName;
     this.inputLocation = inputLocation;
     this.separator = separator;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Override
@@ -74,16 +68,16 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
 
       TextIO.Read ioRead =
           TextIO.read().from(inputLocation).withCompression(Compression.UNCOMPRESSED);
 
       StringToHopFn stringToHopFn =
           new StringToHopFn(
-              transformName, rowMetaJson, separator, transformPluginClasses, xpPluginClasses);
+              transformName, rowMetaJson, separator);
 
-      PCollection<HopRow> output =
+      return
           input
 
               // We read a bunch of Strings, one per line basically
@@ -93,9 +87,6 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
               // We need to transform these lines into Hop fields
               //
               .apply(transformName, ParDo.of(stringToHopFn));
-
-      return output;
-
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in beam input transform", e);

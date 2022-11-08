@@ -39,8 +39,6 @@ public class KinesisRecordToHopRowFn extends DoFn<KinesisRecord, HopRow> {
 
   private final String rowMetaJson;
   private final String transformName;
-  private final List<String> transformPluginClasses;
-  private final List<String> xpPluginClasses;
 
   private final String uniqueIdField;
   private final String partitionKeyField;
@@ -59,8 +57,6 @@ public class KinesisRecordToHopRowFn extends DoFn<KinesisRecord, HopRow> {
   public KinesisRecordToHopRowFn(
       String transformName,
       String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       String uniqueIdField,
       String partitionKeyField,
       String sequenceNumberField,
@@ -69,8 +65,6 @@ public class KinesisRecordToHopRowFn extends DoFn<KinesisRecord, HopRow> {
       String streamNameField) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
     this.uniqueIdField = uniqueIdField;
     this.partitionKeyField = partitionKeyField;
     this.sequenceNumberField = sequenceNumberField;
@@ -87,7 +81,7 @@ public class KinesisRecordToHopRowFn extends DoFn<KinesisRecord, HopRow> {
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
       rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
       Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();

@@ -1,6 +1,11 @@
 {
   "variables": [
     {
+      "name": "TEST_0012",
+      "value": "Default value",
+      "description": "A default value to see if we can set a new value in the environment"
+    },
+    {
       "name": "HOP_LENIENT_STRING_TO_NUMBER_CONVERSION",
       "value": "N",
       "description": "System wide flag to allow lenient string to number conversion for backward compatibility. If this setting is set to \"Y\", an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol). The default (N) will be to throw an error if non-numeric symbols are found in the string."

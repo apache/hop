@@ -55,22 +55,22 @@ import java.util.List;
 import java.util.Map;
 
 @GuiPlugin
-public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
+public class NeoExecutionViewerErrorTab extends NeoExecutionViewerTabBase {
   private Tree wTree;
 
   /** The constructor is called every time a new tab is created in the pipeline execution viewer */
-  public NeoExecutionViewerLineageTab(BaseExecutionViewer viewer) {
+  public NeoExecutionViewerErrorTab(BaseExecutionViewer viewer) {
     super(viewer);
   }
 
-  public void addNeoExecutionPathTab(CTabFolder tabFolder) {
+  public void addNeoErrorPathTab(CTabFolder tabFolder) {
     Image lineageImage =
-        GuiResource.getInstance().getImage("lineage.svg", classLoader, iconSize, iconSize);
+        GuiResource.getInstance().getImage("error-lineage.svg", classLoader, iconSize, iconSize);
 
     CTabItem lineageTab = new CTabItem(tabFolder, SWT.NONE);
     lineageTab.setFont(GuiResource.getInstance().getFontDefault());
     lineageTab.setImage(lineageImage);
-    lineageTab.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Lineage.Tab"));
+    lineageTab.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Error.Tab"));
 
     Composite tabComposite = new Composite(tabFolder, SWT.NONE);
     lineageTab.setControl(tabComposite);
@@ -81,7 +81,7 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
     PropsUi.setLook(wGo);
     wGo.addListener(SWT.Selection, e->openItem(wTree));
     BaseTransformDialog.positionBottomButtons(
-        tabComposite, new Button[] {wGo}, PropsUi.getMargin(), null);
+            tabComposite, new Button[] {wGo}, PropsUi.getMargin(), null);
 
     wTree = new Tree(tabComposite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     PropsUi.setLook(wTree);
@@ -138,7 +138,7 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
 
   private void refresh() {
     // A list of the shortest path, maximum 10.
-    List<List<PathResult>> lineagePaths = getLineageToRoot(getActiveLogChannelId());
+    List<List<PathResult>> lineagePaths = getLineageToError(getActiveLogChannelId());
     // Remove the elements in the tree
     //
     for (TreeItem treeItem : wTree.getItems()) {
@@ -183,13 +183,13 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
   }
 
   private String formatDate(Date registrationDate) {
-    if (registrationDate == null) {
+    if (registrationDate==null) {
       return "";
     }
     return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(registrationDate);
   }
 
-  private List<List<PathResult>> getLineageToRoot(String executionId) {
+  private List<List<PathResult>> getLineageToError(String executionId) {
     // List of the shortest paths to the executionId
     //
     List<List<PathResult>> shortestPaths = new ArrayList<>();
@@ -200,43 +200,38 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
       treeItem.dispose();
     }
 
-    if (viewer.getExecution().getParentId()==null) {
-      // There is no lineage since this is the parent
-    }
-
-    // Now get the lineage to the parent (if any)
+    // Now get the lineage to the error (if any)
     //
+
     Map<String, Object> pathParams = new HashMap<>();
     pathParams.put("executionId", executionId);
-    String pathCypher = getPathToRootCypher();
+    String pathCypher = getPathToFailedCypher();
 
-    getSession()
-        .readTransaction(
-            tx -> {
-              Result pathResult = tx.run(pathCypher, pathParams);
+    getSession().readTransaction(
+        tx -> {
+          Result pathResult = tx.run(pathCypher, pathParams);
 
-              while (pathResult.hasNext()) {
-                Record pathRecord = pathResult.next();
-                Value pathValue = pathRecord.get(0);
-                Path path = pathValue.asPath();
-                List<PathResult> shortestPath = new ArrayList<>();
-                for (Node node : path.nodes()) {
-                  PathResult nodeResult = new PathResult();
-                  nodeResult.setId(LoggingCore.getStringValue(node, "id"));
-                  nodeResult.setName(LoggingCore.getStringValue(node, "name"));
-                  nodeResult.setType(LoggingCore.getStringValue(node, "executionType"));
-                  nodeResult.setFailed(LoggingCore.getBooleanValue(node, "failed"));
-                  nodeResult.setRegistrationDate(
-                      LoggingCore.getDateValue(node, "registrationDate"));
-                  nodeResult.setCopy(LoggingCore.getStringValue(node, "copyNr"));
+          while (pathResult.hasNext()) {
+            Record pathRecord = pathResult.next();
+            Value pathValue = pathRecord.get(0);
+            Path path = pathValue.asPath();
+            List<PathResult> shortestPath = new ArrayList<>();
+            for (Node node : path.nodes()) {
+              PathResult nodeResult = new PathResult();
+              nodeResult.setId(LoggingCore.getStringValue(node, "id"));
+              nodeResult.setName(LoggingCore.getStringValue(node, "name"));
+              nodeResult.setType(LoggingCore.getStringValue(node, "executionType"));
+              nodeResult.setFailed(LoggingCore.getBooleanValue(node, "failed"));
+              nodeResult.setRegistrationDate(LoggingCore.getDateValue(node, "registrationDate"));
+              nodeResult.setCopy(LoggingCore.getStringValue(node, "copyNr"));
 
-                  shortestPath.add(0, nodeResult);
-                }
-                shortestPaths.add(shortestPath);
-              }
-              //
-              return null;
-            });
+              shortestPath.add(0, nodeResult);
+            }
+            shortestPaths.add(shortestPath);
+          }
+          //
+          return null;
+        });
 
     return shortestPaths;
   }

@@ -30,6 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
@@ -1345,7 +1346,7 @@ public class JsonInputTest {
 
   /** compare json (deep equals ignoring order) */
   protected static final boolean jsonEquals(String json1, String json2) throws Exception {
-    ObjectMapper om = new ObjectMapper();
+    ObjectMapper om = HopJson.newMapper();
     JsonNode parsedJson1 = om.readTree(json1);
     JsonNode parsedJson2 = om.readTree(json2);
     return parsedJson1.equals(parsedJson2);

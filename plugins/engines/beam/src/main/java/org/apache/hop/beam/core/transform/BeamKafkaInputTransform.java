@@ -66,8 +66,6 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
   private String schemaRegistrySubject;
 
   private String rowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   // Log and count errors.
   private static final Logger LOG = LoggerFactory.getLogger(BeamKafkaInputTransform.class);
@@ -94,9 +92,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
       String messageType,
       String schemaRegistryUrl,
       String schemaRegistrySubject,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     super(name);
     this.transformName = transformName;
     this.bootstrapServers = bootstrapServers;
@@ -119,8 +115,6 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
     this.schemaRegistryUrl = schemaRegistryUrl;
     this.schemaRegistrySubject = schemaRegistrySubject;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Override
@@ -128,7 +122,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
 
       // What's the list of topics?
       //
@@ -218,7 +212,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
             kafkaConsumerOutput.apply(
                 ParDo.of(
                     new KVStringGenericRecordToHopRowFn(
-                        transformName, rowMetaJson, transformPluginClasses, xpPluginClasses)));
+                        transformName, rowMetaJson)));
 
         return output;
       } else if ("String".equalsIgnoreCase(messageType)) {
@@ -256,7 +250,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
             kafkaConsumerOutput.apply(
                 ParDo.of(
                     new KVStringStringToHopRowFn(
-                        transformName, rowMetaJson, transformPluginClasses, xpPluginClasses)));
+                        transformName, rowMetaJson)));
 
       } else {
         throw new HopException(
@@ -276,8 +270,6 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
 
     private final String rowMetaJson;
     private final String transformName;
-    private final List<String> transformPluginClasses;
-    private final List<String> xpPluginClasses;
 
     private final Logger LOG = LoggerFactory.getLogger(KVStringStringToHopRowFn.class);
     private final Counter numErrors = Metrics.counter("main", "BeamSubscribeTransformErrors");
@@ -288,13 +280,9 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
 
     public KVStringStringToHopRowFn(
         String transformName,
-        String rowMetaJson,
-        List<String> transformPluginClasses,
-        List<String> xpPluginClasses) {
+        String rowMetaJson) {
       this.transformName = transformName;
       this.rowMetaJson = rowMetaJson;
-      this.transformPluginClasses = transformPluginClasses;
-      this.xpPluginClasses = xpPluginClasses;
     }
 
     @Setup
@@ -305,7 +293,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
 
         // Initialize Hop Beam
         //
-        BeamHop.init(transformPluginClasses, xpPluginClasses);
+        BeamHop.init();
         rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
         Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();
@@ -342,8 +330,6 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
 
     private final String rowMetaJson;
     private final String transformName;
-    private final List<String> transformPluginClasses;
-    private final List<String> xpPluginClasses;
 
     private final Logger LOG = LoggerFactory.getLogger(KVStringGenericRecordToHopRowFn.class);
     private final Counter numErrors = Metrics.counter("main", "BeamSubscribeTransformErrors");
@@ -354,13 +340,9 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
 
     public KVStringGenericRecordToHopRowFn(
         String transformName,
-        String rowMetaJson,
-        List<String> transformPluginClasses,
-        List<String> xpPluginClasses) {
+        String rowMetaJson) {
       this.transformName = transformName;
       this.rowMetaJson = rowMetaJson;
-      this.transformPluginClasses = transformPluginClasses;
-      this.xpPluginClasses = xpPluginClasses;
     }
 
     @Setup
@@ -371,7 +353,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
 
         // Initialize Hop Beam
         //
-        BeamHop.init(transformPluginClasses, xpPluginClasses);
+        BeamHop.init();
         rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
         Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();

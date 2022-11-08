@@ -83,8 +83,6 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       Pipeline pipeline,
@@ -170,8 +168,6 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
           new TransformBatchTransform(
               variableValues,
               metaStoreJson,
-              transformPluginClasses,
-              xpPluginClasses,
               sizeRowSet,
               flushIntervalMs,
               transformMeta.getName(),
@@ -191,8 +187,6 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
           new TransformTransform(
               variableValues,
               metaStoreJson,
-              transformPluginClasses,
-              xpPluginClasses,
               sizeRowSet,
               flushIntervalMs,
               transformMeta.getName(),
@@ -225,9 +219,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
                   ParDo.of(
                       new StringToHopRowFn(
                           transformMeta.getName(),
-                          JsonRowMeta.toJson(rowMeta),
-                          transformPluginClasses,
-                          xpPluginClasses)));
+                          JsonRowMeta.toJson(rowMeta))));
 
       // Store this new collection so we can hook up other transforms...
       //

@@ -32,28 +32,21 @@ import java.util.List;
 
 public class StringToHopRowFn extends DoFn<String, HopRow> {
 
-  private String rowMetaJson;
-  private String transformName;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
+  private final String rowMetaJson;
+  private final String transformName;
 
   private static final Logger LOG = LoggerFactory.getLogger(StringToHopRowFn.class);
   private final Counter numErrors = Metrics.counter("main", "BeamSubscribeTransformErrors");
 
-  private IRowMeta rowMeta;
-  private transient Counter initCounter;
+  private transient IRowMeta rowMeta;
   private transient Counter inputCounter;
   private transient Counter writtenCounter;
 
   public StringToHopRowFn(
       String transformName,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Setup
@@ -64,7 +57,7 @@ public class StringToHopRowFn extends DoFn<String, HopRow> {
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
       rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
       Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();

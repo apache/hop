@@ -108,9 +108,12 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private String automaticVariable;
 
+  @HopMetadataProperty private String protocol;
+
   public NeoConnection() {
     boltPort = "7687";
     browserPort = "7474";
+    protocol = "neo4j";
     manualUrls = new ArrayList<>();
     version4 = true;
     automatic = true;
@@ -140,6 +143,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     this.version4Variable = source.version4Variable;
     this.automatic = source.automatic;
     this.automaticVariable = source.automaticVariable;
+    this.protocol = source.protocol;
     this.manualUrls = new ArrayList<>();
     this.manualUrls.addAll(source.manualUrls);
   }
@@ -230,7 +234,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
       //
       List<String> serverStrings = new ArrayList<>();
       String serversString = variables.resolve(server);
-      if (isUsingRouting(variables)) {
+      if (!isAutomatic(variables) && isUsingRouting(variables)) {
         Collections.addAll(serverStrings, serversString.split(","));
       } else {
         serverStrings.add(serversString);
@@ -257,10 +261,14 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
      * bolt+routing://core-server:port/?policy=MyPolicy
      */
     String url = "";
-    if (isAutomatic(variables) || isUsingRouting(variables)) {
-      url += "neo4j";
+    if (StringUtils.isEmpty(protocol)) {
+      if (isAutomatic(variables) || isUsingRouting(variables)) {
+        url += "neo4j";
+      } else {
+        url += "bolt";
+      }
     } else {
-      url += "bolt";
+      url += variables.resolve(protocol);
     }
     url += "://";
 
@@ -802,5 +810,23 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
    */
   public void setAutomaticVariable(String automaticVariable) {
     this.automaticVariable = automaticVariable;
+  }
+
+  /**
+   * Gets protocol
+   *
+   * @return value of protocol
+   */
+  public String getProtocol() {
+    return protocol;
+  }
+
+  /**
+   * Sets protocol
+   *
+   * @param protocol value of protocol
+   */
+  public void setProtocol(String protocol) {
+    this.protocol = protocol;
   }
 }

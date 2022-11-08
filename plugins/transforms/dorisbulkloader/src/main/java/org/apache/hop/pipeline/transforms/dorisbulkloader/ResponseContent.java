@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.hop.core.json.HopJson;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResponseContent {
@@ -106,7 +107,7 @@ public class ResponseContent {
 
   @Override
   public String toString() {
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = HopJson.newMapper();
     try {
       return mapper.writeValueAsString(this);
     } catch (JsonProcessingException e) {
