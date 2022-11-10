@@ -429,6 +429,8 @@ public class TransformFn extends TransformBaseFn {
         pipelineMeta.getTransformFields(variables, transformName),
         pipeline.getTransform(transformName, 0));
 
+    registerExecutingTransform(pipeline);
+
     // Change the row handler
     //
     for (TransformMetaDataCombi c : pipeline.getTransforms()) {
