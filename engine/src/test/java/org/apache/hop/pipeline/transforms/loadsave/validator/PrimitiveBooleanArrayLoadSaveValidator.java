@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
+import org.apache.hop.core.exception.HopException;
+
 import java.util.Random;
 
 public class PrimitiveBooleanArrayLoadSaveValidator implements IFieldLoadSaveValidator<boolean[]> {
@@ -44,7 +46,7 @@ public class PrimitiveBooleanArrayLoadSaveValidator implements IFieldLoadSaveVal
   }
 
   @Override
-  public boolean validateTestObject(boolean[] original, Object actual) {
+  public boolean validateTestObject(boolean[] original, Object actual) throws HopException {
     if (original.getClass().isAssignableFrom(actual.getClass())) {
       boolean[] otherList = (boolean[]) actual;
       if (original.length != otherList.length) {

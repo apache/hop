@@ -22,6 +22,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.RowProducer;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.input.MappingInput;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -92,7 +93,7 @@ public class SimpleMappingTest {
     simpleMpData.mappingInput = mpInputMock;
     simpleMpData.mappingOutput = mpOutputMock;
     simpleMpData.rowDataInputMapper = rdInputMpMock;
-    simpleMpData.mappingPipeline = transformMockHelper.pipeline;
+    simpleMpData.mappingPipeline = (LocalPipelineEngine) transformMockHelper.pipeline;
 
     Mockito.doReturn(mpOutputMock)
         .when(transformMockHelper.pipeline)
@@ -175,7 +176,7 @@ public class SimpleMappingTest {
 
     ITransform transform = mock(ITransform.class);
 
-    Pipeline mappingPipeline = mock(Pipeline.class);
+    LocalPipelineEngine mappingPipeline = mock(LocalPipelineEngine.class);
     when(mappingPipeline.addRowProducer(anyString(), anyInt())).thenReturn(rowProducer);
     when(mappingPipeline.getTransform(anyString(), anyInt())).thenReturn(transform);
     when(mappingPipeline.isFinishedOrStopped()).thenReturn(Boolean.FALSE).thenReturn(Boolean.TRUE);

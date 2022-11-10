@@ -19,18 +19,16 @@ package org.apache.hop.pipeline.transforms.mapping;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.ISubPipelineAwareMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -43,7 +41,6 @@ import org.apache.hop.pipeline.transforms.input.MappingInputMeta;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,105 +59,38 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
 
   private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
 
-  private MappingIODefinition inputMapping;
-  private MappingIODefinition outputMapping;
-  private MappingParameters mappingParameters;
+  @HopMetadataProperty(key = "runConfiguration")
+  private String runConfigurationName;
 
-  private IHopMetadataProvider metadataProvider;
+  @HopMetadataProperty(key = "mappings")
+  private IOMappings ioMappings;
 
   public SimpleMappingMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    ioMappings = new IOMappings();
+  }
 
-    inputMapping = new MappingIODefinition();
-    outputMapping = new MappingIODefinition();
-
-    mappingParameters = new MappingParameters();
+  public SimpleMappingMeta(SimpleMappingMeta m) {
+    super(m);
+    this.runConfigurationName = m.runConfigurationName;
+    this.ioMappings = new IOMappings(m.ioMappings);
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      filename = XmlHandler.getTagValue(transformNode, "filename");
-
-      Node mappingsNode = XmlHandler.getSubNode(transformNode, "mappings");
-
-      if (mappingsNode == null) {
-        throw new HopXmlException("Unable to find <mappings> element in the transform XML");
-      }
-
-      // Read all the input mapping definitions...
-      //
-      Node inputNode = XmlHandler.getSubNode(mappingsNode, "input");
-      Node mappingNode = XmlHandler.getSubNode(inputNode, MappingIODefinition.XML_TAG);
-      if (mappingNode != null) {
-        inputMapping = new MappingIODefinition(mappingNode);
-      } else {
-        inputMapping = new MappingIODefinition(); // empty
-      }
-      Node outputNode = XmlHandler.getSubNode(mappingsNode, "output");
-      mappingNode = XmlHandler.getSubNode(outputNode, MappingIODefinition.XML_TAG);
-      if (mappingNode != null) {
-        outputMapping = new MappingIODefinition(mappingNode);
-      } else {
-        outputMapping = new MappingIODefinition(); // empty
-      }
-
-      // Load the mapping parameters too..
-      //
-      Node mappingParametersNode = XmlHandler.getSubNode(mappingsNode, MappingParameters.XML_TAG);
-      mappingParameters = new MappingParameters(mappingParametersNode);
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "SimpleMappingMeta.Exception.ErrorLoadingPipelineTransformFromXML"),
-          e);
-    }
-  }
-
-  @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append("    ").append(XmlHandler.addTagValue("filename", filename));
-
-    retval.append("    ").append(XmlHandler.openTag("mappings")).append(Const.CR);
-
-    retval.append("      ").append(XmlHandler.openTag("input")).append(Const.CR);
-    retval.append(inputMapping.getXml());
-    retval.append("      ").append(XmlHandler.closeTag("input")).append(Const.CR);
-
-    retval.append("      ").append(XmlHandler.openTag("output")).append(Const.CR);
-    retval.append(outputMapping.getXml());
-    retval.append("      ").append(XmlHandler.closeTag("output")).append(Const.CR);
-
-    // Add the mapping parameters too
-    //
-    retval.append("      ").append(mappingParameters.getXml()).append(Const.CR);
-
-    retval.append("    ").append(XmlHandler.closeTag("mappings")).append(Const.CR);
-
-    return retval.toString();
+  public SimpleMappingMeta clone() {
+    return new SimpleMappingMeta(this);
   }
 
   @Override
   public void setDefault() {
-
     MappingIODefinition inputDefinition = new MappingIODefinition(null, null);
     inputDefinition.setMainDataPath(true);
     inputDefinition.setRenamingOnOutput(true);
-    inputMapping = inputDefinition;
+    ioMappings.setInputMapping(inputDefinition);
 
     MappingIODefinition outputDefinition = new MappingIODefinition(null, null);
     outputDefinition.setMainDataPath(true);
-    outputMapping = outputDefinition;
+    ioMappings.setOutputMapping(outputDefinition);
   }
 
   @Override
@@ -196,7 +126,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     //
     inputRowMeta = row.clone();
     if (!inputRowMeta.isEmpty()) {
-      for (MappingValueRename valueRename : inputMapping.getValueRenames()) {
+      for (MappingValueRename valueRename : ioMappings.getInputMapping().getValueRenames()) {
         IValueMeta valueMeta = inputRowMeta.searchValueMeta(valueRename.getSourceValueName());
         if (valueMeta == null) {
           throw new HopTransformException(
@@ -230,8 +160,8 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
 
     // We're renaming some stuff back:
     //
-    if (inputMapping.isRenamingOnOutput()) {
-      for (MappingValueRename rename : inputMapping.getValueRenames()) {
+    if (ioMappings.getInputMapping().isRenamingOnOutput()) {
+      for (MappingValueRename rename : ioMappings.getInputMapping().getValueRenames()) {
         IValueMeta valueMeta = mappingOutputRowMeta.searchValueMeta(rename.getTargetValueName());
         if (valueMeta != null) {
           valueMeta.setName(rename.getSourceValueName());
@@ -241,7 +171,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
 
     // Also rename output values back
     //
-    for (MappingValueRename rename : outputMapping.getValueRenames()) {
+    for (MappingValueRename rename : ioMappings.getOutputMapping().getValueRenames()) {
       IValueMeta valueMeta = mappingOutputRowMeta.searchValueMeta(rename.getSourceValueName());
       if (valueMeta != null) {
         valueMeta.setName(rename.getTargetValueName());
@@ -308,14 +238,18 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     }
   }
 
-  /** @return the mappingParameters */
+  /**
+   * @return the mappingParameters
+   */
   public MappingParameters getMappingParameters() {
-    return mappingParameters;
+    return ioMappings.getMappingParameters();
   }
 
-  /** @param mappingParameters the mappingParameters to set */
+  /**
+   * @param mappingParameters the mappingParameters to set
+   */
   public void setMappingParameters(MappingParameters mappingParameters) {
-    this.mappingParameters = mappingParameters;
+    ioMappings.setMappingParameters(mappingParameters);
   }
 
   @Override
@@ -396,27 +330,55 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     return loadMappingMeta(this, metadataProvider, variables);
   }
 
-  public IHopMetadataProvider getMetadataProvider() {
-    return metadataProvider;
-  }
-
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
-    this.metadataProvider = metadataProvider;
-  }
-
   public MappingIODefinition getInputMapping() {
-    return inputMapping;
+    return ioMappings.getInputMapping();
   }
 
   public void setInputMapping(MappingIODefinition inputMapping) {
-    this.inputMapping = inputMapping;
+    ioMappings.setInputMapping(inputMapping);
   }
 
   public MappingIODefinition getOutputMapping() {
-    return outputMapping;
+    return ioMappings.getOutputMapping();
   }
 
   public void setOutputMapping(MappingIODefinition outputMapping) {
-    this.outputMapping = outputMapping;
+    ioMappings.setOutputMapping(outputMapping);
+  }
+
+  /**
+   * Gets runConfigurationName
+   *
+   * @return value of runConfigurationName
+   */
+  public String getRunConfigurationName() {
+    return runConfigurationName;
+  }
+
+  /**
+   * Sets runConfigurationName
+   *
+   * @param runConfigurationName value of runConfigurationName
+   */
+  public void setRunConfigurationName(String runConfigurationName) {
+    this.runConfigurationName = runConfigurationName;
+  }
+
+  /**
+   * Gets ioMappings
+   *
+   * @return value of ioMappings
+   */
+  public IOMappings getIoMappings() {
+    return ioMappings;
+  }
+
+  /**
+   * Sets ioMappings
+   *
+   * @param ioMappings value of ioMappings
+   */
+  public void setIoMappings(IOMappings ioMappings) {
+    this.ioMappings = ioMappings;
   }
 }

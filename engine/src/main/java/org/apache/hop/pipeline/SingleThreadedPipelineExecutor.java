@@ -341,7 +341,7 @@ public class SingleThreadedPipelineExecutor {
           // If they do have an input row set, to get filenames or other parameters,
           // we need to handle this in the batchComplete() methods.
           //
-          if (rowSets.size() == 0) {
+          if (rowSets.isEmpty()) {
             while (!transformDone && !pipeline.isStopped()) {
               transformDone = !combi.transform.processRow();
               if (combi.transform.getErrors() > 0) {

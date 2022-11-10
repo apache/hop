@@ -17,8 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
+import org.apache.hop.core.exception.HopException;
+
 public interface IFieldLoadSaveValidator<T> {
   T getTestObject();
 
-  boolean validateTestObject(T testObject, Object actual);
+  boolean validateTestObject(T testObject, Object actual) throws HopException;
 }

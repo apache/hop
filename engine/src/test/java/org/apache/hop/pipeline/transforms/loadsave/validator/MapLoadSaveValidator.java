@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
+import org.apache.hop.core.exception.HopException;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -55,7 +57,7 @@ public class MapLoadSaveValidator<KeyObjectType, ValueObjectType>
   }
 
   @Override
-  public boolean validateTestObject(Map<KeyObjectType, ValueObjectType> original, Object actual) {
+  public boolean validateTestObject(Map<KeyObjectType, ValueObjectType> original, Object actual) throws HopException {
     if (actual instanceof Map) {
       @SuppressWarnings("unchecked")
       Map<KeyObjectType, ValueObjectType> actualMap = (Map<KeyObjectType, ValueObjectType>) actual;

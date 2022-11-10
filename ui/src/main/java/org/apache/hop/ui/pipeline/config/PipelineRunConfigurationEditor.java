@@ -74,8 +74,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunConfiguration> {
   private static final Class<?> PKG = PipelineRunConfigurationEditor.class; // For Translator
 
-  private PipelineRunConfiguration runConfiguration;
-  private PipelineRunConfiguration workingConfiguration;
+  private final PipelineRunConfiguration runConfiguration;
+  private final PipelineRunConfiguration workingConfiguration;
 
   private Text wName;
   private Text wDescription;

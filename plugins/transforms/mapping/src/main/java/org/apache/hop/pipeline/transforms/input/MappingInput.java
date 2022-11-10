@@ -39,8 +39,8 @@ public class MappingInput extends BaseTransform<MappingInputMeta, MappingInputDa
   }
 
   // ProcessRow is not doing anything
-  // It's a place holder for accepting rows from the parent pipeline...
-  // So, basically, this is a glorified Dummy with a little bit of meta-data
+  // It's a placeholder for accepting rows from the parent pipeline...
+  // So, basically, this is a glorified Dummy with a bit of meta-data
   //
   @Override
   public boolean processRow() throws HopException {
@@ -77,7 +77,7 @@ public class MappingInput extends BaseTransform<MappingInputMeta, MappingInputDa
   }
 
   @Override
-  public boolean init() {
-    return super.init();
+  public void batchComplete() throws HopException {
+    super.batchComplete();
   }
 }

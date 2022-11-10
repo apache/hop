@@ -20,6 +20,9 @@ package org.apache.hop.pipeline.transforms.mapping;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.input.MappingInput;
@@ -29,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SimpleMappingData extends BaseTransformData implements ITransformData {
-  public Pipeline mappingPipeline;
+  public LocalPipelineEngine mappingPipeline;
 
   public MappingInput mappingInput;
 
@@ -46,6 +49,7 @@ public class SimpleMappingData extends BaseTransformData implements ITransformDa
   public IRowMeta outputRowMeta;
 
   public List<MappingValueRename> inputRenameList;
+  public SingleThreadedPipelineExecutor executor;
 
   protected int linesReadTransformNr = -1;
 
@@ -69,11 +73,11 @@ public class SimpleMappingData extends BaseTransformData implements ITransformDa
     inputRenameList = new ArrayList<>();
   }
 
-  public Pipeline getMappingPipeline() {
+  public IPipelineEngine<PipelineMeta> getMappingPipeline() {
     return mappingPipeline;
   }
 
-  public void setMappingPipeline(Pipeline mappingPipeline) {
+  public void setMappingPipeline(LocalPipelineEngine mappingPipeline) {
     this.mappingPipeline = mappingPipeline;
   }
 }

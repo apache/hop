@@ -48,7 +48,7 @@ Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
   -h, --help              Displays this help message and quits.
   -j, --project=<projectOption>
                           The name of the project to use
-  -l, --level=<level>     The debug level, one of NONE, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
+  -l, --level=<level>     The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
   -m, --metadata-export=<metadataExportFile>
                           A file containing exported metadata in JSON format
   -o, --printoptions      Print the used options
@@ -85,7 +85,7 @@ Check the xref:projects/projects-environments.adoc[documentation on environments
 
 |```-l```
 |```--level```
-|The debug level, one of NONE, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
+|The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
 
 |```-m```
 |```--metadata-export```

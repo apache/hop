@@ -1,0 +1,48 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "a",
+          "data_set_field": "a"
+        },
+        {
+          "transform_field": "b",
+          "data_set_field": "b"
+        },
+        {
+          "transform_field": "sum",
+          "data_set_field": "sum"
+        },
+        {
+          "transform_field": "parameter1",
+          "data_set_field": "parameter1"
+        },
+        {
+          "transform_field": "parameter2",
+          "data_set_field": "parameter2"
+        }
+      ],
+      "field_order": [
+        "a",
+        "b",
+        "sum",
+        "parameter1",
+        "parameter2"
+      ],
+      "data_set_name": "golden-simple-mapping-01",
+      "transform_name": "Output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0048-simple-mapping-parent-01 UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0048-simple-mapping-parent-01.hpl",
+  "test_type": "UNIT_TEST"
+}

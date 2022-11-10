@@ -1013,12 +1013,13 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           String parentId = setMeta.getLogChannelId();
           List<Execution> childExecutions = iLocation.findExecutions(parentId);
           if (childExecutions.isEmpty()) {
-            return;
+            break;
           }
           Execution child = childExecutions.get(0);
-          ExecutionState executionState = iLocation.getExecutionState(execution.getId());
-          perspective.createExecutionViewer(locationName, child, executionState);
-          return;
+            ExecutionState executionState = iLocation.getExecutionState(execution.getId());
+            perspective.createExecutionViewer(locationName, child, executionState);
+            return;
+
         }
       }
 

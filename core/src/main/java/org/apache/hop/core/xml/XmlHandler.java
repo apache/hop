@@ -732,7 +732,7 @@ public class XmlHandler {
     }
   }
 
-  public static String getXmlString(Document document, boolean omitXmlDeclaration, boolean indent)
+  public static String getXmlString(Node document, boolean omitXmlDeclaration, boolean indent)
       throws HopException {
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
     Transformer transformer;

@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
+import org.apache.hop.core.exception.HopException;
+
 import java.lang.reflect.Array;
 import java.util.Random;
 
@@ -50,7 +52,7 @@ public class ArrayLoadSaveValidator<ObjectType> implements IFieldLoadSaveValidat
   }
 
   @Override
-  public boolean validateTestObject(ObjectType[] original, Object actual) {
+  public boolean validateTestObject(ObjectType[] original, Object actual) throws HopException {
     if (original == null && actual == null) {
       return true;
     } else if (original != null && actual == null) {

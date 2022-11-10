@@ -32,10 +32,15 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionBuilder;
 import org.apache.hop.execution.ExecutionDataBuilder;
 import org.apache.hop.execution.ExecutionDataSetMeta;
 import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionStateBuilder;
 import org.apache.hop.execution.ExecutionType;
+import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
@@ -44,6 +49,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.stream.IStream;
@@ -82,11 +88,15 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
   }
 
   protected void sendSamplesToLocation(boolean finished) throws HopException {
-    if (executor == null || executor.getPipeline() == null) {
+    if (executor == null) {
+      return;
+    }
+    Pipeline pipeline = executor.getPipeline();
+    if (pipeline == null) {
       return;
     }
 
-    String logChannelId = executor.getPipeline().getLogChannelId();
+    String logChannelId = pipeline.getLogChannelId();
 
     ExecutionDataBuilder dataBuilder =
         ExecutionDataBuilder.of()
@@ -100,7 +110,7 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
     }
     // Add some metadata about the transform being sampled
     //
-    ITransform transform = executor.getPipeline().findRunThread(transformName);
+    ITransform transform = pipeline.findRunThread(transformName);
 
     dataBuilder.addSetMeta(
         logChannelId,
@@ -122,9 +132,20 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
                 new Object[] {Pipeline.METRIC_NAME_REJECTED, transform.getLinesRejected()},
                 new Object[] {Pipeline.METRIC_NAME_ERROR, transform.getErrors()})));
 
+    IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+
     // Register this data in the execution information location
     //
-    executionInfoLocation.getExecutionInfoLocation().registerData(dataBuilder.build());
+    iLocation.registerData(dataBuilder.build());
+
+    // Also update the execution state of the transform
+    //
+    IEngineComponent transformComponent = pipeline.getComponentCopies(transformName).get(0);
+    ExecutionState transformState =
+        ExecutionStateBuilder.fromTransform(pipeline, transformComponent).build();
+    transformState.setParentId(parentLogChannelId);
+
+    iLocation.updateExecutionState(transformState);
   }
 
   protected void lookupExecutionInformation(
@@ -162,11 +183,11 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
 
             executionInfoLocation = location;
 
+            IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+
             // Initialize the location
             //
-            executionInfoLocation
-                .getExecutionInfoLocation()
-                .initialize(variables, metadataProvider);
+            iLocation.initialize(variables, metadataProvider);
           }
         }
       }
@@ -179,8 +200,7 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
       String logChannelId,
       IRowMeta inputRowMeta,
       IRowMeta outputRowMeta,
-      ITransform transform)
-      throws HopTransformException {
+      ITransform transform) {
     // If we're sending execution information to a location we should do it differently from a
     // Beam node.
     // We're only going to go through the effort if we actually have any rows to sample.
@@ -240,6 +260,29 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
           task,
           Const.toLong(executionInfoLocation.getDataLoggingDelay(), 5000L),
           Const.toLong(executionInfoLocation.getDataLoggingInterval(), 10000L));
+    }
+  }
+
+  protected void registerExecutingTransform(Pipeline pipeline) {
+    if (executionInfoLocation==null) {
+      return;
+    }
+
+    // Register the execution of the transform and its state
+    //
+    try {
+      ITransform transform = pipeline.getTransform(transformName, 0);
+      IEngineComponent transformComponent = pipeline.getComponentCopies(transformName).get(0);
+      Execution execution = ExecutionBuilder.fromTransform(pipeline, transform).build();
+      execution.setParentId(parentLogChannelId);
+      executionInfoLocation.getExecutionInfoLocation().registerExecution(execution);
+      ExecutionState transformState =
+              ExecutionStateBuilder.fromTransform(pipeline, transformComponent).build();
+
+      transformState.setParentId(parentLogChannelId);
+      executionInfoLocation.getExecutionInfoLocation().updateExecutionState(transformState);
+    } catch (Exception e) {
+      LOG.error("Error updating transform execution state in location (non-fatal)", e);
     }
   }
 
