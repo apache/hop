@@ -56,7 +56,7 @@ public class HopConfig implements Runnable, IHasHopMetadataProvider {
 
     @Option(
             names = {"-l", "--level"},
-            description = "The debug level, one of NONE, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL")
+            description = "The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL")
     private String level;
 
     private CommandLine cmd;
