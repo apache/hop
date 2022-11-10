@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
+import org.apache.hop.core.exception.HopException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -48,7 +50,7 @@ public class ListLoadSaveValidator<ObjectType>
   }
 
   @Override
-  public boolean validateTestObject(List<ObjectType> original, Object actual) {
+  public boolean validateTestObject(List<ObjectType> original, Object actual) throws HopException {
     if (actual instanceof List) {
       List<?> otherList = (List<?>) actual;
       if (original.size() != otherList.size()) {

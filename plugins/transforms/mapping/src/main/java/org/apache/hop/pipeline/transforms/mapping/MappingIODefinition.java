@@ -17,8 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.mapping;
 
-import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataObject;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataWrapper;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -26,22 +32,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Helps to define the input or output specifications for the Mapping transform. */
+@HopMetadataWrapper(tag="mapping")
 public class MappingIODefinition implements Cloneable {
 
   public static final String XML_TAG = "mapping";
 
-  private TransformMeta inputTransform;
+  private transient TransformMeta inputTransform;
 
+  @HopMetadataProperty(key = "input_transform")
   private String inputTransformName;
 
+  @HopMetadataProperty(key = "output_transform")
   private String outputTransformName;
 
+  @HopMetadataProperty(key = "description")
   private String description;
 
+  @HopMetadataProperty(key = "connector")
   private List<MappingValueRename> valueRenames;
 
+  @HopMetadataProperty(key = "main_path")
   private boolean mainDataPath;
 
+  @HopMetadataProperty(key = "rename_on_output")
   private boolean renamingOnOutput;
 
   /**
@@ -74,20 +87,33 @@ public class MappingIODefinition implements Cloneable {
     this.outputTransformName = outputTransformName;
   }
 
-  @Override
-  public Object clone() {
-    try {
-      MappingIODefinition definition = (MappingIODefinition) super.clone();
-      return definition;
-    } catch (CloneNotSupportedException e) {
-      throw new RuntimeException(e); // We don't want that in our code do we?
+  public MappingIODefinition(MappingIODefinition d) {
+    this();
+    this.inputTransformName = d.inputTransformName;
+    this.outputTransformName = d.outputTransformName;
+    this.description = d.description;
+    this.mainDataPath = d.mainDataPath;
+    this.renamingOnOutput = d.renamingOnOutput;
+    for (MappingValueRename rename : d.valueRenames) {
+      this.valueRenames.add(new MappingValueRename(rename));
     }
   }
 
-  public MappingIODefinition(Node mappingNode) {
+  @Override
+  public MappingIODefinition clone() {
+    return new MappingIODefinition(this);
+  }
 
+  public MappingIODefinition(Node mappingNode) throws HopXmlException {
     this();
 
+    XmlMetadataUtil.deSerializeFromXml(
+        this,
+        mappingNode,
+        MappingIODefinition.class,
+        new MemoryMetadataProvider());
+  }
+  /*
     inputTransformName = XmlHandler.getTagValue(mappingNode, "input_transform");
     outputTransformName = XmlHandler.getTagValue(mappingNode, "output_transform");
     mainDataPath = "Y".equalsIgnoreCase(XmlHandler.getTagValue(mappingNode, "main_path"));
@@ -104,8 +130,14 @@ public class MappingIODefinition implements Cloneable {
       valueRenames.add(new MappingValueRename(parentField, childField));
     }
   }
+  */
 
-  public String getXml() {
+  public String getXml() throws HopException {
+
+    return XmlMetadataUtil.serializeObjectToXml(this);
+  }
+  /*
+
     StringBuilder xml = new StringBuilder(200);
 
     xml.append("    ").append(XmlHandler.openTag(XML_TAG));
@@ -127,6 +159,7 @@ public class MappingIODefinition implements Cloneable {
 
     return xml.toString();
   }
+   */
 
   /**
    * @return the TransformName, the name of the transform to "connect" to. If no transform name is
@@ -136,57 +169,79 @@ public class MappingIODefinition implements Cloneable {
     return inputTransformName;
   }
 
-  /** @param inputTransformName the TransformName to set */
+  /**
+   * @param inputTransformName the TransformName to set
+   */
   public void setInputTransformName(String inputTransformName) {
     this.inputTransformName = inputTransformName;
   }
 
-  /** @return the description */
+  /**
+   * @return the description
+   */
   public String getDescription() {
     return description;
   }
 
-  /** @param description the description to set */
+  /**
+   * @param description the description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
 
-  /** @return the outputTransformName */
+  /**
+   * @return the outputTransformName
+   */
   public String getOutputTransformName() {
     return outputTransformName;
   }
 
-  /** @param outputTransformName the outputTransformName to set */
+  /**
+   * @param outputTransformName the outputTransformName to set
+   */
   public void setOutputTransformName(String outputTransformName) {
     this.outputTransformName = outputTransformName;
   }
 
-  /** @return true if this is the main data path for the mapping transform. */
+  /**
+   * @return true if this is the main data path for the mapping transform.
+   */
   public boolean isMainDataPath() {
     return mainDataPath;
   }
 
-  /** @param mainDataPath true if this is the main data path for the mapping transform. */
+  /**
+   * @param mainDataPath true if this is the main data path for the mapping transform.
+   */
   public void setMainDataPath(boolean mainDataPath) {
     this.mainDataPath = mainDataPath;
   }
 
-  /** @return the renamingOnOutput */
+  /**
+   * @return the renamingOnOutput
+   */
   public boolean isRenamingOnOutput() {
     return renamingOnOutput;
   }
 
-  /** @param renamingOnOutput the renamingOnOutput to set */
+  /**
+   * @param renamingOnOutput the renamingOnOutput to set
+   */
   public void setRenamingOnOutput(boolean renamingOnOutput) {
     this.renamingOnOutput = renamingOnOutput;
   }
 
-  /** @return the valueRenames */
+  /**
+   * @return the valueRenames
+   */
   public List<MappingValueRename> getValueRenames() {
     return valueRenames;
   }
 
-  /** @param valueRenames the valueRenames to set */
+  /**
+   * @param valueRenames the valueRenames to set
+   */
   public void setValueRenames(List<MappingValueRename> valueRenames) {
     this.valueRenames = valueRenames;
   }
@@ -200,7 +255,9 @@ public class MappingIODefinition implements Cloneable {
     return inputTransform;
   }
 
-  /** @param inputTransform The inputTransform to set */
+  /**
+   * @param inputTransform The inputTransform to set
+   */
   public void setInputTransform(TransformMeta inputTransform) {
     this.inputTransform = inputTransform;
   }

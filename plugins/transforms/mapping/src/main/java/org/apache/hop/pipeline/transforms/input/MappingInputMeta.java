@@ -17,26 +17,25 @@
 
 package org.apache.hop.pipeline.transforms.input;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
@@ -51,147 +50,31 @@ public class MappingInputMeta extends BaseTransformMeta<MappingInput, MappingInp
 
   private static final Class<?> PKG = MappingInputMeta.class; // For Translator
 
-  private String[] fieldName;
+  @HopMetadataProperty(groupKey = "fields", key = "field")
+  private List<InputField> fields;
 
-  private int[] fieldType;
-
-  private int[] fieldLength;
-
-  private int[] fieldPrecision;
-
-  private volatile IRowMeta inputRowMeta;
+  // This information is injected, not serialized
+  private IRowMeta inputRowMeta;
 
   public MappingInputMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    this.fields = new ArrayList<>();
   }
 
-  /** @return Returns the fieldLength. */
-  public int[] getFieldLength() {
-    return fieldLength;
-  }
-
-  /** @param fieldLength The fieldLength to set. */
-  public void setFieldLength(int[] fieldLength) {
-    this.fieldLength = fieldLength;
-  }
-
-  /** @return Returns the fieldName. */
-  public String[] getFieldName() {
-    return fieldName;
-  }
-
-  /** @param fieldName The fieldName to set. */
-  public void setFieldName(String[] fieldName) {
-    this.fieldName = fieldName;
-  }
-
-  /** @return Returns the fieldPrecision. */
-  public int[] getFieldPrecision() {
-    return fieldPrecision;
-  }
-
-  /** @param fieldPrecision The fieldPrecision to set. */
-  public void setFieldPrecision(int[] fieldPrecision) {
-    this.fieldPrecision = fieldPrecision;
-  }
-
-  /** @return Returns the fieldType. */
-  public int[] getFieldType() {
-    return fieldType;
-  }
-
-  /** @param fieldType The fieldType to set. */
-  public void setFieldType(int[] fieldType) {
-    this.fieldType = fieldType;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  @Override
-  public Object clone() {
-    MappingInputMeta retval = (MappingInputMeta) super.clone();
-
-    int nrFields = fieldName.length;
-
-    retval.allocate(nrFields);
-
-    System.arraycopy(fieldName, 0, retval.fieldName, 0, nrFields);
-    System.arraycopy(fieldType, 0, retval.fieldType, 0, nrFields);
-    System.arraycopy(fieldLength, 0, retval.fieldLength, 0, nrFields);
-    System.arraycopy(fieldPrecision, 0, retval.fieldPrecision, 0, nrFields);
-    return retval;
-  }
-
-  public void allocate(int nrFields) {
-    fieldName = new String[nrFields];
-    fieldType = new int[nrFields];
-    fieldLength = new int[nrFields];
-    fieldPrecision = new int[nrFields];
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      allocate(nrFields);
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        fieldName[i] = XmlHandler.getTagValue(fnode, "name");
-        fieldType[i] = ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type"));
-        fieldLength[i] = Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1);
-        fieldPrecision[i] = Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1);
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "MappingInputMeta.Exception.UnableToLoadTransformMetaFromXML"),
-          e);
+  public MappingInputMeta(MappingInputMeta m) {
+    this();
+    for (InputField field : m.fields) {
+      fields.add(new InputField(field));
     }
   }
 
   @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder(300);
-
-    xml.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < fieldName.length; i++) {
-      if (fieldName[i] != null && fieldName[i].length() != 0) {
-        xml.append("      <field>").append(Const.CR);
-        xml.append("        ").append(XmlHandler.addTagValue("name", fieldName[i]));
-        xml.append("        ")
-            .append(
-                XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(fieldType[i])));
-        xml.append("        ").append(XmlHandler.addTagValue("length", fieldLength[i]));
-        xml.append("        ").append(XmlHandler.addTagValue("precision", fieldPrecision[i]));
-        xml.append("      </field>").append(Const.CR);
-      }
-    }
-
-    xml.append("    </fields>").append(Const.CR);
-
-    return xml.toString();
+  public MappingInputMeta clone() {
+    return new MappingInputMeta(this);
   }
 
   @Override
-  public void setDefault() {
-    int nrFields = 0;
-
-    allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      fieldName[i] = "field" + i;
-      fieldType[i] = IValueMeta.TYPE_STRING;
-      fieldLength[i] = 30;
-      fieldPrecision[i] = -1;
-    }
-  }
+  public void setDefault() {}
 
   @Override
   public void getFields(
@@ -220,33 +103,36 @@ public class MappingInputMeta extends BaseTransformMeta<MappingInput, MappingInp
       // Validate the existence of all the specified fields...
       //
       if (!row.isEmpty()) {
-        for (int i = 0; i < fieldName.length; i++) {
-          if (row.indexOfValue(fieldName[i]) < 0) {
+        for (InputField field : fields) {
+          if (row.indexOfValue(field.getName()) < 0) {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "MappingInputMeta.Exception.UnknownField", fieldName[i]));
+                    PKG, "MappingInputMeta.Exception.UnknownField", field.getName()));
           }
         }
       }
     } else {
       if (row.isEmpty()) {
-        // We'll have to work with the statically provided information
-        for (int i = 0; i < fieldName.length; i++) {
-          if (!Utils.isEmpty(fieldName[i])) {
-            int valueType = fieldType[i];
-            if (valueType == IValueMeta.TYPE_NONE) {
-              valueType = IValueMeta.TYPE_STRING;
-            }
-            IValueMeta v;
-            try {
-              v = ValueMetaFactory.createValueMeta(fieldName[i], valueType);
-              v.setLength(fieldLength[i]);
-              v.setPrecision(fieldPrecision[i]);
-              v.setOrigin(origin);
-              row.addValueMeta(v);
-            } catch (HopPluginException e) {
-              throw new HopTransformException(e);
-            }
+        for (InputField field : fields) {
+          if (StringUtils.isEmpty(field.getName())) {
+            continue;
+          }
+          int valueType = ValueMetaFactory.getIdForValueMeta(field.getType());
+          int valueLength = Const.toInt(field.getLength(), -1);
+          int valuePrecision = Const.toInt(field.getPrecision(), -1);
+          if (valueType == IValueMeta.TYPE_NONE) {
+            valueType = IValueMeta.TYPE_STRING;
+          }
+
+          IValueMeta v;
+          try {
+            v = ValueMetaFactory.createValueMeta(field.getName(), valueType);
+            v.setLength(valueLength);
+            v.setPrecision(valuePrecision);
+            v.setOrigin(origin);
+            row.addValueMeta(v);
+          } catch (HopPluginException e) {
+            throw new HopTransformException(e);
           }
         }
       }
@@ -309,8 +195,28 @@ public class MappingInputMeta extends BaseTransformMeta<MappingInput, MappingInp
     this.inputRowMeta = inputRowMeta;
   }
 
-  /** @return the inputRowMeta */
+  /**
+   * @return the inputRowMeta
+   */
   public IRowMeta getInputRowMeta() {
     return inputRowMeta;
+  }
+
+  /**
+   * Gets fields
+   *
+   * @return value of fields
+   */
+  public List<InputField> getFields() {
+    return fields;
+  }
+
+  /**
+   * Sets fields
+   *
+   * @param fields value of fields
+   */
+  public void setFields(List<InputField> fields) {
+    this.fields = fields;
   }
 }

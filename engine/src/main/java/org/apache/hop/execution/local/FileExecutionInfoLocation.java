@@ -173,6 +173,10 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   @Override
   public synchronized void updateExecutionState(ExecutionState executionState) throws HopException {
     try {
+      if (executionState == null) {
+        throw new HopException("Please provide a non-null ExecutionState to update");
+      }
+
       // We need to add the logging text incrementally.
       // This means: read the previous value first and then add the new lines here...
       //
@@ -201,9 +205,11 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
 
       // Also append to a log file...
       //
-      String logFilename = getLogFilename(executionState);
-      try (OutputStream outputStream = HopVfs.getOutputStream(logFilename, false)) {
-        outputStream.write(executionState.getLoggingText().getBytes(StandardCharsets.UTF_8));
+      if (executionState.getLoggingText() != null) {
+        String logFilename = getLogFilename(executionState);
+        try (OutputStream outputStream = HopVfs.getOutputStream(logFilename, false)) {
+          outputStream.write(executionState.getLoggingText().getBytes(StandardCharsets.UTF_8));
+        }
       }
     } catch (Exception e) {
       throw new HopException("Error updating execution information", e);

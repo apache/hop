@@ -1,0 +1,71 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<transform>
+    <name>mapping-sum.hpl</name>
+    <type>SimpleMapping</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+        <method>none</method>
+        <schema_name/>
+    </partitioning>
+    <filename>${PROJECT_HOME}/mapping-sum.hpl</filename>
+    <mappings>
+        <input>
+            <mapping>
+                <input_transform/>
+                <output_transform/>
+                <main_path>Y</main_path>
+                <rename_on_output>Y</rename_on_output>
+                <description/>
+                <connector>
+                    <parent>a</parent>
+                    <child>fieldA</child>
+                </connector>
+                <connector>
+                    <parent>b</parent>
+                    <child>fieldB</child>
+                </connector>
+            </mapping>
+        </input>
+        <output>
+            <mapping>
+                <input_transform/>
+                <output_transform/>
+                <main_path>Y</main_path>
+                <rename_on_output>N</rename_on_output>
+                <description/>
+                <connector>
+                    <parent>fieldSum</parent>
+                    <child>sum</child>
+                </connector>
+            </mapping>
+        </output>
+        <parameters>
+            <inherit_all_vars>Y</inherit_all_vars>
+        </parameters>
+    </mappings>
+    <attributes/>
+    <GUI>
+        <xloc>288</xloc>
+        <yloc>112</yloc>
+    </GUI>
+</transform>

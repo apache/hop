@@ -21,11 +21,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -37,6 +40,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
@@ -68,6 +72,8 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
   private SimpleMappingMeta mappingMeta;
 
   private TextVar wPath;
+
+  private ComboVar wRunConfig;
 
   private CTabFolder wTabFolder;
 
@@ -104,16 +110,11 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     @Override
     public void applyChanges() {
 
-      int nrLines = wMappingParameters.nrNonEmpty();
-      String[] variables = new String[nrLines];
-      String[] inputFields = new String[nrLines];
-      parameters.setVariable(variables);
-      parameters.setInputField(inputFields);
-      // CHECKSTYLE:Indentation:OFF
-      for (int i = 0; i < nrLines; i++) {
-        TableItem item = wMappingParameters.getNonEmpty(i);
-        parameters.getVariable()[i] = item.getText(1);
-        parameters.getInputField()[i] = item.getText(2);
+      parameters.getVariableMappings().clear();
+      for (TableItem item : wMappingParameters.getNonEmptyItems()) {
+        parameters
+            .getVariableMappings()
+            .add(new MappingVariableMapping(item.getText(1), item.getText(2)));
       }
       parameters.setInheritingAllVariables(wInheritAll.getSelection());
     }
@@ -210,7 +211,6 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     fdlTransformName.top = new FormAttachment(wicon, 0, SWT.CENTER);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     wlTransformName.setLayoutData(fdlTransformName);
-
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     PropsUi.setLook(wTransformName);
@@ -254,6 +254,24 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     fdTransformation.right = new FormAttachment(wbBrowse, -margin);
     wPath.setLayoutData(fdTransformation);
 
+    // The run configuration
+    //
+    Label wlRunConfig = new Label(shell, SWT.RIGHT);
+    PropsUi.setLook(wlRunConfig);
+    wlRunConfig.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.RunConfig.Label"));
+    FormData fdlRunConfig = new FormData();
+    fdlRunConfig.left = new FormAttachment(0, 0);
+    fdlRunConfig.top = new FormAttachment(wPath, margin);
+    fdlRunConfig.right = new FormAttachment(middle, -margin);
+    wlRunConfig.setLayoutData(fdlRunConfig);
+    wRunConfig = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wRunConfig);
+    FormData fdRunConfig = new FormData();
+    fdRunConfig.left = new FormAttachment(wlRunConfig, margin);
+    fdRunConfig.top = new FormAttachment(wlRunConfig, 0, SWT.CENTER);
+    fdRunConfig.right = new FormAttachment(wbBrowse, -margin);
+    wRunConfig.setLayoutData(fdRunConfig);
+
     //
     // Add a tab folder for the parameters and various input and output
     // streams
@@ -271,7 +289,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wPath, 20);
+    fdTabFolder.top = new FormAttachment(wRunConfig, 2 * margin);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(hSpacer, -15);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -315,8 +333,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
   }
 
   private void loadPipelineFile(String fname) throws HopException {
-    mappingPipelineMeta =
-        new PipelineMeta(variables.resolve(fname), metadataProvider, variables);
+    mappingPipelineMeta = new PipelineMeta(variables.resolve(fname), metadataProvider, variables);
     mappingPipelineMeta.clearChanged();
   }
 
@@ -346,6 +363,20 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
       loadPipeline();
     } catch (Throwable t) {
       // Ignore errors
+    }
+
+    try {
+      // Load the run configurations.
+      List<PipelineRunConfiguration> runConfigs =
+          metadataProvider.getSerializer(PipelineRunConfiguration.class).loadAll();
+      for (PipelineRunConfiguration runConfig : runConfigs) {
+        if (runConfig.getEngineRunConfiguration() instanceof LocalPipelineRunConfiguration) {
+          wRunConfig.add(runConfig.getName());
+        }
+      }
+      wRunConfig.setText(Const.NVL(mappingMeta.getRunConfigurationName(), ""));
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error loading piepline run configurations", e);
     }
 
     wTransformName.selectAll();
@@ -426,7 +457,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
             wParametersComposite,
             SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER,
             colinfo,
-            parameters.getVariable().length,
+            parameters.getVariableMappings().size(),
             false,
             lsMod,
             props,
@@ -440,10 +471,11 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     wMappingParameters.setLayoutData(fdMappings);
     wMappingParameters.getTable().addListener(SWT.Resize, new ColumnsResizer(0, 50, 50));
 
-    for (int i = 0; i < parameters.getVariable().length; i++) {
+    for (int i = 0; i < parameters.getVariableMappings().size(); i++) {
+      MappingVariableMapping mapping = parameters.getVariableMappings().get(i);
       TableItem tableItem = wMappingParameters.table.getItem(i);
-      tableItem.setText(1, parameters.getVariable()[i]);
-      tableItem.setText(2, parameters.getInputField()[i]);
+      tableItem.setText(1, mapping.getName());
+      tableItem.setText(2, mapping.getValue());
     }
     wMappingParameters.setRowNums();
     wMappingParameters.optWidth(true);
@@ -740,6 +772,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     }
 
     mappingMeta.setFilename(wPath.getText());
+    mappingMeta.setRunConfigurationName(wRunConfig.getText());
 
     // Load the information on the tabs, optionally do some
     // verifications...

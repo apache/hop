@@ -1,3 +1,4 @@
+package org.apache.hop.metadata.api;
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -15,12 +16,20 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.loadsave.validator;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.apache.hop.core.exception.HopException;
-
-public interface IFieldLoadSaveValidator<T> {
-  T getTestObject();
-
-  boolean validateTestObject(T testObject, Object actual) throws HopException;
+/**
+ * This class annotation signals to Hop Metadata that when serializing this object needs to be
+ * wrapped in an additional level in the file.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface HopMetadataWrapper {
+  /**
+   * @return The wrapper tag
+   */
+  String tag();
 }

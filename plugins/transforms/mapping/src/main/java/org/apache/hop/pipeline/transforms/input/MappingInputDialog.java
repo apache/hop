@@ -121,7 +121,7 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
     fdlFields.top = new FormAttachment(wTransformName, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsRows = input.getFieldName().length;
+    final int nrFieldRows = input.getFields().size();
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -149,7 +149,7 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
-            FieldsRows,
+            nrFieldRows,
             lsMod,
             props);
 
@@ -170,27 +170,25 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    for (int i = 0; i < input.getFieldName().length; i++) {
-      if (input.getFieldName()[i] != null) {
-        TableItem item = wFields.table.getItem(i);
-        item.setText(1, input.getFieldName()[i]);
-        String type = ValueMetaFactory.getValueMetaName(input.getFieldType()[i]);
-        int length = input.getFieldLength()[i];
-        int prec = input.getFieldPrecision()[i];
-        if (type != null) {
-          item.setText(2, type);
-        }
-        if (length >= 0) {
-          item.setText(3, "" + length);
-        }
-        if (prec >= 0) {
-          item.setText(4, "" + prec);
-        }
+    for (int i = 0; i < input.getFields().size(); i++) {
+      InputField field = input.getFields().get(i);
+
+      TableItem item = wFields.table.getItem(i);
+      String type = field.getType();
+      int length = Const.toInt(field.getLength(), -1);
+      int precision = Const.toInt(field.getPrecision(), -1);
+
+      item.setText(1, Const.NVL(field.getName(), ""));
+      item.setText(2, Const.NVL(type, ""));
+      if (length >= 0) {
+        item.setText(3, "" + length);
+      }
+      if (precision >= 0) {
+        item.setText(4, "" + precision);
       }
     }
 
-    wFields.setRowNums();
-    wFields.optWidth(true);
+    wFields.optimizeTableView();
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -211,15 +209,11 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
 
     int nrFields = wFields.nrNonEmpty();
 
-    input.allocate(nrFields);
-
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < nrFields; i++) {
-      TableItem item = wFields.getNonEmpty(i);
-      input.getFieldName()[i] = item.getText(1);
-      input.getFieldType()[i] = ValueMetaFactory.getIdForValueMeta(item.getText(2));
-      input.getFieldLength()[i] = Const.toInt(item.getText(3), -1);
-      input.getFieldPrecision()[i] = Const.toInt(item.getText(4), -1);
+    input.getFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      input
+          .getFields()
+          .add(new InputField(item.getText(1), item.getText(2), item.getText(3), item.getText(4)));
     }
 
     dispose();

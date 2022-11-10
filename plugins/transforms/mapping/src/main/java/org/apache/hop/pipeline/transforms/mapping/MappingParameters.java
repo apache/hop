@@ -17,9 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.mapping;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.xml.XmlHandler;
-import org.w3c.dom.Node;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * We need out mapping to be parameterized.<br>
@@ -32,35 +35,54 @@ public class MappingParameters implements Cloneable {
 
   private static final String XML_VARIABLES_TAG = "variablemapping";
 
-  /** The name of the variable to set in the sub-transformation */
-  private String[] variable;
-
-  /** This is a simple String with optionally variables in them * */
-  private String[] input;
+  @HopMetadataProperty(key = "variablemapping")
+  private List<MappingVariableMapping> variableMappings;
 
   /** This flag causes the sub-transformation to inherit all variables from the parent */
+  @HopMetadataProperty(key = "inherit_all_vars")
   private boolean inheritingAllVariables;
 
   public MappingParameters() {
     super();
-
-    variable = new String[] {};
-    input = new String[] {};
-
+    variableMappings = new ArrayList<>();
     inheritingAllVariables = true;
   }
 
-  @Override
-  public Object clone() {
-    try {
-      return super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new RuntimeException(e); // Nope, we don't want that in our code.
+  public MappingParameters(MappingParameters p) {
+    this();
+    this.inheritingAllVariables = p.inheritingAllVariables;
+    for (MappingVariableMapping mapping : p.variableMappings) {
+      variableMappings.add(new MappingVariableMapping(mapping));
     }
   }
 
-  public MappingParameters(Node paramNode) {
+  public String[] getVariables() {
+    String[] vars = new String[variableMappings.size()];
+    for (int i=0;i<vars.length;i++) {
+      vars[i] = variableMappings.get(i).getName();
+    }
+    return vars;
+  }
 
+  public String[] getInputs() {
+    String[] input = new String[variableMappings.size()];
+    for (int i=0;i<input.length;i++) {
+      input[i] = variableMappings.get(i).getValue();
+    }
+    return input;
+  }
+
+  @Override
+  public MappingParameters clone() {
+    return new MappingParameters(this);
+  }
+
+  public String getXml() throws HopException {
+    return XmlMetadataUtil.serializeObjectToXml(this);
+  }
+
+ /* public MappingParameters(Node paramNode) {
+    this();
     int nrVariables = XmlHandler.countNodes(paramNode, XML_VARIABLES_TAG);
     variable = new String[nrVariables];
     input = new String[nrVariables];
@@ -92,33 +114,36 @@ public class MappingParameters implements Cloneable {
 
     return xml.toString();
   }
+*/
 
-  /** @return the inputField */
-  public String[] getInputField() {
-    return input;
+  /**
+   * Gets mappings
+   *
+   * @return value of mappings
+   */
+  public List<MappingVariableMapping> getVariableMappings() {
+    return variableMappings;
   }
 
-  /** @param inputField the inputField to set */
-  public void setInputField(String[] inputField) {
-    this.input = inputField;
+  /**
+   * Sets mappings
+   *
+   * @param variableMappings value of mappings
+   */
+  public void setVariableMappings(List<MappingVariableMapping> variableMappings) {
+    this.variableMappings = variableMappings;
   }
 
-  /** @return the variable */
-  public String[] getVariable() {
-    return variable;
-  }
-
-  /** @param variable the variable to set */
-  public void setVariable(String[] variable) {
-    this.variable = variable;
-  }
-
-  /** @return the inheritingAllVariables */
+  /**
+   * @return the inheritingAllVariables
+   */
   public boolean isInheritingAllVariables() {
     return inheritingAllVariables;
   }
 
-  /** @param inheritingAllVariables the inheritingAllVariables to set */
+  /**
+   * @param inheritingAllVariables the inheritingAllVariables to set
+   */
   public void setInheritingAllVariables(boolean inheritingAllVariables) {
     this.inheritingAllVariables = inheritingAllVariables;
   }
