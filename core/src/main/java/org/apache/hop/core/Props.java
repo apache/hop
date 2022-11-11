@@ -62,7 +62,6 @@ public class Props implements Cloneable {
   public static final String STRING_INDICATE_SLOW_PIPELINE_TRANSFORMS =
       "IndicateSlowPipelineTransforms";
 
-  public static final String STRING_LAST_PREVIEW_PIPELINE = "LastPreviewPipeline";
   public static final String STRING_LAST_PREVIEW_TRANSFORM = "LastPreviewTransform";
   public static final String STRING_LAST_PREVIEW_SIZE = "LastPreviewSize";
 
@@ -77,6 +76,7 @@ public class Props implements Cloneable {
   public static final String STRING_OPEN_LAST_FILE = "OpenLastFile";
 
   public static final String STRING_SHOW_CANVAS_GRID = "ShowCanvasGrid";
+  public static final String STRING_SHOW_TABLE_VIEW_TOOLBAR = "ShowTableViewToolbar";
   public static final String STRING_SHOW_EXIT_WARNING = "ShowExitWarning";
 
   public static final String STRING_CUSTOM_PARAMETER = "CustomParameter";

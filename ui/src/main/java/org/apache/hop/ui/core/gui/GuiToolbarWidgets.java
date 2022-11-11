@@ -74,7 +74,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     //
     List<GuiToolbarItem> toolbarItems = GuiRegistry.getInstance().findGuiToolbarItems(root);
     if (toolbarItems.isEmpty()) {
-      System.err.println("Create widgets: no GUI toolbar items found for root: " + root);
+      LogChannel.UI.logError("Create widgets: no GUI toolbar items found for root: " + root);
       return;
     }
 
@@ -146,8 +146,6 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     }
     ToolBar toolBar = (ToolBar) parent;
 
-    PropsUi props = PropsUi.getInstance();
-
     // We want to add a separator if the annotation asked for it
     // We also want to add a separator in case the toolbar element type isn't a button
     //
@@ -180,7 +178,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
       case BUTTON:
         if (EnvironmentUtils.getInstance().isWeb()) {
-          addWebToolbarButton(parent, toolbarItem, toolBar);
+          addWebToolbarButton(toolbarItem, toolBar);
         } else {
           addToolbarButton(toolbarItem, toolBar);
         }
@@ -255,12 +253,11 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
   private void addToolbarButton(GuiToolbarItem toolbarItem, ToolBar toolBar) {
     ToolItem item = new ToolItem(toolBar, SWT.NONE);
-    if (itemBackgroundColor!=null) {
+    if (itemBackgroundColor != null) {
       item.setBackground(itemBackgroundColor);
     }
     String imageLocation = findImageFilename(toolbarItem);
-    setImages(
-        item, toolbarItem.getClassLoader(), imageLocation);
+    setImages(item, toolbarItem.getClassLoader(), imageLocation);
     if (StringUtils.isNotEmpty(toolbarItem.getToolTip())) {
       item.setToolTipText(toolbarItem.getToolTip());
     }
@@ -278,21 +275,30 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
       // Call the GUI plugin
       //
       try {
-        Class<?> imageMethodClass = toolbarItem.getClassLoader().loadClass(toolbarItem.getListenerClass());
-        // A static method which receives the GUI plugin object which can help determine the icon filename
+        Class<?> imageMethodClass =
+            toolbarItem.getClassLoader().loadClass(toolbarItem.getListenerClass());
+        // A static method which receives the GUI plugin object which can help determine the icon
+        // filename
         Method imageMethod = imageMethodClass.getMethod(toolbarItem.getImageMethod(), Object.class);
         // Find the registered GUI plugin object
-        Object guiPluginInstance = findGuiPluginInstance(toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), instanceId);
+        Object guiPluginInstance =
+            findGuiPluginInstance(
+                toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), instanceId);
         imageLocation = (String) imageMethod.invoke(null, guiPluginInstance);
-      } catch(Exception e) {
+      } catch (Exception e) {
         imageLocation = null;
-        LogChannel.UI.logError("Error getting toolbar image filename with method "+ toolbarItem.getListenerClass()+"."+ toolbarItem.getImageMethod(), e);
+        LogChannel.UI.logError(
+            "Error getting toolbar image filename with method "
+                + toolbarItem.getListenerClass()
+                + "."
+                + toolbarItem.getImageMethod(),
+            e);
       }
     }
     return imageLocation;
   }
 
-  private void addWebToolbarButton(Composite parent, GuiToolbarItem toolbarItem, ToolBar toolBar) {
+  private void addWebToolbarButton(GuiToolbarItem toolbarItem, ToolBar toolBar) {
     ToolItem item = new ToolItem(toolBar, SWT.SEPARATOR);
 
     Label label = new Label(toolBar, SWT.NONE);
@@ -341,8 +347,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     }
   }
 
-  private void setImages(
-      ToolItem item, ClassLoader classLoader, String location) {
+  private void setImages(ToolItem item, ClassLoader classLoader, String location) {
     GuiResource gr = GuiResource.getInstance();
     int width = ConstUi.SMALL_ICON_SIZE;
     int height = ConstUi.SMALL_ICON_SIZE;
@@ -440,14 +445,14 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
           Combo combo = (Combo) control;
           combo.setItems(getComboItems(item));
         } else {
-          System.err.println("toolbar item with id '" + id + "' : widget not of instance Combo");
+          LogChannel.UI.logError("toolbar item with id '" + id + "' : widget not of instance Combo");
         }
       } else {
-        System.err.println(
+        LogChannel.UI.logError(
             "toolbar item with id '" + id + "' : control not found when refreshing combo");
       }
     } else {
-      System.err.println("toolbar item with id '" + id + "' : not found when refreshing combo");
+      LogChannel.UI.logError("toolbar item with id '" + id + "' : not found when refreshing combo");
     }
   }
 
@@ -455,14 +460,12 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     GuiToolbarItem item = guiToolBarMap.get(id);
     if (item != null) {
       Control control = widgetsMap.get(id);
-      if (control != null) {
-        if (control instanceof Combo) {
-          Combo combo = (Combo) control;
-          combo.setText(Const.NVL(string, ""));
-          int index = Const.indexOfString(string, combo.getItems());
-          if (index >= 0) {
-            combo.select(index);
-          }
+      if (control instanceof Combo) {
+        Combo combo = (Combo) control;
+        combo.setText(Const.NVL(string, ""));
+        int index = Const.indexOfString(string, combo.getItems());
+        if (index >= 0) {
+          combo.select(index);
         }
       }
     }

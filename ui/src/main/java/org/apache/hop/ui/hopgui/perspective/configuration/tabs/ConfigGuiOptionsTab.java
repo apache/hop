@@ -50,7 +50,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FontDialog;
@@ -84,8 +83,8 @@ public class ConfigGuiOptionsTab {
   private Button wDarkMode;
   private Button wShowCanvasGrid;
   private Button wHideMenuBar;
+  private Button wShowTableViewToolbar;
   private Combo wDefaultLocale;
-
 
   public ConfigGuiOptionsTab() {
     // This instance is created in the GuiPlugin system by calling this constructor, after which it
@@ -147,7 +146,7 @@ public class ConfigGuiOptionsTab {
       fddDFont.top = new FormAttachment(0, margin);
       fddDFont.bottom = new FormAttachment(0, (nr + 1) * h + margin);
       wdDFont.setLayoutData(fddDFont);
-      wdDFont.addListener(SWT.Selection, e->resetDefaultFont(shell));
+      wdDFont.addListener(SWT.Selection, e -> resetDefaultFont(shell));
 
       Button wbDFont = new Button(wLookComp, SWT.PUSH);
       PropsUi.setLook(wbDFont);
@@ -156,7 +155,7 @@ public class ConfigGuiOptionsTab {
       fdbDFont.top = new FormAttachment(0, nr * h + margin);
       fdbDFont.bottom = new FormAttachment(0, (nr + 1) * h + margin);
       wbDFont.setLayoutData(fdbDFont);
-      wbDFont.addListener(SWT.Selection, e->editDefaultFont(shell));
+      wbDFont.addListener(SWT.Selection, e -> editDefaultFont(shell));
 
       wDefaultCanvas = new Canvas(wLookComp, SWT.BORDER);
       PropsUi.setLook(wDefaultCanvas);
@@ -167,7 +166,7 @@ public class ConfigGuiOptionsTab {
       fdDFont.bottom = new FormAttachment(0, h);
       wDefaultCanvas.setLayoutData(fdDFont);
       wDefaultCanvas.addPaintListener(this::paintDefaultFont);
-      wDefaultCanvas.addListener(SWT.MouseDown, e->editDefaultFont(shell));
+      wDefaultCanvas.addListener(SWT.MouseDown, e -> editDefaultFont(shell));
     }
 
     // Fixed font
@@ -189,7 +188,7 @@ public class ConfigGuiOptionsTab {
       fddFFont.top = new FormAttachment(0, nr * h + margin);
       fddFFont.bottom = new FormAttachment(0, (nr + 1) * h + margin);
       wdFFont.setLayoutData(fddFFont);
-      wdFFont.addListener(SWT.Selection, e->resetFixedFont(shell));
+      wdFFont.addListener(SWT.Selection, e -> resetFixedFont(shell));
 
       Button wbFFont = new Button(wLookComp, SWT.PUSH);
       PropsUi.setLook(wbFFont);
@@ -198,7 +197,7 @@ public class ConfigGuiOptionsTab {
       fdbFFont.top = new FormAttachment(0, nr * h + margin);
       fdbFFont.bottom = new FormAttachment(0, (nr + 1) * h + margin);
       wbFFont.setLayoutData(fdbFFont);
-      wbFFont.addListener(SWT.Selection, e->editFixedFont(shell));
+      wbFFont.addListener(SWT.Selection, e -> editFixedFont(shell));
 
       wFixedCanvas = new Canvas(wLookComp, SWT.BORDER);
       PropsUi.setLook(wFixedCanvas);
@@ -209,7 +208,7 @@ public class ConfigGuiOptionsTab {
       fdFFont.bottom = new FormAttachment(0, (nr + 1) * h + margin);
       wFixedCanvas.setLayoutData(fdFFont);
       wFixedCanvas.addPaintListener(this::paintFixedFont);
-      wFixedCanvas.addListener(SWT.MouseDown, e->editFixedFont(shell));
+      wFixedCanvas.addListener(SWT.MouseDown, e -> editFixedFont(shell));
     }
 
     // Graph font
@@ -232,7 +231,7 @@ public class ConfigGuiOptionsTab {
       fddGFont.top = new FormAttachment(0, nr * h + margin);
       fddGFont.bottom = new FormAttachment(0, (nr + 1) * h + margin);
       wdGFont.setLayoutData(fddGFont);
-      wdGFont.addListener(SWT.Selection, e->resetGraphFont(shell, props));
+      wdGFont.addListener(SWT.Selection, e -> resetGraphFont(shell, props));
 
       Button wbGFont = new Button(wLookComp, SWT.PUSH);
       PropsUi.setLook(wbGFont);
@@ -242,7 +241,7 @@ public class ConfigGuiOptionsTab {
       fdbGFont.top = new FormAttachment(0, nr * h + margin);
       fdbGFont.bottom = new FormAttachment(0, (nr + 1) * h + margin);
       wbGFont.setLayoutData(fdbGFont);
-      wbGFont.addListener(SWT.Selection, e->editGraphFont(shell));
+      wbGFont.addListener(SWT.Selection, e -> editGraphFont(shell));
 
       wGraphCanvas = new Canvas(wLookComp, SWT.BORDER);
       PropsUi.setLook(wGraphCanvas);
@@ -253,7 +252,7 @@ public class ConfigGuiOptionsTab {
       fdGFont.bottom = new FormAttachment(0, (nr + 1) * h + margin);
       wGraphCanvas.setLayoutData(fdGFont);
       wGraphCanvas.addPaintListener(this::drawGraphFont);
-      wGraphCanvas.addListener(SWT.MouseDown, e->editGraphFont(shell));
+      wGraphCanvas.addListener(SWT.MouseDown, e -> editGraphFont(shell));
     }
 
     // Note font
@@ -275,7 +274,7 @@ public class ConfigGuiOptionsTab {
       fddNFont.top = new FormAttachment(0, nr * h + margin);
       fddNFont.bottom = new FormAttachment(0, (nr + 1) * h + margin);
       wdNFont.setLayoutData(fddNFont);
-      wdNFont.addListener(SWT.Selection, e->resetNoteFont(e, props, shell.getDisplay()));
+      wdNFont.addListener(SWT.Selection, e -> resetNoteFont(e, props, shell.getDisplay()));
 
       Button wbNFont = new Button(wLookComp, SWT.PUSH);
       PropsUi.setLook(wbNFont);
@@ -284,7 +283,7 @@ public class ConfigGuiOptionsTab {
       fdbNFont.top = new FormAttachment(0, nr * h + margin);
       fdbNFont.bottom = new FormAttachment(0, (nr + 1) * h + margin);
       wbNFont.setLayoutData(fdbNFont);
-      wbNFont.addListener(SWT.Selection, e->editNoteFont(shell));
+      wbNFont.addListener(SWT.Selection, e -> editNoteFont(shell));
 
       wNoteCanvas = new Canvas(wLookComp, SWT.BORDER);
       PropsUi.setLook(wNoteCanvas);
@@ -295,7 +294,7 @@ public class ConfigGuiOptionsTab {
       fdNFont.bottom = new FormAttachment(0, (nr + 1) * h + margin);
       wNoteCanvas.setLayoutData(fdNFont);
       wNoteCanvas.addPaintListener(this::paintNoteFont);
-      wNoteCanvas.addListener(SWT.MouseDown, e->editNoteFont(shell));
+      wNoteCanvas.addListener(SWT.MouseDown, e -> editNoteFont(shell));
     }
 
     // IconSize line
@@ -315,7 +314,7 @@ public class ConfigGuiOptionsTab {
     fdIconSize.right = new FormAttachment(100, -margin);
     fdIconSize.top = new FormAttachment(wlIconSize, 0, SWT.CENTER);
     wIconSize.setLayoutData(fdIconSize);
-    wIconSize.addListener(SWT.Modify, e->saveValues());
+    wIconSize.addListener(SWT.Modify, e -> saveValues());
 
     // LineWidth line
     Label wlLineWidth = new Label(wLookComp, SWT.RIGHT);
@@ -334,12 +333,12 @@ public class ConfigGuiOptionsTab {
     fdLineWidth.right = new FormAttachment(100, -margin);
     fdLineWidth.top = new FormAttachment(wlLineWidth, 0, SWT.CENTER);
     wLineWidth.setLayoutData(fdLineWidth);
-    wLineWidth.addListener(SWT.Modify, e->saveValues());
+    wLineWidth.addListener(SWT.Modify, e -> saveValues());
 
     // MiddlePct line
     Label wlMiddlePct = new Label(wLookComp, SWT.RIGHT);
     wlMiddlePct.setText(
-            BaseMessages.getString(PKG, "EnterOptionsDialog.DialogMiddlePercentage.Label"));
+        BaseMessages.getString(PKG, "EnterOptionsDialog.DialogMiddlePercentage.Label"));
     PropsUi.setLook(wlMiddlePct);
     FormData fdlMiddlePct = new FormData();
     fdlMiddlePct.left = new FormAttachment(0, 0);
@@ -354,7 +353,7 @@ public class ConfigGuiOptionsTab {
     fdMiddlePct.right = new FormAttachment(100, -margin);
     fdMiddlePct.top = new FormAttachment(wlMiddlePct, 0, SWT.CENTER);
     wMiddlePct.setLayoutData(fdMiddlePct);
-    wMiddlePct.addListener(SWT.Modify, e->saveValues());
+    wMiddlePct.addListener(SWT.Modify, e -> saveValues());
 
     // Global Zoom
     Label wlGlobalZoom = new Label(wLookComp, SWT.RIGHT);
@@ -376,7 +375,7 @@ public class ConfigGuiOptionsTab {
     // set the current value
     String globalZoomFactor = Integer.toString((int) (props.getGlobalZoomFactor() * 100)) + '%';
     wGlobalZoom.setText(globalZoomFactor);
-    wGlobalZoom.addListener(SWT.Modify, e->saveValues());
+    wGlobalZoom.addListener(SWT.Modify, e -> saveValues());
 
     // GridSize line
     Label wlGridSize = new Label(wLookComp, SWT.RIGHT);
@@ -397,14 +396,14 @@ public class ConfigGuiOptionsTab {
     fdGridSize.right = new FormAttachment(100, -margin);
     fdGridSize.top = new FormAttachment(wlGridSize, 0, SWT.CENTER);
     wGridSize.setLayoutData(fdGridSize);
-    wGridSize.addListener(SWT.Modify, e->saveValues());
+    wGridSize.addListener(SWT.Modify, e -> saveValues());
 
     // Show Canvas Grid
     Label wlShowCanvasGrid = new Label(wLookComp, SWT.RIGHT);
     wlShowCanvasGrid.setText(
-            BaseMessages.getString(PKG, "EnterOptionsDialog.ShowCanvasGrid.Label"));
+        BaseMessages.getString(PKG, "EnterOptionsDialog.ShowCanvasGrid.Label"));
     wlShowCanvasGrid.setToolTipText(
-            BaseMessages.getString(PKG, "EnterOptionsDialog.ShowCanvasGrid.ToolTip"));
+        BaseMessages.getString(PKG, "EnterOptionsDialog.ShowCanvasGrid.ToolTip"));
     PropsUi.setLook(wlShowCanvasGrid);
     FormData fdlShowCanvasGrid = new FormData();
     fdlShowCanvasGrid.left = new FormAttachment(0, 0);
@@ -419,13 +418,13 @@ public class ConfigGuiOptionsTab {
     fdShowCanvasGrid.right = new FormAttachment(100, -margin);
     fdShowCanvasGrid.top = new FormAttachment(wlShowCanvasGrid, 0, SWT.CENTER);
     wShowCanvasGrid.setLayoutData(fdShowCanvasGrid);
-    wShowCanvasGrid.addListener(SWT.Selection, e->saveValues());
+    wShowCanvasGrid.addListener(SWT.Selection, e -> saveValues());
 
-    // Show Canvas Grid
+    // Hide menu bar?
     Label wlHideMenuBar = new Label(wLookComp, SWT.RIGHT);
     wlHideMenuBar.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.HideMenuBar.Label"));
     wlHideMenuBar.setToolTipText(
-            BaseMessages.getString(PKG, "EnterOptionsDialog.HideMenuBar.ToolTip"));
+        BaseMessages.getString(PKG, "EnterOptionsDialog.HideMenuBar.ToolTip"));
     PropsUi.setLook(wlHideMenuBar);
     FormData fdlHideMenuBar = new FormData();
     fdlHideMenuBar.left = new FormAttachment(0, 0);
@@ -440,7 +439,29 @@ public class ConfigGuiOptionsTab {
     fdHideMenuBar.right = new FormAttachment(100, -margin);
     fdHideMenuBar.top = new FormAttachment(wlHideMenuBar, 0, SWT.CENTER);
     wHideMenuBar.setLayoutData(fdHideMenuBar);
-    wHideMenuBar.addListener(SWT.Selection, e->saveValues());
+    wHideMenuBar.addListener(SWT.Selection, e -> saveValues());
+
+    // Hide menu bar?
+    Label wlShowTableViewToolbar = new Label(wLookComp, SWT.RIGHT);
+    wlShowTableViewToolbar.setText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.ShowTableViewToolbar.Label"));
+    wlShowTableViewToolbar.setToolTipText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.ShowTableViewToolbar.ToolTip"));
+    PropsUi.setLook(wlShowTableViewToolbar);
+    FormData fdlShowTableViewToolbar = new FormData();
+    fdlShowTableViewToolbar.left = new FormAttachment(0, 0);
+    fdlShowTableViewToolbar.right = new FormAttachment(middle, -margin);
+    fdlShowTableViewToolbar.top = new FormAttachment(wHideMenuBar, 2 * margin);
+    wlShowTableViewToolbar.setLayoutData(fdlShowTableViewToolbar);
+    wShowTableViewToolbar = new Button(wLookComp, SWT.CHECK);
+    PropsUi.setLook(wShowTableViewToolbar);
+    wShowTableViewToolbar.setSelection(props.isShowTableViewToolbar());
+    FormData fdShowTableViewToolbar = new FormData();
+    fdShowTableViewToolbar.left = new FormAttachment(middle, 0);
+    fdShowTableViewToolbar.right = new FormAttachment(100, -margin);
+    fdShowTableViewToolbar.top = new FormAttachment(wlShowTableViewToolbar, 0, SWT.CENTER);
+    wShowTableViewToolbar.setLayoutData(fdShowTableViewToolbar);
+    wShowTableViewToolbar.addListener(SWT.Selection, e -> saveValues());
 
     // Is Dark Mode enabled
     Label wlDarkMode = new Label(wLookComp, SWT.RIGHT);
@@ -448,7 +469,7 @@ public class ConfigGuiOptionsTab {
     PropsUi.setLook(wlDarkMode);
     FormData fdlDarkMode = new FormData();
     fdlDarkMode.left = new FormAttachment(0, 0);
-    fdlDarkMode.top = new FormAttachment(wHideMenuBar, 2 * margin);
+    fdlDarkMode.top = new FormAttachment(wShowTableViewToolbar, 2 * margin);
     fdlDarkMode.right = new FormAttachment(middle, -margin);
     wlDarkMode.setLayoutData(fdlDarkMode);
     wDarkMode = new Button(wLookComp, SWT.CHECK);
@@ -461,7 +482,7 @@ public class ConfigGuiOptionsTab {
     wDarkMode.setLayoutData(fdDarkMode);
     wlDarkMode.setEnabled(Const.isWindows());
     wDarkMode.setEnabled(Const.isWindows());
-    wDarkMode.addListener(SWT.Selection, e->saveValues());
+    wDarkMode.addListener(SWT.Selection, e -> saveValues());
 
     // DefaultLocale line
     Label wlDefaultLocale = new Label(wLookComp, SWT.RIGHT);
@@ -480,12 +501,12 @@ public class ConfigGuiOptionsTab {
     fdDefaultLocale.right = new FormAttachment(100, -margin);
     fdDefaultLocale.top = new FormAttachment(wlDefaultLocale, 0, SWT.CENTER);
     wDefaultLocale.setLayoutData(fdDefaultLocale);
-    wDefaultLocale.addListener(SWT.Modify, e->saveValues());
+    wDefaultLocale.addListener(SWT.Modify, e -> saveValues());
 
     // language selections...
     int idxDefault =
-            Const.indexOfString(
-                    LanguageChoice.getInstance().getDefaultLocale().toString(), GlobalMessages.localeCodes);
+        Const.indexOfString(
+            LanguageChoice.getInstance().getDefaultLocale().toString(), GlobalMessages.localeCodes);
     if (idxDefault >= 0) {
       wDefaultLocale.select(idxDefault);
     }
@@ -572,10 +593,10 @@ public class ConfigGuiOptionsTab {
 
   private void resetFixedFont(Shell shell) {
     fixedFontData =
-            new FontData(
-                    PropsUi.getInstance().getFixedFont().getName(),
-                    PropsUi.getInstance().getFixedFont().getHeight(),
-                    PropsUi.getInstance().getFixedFont().getStyle());
+        new FontData(
+            PropsUi.getInstance().getFixedFont().getName(),
+            PropsUi.getInstance().getFixedFont().getHeight(),
+            PropsUi.getInstance().getFixedFont().getStyle());
     fixedFont.dispose();
     fixedFont = new Font(shell.getDisplay(), fixedFontData);
     wFixedCanvas.redraw();
@@ -606,10 +627,10 @@ public class ConfigGuiOptionsTab {
 
   private void resetDefaultFont(Shell shell) {
     defaultFontData =
-            new FontData(
-                    PropsUi.getInstance().getFixedFont().getName(),
-                    PropsUi.getInstance().getFixedFont().getHeight(),
-                    PropsUi.getInstance().getFixedFont().getStyle());
+        new FontData(
+            PropsUi.getInstance().getFixedFont().getName(),
+            PropsUi.getInstance().getFixedFont().getHeight(),
+            PropsUi.getInstance().getFixedFont().getStyle());
     defaultFont.dispose();
     defaultFont = new Font(shell.getDisplay(), defaultFontData);
     wDefaultCanvas.redraw();
@@ -660,7 +681,6 @@ public class ConfigGuiOptionsTab {
     return fd;
   }
 
-
   /**
    * Setting the layout of an <i>Edit</i> option button. Either a button image is set - if existing
    * - or a text.
@@ -698,6 +718,7 @@ public class ConfigGuiOptionsTab {
     props.setShowCanvasGridEnabled(wShowCanvasGrid.getSelection());
     props.setDarkMode(wDarkMode.getSelection());
     props.setHidingMenuBar(wHideMenuBar.getSelection());
+    props.setShowTableViewToolbar(wShowTableViewToolbar.getSelection());
 
     int defaultLocaleIndex = wDefaultLocale.getSelectionIndex();
     if (defaultLocaleIndex < 0 || defaultLocaleIndex >= GlobalMessages.localeCodes.length) {
