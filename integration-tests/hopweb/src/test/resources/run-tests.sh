@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -15,28 +17,27 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM selenium/standalone-chrome
+echo "Starting Hop Web UI tests"
 
-RUN sudo useradd -s /bin/bash -m hop
+# make sure the chrome driver is executable.
+chmod +x /home/hop/src/test/resources/chromedriver
+if [ $? -eq 0 ]
+then
+  echo "Chrome driver is executable"
+else
+  echo "Failed to make sure Chrome driver is executable. Tests won't run"
+  exit 1
+fi
 
-COPY src/ /home/hop/src/
-COPY pom.xml /home/hop/
+# run the Selenium Hop Web tests
+echo "Starting to run Hop Web UI tests"
+mvn test
 
-RUN sudo chown -R hop:hop /home/hop/
-RUN sudo mkdir /surefire-reports/ && sudo chown -R hop:hop /surefire-reports
-
-USER hop
-
-RUN wget https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.tar.gz -P /tmp
-RUN cd /tmp/ && tar -xvzf apache-maven-3.8.6-bin.tar.gz
-
-ENV PATH=$PATH:/tmp/apache-maven-3.8.6/bin/
-
-RUN cp /home/hop/src/test/resources/hopwebtest-docker.properties /home/hop/src/test/resources/hopwebtest.properties
-RUN cp /home/hop/src/test/resources/run-tests.sh /home/hop/
-
-RUN chmod +x /home/hop/run-tests.sh
-
-WORKDIR /home/hop
-ENTRYPOINT ["/bin/bash", "/home/hop/run-tests.sh"]
-
+# copy the reports and generated images to the surefire volume
+# the build will be marked as failed when there are failed tests, so don't bother checking the exit code.
+echo "copying test reports"
+sudo cp -r target/surefire-reports/* /surefire-reports
+if [ -d "target/images" ] ; then
+  echo "copying screenshots"
+  sudo cp -r target/images /surefire-reports
+fi
