@@ -17,10 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.formula.util;
 
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transforms.formula.FormulaMetaFunction;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
@@ -64,7 +66,7 @@ public class FormulaParser {
     }
   }
 
-  public CellValue getFormulaValue() {
+  public CellValue getFormulaValue() throws HopValueException {
     String parsedFormula = formula;
     int fieldIndex = 65;
     int colIndex = 0;
@@ -76,21 +78,19 @@ public class FormulaParser {
       IValueMeta fieldMeta = rowMeta.getValueMeta(fieldPosition);
       if (dataRow[fieldPosition] != null) {
         if (fieldMeta.isBoolean()) {
-          cell.setCellValue((Boolean) dataRow[fieldPosition]);
+          cell.setCellValue(rowMeta.getBoolean(dataRow, fieldPosition));
         } else if (fieldMeta.isBigNumber()) {
-          cell.setCellValue((RichTextString) dataRow[fieldPosition]);
+          cell.setCellValue(new HSSFRichTextString(rowMeta.getString(dataRow, fieldPosition)));
         } else if (fieldMeta.isDate()) {
-          cell.setCellValue((Date) dataRow[fieldPosition]);
+          cell.setCellValue(rowMeta.getDate(dataRow, fieldPosition));
         } else if (fieldMeta.isInteger()) {
-          cell.setCellValue((Long) dataRow[fieldPosition]);
+          cell.setCellValue(rowMeta.getInteger(dataRow, fieldPosition));
         } else if (fieldMeta.isNumber()) {
-          cell.setCellValue((Double) dataRow[fieldPosition]);
+          cell.setCellValue(rowMeta.getNumber(dataRow, fieldPosition));
         } else if (fieldMeta.isString()) {
-          cell.setCellValue((String) dataRow[fieldPosition]);
-        } else if (fieldMeta.getType() == IValueMeta.TYPE_TIMESTAMP) {
-          cell.setCellValue((Timestamp) dataRow[fieldPosition]);
+          cell.setCellValue(rowMeta.getString(dataRow, fieldPosition));
         } else {
-          cell.setCellValue((String) dataRow[fieldPosition]);
+          cell.setCellValue(rowMeta.getString(dataRow, fieldPosition));
         }
       }
 
