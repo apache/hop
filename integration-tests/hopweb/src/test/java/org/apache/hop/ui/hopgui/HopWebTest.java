@@ -121,8 +121,6 @@ public class HopWebTest {
 
         Thread.sleep(WAIT_SHORT);
 
-//        List<WebElement> canvasList = driver.findElements(By.xpath("//canvas"));
-//        contextCanvas = canvasList.get(canvasList.size()-1);
         contextCanvas = getLastCanvas();
 
         assertNotNull(contextCanvas);
@@ -185,10 +183,6 @@ public class HopWebTest {
         clickCanvasAtPos(pipelineCanvas, 0, 0);
 
         contextCanvas = getLastCanvas();
-//        List<WebElement> canvasList = driver.findElements(By.xpath("//canvas"));
-//        contextCanvas = canvasList.get(canvasList.size()-1);
-//        contextCanvas =  getContextCanvas();
-//        assertNotNull(contextCanvas);
 
         sendInput(transformName);
 
@@ -203,8 +197,6 @@ public class HopWebTest {
         Thread.sleep(WAIT_SHORT);
         sendInput("edit");
 
-//        canvasList = driver.findElements(By.xpath("//canvas"));
-//        contextCanvas = canvasList.get(canvasList.size()-1);
         contextCanvas = getLastCanvas();
 
         clickFirstCanvasElement(contextCanvas);
@@ -257,10 +249,7 @@ public class HopWebTest {
 
         try{
             Thread.sleep(WAIT_SHORT);
-//            canvasList = driver.findElements(By.xpath("//canvas"));
-//            contextCanvas = canvasList.get(canvasList.size()-1);
-//            contextCanvas = getContextCanvas();
-//            assertNotNull(contextCanvas);
+
             contextCanvas = getLastCanvas();
 
             sendInput("delete");
@@ -299,7 +288,7 @@ public class HopWebTest {
             WebElement transformNameElement = driver.findElement(By.xpath("//div[text()='" + transformName + "']"));
             String transformHtml = transformNameElement.getAttribute("innerHTML");
 
-            if(transformNameElement != null /*&& transformNameElement.isDisplayed()*/){
+            if(transformNameElement != null){
                 return true;
             }else{
                 return false;
