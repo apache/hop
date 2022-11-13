@@ -25,13 +25,13 @@ Apache Tika
 Append streams
 Block until transforms finish
 Blocking transform
-#Calculator
-#Call DB procedure
-#Change file encoding
-#Check if file is locked
-#Check if webservice is available
-#Clone row
-#Closure generator
+Calculator
+Call DB procedure
+Change file encoding
+Check if file is locked
+Check if webservice is available
+Clone row
+Closure generator
 Coalesce Fields
 Column exists
 Combination lookup/update
