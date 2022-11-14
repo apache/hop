@@ -18,8 +18,10 @@
 package org.apache.hop.beam.transforms.window;
 
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
 import org.apache.beam.sdk.transforms.windowing.GlobalWindows;
+import org.apache.beam.sdk.transforms.windowing.Repeatedly;
 import org.apache.beam.sdk.transforms.windowing.Sessions;
 import org.apache.beam.sdk.transforms.windowing.SlidingWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
@@ -60,7 +62,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamWindowMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamwindow.html")
-public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implements IBeamPipelineTransformHandler {
+public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "window_type")
   private String windowType;
@@ -77,13 +80,30 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
   @HopMetadataProperty(key = "end_window_field")
   private String endWindowField;
 
+  @HopMetadataProperty(key = "allowed_lateness")
+  private String allowedLateness;
+
+  @HopMetadataProperty(key = "discarding_fired_panes")
+  private boolean discardingFiredPanes;
+
+  @HopMetadataProperty(key = "trigger_type")
+  private WindowTriggerType triggeringType;
+
   public BeamWindowMeta() {
+    triggeringType = WindowTriggerType.None;
+  }
+
+  @Override
+  public void setDefault() {
     windowType = BeamDefaults.WINDOW_TYPE_FIXED;
     duration = "60";
     every = "";
     startWindowField = "startWindow";
     endWindowField = "endWindow";
     maxWindowField = "maxWindow";
+    allowedLateness = "0";
+    discardingFiredPanes = false;
+    triggeringType = WindowTriggerType.None;
   }
 
   @Override
@@ -160,6 +180,8 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
 
     PCollection<HopRow> transformPCollection;
 
+    Window<HopRow> window;
+
     if (BeamDefaults.WINDOW_TYPE_FIXED.equals(windowType)) {
 
       if (durationSeconds <= 0) {
@@ -170,8 +192,7 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
       }
 
       FixedWindows fixedWindows = FixedWindows.of(Duration.standardSeconds(durationSeconds));
-      transformPCollection = input.apply(Window.into(fixedWindows));
-
+      window = Window.into(fixedWindows);
     } else if (BeamDefaults.WINDOW_TYPE_SLIDING.equals(windowType)) {
 
       if (durationSeconds <= 0) {
@@ -187,7 +208,7 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
       SlidingWindows slidingWindows =
           SlidingWindows.of(Duration.standardSeconds(durationSeconds))
               .every(Duration.standardSeconds(everySeconds));
-      transformPCollection = input.apply(Window.into(slidingWindows));
+      window = Window.into(slidingWindows);
 
     } else if (BeamDefaults.WINDOW_TYPE_SESSION.equals(windowType)) {
 
@@ -199,11 +220,11 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
       }
 
       Sessions sessionWindows = Sessions.withGapDuration(Duration.standardSeconds(durationSeconds));
-      transformPCollection = input.apply(Window.into(sessionWindows));
+      window = Window.into(sessionWindows);
 
     } else if (BeamDefaults.WINDOW_TYPE_GLOBAL.equals(windowType)) {
 
-      transformPCollection = input.apply(Window.into(new GlobalWindows()));
+      window = Window.into(new GlobalWindows());
 
     } else {
       throw new HopException(
@@ -213,6 +234,37 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
               + transformMeta.getName()
               + "'");
     }
+
+    // Set an allowed lateness
+    //
+    if (StringUtils.isNotEmpty(allowedLateness)) {
+      long seconds = Const.toInt(variables.resolve(allowedLateness), -1);
+      if (seconds >= 0) {
+        window = window.withAllowedLateness(Duration.standardSeconds(seconds));
+      }
+    }
+
+    // Discard fired panes?
+    //
+    if (discardingFiredPanes) {
+      window = window.discardingFiredPanes();
+    }
+
+    // Types of triggers
+    //
+    if (triggeringType != null) {
+      switch (triggeringType) {
+        case None:
+          break;
+        case RepeatedlyForeverAfterWatermarkPastEndOfWindow:
+          window = window.triggering(Repeatedly.forever(AfterWatermark.pastEndOfWindow()));
+          break;
+      }
+    }
+
+    // Finally apply the window to the input
+    //
+    transformPCollection = input.apply(window);
 
     // Now get window information about the window if we asked about it...
     //
@@ -251,7 +303,9 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
     return windowType;
   }
 
-  /** @param windowType The windowType to set */
+  /**
+   * @param windowType The windowType to set
+   */
   public void setWindowType(String windowType) {
     this.windowType = windowType;
   }
@@ -265,7 +319,9 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
     return duration;
   }
 
-  /** @param duration The duration to set */
+  /**
+   * @param duration The duration to set
+   */
   public void setDuration(String duration) {
     this.duration = duration;
   }
@@ -279,7 +335,9 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
     return every;
   }
 
-  /** @param every The every to set */
+  /**
+   * @param every The every to set
+   */
   public void setEvery(String every) {
     this.every = every;
   }
@@ -293,7 +351,9 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
     return maxWindowField;
   }
 
-  /** @param maxWindowField The maxWindowField to set */
+  /**
+   * @param maxWindowField The maxWindowField to set
+   */
   public void setMaxWindowField(String maxWindowField) {
     this.maxWindowField = maxWindowField;
   }
@@ -307,7 +367,9 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
     return startWindowField;
   }
 
-  /** @param startWindowField The startWindowField to set */
+  /**
+   * @param startWindowField The startWindowField to set
+   */
   public void setStartWindowField(String startWindowField) {
     this.startWindowField = startWindowField;
   }
@@ -321,8 +383,64 @@ public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData> implemen
     return endWindowField;
   }
 
-  /** @param endWindowField The endWindowField to set */
+  /**
+   * @param endWindowField The endWindowField to set
+   */
   public void setEndWindowField(String endWindowField) {
     this.endWindowField = endWindowField;
+  }
+
+  /**
+   * Gets allowedLateness
+   *
+   * @return value of allowedLateness
+   */
+  public String getAllowedLateness() {
+    return allowedLateness;
+  }
+
+  /**
+   * Sets allowedLateness
+   *
+   * @param allowedLateness value of allowedLateness
+   */
+  public void setAllowedLateness(String allowedLateness) {
+    this.allowedLateness = allowedLateness;
+  }
+
+  /**
+   * Gets discardingFiredPanes
+   *
+   * @return value of discardingFiredPanes
+   */
+  public boolean isDiscardingFiredPanes() {
+    return discardingFiredPanes;
+  }
+
+  /**
+   * Sets discardingFiredPanes
+   *
+   * @param discardingFiredPanes value of discardingFiredPanes
+   */
+  public void setDiscardingFiredPanes(boolean discardingFiredPanes) {
+    this.discardingFiredPanes = discardingFiredPanes;
+  }
+
+  /**
+   * Gets triggeringType
+   *
+   * @return value of triggeringType
+   */
+  public WindowTriggerType getTriggeringType() {
+    return triggeringType;
+  }
+
+  /**
+   * Sets triggeringType
+   *
+   * @param triggeringType value of triggeringType
+   */
+  public void setTriggeringType(WindowTriggerType triggeringType) {
+    this.triggeringType = triggeringType;
   }
 }
