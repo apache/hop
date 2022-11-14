@@ -149,6 +149,7 @@ public class TableView extends Composite {
 
   private final PropsUi props;
 
+  private final boolean toolbarEnabled;
   private ToolBar toolbar;
   private GuiToolbarWidgets toolbarWidgets;
 
@@ -281,6 +282,34 @@ public class TableView extends Composite {
       final boolean addIndexColumn,
       Listener listener,
       boolean undoEnabled) {
+    this(
+        variables,
+        parent,
+        style,
+        columnInfo,
+        nrRows,
+        readOnly,
+        lsm,
+        pr,
+        addIndexColumn,
+        listener,
+            undoEnabled,
+        true);
+  }
+
+  public TableView(
+      IVariables variables,
+      Composite parent,
+      int style,
+      ColumnInfo[] columnInfo,
+      int nrRows,
+      boolean readOnly,
+      ModifyListener lsm,
+      PropsUi pr,
+      final boolean addIndexColumn,
+      Listener listener,
+      boolean undoEnabled,
+      boolean toolbarEnabled) {
     super(parent, SWT.NO_BACKGROUND | SWT.NO_FOCUS | SWT.NO_MERGE_PAINTS | SWT.NO_RADIO_GROUP);
     this.parent = parent;
     this.columns = columnInfo;
@@ -291,6 +320,7 @@ public class TableView extends Composite {
     this.addIndexColumn = addIndexColumn;
     this.lsFocusInTabItem = listener;
     this.undoEnabled = undoEnabled;
+    this.toolbarEnabled = toolbarEnabled;
 
     sortField = 0;
     sortFieldLast = -1;
@@ -443,6 +473,10 @@ public class TableView extends Composite {
     table.addTraverseListener(lsTraverse);
     table.setData(CANCEL_KEYS, new String[] {"TAB", "SHIFT+TAB"});
 
+    // See what is selected in the table.
+    //
+    table.addListener(SWT.Selection, e->enableToolbarButtons());
+
     // Clean up the clipboard
     addDisposeListener(
         e -> {
@@ -460,8 +494,44 @@ public class TableView extends Composite {
 
     optWidth(true);
 
+    enableToolbarButtons(nrRows);
+
     layout();
     pack();
+  }
+
+  private void enableToolbarButtons() {
+    enableToolbarButtons(nrNonEmpty());
+  }
+
+  private void enableToolbarButtons(int nrRows) {
+    // If we don't have a toolbar we don't need to go through all this.
+    //
+    if (toolbar==null){
+      return;
+    }
+
+    boolean linesSelected = table.getSelectionCount()>0;
+    boolean hasRows = nrRows>0;
+    boolean activeCell = activeTableItem!=null && activeTableColumn>0;
+
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CLEAR_ALL, linesSelected && !readonly);
+
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_INSERT_ROW_AFTER, linesSelected && !readonly);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_INSERT_ROW_BEFORE, linesSelected && !readonly);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_COPY_SELECTED, linesSelected);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_KEEP_SELECTED, linesSelected && !readonly);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_PASTE_TO_TABLE, linesSelected && !readonly);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_DELETE_SELECTED, linesSelected && !readonly);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CUT_SELECTED, linesSelected && !readonly);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_MOVE_ROWS_DOWN, linesSelected && !readonly);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_MOVE_ROWS_UP, linesSelected && !readonly);
+
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_COPY_TO_ALL_ROWS, activeCell && !readonly);
+
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_SELECT_ALL_ROWS, hasRows);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CLEAR_SELECTION, hasRows);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_FILTERED_SELECTION, hasRows);
   }
 
   private void addDragAndDropSupport() {
@@ -1325,7 +1395,7 @@ public class TableView extends Composite {
     toolbarWidgets = new GuiToolbarWidgets();
     toolbarWidgets.registerGuiPluginObject(this);
 
-    if (props.isShowTableViewToolbar()) {
+    if (toolbarEnabled && props.isShowTableViewToolbar()) {
       toolbar = new ToolBar(this, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
       FormData fdToolBar = new FormData();
       fdToolBar.left = new FormAttachment(0, 0);
@@ -2005,6 +2075,7 @@ public class TableView extends Composite {
       toolTip = "Clear selection")
   public void unselectAll() {
     table.deselectAll();
+    enableToolbarButtons();
   }
 
   @GuiToolbarElement(
@@ -2357,6 +2428,7 @@ public class TableView extends Composite {
       default:
         break;
     }
+    enableToolbarButtons();
   }
 
   private String[] getItemText(TableItem row) {
@@ -3771,5 +3843,14 @@ public class TableView extends Composite {
    */
   public void setToolbarWidgets(GuiToolbarWidgets toolbarWidgets) {
     this.toolbarWidgets = toolbarWidgets;
+  }
+
+  /**
+   * Gets toolbarEnabled
+   *
+   * @return value of toolbarEnabled
+   */
+  public boolean isToolbarEnabled() {
+    return toolbarEnabled;
   }
 }

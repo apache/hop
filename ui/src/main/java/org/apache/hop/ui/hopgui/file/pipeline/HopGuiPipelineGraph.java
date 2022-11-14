@@ -220,7 +220,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         MouseMoveListener,
         MouseTrackListener,
         IHasLogChannel,
-        ILogParentProvided, // TODO: Aren't these the same?
+        ILogParentProvided,
         IHopFileTypeHandler,
         IGuiRefresher {
 
