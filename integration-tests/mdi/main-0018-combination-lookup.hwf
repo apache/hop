@@ -18,15 +18,15 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0011-combination-lookup-update</name>
+  <name>main-0018-combination-lookup</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>
-  <created_date>2021/04/29 11:51:40.288</created_date>
+  <created_date>2021/05/25 12:18:18.916</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2021/04/29 11:51:40.288</modified_date>
+  <modified_date>2021/05/25 12:18:18.916</modified_date>
   <parameters>
     </parameters>
   <actions>
@@ -49,27 +49,59 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>SQL</name>
+      <name>DROP junk_dim</name>
       <description/>
       <type>SQL</type>
       <attributes/>
-      <sql/>
+      <sql>DROP TABLE IF EXISTS junk_dim
+;</sql>
       <useVariableSubstitution>F</useVariableSubstitution>
-      <sqlfromfile>T</sqlfromfile>
-      <sqlfilename>${PROJECT_HOME}/scripts/script3.sql</sqlfilename>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
       <sendOneStatement>F</sendOneStatement>
-      <connection>unit-test-db</connection>
+      <connection>h2</connection>
       <parallel>N</parallel>
-      <xloc>176</xloc>
+      <xloc>208</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>0011-combination-lookup-update.hpl</name>
+      <name>CREATE TABLE junk_dim</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>CREATE TABLE junk_dim
+(
+  id IDENTITY
+, a VARCHAR(100)
+, b VARCHAR(100)
+, c VARCHAR(100)
+, hashCode BIGINT
+)
+;
+
+CREATE UNIQUE INDEX idx_junk_dim_pk ON junk_dim(id)
+;
+
+CREATE INDEX idx_junk_dim_lookup ON junk_dim(hashCode)
+;
+</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>h2</connection>
+      <parallel>N</parallel>
+      <xloc>400</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0018-combination-lookup-parent</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0011-combination-lookup-update.hpl</filename>
+      <filename>${PROJECT_HOME}/0018-combination-lookup-parent.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -88,49 +120,51 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>368</xloc>
-      <yloc>48</yloc>
+      <xloc>288</xloc>
+      <yloc>176</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>Evaluate rows number in a table</name>
+      <name>Run Pipeline Unit Tests</name>
       <description/>
-      <type>EVAL_TABLE_CONTENT</type>
+      <type>RunPipelineTests</type>
       <attributes/>
-      <connection>unit-test-db</connection>
-      <schemaname>public</schemaname>
-      <tablename>testtable</tablename>
-      <success_condition>rows_count_equal</success_condition>
-      <limit>5</limit>
-      <is_custom_sql>N</is_custom_sql>
-      <is_usevars>N</is_usevars>
-      <custom_sql/>
-      <add_rows_result>N</add_rows_result>
-      <clear_result_rows>Y</clear_result_rows>
+      <test_names>
+        <test_name>
+          <name>0018-combination-lookup-verify UNIT</name>
+        </test_name>
+      </test_names>
       <parallel>N</parallel>
-      <xloc>640</xloc>
-      <yloc>48</yloc>
+      <xloc>576</xloc>
+      <yloc>176</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
     <hop>
       <from>Start</from>
-      <to>SQL</to>
+      <to>DROP junk_dim</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>SQL</from>
-      <to>0011-combination-lookup-update.hpl</to>
+      <from>DROP junk_dim</from>
+      <to>CREATE TABLE junk_dim</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>0011-combination-lookup-update.hpl</from>
-      <to>Evaluate rows number in a table</to>
+      <from>CREATE TABLE junk_dim</from>
+      <to>0018-combination-lookup-parent</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0018-combination-lookup-parent</from>
+      <to>Run Pipeline Unit Tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

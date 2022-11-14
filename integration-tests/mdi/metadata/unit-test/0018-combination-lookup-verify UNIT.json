@@ -1,0 +1,43 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "HASHCODE",
+          "data_set_field": "HASHCODE"
+        },
+        {
+          "transform_field": "A",
+          "data_set_field": "A"
+        },
+        {
+          "transform_field": "B",
+          "data_set_field": "B"
+        },
+        {
+          "transform_field": "C",
+          "data_set_field": "C"
+        }
+      ],
+      "field_order": [
+        "HASHCODE",
+        "A",
+        "B",
+        "C"
+      ],
+      "data_set_name": "golden-combination-lookup",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0018-combination-lookup-verify UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0018-combination-lookup-verify.hpl",
+  "test_type": "UNIT_TEST"
+}

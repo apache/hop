@@ -111,7 +111,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
 
   private final CombinationLookupMeta input;
 
-  private DatabaseMeta ci;
+  private DatabaseMeta databaseMeta;
 
   private final Map<String, Integer> inputFields;
 
@@ -158,7 +158,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
           }
         };
     backupChanged = input.hasChanged();
-    ci = input.getDatabaseMeta();
+    databaseMeta = input.getDatabaseMeta();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -186,8 +186,8 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     wConnection.addSelectionListener(lsSelection);
     wConnection.addModifyListener(
         e -> {
-          // We have new content: change ci connection:
-          ci = pipelineMeta.findDatabase(wConnection.getText());
+          // We have new content: change connection:
+          databaseMeta = findDatabase(wConnection.getText());
           setAutoincUse();
           setSequence();
           input.setChanged();
@@ -288,7 +288,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     // Preload Cache
     wPreloadCache = new Button(shell, SWT.CHECK);
     wPreloadCache.setText(
-            BaseMessages.getString(PKG, "CombinationLookupDialog.PreloadCache.Label"));
+        BaseMessages.getString(PKG, "CombinationLookupDialog.PreloadCache.Label"));
     PropsUi.setLook(wPreloadCache);
     FormData fdPreloadCache = new FormData();
     fdPreloadCache.top = new FormAttachment(wCachesize, margin);
@@ -309,7 +309,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     wlKey.setLayoutData(fdlKey);
 
     int nrKeyCols = 2;
-    int nrKeyRows = (input.getKeyField() != null ? input.getKeyField().length : 1);
+    int nrKeyRows = input.getFields().getKeyFields().size();
 
     ciKey = new ColumnInfo[nrKeyCols];
     ciKey[0] =
@@ -488,14 +488,19 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
         new FocusListener() {
           @Override
           public void focusGained(FocusEvent arg0) {
-            input.setTechKeyCreation(CombinationLookupMeta.CREATION_METHOD_SEQUENCE);
+            input
+                .getFields()
+                .getReturnFields()
+                .setTechKeyCreation(CombinationLookupMeta.CREATION_METHOD_SEQUENCE);
             wSeqButton.setSelection(true);
             wAutoinc.setSelection(false);
             wTableMax.setSelection(false);
           }
 
           @Override
-          public void focusLost(FocusEvent arg0) {}
+          public void focusLost(FocusEvent arg0) {
+            // No action
+          }
         });
 
     // Use an autoincrement field?
@@ -616,60 +621,54 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
   }
 
   private void setTableFieldCombo() {
-    Runnable fieldLoader =
-        () -> {
-          if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-            final String tableName = wTable.getText();
-            final String connectionName = wConnection.getText();
-            final String schemaName = wSchema.getText();
+    if (wTable.isDisposed() || wConnection.isDisposed() || wSchema.isDisposed()) {
+      return;
+    }
 
-            // clear
-            for (ColumnInfo colInfo : tableFieldColumns) {
-              colInfo.setComboValues(new String[] {});
-            }
-            if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta ci = pipelineMeta.findDatabase(connectionName);
-              if (ci != null) {
-                Database db = new Database(loggingObject, variables, ci);
-                try {
-                  db.connect();
+    shell.getDisplay().asyncExec(this::getTableFieldComboValues);
+  }
 
-                  String schemaTable =
-                      ci.getQuotedSchemaTableCombination(variables, schemaName, tableName);
-                  IRowMeta r = db.getTableFields(schemaTable);
-                  if (null != r) {
-                    String[] fieldNames = r.getFieldNames();
-                    if (null != fieldNames) {
-                      for (ColumnInfo colInfo : tableFieldColumns) {
-                        colInfo.setComboValues(fieldNames);
-                      }
-                    }
-                  }
-                } catch (Exception e) {
-                  for (ColumnInfo colInfo : tableFieldColumns) {
-                    colInfo.setComboValues(new String[] {});
-                  }
-                  // ignore any errors here. drop downs will not be
-                  // filled, but no problem for the user
-                } finally {
-                  try {
-                    if (db != null) {
-                      db.disconnect();
-                    }
-                  } catch (Exception ignored) {
-                    // ignore any errors here.
-                    db = null;
-                  }
-                }
-              }
-            }
+  private void getTableFieldComboValues() {
+    final String tableName = wTable.getText();
+    if (StringUtils.isEmpty(tableName)) {
+      return;
+    }
+
+    final String connectionName = wConnection.getText();
+    final String schemaName = wSchema.getText();
+
+    // clear
+    for (ColumnInfo colInfo : tableFieldColumns) {
+      colInfo.setComboValues(new String[] {});
+    }
+    DatabaseMeta databaseMeta = findDatabase(connectionName);
+    if (databaseMeta == null) {
+      return;
+    }
+    try (Database database = new Database(loggingObject, variables, databaseMeta)) {
+      database.connect();
+
+      String schemaTable =
+          databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
+      IRowMeta rowMeta = database.getTableFields(schemaTable);
+      if (rowMeta != null) {
+        String[] fieldNames = rowMeta.getFieldNames();
+        if (null != fieldNames) {
+          for (ColumnInfo colInfo : tableFieldColumns) {
+            colInfo.setComboValues(fieldNames);
           }
-        };
-    shell.getDisplay().asyncExec(fieldLoader);
+        }
+      }
+    } catch (Exception e) {
+      // ignore any errors here. The combo box options will not be
+      // filled, but it's no problem for the user
+    }
   }
 
   public void setAutoincUse() {
-    boolean enable = (ci == null) || (ci.supportsAutoinc() && ci.supportsAutoGeneratedKeys());
+    boolean enable =
+        (databaseMeta == null)
+            || (databaseMeta.supportsAutoinc() && databaseMeta.supportsAutoGeneratedKeys());
 
     wlAutoinc.setEnabled(enable);
     wAutoinc.setEnabled(enable);
@@ -686,7 +685,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
   }
 
   public void setSequence() {
-    boolean seq = (ci == null) || ci.supportsSequences();
+    boolean seq = (databaseMeta == null) || databaseMeta.supportsSequences();
     wSeq.setEnabled(seq);
     wlSeqButton.setEnabled(seq);
     wSeqButton.setEnabled(seq);
@@ -701,45 +700,44 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
   public void getData() {
     logDebug(BaseMessages.getString(PKG, "CombinationLookupDialog.Log.GettingKeyInfo"));
 
-    if (input.getKeyField() != null) {
-      for (int i = 0; i < input.getKeyField().length; i++) {
-        TableItem item = wKey.table.getItem(i);
-        if (input.getKeyLookup()[i] != null) {
-          item.setText(1, input.getKeyLookup()[i]);
-        }
-        if (input.getKeyField()[i] != null) {
-          item.setText(2, input.getKeyField()[i]);
-        }
-      }
+    CFields fields = input.getFields();
+    List<KeyField> keyFields = fields.getKeyFields();
+    ReturnFields returnFields = fields.getReturnFields();
+
+    for (int i = 0; i < keyFields.size(); i++) {
+      KeyField keyField = keyFields.get(i);
+      TableItem item = wKey.table.getItem(i);
+      item.setText(1, Const.NVL(keyField.getLookup(), ""));
+      item.setText(2, Const.NVL(keyField.getName(), ""));
     }
 
-    wPreloadCache.setSelection(input.getPreloadCache());
-    wReplace.setSelection(input.replaceFields());
-    wHashcode.setSelection(input.useHash());
-    wHashfield.setEnabled(input.useHash());
-    wlHashfield.setEnabled(input.useHash());
+    wPreloadCache.setSelection(input.isPreloadCache());
+    wReplace.setSelection(input.isReplaceFields());
+    wHashcode.setSelection(input.isUseHash());
+    wHashfield.setEnabled(input.isUseHash());
+    wlHashfield.setEnabled(input.isUseHash());
 
-    String techKeyCreation = input.getTechKeyCreation();
+    String techKeyCreation = returnFields.getTechKeyCreation();
     if (techKeyCreation == null) {
       // Determine the creation of the technical key for
       // backwards compatibility. Can probably be removed at
       // version 3.x or so (Sven Boden).
-      DatabaseMeta database = input.getDatabaseMeta();
-      if (database == null || !database.supportsAutoinc()) {
-        input.setUseAutoinc(false);
+      DatabaseMeta dbMeta = input.getDatabaseMeta();
+      if (dbMeta == null || !dbMeta.supportsAutoinc()) {
+        returnFields.setUseAutoIncrement(false);
       }
-      wAutoinc.setSelection(input.isUseAutoinc());
+      wAutoinc.setSelection(returnFields.isUseAutoIncrement());
 
-      wSeqButton.setSelection(
-          input.getSequenceFrom() != null && input.getSequenceFrom().length() > 0);
-      if (!input.isUseAutoinc()
-          && (input.getSequenceFrom() == null || input.getSequenceFrom().length() <= 0)) {
+      wSeqButton.setSelection(StringUtils.isNotEmpty(fields.getSequenceFrom()));
+      if (!returnFields.isUseAutoIncrement() && StringUtils.isEmpty(fields.getSequenceFrom())) {
         wTableMax.setSelection(true);
       }
 
-      if (database != null && database.supportsSequences() && input.getSequenceFrom() != null) {
-        wSeq.setText(input.getSequenceFrom());
-        input.setUseAutoinc(false);
+      if (dbMeta != null
+          && dbMeta.supportsSequences()
+          && StringUtils.isNotEmpty(fields.getSequenceFrom())) {
+        wSeq.setText(fields.getSequenceFrom());
+        returnFields.setUseAutoIncrement(false);
         wTableMax.setSelection(false);
       }
     } else {
@@ -751,36 +749,26 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
         wSeqButton.setSelection(true);
       } else { // the rest
         wTableMax.setSelection(true);
-        input.setTechKeyCreation(CombinationLookupMeta.CREATION_METHOD_TABLEMAX);
+        returnFields.setTechKeyCreation(CombinationLookupMeta.CREATION_METHOD_TABLEMAX);
       }
-      if (input.getSequenceFrom() != null) {
-        wSeq.setText(input.getSequenceFrom());
-      }
+      wSeq.setText(Const.NVL(fields.getSequenceFrom(), ""));
     }
     setAutoincUse();
     setSequence();
     setTableMax();
-    if (input.getSchemaName() != null) {
-      wSchema.setText(input.getSchemaName());
-    }
-    if (input.getTableName() != null) {
-      wTable.setText(input.getTableName());
-    }
-    if (input.getTechnicalKeyField() != null) {
-      wTk.setText(input.getTechnicalKeyField());
-    }
+    wSchema.setText(Const.NVL(input.getSchemaName(), ""));
+    wTable.setText(Const.NVL(input.getTableName(), ""));
+    wTk.setText(Const.NVL(returnFields.getTechnicalKeyField(), ""));
 
     if (input.getDatabaseMeta() != null) {
       wConnection.setText(input.getDatabaseMeta().getName());
     }
-    if (input.getHashField() != null) {
-      wHashfield.setText(input.getHashField());
-    }
+    wHashfield.setText(Const.NVL(input.getHashField(), ""));
 
     wCommit.setText("" + input.getCommitSize());
     wCachesize.setText("" + input.getCacheSize());
 
-    wLastUpdateField.setText(Const.NVL(input.getLastUpdateField(), ""));
+    wLastUpdateField.setText(Const.NVL(returnFields.getLastUpdateField(), ""));
 
     wKey.setRowNums();
     wKey.optWidth(true);
@@ -800,12 +788,12 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
       return;
     }
 
-    CombinationLookupMeta oldMetaState = (CombinationLookupMeta) input.clone();
+    CombinationLookupMeta oldMetaState = input.clone();
 
     getInfo(input);
     transformName = wTransformName.getText(); // return value
 
-    if (pipelineMeta.findDatabase(wConnection.getText()) == null) {
+    if (findDatabase(wConnection.getText()) == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "CombinationLookupDialog.NoValidConnection.DialogMessage"));
@@ -820,54 +808,47 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
   }
 
   private void getInfo(CombinationLookupMeta in) {
-    int nrkeys = wKey.nrNonEmpty();
+    CFields fields = in.getFields();
+    ReturnFields returnFields = fields.getReturnFields();
 
-    in.allocate(nrkeys);
-
-    logDebug(
-        BaseMessages.getString(
-            PKG, "CombinationLookupDialog.Log.SomeKeysFound", String.valueOf(nrkeys)));
-    for (int i = 0; i < nrkeys; i++) {
-      TableItem item = wKey.getNonEmpty(i);
-      // CHECKSTYLE:Indentation:OFF
-      in.getKeyLookup()[i] = item.getText(1);
-      in.getKeyField()[i] = item.getText(2);
+    fields.getKeyFields().clear();
+    for (TableItem item : wKey.getNonEmptyItems()) {
+      fields.getKeyFields().add(new KeyField(item.getText(2), item.getText(1)));
     }
 
     in.setPreloadCache(wPreloadCache.getSelection());
-    in.setUseAutoinc(wAutoinc.getSelection() && wAutoinc.isEnabled());
+    returnFields.setUseAutoIncrement(wAutoinc.getSelection() && wAutoinc.isEnabled());
     in.setReplaceFields(wReplace.getSelection());
     in.setUseHash(wHashcode.getSelection());
     in.setHashField(wHashfield.getText());
     in.setSchemaName(wSchema.getText());
-    in.setTablename(wTable.getText());
-    in.setTechnicalKeyField(wTk.getText());
+    in.setTableName(wTable.getText());
+    returnFields.setTechnicalKeyField(wTk.getText());
     if (wAutoinc.getSelection()) {
-      in.setTechKeyCreation(CombinationLookupMeta.CREATION_METHOD_AUTOINC);
-      in.setUseAutoinc(true); // for downwards compatibility
-      in.setSequenceFrom(null);
+      returnFields.setTechKeyCreation(CombinationLookupMeta.CREATION_METHOD_AUTOINC);
+      returnFields.setUseAutoIncrement(true); // for downwards compatibility
+      fields.setSequenceFrom(null);
     } else if (wSeqButton.getSelection()) {
-      in.setTechKeyCreation(CombinationLookupMeta.CREATION_METHOD_SEQUENCE);
-      in.setUseAutoinc(false);
-      in.setSequenceFrom(wSeq.getText());
+      returnFields.setTechKeyCreation(CombinationLookupMeta.CREATION_METHOD_SEQUENCE);
+      returnFields.setUseAutoIncrement(false);
+      fields.setSequenceFrom(wSeq.getText());
     } else { // all the rest
-      in.setTechKeyCreation(CombinationLookupMeta.CREATION_METHOD_TABLEMAX);
-      in.setUseAutoinc(false);
-      in.setSequenceFrom(null);
+      returnFields.setTechKeyCreation(CombinationLookupMeta.CREATION_METHOD_TABLEMAX);
+      returnFields.setUseAutoIncrement(false);
+      fields.setSequenceFrom(null);
     }
 
-    in.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
-
+    in.setDatabaseMeta(findDatabase(wConnection.getText()));
     in.setCommitSize(Const.toInt(wCommit.getText(), 0));
     in.setCacheSize(Const.toInt(wCachesize.getText(), 0));
 
-    in.setLastUpdateField(wLastUpdateField.getText());
+    returnFields.setLastUpdateField(wLastUpdateField.getText());
   }
 
   private void getSchemaNames() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
-    if (databaseMeta != null) {
-      Database database = new Database(loggingObject, variables, databaseMeta);
+    DatabaseMeta dbMeta = findDatabase(wConnection.getText());
+    if (dbMeta != null) {
+      Database database = new Database(loggingObject, variables, dbMeta);
       try {
         database.connect();
         String[] schemas = database.getSchemas();
@@ -913,15 +894,14 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
-    if (databaseMeta != null) {
+    DatabaseMeta dbMeta = findDatabase(connectionName);
+    if (dbMeta != null) {
       logDebug(
           BaseMessages.getString(
-              PKG, "CombinationLookupDialog.Log.LookingAtConnection", databaseMeta.toString()));
+              PKG, "CombinationLookupDialog.Log.LookingAtConnection", dbMeta.toString()));
 
       DatabaseExplorerDialog std =
-          new DatabaseExplorerDialog(
-              shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases());
+          new DatabaseExplorerDialog(shell, SWT.NONE, variables, dbMeta, pipelineMeta.getDatabases());
       std.setSelectedSchemaAndTable(wSchema.getText(), wTable.getText());
       if (std.open()) {
         wSchema.setText(Const.NVL(std.getSchemaName(), ""));
@@ -1010,6 +990,15 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
           BaseMessages.getString(PKG, "CombinationLookupDialog.UnableToCreateSQL.DialogTitle"),
           BaseMessages.getString(PKG, "CombinationLookupDialog.UnableToCreateSQL.DialogMessage"),
           ke);
+    }
+  }
+
+  private DatabaseMeta findDatabase(String name) {
+    try {
+      return metadataProvider.getSerializer(DatabaseMeta.class).load(name);
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error looking up database connection " + name, e);
+      return null;
     }
   }
 }
