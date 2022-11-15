@@ -17,37 +17,22 @@
 
 package org.apache.hop.pipeline.transforms.input;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.NonZeroIntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.mapping.SimpleMappingMeta;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class MappingInputMetaTest {
   @Before
@@ -67,7 +52,7 @@ public class MappingInputMetaTest {
     MappingInputMeta copy = meta.clone();
 
     assertEquals(meta.getFields().size(), copy.getFields().size());
-    for (int i=0;i<meta.getFields().size();i++) {
+    for (int i = 0; i < meta.getFields().size(); i++) {
       InputField metaField = meta.getFields().get(i);
       InputField copyField = copy.getFields().get(i);
       assertEquals(metaField, copyField);
@@ -75,23 +60,26 @@ public class MappingInputMetaTest {
   }
 
   @Test
-  public void testSerialization() throws HopException {
+  public void testSerialization() throws Exception {
+    TransformSerializationTestUtil.testSerialization(
+        "/mapping-input-transform.xml", MappingInputMeta.class, TransformMeta.XML_TAG);
+
     Document document =
-            XmlHandler.loadXmlFile(this.getClass().getResourceAsStream("/mapping-input-transform.xml"));
+        XmlHandler.loadXmlFile(this.getClass().getResourceAsStream("/mapping-input-transform.xml"));
     Node transformNode = XmlHandler.getSubNode(document, TransformMeta.XML_TAG);
-    SimpleMappingMeta meta = new SimpleMappingMeta();
+    MappingInputMeta meta = new MappingInputMeta();
     XmlMetadataUtil.deSerializeFromXml(
-            null, transformNode, SimpleMappingMeta.class, meta, new MemoryMetadataProvider());
+        null, transformNode, SimpleMappingMeta.class, meta, new MemoryMetadataProvider());
     String xml =
-            XmlHandler.openTag(TransformMeta.XML_TAG)
-                    + meta.getXml()
-                    + XmlHandler.closeTag(TransformMeta.XML_TAG);
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + meta.getXml()
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
 
     Document copyDocument = XmlHandler.loadXmlString(xml);
     Node copyNode = XmlHandler.getSubNode(copyDocument, TransformMeta.XML_TAG);
-    SimpleMappingMeta copy = new SimpleMappingMeta();
+    MappingInputMeta copy = new MappingInputMeta();
     XmlMetadataUtil.deSerializeFromXml(
-            null, copyNode, SimpleMappingMeta.class, copy, new MemoryMetadataProvider());
+        null, copyNode, SimpleMappingMeta.class, copy, new MemoryMetadataProvider());
     Assert.assertEquals(meta.getXml(), copy.getXml());
   }
 }

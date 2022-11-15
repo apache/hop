@@ -85,7 +85,7 @@ The goal is to add Metadata Injection support to all transforms, The current (15
 |Check if file is locked|Y
 |Check if webservice is available|Y
 |Clone row|Y
-|Closure generator|N
+|Closure generator|Y
 |Coalesce Fields|Y
 |Column exists|Y
 |Combination lookup/update|Y
@@ -152,8 +152,8 @@ The goal is to add Metadata Injection support to all transforms, The current (15
 |LDAP output|N
 |Load file content in memory|N
 |Mail|N
-|Mapping Input|N
-|Mapping Output|N
+|Mapping Input|Y
+|Mapping Output|Y
 |Memory group by|Y
 |Merge join|Y
 |Merge rows (diff)|Y
@@ -211,7 +211,7 @@ The goal is to add Metadata Injection support to all transforms, The current (15
 |Set field value to a constant|Y
 |Set files in result|N
 |Set variables|N
-|Simple Mapping|N
+|Simple Mapping|Y
 |Snowflake Bulk Loader|Y
 |Sort rows|Y
 |Sorted merge|Y

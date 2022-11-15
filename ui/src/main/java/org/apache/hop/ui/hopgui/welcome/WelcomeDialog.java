@@ -104,7 +104,7 @@ public class WelcomeDialog {
           new Font(shell.getDisplay(), "Open Sans", (int) (18 * props.getZoomFactor()), SWT.NONE);
       welcome.setFont(titleFont);
       FormData fdWelcome = new FormData();
-      fdWelcome.left = new FormAttachment(logoLabel, props.getMargin(), SWT.RIGHT);
+      fdWelcome.left = new FormAttachment(logoLabel, PropsUi.getMargin(), SWT.RIGHT);
       fdWelcome.right = new FormAttachment(100, 0);
       fdWelcome.top = new FormAttachment(logoLabel, 0, SWT.CENTER);
       welcome.setLayoutData(fdWelcome);
@@ -151,11 +151,9 @@ public class WelcomeDialog {
           guiRegistry.getCompositeGuiElements().get(PARENT_ID_WELCOME_WIDGETS);
       elementsList.sort(Comparator.comparing(GuiElements::getId));
 
-      if (elementsList != null) {
-        for (GuiElements elements : elementsList) {
-          wTopics.add(elements.getLabel());
-          wTopics.setData(elements.getLabel(), elements);
-        }
+      for (GuiElements elements : elementsList) {
+        wTopics.add(elements.getLabel());
+        wTopics.setData(elements.getLabel(), elements);
       }
 
       if (wTopics.getItemCount() > 0) {

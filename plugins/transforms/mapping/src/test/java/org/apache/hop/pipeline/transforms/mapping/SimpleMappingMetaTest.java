@@ -22,6 +22,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +38,12 @@ public class SimpleMappingMetaTest {
 
   @Test
   public void testSerialization() throws Exception {
-    Document document =
+    TransformSerializationTestUtil.testSerialization(
+            "/simple-mapping-transform.xml",
+            SimpleMappingMeta.class,
+            TransformMeta.XML_TAG
+    );
+    /*Document document =
         XmlHandler.loadXmlFile(this.getClass().getResourceAsStream("/simple-mapping-transform.xml"));
     Node transformNode = XmlHandler.getSubNode(document, TransformMeta.XML_TAG);
     SimpleMappingMeta meta = new SimpleMappingMeta();
@@ -53,6 +59,6 @@ public class SimpleMappingMetaTest {
     SimpleMappingMeta copy = new SimpleMappingMeta();
     XmlMetadataUtil.deSerializeFromXml(
         null, copyNode, SimpleMappingMeta.class, copy, new MemoryMetadataProvider());
-    Assert.assertEquals(meta.getXml(), copy.getXml());
+    Assert.assertEquals(meta.getXml(), copy.getXml());*/
   }
 }

@@ -100,7 +100,7 @@ import java.util.Set;
  * Database handles the process of connecting to, reading from, writing to and updating databases.
  * The database specific parameters are defined in DatabaseInfo.
  */
-public class Database implements IVariables, ILoggingObject {
+public class Database implements IVariables, ILoggingObject, AutoCloseable {
   private static final Class<?> PKG = Database.class; // For Translator
 
   private static final Map<String, Set<String>> registeredDrivers = new HashMap<>();
@@ -470,6 +470,14 @@ public class Database implements IVariables, ILoggingObject {
       throw new HopDatabaseException(
           "Error connecting to database: (using class " + classname + ")", e);
     }
+  }
+
+  /**
+   * close() and disconnect() are the same.
+   */
+  @Override
+  public synchronized void close() {
+    disconnect();
   }
 
   /** Disconnect from the database and close all open prepared statements. */

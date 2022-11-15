@@ -231,7 +231,11 @@ public class HopGuiPipelineGridDelegate {
             1,
             true, // readonly!
             null, // Listener
-            hopGui.getProps());
+            hopGui.getProps(),
+            true,
+            null,
+            false,
+            false);
     FormData fdView = new FormData();
     fdView.left = new FormAttachment(0, 0);
     fdView.right = new FormAttachment(100, 0);
@@ -465,9 +469,14 @@ public class HopGuiPipelineGridDelegate {
                 SWT.NONE,
                 columns.toArray(new ColumnInfo[0]),
                 shownComponents.size(),
+                true,
                 null,
-                PropsUi.getInstance());
-        pipelineGridView.setSortable(false); // TODO: re-implement
+                PropsUi.getInstance(),
+                true,
+                null,
+                false,
+                false);
+        pipelineGridView.setSortable(false);
         FormData fdView = new FormData();
         fdView.left = new FormAttachment(0, 0);
         fdView.right = new FormAttachment(100, 0);

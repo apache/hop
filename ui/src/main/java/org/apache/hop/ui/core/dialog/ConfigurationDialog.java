@@ -290,7 +290,7 @@ public abstract class ConfigurationDialog extends Dialog {
             false,
             null,
             props,
-            false);
+            false, null, false, false);
     FormData fdParams = new FormData();
     fdParams.top = new FormAttachment(0, 0);
     fdParams.right = new FormAttachment(100, 0);
@@ -335,7 +335,7 @@ public abstract class ConfigurationDialog extends Dialog {
             false,
             null,
             props,
-            false);
+            false, null, true, false);
 
     FormData fdVariables = new FormData();
     fdVariables.top = new FormAttachment(0, 0);

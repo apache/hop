@@ -105,7 +105,7 @@ import java.util.Map;
     description = "The Hop Explorer Perspective",
     image = "ui/images/folder.svg")
 @GuiPlugin(description = "i18n::ExplorerPerspective.GuiPlugin.Description")
-public class ExplorerPerspective implements IHopPerspective , TabClosable {
+public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
   public static final Class<?> PKG = ExplorerPerspective.class; // i18n
 
@@ -460,7 +460,19 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
   private void openFile(Event event) {
     if (event.item instanceof TreeItem) {
       TreeItem item = (TreeItem) event.item;
-      openFile(item);
+
+      TreeItemFolder tif = (TreeItemFolder) item.getData();
+      if (tif.folder) {
+        if (!item.getExpanded()) {
+          lazyLoadFolderOnExpand(event);
+          item.setExpanded(true);
+        } else {
+          item.setExpanded(false);
+        }
+        TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, item.getExpanded());
+      } else {
+        openFile(item);
+      }
     }
   }
 
@@ -1132,12 +1144,12 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
 
   @Override
   public boolean remove(IHopFileTypeHandler typeHandler) {
-    
+
     if (typeHandler instanceof BaseExplorerFileTypeHandler) {
       BaseExplorerFileTypeHandler fileTypeHandler = (BaseExplorerFileTypeHandler) typeHandler;
 
       if (fileTypeHandler.isCloseable()) {
-        ExplorerFile file = fileTypeHandler.getExplorerFile();        
+        ExplorerFile file = fileTypeHandler.getExplorerFile();
         files.remove(file);
         for (CTabItem item : tabFolder.getItems()) {
           if (file.equals(item.getData())) {
@@ -1148,7 +1160,7 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
         // Refresh tree to remove bold
         //
         this.refresh();
-        
+
         // Update HopGui menu and toolbar
         //
         this.updateGui();
@@ -1193,7 +1205,8 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
 
   @Override
   public boolean hasNavigationNextFile() {
-    return ( tabFolder.getItemCount() > 0 ) && ( tabFolder.getSelectionIndex() < (tabFolder.getItemCount() - 1) );
+    return (tabFolder.getItemCount() > 0)
+        && (tabFolder.getSelectionIndex() < (tabFolder.getItemCount() - 1));
   }
 
   @Override
@@ -1215,9 +1228,7 @@ public class ExplorerPerspective implements IHopPerspective , TabClosable {
     return new ArrayList<>();
   }
 
-  /**
-   *  Update HOP GUI menu and toolbar...
-   */
+  /** Update HOP GUI menu and toolbar... */
   public void updateGui() {
     if (hopGui == null || toolBarWidgets == null || toolBar == null || toolBar.isDisposed()) {
       return;
