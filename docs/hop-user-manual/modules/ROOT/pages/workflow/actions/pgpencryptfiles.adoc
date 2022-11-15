@@ -22,7 +22,9 @@ under the License.
 
 == Description
 
-The Encrypt Files With PGP action can be used to encrypt and sign files.
+The Encrypt Files With PGP action can be used to encrypt and sign files using the GnuPG package.
+
+GnuPG package must be installed in the runtime environment and encryption keys added to the runtime user keystore for this to function.
 
 == Options
 
@@ -34,7 +36,7 @@ The Encrypt Files With PGP action can be used to encrypt and sign files.
 |Workflow action name|The name of the workflow action.
 *Note*: This name has to be unique in a single workflow.
 A workflow action can be placed several times on the canvas, however it will be the same workflow action.
-|GPG location|The signature file path.
+|GPG location|The file path of the GnuPG executable (e.g. /usr/bin/gpg).
 |Use ASCII mode|Whether or not to use ASCII mode when encrypting.
 |Include subfolders|Whether or not to include subfolders.
 |Copy previous results to args|
@@ -42,7 +44,7 @@ A workflow action can be placed several times on the canvas, however it will be 
 |File/Folder source|The file to encrypt, can be added to the Files/Folders list using Add.
 |File/Folder destination|The destination of the encrypted files.
 |Wildcard|A regex wildcard.
-|User ID|
+|User ID|User ID of the key in the runtime user keystore
 |Files/Folders|The files to encrypt.
 |===
 
