@@ -42,8 +42,6 @@ public class GroupByFn extends DoFn<KV<HopRow, Iterable<HopRow>>, HopRow> {
   private String groupRowMetaJson; // The data types of the group fields
   private String subjectRowMetaJson; // The data types of the subject fields
   private String[] aggregations; // The aggregation types
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   private static final Logger LOG = LoggerFactory.getLogger(GroupByFn.class);
 
@@ -62,14 +60,10 @@ public class GroupByFn extends DoFn<KV<HopRow, Iterable<HopRow>>, HopRow> {
   public GroupByFn(
       String counterName,
       String groupRowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       String subjectRowMetaJson,
       String[] aggregations) {
     this.counterName = counterName;
     this.groupRowMetaJson = groupRowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
     this.subjectRowMetaJson = subjectRowMetaJson;
     this.aggregations = aggregations;
   }
@@ -83,7 +77,7 @@ public class GroupByFn extends DoFn<KV<HopRow, Iterable<HopRow>>, HopRow> {
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
       groupRowMeta = JsonRowMeta.fromJson(groupRowMetaJson);
       subjectRowMeta = JsonRowMeta.fromJson(subjectRowMetaJson);
       aggregationTypes = new AggregationType[aggregations.length];

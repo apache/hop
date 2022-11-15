@@ -8,56 +8,64 @@
       "field_length": -1,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "####0;-####0",
-      "field_name": "one"
+      "field_name": "one",
+      "field_format": "####0;-####0"
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "####0;-####0",
-      "field_name": "three"
+      "field_name": "three",
+      "field_format": "####0;-####0"
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "####0;-####0",
-      "field_name": "ten"
+      "field_name": "ten",
+      "field_format": "####0;-####0"
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 1,
       "field_precision": -1,
-      "field_format": "####0.0#########;-####0.0#########",
-      "field_name": "two_and_a_half"
+      "field_name": "two_and_a_half",
+      "field_format": "####0.0#########;-####0.0#########"
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 1,
       "field_precision": -1,
-      "field_format": "####0.0#########;-####0.0#########",
-      "field_name": "percentage"
+      "field_name": "percentage",
+      "field_format": "####0.0#########;-####0.0#########"
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "####0;-####0",
-      "field_name": "eight"
+      "field_name": "eight",
+      "field_format": "####0;-####0"
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 1,
       "field_precision": -1,
-      "field_format": "####0.0#########;-####0.0#########",
-      "field_name": "mixed_computation"
+      "field_name": "mixed_computation",
+      "field_format": "####0.0#########;-####0.0#########"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 6,
+      "field_precision": -1,
+      "field_name": "big_num_computation",
+      "field_format": "#######.###"
     }
   ],
   "folder_name": ""

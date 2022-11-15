@@ -27,6 +27,7 @@ import org.apache.hop.core.config.ConfigNoFileSerializer;
 import org.apache.hop.core.config.IConfigFile;
 import org.apache.hop.core.config.IHopConfigSerializer;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.DescribedVariable;
 
@@ -107,7 +108,7 @@ public abstract class ConfigFile implements IConfigFile {
         for (Object dvObject : (List) variablesObject) {
           String dvJson = new Gson().toJson(dvObject);
           DescribedVariable describedVariable =
-              new ObjectMapper().readValue(dvJson, DescribedVariable.class);
+                  HopJson.newMapper().readValue(dvJson, DescribedVariable.class);
           variables.add(describedVariable);
         }
       } catch (Exception e) {

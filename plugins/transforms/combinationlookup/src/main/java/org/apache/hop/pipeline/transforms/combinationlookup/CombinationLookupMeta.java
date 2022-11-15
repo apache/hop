@@ -28,10 +28,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -39,25 +35,18 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-/*
- *
- * TODO: In the distant future the useAutoIncrement flag should be removed since its
- *       functionality is now taken over by techKeyCreation (which is cleaner).
- */
 @Transform(
     id = "CombinationLookup",
     image = "combinationlookup.svg",
@@ -67,9 +56,9 @@ import java.util.Objects;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
     keywords = "i18n::CombinationLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/combinationlookup.html")
-@InjectionSupported(localizationPrefix = "CombinationLookup.Injection.")
-public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, CombinationLookupData>
-  implements IProvidesModelerMeta {
+public class CombinationLookupMeta
+    extends BaseTransformMeta<CombinationLookup, CombinationLookupData>
+    implements IProvidesModelerMeta {
 
   private static final Class<?> PKG = CombinationLookupMeta.class; // For Translator
 
@@ -77,302 +66,89 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
   public static final int DEFAULT_CACHE_SIZE = 9999;
 
   /** what's the lookup schema? */
-  @Injection(name = "SCHEMA_NAME")
+  @HopMetadataProperty(
+      key = "schema",
+      injectionKey = "SCHEMA_NAME",
+      injectionKeyDescription = "CombinationLookup.Injection.SCHEMA_NAME")
   private String schemaName;
 
   /** what's the lookup table? */
-  @Injection(name = "TABLE_NAME")
+  @HopMetadataProperty(
+      key = "table",
+      injectionKey = "TABLE_NAME",
+      injectionKeyDescription = "CombinationLookup.Injection.TABLE_NAME")
   private String tableName;
 
   /** database connection */
+  @HopMetadataProperty(
+      key = "connection",
+      storeWithName = true,
+      injectionKey = "CONNECTIONNAME",
+      injectionKeyDescription = "CombinationLookup.Injection.CONNECTION_NAME")
   private DatabaseMeta databaseMeta;
 
   /** replace fields with technical key? */
-  @Injection(name = "REPLACE_FIELDS")
+  @HopMetadataProperty(
+      key = "replace",
+      injectionKey = "REPLACE_FIELDS",
+      injectionKeyDescription = "CombinationLookup.Injection.REPLACE_FIELDS")
   private boolean replaceFields;
 
-  /** which fields do we use to look up a value? */
-  @Injection(name = "KEY_FIELDS")
-  private String[] keyField;
-
-  /** With which fields in dimension do we look up? */
-  @Injection(name = "KEY_LOOKUP")
-  private String[] keyLookup;
-
   /** Use checksum algorithm to limit index size? */
-  @Injection(name = "USE_HASH")
+  @HopMetadataProperty(
+      key = "crc",
+      injectionKey = "USE_HASH",
+      injectionKeyDescription = "CombinationLookup.Injection.USE_HASH")
   private boolean useHash;
 
   /** Name of the CRC field in the dimension */
-  @Injection(name = "HASH_FIELD")
+  @HopMetadataProperty(
+      key = "crcfield",
+      injectionKey = "HASH_FIELD",
+      injectionKeyDescription = "CombinationLookup.Injection.HASH_FIELD")
   private String hashField;
 
-  /** Technical Key field to return */
-  @Injection(name = "TECHNICAL_KEY_FIELD")
-  private String technicalKeyField;
-
-  /** Where to get the sequence from... */
-  @Injection(name = "SEQUENCE_FROM")
-  private String sequenceFrom;
-
   /** Commit size for insert / update */
-  @Injection(name = "COMMIT_SIZE")
+  @HopMetadataProperty(
+      key = "commit",
+      injectionKey = "COMMIT_SIZE",
+      injectionKeyDescription = "CombinationLookup.Injection.COMMIT_SIZE")
   private int commitSize;
 
   /** Preload the cache, defaults to false */
-  @Injection(name = "PRELOAD_CACHE")
+  @HopMetadataProperty(
+      key = "preloadCache",
+      injectionKey = "PRELOAD_CACHE",
+      injectionKeyDescription = "CombinationLookup.Injection.PRELOAD_CACHE")
   private boolean preloadCache = false;
 
   /** Limit the cache size to this! */
-  @Injection(name = "CACHE_SIZE")
+  @HopMetadataProperty(
+      key = "cache_size",
+      injectionKey = "CACHE_SIZE",
+      injectionKeyDescription = "CombinationLookup.Injection.CACHE_SIZE")
   private int cacheSize;
 
-  /** Use the auto-increment feature of the database to generate keys. */
-  @Injection(name = "AUTO_INC")
-  private boolean useAutoinc;
-
-  /** Which method to use for the creation of the tech key */
-  @Injection(name = "TECHNICAL_KEY_CREATION")
-  private String techKeyCreation = null;
-
-  @Injection(name = "LAST_UPDATE_FIELD")
-  private String lastUpdateField;
+  @HopMetadataProperty
+  private CFields fields;
 
   public static final String CREATION_METHOD_AUTOINC = "autoinc";
   public static final String CREATION_METHOD_SEQUENCE = "sequence";
   public static final String CREATION_METHOD_TABLEMAX = "tablemax";
 
-  @Injection(name = "CONNECTIONNAME")
-  public void setConnection(String connectionName) {
-    databaseMeta =
-        DatabaseMeta.findDatabase(
-            getParentTransformMeta().getParentPipelineMeta().getDatabases(), connectionName);
+  public CombinationLookupMeta() {
+    this.fields = new CFields();
   }
 
-  /** @return Returns the database. */
-  @Override
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
-  }
-
-  /**
-   * Set the way how the technical key field should be created.
-   *
-   * @param techKeyCreation which method to use for the creation of the technical key.
-   */
-  public void setTechKeyCreation(String techKeyCreation) {
-    this.techKeyCreation = techKeyCreation;
-  }
-
-  /**
-   * Get the way how the technical key field should be created.
-   *
-   * @return creation way for the technical key.
-   */
-  public String getTechKeyCreation() {
-    return this.techKeyCreation;
-  }
-
-  /** @return Returns the commitSize. */
-  public int getCommitSize() {
-    return commitSize;
-  }
-
-  /** @param commitSize The commitSize to set. */
-  public void setCommitSize(int commitSize) {
-    this.commitSize = commitSize;
-  }
-
-  /** @return Returns the cacheSize. */
-  public int getCacheSize() {
-    return cacheSize;
-  }
-
-  /** @param cacheSize The cacheSize to set. */
-  public void setCacheSize(int cacheSize) {
-    this.cacheSize = cacheSize;
-  }
-
-  /** @return Returns the hashField. */
-  public String getHashField() {
-    return hashField;
-  }
-
-  /** @param hashField The hashField to set. */
-  public void setHashField(String hashField) {
-    this.hashField = hashField;
-  }
-
-  /** @return Returns the keyField (names in the stream). */
-  public String[] getKeyField() {
-    return keyField;
-  }
-
-  /** @param keyField The keyField to set. */
-  public void setKeyField(String[] keyField) {
-    this.keyField = keyField;
-  }
-
-  /** @return Returns the keyLookup (names in the dimension table) */
-  public String[] getKeyLookup() {
-    return keyLookup;
-  }
-
-  /** @param keyLookup The keyLookup to set. */
-  public void setKeyLookup(String[] keyLookup) {
-    this.keyLookup = keyLookup;
-  }
-
-  /** @return Returns the replaceFields. */
-  public boolean replaceFields() {
-    return replaceFields;
-  }
-
-  /** @param replaceFields The replaceFields to set. */
-  public void setReplaceFields(boolean replaceFields) {
-    this.replaceFields = replaceFields;
-  }
-
-  /** @param preloadCache true to preload the cache */
-  public void setPreloadCache(boolean preloadCache) {
-    this.preloadCache = preloadCache;
-  }
-
-  /** @return Returns true if preload the cache. */
-  public boolean getPreloadCache() {
-    return preloadCache;
-  }
-
-  /** @return Returns the sequenceFrom. */
-  public String getSequenceFrom() {
-    return sequenceFrom;
-  }
-
-  /** @param sequenceFrom The sequenceFrom to set. */
-  public void setSequenceFrom(String sequenceFrom) {
-    this.sequenceFrom = sequenceFrom;
-  }
-
-  /** @return Returns the tablename. */
-  @Override
-  public String getTableName() {
-    return tableName;
-  }
-
-  /** @param tableName The tablename to set. */
-  public void setTablename(String tableName) {
-    this.tableName = tableName;
-  }
-
-  /** @return Returns the technicalKeyField. */
-  public String getTechnicalKeyField() {
-    return technicalKeyField;
-  }
-
-  /** @param technicalKeyField The technicalKeyField to set. */
-  public void setTechnicalKeyField(String technicalKeyField) {
-    this.technicalKeyField = technicalKeyField;
-  }
-
-  /** @return Returns the useAutoinc. */
-  public boolean isUseAutoinc() {
-    return useAutoinc;
-  }
-
-  /** @param useAutoinc The useAutoinc to set. */
-  public void setUseAutoinc(boolean useAutoinc) {
-    this.useAutoinc = useAutoinc;
-  }
-
-  /** @return Returns the useHash. */
-  public boolean useHash() {
-    return useHash;
-  }
-
-  /** @param useHash The useHash to set. */
-  public void setUseHash(boolean useHash) {
-    this.useHash = useHash;
+  public CombinationLookupMeta(CombinationLookupMeta m) {
+    fields = new CFields();
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
+  public CombinationLookupMeta clone() {
+    return new CombinationLookupMeta(this);
   }
 
-  public void allocate(int nrkeys) {
-    keyField = new String[nrkeys];
-    keyLookup = new String[nrkeys];
-  }
-
-  @Override
-  public Object clone() {
-    CombinationLookupMeta retval = (CombinationLookupMeta) super.clone();
-
-    int nrkeys = keyField.length;
-
-    retval.allocate(nrkeys);
-    System.arraycopy(keyField, 0, retval.keyField, 0, nrkeys);
-    System.arraycopy(keyLookup, 0, retval.keyLookup, 0, nrkeys);
-
-    return retval;
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    this.databases = databases;
-    try {
-      String commit;
-      String csize;
-
-      schemaName = XmlHandler.getTagValue(transformNode, "schema");
-      tableName = XmlHandler.getTagValue(transformNode, "table");
-      String con = XmlHandler.getTagValue(transformNode, "connection");
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
-      commit = XmlHandler.getTagValue(transformNode, "commit");
-      commitSize = Const.toInt(commit, 0);
-      csize = XmlHandler.getTagValue(transformNode, "cache_size");
-      cacheSize = Const.toInt(csize, 0);
-
-      replaceFields = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "replace"));
-      preloadCache = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "preloadCache"));
-      useHash = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "crc"));
-
-      hashField = XmlHandler.getTagValue(transformNode, "crcfield");
-
-      Node keys = XmlHandler.getSubNode(transformNode, "fields");
-      int nrkeys = XmlHandler.countNodes(keys, "key");
-
-      allocate(nrkeys);
-
-      // Read keys to dimension
-      for (int i = 0; i < nrkeys; i++) {
-        Node knode = XmlHandler.getSubNodeByNr(keys, "key", i);
-        keyField[i] = XmlHandler.getTagValue(knode, "name");
-        keyLookup[i] = XmlHandler.getTagValue(knode, "lookup");
-      }
-
-      // If this is empty: use auto-increment field!
-      sequenceFrom = XmlHandler.getTagValue(transformNode, "sequence");
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      Node retkey = XmlHandler.getSubNode(fields, "return");
-      technicalKeyField = XmlHandler.getTagValue(retkey, "name");
-      useAutoinc = !"N".equalsIgnoreCase(XmlHandler.getTagValue(retkey, "use_autoinc"));
-      lastUpdateField = XmlHandler.getTagValue(transformNode, "last_update_field");
-
-      setTechKeyCreation(XmlHandler.getTagValue(retkey, "creation_method"));
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "CombinationLookupMeta.Exception.UnableToLoadTransformMeta"),
-          e);
-    }
-  }
 
   @Override
   public void setDefault() {
@@ -385,18 +161,8 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
     preloadCache = false;
     useHash = false;
     hashField = "hashcode";
-    int nrkeys = 0;
-
-    allocate(nrkeys);
-
-    // Read keys to dimension
-    for (int i = 0; i < nrkeys; i++) {
-      keyField[i] = "key" + i;
-      keyLookup[i] = "keylookup" + i;
-    }
-
-    technicalKeyField = "technical/surrogate key field";
-    useAutoinc = false;
+    fields = new CFields();
+    fields.getReturnFields().setTechnicalKeyField("technical/surrogate key field");
   }
 
   @Override
@@ -408,61 +174,21 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    IValueMeta v = new ValueMetaInteger(technicalKeyField);
+    IValueMeta v = new ValueMetaInteger(fields.getReturnFields().getTechnicalKeyField());
     v.setLength(10);
     v.setPrecision(0);
     v.setOrigin(origin);
     row.addValueMeta(v);
 
     if (replaceFields) {
-      for (int i = 0; i < keyField.length; i++) {
-        int idx = row.indexOfValue(keyField[i]);
+      for (int i = 0; i < fields.getKeyFields().size(); i++) {
+        KeyField keyField = fields.getKeyFields().get(i);
+        int idx = row.indexOfValue(keyField.getName());
         if (idx >= 0) {
           row.removeValueMeta(idx);
         }
       }
     }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(512);
-
-    retval.append("      ").append(XmlHandler.addTagValue("schema", schemaName));
-    retval.append("      ").append(XmlHandler.addTagValue("table", tableName));
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue(
-                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
-    retval.append("      ").append(XmlHandler.addTagValue("commit", commitSize));
-    retval.append("      ").append(XmlHandler.addTagValue("cache_size", cacheSize));
-    retval.append("      ").append(XmlHandler.addTagValue("replace", replaceFields));
-    retval.append("      ").append(XmlHandler.addTagValue("preloadCache", preloadCache));
-    retval.append("      ").append(XmlHandler.addTagValue("crc", useHash));
-    retval.append("      ").append(XmlHandler.addTagValue("crcfield", hashField));
-
-    retval.append("      <fields>").append(Const.CR);
-    for (int i = 0; i < keyField.length; i++) {
-      retval.append("        <key>").append(Const.CR);
-      retval.append("          ").append(XmlHandler.addTagValue("name", keyField[i]));
-      retval.append("          ").append(XmlHandler.addTagValue("lookup", keyLookup[i]));
-      retval.append("        </key>").append(Const.CR);
-    }
-
-    retval.append("        <return>").append(Const.CR);
-    retval.append("          ").append(XmlHandler.addTagValue("name", technicalKeyField));
-    retval.append("          ").append(XmlHandler.addTagValue("creation_method", techKeyCreation));
-    retval.append("          ").append(XmlHandler.addTagValue("use_autoinc", useAutoinc));
-    retval.append("        </return>").append(Const.CR);
-
-    retval.append("      </fields>").append(Const.CR);
-
-    // If sequence is empty: use auto-increment field!
-    retval.append("      ").append(XmlHandler.addTagValue("sequence", sequenceFrom));
-    retval.append("      ").append(XmlHandler.addTagValue("last_update_field", lastUpdateField));
-
-    return retval.toString();
   }
 
   @Override
@@ -493,10 +219,11 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
               databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
           IRowMeta r = db.getTableFields(schemaTable);
           if (r != null) {
-            for (int i = 0; i < keyLookup.length; i++) {
-              String lufield = keyLookup[i];
+            for (int i = 0; i < fields.getKeyFields().size(); i++) {
+              KeyField keyField = fields.getKeyFields().get(i);
+              String lookupField = keyField.getLookup();
 
-              IValueMeta v = r.searchValueMeta(lufield);
+              IValueMeta v = r.searchValueMeta(lookupField);
               if (v == null) {
                 if (first) {
                   first = false;
@@ -506,7 +233,7 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
                           + Const.CR;
                 }
                 errorFound = true;
-                errorMessage += "\t\t" + lufield + Const.CR;
+                errorMessage += "\t\t" + lookupField + Const.CR;
               }
             }
             if (errorFound) {
@@ -520,6 +247,8 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
                       transformMeta);
             }
             remarks.add(cr);
+
+            String technicalKeyField = fields.getReturnFields().getTechnicalKeyField();
 
             /* Also, check the fields: tk, version, from-to, ... */
             if (r.indexOfValue(technicalKeyField) < 0) {
@@ -555,8 +284,9 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
           errorMessage = "";
           boolean errorFound = false;
 
-          for (int i = 0; i < keyField.length; i++) {
-            IValueMeta v = prev.searchValueMeta(keyField[i]);
+          for (int i = 0; i < fields.getKeyFields().size(); i++) {
+            KeyField keyField = fields.getKeyFields().get(i);
+            IValueMeta v = prev.searchValueMeta(keyField.getName());
             if (v == null) {
               if (first) {
                 first = false;
@@ -565,7 +295,7 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
                         + Const.CR;
               }
               errorFound = true;
-              errorMessage += "\t\t" + keyField[i] + Const.CR;
+              errorMessage += "\t\t" + keyField.getName() + Const.CR;
             }
           }
           if (errorFound) {
@@ -587,9 +317,11 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
           remarks.add(cr);
         }
 
+        String techKeyCreation = fields.getReturnFields().getTechKeyCreation();
+        String sequenceFrom = fields.getSequenceFrom();
+
         // Check sequence
-        if (databaseMeta.supportsSequences()
-            && CREATION_METHOD_SEQUENCE.equals(getTechKeyCreation())) {
+        if (databaseMeta.supportsSequences() && CREATION_METHOD_SEQUENCE.equals(techKeyCreation)) {
           if (Utils.isEmpty(sequenceFrom)) {
             errorMessage +=
                 BaseMessages.getString(PKG, "CombinationLookupMeta.CheckResult.ErrorNoSequenceName")
@@ -694,6 +426,10 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
             // OK, what do we put in the new table??
             IRowMeta fields = new RowMeta();
 
+            String technicalKeyField = this.fields.getReturnFields().getTechnicalKeyField();
+            String sequenceFrom = this.fields.getSequenceFrom();
+            String lastUpdateField = this.fields.getReturnFields().getLastUpdateField();
+
             // First, the new technical key...
             IValueMeta vkeyfield = new ValueMetaInteger(technicalKeyField);
             vkeyfield.setLength(10);
@@ -719,34 +455,33 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
               fields.addValueMeta(vkeyfield);
 
               // Add the keys only to the table
-              if (keyField != null && keyLookup != null) {
-                int cnt = keyField.length;
-                for (i = 0; i < cnt; i++) {
-                  String errorField = "";
+              int cnt = this.fields.getKeyFields().size();
+              for (i = 0; i < cnt; i++) {
+                KeyField keyField = this.fields.getKeyFields().get(i);
+                String errorField = "";
 
-                  // Find the value in the stream
-                  IValueMeta v = prev.searchValueMeta(keyField[i]);
-                  if (v != null) {
-                    String name = keyLookup[i];
-                    IValueMeta newValue = v.clone();
-                    newValue.setName(name);
+                // Find the value in the stream
+                IValueMeta v = prev.searchValueMeta(keyField.getName());
+                if (v != null) {
+                  String name = keyField.getLookup();
+                  IValueMeta newValue = v.clone();
+                  newValue.setName(name);
 
-                    if (name.equals(vkeyfield.getName())
-                        || (doHash == true && name.equals(vhashfield.getName()))) {
-                      errorField += name;
-                    }
-                    if (errorField.length() > 0) {
-                      retval.setError(
-                          BaseMessages.getString(
-                              PKG, "CombinationLookupMeta.ReturnValue.NameCollision", errorField));
-                    } else {
-                      fields.addValueMeta(newValue);
-                    }
+                  if (name.equals(vkeyfield.getName())
+                      || (doHash && name.equals(vhashfield.getName()))) {
+                    errorField += name;
+                  }
+                  if (errorField.length() > 0) {
+                    retval.setError(
+                        BaseMessages.getString(
+                            PKG, "CombinationLookupMeta.ReturnValue.NameCollision", errorField));
+                  } else {
+                    fields.addValueMeta(newValue);
                   }
                 }
               }
 
-              if (doHash == true) {
+              if (doHash) {
                 fields.addValueMeta(vhashfield);
               }
 
@@ -776,26 +511,23 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
               }
 
               // Find the missing fields in the real table
-              String[] keyLookup = getKeyLookup();
-              String[] keyField = getKeyField();
-              if (keyField != null && keyLookup != null) {
-                cnt = keyField.length;
-                for (i = 0; i < cnt; i++) {
-                  // Find the value in the stream
-                  IValueMeta v = prev.searchValueMeta(keyField[i]);
-                  if (v != null) {
-                    IValueMeta newValue = v.clone();
-                    newValue.setName(keyLookup[i]);
 
-                    // Does the corresponding name exist in the table
-                    if (tabFields.searchValueMeta(newValue.getName()) == null) {
-                      fields.addValueMeta(newValue); // nope --> add
-                    }
+              for (i = 0; i < this.fields.getKeyFields().size(); i++) {
+                KeyField keyField = this.fields.getKeyFields().get(i);
+                // Find the value in the stream
+                IValueMeta v = prev.searchValueMeta(keyField.getName());
+                if (v != null) {
+                  IValueMeta newValue = v.clone();
+                  newValue.setName(keyField.getLookup());
+
+                  // Does the corresponding name exist in the table
+                  if (tabFields.searchValueMeta(newValue.getName()) == null) {
+                    fields.addValueMeta(newValue); // nope --> add
                   }
                 }
               }
 
-              if (doHash == true && tabFields.searchValueMeta(vhashfield.getName()) == null) {
+              if (doHash && tabFields.searchValueMeta(vhashfield.getName()) == null) {
                 // Add hash field
                 fields.addValueMeta(vhashfield);
               }
@@ -810,12 +542,12 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
                 db.getDDL(
                     schemaTable,
                     fields,
-                    (CREATION_METHOD_SEQUENCE.equals(getTechKeyCreation())
+                    (CREATION_METHOD_SEQUENCE.equals(technicalKeyField)
                             && sequenceFrom != null
                             && sequenceFrom.length() != 0)
                         ? null
                         : technicalKeyField,
-                    CREATION_METHOD_AUTOINC.equals(getTechKeyCreation()),
+                    CREATION_METHOD_AUTOINC.equals(technicalKeyField),
                     null,
                     true);
 
@@ -838,15 +570,16 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
               }
             } else {
               // index on all key fields...
-              if (!Utils.isEmpty(keyLookup)) {
-                int nrFields = keyLookup.length;
+              if (!this.fields.getKeyFields().isEmpty()) {
+                int nrFields = this.fields.getKeyFields().size();
                 int maxFields = databaseMeta.getMaxColumnsInIndex();
                 if (maxFields > 0 && nrFields > maxFields) {
                   nrFields = maxFields; // For example, oracle indexes are limited to 32 fields...
                 }
                 idxFields = new String[nrFields];
                 for (i = 0; i < nrFields; i++) {
-                  idxFields[i] = keyLookup[i];
+                  KeyField keyField = this.fields.getKeyFields().get(i);
+                  idxFields[i] = keyField.getLookup();
                 }
               } else {
                 retval.setError(
@@ -856,7 +589,7 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
             }
 
             // OK, now get the create index statement...
-
+            //
             if (!Utils.isEmpty(technicalKeyField)) {
               String[] techKeyArr = new String[] {technicalKeyField};
               if (!db.checkIndexExists(schemaTable, techKeyArr)) {
@@ -922,8 +655,9 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
       IRowMeta info,
       IHopMetadataProvider metadataProvider) {
     // The keys are read-only...
-    for (int i = 0; i < keyField.length; i++) {
-      IValueMeta v = prev.searchValueMeta(keyField[i]);
+    for (int i = 0; i < fields.getKeyFields().size(); i++) {
+      KeyField keyField = fields.getKeyFields().get(i);
+      IValueMeta v = prev.searchValueMeta(keyField.getName());
       DatabaseImpact ii =
           new DatabaseImpact(
               DatabaseImpact.TYPE_IMPACT_READ_WRITE,
@@ -931,8 +665,8 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
               transformMeta.getName(),
               databaseMeta.getDatabaseName(),
               tableName,
-              keyLookup[i],
-              keyField[i],
+              keyField.getLookup(),
+              keyField.getName(),
               v != null ? v.getOrigin() : "?",
               "",
               useHash
@@ -960,124 +694,8 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
   }
 
   @Override
-  public boolean equals(Object other) {
-    if (other == this) {
-      return true;
-    }
-    if (other == null) {
-      return false;
-    }
-    if (getClass() != other.getClass()) {
-      return false;
-    }
-    CombinationLookupMeta o = (CombinationLookupMeta) other;
-
-    if (getCommitSize() != o.getCommitSize()) {
-      return false;
-    }
-    if (getCacheSize() != o.getCacheSize()) {
-      return false;
-    }
-    if (!getTechKeyCreation().equals(o.getTechKeyCreation())) {
-      return false;
-    }
-    if (replaceFields() != o.replaceFields()) {
-      return false;
-    }
-    if (useHash() != o.useHash()) {
-      return false;
-    }
-    if (getPreloadCache() != o.getPreloadCache()) {
-      return false;
-    }
-    if ((getSequenceFrom() == null && o.getSequenceFrom() != null)
-        || (getSequenceFrom() != null && o.getSequenceFrom() == null)
-        || (getSequenceFrom() != null
-            && o.getSequenceFrom() != null
-            && !getSequenceFrom().equals(o.getSequenceFrom()))) {
-      return false;
-    }
-
-    if ((getSchemaName() == null && o.getSchemaName() != null)
-        || (getSchemaName() != null && o.getSchemaName() == null)
-        || (getSchemaName() != null
-            && o.getSchemaName() != null
-            && !getSchemaName().equals(o.getSchemaName()))) {
-      return false;
-    }
-
-    if ((getTableName() == null && o.getTableName() != null)
-        || (getTableName() != null && o.getTableName() == null)
-        || (getTableName() != null
-            && o.getTableName() != null
-            && !getTableName().equals(o.getTableName()))) {
-      return false;
-    }
-
-    if ((getHashField() == null && o.getHashField() != null)
-        || (getHashField() != null && o.getHashField() == null)
-        || (getHashField() != null
-            && o.getHashField() != null
-            && !getHashField().equals(o.getHashField()))) {
-      return false;
-    }
-
-    if ((getTechnicalKeyField() == null && o.getTechnicalKeyField() != null)
-        || (getTechnicalKeyField() != null && o.getTechnicalKeyField() == null)
-        || (getTechnicalKeyField() != null
-            && o.getTechnicalKeyField() != null
-            && !getTechnicalKeyField().equals(o.getTechnicalKeyField()))) {
-      return false;
-    }
-
-    // comparison missing for the following, but can be added later
-    // if required.
-    // getKeyField()
-    // getKeyLookup()
-
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(
-        getCommitSize(),
-        getCacheSize(),
-        getTechKeyCreation(),
-        replaceFields(),
-        useHash(),
-        getPreloadCache(),
-        getSequenceFrom(),
-        getSchemaName(),
-        getTableName(),
-        getHashField(),
-        getTechnicalKeyField());
-  }
-
-  /** @return the schemaName */
-  @Override
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  @Override
   public String getMissingDatabaseConnectionInformationMessage() {
     return null;
-  }
-
-  /** @param schemaName the schemaName to set */
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
-  }
-
-  /** @return the lastUpdateField */
-  public String getLastUpdateField() {
-    return lastUpdateField;
-  }
-
-  /** @param lastUpdateField the lastUpdateField to set */
-  public void setLastUpdateField(String lastUpdateField) {
-    this.lastUpdateField = lastUpdateField;
   }
 
   @Override
@@ -1114,25 +732,198 @@ public class CombinationLookupMeta extends BaseTransformMeta<CombinationLookup, 
 
   @Override
   public List<String> getDatabaseFields() {
-    return Arrays.asList(keyLookup);
+    List<String> databaseFields = new ArrayList<>();
+    fields.getKeyFields().forEach(field -> databaseFields.add(field.name));
+    return databaseFields;
   }
 
   @Override
   public List<String> getStreamFields() {
-    return Arrays.asList(keyField);
+    List<String> streamFields = new ArrayList<>();
+    fields.getKeyFields().forEach(field -> streamFields.add(field.lookup));
+    return streamFields;
   }
 
   /**
-   * If we use injection we can have different arrays lengths. We need synchronize them for
-   * consistency behavior with UI
+   * Gets schemaName
+   *
+   * @return value of schemaName
    */
-  @AfterInjection
-  public void afterInjectionSynchronization() {
-    int nrFields = (keyField == null) ? -1 : keyField.length;
-    if (nrFields <= 0) {
-      return;
-    }
-    String[][] rtn = Utils.normalizeArrays(nrFields, keyLookup);
-    keyLookup = rtn[0];
+  @Override
+  public String getSchemaName() {
+    return schemaName;
+  }
+
+  /**
+   * Sets schemaName
+   *
+   * @param schemaName value of schemaName
+   */
+  public void setSchemaName(String schemaName) {
+    this.schemaName = schemaName;
+  }
+
+  /**
+   * Gets tableName
+   *
+   * @return value of tableName
+   */
+  @Override
+  public String getTableName() {
+    return tableName;
+  }
+
+  /**
+   * Sets tableName
+   *
+   * @param tableName value of tableName
+   */
+  public void setTableName(String tableName) {
+    this.tableName = tableName;
+  }
+
+  /**
+   * Gets databaseMeta
+   *
+   * @return value of databaseMeta
+   */
+  @Override
+  public DatabaseMeta getDatabaseMeta() {
+    return databaseMeta;
+  }
+
+  /**
+   * Sets databaseMeta
+   *
+   * @param databaseMeta value of databaseMeta
+   */
+  public void setDatabaseMeta(DatabaseMeta databaseMeta) {
+    this.databaseMeta = databaseMeta;
+  }
+
+  /**
+   * Gets replaceFields
+   *
+   * @return value of replaceFields
+   */
+  public boolean isReplaceFields() {
+    return replaceFields;
+  }
+
+  /**
+   * Sets replaceFields
+   *
+   * @param replaceFields value of replaceFields
+   */
+  public void setReplaceFields(boolean replaceFields) {
+    this.replaceFields = replaceFields;
+  }
+
+  /**
+   * Gets useHash
+   *
+   * @return value of useHash
+   */
+  public boolean isUseHash() {
+    return useHash;
+  }
+
+  /**
+   * Sets useHash
+   *
+   * @param useHash value of useHash
+   */
+  public void setUseHash(boolean useHash) {
+    this.useHash = useHash;
+  }
+
+  /**
+   * Gets hashField
+   *
+   * @return value of hashField
+   */
+  public String getHashField() {
+    return hashField;
+  }
+
+  /**
+   * Sets hashField
+   *
+   * @param hashField value of hashField
+   */
+  public void setHashField(String hashField) {
+    this.hashField = hashField;
+  }
+
+  /**
+   * Gets commitSize
+   *
+   * @return value of commitSize
+   */
+  public int getCommitSize() {
+    return commitSize;
+  }
+
+  /**
+   * Sets commitSize
+   *
+   * @param commitSize value of commitSize
+   */
+  public void setCommitSize(int commitSize) {
+    this.commitSize = commitSize;
+  }
+
+  /**
+   * Gets preloadCache
+   *
+   * @return value of preloadCache
+   */
+  public boolean isPreloadCache() {
+    return preloadCache;
+  }
+
+  /**
+   * Sets preloadCache
+   *
+   * @param preloadCache value of preloadCache
+   */
+  public void setPreloadCache(boolean preloadCache) {
+    this.preloadCache = preloadCache;
+  }
+
+  /**
+   * Gets cacheSize
+   *
+   * @return value of cacheSize
+   */
+  public int getCacheSize() {
+    return cacheSize;
+  }
+
+  /**
+   * Sets cacheSize
+   *
+   * @param cacheSize value of cacheSize
+   */
+  public void setCacheSize(int cacheSize) {
+    this.cacheSize = cacheSize;
+  }
+
+  /**
+   * Gets fields
+   *
+   * @return value of fields
+   */
+  public CFields getFields() {
+    return fields;
+  }
+
+  /**
+   * Sets fields
+   *
+   * @param fields value of fields
+   */
+  public void setFields(CFields fields) {
+    this.fields = fields;
   }
 }

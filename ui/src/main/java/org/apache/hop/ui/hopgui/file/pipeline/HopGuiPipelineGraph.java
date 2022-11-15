@@ -75,6 +75,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.history.AuditManager;
@@ -219,7 +220,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         MouseMoveListener,
         MouseTrackListener,
         IHasLogChannel,
-        ILogParentProvided, // TODO: Aren't these the same?
+        ILogParentProvided,
         IHopFileTypeHandler,
         IGuiRefresher {
 
@@ -5306,7 +5307,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
             Execution execution = iLocation.getExecution(pipeline.getLogChannelId());
             if (execution != null) {
-              ep.createExecutionViewer(locationName, execution);
+              ExecutionState executionState =
+                  location.getExecutionInfoLocation().getExecutionState(execution.getId());
+              ep.createExecutionViewer(locationName, execution, executionState);
               ep.activate();
               return;
             }
@@ -5438,7 +5441,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       List<Execution> executions = iLocation.findExecutions(transformId);
       if (executions.size() > 0) {
         Execution execution = executions.get(0);
-        executionPerspective.createExecutionViewer(locationName, execution);
+        ExecutionState executionState =
+                iLocation.getExecutionState(execution.getId());
+        executionPerspective.createExecutionViewer(locationName, execution, executionState);
         executionPerspective.activate();
       }
     } catch (Exception e) {

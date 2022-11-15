@@ -57,7 +57,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -83,8 +82,6 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       Pipeline pipeline,
@@ -97,8 +94,6 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     // If we have no previous transform, it's an input transform.  We need to start from pipeline
     //
     boolean inputTransform = input == null;
-    boolean reduceParallelism = checkTransformCopiesForReducedParallelism(transformMeta);
-    reduceParallelism = reduceParallelism || needsSingleThreading(transformMeta);
 
     String transformMetaInterfaceXml =
         XmlHandler.openTag(TransformMeta.XML_TAG)
@@ -113,22 +108,22 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     List<String> infoRowMetaJsons = new ArrayList<>();
     List<PCollectionView<List<HopRow>>> infoCollectionViews = new ArrayList<>();
     for (TransformMeta infoTransformMeta : infoTransformMetas) {
-      if (!previousTransforms.contains(infoTransformMeta)) {
-        infoTransforms.add(infoTransformMeta.getName());
-        infoRowMetaJsons.add(
-            JsonRowMeta.toJson(pipelineMeta.getTransformFields(variables, infoTransformMeta)));
-        PCollection<HopRow> infoCollection =
-            transformCollectionMap.get(infoTransformMeta.getName());
-        if (infoCollection == null) {
-          throw new HopException(
-              "Unable to find collection for transform '"
-                  + infoTransformMeta.getName()
-                  + " providing info for '"
-                  + transformMeta.getName()
-                  + "'");
-        }
-        infoCollectionViews.add(infoCollection.apply(View.asList()));
+      if (previousTransforms.contains(infoTransformMeta)) {
+        continue;
       }
+      infoTransforms.add(infoTransformMeta.getName());
+      infoRowMetaJsons.add(
+          JsonRowMeta.toJson(pipelineMeta.getTransformFields(variables, infoTransformMeta)));
+      PCollection<HopRow> infoCollection = transformCollectionMap.get(infoTransformMeta.getName());
+      if (infoCollection == null) {
+        throw new HopException(
+            "Unable to find collection for transform '"
+                + infoTransformMeta.getName()
+                + " providing info for '"
+                + transformMeta.getName()
+                + "'");
+      }
+      infoCollectionViews.add(infoCollection.apply(View.asList()));
     }
 
     // Get the list of variables from the PipelineMeta variable variables:
@@ -150,13 +145,9 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     // This is what the BeamJobConfig option "Streaming Hop Transforms Flush Interval" is for...
     // Without a valid value we default to -1 to disable flushing.
     //
+    int sizeRowSet = Const.toInt(runConfiguration.getStreamingHopTransformsBufferSize(), 5000);
     int flushIntervalMs =
         Const.toInt(runConfiguration.getStreamingHopTransformsFlushInterval(), -1);
-    int sizeRowsSet = Const.toInt(runConfiguration.getStreamingHopTransformsBufferSize(), 500);
-
-    // TODO: make this configurable
-    //
-    int sizeRowSet = 5000;
 
     // Serialize the whole metastore to JSON...
     //
@@ -170,8 +161,6 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
           new TransformBatchTransform(
               variableValues,
               metaStoreJson,
-              transformPluginClasses,
-              xpPluginClasses,
               sizeRowSet,
               flushIntervalMs,
               transformMeta.getName(),
@@ -191,8 +180,6 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
           new TransformTransform(
               variableValues,
               metaStoreJson,
-              transformPluginClasses,
-              xpPluginClasses,
               sizeRowSet,
               flushIntervalMs,
               transformMeta.getName(),
@@ -215,7 +202,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
       //
       input =
           pipeline
-              .apply(Create.of(Arrays.asList("hop-single-value")))
+              .apply(Create.of(List.of("hop-single-value")))
               .setCoder(StringUtf8Coder.of())
               .apply(WithKeys.of((Void) null))
               .apply(GroupByKey.create())
@@ -223,24 +210,21 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
               .apply(Flatten.iterables())
               .apply(
                   ParDo.of(
-                      new StringToHopRowFn(
-                          transformMeta.getName(),
-                          JsonRowMeta.toJson(rowMeta),
-                          transformPluginClasses,
-                          xpPluginClasses)));
+                      new StringToHopRowFn(transformMeta.getName(), JsonRowMeta.toJson(rowMeta))));
 
       // Store this new collection so we can hook up other transforms...
       //
       String tupleId = HopBeamUtil.createMainInputTupleId(transformMeta.getName());
       transformCollectionMap.put(tupleId, input);
-    } else if (reduceParallelism) {
+    } else if (checkTransformCopiesForReducedParallelism(transformMeta)
+        || needsSingleThreading(transformMeta)) {
       PCollection.IsBounded isBounded = input.isBounded();
       if (isBounded == PCollection.IsBounded.BOUNDED) {
         // group across all fields to get down to a single thread...
         //
         input =
             input
-                .apply(WithKeys.of((Void)null))
+                .apply(WithKeys.of((Void) null))
                 .setCoder(KvCoder.of(VoidCoder.of(), input.getCoder()))
                 .apply(GroupByKey.create())
                 .apply(Values.create())
@@ -297,7 +281,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     //
     String copiesString = variables.resolve(transformMeta.getCopiesString());
 
-    return value != null && "true".equalsIgnoreCase(value)
+    return Const.toBoolean(value)
         || copiesString != null && copiesString.toUpperCase().contains("BATCH");
   }
 
@@ -305,7 +289,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     String value =
         transformMeta.getAttribute(
             BeamConst.STRING_HOP_BEAM, BeamConst.STRING_TRANSFORM_FLAG_SINGLE_THREADED);
-    return value != null && "true".equalsIgnoreCase(value);
+    return Const.toBoolean(value);
   }
 
   private boolean checkTransformCopiesForReducedParallelism(TransformMeta transformMeta) {

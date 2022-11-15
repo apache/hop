@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
@@ -400,8 +401,9 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public void registerExecution(Execution execution) throws HopException {
     synchronized (this) {
       try {
-        assert execution.getName()!=null : "Please register executions with a name";
-        assert execution.getExecutionType()!=null : "Please register executions with an execution type";
+        assert execution.getName() != null : "Please register executions with a name";
+        assert execution.getExecutionType() != null
+            : "Please register executions with an execution type";
 
         session.writeTransaction(transaction -> registerNeo4jExecution(transaction, execution));
       } catch (Exception e) {
@@ -612,8 +614,9 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public void updateExecutionState(ExecutionState executionState) throws HopException {
     synchronized (this) {
       try {
-        assert executionState.getName()!=null : "Please update execution states with a name";
-        assert executionState.getExecutionType()!=null : "Please update execution states with an execution type";
+        assert executionState.getName() != null : "Please update execution states with a name";
+        assert executionState.getExecutionType() != null
+            : "Please update execution states with an execution type";
 
         session.writeTransaction(
             transaction -> updateNeo4jExecutionState(transaction, executionState));
@@ -1554,7 +1557,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
     // Convert this to a Map<String,String>
     //
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = HopJson.newMapper();
     TypeReference<HashMap<String, String>> typeRef = new TypeReference<>() {};
 
     try {

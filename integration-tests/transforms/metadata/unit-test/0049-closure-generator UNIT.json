@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "supervisorId",
+          "data_set_field": "supervisorId"
+        },
+        {
+          "transform_field": "employeeId",
+          "data_set_field": "employeeId"
+        },
+        {
+          "transform_field": "distance",
+          "data_set_field": "distance"
+        }
+      ],
+      "field_order": [
+        "supervisorId",
+        "employeeId",
+        "distance"
+      ],
+      "data_set_name": "golden-closure-generator",
+      "transform_name": "Output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0049-closure-generator UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0049-closure-generator.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -93,7 +93,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
   }
 
   private void determineTechKeyCreation() {
-    String keyCreation = meta.getTechKeyCreation();
+    String keyCreation = meta.getFields().getReturnFields().getTechKeyCreation();
     if (meta.getDatabaseMeta().supportsAutoinc()
         && CombinationLookupMeta.CREATION_METHOD_AUTOINC.equals(keyCreation)) {
       setTechKeyCreation(CREATION_METHOD_AUTOINC);
@@ -113,8 +113,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
 
     // try to find the row in the cache...
     //
-    Long tk = data.cache.get(new RowMetaAndData(rowMeta, row));
-    return tk;
+    return data.cache.get(new RowMetaAndData(rowMeta, row));
   }
 
   /**
@@ -216,24 +215,27 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     Long valKey = null;
     Long valHash = null;
     Object[] hashRow = null;
+    CFields fields = meta.getFields();
+    List<KeyField> keyFields = fields.getKeyFields();
+    ReturnFields returnFields = fields.getReturnFields();
 
     Object[] lookupRow = new Object[data.lookupRowMeta.size()];
     int lookupIndex = 0;
 
-    if (meta.useHash() || meta.getCacheSize() >= 0) {
+    if (meta.isUseHash() || meta.getCacheSize() >= 0) {
       hashRow = new Object[data.hashRowMeta.size()];
-      for (int i = 0; i < meta.getKeyField().length; i++) {
+      for (int i = 0; i < keyFields.size(); i++) {
         hashRow[i] = row[data.keynrs[i]];
       }
 
-      if (meta.useHash()) {
-        valHash = Long.valueOf(data.hashRowMeta.hashCode(hashRow));
+      if (meta.isUseHash()) {
+        valHash = (long) data.hashRowMeta.hashCode(hashRow);
         lookupRow[lookupIndex] = valHash;
         lookupIndex++;
       }
     }
 
-    for (int i = 0; i < meta.getKeyField().length; i++) {
+    for (int i = 0; i < keyFields.size(); i++) {
       // Determine the index of this Key Field in the row meta/data
       int rowIndex = data.keynrs[i];
       lookupRow[lookupIndex] = row[rowIndex]; // KEYi = ?
@@ -266,7 +268,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
             // Use our own counter: what's the next value for the technical key?
             valKey =
                 data.db.getNextValue(
-                    data.realSchemaName, data.realTableName, meta.getTechnicalKeyField());
+                    data.realSchemaName, data.realTableName, returnFields.getTechnicalKeyField());
             break;
           case CREATION_METHOD_AUTOINC:
             valKey = Long.valueOf(0); // value to accept new key...
@@ -274,7 +276,9 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
           case CREATION_METHOD_SEQUENCE:
             valKey =
                 data.db.getNextSequenceValue(
-                    data.realSchemaName, meta.getSequenceFrom(), meta.getTechnicalKeyField());
+                    data.realSchemaName,
+                    fields.getSequenceFrom(),
+                    returnFields.getTechnicalKeyField());
             if (valKey != null && isRowLevel()) {
               logRowlevel(
                   BaseMessages.getString(PKG, "CombinationLookup.Log.FoundNextSequenceValue")
@@ -310,7 +314,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     int outputIndex = 0;
 
     // See if we need to replace the fields with the technical key
-    if (meta.replaceFields()) {
+    if (meta.isReplaceFields()) {
       for (int i = 0; i < rowMeta.size(); i++) {
         if (!data.removeField[i]) {
           outputRow[outputIndex] = row[i];
@@ -351,17 +355,20 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
 
       determineTechKeyCreation();
 
+      List<KeyField> keyFields = meta.getFields().getKeyFields();
+
       // The indexes of the key values...
       //
-      data.keynrs = new int[meta.getKeyField().length];
+      data.keynrs = new int[keyFields.size()];
 
-      for (int i = 0; i < meta.getKeyField().length; i++) {
-        data.keynrs[i] = getInputRowMeta().indexOfValue(meta.getKeyField()[i]);
+      for (int i = 0; i < keyFields.size(); i++) {
+        KeyField keyField = keyFields.get(i);
+        data.keynrs[i] = getInputRowMeta().indexOfValue(keyField.getName());
         if (data.keynrs[i] < 0) {
           // couldn't find field!
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "CombinationLookup.Exception.FieldNotFound", meta.getKeyField()[i]));
+                  PKG, "CombinationLookup.Exception.FieldNotFound", keyField.getName()));
         }
       }
 
@@ -374,14 +381,14 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       for (int i = 0; i < getInputRowMeta().size(); i++) {
         IValueMeta valueMeta = getInputRowMeta().getValueMeta(i);
         // Is this one of the keys?
-        int idx = Const.indexOfString(valueMeta.getName(), meta.getKeyField());
+        int idx = meta.getFields().indexOfKeyField(valueMeta.getName());
         data.removeField[i] = idx >= 0;
       }
 
       // Determine the metadata row to calculate hashcodes.
       //
       data.hashRowMeta = new RowMeta();
-      for (int i = 0; i < meta.getKeyField().length; i++) {
+      for (int i = 0; i < meta.getFields().getKeyFields().size(); i++) {
         data.hashRowMeta.addValueMeta(getInputRowMeta().getValueMeta(data.keynrs[i])); // KEYi = ?
       }
 
@@ -420,6 +427,9 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
    */
   public void setCombiLookup(IRowMeta inputRowMeta) throws HopDatabaseException {
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
+    CFields fields = meta.getFields();
+    List<KeyField> keyFields = fields.getKeyFields();
+    ReturnFields returnFields = fields.getReturnFields();
 
     String sql = "";
     boolean comma;
@@ -435,12 +445,12 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
      * ( ( <key2> = ? ) OR ( <key1> IS NULL AND ? IS NULL ) ) ...
      */
 
-    sql += "SELECT " + databaseMeta.quoteField(meta.getTechnicalKeyField()) + Const.CR;
+    sql += "SELECT " + databaseMeta.quoteField(returnFields.getTechnicalKeyField()) + Const.CR;
     sql += "FROM " + data.schemaTable + Const.CR;
     sql += "WHERE ";
     comma = false;
 
-    if (meta.useHash()) {
+    if (meta.isUseHash()) {
       sql += databaseMeta.quoteField(meta.getHashField()) + " = ? " + Const.CR;
       comma = true;
       data.lookupRowMeta.addValueMeta(new ValueMetaInteger(meta.getHashField()));
@@ -448,16 +458,17 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       sql += "( ( ";
     }
 
-    for (int i = 0; i < meta.getKeyLookup().length; i++) {
+    for (int i = 0; i < keyFields.size(); i++) {
+      KeyField keyField = keyFields.get(i);
       if (comma) {
         sql += " AND ( ( ";
       } else {
         comma = true;
       }
       sql +=
-          databaseMeta.quoteField(meta.getKeyLookup()[i])
+          databaseMeta.quoteField(keyField.getLookup())
               + " = ? ) OR ( "
-              + databaseMeta.quoteField(meta.getKeyLookup()[i]);
+              + databaseMeta.quoteField(keyField.getLookup());
       data.lookupRowMeta.addValueMeta(inputRowMeta.getValueMeta(data.keynrs[i]));
 
       sql += " IS NULL AND ";
@@ -493,6 +504,10 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       throws HopDatabaseException {
     String debug = "Combination insert";
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
+    CFields fields = meta.getFields();
+    List<KeyField> keyFields = fields.getKeyFields();
+    ReturnFields returnFields = fields.getReturnFields();
+
     try {
       if (data.prepStatementInsert == null) { // first time: construct prepared statement
         debug = "First: construct prepared statement";
@@ -511,16 +526,18 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
 
         if (!isAutoIncrement()) {
           // NO AUTOINCREMENT
-          sql += databaseMeta.quoteField(meta.getTechnicalKeyField());
-          data.insertRowMeta.addValueMeta(new ValueMetaInteger(meta.getTechnicalKeyField()));
+          sql += databaseMeta.quoteField(returnFields.getTechnicalKeyField());
+          data.insertRowMeta.addValueMeta(
+              new ValueMetaInteger(returnFields.getTechnicalKeyField()));
           comma = true;
         } else if (databaseMeta.needsPlaceHolder()) {
           sql += "0"; // placeholder on informix! Will be replaced in table by real autoinc value.
-          data.insertRowMeta.addValueMeta(new ValueMetaInteger(meta.getTechnicalKeyField()));
+          data.insertRowMeta.addValueMeta(
+              new ValueMetaInteger(returnFields.getTechnicalKeyField()));
           comma = true;
         }
 
-        if (meta.useHash()) {
+        if (meta.isUseHash()) {
           if (comma) {
             sql += ", ";
           }
@@ -529,20 +546,21 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
           comma = true;
         }
 
-        if (!Utils.isEmpty(meta.getLastUpdateField())) {
+        if (!Utils.isEmpty(returnFields.getLastUpdateField())) {
           if (comma) {
             sql += ", ";
           }
-          sql += databaseMeta.quoteField(meta.getLastUpdateField());
-          data.insertRowMeta.addValueMeta(new ValueMetaDate(meta.getLastUpdateField()));
+          sql += databaseMeta.quoteField(returnFields.getLastUpdateField());
+          data.insertRowMeta.addValueMeta(new ValueMetaDate(returnFields.getLastUpdateField()));
           comma = true;
         }
 
-        for (int i = 0; i < meta.getKeyLookup().length; i++) {
+        for (int i = 0; i < keyFields.size(); i++) {
+          KeyField keyField = keyFields.get(i);
           if (comma) {
             sql += ", ";
           }
-          sql += databaseMeta.quoteField(meta.getKeyLookup()[i]);
+          sql += databaseMeta.quoteField(keyField.getLookup());
           data.insertRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]));
           comma = true;
         }
@@ -555,14 +573,14 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
           sql += '?';
           comma = true;
         }
-        if (meta.useHash()) {
+        if (meta.isUseHash()) {
           if (comma) {
             sql += ',';
           }
           sql += '?';
           comma = true;
         }
-        if (!Utils.isEmpty(meta.getLastUpdateField())) {
+        if (!Utils.isEmpty(returnFields.getLastUpdateField())) {
           if (comma) {
             sql += ',';
           }
@@ -570,7 +588,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
           comma = true;
         }
 
-        for (int i = 0; i < meta.getKeyLookup().length; i++) {
+        for (int i = 0; i < keyFields.size(); i++) {
           if (comma) {
             sql += ',';
           } else {
@@ -613,11 +631,11 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         insertRow[insertIndex] = valKey;
         insertIndex++;
       }
-      if (meta.useHash()) {
+      if (meta.isUseHash()) {
         insertRow[insertIndex] = valCrc;
         insertIndex++;
       }
-      if (!Utils.isEmpty(meta.getLastUpdateField())) {
+      if (!Utils.isEmpty(returnFields.getLastUpdateField())) {
         insertRow[insertIndex] = new Date();
         insertIndex++;
       }
@@ -647,13 +665,13 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
           } else {
             throw new HopDatabaseException(
                 "Unable to retrieve auto-increment of combi insert key : "
-                    + meta.getTechnicalKeyField()
+                    + returnFields.getTechnicalKeyField()
                     + ", no fields in resultset");
           }
         } catch (SQLException ex) {
           throw new HopDatabaseException(
               "Unable to retrieve auto-increment of combi insert key : "
-                  + meta.getTechnicalKeyField(),
+                  + returnFields.getTechnicalKeyField(),
               ex);
         } finally {
           try {
@@ -663,7 +681,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
           } catch (SQLException ex) {
             throw new HopDatabaseException(
                 "Unable to retrieve auto-increment of combi insert key : "
-                    + meta.getTechnicalKeyField(),
+                    + returnFields.getTechnicalKeyField(),
                 ex);
           }
         }
@@ -753,7 +771,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
   private void preloadCache(IRowMeta hashRowMeta)
       throws HopDatabaseException, HopValueException, HopConfigException {
     // fast exit if no preload cache or no cache
-    if (meta.getPreloadCache() && meta.getCacheSize() >= 0) {
+    if (meta.isPreloadCache() && meta.getCacheSize() >= 0) {
       if (hashRowMeta == null) {
         throw new HopConfigException(
             BaseMessages.getString(PKG, "CombinationLookup.Log.UnexpectedError"));
@@ -782,12 +800,17 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
        *
        */
 
+      CFields fields = meta.getFields();
+      List<KeyField> keyFields = fields.getKeyFields();
+      ReturnFields returnFields = fields.getReturnFields();
+
       // Build a string representation of the lookupKeys
-      for (int i = 0; i < meta.getKeyLookup().length; i++) {
-        lookupKeys += databaseMeta.quoteField(meta.getKeyLookup()[i]);
+      for (int i = 0; i < keyFields.size(); i++) {
+        KeyField keyField = keyFields.get(i);
+        lookupKeys += databaseMeta.quoteField(keyField.getLookup());
 
         // No comma after last field
-        if (i < meta.getKeyLookup().length - 1) {
+        if (i < keyFields.size() - 1) {
           lookupKeys += "," + Const.CR;
         }
       }
@@ -796,9 +819,9 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       sql += "SELECT " + Const.CR;
       sql +=
           "MIN("
-              + databaseMeta.quoteField(meta.getTechnicalKeyField())
+              + databaseMeta.quoteField(returnFields.getTechnicalKeyField())
               + ") as "
-              + databaseMeta.quoteField(meta.getTechnicalKeyField())
+              + databaseMeta.quoteField(returnFields.getTechnicalKeyField())
               + ","
               + Const.CR;
       sql += lookupKeys + Const.CR;

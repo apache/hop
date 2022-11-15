@@ -125,7 +125,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
   private boolean deleteProject;
 
   @CommandLine.Option(
-      names = {"-pl", "-projects-list"},
+      names = {"-pl", "--projects-list"},
       description = "List the defined projects")
   private boolean listProjects;
 

@@ -70,8 +70,6 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       Pipeline pipeline,
@@ -153,9 +151,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
                       rowDataXml,
                       true,
                       currentTimeFieldIndex,
-                      previousTimeFieldIndex,
-                      transformPluginClasses,
-                      xpPluginClasses)));
+                      previousTimeFieldIndex)));
 
     } else {
 
@@ -198,9 +194,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
                       rowDataXml,
                       false,
                       -1,
-                      -1,
-                      transformPluginClasses,
-                      xpPluginClasses)));
+                      -1)));
     }
 
     transformCollectionMap.put(transformMeta.getName(), afterInput);

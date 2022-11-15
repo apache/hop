@@ -33,7 +33,7 @@ The amount of text logging generated depends on the logging level which is used 
 |===
 |Level |Description
 
-|NONE
+|NOTHING
 |No logging is generated
 
 |ERROR

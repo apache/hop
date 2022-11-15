@@ -329,14 +329,6 @@ public class PropsUi extends Props {
     return Const.toInt(getProperty(STRING_LINE_WIDTH), ConstUi.LINE_WIDTH);
   }
 
-  public void setLastPipeline(String pipeline) {
-    setProperty(STRING_LAST_PREVIEW_PIPELINE, pipeline);
-  }
-
-  public String getLastPipeline() {
-    return getProperty(STRING_LAST_PREVIEW_PIPELINE, "");
-  }
-
   public void setLastPreview(String[] lastpreview, int[] transformsize) {
     setProperty(STRING_LAST_PREVIEW_TRANSFORM, "" + lastpreview.length);
 
@@ -475,6 +467,15 @@ public class PropsUi extends Props {
   public boolean showExitWarning() {
     String show = getProperty(STRING_SHOW_EXIT_WARNING, YES);
     return YES.equalsIgnoreCase(show); // Default: show repositories dialog at startup
+  }
+
+  public boolean isShowTableViewToolbar() {
+    String show = getProperty(STRING_SHOW_TABLE_VIEW_TOOLBAR, YES);
+    return YES.equalsIgnoreCase(show); // Default: show the toolbar
+  }
+
+  public void setShowTableViewToolbar(boolean show) {
+    setProperty(STRING_SHOW_TABLE_VIEW_TOOLBAR, show ? YES : NO);
   }
 
   public static void setLook(Widget widget) {

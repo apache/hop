@@ -17,49 +17,48 @@
 package org.apache.hop.pipeline.transforms.mapping;
 
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 public class SimpleMappingMetaTest {
-  LoadSaveTester loadSaveTester;
-  Class<SimpleMappingMeta> testMetaClass = SimpleMappingMeta.class;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
-    List<String> attributes =
-        Arrays.asList("filename", "inputMapping", "outputMapping", "mappingParameters");
-
-    Map<String, String> getterMap = new HashMap<>();
-    Map<String, String> setterMap = new HashMap<>();
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("inputMapping", new MappingIODefinitionLoadSaveValidator());
-    attrValidatorMap.put("outputMapping", new MappingIODefinitionLoadSaveValidator());
-    attrValidatorMap.put("mappingParameters", new MappingParametersLoadSaveValidator());
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester(
-            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
+  public void testSerialization() throws Exception {
+    TransformSerializationTestUtil.testSerialization(
+            "/simple-mapping-transform.xml",
+            SimpleMappingMeta.class,
+            TransformMeta.XML_TAG
+    );
+    /*Document document =
+        XmlHandler.loadXmlFile(this.getClass().getResourceAsStream("/simple-mapping-transform.xml"));
+    Node transformNode = XmlHandler.getSubNode(document, TransformMeta.XML_TAG);
+    SimpleMappingMeta meta = new SimpleMappingMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        null, transformNode, SimpleMappingMeta.class, meta, new MemoryMetadataProvider());
+    String xml =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + meta.getXml()
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+
+    Document copyDocument = XmlHandler.loadXmlString(xml);
+    Node copyNode = XmlHandler.getSubNode(copyDocument, TransformMeta.XML_TAG);
+    SimpleMappingMeta copy = new SimpleMappingMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        null, copyNode, SimpleMappingMeta.class, copy, new MemoryMetadataProvider());
+    Assert.assertEquals(meta.getXml(), copy.getXml());*/
   }
 }

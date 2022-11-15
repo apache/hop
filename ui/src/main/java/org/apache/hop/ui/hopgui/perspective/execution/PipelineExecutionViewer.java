@@ -143,7 +143,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   protected final PipelineMeta pipelineMeta;
 
   protected TransformMeta selectedTransform;
-  private ExecutionState executionState;
   private ExecutionData selectedTransformData;
 
   private CTabItem infoTab;
@@ -163,8 +162,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       PipelineMeta pipelineMeta,
       String locationName,
       ExecutionPerspective perspective,
-      Execution execution) {
-    super(parent, hopGui, perspective, locationName, execution);
+      Execution execution,
+      ExecutionState executionState) {
+    super(parent, hopGui, perspective, locationName, execution, executionState);
     this.pipelineMeta = pipelineMeta;
 
     // Calculate the pipeline size only once since the metadata is read-only
@@ -360,7 +360,8 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
             // Just show the tab
           }
           if (showTab) {
-            Constructor<?> constructor = pluginTabClass.getConstructor(PipelineExecutionViewer.class);
+            Constructor<?> constructor =
+                pluginTabClass.getConstructor(PipelineExecutionViewer.class);
             Object object = constructor.newInstance(this);
             tabItem.getMethod().invoke(object, tabFolder);
           }
@@ -1012,11 +1013,13 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           String parentId = setMeta.getLogChannelId();
           List<Execution> childExecutions = iLocation.findExecutions(parentId);
           if (childExecutions.isEmpty()) {
-            return;
+            break;
           }
           Execution child = childExecutions.get(0);
-          perspective.createExecutionViewer(locationName, child);
-          return;
+            ExecutionState executionState = iLocation.getExecutionState(execution.getId());
+            perspective.createExecutionViewer(locationName, child, executionState);
+            return;
+
         }
       }
 
@@ -1063,8 +1066,8 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       } else {
         childExecution = selectExecution(childExecutions);
       }
-
-      perspective.createExecutionViewer(locationName, childExecution);
+      ExecutionState executionState = iLocation.getExecutionState(execution.getId());
+      perspective.createExecutionViewer(locationName, childExecution, executionState);
 
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error drilling down into selected action", e);
@@ -1133,9 +1136,11 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
       Execution grandParent = iLocation.getExecution(grandParentId);
 
+      ExecutionState executionState = iLocation.getExecutionState(grandParent.getId());
+
       // Open this one
       //
-      perspective.createExecutionViewer(locationName, grandParent);
+      perspective.createExecutionViewer(locationName, grandParent, executionState);
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error navigating up to parent execution", e);
     }
@@ -1263,24 +1268,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
    */
   public void setSelectedTransform(TransformMeta selectedTransform) {
     this.selectedTransform = selectedTransform;
-  }
-
-  /**
-   * Gets executionState
-   *
-   * @return value of executionState
-   */
-  public ExecutionState getExecutionState() {
-    return executionState;
-  }
-
-  /**
-   * Sets executionState
-   *
-   * @param executionState value of executionState
-   */
-  public void setExecutionState(ExecutionState executionState) {
-    this.executionState = executionState;
   }
 
   /**

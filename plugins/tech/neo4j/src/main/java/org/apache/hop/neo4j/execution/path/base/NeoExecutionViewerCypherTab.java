@@ -18,13 +18,13 @@
 
 package org.apache.hop.neo4j.execution.path.base;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.tab.GuiTab;
+import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.BaseExecutionViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -66,13 +66,34 @@ public class NeoExecutionViewerCypherTab extends NeoExecutionViewerTabBase {
   }
 
   private void refresh() {
-    String cypher =
-        "This is the Cypher used to get the list of paths to the root execution:"
-            + Const.CR
-            + Const.CR;
-    String rootCypher = getPathToRootCypher(getActiveLogChannelId());
+    String cypher;
+    if (StringUtils.isEmpty(viewer.getExecution().getParentId())) {
+      cypher =
+          "This execution does not have a parent and is as such a root execution. "
+              + Const.CR
+              + "You can look it up like this:"
+              + Const.CR
+              + Const.CR;
+    } else {
+      cypher =
+          "This is the Cypher used to get the list of paths to the root execution:"
+              + Const.CR
+              + Const.CR;
+    }
+    String rootCypher = getPathToRootCypher();
     String activeId = getActiveLogChannelId();
-    cypher += rootCypher.replace("$executionId", '"'+activeId+'"');
+    cypher += rootCypher.replace("$executionId", '"' + activeId + '"');
+
+    ExecutionState state = viewer.getExecutionState();
+    if (state != null) {
+      cypher += Const.CR + Const.CR;
+      cypher +=
+          "Execute this Cypher to get the paths to the lowest level failed execution nodes:"
+              + Const.CR
+              + Const.CR;
+      cypher += getPathToFailedCypher();
+    }
+    cypher = cypher.replace("$executionId", "\"" + getActiveLogChannelId() + "\"");
     wCypher.setText(cypher);
   }
 }

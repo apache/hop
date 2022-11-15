@@ -19,7 +19,7 @@
 package org.apache.hop.neo4j.execution.builder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.hop.core.json.HopJson;
 
 import java.util.Map;
 
@@ -45,30 +45,23 @@ public class CypherMergeBuilder extends BaseCypherBuilder {
     return this;
   }
 
-  public CypherMergeBuilder withLabelAndKeys(
-          String label, Map<String, Object> keyValueMap) {
-    cypher
-        .append("(n:")
-        .append(label)
-        .append(" {");
+  public CypherMergeBuilder withLabelAndKeys(String label, Map<String, Object> keyValueMap) {
+    cypher.append("(n:").append(label).append(" {");
     boolean firstKey = true;
-    for (String key: keyValueMap.keySet()) {
+    for (String key : keyValueMap.keySet()) {
       Object value = keyValueMap.get(key);
       if (firstKey) {
-        firstKey=false;
+        firstKey = false;
       } else {
         cypher.append(", ");
       }
-      cypher.append(key)
-              .append(" : $")
-              .append(key);
+      cypher.append(key).append(" : $").append(key);
       parameters.put(key, value);
     }
     cypher.append(" }) ");
 
     return this;
   }
-
 
   public CypherMergeBuilder withValue(String property, Object value) {
     if (firstParameter) {
@@ -82,7 +75,7 @@ public class CypherMergeBuilder extends BaseCypherBuilder {
     if (value instanceof Map) {
       String jsonString;
       try {
-        jsonString = new ObjectMapper().writeValueAsString(value);
+        jsonString = HopJson.newMapper().writeValueAsString(value);
       } catch (JsonProcessingException e) {
         throw new RuntimeException("Error converting Map to a JSON String", e);
       }

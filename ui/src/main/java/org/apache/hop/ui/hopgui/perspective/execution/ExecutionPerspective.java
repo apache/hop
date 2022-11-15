@@ -31,6 +31,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
@@ -375,8 +376,9 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
           Execution execution = (Execution) treeItem.getData();
           ExecutionInfoLocation location =
               (ExecutionInfoLocation) treeItem.getParentItem().getData();
-
-          createExecutionViewer(location.getName(), execution);
+          ExecutionState executionState =
+              location.getExecutionInfoLocation().getExecutionState(execution.getId());
+          createExecutionViewer(location.getName(), execution, executionState);
         } else if (treeItem.getData("error") instanceof Exception) {
           Exception e = (Exception) treeItem.getData("error");
           new ErrorDialog(getShell(), "Error", "Location error:", e);
@@ -388,7 +390,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     }
   }
 
-  public void createExecutionViewer(String locationName, Execution execution) throws Exception {
+  public void createExecutionViewer(
+      String locationName, Execution execution, ExecutionState executionState) throws Exception {
     Cursor busyCursor = getBusyCursor();
 
     try {
@@ -418,7 +421,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
             PipelineMeta pipelineMeta = new PipelineMeta(pipelineNode, provider);
             PipelineExecutionViewer viewer =
                 new PipelineExecutionViewer(
-                    tabFolder, hopGui, pipelineMeta, locationName, this, execution);
+                    tabFolder, hopGui, pipelineMeta, locationName, this, execution, executionState);
             addViewer(viewer);
           }
           break;
@@ -429,7 +432,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
             WorkflowMeta workflowMeta = new WorkflowMeta(workflowNode, provider, variables);
             WorkflowExecutionViewer viewer =
                 new WorkflowExecutionViewer(
-                    tabFolder, hopGui, workflowMeta, locationName, this, execution);
+                    tabFolder, hopGui, workflowMeta, locationName, this, execution, executionState);
             addViewer(viewer);
           }
           break;
@@ -462,7 +465,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
       Execution execution = iLocation.findLastExecution(executionType, name);
-      createExecutionViewer(location.getName(), execution);
+      ExecutionState executionState = iLocation.getExecutionState(execution.getId());
+      createExecutionViewer(location.getName(), execution, executionState);
 
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error opening view on last execution information", e);

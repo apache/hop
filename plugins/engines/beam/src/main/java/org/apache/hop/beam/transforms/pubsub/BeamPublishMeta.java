@@ -106,8 +106,6 @@ public class BeamPublishMeta extends BaseTransformMeta<BeamPublish, BeamPublishD
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -132,9 +130,7 @@ public class BeamPublishMeta extends BaseTransformMeta<BeamPublish, BeamPublishD
             variables.resolve(topic),
             messageType,
             messageField,
-            JsonRowMeta.toJson(rowMeta),
-            transformPluginClasses,
-            xpPluginClasses);
+            JsonRowMeta.toJson(rowMeta));
 
     // Which transform do we apply this transform to?
     // Ignore info hops until we figure that out.

@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.HopMetadataObject;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataWrapper;
 import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
@@ -53,6 +54,11 @@ public class XmlMetadataUtil {
     Class<?> objectClass = object.getClass();
 
     String xml = "";
+
+    HopMetadataWrapper wrapper = objectClass.getAnnotation(HopMetadataWrapper.class);
+    if (wrapper!=null) {
+      xml+=XmlHandler.openTag(wrapper.tag());
+    }
 
     // Pick up all the fields with @HopMetadataProperty annotation, sorted by name.
     // Serialize them to XML.
@@ -100,6 +106,10 @@ public class XmlMetadataUtil {
           }
         }
       }
+    }
+
+    if (wrapper!=null) {
+      xml+=XmlHandler.closeTag(wrapper.tag());
     }
 
     return xml;
@@ -285,6 +295,11 @@ public class XmlMetadataUtil {
                 + " while de-serializing XML: make sure you have a public empty constructor for this class.",
             e);
       }
+    }
+
+    HopMetadataWrapper wrapper = clazz.getAnnotation(HopMetadataWrapper.class);
+    if (wrapper!=null) {
+      node=XmlHandler.getSubNode(node, wrapper.tag());
     }
 
     // Pick up all the @HopMetadataProperty annotations.

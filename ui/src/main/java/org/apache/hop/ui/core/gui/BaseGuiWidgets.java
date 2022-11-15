@@ -27,6 +27,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Listener;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -40,9 +41,15 @@ public class BaseGuiWidgets {
   protected String instanceId;
 
   /**
-   * For convenience, we remember the classname of the GUI plugin that creates and owns these widgets.
+   * For convenience, we remember the classname of the GUI plugin that creates and owns these
+   * widgets.
    */
   protected String guiPluginClassName;
+
+  /**
+   * The plugin object which is registered
+   */
+  protected Object guiPluginObject;
 
   public BaseGuiWidgets(String instanceId) {
     this.instanceId = instanceId;
@@ -50,12 +57,13 @@ public class BaseGuiWidgets {
 
   /**
    * Let the GUI plugin system know that there is no need to instantiate new objects for the given
-   * class. Instead, this object can be taken. Make sure to call dispose() to prevent a (slow) memory
-   * leak. Call this method before creating the widgets themselves.
+   * class. Instead, this object can be taken. Make sure to call dispose() to prevent a (slow)
+   * memory leak. Call this method before creating the widgets themselves.
    *
    * @param guiPluginObject
    */
   public void registerGuiPluginObject(Object guiPluginObject) {
+    this.guiPluginObject = guiPluginObject;
     GuiRegistry guiRegistry = GuiRegistry.getInstance();
     guiPluginClassName = guiPluginObject.getClass().getName();
     guiRegistry.registerGuiPluginObject(
@@ -74,8 +82,8 @@ public class BaseGuiWidgets {
     GuiRegistry.getInstance().removeGuiPluginObjects(hopGuiId, instanceId);
   }
 
-  protected static Object findGuiPluginInstance(ClassLoader classLoader, String listenerClassName, String instanceId)
-      throws Exception {
+  protected static Object findGuiPluginInstance(
+      ClassLoader classLoader, String listenerClassName, String instanceId) throws Exception {
     try {
       // This is the class that owns the listener method
       // It's a GuiPlugin class in other words
@@ -107,7 +115,8 @@ public class BaseGuiWidgets {
   protected String[] getComboItems(GuiToolbarItem toolbarItem) {
     try {
       Object singleton =
-          findGuiPluginInstance(toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), instanceId);
+          findGuiPluginInstance(
+              toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), instanceId);
       if (singleton == null) {
         LogChannel.UI.logError(
             "Could not get instance of class '"
@@ -183,26 +192,37 @@ public class BaseGuiWidgets {
     //
     return e -> {
       try {
-        Object singleton = findGuiPluginInstance(classLoader, listenerClassName, instanceId);
-        Method listenerMethod = singleton.getClass().getDeclaredMethod(listenerMethodName);
-        if (listenerMethod == null) {
-          throw new HopException(
-              "Unable to find method " + listenerMethodName + " in class " + listenerClassName);
-        }
+        // See if we can find a static method which accepts this instance as an argument.
+        // What's the registered GUI object we have?
+        //
         try {
-          listenerMethod.invoke(singleton);
-        } catch (Exception ie) {
-          System.err.println(
-              "Unable to call method "
-                  + listenerMethodName
-                  + " in class "
-                  + listenerClassName
-                  + " : "
-                  + ie.getMessage());
-          throw ie;
+          Class<?> listenerClass = classLoader.loadClass(listenerClassName);
+          Method listenerMethod =
+              listenerClass.getMethod(listenerMethodName, guiPluginObject.getClass());
+          listenerMethod.invoke(null, guiPluginObject);
+          return;
+        } catch (NoSuchMethodException
+            | ClassNotFoundException
+            | InvocationTargetException exception) {
+          // Ignore this and re-try with the standard empty method
+        } catch (Exception exception) {
+          // An exception thrown by the method itself
+          throw exception;
         }
-      } catch (Exception ex) {
-        ex.printStackTrace(System.err);
+
+        Object guiPluginInstance =
+                findGuiPluginInstance(classLoader, listenerClassName, instanceId);
+        Method listenerMethod = guiPluginInstance.getClass().getDeclaredMethod(listenerMethodName);
+        listenerMethod.invoke(guiPluginInstance);
+
+      } catch (Exception exception) {
+        LogChannel.UI.logError(
+            "Unable to call method "
+                + listenerMethodName
+                + " in class "
+                + listenerClassName
+                + " : "
+                + exception.getMessage());
       }
     };
   }
@@ -216,8 +236,46 @@ public class BaseGuiWidgets {
     return instanceId;
   }
 
-  /** @param instanceId The instanceId to set */
+  /**
+   * @param instanceId The instanceId to set
+   */
   public void setInstanceId(String instanceId) {
     this.instanceId = instanceId;
+  }
+
+  /**
+   * Gets guiPluginClassName
+   *
+   * @return value of guiPluginClassName
+   */
+  public String getGuiPluginClassName() {
+    return guiPluginClassName;
+  }
+
+  /**
+   * Sets guiPluginClassName
+   *
+   * @param guiPluginClassName value of guiPluginClassName
+   */
+  public void setGuiPluginClassName(String guiPluginClassName) {
+    this.guiPluginClassName = guiPluginClassName;
+  }
+
+  /**
+   * Gets guiPluginObject
+   *
+   * @return value of guiPluginObject
+   */
+  public Object getGuiPluginObject() {
+    return guiPluginObject;
+  }
+
+  /**
+   * Sets guiPluginObject
+   *
+   * @param guiPluginObject value of guiPluginObject
+   */
+  public void setGuiPluginObject(Object guiPluginObject) {
+    this.guiPluginObject = guiPluginObject;
   }
 }

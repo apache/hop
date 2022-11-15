@@ -119,8 +119,6 @@ public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputD
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -143,9 +141,7 @@ public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputD
             variables.resolve(datasetId),
             variables.resolve(tableId),
             variables.resolve(query),
-            JsonRowMeta.toJson(outputRowMeta),
-            transformPluginClasses,
-            xpPluginClasses);
+            JsonRowMeta.toJson(outputRowMeta));
     PCollection<HopRow> afterInput = pipeline.apply(beamInputTransform);
     transformCollectionMap.put(transformMeta.getName(), afterInput);
     log.logBasic("Handled transform (BQ INPUT) : " + transformMeta.getName());

@@ -34,12 +34,6 @@ public interface IBeamPipelineEngineRunConfiguration extends IPipelineEngineRunC
 
   String getTempLocation();
 
-  String getPluginsToStage();
-
-  String getTransformPluginClasses();
-
-  String getXpPluginClasses();
-
   String getStreamingHopTransformsFlushInterval();
 
   String getStreamingHopTransformsBufferSize();

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.hop.core.json.HopJson;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -41,7 +42,7 @@ public class ExecutionDataSetMetaDeserializer
     Map<String, Map<String, Object>> rawMap =
         (Map<String, Map<String, Object>>) deserializer.deserialize(parser, context);
     Map<String, ExecutionDataSetMeta> map = Collections.synchronizedMap(new HashMap<>());
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = HopJson.newMapper();
     for (String key : rawMap.keySet()) {
       Map<String, Object> rawMetaMap = rawMap.get(key);
       ExecutionDataSetMeta setMeta =

@@ -24,7 +24,8 @@ import org.apache.hop.core.logging.LogLevel;
 
 public interface HopPipelineExecutionOptions extends PipelineOptions {
 
-  @Description("The log level of local pipeline engine, one of NONE, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL")
+  @Description(
+      "The log level of local pipeline engine, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL")
   @Default.Enum("BASIC")
   LogLevel getLogLevel();
 

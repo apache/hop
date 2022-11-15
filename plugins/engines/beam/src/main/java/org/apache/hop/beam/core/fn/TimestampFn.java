@@ -44,8 +44,6 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
   private String rowMetaJson;
   private String fieldName;
   private final boolean getTimestamp;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   private transient Counter readCounter;
   private transient Counter writtenCounter;
@@ -63,15 +61,11 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
       String transformName,
       String rowMetaJson,
       String fieldName,
-      boolean getTimestamp,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      boolean getTimestamp) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
     this.fieldName = fieldName;
     this.getTimestamp = getTimestamp;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Setup
@@ -79,7 +73,7 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
     try {
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
 
       inputRowMeta = JsonRowMeta.fromJson(rowMetaJson);
 

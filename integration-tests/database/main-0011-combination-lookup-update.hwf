@@ -60,7 +60,7 @@ limitations under the License.
       <sendOneStatement>F</sendOneStatement>
       <connection>unit-test-db</connection>
       <parallel>N</parallel>
-      <xloc>208</xloc>
+      <xloc>176</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -82,7 +82,6 @@ limitations under the License.
       <loglevel>Basic</loglevel>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>

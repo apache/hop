@@ -59,8 +59,6 @@ public class BeamGroupByTransformHandler extends BeamBaseTransformHandler
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       Pipeline pipeline,
@@ -82,8 +80,6 @@ public class BeamGroupByTransformHandler extends BeamBaseTransformHandler
         new GroupByTransform(
             transformMeta.getName(),
             JsonRowMeta.toJson(rowMeta), // The io row
-            transformPluginClasses,
-            xpPluginClasses,
             meta.getGroupField(),
             meta.getSubjectField(),
             aggregates,

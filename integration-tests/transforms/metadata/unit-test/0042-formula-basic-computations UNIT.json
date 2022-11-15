@@ -33,6 +33,10 @@
         {
           "transform_field": "mixed_computation",
           "data_set_field": "mixed_computation"
+        },
+        {
+          "transform_field": "big_num_computation",
+          "data_set_field": "big_num_computation"
         }
       ],
       "field_order": [
@@ -44,15 +48,15 @@
         "eight",
         "mixed_computation"
       ],
-      "transform_name": "Verify",
-      "data_set_name": "golden-formula-basic-computations"
+      "data_set_name": "golden-formula-basic-computations",
+      "transform_name": "Verify"
     }
   ],
   "input_data_sets": [],
   "name": "0042-formula-basic-computations UNIT",
   "description": "",
-  "trans_test_tweaks": [],
   "persist_filename": "",
+  "trans_test_tweaks": [],
   "pipeline_filename": "./0042-formula-basic-computations.hpl",
   "test_type": "UNIT_TEST"
 }

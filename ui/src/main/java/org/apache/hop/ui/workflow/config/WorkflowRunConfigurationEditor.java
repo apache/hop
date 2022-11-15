@@ -179,7 +179,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     Label wlDefault = new Label(parent, SWT.RIGHT);
     PropsUi.setLook(wlDefault);
     wlDefault.setText(
-            BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.Default"));
+            BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.Default"));
     FormData fdlDefault = new FormData();
     fdlDefault.top = new FormAttachment(lastControl, margin * 2);
     fdlDefault.left = new FormAttachment(0, 0); // First one in the left top corner
@@ -261,8 +261,11 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     //
     wName.addListener(SWT.Modify, modifyListener);
     wDescription.addListener(SWT.Modify, modifyListener);
+    wDefault.addListener(SWT.Selection, modifyListener);
     wPluginType.addListener(SWT.Modify, modifyListener);
     wPluginType.addListener(SWT.Modify, e -> changeConnectionType());
+    wExecutionInfoLocation.getComboWidget().addListener(SWT.Modify, modifyListener);
+    wExecutionInfoLocation.getComboWidget().addListener(SWT.Selection, modifyListener);
   }
 
   private void addGuiCompositeWidgets() {

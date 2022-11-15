@@ -126,7 +126,7 @@ Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
                               default value is project-config.json
       -ph, --project-home=<projectHome>
                             The home directory of the project
-      -pl, -projects-list   List the defined projects
+      -pl, --projects-list   List the defined projects
       -pm, --project-modify Modify a project
       -pn, --projects-enabled
                             Enable or disable the projects plugin

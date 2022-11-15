@@ -51,8 +51,7 @@ Usage: <main class> [-k] [-gs] [-e=<environmentOption>] [-id=<id>]
   -k, --kill            Stop the running hopServer server.  This is only allowed
                           when using the hostname/port form of the command. Use the
                           -s and -u options to authenticate
-  -l, --level=<level>   The debug level, one of NONE, MINIMAL, BASIC, DETAILED,
-                          DEBUG, ROWLEVEL
+  -l, --level=<level>   The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
   -p, --password=<password>
                         The server password.  Required for administrative operations
                           only, not for starting the server.
@@ -280,10 +279,12 @@ Here is an example of the information to include in your server XML:
 
 Hop Server provides the `-l` or `--level` option to set a logging level for workflows and pipelines that run on the server.
 
-There are scenarios where you may want to see more detailed logging about the server itself. Since Hop Server runs on a Jetty server, you can increase the Jetty server logging by extending the `HOP_OPTIONS` variable near the end of `hop-server.sh` or `hop-server.bat`.
+There are scenarios where you may want to see more detailed logging about the server itself.
+Since Hop Server runs on a Jetty server, you can increase the Jetty server logging by extending the `HOP_OPTIONS` variable near the end of `hop-server.sh` or `hop-server.bat`.
 
 Original:
 [source,bash]
+
 ----
 "$_HOP_JAVA" ${HOP_OPTIONS} -Djava.library.path=$LIBPATH -classpath "${CLASSPATH}" org.apache.hop.www.HopServer "$@"
 EXITCODE=$?
@@ -291,6 +292,7 @@ EXITCODE=$?
 
 With DEBUG logging:
 [source,bash]
+
 ----
 "$_HOP_JAVA" ${HOP_OPTIONS} -Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StdErrLog -Dorg.eclipse.jetty.LEVEL=DEBUG -Djava.library.path=$LIBPATH -classpath "${CLASSPATH}" org.apache.hop.www.HopServer "$@"
 EXITCODE=$?
@@ -311,7 +313,6 @@ If applied correctly, your Hop Server starts producing _a lot_ of logging inform
 2022-07-15 14:18:00.303:DBUG:oejuc.ContainerLifeCycle:main: ContextHandlerCollection@74120029{STOPPED} added {o.e.j.s.ServletContextHandler@1a6df932{/,null,STOPPED},AUTO}
 2022-07-15 14:18:00.304:DBUG:oeju.DecoratedObjectFactory:main: Adding Decorator: org.eclipse.jetty.util.DeprecationWarning@48cbb4c5
 ----
-
 
 === Start Hop Server with docker
 

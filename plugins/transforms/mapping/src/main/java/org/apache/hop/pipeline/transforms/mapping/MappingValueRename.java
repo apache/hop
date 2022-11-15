@@ -17,9 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.mapping;
 
+import org.apache.hop.metadata.api.HopMetadataProperty;
+
 public class MappingValueRename implements Cloneable {
+  @HopMetadataProperty(key = "parent")
   private String sourceValueName;
+
+  @HopMetadataProperty(key = "child")
   private String targetValueName;
+
+  public MappingValueRename() {
+  }
 
   /**
    * @param sourceValueName
@@ -31,10 +39,14 @@ public class MappingValueRename implements Cloneable {
     this.targetValueName = targetValueName;
   }
 
+  public MappingValueRename(MappingValueRename rename) {
+    this.sourceValueName = rename.sourceValueName;
+    this.targetValueName = rename.targetValueName;
+  }
+
   @Override
-  public Object clone() throws CloneNotSupportedException {
-    // TODO Auto-generated method stub
-    return super.clone();
+  public MappingValueRename clone() {
+    return new MappingValueRename(this);
   }
 
   @Override
@@ -52,22 +64,30 @@ public class MappingValueRename implements Cloneable {
     return sourceValueName.hashCode();
   }
 
-  /** @return the sourceValueName */
+  /**
+   * @return the sourceValueName
+   */
   public String getSourceValueName() {
     return sourceValueName;
   }
 
-  /** @param sourceValueName the sourceValueName to set. If null set to empty String */
+  /**
+   * @param sourceValueName the sourceValueName to set. If null set to empty String
+   */
   public void setSourceValueName(String sourceValueName) {
     this.sourceValueName = sourceValueName == null ? "" : sourceValueName;
   }
 
-  /** @return the targetValueName */
+  /**
+   * @return the targetValueName
+   */
   public String getTargetValueName() {
     return targetValueName;
   }
 
-  /** @param targetValueName the targetValueName to set. If null set to empty String. */
+  /**
+   * @param targetValueName the targetValueName to set. If null set to empty String.
+   */
   public void setTargetValueName(String targetValueName) {
     this.targetValueName = targetValueName == null ? "" : targetValueName;
   }

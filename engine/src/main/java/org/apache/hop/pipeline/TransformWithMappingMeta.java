@@ -29,6 +29,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -42,23 +43,23 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME;
+import static org.apache.hop.core.Const.*;
 
-/**
- * This class is supposed to use in transforms where the mapping to sub pipelines takes place
- */
+/** This class is supposed to use in transforms where the mapping to sub pipelines takes place */
 public abstract class TransformWithMappingMeta<Main extends ITransform, Data extends ITransformData>
     extends BaseTransformMeta<Main, Data> {
 
   private static final Class<?> PKG = TransformWithMappingMeta.class; // For Translator
 
-  protected String filename;
+  @HopMetadataProperty protected String filename;
 
   public TransformWithMappingMeta() {
     super();
+  }
+
+  public TransformWithMappingMeta(TransformWithMappingMeta m) {
+    this();
+    this.filename = m.filename;
   }
 
   /**
@@ -215,17 +216,23 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     childNamedParams.activateParameters(childVariableSpace);
   }
 
-  /** @return the fileName */
+  /**
+   * @return the fileName
+   */
   public String getFilename() {
     return filename;
   }
 
-  /** @param filename the fileName to set */
+  /**
+   * @param filename the fileName to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
 
-  /** @param fileName the fileName to set */
+  /**
+   * @param fileName the fileName to set
+   */
   public void replaceFileName(String fileName) {
     this.filename = fileName;
   }
@@ -308,11 +315,14 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
   }
 
   private static boolean isInternalVariable(String variableName, String type) {
-    return type.equals("Pipeline")
-        ? isPipelineInternalVariable(variableName)
-        : type.equals("Workflow")
-            ? isWorkflowInternalVariable(variableName)
-            : isWorkflowInternalVariable(variableName) || isPipelineInternalVariable(variableName);
+    switch (type) {
+      case "Pipeline":
+        return isPipelineInternalVariable(variableName);
+      case "Workflow":
+        return isWorkflowInternalVariable(variableName);
+      default:
+        return isWorkflowInternalVariable(variableName) || isPipelineInternalVariable(variableName);
+    }
   }
 
   private static boolean isPipelineInternalVariable(String variableName) {

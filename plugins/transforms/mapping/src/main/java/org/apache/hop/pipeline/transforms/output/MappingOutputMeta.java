@@ -43,13 +43,16 @@ public class MappingOutputMeta extends BaseTransformMeta<MappingOutput, MappingO
   private static final Class<?> PKG = MappingOutputMeta.class; // For Translator
 
   public MappingOutputMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+  }
+
+  public MappingOutputMeta(MappingOutputMeta m) {
+    this();
   }
 
   @Override
-  public Object clone() {
-    MappingOutputMeta retval = new MappingOutputMeta();
-    return retval;
+  public MappingOutputMeta clone() {
+    return new MappingOutputMeta(this);
   }
 
   @Override

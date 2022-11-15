@@ -37,8 +37,6 @@ import java.util.List;
 public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
 
   private String inputRowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
   private String[] keyFields;
   private String[] valueFields;
   private String counterName;
@@ -56,14 +54,10 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
 
   public HopKeyValueFn(
       String inputRowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       String[] keyFields,
       String[] valueFields,
       String counterName) {
     this.inputRowMetaJson = inputRowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
     this.keyFields = keyFields;
     this.valueFields = valueFields;
     this.counterName = counterName;
@@ -77,7 +71,7 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
       IRowMeta inputRowMeta = JsonRowMeta.fromJson(inputRowMetaJson);
 
       // Calculate key indexes

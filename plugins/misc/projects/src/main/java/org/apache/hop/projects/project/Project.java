@@ -28,6 +28,7 @@ import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.IConfigFile;
 import org.apache.hop.core.config.plugin.ConfigFile;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
@@ -90,7 +91,7 @@ public class Project extends ConfigFile implements IConfigFile {
         file.getParent().createFolder();
       }
 
-      ObjectMapper objectMapper = new ObjectMapper();
+      ObjectMapper objectMapper = HopJson.newMapper();
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
       objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
@@ -104,7 +105,7 @@ public class Project extends ConfigFile implements IConfigFile {
 
   @Override
   public void readFromFile() throws HopException {
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = HopJson.newMapper();
     try (InputStream inputStream = HopVfs.getInputStream(configFilename)) {
       Project project = objectMapper.readValue(inputStream, Project.class);
 
@@ -306,7 +307,9 @@ public class Project extends ConfigFile implements IConfigFile {
     return configFilename;
   }
 
-  /** @param configFilename The configFilename to set */
+  /**
+   * @param configFilename The configFilename to set
+   */
   @Override
   public void setConfigFilename(String configFilename) {
     this.configFilename = configFilename;
@@ -321,7 +324,9 @@ public class Project extends ConfigFile implements IConfigFile {
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -335,7 +340,9 @@ public class Project extends ConfigFile implements IConfigFile {
     return company;
   }
 
-  /** @param company The company to set */
+  /**
+   * @param company The company to set
+   */
   public void setCompany(String company) {
     this.company = company;
   }
@@ -349,7 +356,9 @@ public class Project extends ConfigFile implements IConfigFile {
     return department;
   }
 
-  /** @param department The department to set */
+  /**
+   * @param department The department to set
+   */
   public void setDepartment(String department) {
     this.department = department;
   }
@@ -363,7 +372,9 @@ public class Project extends ConfigFile implements IConfigFile {
     return metadataBaseFolder;
   }
 
-  /** @param metadataBaseFolder The metadataBaseFolder to set */
+  /**
+   * @param metadataBaseFolder The metadataBaseFolder to set
+   */
   public void setMetadataBaseFolder(String metadataBaseFolder) {
     this.metadataBaseFolder = metadataBaseFolder;
   }
@@ -377,7 +388,9 @@ public class Project extends ConfigFile implements IConfigFile {
     return unitTestsBasePath;
   }
 
-  /** @param unitTestsBasePath The unitTestsBasePath to set */
+  /**
+   * @param unitTestsBasePath The unitTestsBasePath to set
+   */
   public void setUnitTestsBasePath(String unitTestsBasePath) {
     this.unitTestsBasePath = unitTestsBasePath;
   }
@@ -391,7 +404,9 @@ public class Project extends ConfigFile implements IConfigFile {
     return dataSetsCsvFolder;
   }
 
-  /** @param dataSetsCsvFolder The dataSetsCsvFolder to set */
+  /**
+   * @param dataSetsCsvFolder The dataSetsCsvFolder to set
+   */
   public void setDataSetsCsvFolder(String dataSetsCsvFolder) {
     this.dataSetsCsvFolder = dataSetsCsvFolder;
   }
@@ -405,7 +420,9 @@ public class Project extends ConfigFile implements IConfigFile {
     return enforcingExecutionInHome;
   }
 
-  /** @param enforcingExecutionInHome The enforcingExecutionInHome to set */
+  /**
+   * @param enforcingExecutionInHome The enforcingExecutionInHome to set
+   */
   public void setEnforcingExecutionInHome(boolean enforcingExecutionInHome) {
     this.enforcingExecutionInHome = enforcingExecutionInHome;
   }
@@ -419,7 +436,9 @@ public class Project extends ConfigFile implements IConfigFile {
     return parentProjectName;
   }
 
-  /** @param parentProjectName The parentProjectName to set */
+  /**
+   * @param parentProjectName The parentProjectName to set
+   */
   public void setParentProjectName(String parentProjectName) {
     this.parentProjectName = parentProjectName;
   }

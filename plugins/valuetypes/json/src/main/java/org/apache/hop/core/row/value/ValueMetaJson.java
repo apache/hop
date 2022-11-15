@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.LongNode;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
@@ -54,7 +55,7 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
 
   public String convertJsonToString(JsonNode jsonNode) throws HopValueException {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
+      ObjectMapper objectMapper = HopJson.newMapper();
       if (prettyPrinting) {
         return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode);
       } else {
@@ -67,7 +68,8 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
 
   public JsonNode convertStringToJson(String jsonString) throws HopValueException {
     try {
-      ObjectMapper objectMapper = JsonMapper.builder().enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES).build();      
+      ObjectMapper objectMapper =
+          JsonMapper.builder().enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES).build();
       return objectMapper.readTree(jsonString);
     } catch (Exception e) {
       throw new HopValueException("Error converting string to JSON value: '" + jsonString + "'", e);
@@ -400,7 +402,9 @@ public class ValueMetaJson extends ValueMetaBase implements IValueMeta {
     return prettyPrinting;
   }
 
-  /** @param prettyPrinting The prettyPrinting to set */
+  /**
+   * @param prettyPrinting The prettyPrinting to set
+   */
   public void setPrettyPrinting(boolean prettyPrinting) {
     this.prettyPrinting = prettyPrinting;
   }

@@ -36,11 +36,9 @@ import java.util.List;
 
 public class StringToHopFn extends DoFn<String, HopRow> {
 
-  private String transformName;
-  private String rowMetaJson;
-  private String separator;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
+  private final String transformName;
+  private final String rowMetaJson;
+  private final String separator;
 
   private transient Counter inputCounter;
   private transient Counter writtenCounter;
@@ -53,14 +51,10 @@ public class StringToHopFn extends DoFn<String, HopRow> {
   public StringToHopFn(
       String transformName,
       String rowMetaJson,
-      String separator,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String separator) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
     this.separator = separator;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Setup
@@ -71,7 +65,7 @@ public class StringToHopFn extends DoFn<String, HopRow> {
 
       // Initialize Hop Beam
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
       rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
       Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();

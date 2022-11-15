@@ -20,27 +20,29 @@ package org.apache.hop.neo4j.execution.path.base;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.neo4j.execution.path.PathResult;
 import org.apache.hop.neo4j.logging.util.LoggingCore;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.TreeMemory;
-import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
+import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.shared.BaseExecutionViewer;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
@@ -68,11 +70,29 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
     CTabItem lineageTab = new CTabItem(tabFolder, SWT.NONE);
     lineageTab.setFont(GuiResource.getInstance().getFontDefault());
     lineageTab.setImage(lineageImage);
-    lineageTab.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.PathError.Tab"));
-    wTree = new Tree(tabFolder, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+    lineageTab.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.Lineage.Tab"));
+
+    Composite tabComposite = new Composite(tabFolder, SWT.NONE);
+    lineageTab.setControl(tabComposite);
+    tabComposite.setLayout(new FormLayout());
+
+    Button wGo = new Button(tabComposite, SWT.PUSH);
+    wGo.setText(BaseMessages.getString("System.Button.Open"));
+    PropsUi.setLook(wGo);
+    wGo.addListener(SWT.Selection, e->openItem(wTree));
+    BaseTransformDialog.positionBottomButtons(
+        tabComposite, new Button[] {wGo}, PropsUi.getMargin(), null);
+
+    wTree = new Tree(tabComposite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     PropsUi.setLook(wTree);
+    FormData fdTree = new FormData();
+    fdTree.left = new FormAttachment(0, 0);
+    fdTree.top = new FormAttachment(0, 0);
+    fdTree.bottom = new FormAttachment(wGo, -PropsUi.getMargin());
+    fdTree.right = new FormAttachment(100, 0);
+    wTree.setLayoutData(fdTree);
+    wTree.addListener(SWT.DefaultSelection, e->openItem(wTree));
     wTree.setHeaderVisible(true);
-    lineageTab.setControl(wTree);
     {
       TreeColumn column = new TreeColumn(wTree, SWT.LEFT);
       column.setText("#");
@@ -127,7 +147,7 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
 
     // Populate the tree...
     //
-    String treeName = "Execution Lineage)";
+    String treeName = "Execution Lineage";
 
     for (int p = lineagePaths.size() - 1; p >= 0; p--) {
       List<PathResult> shortestPath = lineagePaths.get(p);
@@ -159,10 +179,11 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
       wTree.setSelection(firstItem);
     }
 
+    TreeUtil.setOptimalWidthOnColumns(wTree);
   }
 
   private String formatDate(Date registrationDate) {
-    if (registrationDate==null) {
+    if (registrationDate == null) {
       return "";
     }
     return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(registrationDate);
@@ -179,38 +200,43 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
       treeItem.dispose();
     }
 
-    // Now get the lineage to the error (if any)
-    //
+    if (viewer.getExecution().getParentId()==null) {
+      // There is no lineage since this is the parent
+    }
 
+    // Now get the lineage to the parent (if any)
+    //
     Map<String, Object> pathParams = new HashMap<>();
     pathParams.put("executionId", executionId);
-    String pathCypher = getPathToRootCypher(executionId);
+    String pathCypher = getPathToRootCypher();
 
-    getSession().readTransaction(
-        tx -> {
-          Result pathResult = tx.run(pathCypher, pathParams);
+    getSession()
+        .readTransaction(
+            tx -> {
+              Result pathResult = tx.run(pathCypher, pathParams);
 
-          while (pathResult.hasNext()) {
-            Record pathRecord = pathResult.next();
-            Value pathValue = pathRecord.get(0);
-            Path path = pathValue.asPath();
-            List<PathResult> shortestPath = new ArrayList<>();
-            for (Node node : path.nodes()) {
-              PathResult nodeResult = new PathResult();
-              nodeResult.setId(LoggingCore.getStringValue(node, "id"));
-              nodeResult.setName(LoggingCore.getStringValue(node, "name"));
-              nodeResult.setType(LoggingCore.getStringValue(node, "executionType"));
-              nodeResult.setFailed(LoggingCore.getBooleanValue(node, "failed"));
-              nodeResult.setRegistrationDate(LoggingCore.getDateValue(node, "registrationDate"));
-              nodeResult.setCopy(LoggingCore.getStringValue(node, "copyNr"));
+              while (pathResult.hasNext()) {
+                Record pathRecord = pathResult.next();
+                Value pathValue = pathRecord.get(0);
+                Path path = pathValue.asPath();
+                List<PathResult> shortestPath = new ArrayList<>();
+                for (Node node : path.nodes()) {
+                  PathResult nodeResult = new PathResult();
+                  nodeResult.setId(LoggingCore.getStringValue(node, "id"));
+                  nodeResult.setName(LoggingCore.getStringValue(node, "name"));
+                  nodeResult.setType(LoggingCore.getStringValue(node, "executionType"));
+                  nodeResult.setFailed(LoggingCore.getBooleanValue(node, "failed"));
+                  nodeResult.setRegistrationDate(
+                      LoggingCore.getDateValue(node, "registrationDate"));
+                  nodeResult.setCopy(LoggingCore.getStringValue(node, "copyNr"));
 
-              shortestPath.add(0, nodeResult);
-            }
-            shortestPaths.add(shortestPath);
-          }
-          //
-          return null;
-        });
+                  shortestPath.add(0, nodeResult);
+                }
+                shortestPaths.add(shortestPath);
+              }
+              //
+              return null;
+            });
 
     return shortestPaths;
   }

@@ -48,8 +48,6 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
   private String enclosure;
   private String rowMetaJson;
   private boolean windowed;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   // Log and count errors.
   private static final Logger LOG = LoggerFactory.getLogger(BeamOutputTransform.class);
@@ -65,9 +63,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
       String separator,
       String enclosure,
       boolean windowed,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     this.transformName = transformName;
     this.outputLocation = outputLocation;
     this.filePrefix = filePrefix;
@@ -76,8 +72,6 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     this.enclosure = enclosure;
     this.windowed = windowed;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Override
@@ -86,7 +80,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(transformPluginClasses, xpPluginClasses);
+      BeamHop.init();
 
       // Inflate the metadata on the node where this is running...
       //
@@ -104,9 +98,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
                       outputLocation,
                       separator,
                       enclosure,
-                      rowMetaJson,
-                      transformPluginClasses,
-                      xpPluginClasses)));
+                      rowMetaJson)));
 
       // We need to transform these lines into a file and then we're PDone
       //

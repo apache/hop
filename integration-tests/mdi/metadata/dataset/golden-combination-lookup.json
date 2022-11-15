@@ -1,0 +1,48 @@
+{
+  "base_filename": "golden-combination-lookup.csv",
+  "name": "golden-combination-lookup",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "ID",
+      "field_length": 15,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "ID",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "HASHCODE",
+      "field_length": 15,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "HASHCODE",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "A",
+      "field_length": 100,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "A",
+      "field_format": ""
+    },
+    {
+      "field_comment": "B",
+      "field_length": 100,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "B",
+      "field_format": ""
+    },
+    {
+      "field_comment": "C",
+      "field_length": 100,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "C",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

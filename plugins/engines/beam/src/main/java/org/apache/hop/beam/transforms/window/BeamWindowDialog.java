@@ -53,6 +53,9 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
   private TextVar wStartTimeField;
   private TextVar wEndTimeField;
   private TextVar wMaxTimeField;
+  private TextVar wAllowedLateness;
+  private Button wDiscardFiredPanes;
+  private Combo wTriggerType;
 
   public BeamWindowDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -202,6 +205,58 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
     wMaxTimeField.setLayoutData(fdMaxTimeField);
     lastControl = wMaxTimeField;
 
+    Label wlAllowedLateness = new Label(shell, SWT.RIGHT);
+    wlAllowedLateness.setText(BaseMessages.getString(PKG, "BeamWindowDialog.AllowedLateness"));
+    PropsUi.setLook(wlAllowedLateness);
+    FormData fdlAllowedLateness = new FormData();
+    fdlAllowedLateness.left = new FormAttachment(0, 0);
+    fdlAllowedLateness.top = new FormAttachment(lastControl, margin);
+    fdlAllowedLateness.right = new FormAttachment(middle, -margin);
+    wlAllowedLateness.setLayoutData(fdlAllowedLateness);
+    wAllowedLateness = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wAllowedLateness);
+    FormData fdAllowedLateness = new FormData();
+    fdAllowedLateness.left = new FormAttachment(middle, 0);
+    fdAllowedLateness.top = new FormAttachment(wlAllowedLateness, 0, SWT.CENTER);
+    fdAllowedLateness.right = new FormAttachment(100, 0);
+    wAllowedLateness.setLayoutData(fdAllowedLateness);
+    lastControl = wAllowedLateness;
+
+    Label wlDiscardFiredPanes = new Label(shell, SWT.RIGHT);
+    wlDiscardFiredPanes.setText(BaseMessages.getString(PKG, "BeamWindowDialog.DiscardFiredPanes"));
+    PropsUi.setLook(wlDiscardFiredPanes);
+    FormData fdlDiscardFiredPanes = new FormData();
+    fdlDiscardFiredPanes.left = new FormAttachment(0, 0);
+    fdlDiscardFiredPanes.top = new FormAttachment(lastControl, margin);
+    fdlDiscardFiredPanes.right = new FormAttachment(middle, -margin);
+    wlDiscardFiredPanes.setLayoutData(fdlDiscardFiredPanes);
+    wDiscardFiredPanes = new Button(shell, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wDiscardFiredPanes);
+    FormData fdDiscardFiredPanes = new FormData();
+    fdDiscardFiredPanes.left = new FormAttachment(middle, 0);
+    fdDiscardFiredPanes.top = new FormAttachment(wlDiscardFiredPanes, 0, SWT.CENTER);
+    fdDiscardFiredPanes.right = new FormAttachment(100, 0);
+    wDiscardFiredPanes.setLayoutData(fdDiscardFiredPanes);
+    lastControl = wlDiscardFiredPanes;
+
+    Label wlTriggerType = new Label(shell, SWT.RIGHT);
+    wlTriggerType.setText(BaseMessages.getString(PKG, "BeamWindowDialog.TriggerType"));
+    PropsUi.setLook(wlTriggerType);
+    FormData fdlTriggerType = new FormData();
+    fdlTriggerType.left = new FormAttachment(0, 0);
+    fdlTriggerType.top = new FormAttachment(lastControl, 2 * margin);
+    fdlTriggerType.right = new FormAttachment(middle, -margin);
+    wlTriggerType.setLayoutData(fdlTriggerType);
+    wTriggerType = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wTriggerType);
+    wTriggerType.setItems(WindowTriggerType.getDescriptions());
+    FormData fdTriggerType = new FormData();
+    fdTriggerType.left = new FormAttachment(middle, 0);
+    fdTriggerType.top = new FormAttachment(wlTriggerType, 0, SWT.CENTER);
+    fdTriggerType.right = new FormAttachment(100, 0);
+    wTriggerType.setLayoutData(fdTriggerType);
+    lastControl = wlTriggerType;
+
     // Buttons go at the very bottom
     //
     wOk = new Button(shell, SWT.PUSH);
@@ -229,7 +284,11 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
     wStartTimeField.setText(Const.NVL(input.getStartWindowField(), ""));
     wEndTimeField.setText(Const.NVL(input.getEndWindowField(), ""));
     wMaxTimeField.setText(Const.NVL(input.getMaxWindowField(), ""));
-
+    wAllowedLateness.setText(Const.NVL(input.getAllowedLateness(), ""));
+    wDiscardFiredPanes.setSelection(input.isDiscardingFiredPanes());
+    if (input.getTriggeringType() != null) {
+      wTriggerType.setText(input.getTriggeringType().getDescription());
+    }
     wTransformName.selectAll();
     wTransformName.setFocus();
   }
@@ -259,6 +318,9 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
     in.setStartWindowField(wStartTimeField.getText());
     in.setEndWindowField(wEndTimeField.getText());
     in.setMaxWindowField(wMaxTimeField.getText());
+    in.setAllowedLateness(wAllowedLateness.getText());
+    in.setDiscardingFiredPanes(wDiscardFiredPanes.getSelection());
+    in.setTriggeringType(WindowTriggerType.findDescription(wTriggerType.getText()));
 
     input.setChanged();
   }

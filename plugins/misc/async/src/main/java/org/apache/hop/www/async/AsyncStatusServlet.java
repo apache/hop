@@ -23,6 +23,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -149,7 +150,7 @@ public class AsyncStatusServlet extends BaseHttpServlet implements IHopServerPlu
       response.setCharacterEncoding(Const.XML_ENCODING);
       final OutputStream outputStream = response.getOutputStream();
 
-      ObjectMapper mapper = new ObjectMapper();
+      ObjectMapper mapper = HopJson.newMapper();
       String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(status);
 
       byte[] data = jsonString.getBytes(StandardCharsets.UTF_8);

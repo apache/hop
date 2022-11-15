@@ -162,8 +162,6 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
       String dataSamplersJson,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses,
       TransformMeta transformMeta,
       Map<String, PCollection<HopRow>> transformCollectionMap,
       org.apache.beam.sdk.Pipeline pipeline,
@@ -207,9 +205,7 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
             variables.resolve(getMessageType()),
             variables.resolve(getSchemaRegistryUrl()),
             variables.resolve(getSchemaRegistrySubject()),
-            JsonRowMeta.toJson(outputRowMeta),
-            transformPluginClasses,
-            xpPluginClasses);
+            JsonRowMeta.toJson(outputRowMeta));
     PCollection<HopRow> afterInput = pipeline.apply(beamInputTransform);
     transformCollectionMap.put(transformMeta.getName(), afterInput);
     log.logBasic("Handled transform (KAFKA INPUT) : " + transformMeta.getName());

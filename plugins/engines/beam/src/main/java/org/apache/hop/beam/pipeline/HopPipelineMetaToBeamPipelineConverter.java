@@ -17,7 +17,6 @@
 
 package org.apache.hop.beam.pipeline;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.beam.runners.dataflow.DataflowRunner;
 import org.apache.beam.runners.direct.DirectRunner;
 import org.apache.beam.runners.flink.FlinkRunner;
@@ -42,9 +41,8 @@ import org.apache.hop.beam.pipeline.handler.BeamMergeJoinTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamRowGeneratorTransformHandler;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.extension.ExtensionPoint;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
@@ -84,8 +82,6 @@ public class HopPipelineMetaToBeamPipelineConverter {
   protected PipelineMeta pipelineMeta;
   protected SerializableMetadataProvider metadataProvider;
   protected String metaStoreJson;
-  protected List<String> transformPluginClasses;
-  protected List<String> xpPluginClasses;
   protected Map<String, IBeamPipelineTransformHandler> transformHandlers;
   protected IBeamPipelineTransformHandler genericTransformHandler;
   protected IBeamPipelineEngineRunConfiguration pipelineRunConfiguration;
@@ -101,8 +97,6 @@ public class HopPipelineMetaToBeamPipelineConverter {
       List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers,
       String parentLogChannelId)
       throws HopException {
-    this.transformPluginClasses = new ArrayList<>();
-    this.xpPluginClasses = new ArrayList<>();
     this.transformHandlers = new HashMap<>();
 
     // Serialize the data samplers to JSON
@@ -124,12 +118,6 @@ public class HopPipelineMetaToBeamPipelineConverter {
     }
     this.pipelineRunConfiguration =
         (IBeamPipelineEngineRunConfiguration) runConfiguration.getEngineRunConfiguration();
-
-    addClassesFromPluginsToStage(pipelineRunConfiguration.getPluginsToStage());
-    this.transformPluginClasses.addAll(
-        splitPluginClasses(pipelineRunConfiguration.getTransformPluginClasses()));
-    this.xpPluginClasses.addAll(splitPluginClasses(pipelineRunConfiguration.getXpPluginClasses()));
-
     this.pipelineOptions = pipelineRunConfiguration.getPipelineOptions();
 
     try {
@@ -160,8 +148,6 @@ public class HopPipelineMetaToBeamPipelineConverter {
       List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers,
       String parentLogChannelId)
       throws HopException {
-    this.transformPluginClasses = new ArrayList<>();
-    this.xpPluginClasses = new ArrayList<>();
     this.transformHandlers = new HashMap<>();
 
     // Serialize the data samplers to JSON
@@ -205,7 +191,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
       List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers)
       throws HopException {
     try {
-      return new ObjectMapper().writeValueAsString(dataSamplers);
+      return HopJson.newMapper().writeValueAsString(dataSamplers);
     } catch (Exception e) {
       throw new HopException("Error serializing data samplers to JSON", e);
     }
@@ -217,22 +203,6 @@ public class HopPipelineMetaToBeamPipelineConverter {
       list.addAll(Arrays.asList(transformPluginClasses.split(",")));
     }
     return list;
-  }
-
-  public void addClassesFromPluginsToStage(String pluginsToStage) throws HopException {
-    // Find the plugins in the jar files in the plugin folders to stage...
-    //
-    if (StringUtils.isNotEmpty(pluginsToStage)) {
-      String[] pluginFolders = pluginsToStage.split(",");
-      // Scan only jar files with @Transform and @ExtensionPointPlugin annotations
-      for (String pluginFolder : pluginFolders) {
-        List<String> transformClasses =
-            findAnnotatedClasses(pluginFolder, Transform.class.getName());
-        transformPluginClasses.addAll(transformClasses);
-        List<String> xpClasses = findAnnotatedClasses(pluginFolder, ExtensionPoint.class.getName());
-        xpPluginClasses.addAll(xpClasses);
-      }
-    }
   }
 
   public void addDefaultTransformHandlers() {
@@ -415,8 +385,6 @@ public class HopPipelineMetaToBeamPipelineConverter {
           dataSamplersJson,
           metadataProvider,
           pipelineMeta,
-          transformPluginClasses,
-          xpPluginClasses,
           transformMeta,
           transformCollectionMap,
           pipeline,
@@ -489,8 +457,6 @@ public class HopPipelineMetaToBeamPipelineConverter {
           dataSamplersJson,
           metadataProvider,
           pipelineMeta,
-          transformPluginClasses,
-          xpPluginClasses,
           transformMeta,
           transformCollectionMap,
           pipeline,
@@ -634,8 +600,6 @@ public class HopPipelineMetaToBeamPipelineConverter {
             dataSamplersJson,
             metadataProvider,
             pipelineMeta,
-            transformPluginClasses,
-            xpPluginClasses,
             transformMeta,
             transformCollectionMap,
             pipeline,

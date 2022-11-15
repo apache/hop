@@ -29,5 +29,9 @@ public @interface HopMetadataObject {
   Class<? extends IHopMetadataObjectFactory> objectFactory() default
       HopMetadataDefaultObjectFactory.class;
 
+  /**
+   * @return The field which is the key for this object. Hop will use this key to create the
+   *     appropriate class instance of type with the provided object factory.
+   */
   String xmlKey() default "";
 }

@@ -26,6 +26,7 @@ import org.apache.hop.execution.ExecutionStateBuilder;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
+import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 
@@ -76,5 +77,12 @@ public class BeamDataFlowPipelineEngine extends BeamPipelineEngine
     }
 
     iLocation.updateExecutionState(executionState);
+
+    // Also update the state of the components
+    //
+    for (IEngineComponent component : getComponents()) {
+      ExecutionState transformState = ExecutionStateBuilder.fromTransform(this, component).build();
+      iLocation.updateExecutionState(transformState);
+    }
   }
 }

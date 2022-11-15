@@ -38,8 +38,6 @@ public class HopToBQTableRowFn implements SerializableFunction<HopRow, TableRow>
 
   private String counterName;
   private String rowMetaJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
 
   private transient IRowMeta rowMeta;
   private transient Counter initCounter;
@@ -54,13 +52,9 @@ public class HopToBQTableRowFn implements SerializableFunction<HopRow, TableRow>
 
   public HopToBQTableRowFn(
       String counterName,
-      String rowMetaJson,
-      List<String> transformPluginClasses,
-      List<String> xpPluginClasses) {
+      String rowMetaJson) {
     this.counterName = counterName;
     this.rowMetaJson = rowMetaJson;
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   @Override
@@ -74,7 +68,7 @@ public class HopToBQTableRowFn implements SerializableFunction<HopRow, TableRow>
 
         // Initialize Hop Beam
         //
-        BeamHop.init(transformPluginClasses, xpPluginClasses);
+        BeamHop.init();
         rowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
         simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");

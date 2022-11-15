@@ -217,6 +217,9 @@ public class HopLogStore {
     LoggingRegistry registry = LoggingRegistry.getInstance();
     MetricsRegistry metricsRegistry = MetricsRegistry.getInstance();
     List<String> ids = registry.getLogChannelChildren(parentLogChannelId);
+    if (ids==null) {
+      return;
+    }
 
     // Remove all the rows for these ids
     //

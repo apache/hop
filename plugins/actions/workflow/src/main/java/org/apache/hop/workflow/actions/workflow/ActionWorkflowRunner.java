@@ -53,12 +53,6 @@ public class ActionWorkflowRunner implements Runnable {
           || (workflow.getParentWorkflow() != null && workflow.getParentWorkflow().isStopped())) {
         return;
       }
-
-      if (workflow instanceof LocalWorkflowEngine) {
-        // We don't want to re-initialize the variables because we defined them already
-        //
-        ((LocalWorkflowEngine) workflow).setInitializingVariablesOnStart(false);
-      }
       result = workflow.startExecution();
     } finally {
       // Remember the result

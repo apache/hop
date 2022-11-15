@@ -1040,7 +1040,8 @@ public abstract class BeamPipelineEngine extends Variables
 
     // Also call an extension point in case plugins want to play along
     //
-    ExtensionPointHandler.callExtensionPoint(logChannel, this, HopExtensionPoint.PipelineCompleted.id, this);
+    ExtensionPointHandler.callExtensionPoint(
+        logChannel, this, HopExtensionPoint.PipelineCompleted.id, this);
   }
 
   @Override
@@ -1136,6 +1137,13 @@ public abstract class BeamPipelineEngine extends Variables
     ExecutionState executionState =
         ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1).build();
     iLocation.updateExecutionState(executionState);
+
+    // Also update the state of the components
+    //
+    for (IEngineComponent component : getComponents()) {
+      ExecutionState transformState = ExecutionStateBuilder.fromTransform(this, component).build();
+      iLocation.updateExecutionState(transformState);
+    }
   }
 
   @Override
@@ -1155,6 +1163,13 @@ public abstract class BeamPipelineEngine extends Variables
     ExecutionState executionState =
         ExecutionStateBuilder.fromExecutor(BeamPipelineEngine.this, -1).build();
     executionInfoLocation.getExecutionInfoLocation().updateExecutionState(executionState);
+
+    // Also update the state of the components
+    //
+    for (IEngineComponent component : getComponents()) {
+      ExecutionState transformState = ExecutionStateBuilder.fromTransform(this, component).build();
+      executionInfoLocation.getExecutionInfoLocation().updateExecutionState(transformState);
+    }
 
     // Close the location: close connections & temp files, empty memory structures.
     //

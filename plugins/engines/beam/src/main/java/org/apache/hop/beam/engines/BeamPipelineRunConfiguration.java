@@ -42,29 +42,6 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
   @HopMetadataProperty
   protected String tempLocation;
 
-  @GuiWidgetElement(
-      order = "90020-general-options",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.TEXT,
-      label = "Plugins to stage (, delimited)")
-  @HopMetadataProperty
-  protected String pluginsToStage;
-
-  @GuiWidgetElement(
-      order = "90030-general-options",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.TEXT,
-      label = "Transform plugin classes")
-  @HopMetadataProperty
-  protected String transformPluginClasses;
-
-  @GuiWidgetElement(
-      order = "90040-general-options",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.TEXT,
-      label = "XP plugin classes")
-  @HopMetadataProperty
-  protected String xpPluginClasses;
 
   @GuiWidgetElement(
       order = "90050-general-options",
@@ -105,9 +82,6 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     super(config);
     this.userAgent = config.userAgent;
     this.tempLocation = config.tempLocation;
-    this.pluginsToStage = config.pluginsToStage;
-    this.transformPluginClasses = config.transformPluginClasses;
-    this.xpPluginClasses = config.xpPluginClasses;
     this.streamingHopTransformsFlushInterval = config.streamingHopTransformsFlushInterval;
     this.streamingHopTransformsBufferSize = config.streamingHopTransformsBufferSize;
     this.fatJar = config.fatJar;
@@ -141,51 +115,6 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
   /** @param tempLocation The tempLocation to set */
   public void setTempLocation(String tempLocation) {
     this.tempLocation = tempLocation;
-  }
-
-  /**
-   * Gets pluginsToStage
-   *
-   * @return value of pluginsToStage
-   */
-  @Override
-  public String getPluginsToStage() {
-    return pluginsToStage;
-  }
-
-  /** @param pluginsToStage The pluginsToStage to set */
-  public void setPluginsToStage(String pluginsToStage) {
-    this.pluginsToStage = pluginsToStage;
-  }
-
-  /**
-   * Gets transformPluginClasses
-   *
-   * @return value of transformPluginClasses
-   */
-  @Override
-  public String getTransformPluginClasses() {
-    return transformPluginClasses;
-  }
-
-  /** @param transformPluginClasses The transformPluginClasses to set */
-  public void setTransformPluginClasses(String transformPluginClasses) {
-    this.transformPluginClasses = transformPluginClasses;
-  }
-
-  /**
-   * Gets xpPluginClasses
-   *
-   * @return value of xpPluginClasses
-   */
-  @Override
-  public String getXpPluginClasses() {
-    return xpPluginClasses;
-  }
-
-  /** @param xpPluginClasses The xpPluginClasses to set */
-  public void setXpPluginClasses(String xpPluginClasses) {
-    this.xpPluginClasses = xpPluginClasses;
   }
 
   /**
