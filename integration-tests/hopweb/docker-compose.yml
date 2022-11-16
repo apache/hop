@@ -15,23 +15,22 @@
 # specific language governing permissions and limitations
 # under the License.
 
-version: '3'
-
+version: '2.4'
 services:
     hopweb:
       image: apache/hop-web:Development
       container_name: hopweb
       ports:
         - "8080"
+
     hop-web-test:
       depends_on:
         - hopweb
-      build: &build-dev
+      build:
         context: ../../.
         dockerfile: integration-tests/hopweb/Dockerfile
       ports:
         - "4444"
-#      command: tail -f /dev/null
       volumes:
         - ./integration-tests/hopweb/target/surefire-reports:/surefire-reports:rw
       links:

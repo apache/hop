@@ -29,6 +29,10 @@ else
   exit 1
 fi
 
+ehco "Configuration file used for the tests:"
+echo "======================================"
+cat /home/hop/src/test/resources/hopwebtest.properties
+
 # run the Selenium Hop Web tests
 echo "Starting to run Hop Web UI tests"
 mvn test
