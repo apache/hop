@@ -85,8 +85,9 @@ pipeline {
                 }
             post {
                 always {
+                    sh "sleep 10"
                     sh "mkdir -p tmp/images"
-                    sh "cp integration-tests/hopweb/target/surefire-reports/images/* tmp/images/"
+                    fileOperations([fileCopyOperation(excludes: '', flattenFiles: false, includes: 'integration-tests/hopweb/**/*.png', targetLocation: 'tmp/images/')])
                     archiveArtifacts(artifacts: 'tmp/images/*.png')
                     junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
                 }
