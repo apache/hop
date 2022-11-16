@@ -19,8 +19,8 @@ FROM selenium/standalone-chrome
 
 RUN sudo useradd -s /bin/bash -m hop
 
-COPY src/ /home/hop/src/
-COPY pom.xml /home/hop/
+COPY integration-tests/hopweb/src/ /home/hop/src/
+COPY integration-tests/hopweb/pom.xml /home/hop/
 
 RUN sudo chown -R hop:hop /home/hop/
 RUN sudo mkdir /surefire-reports/ && sudo chown -R hop:hop /surefire-reports
