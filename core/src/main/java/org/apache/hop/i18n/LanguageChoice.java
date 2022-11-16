@@ -20,6 +20,7 @@ package org.apache.hop.i18n;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.StringUtil;
 
 import java.util.Locale;
 
@@ -35,6 +36,10 @@ public class LanguageChoice {
     if (defaultLocaleString == null) {
       defaultLocale = Locale.getDefault();
       // check if in language list and if beta language
+      if (!StringUtil.isEmpty(defaultLocale.getVariant())
+          || !StringUtil.isEmpty(defaultLocale.getScript())) {
+        defaultLocale = new Locale(defaultLocale.getLanguage(), defaultLocale.getCountry());
+      }
       int localeIdx = Const.indexOfString(defaultLocale.toString(), GlobalMessages.localeCodes);
       if (localeIdx < 0 || GlobalMessages.localeBetaStatus[localeIdx].equals("Y")) {
         // if not in language list or it is a beta language set to en-US
