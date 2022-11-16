@@ -33,4 +33,4 @@ services:
         - "4444:4444"
 #      command: tail -f /dev/null
       volumes:
-        - ./target/surefire-reports:/surefire-reports:rw
+        - ./integration-tests/hopweb/target/surefire-reports:/surefire-reports:rw
