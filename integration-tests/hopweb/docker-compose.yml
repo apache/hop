@@ -22,7 +22,7 @@ services:
       image: apache/hop-web:Development
       container_name: hopweb
       ports:
-        - "8081:8080"
+        - "8080"
     hop-web-test:
       depends_on:
         - hopweb
@@ -30,7 +30,9 @@ services:
         context: ../../.
         dockerfile: integration-tests/hopweb/Dockerfile
       ports:
-        - "4444:4444"
+        - "4444"
 #      command: tail -f /dev/null
       volumes:
         - ./integration-tests/hopweb/target/surefire-reports:/surefire-reports:rw
+      links:
+        - hopweb
