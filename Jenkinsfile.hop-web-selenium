@@ -79,9 +79,9 @@ pipeline {
         }
         stage('Run Selenium tests'){
             steps {
-                    sh "docker-compose -f integration-tests/hopweb/docker-compose.yaml build"
-                    sh "docker-compose -f integration-tests/hopweb/docker-compose.yaml up --abort-on-container-exit"
-                    sh "docker-compose -f integration-tests/hopweb/docker-compose.yaml down --rmi all --remove-orphans"
+                    sh "docker-compose -f integration-tests/hopweb/docker-compose.yml build"
+                    sh "docker-compose -f integration-tests/hopweb/docker-compose.yml up --abort-on-container-exit"
+                    sh "docker-compose -f integration-tests/hopweb/docker-compose.yml down --rmi all --remove-orphans"
                 }
             post {
                 always {
