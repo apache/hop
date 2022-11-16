@@ -85,7 +85,8 @@ pipeline {
                 }
             post {
                 always {
-                    sh "mkdir -p tmp/images && cp integration-tests/hopweb/target/surefire-reports/images/*.png tmp/images/"
+                    sh "mkdir -p tmp/images"
+                    sh "cp integration-tests/hopweb/target/surefire-reports/images/* tmp/images/"
                     archiveArtifacts(artifacts: 'tmp/images/*.png')
                     junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
                 }
