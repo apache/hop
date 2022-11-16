@@ -29,7 +29,7 @@ else
   exit 1
 fi
 
-ehco "Configuration file used for the tests:"
+echo "Configuration file used for the tests:"
 echo "======================================"
 cat /home/hop/src/test/resources/hopwebtest.properties
 
