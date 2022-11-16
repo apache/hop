@@ -85,7 +85,8 @@ pipeline {
                 }
             post {
                 always {
-                    archiveArtifacts(artifacts: 'integration-tests/**/surefire-reports/images/*.png', fingerprint: true)
+                    sh "sleep 10"
+                    archiveArtifacts(artifacts: 'integration-tests/**/surefire-reports/images/*.png')
                     junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
                 }
             }
