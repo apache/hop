@@ -27,7 +27,8 @@ services:
       depends_on:
         - hopweb
       build: &build-dev
-        dockerfile: ./Dockerfile
+        context: ../../.
+        dockerfile: integration-tests/hopweb/Dockerfile
       ports:
         - "4444:4444"
 #      command: tail -f /dev/null
