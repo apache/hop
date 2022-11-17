@@ -17,35 +17,39 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
+import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.transforms.PTransform;
+import org.apache.beam.sdk.values.PCollection;
+import org.apache.hop.beam.core.BeamHop;
+import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
+import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
+import org.apache.hop.pipeline.transforms.memgroupby.beam.GroupByTransform;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-@InjectionSupported(
-    localizationPrefix = "MemoryGroupBy.Injection.",
-    groups = {"FIELDS", "AGGREGATES"})
 @Transform(
     id = "MemoryGroupBy",
     image = "memorygroupby.svg",
@@ -55,294 +59,49 @@ import java.util.List;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     keywords = "i18n::MemoryGroupByMeta.keyword",
     documentationUrl = "/pipeline/transforms/memgroupby.html")
-public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGroupByData> {
+public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGroupByData>
+    implements IBeamPipelineTransformHandler {
   private static final Class<?> PKG = MemoryGroupByMeta.class; // For Translator
 
-  public static final int TYPE_GROUP_NONE = 0;
-
-  public static final int TYPE_GROUP_SUM = 1;
-
-  public static final int TYPE_GROUP_AVERAGE = 2;
-
-  public static final int TYPE_GROUP_MEDIAN = 3;
-
-  public static final int TYPE_GROUP_PERCENTILE = 4;
-
-  public static final int TYPE_GROUP_MIN = 5;
-
-  public static final int TYPE_GROUP_MAX = 6;
-
-  public static final int TYPE_GROUP_COUNT_ALL = 7;
-
-  public static final int TYPE_GROUP_CONCAT_COMMA = 8;
-
-  public static final int TYPE_GROUP_FIRST = 9;
-
-  public static final int TYPE_GROUP_LAST = 10;
-
-  public static final int TYPE_GROUP_FIRST_INCL_NULL = 11;
-
-  public static final int TYPE_GROUP_LAST_INCL_NULL = 12;
-
-  public static final int TYPE_GROUP_STANDARD_DEVIATION = 13;
-
-  public static final int TYPE_GROUP_CONCAT_STRING = 14;
-
-  public static final int TYPE_GROUP_COUNT_DISTINCT = 15;
-
-  public static final int TYPE_GROUP_COUNT_ANY = 16;
-  
-  public static final int TYPE_GROUP_CONCAT_DISTINCT = 17;
-
-  public static final String[]
-      typeGroupCode = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */ {
-    "-",
-    "SUM",
-    "AVERAGE",
-    "MEDIAN",
-    "PERCENTILE",
-    "MIN",
-    "MAX",
-    "COUNT_ALL",
-    "CONCAT_COMMA",
-    "FIRST",
-    "LAST",
-    "FIRST_INCL_NULL",
-    "LAST_INCL_NULL",
-    "STD_DEV",
-    "CONCAT_STRING",
-    "COUNT_DISTINCT",
-    "COUNT_ANY",
-    "CONCAT_DISTINCT",
-  };
-
-  public static final String[] typeGroupLongDesc = {
-    "-",
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.SUM"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.AVERAGE"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.MEDIAN"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.PERCENTILE"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.MIN"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.MAX"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.CONCAT_ALL"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.CONCAT_COMMA"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.FIRST"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.LAST"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.FIRST_INCL_NULL"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.LAST_INCL_NULL"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.STANDARD_DEVIATION"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.CONCAT_STRING"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.COUNT_DISTINCT"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.COUNT_ANY"),
-    BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.CONCAT_DISTINCT"),
-  };
-
-  @Injection(name = "GROUPFIELD", group = "FIELDS")
   /** Fields to group over */
-  private String[] groupField;
+  @HopMetadataProperty(groupKey = "group", key = "field")
+  private List<GGroup> groups;
 
-  @Injection(name = "AGGREGATEFIELD", group = "AGGREGATES")
-  /** Name of aggregate field */
-  private String[] aggregateField;
+  @HopMetadataProperty(
+      groupKey = "fields",
+      key = "field",
+      injectionGroupKey = "AGGREGATES",
+      injectionGroupDescription = "MemoryGroupBy.Injection.AGGREGATES",
+      injectionKey = "AGGREGATEFIELD",
+      injectionKeyDescription = "MemoryGroupBy.Injection.AGGREGATEFIELD")
+  private List<GAggregate> aggregates;
 
-  @Injection(name = "SUBJECTFIELD", group = "AGGREGATES")
-  /** Field name to group over */
-  private String[] subjectField;
-
-  @Injection(name = "AGGREGATETYPE", group = "AGGREGATES")
-  /** Type of aggregate */
-  private int[] aggregateType;
-
-  @Injection(name = "VALUEFIELD", group = "AGGREGATES")
-  /** Value to use as separator for ex */
-  private String[] valueField;
-
-  @Injection(name = "ALWAYSGIVINGBACKONEROW", group = "FIELDS")
   /** Flag to indicate that we always give back one row. Defaults to true for existing pipelines. */
+  @HopMetadataProperty(
+      key = "give_back_row",
+      injectionKey = "ALWAYSGIVINGBACKONEROW",
+      injectionKeyDescription = "MemoryGroupBy.Injection.ALWAYSGIVINGBACKONEROW")
   private boolean alwaysGivingBackOneRow;
 
   public MemoryGroupByMeta() {
-    super(); // allocate BaseTransformMeta
+    this.groups = new ArrayList<>();
+    this.aggregates = new ArrayList<>();
   }
 
-  /**
-   * @return Returns the aggregateField.
-   */
-  public String[] getAggregateField() {
-    return aggregateField;
-  }
-
-  /**
-   * @param aggregateField The aggregateField to set.
-   */
-  public void setAggregateField(String[] aggregateField) {
-    this.aggregateField = aggregateField;
-  }
-
-  /**
-   * @return Returns the aggregateType.
-   */
-  public int[] getAggregateType() {
-    return aggregateType;
-  }
-
-  /**
-   * @param aggregateType The aggregateType to set.
-   */
-  public void setAggregateType(int[] aggregateType) {
-    this.aggregateType = aggregateType;
-  }
-
-  /**
-   * @return Returns the groupField.
-   */
-  public String[] getGroupField() {
-    return groupField;
-  }
-
-  /**
-   * @param groupField The groupField to set.
-   */
-  public void setGroupField(String[] groupField) {
-    this.groupField = groupField;
-  }
-
-  /**
-   * @return Returns the subjectField.
-   */
-  public String[] getSubjectField() {
-    return subjectField;
-  }
-
-  /**
-   * @param subjectField The subjectField to set.
-   */
-  public void setSubjectField(String[] subjectField) {
-    this.subjectField = subjectField;
-  }
-
-  /**
-   * @return Returns the valueField.
-   */
-  public String[] getValueField() {
-    return valueField;
-  }
-
-  /**
-   * @param valueField The valueField to set.
-   */
-  public void setValueField(String[] valueField) {
-    this.valueField = valueField;
+  public MemoryGroupByMeta(MemoryGroupByMeta meta) {
+    this();
+    for (GGroup group : meta.groups) {
+      groups.add(new GGroup(group));
+    }
+    for (GAggregate aggregate : meta.aggregates) {
+      aggregates.add(new GAggregate(aggregate));
+    }
+    this.alwaysGivingBackOneRow = meta.alwaysGivingBackOneRow;
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  public void allocate(int sizegroup, int nrFields) {
-    groupField = new String[sizegroup];
-    aggregateField = new String[nrFields];
-    subjectField = new String[nrFields];
-    aggregateType = new int[nrFields];
-    valueField = new String[nrFields];
-  }
-
-  @Override
-  public Object clone() {
-    MemoryGroupByMeta retval = (MemoryGroupByMeta) super.clone();
-    int nrFields = aggregateField.length;
-    int nrGroups = groupField.length;
-
-    retval.allocate(nrGroups, nrFields);
-    System.arraycopy(groupField, 0, retval.groupField, 0, nrGroups);
-    System.arraycopy(aggregateField, 0, retval.aggregateField, 0, nrFields);
-    System.arraycopy(subjectField, 0, retval.subjectField, 0, nrFields);
-    System.arraycopy(aggregateType, 0, retval.aggregateType, 0, nrFields);
-    System.arraycopy(valueField, 0, retval.valueField, 0, nrFields);
-    return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      Node groupn = XmlHandler.getSubNode(transformNode, "group");
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-
-      int sizegroup = XmlHandler.countNodes(groupn, "field");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      allocate(sizegroup, nrFields);
-
-      for (int i = 0; i < sizegroup; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(groupn, "field", i);
-        groupField[i] = XmlHandler.getTagValue(fnode, "name");
-      }
-
-      boolean hasNumberOfValues = false;
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        aggregateField[i] = XmlHandler.getTagValue(fnode, "aggregate");
-        subjectField[i] = XmlHandler.getTagValue(fnode, "subject");
-        aggregateType[i] = getType(XmlHandler.getTagValue(fnode, "type"));
-
-        if (aggregateType[i] == TYPE_GROUP_COUNT_ALL
-            || aggregateType[i] == TYPE_GROUP_COUNT_DISTINCT
-            || aggregateType[i] == TYPE_GROUP_COUNT_ANY) {
-          hasNumberOfValues = true;
-        }
-
-        valueField[i] = XmlHandler.getTagValue(fnode, "valuefield");
-      }
-
-      String giveBackRow = XmlHandler.getTagValue(transformNode, "give_back_row");
-      if (Utils.isEmpty(giveBackRow)) {
-        alwaysGivingBackOneRow = hasNumberOfValues;
-      } else {
-        alwaysGivingBackOneRow = "Y".equalsIgnoreCase(giveBackRow);
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "MemoryGroupByMeta.Exception.UnableToLoadTransformMetaFromXML"),
-          e);
-    }
-  }
-
-  public static final int getType(String desc) {
-    for (int i = 0; i < typeGroupCode.length; i++) {
-      if (typeGroupCode[i].equalsIgnoreCase(desc)) {
-        return i;
-      }
-    }
-    for (int i = 0; i < typeGroupLongDesc.length; i++) {
-      if (typeGroupLongDesc[i].equalsIgnoreCase(desc)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  public static final String getTypeDesc(int i) {
-    if (i < 0 || i >= typeGroupCode.length) {
-      return null;
-    }
-    return typeGroupCode[i];
-  }
-
-  public static final String getTypeDescLong(int i) {
-    if (i < 0 || i >= typeGroupLongDesc.length) {
-      return null;
-    }
-    return typeGroupLongDesc[i];
-  }
-
-  @Override
-  public void setDefault() {
-    int sizegroup = 0;
-    int nrFields = 0;
-
-    allocate(sizegroup, nrFields);
+  public MemoryGroupByMeta clone() {
+    return new MemoryGroupByMeta(this);
   }
 
   @Override
@@ -360,8 +119,8 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
 
     // Add the grouping fields in the correct order...
     //
-    for (int i = 0; i < groupField.length; i++) {
-      IValueMeta valueMeta = r.searchValueMeta(groupField[i]);
+    for (GGroup group : groups) {
+      IValueMeta valueMeta = r.searchValueMeta(group.getField());
       if (valueMeta != null) {
         valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
         fields.addValueMeta(valueMeta);
@@ -370,59 +129,57 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
 
     // Re-add aggregates
     //
-    for (int i = 0; i < subjectField.length; i++) {
-      IValueMeta subj = r.searchValueMeta(subjectField[i]);
-      if (subj != null || aggregateType[i] == TYPE_GROUP_COUNT_ANY) {
-        String valueName = aggregateField[i];
+    for (GAggregate aggregate : aggregates) {
+      IValueMeta subj = r.searchValueMeta(aggregate.getSubject());
+      if (subj != null || aggregate.getType() == GroupType.CountAny) {
+        String valueName = aggregate.getField();
         int valueType = IValueMeta.TYPE_NONE;
         int length = -1;
         int precision = -1;
 
-        switch (aggregateType[i]) {
-          case TYPE_GROUP_FIRST:
-          case TYPE_GROUP_LAST:
-          case TYPE_GROUP_FIRST_INCL_NULL:
-          case TYPE_GROUP_LAST_INCL_NULL:
-          case TYPE_GROUP_MIN:
-          case TYPE_GROUP_MAX:
+        switch (aggregate.getType()) {
+          case First:
+          case Last:
+          case FirstIncludingNull:
+          case LastIncludingNull:
+          case Minimum:
+          case Maximum:
             valueType = subj.getType();
             break;
-          case TYPE_GROUP_COUNT_DISTINCT:
-          case TYPE_GROUP_COUNT_ALL:
-          case TYPE_GROUP_COUNT_ANY:
+          case CountDistinct:
+          case CountAll:
+          case CountAny:
             valueType = IValueMeta.TYPE_INTEGER;
             break;
-          case TYPE_GROUP_SUM:
-          case TYPE_GROUP_AVERAGE:
+          case Sum:
+          case Average:
             if (subj.isNumeric()) {
               valueType = subj.getType();
             } else {
               valueType = IValueMeta.TYPE_NUMBER;
             }
             break;
-          case TYPE_GROUP_MEDIAN:
-          case TYPE_GROUP_PERCENTILE:
-          case TYPE_GROUP_STANDARD_DEVIATION:
+          case Median:
+          case Percentile:
+          case StandardDeviation:
             valueType = IValueMeta.TYPE_NUMBER;
             break;
-          case TYPE_GROUP_CONCAT_COMMA:
-          case TYPE_GROUP_CONCAT_STRING:
-          case TYPE_GROUP_CONCAT_DISTINCT:
+          case ConcatComma:
+          case ConcatString:
+          case ConcatDistinct:
             valueType = IValueMeta.TYPE_STRING;
             break;
           default:
             break;
         }
 
-        if (aggregateType[i] == TYPE_GROUP_SUM
+        if (aggregate.getType() == GroupType.Sum
             && valueType != IValueMeta.TYPE_INTEGER
             && valueType != IValueMeta.TYPE_NUMBER
             && valueType != IValueMeta.TYPE_BIGNUMBER) {
           // If it ain't numeric, we change it to Number
           //
           valueType = IValueMeta.TYPE_NUMBER;
-          precision = -1;
-          length = -1;
         }
 
         if (valueType != IValueMeta.TYPE_NONE) {
@@ -456,36 +213,6 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(500);
-
-    retval.append("      ").append(XmlHandler.addTagValue("give_back_row", alwaysGivingBackOneRow));
-
-    retval.append("      <group>").append(Const.CR);
-    for (int i = 0; i < groupField.length; i++) {
-      retval.append("        <field>").append(Const.CR);
-      retval.append("          ").append(XmlHandler.addTagValue("name", groupField[i]));
-      retval.append("        </field>").append(Const.CR);
-    }
-    retval.append("      </group>").append(Const.CR);
-
-    retval.append("      <fields>").append(Const.CR);
-    for (int i = 0; i < subjectField.length; i++) {
-      retval.append("        <field>").append(Const.CR);
-      retval.append("          ").append(XmlHandler.addTagValue("aggregate", aggregateField[i]));
-      retval.append("          ").append(XmlHandler.addTagValue("subject", subjectField[i]));
-      retval
-          .append("          ")
-          .append(XmlHandler.addTagValue("type", getTypeDesc(aggregateType[i])));
-      retval.append("          ").append(XmlHandler.addTagValue("valuefield", valueField[i]));
-      retval.append("        </field>").append(Const.CR);
-    }
-    retval.append("      </fields>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -515,6 +242,221 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
     }
   }
 
+  @Override
+  public boolean isInput() {
+    return false;
+  }
+
+  @Override
+  public boolean isOutput() {
+    return false;
+  }
+
+  /**
+   * Handle the transform in a Beam pipeline
+   *
+   * @param log
+   * @param variables
+   * @param runConfigurationName
+   * @param runConfiguration
+   * @param dataSamplersJson
+   * @param metadataProvider
+   * @param pipelineMeta
+   * @param transformMeta
+   * @param transformCollectionMap
+   * @param pipeline
+   * @param rowMeta
+   * @param previousTransforms
+   * @param input
+   * @param parentLogChannelId
+   * @throws HopException
+   */
+  @Override
+  public void handleTransform(
+      ILogChannel log,
+      IVariables variables,
+      String runConfigurationName,
+      IBeamPipelineEngineRunConfiguration runConfiguration,
+      String dataSamplersJson,
+      IHopMetadataProvider metadataProvider,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      Map<String, PCollection<HopRow>> transformCollectionMap,
+      Pipeline pipeline,
+      IRowMeta rowMeta,
+      List<TransformMeta> previousTransforms,
+      PCollection<HopRow> input,
+      String parentLogChannelId)
+      throws HopException {
+
+    MemoryGroupByMeta meta = new MemoryGroupByMeta();
+    BeamHop.loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
+
+    String[] subjectFields = new String[meta.getAggregates().size()];
+    String[] aggregateCodes = new String[meta.getAggregates().size()];
+
+    for (int i = 0; i < meta.getAggregates().size(); i++) {
+      GAggregate aggregate = meta.getAggregates().get(i);
+
+      aggregateCodes[i] = aggregate.getType().getCode();
+      subjectFields[i] = aggregate.getSubject();
+    }
+
+    List<String> groups = new ArrayList<>();
+    meta.getGroups().forEach(group -> groups.add(group.getField()));
+
+    PTransform<PCollection<HopRow>, PCollection<HopRow>> groupByTransform =
+        new GroupByTransform(
+            transformMeta.getName(),
+            JsonRowMeta.toJson(rowMeta), // The io row
+            groups.toArray(new String[0]),
+            subjectFields,
+            aggregateCodes,
+            new String[] {});
+
+    // Apply the transform to the previous io transform PCollection(s)
+    //
+    PCollection<HopRow> transformPCollection =
+        input.apply(transformMeta.getName(), groupByTransform);
+
+    // Save this in the map
+    //
+    transformCollectionMap.put(transformMeta.getName(), transformPCollection);
+    log.logBasic(
+        "Handled Group By (TRANSFORM) : "
+            + transformMeta.getName()
+            + ", gets data from "
+            + previousTransforms.size()
+            + " previous transform(s)");
+  }
+
+  public enum GroupType implements IEnumHasCode {
+    None("-", "-"),
+    Sum("SUM", BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.SUM")),
+    Average("AVERAGE", BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.AVERAGE")),
+    Median("MEDIAN", BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.MEDIAN")),
+    Percentile(
+        "PERCENTILE",
+        BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.PERCENTILE")),
+    Minimum("MIN", BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.MIN")),
+    Maximum("MAX", BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.MAX")),
+    CountAll(
+        "COUNT_ALL", BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.CONCAT_ALL")),
+    ConcatComma(
+        "CONCAT_COMMA",
+        BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.CONCAT_COMMA")),
+    First("FIRST", BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.FIRST")),
+    Last("LAST", BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.LAST")),
+    FirstIncludingNull(
+        "FIRST_INCL_NULL",
+        BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.FIRST_INCL_NULL")),
+    LastIncludingNull(
+        "LAST_INCL_NULL",
+        BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.LAST_INCL_NULL")),
+    StandardDeviation(
+        "STD_DEV",
+        BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.STANDARD_DEVIATION")),
+    ConcatString(
+        "CONCAT_STRING",
+        BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.CONCAT_STRING")),
+    CountDistinct(
+        "COUNT_DISTINCT",
+        BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.COUNT_DISTINCT")),
+    CountAny(
+        "COUNT_ANY", BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.COUNT_ANY")),
+    ConcatDistinct(
+        "CONCAT_DISTINCT",
+        BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.CONCAT_DISTINCT"));
+
+    private String code;
+    private String description;
+
+    private GroupType(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
+
+    public static String[] getDescriptions() {
+      String[] descriptions = new String[values().length];
+      for (int i = 0; i < values().length; i++) {
+        descriptions[i] = values()[i].getDescription();
+      }
+      return descriptions;
+    }
+
+    public static GroupType getTypeWithDescription(String description) {
+      for (GroupType value : values()) {
+        if (value.getDescription().equalsIgnoreCase(description)) {
+          return value;
+        }
+      }
+      return None;
+    }
+
+    public static GroupType getTypeWithCode(String code) {
+      for (GroupType value : values()) {
+        if (value.getCode().equalsIgnoreCase(code)) {
+          return value;
+        }
+      }
+      return None;
+    }
+
+    /**
+     * Gets code
+     *
+     * @return value of code
+     */
+    public String getCode() {
+      return code;
+    }
+
+    /**
+     * Gets description
+     *
+     * @return value of description
+     */
+    public String getDescription() {
+      return description;
+    }
+  }
+
+  /**
+   * Gets groups
+   *
+   * @return value of groups
+   */
+  public List<GGroup> getGroups() {
+    return groups;
+  }
+
+  /**
+   * Sets groups
+   *
+   * @param groups value of groups
+   */
+  public void setGroups(List<GGroup> groups) {
+    this.groups = groups;
+  }
+
+  /**
+   * Gets aggregates
+   *
+   * @return value of aggregates
+   */
+  public List<GAggregate> getAggregates() {
+    return aggregates;
+  }
+
+  /**
+   * Sets aggregates
+   *
+   * @param aggregates value of aggregates
+   */
+  public void setAggregates(List<GAggregate> aggregates) {
+    this.aggregates = aggregates;
+  }
+
   /**
    * @return the alwaysGivingBackOneRow
    */
@@ -527,23 +469,5 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
    */
   public void setAlwaysGivingBackOneRow(boolean alwaysGivingBackOneRow) {
     this.alwaysGivingBackOneRow = alwaysGivingBackOneRow;
-  }
-
-  /**
-   * If we use injection we can have different arrays lengths. We need synchronize them for
-   * consistency behavior with UI
-   */
-  @AfterInjection
-  public void afterInjectionSynchronization() {
-    int nrFields = (subjectField == null ? -1 : subjectField.length);
-    if (nrFields <= 0) {
-      return;
-    }
-    String[][] normalizedStringArrays = Utils.normalizeArrays(nrFields, aggregateField, valueField);
-    aggregateField = normalizedStringArrays[0];
-    valueField = normalizedStringArrays[1];
-
-    int[][] normalizedIntArrays = Utils.normalizeArrays(nrFields, aggregateType);
-    aggregateType = normalizedIntArrays[0];
   }
 }

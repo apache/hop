@@ -56,17 +56,17 @@
                 <include>com.google.code.findbugs:jsr305:jar</include>
                 <include>com.google.protobuf:protobuf-java:jar</include>
                 <include>commons-collections:commons-collections:jar</include>
-                <include>io.netty:netty:jar</include>
                 <include>javax.xml.bind:jaxb-api:jar</include>
                 <include>org.apache.curator:curator-client:jar</include>
                 <include>org.apache.curator:curator-framework:jar</include>
                 <include>org.apache.curator:curator-recipes:jar</include>
-                <include>org.apache.hadoop:hadoop-annotations:jar</include>
+                <!--<include>org.apache.hadoop:hadoop-annotations:jar</include>-->
                 <include>org.apache.hadoop:hadoop-auth:jar</include>
                 <include>org.apache.hadoop:hadoop-client:jar</include>
-                <include>org.apache.hadoop:hadoop-common:jar</include>
+                <include>org.apache.hadoop:hadoop-client-api:jar</include>
+                <include>org.apache.hadoop:hadoop-client-runtime:jar</include>
                 <include>org.apache.hadoop:hadoop-mapreduce-client-common:jar</include>
-                <include>org.apache.hadoop:hadoop-mapreduce-client-core:jar</include>
+                <!--<include>org.apache.hadoop:hadoop-mapreduce-client-core:jar</include>-->
                 <include>org.apache.hadoop:hadoop-mapreduce-client-jobclient:jar</include>
                 <include>org.apache.hadoop:hadoop-yarn-api:jar</include>
                 <include>org.apache.hadoop:hadoop-yarn-client:jar</include>
@@ -81,10 +81,8 @@
                 <include>org.apache.yetus:audience-annotations:jar</include>
                 <include>org.apache.zookeeper:zookeeper:jar</include>
                 <include>org.codehaus.jackson:jackson-core-asl:jar</include>
-                <include>org.codehaus.jackson:jackson-jaxrs:jar</include>
                 <include>org.codehaus.jackson:jackson-mapper-asl:jar</include>
-                <include>org.codehaus.jackson:jackson-xc:jar</include>
-                <include>org.apache.hadoop.thirdparty:hadoop-shaded-guava:jar</include>
+                <!--<include>org.apache.hadoop.thirdparty:hadoop-shaded-guava:jar</include>-->
             </includes>
         </dependencySet>
     </dependencySets>

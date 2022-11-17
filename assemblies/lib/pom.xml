@@ -34,8 +34,10 @@
     <properties>
 
         <!-- third party -->
-        <webservices-api.version>2.3.1</webservices-api.version>
+
+<!--    <webservices-api.version>2.3.1</webservices-api.version>
         <webservices-rt.version>2.3.1</webservices-rt.version>
+ -->
         <blueprints-core.version>2.6.0</blueprints-core.version>
         <commons-configuration.version>1.10</commons-configuration.version>
         <flexjson.version>2.1</flexjson.version>
@@ -121,6 +123,11 @@
             <version>${slf4j.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+            <version>${woodstox.version}</version>
+        </dependency>
+        <!--<dependency>
             <groupId>org.glassfish.metro</groupId>
             <artifactId>webservices-api</artifactId>
             <version>${webservices-api.version}</version>
@@ -141,7 +148,7 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
@@ -212,9 +219,24 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1.1</version>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>jakarta.activation</artifactId>
+            <version>${jakarta-mail.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs-client</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okio</groupId>
+            <artifactId>okio</artifactId>
+            <version>${okio.version}</version>
         </dependency>
 
         <!-- SWT dependencies -->

@@ -69,8 +69,6 @@
                 <include>io.dropwizard.metrics:metrics-core:jar</include>
                 <include>io.dropwizard.metrics:metrics-jvm:jar</include>
                 <include>io.dropwizard.metrics:metrics-logback:jar</include>
-
-                <include>io.netty:netty-buffer:jar</include>
                 <include>io.netty:netty-codec:jar</include>
                 <include>io.netty:netty-codec-dns:jar</include>
                 <include>io.netty:netty-codec-haproxy:jar</include>
@@ -103,10 +101,10 @@
                 <include>io.netty:netty-transport-sctp:jar</include>
                 <include>io.netty:netty-transport-udt:jar</include>
 
-                <include>javax.inject:javax.inject:jar</include>
+                <!--<include>javax.inject:javax.inject:jar</include>-->
                 <include>joda-time:joda-time:jar</include>
                 <include>net.java.dev.jna:jna:jar</include>
-                <include>net.jpountz.lz4:lz4:jar</include>
+                <include>org.lz4:lz4-java:jar</include>
                 <include>org.antlr:ST4:jar</include>
                 <include>org.apache.cassandra:cassandra-all:jar</include>
                 <include>org.apache.cassandra:cassandra-thrift:jar</include>
@@ -116,7 +114,7 @@
                 <include>org.eclipse.jdt.core.compiler:ecj:jar</include>
                 <include>org.fusesource:sigar:jar</include>
                 <include>org.jctools:jctools-core:jar</include>
-                <include>org.mindrot:jbcrypt:jar</include>
+                <!--<include>org.mindrot:jbcrypt:jar</include>-->
                 <include>org.ow2.asm:asm-analysis:jar</include>
                 <include>org.ow2.asm:asm:jar</include>
                 <include>org.ow2.asm:asm-util:jar</include>

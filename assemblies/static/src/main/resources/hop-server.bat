@@ -25,7 +25,7 @@ cd /D %~dp0
 REM Option to change the Characterset of the Windows Shell to show foreign caracters
 if not "%HOP_WINDOWS_SHELL_ENCODING%"=="" chcp %HOP_WINDOWS_SHELL_ENCODING%
 
-set LIBSPATH=lib
+set LIBSPATH=lib\core;lib\beam
 set SWTJAR=libswt\win64
 
 :NormalStart

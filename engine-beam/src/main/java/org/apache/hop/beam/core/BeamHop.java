@@ -13,6 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.hop.beam.core;
@@ -21,18 +22,21 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.extension.ExtensionPoint;
-import org.apache.hop.core.extension.ExtensionPointPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlHandlerCache;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,5 +99,22 @@ public class BeamHop {
         transformAnnotation.keywords(),
         null,
         false);
+  }
+
+  public static Node getTransformXmlNode(TransformMeta transformMeta) throws HopException {
+    String xml = transformMeta.getXml();
+    Node transformNode =
+            XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), TransformMeta.XML_TAG);
+    return transformNode;
+  }
+
+  public static void loadTransformMetadata(
+          ITransformMeta meta,
+          TransformMeta transformMeta,
+          IHopMetadataProvider metadataProvider,
+          PipelineMeta pipelineMeta)
+          throws HopException {
+    meta.loadXml(getTransformXmlNode(transformMeta), metadataProvider);
+    meta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
   }
 }

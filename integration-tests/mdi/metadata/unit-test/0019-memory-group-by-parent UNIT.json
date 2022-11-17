@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "a",
+          "data_set_field": "a"
+        },
+        {
+          "transform_field": "minB",
+          "data_set_field": "minB"
+        },
+        {
+          "transform_field": "maxC",
+          "data_set_field": "maxC"
+        }
+      ],
+      "field_order": [
+        "a",
+        "minB",
+        "maxC"
+      ],
+      "transform_name": "Output",
+      "data_set_name": "golden-memory-group-by"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0019-memory-group-by-parent UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0019-memory-group-by-parent.hpl",
+  "test_type": "UNIT_TEST"
+}

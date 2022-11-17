@@ -30,8 +30,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 // Split a Hop row into key and values parts
 //
 public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {

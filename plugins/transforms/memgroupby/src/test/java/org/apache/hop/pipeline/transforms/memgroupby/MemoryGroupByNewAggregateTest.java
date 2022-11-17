@@ -23,6 +23,7 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -42,8 +43,8 @@ import static org.mockito.Mockito.when;
 public class MemoryGroupByNewAggregateTest {
 
   static TransformMockHelper<MemoryGroupByMeta, MemoryGroupByData> mockHelper;
-  static List<Integer> strings;
-  static List<Integer> statistics;
+  static List<GroupType> strings;
+  static List<GroupType> statistics;
 
   MemoryGroupBy transform;
   MemoryGroupByData data;
@@ -59,13 +60,13 @@ public class MemoryGroupByNewAggregateTest {
 
     // In this transform we will distinct String aggregations from numeric ones
     strings = new ArrayList<>();
-    strings.add(MemoryGroupByMeta.TYPE_GROUP_CONCAT_COMMA);
-    strings.add(MemoryGroupByMeta.TYPE_GROUP_CONCAT_STRING);
+    strings.add(GroupType.ConcatComma);
+    strings.add(GroupType.ConcatString);
 
     // Statistics will be initialized with collections...
     statistics = new ArrayList<>();
-    statistics.add(MemoryGroupByMeta.TYPE_GROUP_MEDIAN);
-    statistics.add(MemoryGroupByMeta.TYPE_GROUP_PERCENTILE);
+    statistics.add(GroupType.Median);
+    statistics.add(GroupType.Percentile);
   }
 
   @AfterClass
@@ -77,20 +78,19 @@ public class MemoryGroupByNewAggregateTest {
   public void setUp() throws Exception {
     data = new MemoryGroupByData();
 
-    data.subjectnrs = new int[16];
-    int[] arr = new int[16];
-    String[] arrF = new String[16];
+    List<GAggregate> aggregates = new ArrayList<>();
+    GroupType[] types = GroupType.values();
 
-    for (int i = 0; i < arr.length; i++) {
-      // set aggregation types (hardcoded integer values from 1 to 18)
-      arr[i] = i + 1;
-      data.subjectnrs[i] = i;
+    data.subjectnrs = new int[types.length];
+
+    int i=0;
+    for (GroupType type : types) {
+      data.subjectnrs[i] = i++;
+      new GAggregate("x"+1, "x", type, null);
     }
-    Arrays.fill(arrF, "x");
 
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
-    meta.setAggregateType(arr);
-    meta.setAggregateField(arrF);
+    meta.setAggregates(aggregates);
 
     IValueMeta vmi = new ValueMetaInteger();
     when(mockHelper.transformMeta.getTransform()).thenReturn(meta);

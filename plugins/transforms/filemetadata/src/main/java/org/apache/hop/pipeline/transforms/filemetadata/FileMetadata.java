@@ -17,8 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.filemetadata;
 
-import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.base.Charsets;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -236,7 +240,10 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
         inputReader.readLine();
       }
 
-      CSVReader csvReader = new CSVReader(inputReader, delimiter, enclosure);
+      CSVParser csvParser =
+          new CSVParserBuilder().withSeparator(delimiter).withQuoteChar(enclosure).build();
+
+      CSVReader csvReader = new CSVReaderBuilder(inputReader).withCSVParser(csvParser).build();
       String[] firstLine = csvReader.readNext();
       dataLines--;
 
@@ -320,6 +327,9 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
 
     } catch (ArrayIndexOutOfBoundsException e) {
       log.logError("Error determining field types for: " + fileName + ". Inconsistent delimiters?");
+      throw new HopTransformException(e.getMessage(), e);
+    } catch (CsvValidationException e) {
+      log.logError("Error validating CSV file " + fileName, e);
       throw new HopTransformException(e.getMessage(), e);
     }
   }

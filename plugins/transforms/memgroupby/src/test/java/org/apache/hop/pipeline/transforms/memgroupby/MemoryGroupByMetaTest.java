@@ -17,7 +17,6 @@
 package org.apache.hop.pipeline.transforms.memgroupby;
 
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -32,81 +31,34 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Assert;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.*;
+import static org.junit.Assert.*;
 
-public class MemoryGroupByMetaTest implements IInitializer<MemoryGroupByMeta> {
-  LoadSaveTester<MemoryGroupByMeta> loadSaveTester;
-  Class<MemoryGroupByMeta> testMetaClass = MemoryGroupByMeta.class;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+public class MemoryGroupByMetaTest {
 
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
-    List<String> attributes =
-        Arrays.asList(
-            "alwaysGivingBackOneRow",
-            "groupField",
-            "aggregateField",
-            "subjectField",
-            "aggregateType",
-            "valueField");
-
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("groupField", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("aggregateField", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("subjectField", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("valueField", stringArrayLoadSaveValidator);
-    attrValidatorMap.put(
-        "aggregateType",
-        new PrimitiveIntArrayLoadSaveValidator(
-            new IntLoadSaveValidator(MemoryGroupByMeta.typeGroupCode.length), 5));
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester<>(
-            testMetaClass,
-            attributes,
-            new HashMap<>(),
-            new HashMap<>(),
-            attrValidatorMap,
-            typeValidatorMap,
-            this);
-  }
-
-  // Call the allocate method on the LoadSaveTester meta class
-  @Override
-  public void modify(MemoryGroupByMeta someMeta) {
-    someMeta.allocate(5, 5);
   }
 
   @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
+  public void testSerialization() throws Exception {
+    MemoryGroupByMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/memory-group-by-transform.xml", MemoryGroupByMeta.class, TransformMeta.XML_TAG);
+
+    assertEquals(1, meta.getGroups().size());
+    assertEquals("fruit", meta.getGroups().get(0).getField());
+    assertEquals(8, meta.getAggregates().size());
   }
 
   private IRowMeta getInputRowMeta() {
@@ -130,145 +82,38 @@ public class MemoryGroupByMetaTest implements IInitializer<MemoryGroupByMeta> {
     final String transformName = "this transform name";
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
     meta.setDefault();
-    meta.allocate(1, 17);
 
     // Declare input fields
     IRowMeta rm = getInputRowMeta();
 
-    String[] groupFields = new String[2];
-    groupFields[0] = "myGroupField1";
-    groupFields[1] = "myGroupField2";
+    meta.setGroups(List.of(new GGroup("myGroupField1"), new GGroup("myGroupField2")));
 
-    String[] aggregateFields = new String[24];
-    String[] subjectFields = new String[24];
-    int[] aggregateTypes = new int[24];
-    String[] valueFields = new String[24];
-
-    subjectFields[0] = "myString";
-    aggregateTypes[0] = MemoryGroupByMeta.TYPE_GROUP_CONCAT_COMMA;
-    aggregateFields[0] = "ConcatComma";
-    valueFields[0] = null;
-
-    subjectFields[1] = "myString";
-    aggregateTypes[1] = MemoryGroupByMeta.TYPE_GROUP_CONCAT_STRING;
-    aggregateFields[1] = "ConcatString";
-    valueFields[1] = "|";
-
-    subjectFields[2] = "myString";
-    aggregateTypes[2] = MemoryGroupByMeta.TYPE_GROUP_COUNT_ALL;
-    aggregateFields[2] = "CountAll";
-    valueFields[2] = null;
-
-    subjectFields[3] = "myString";
-    aggregateTypes[3] = MemoryGroupByMeta.TYPE_GROUP_COUNT_ANY;
-    aggregateFields[3] = "CountAny";
-    valueFields[3] = null;
-
-    subjectFields[4] = "myString";
-    aggregateTypes[4] = MemoryGroupByMeta.TYPE_GROUP_COUNT_DISTINCT;
-    aggregateFields[4] = "CountDistinct";
-    valueFields[4] = null;
-
-    subjectFields[5] = "myString";
-    aggregateTypes[5] = MemoryGroupByMeta.TYPE_GROUP_FIRST;
-    aggregateFields[5] = "First(String)";
-    valueFields[5] = null;
-
-    subjectFields[6] = "myInteger";
-    aggregateTypes[6] = MemoryGroupByMeta.TYPE_GROUP_FIRST;
-    aggregateFields[6] = "First(Integer)";
-    valueFields[6] = null;
-
-    subjectFields[7] = "myNumber";
-    aggregateTypes[7] = MemoryGroupByMeta.TYPE_GROUP_FIRST_INCL_NULL;
-    aggregateFields[7] = "FirstInclNull(Number)";
-    valueFields[7] = null;
-
-    subjectFields[8] = "myBigNumber";
-    aggregateTypes[8] = MemoryGroupByMeta.TYPE_GROUP_FIRST_INCL_NULL;
-    aggregateFields[8] = "FirstInclNull(BigNumber)";
-    valueFields[8] = null;
-
-    subjectFields[9] = "myBinary";
-    aggregateTypes[9] = MemoryGroupByMeta.TYPE_GROUP_LAST;
-    aggregateFields[9] = "Last(Binary)";
-    valueFields[9] = null;
-
-    subjectFields[10] = "myBoolean";
-    aggregateTypes[10] = MemoryGroupByMeta.TYPE_GROUP_LAST;
-    aggregateFields[10] = "Last(Boolean)";
-    valueFields[10] = null;
-
-    subjectFields[11] = "myDate";
-    aggregateTypes[11] = MemoryGroupByMeta.TYPE_GROUP_LAST_INCL_NULL;
-    aggregateFields[11] = "LastInclNull(Date)";
-    valueFields[11] = null;
-
-    subjectFields[12] = "myTimestamp";
-    aggregateTypes[12] = MemoryGroupByMeta.TYPE_GROUP_LAST_INCL_NULL;
-    aggregateFields[12] = "LastInclNull(Timestamp)";
-    valueFields[12] = null;
-
-    subjectFields[13] = "myInternetAddress";
-    aggregateTypes[13] = MemoryGroupByMeta.TYPE_GROUP_MAX;
-    aggregateFields[13] = "Max(InternetAddress)";
-    valueFields[13] = null;
-
-    subjectFields[14] = "myString";
-    aggregateTypes[14] = MemoryGroupByMeta.TYPE_GROUP_MAX;
-    aggregateFields[14] = "Max(String)";
-    valueFields[14] = null;
-
-    subjectFields[15] = "myInteger";
-    aggregateTypes[15] = MemoryGroupByMeta.TYPE_GROUP_MEDIAN; // Always returns Number
-    aggregateFields[15] = "Median(Integer)";
-    valueFields[15] = null;
-
-    subjectFields[16] = "myNumber";
-    aggregateTypes[16] = MemoryGroupByMeta.TYPE_GROUP_MIN;
-    aggregateFields[16] = "Min(Number)";
-    valueFields[16] = null;
-
-    subjectFields[17] = "myBigNumber";
-    aggregateTypes[17] = MemoryGroupByMeta.TYPE_GROUP_MIN;
-    aggregateFields[17] = "Min(BigNumber)";
-    valueFields[17] = null;
-
-    subjectFields[18] = "myBinary";
-    aggregateTypes[18] = MemoryGroupByMeta.TYPE_GROUP_PERCENTILE;
-    aggregateFields[18] = "Percentile(Binary)";
-    valueFields[18] = "0.5";
-
-    subjectFields[19] = "myBoolean";
-    aggregateTypes[19] = MemoryGroupByMeta.TYPE_GROUP_STANDARD_DEVIATION;
-    aggregateFields[19] = "StandardDeviation(Boolean)";
-    valueFields[19] = null;
-
-    subjectFields[20] = "myDate";
-    aggregateTypes[20] = MemoryGroupByMeta.TYPE_GROUP_SUM;
-    aggregateFields[20] = "Sum(Date)";
-    valueFields[20] = null;
-
-    subjectFields[21] = "myInteger";
-    aggregateTypes[21] = MemoryGroupByMeta.TYPE_GROUP_SUM;
-    aggregateFields[21] = "Sum(Integer)";
-    valueFields[21] = null;
-
-    subjectFields[22] = "myInteger";
-    aggregateTypes[22] = MemoryGroupByMeta.TYPE_GROUP_AVERAGE;
-    aggregateFields[22] = "Average(Integer)";
-    valueFields[22] = null;
-
-    subjectFields[23] = "myDate";
-    aggregateTypes[23] = MemoryGroupByMeta.TYPE_GROUP_AVERAGE;
-    aggregateFields[23] = "Average(Date)";
-    valueFields[23] = null;
-
-    meta.setGroupField(groupFields);
-    meta.setSubjectField(subjectFields);
-    meta.setAggregateType(aggregateTypes);
-    meta.setAggregateField(aggregateFields);
-    meta.setValueField(valueFields);
+    meta.setAggregates(
+        Arrays.asList(
+            new GAggregate("ConcatComma", "myString", ConcatComma, null),
+            new GAggregate("ConcatString", "myString", ConcatString, null),
+            new GAggregate("CountAll", "myString", CountAll, null),
+            new GAggregate("CountAny", "myString", CountAny, null),
+            new GAggregate("CountDistinct", "myString", CountDistinct, null),
+            new GAggregate("First(String)", "myString", First, null),
+            new GAggregate("First(Integer)", "myInteger", First, null),
+            new GAggregate("FirstInclNull(Number)", "myNumber", FirstIncludingNull, null),
+            new GAggregate("FirstInclNull(BigNumber)", "myBigNumber", FirstIncludingNull, null),
+            new GAggregate("Last(Binary)", "myBinary", Last, null),
+            new GAggregate("Last(Boolean)", "myBoolean", Last, null),
+            new GAggregate("LastInclNull(Date)", "myDate", LastIncludingNull, null),
+            new GAggregate("LastInclNull(Timestamp)", "myTimestamp", LastIncludingNull, null),
+            new GAggregate("Max(InternetAddress)", "myInternetAddress", Maximum, null),
+            new GAggregate("Max(String)", "myString", Maximum, null),
+            new GAggregate("Median(Integer)", "myInteger", Median, null),
+            new GAggregate("Min(Number)", "myNumber", Minimum, null),
+            new GAggregate("Min(BigNumber)", "myBigNumber", Minimum, null),
+            new GAggregate("Percentile(Binary)", "myBinary", Percentile, null),
+            new GAggregate("StandardDeviation(Boolean)", "myBoolean", StandardDeviation, null),
+            new GAggregate("Sum(Date)", "myDate", Sum, null),
+            new GAggregate("Sum(Integer)", "myInteger", Sum, null),
+            new GAggregate("Average(Integer)", "myInteger", Average, null),
+            new GAggregate("Average(Date)", "myDate", Average, null)));
 
     Variables vars = new Variables();
     meta.getFields(rm, transformName, null, null, vars, null);
@@ -353,54 +198,5 @@ public class MemoryGroupByMetaTest implements IInitializer<MemoryGroupByMeta> {
     assertTrue(rm.indexOfValue("Average(Date)") >= 0);
     assertEquals(
         IValueMeta.TYPE_NUMBER, rm.getValueMeta(rm.indexOfValue("Average(Date)")).getType());
-  }
-
-  @Test
-  public void testPDI16559() throws Exception {
-    MemoryGroupByMeta memoryGroupBy = new MemoryGroupByMeta();
-    memoryGroupBy.setGroupField(new String[] {"group1", "group 2"});
-    memoryGroupBy.setSubjectField(
-        new String[] {
-          "field1", "field2", "field3", "field4", "field5", "field6", "field7", "field8", "field9",
-          "field10", "field11", "field12"
-        });
-    memoryGroupBy.setAggregateField(
-        new String[] {
-          "fieldID1",
-          "fieldID2",
-          "fieldID3",
-          "fieldID4",
-          "fieldID5",
-          "fieldID6",
-          "fieldID7",
-          "fieldID8",
-          "fieldID9",
-          "fieldID10",
-          "fieldID11"
-        });
-    memoryGroupBy.setValueField(
-        new String[] {"asdf", "asdf", "qwer", "qwer", "QErasdf", "zxvv", "fasdf", "qwerqwr"});
-    memoryGroupBy.setAggregateType(new int[] {12, 6, 15, 14, 23, 177, 13, 21});
-
-    try {
-      String badXml = memoryGroupBy.getXml();
-      Assert.fail(
-          "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB");
-    } catch (Exception expected) {
-      // Do Nothing
-    }
-    memoryGroupBy.afterInjectionSynchronization();
-    // run without a exception
-    String ktrXml = memoryGroupBy.getXml();
-
-    int targetSz = memoryGroupBy.getSubjectField().length;
-    Assert.assertEquals(targetSz, memoryGroupBy.getAggregateField().length);
-    Assert.assertEquals(targetSz, memoryGroupBy.getAggregateType().length);
-    Assert.assertEquals(targetSz, memoryGroupBy.getValueField().length);
-
-    // Check for null arrays being handled
-    memoryGroupBy.setValueField(null); // null string array
-    memoryGroupBy.afterInjectionSynchronization();
-    Assert.assertEquals(targetSz, memoryGroupBy.getValueField().length);
   }
 }

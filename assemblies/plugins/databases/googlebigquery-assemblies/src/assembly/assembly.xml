@@ -49,47 +49,11 @@
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
                 <include>org.apache.hop:hop-databases-googlebigquery:jar</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <includes>
                 <include>com.google.api-client:google-api-client:jar</include>
-            </includes>
-            <outputDirectory>lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
-        <dependencySet>
-            <includes>
                 <include>com.google.apis:google-api-services-bigquery:jar</include>
-            </includes>
-            <outputDirectory>lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>com.google.http-client:google-http-client:jar</include>
-            </includes>
-            <outputDirectory>lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
-        <dependencySet>
-            <includes>
                 <include>com.google.http-client:google-http-client-jackson2:jar</include>
-            </includes>
-            <outputDirectory>lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
-        <dependencySet>
-            <includes>
                 <include>com.google.oauth-client:google-oauth-client:jar</include>
             </includes>
-            <outputDirectory>lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
     </dependencySets>
 </assembly>

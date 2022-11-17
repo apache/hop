@@ -67,16 +67,16 @@ HOP_OPTIONS="${HOP_OPTIONS} -DHOP_PLATFORM_RUNTIME=Import -DHOP_AUTO_CREATE_CONF
 case $(uname -s) in
 Linux)
     if $($_HOP_JAVA -XshowSettings:properties -version 2>&1| grep -q "os.arch = aarch64"); then
-        CLASSPATH="lib/*:libswt/linux/arm64/*"
+        CLASSPATH="lib/core/*:lib/beam/*:libswt/linux/arm64/*"
     else
-        CLASSPATH="lib/*:libswt/linux/$(uname -m)/*"
+        CLASSPATH="lib/core/*:lib/beam/*:libswt/linux/$(uname -m)/*"
     fi
   ;;
 Darwin)
   if $($_HOP_JAVA -XshowSettings:properties -version 2>&1| grep -q "os.arch = aarch64"); then
-      CLASSPATH="lib/*:libswt/osx/arm64/*"
+      CLASSPATH="lib/core/*:lib/beam/*:libswt/osx/arm64/*"
   else
-      CLASSPATH="lib/*:libswt/osx/x86_64/*"
+      CLASSPATH="lib/core/*:lib/beam/*:libswt/osx/x86_64/*"
   fi
   HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
   ;;

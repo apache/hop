@@ -23,7 +23,7 @@
         <format>zip</format>
     </formats>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>lib</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <fileSets>
         <fileSet>
             <directory>${assembly.dir}</directory>

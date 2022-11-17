@@ -55,16 +55,37 @@
         </fileSet>
     </fileSets>
     <dependencySets>
-        <!-- hop components -->
+        <!-- hop lib/core jar files -->
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-assemblies-libs:zip</include>
             </includes>
             <unpack>true</unpack>
-            <outputDirectory>WEB-INF</outputDirectory>
+            <outputDirectory>WEB-INF/lib</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
+        <!-- hop lib/beam jar files -->
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-assemblies-libs-beam:zip</include>
+            </includes>
+            <unpack>true</unpack>
+            <outputDirectory>WEB-INF/lib</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <!-- the engine-beam lib -->
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-engine-beam</include>
+            </includes>
+            <outputDirectory>WEB-INF/lib</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+
+        <!-- static files like the shell scripts -->
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-assemblies-static:zip</include>
