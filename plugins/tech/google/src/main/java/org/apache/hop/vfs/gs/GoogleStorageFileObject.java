@@ -34,6 +34,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -71,33 +73,33 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
 
   @Override
   protected void doAttach() throws Exception {
-    Storage storage = getAbstractFileSystem().setupStorage();
-
-    if (bucketName.length() > 0) {
-      if (this.bucket == null) {
-        this.bucket = storage.get(bucketName);
-      }
-      if (bucketPath.length() > 0) {
-        if (this.blob == null) {
-          this.blob = storage.get(bucketName, bucketPath);
+    try (Storage storage = getAbstractFileSystem().setupStorage()) {
+      if (bucketName.length() > 0) {
+        if (this.bucket == null) {
+          this.bucket = storage.get(bucketName);
+        }
+        if (bucketPath.length() > 0) {
           if (this.blob == null) {
-            String parent = getParentFolder(bucketPath);
-            String child = lastPathElement(stripTrailingSlash(bucketPath));
-            Page<Blob> page;
-            if (parent.length() > 0) {
-              page =
-                  storage.list(
-                      bucketName,
-                      BlobListOption.currentDirectory(),
-                      BlobListOption.prefix(parent + "/"));
+            this.blob = storage.get(bucketName, bucketPath);
+            if (this.blob == null) {
+              String parent = getParentFolder(bucketPath);
+              String child = lastPathElement(stripTrailingSlash(bucketPath));
+              Page<Blob> page;
+              if (parent.length() > 0) {
+                page =
+                    storage.list(
+                        bucketName,
+                        BlobListOption.currentDirectory(),
+                        BlobListOption.prefix(parent + "/"));
 
-            } else {
-              page = storage.list(bucketName, BlobListOption.currentDirectory());
-            }
-            for (Blob b : page.iterateAll()) {
-              if (lastPathElement(stripTrailingSlash(b.getName())).equals(child)) {
-                this.blob = b;
-                break;
+              } else {
+                page = storage.list(bucketName, BlobListOption.currentDirectory());
+              }
+              for (Blob b : page.iterateAll()) {
+                if (lastPathElement(stripTrailingSlash(b.getName())).equals(child)) {
+                  this.blob = b;
+                  break;
+                }
               }
             }
           }
@@ -185,7 +187,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       throw new IOException("Object is not attached");
     }
     if (!blob.delete()) {
-      throw new IOException("Failed to delete object");
+      throw new IOException("Failed to delete object '"+this+"' (not found)");
     }
   }
 
@@ -198,9 +200,6 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   @Override
   protected long doGetLastModifiedTime() throws Exception {
     if (hasObject()) {
-      if (blob == null) {
-        return 0;
-      }
       if (isFolder()) {
         // getting the update time of a folder gives an NPE
         return 0;
@@ -208,9 +207,6 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       return blob.getUpdateTime();
     }
     if (hasBucket()) {
-      if (bucket == null) {
-        return 0;
-      }
       return bucket.getCreateTime();
     } else {
       return 0L;
@@ -313,7 +309,6 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       return name;
     }
   }
-
 
   @Override
   public boolean equals(Object o) {
