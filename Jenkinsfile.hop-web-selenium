@@ -86,7 +86,7 @@ pipeline {
             post {
                 always {
                     sh "sleep 30"
-                    archiveArtifacts(artifacts: 'integration-tests/hopweb/target/surefire-reports/images/*.png', allowEmptyArchive: true)
+                    archiveArtifacts(artifacts: 'integration-tests/hopweb/integration-tests/hopweb/target/surefire-reports/images/*.png', allowEmptyArchive: true)
                     junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
                 }
             }
