@@ -842,20 +842,14 @@ public class ExcelWriterTransform
           }
         } else {
           // handle fresh file case, just create a fresh workbook
-          Workbook wb =
+          try (Workbook wb =
               meta.getFile().getExtension().equalsIgnoreCase("xlsx")
                   ? new XSSFWorkbook()
-                  : new HSSFWorkbook();
-          try {
-            OutputStream out = HopVfs.getOutputStream(file, false);
-            try {
-              wb.createSheet(data.realSheetname);
+                  : new HSSFWorkbook()) {
+            wb.createSheet(data.realSheetname);
+            try (OutputStream out = HopVfs.getOutputStream(file, false)) {
               wb.write(out);
-            } finally {
-              out.close();
             }
-          } finally {
-            wb.close();
           }
         }
         appendingToSheet = false;
@@ -866,7 +860,7 @@ public class ExcelWriterTransform
       Sheet sheet;
       // file is guaranteed to be in place now
       if (meta.getFile().getExtension().equalsIgnoreCase("xlsx")) {
-        try (InputStream inputStream = HopVfs.getInputStream(file)) {
+        try (InputStream inputStream = HopVfs.getInputStream(HopVfs.getFilename(file))) {
           XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
           if (meta.getFile().isStreamingData() && !meta.getTemplate().isTemplateEnabled()) {
             wb = new SXSSFWorkbook(xssfWorkbook, 100);
