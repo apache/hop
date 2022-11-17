@@ -95,7 +95,7 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
   }
 
   String getBucketPath(FileName name) {
-    int idx = name.getPath().indexOf('/');
+    int idx = name.getPath().indexOf('/', 1);
     if (idx > -1) {
       return name.getPath().substring(idx + 1);
     } else {
