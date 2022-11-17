@@ -44,7 +44,6 @@
     </licenses>
 
     <properties>
-        <avro.version>1.11.0</avro.version>
     </properties>
 
     <dependencies>

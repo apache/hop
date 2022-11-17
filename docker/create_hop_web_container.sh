@@ -29,7 +29,7 @@ unzip -qu ../assemblies/plugins/dist/target/hop-assemblies-*.zip -d ../assemblie
 # copy recent changes in libraries...
 #
 cp ../core/target/hop-core-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
-cp ../engine/target/hop-engine-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
+cp ../engine/target/hop-engine-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib
 cp ../ui/target/hop-ui-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
 cp ../rap/target/hop-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
 

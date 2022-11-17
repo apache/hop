@@ -50,91 +50,37 @@
     </repositories>
 
     <properties>
-        <apache-beam-version>2.41.0</apache-beam-version>
-        <spark-version>3.3.0</spark-version>
-        <flink-version>1.15.2</flink-version>
-        <json-simple.version>1.1.1</json-simple.version>
         <bigtable-hbase-beam.version>2.6.1</bigtable-hbase-beam.version>
-        <grpc.version>1.49.0</grpc.version>
-        <gax-grpc.version>2.16.0</gax-grpc.version>
-        <akka.version>2.5.32</akka.version>
-        <minlog.version>1.3.1</minlog.version>
-        <netty.version>4.1.77.Final</netty.version>
-        <zookeeper.version>3.8.0</zookeeper.version>
         <scala.version>2.12.15</scala.version>
-        <json4s.version>3.7.0-M11</json4s.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-engine-beam</artifactId>
+            <version>2.2.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- Force the right libs version -->
         <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-core</artifactId>
-            <version>${grpc.version}</version>
+            <groupId>com.google.api</groupId>
+            <artifactId>gax</artifactId>
+            <version>${gax.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-            <version>${grpc.version}</version>
+            <groupId>com.google.api</groupId>
+            <artifactId>gax-grpc</artifactId>
+            <version>${gax.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf-lite</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-api</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-context</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty-shaded</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-grpclb</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-auth</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-alts</artifactId>
-            <version>${grpc.version}</version>
-        </dependency><dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-bigquery</artifactId>
-            <version>v2-rev20210410-1.31.0</version>
+            <version>${google-api-services-bigquery.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.15</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.auth</groupId>
-            <artifactId>google-auth-library-oauth2-http</artifactId>
-            <version>1.6.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.zookeeper</groupId>
@@ -144,7 +90,7 @@
         <dependency>
             <groupId>org.xerial.snappy</groupId>
             <artifactId>snappy-java</artifactId>
-            <version>1.1.8.4</version>
+            <version>${snappy-java.version}</version>
         </dependency>
         <dependency>
             <groupId>org.threeten</groupId>
@@ -152,28 +98,8 @@
             <version>1.6.0</version>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec</artifactId>
-            <version>${netty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
-            <version>${netty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-common</artifactId>
-            <version>${netty.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>
-            <version>${hadoop.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
             <version>${hadoop.version}</version>
         </dependency>
         <dependency>
@@ -184,7 +110,7 @@
         <dependency>
             <groupId>com.fasterxml.woodstox</groupId>
             <artifactId>woodstox-core</artifactId>
-            <version>5.4.0</version>
+            <version>${woodstox.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -202,119 +128,24 @@
             <version>9.2-15.0</version>
         </dependency>
         <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-avro-serializer</artifactId>
-            <version>7.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-schema-registry-client</artifactId>
-            <version>7.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-protobuf_2.11</artifactId>
-            <version>${akka.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-slf4j_2.11</artifactId>
-            <version>${akka.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.esotericsoftware</groupId>
-            <artifactId>minlog</artifactId>
-            <version>${minlog.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ning</groupId>
-            <artifactId>compress-lzf</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.20.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.9.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.luben</groupId>
-            <artifactId>zstd-jni</artifactId>
-            <version>1.5.2-2</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-            <version>4.2.9</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-jvm</artifactId>
-            <version>4.2.9</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-logback</artifactId>
-            <version>4.2.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-client</artifactId>
-            <version>5.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-recipes</artifactId>
-            <version>5.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-framework</artifactId>
-            <version>5.3.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.api.grpc</groupId>
-            <artifactId>proto-google-common-protos</artifactId>
-            <version>2.8.3</version>
+            <artifactId>proto-google-iam-v1</artifactId>
+            <version>1.6.10</version>
         </dependency>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>${joda-time.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.auth</groupId>
-            <artifactId>google-auth-library-credentials</artifactId>
-            <version>1.6.0</version>
+            <groupId>com.google.api</groupId>
+            <artifactId>api-common</artifactId>
+            <version>${google-api-common.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-storage</artifactId>
-            <version>v1-rev20211201-1.32.1</version>
+            <version>${google-api-services-storage.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client-jackson2</artifactId>
-            <version>1.41.8</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.http-client</groupId>
-            <artifactId>google-http-client</artifactId>
-            <version>1.41.8</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.http-client</groupId>
-            <artifactId>google-http-client-gson</artifactId>
-            <version>1.41.8</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.paranamer</groupId>
-            <artifactId>paranamer</artifactId>
-            <version>2.8</version>
+            <version>${google-http-client.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -337,21 +168,6 @@
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_2.12</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-xc</artifactId>
-            <version>1.9.13</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-jaxrs</artifactId>
-            <version>1.9.13</version>
-        </dependency>
-        <dependency>
             <groupId>org.reactivestreams</groupId>
             <artifactId>reactive-streams</artifactId>
             <version>1.0.3</version>
@@ -359,28 +175,24 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-core</artifactId>
-            <version>${flink-version}</version>
+            <version>${apache-flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-runtime</artifactId>
-            <version>${flink-version}</version>
+            <version>${apache-flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-optimizer</artifactId>
-            <version>${flink-version}</version>
+            <version>${apache-flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.70</version>
         </dependency>
-        <dependency>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
-            <version>1.8.1</version>
-        </dependency>
+
         <dependency>
             <groupId>com.google.api.grpc</groupId>
             <artifactId>grpc-google-cloud-storage-v2</artifactId>
@@ -411,35 +223,11 @@
             <artifactId>scala-xml_2.12</artifactId>
             <version>1.2.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.19.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json4s</groupId>
-            <artifactId>json4s-ast_2.12</artifactId>
-            <version>${json4s.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json4s</groupId>
-            <artifactId>json4s-core_2.12</artifactId>
-            <version>${json4s.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json4s</groupId>
-            <artifactId>json4s-jackson_2.12</artifactId>
-            <version>${json4s.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json4s</groupId>
-            <artifactId>json4s-scalap_2.12</artifactId>
-            <version>${json4s.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-unsafe_2.12</artifactId>
-            <version>${spark-version}</version>
+            <version>${apache-spark.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xbean</groupId>
@@ -461,6 +249,26 @@
             <artifactId>hadoop-hdfs-client</artifactId>
             <version>${hadoop.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.lz4</groupId>
+            <artifactId>lz4-java</artifactId>
+            <version>${lz4.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okio</groupId>
+            <artifactId>okio</artifactId>
+            <version>${okio.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>kafka-avro-serializer</artifactId>
+            <version>7.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>kafka-schema-registry-client</artifactId>
+            <version>7.3.0</version>
+        </dependency>
 
         <!-- The plugin itself -->
         <dependency>
@@ -472,27 +280,8 @@
         <!-- The Apache Beam dependencies -->
         <dependency>
             <groupId>org.apache.beam</groupId>
-            <artifactId>beam-sdks-java-core</artifactId>
-            <version>${apache-beam-version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.11</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-direct-java</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -511,7 +300,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -534,7 +323,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-spark-3</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -553,7 +342,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-flink-1.15</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -573,7 +362,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-extensions-join-library</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -592,7 +381,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-hadoop-common</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -611,7 +400,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-hadoop-file-system</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -630,7 +419,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-kafka</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -649,7 +438,7 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-storage</artifactId>
-            <version>2.6.1</version>
+            <version>${google-cloud-storage.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -678,7 +467,7 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.12</artifactId>
-            <version>${spark-version}</version>
+            <version>${apache-spark.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -697,7 +486,7 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_2.12</artifactId>
-            <version>${spark-version}</version>
+            <version>${apache-spark.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -716,17 +505,7 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>3.2.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>${json-simple.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.beam</groupId>
-            <artifactId>beam-vendor-grpc-1_43_2</artifactId>
-            <version>0.1</version>
+            <version>${kafka-clients.version}</version>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -736,12 +515,12 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-amazon-web-services</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-kinesis</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
         </dependency>
 
         <dependency>

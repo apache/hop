@@ -72,7 +72,6 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   @Override
   protected void doAttach() throws Exception {
     Storage storage = getAbstractFileSystem().setupStorage();
-
     if (bucketName.length() > 0) {
       if (this.bucket == null) {
         this.bucket = storage.get(bucketName);
@@ -169,7 +168,6 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
 
   @Override
   protected void doCreateFolder() throws Exception {
-
     Storage storage = getAbstractFileSystem().setupStorage();
     if (!hasBucket()) {
       this.bucket = storage.create(BucketInfo.newBuilder(bucketName).build());
@@ -185,7 +183,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       throw new IOException("Object is not attached");
     }
     if (!blob.delete()) {
-      throw new IOException("Failed to delete object");
+      throw new IOException("Failed to delete object '" + this + "' (not found)");
     }
   }
 
@@ -198,9 +196,6 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   @Override
   protected long doGetLastModifiedTime() throws Exception {
     if (hasObject()) {
-      if (blob == null) {
-        return 0;
-      }
       if (isFolder()) {
         // getting the update time of a folder gives an NPE
         return 0;
@@ -208,9 +203,6 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       return blob.getUpdateTime();
     }
     if (hasBucket()) {
-      if (bucket == null) {
-        return 0;
-      }
       return bucket.getCreateTime();
     } else {
       return 0L;
@@ -313,7 +305,6 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       return name;
     }
   }
-
 
   @Override
   public boolean equals(Object o) {

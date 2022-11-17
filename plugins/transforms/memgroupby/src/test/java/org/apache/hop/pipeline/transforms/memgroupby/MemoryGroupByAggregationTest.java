@@ -60,33 +60,27 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MemoryGroupByAggregationTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private Variables variables;
-  private Map<String, Integer> aggregates;
+  private Map<String, MemoryGroupByMeta.GroupType> aggregates;
 
   public static final String TRANSFORM_NAME = "testTransform";
-  private static final ImmutableMap<String, Integer> default_aggregates;
+  private static final ImmutableMap<String, MemoryGroupByMeta.GroupType> default_aggregates;
 
   static {
     default_aggregates =
-        ImmutableMap.<String, Integer>builder()
-            .put("min", MemoryGroupByMeta.TYPE_GROUP_MIN)
-            .put("max", MemoryGroupByMeta.TYPE_GROUP_MAX)
-            .put("sum", MemoryGroupByMeta.TYPE_GROUP_SUM)
-            .put("ave", MemoryGroupByMeta.TYPE_GROUP_AVERAGE)
-            .put("count", MemoryGroupByMeta.TYPE_GROUP_COUNT_ALL)
-            .put("count_any", MemoryGroupByMeta.TYPE_GROUP_COUNT_ANY)
-            .put("count_distinct", MemoryGroupByMeta.TYPE_GROUP_COUNT_DISTINCT)
+        ImmutableMap.<String, MemoryGroupByMeta.GroupType>builder()
+            .put("min", MemoryGroupByMeta.GroupType.Minimum)
+            .put("max", MemoryGroupByMeta.GroupType.Maximum)
+            .put("sum", MemoryGroupByMeta.GroupType.Sum)
+            .put("ave", MemoryGroupByMeta.GroupType.Average)
+            .put("count", MemoryGroupByMeta.GroupType.CountAll)
+            .put("count_any", MemoryGroupByMeta.GroupType.CountAny)
+            .put("count_distinct", MemoryGroupByMeta.GroupType.CountDistinct)
             .build();
   }
 
@@ -269,16 +263,15 @@ public class MemoryGroupByAggregationTest {
     // Allocate meta
     List<String> aggKeys = ImmutableList.copyOf(aggregates.keySet());
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
-    meta.allocate(0, rowMeta.size() * aggKeys.size());
     for (int i = 0; i < rowMeta.size(); i++) {
       String name = rowMeta.getValueMeta(i).getName();
       for (int j = 0; j < aggKeys.size(); j++) {
         String aggKey = aggKeys.get(j);
-        int index = i * aggKeys.size() + j;
-
-        meta.getAggregateField()[index] = name + "_" + aggKey;
-        meta.getSubjectField()[index] = name;
-        meta.getAggregateType()[index] = aggregates.get(aggKey);
+        GAggregate aggregate = new GAggregate();
+        aggregate.setField(name + "_" + aggKey);
+        aggregate.setSubject(name);
+        aggregate.setType(aggregates.get(aggKey));
+        meta.getAggregates().add(aggregate);
       }
     }
 

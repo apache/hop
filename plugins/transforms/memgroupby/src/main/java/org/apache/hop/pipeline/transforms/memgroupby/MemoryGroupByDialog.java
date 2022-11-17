@@ -155,10 +155,10 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     fdlGroup.top = new FormAttachment(wlAlwaysAddResult, 2 * margin);
     wlGroup.setLayoutData(fdlGroup);
 
-    int nrKeyCols = 1;
-    int nrKeyRows = (input.getGroupField() != null ? input.getGroupField().length : 1);
+    int groupCols = 1;
+    int groupRows = input.getGroups().size();
 
-    ciKey = new ColumnInfo[nrKeyCols];
+    ciKey = new ColumnInfo[groupCols];
     ciKey[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "MemoryGroupByDialog.ColumnInfo.GroupField"),
@@ -172,7 +172,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciKey,
-            nrKeyRows,
+            groupRows,
             lsMod,
             props);
 
@@ -199,10 +199,10 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     fdlAgg.top = new FormAttachment(wGroup, margin);
     wlAgg.setLayoutData(fdlAgg);
 
-    int upInsCols = 4;
-    int upInsRows = (input.getAggregateField() != null ? input.getAggregateField().length : 1);
+    int aggCols = 4;
+    int aggRows = input.getAggregates().size();
 
-    ciReturn = new ColumnInfo[upInsCols];
+    ciReturn = new ColumnInfo[aggCols];
     ciReturn[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "MemoryGroupByDialog.ColumnInfo.Name"),
@@ -218,7 +218,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
         new ColumnInfo(
             BaseMessages.getString(PKG, "MemoryGroupByDialog.ColumnInfo.Type"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            MemoryGroupByMeta.typeGroupLongDesc);
+            MemoryGroupByMeta.GroupType.getDescriptions());
     ciReturn[3] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "MemoryGroupByDialog.ColumnInfo.Value"),
@@ -234,7 +234,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            upInsRows,
+            aggRows,
             lsMod,
             props);
 
@@ -320,30 +320,18 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
 
     wAlwaysAddResult.setSelection(input.isAlwaysGivingBackOneRow());
 
-    if (input.getGroupField() != null) {
-      for (int i = 0; i < input.getGroupField().length; i++) {
-        TableItem item = wGroup.table.getItem(i);
-        if (input.getGroupField()[i] != null) {
-          item.setText(1, input.getGroupField()[i]);
-        }
-      }
+    for (int i = 0; i < input.getGroups().size(); i++) {
+      TableItem item = wGroup.table.getItem(i);
+      item.setText(1, Const.NVL(input.getGroups().get(i).getField(), ""));
     }
 
-    if (input.getAggregateField() != null) {
-      for (int i = 0; i < input.getAggregateField().length; i++) {
-        TableItem item = wAgg.table.getItem(i);
-        if (input.getAggregateField()[i] != null) {
-          item.setText(1, input.getAggregateField()[i]);
-        }
-        if (input.getSubjectField()[i] != null) {
-          item.setText(2, input.getSubjectField()[i]);
-        }
-        item.setText(
-            3, Const.NVL(MemoryGroupByMeta.getTypeDescLong(input.getAggregateType()[i]), ""));
-        if (input.getValueField()[i] != null) {
-          item.setText(4, input.getValueField()[i]);
-        }
-      }
+    for (int i = 0; i < input.getAggregates().size(); i++) {
+      GAggregate aggregate = input.getAggregates().get(i);
+      TableItem item = wAgg.table.getItem(i);
+      item.setText(1, Const.NVL(aggregate.getField(), ""));
+      item.setText(2, Const.NVL(aggregate.getSubject(), ""));
+      item.setText(3, aggregate.getType().getDescription());
+      item.setText(4, Const.NVL(aggregate.getValueField(), ""));
     }
 
     wGroup.setRowNums();
@@ -366,26 +354,21 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
       return;
     }
 
-    int sizegroup = wGroup.nrNonEmpty();
-    int nrFields = wAgg.nrNonEmpty();
-
     input.setAlwaysGivingBackOneRow(wAlwaysAddResult.getSelection());
 
-    input.allocate(sizegroup, nrFields);
-
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < sizegroup; i++) {
-      TableItem item = wGroup.getNonEmpty(i);
-      input.getGroupField()[i] = item.getText(1);
+    input.getGroups().clear();
+    for (TableItem item : wGroup.getNonEmptyItems()) {
+      input.getGroups().add(new GGroup(item.getText(1)));
     }
 
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < nrFields; i++) {
-      TableItem item = wAgg.getNonEmpty(i);
-      input.getAggregateField()[i] = item.getText(1);
-      input.getSubjectField()[i] = item.getText(2);
-      input.getAggregateType()[i] = MemoryGroupByMeta.getType(item.getText(3));
-      input.getValueField()[i] = item.getText(4);
+    input.getAggregates().clear();
+    for (TableItem item : wAgg.getNonEmptyItems()) {
+      GAggregate aggregate = new GAggregate();
+      aggregate.setField(item.getText(1));
+      aggregate.setSubject(item.getText(2));
+      aggregate.setType(MemoryGroupByMeta.GroupType.getTypeWithDescription(item.getText(3)));
+      aggregate.setValueField(item.getText(4));
+      input.getAggregates().add(aggregate);
     }
 
     transformName = wTransformName.getText();

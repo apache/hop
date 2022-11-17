@@ -55,7 +55,7 @@
         <include>com.github.jai-imageio:jai-imageio-core:jar</include>
         <include>com.github.junrar:junrar:jar</include>
         <include>com.github.virtuald:curvesapi:jar</include>
-        <include>com.googlecode.juniversalchardet:juniversalchardet:jar</include>
+        <include>com.github.albfernandez:juniversalchardet:jar</include>
         <include>com.googlecode.plist:dd-plist:jar</include>
         <include>com.healthmarketscience.jackcess:jackcess-encrypt:jar</include>
         <include>com.healthmarketscience.jackcess:jackcess:jar</include>

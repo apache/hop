@@ -34,7 +34,6 @@
 
     <properties>
         <!-- Third-party dependencies -->
-        <slf4j-api.version>1.7.32</slf4j-api.version>
         <guava.version>31.1-jre</guava.version>
 
         <!-- Test dependencies -->
@@ -79,7 +78,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j-api.version}</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <!-- Hop dependencies -->

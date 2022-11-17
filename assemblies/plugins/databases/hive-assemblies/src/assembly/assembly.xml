@@ -48,7 +48,8 @@
                 <include>org.apache.hive:hive-service:jar</include>
                 <include>org.apache.hive:hive-service-rpc:jar</include>
                 <include>org.apache.hive:hive-serde:jar</include>
-                <include>org.apache.hadoop:hadoop-common:jar</include>
+                <include>org.apache.hadoop:hadoop-client-api:jar</include>
+                <include>org.apache.hadoop:hadoop-client:jar</include>
                 <include>org.apache.curator:curator-client:jar</include>
             </includes>
         </dependencySet>

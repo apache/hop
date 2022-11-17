@@ -22,7 +22,7 @@ setlocal
 REM switch to script directory
 cd /D %~dp0
 
-set LIBSPATH=lib
+set LIBSPATH=lib\core;lib\beam
 set SWTJAR=libswt\win64
 
 :NormalStart

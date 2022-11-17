@@ -33,21 +33,11 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.TYPE_GROUP_COUNT_ANY;
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.TYPE_GROUP_MAX;
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.TYPE_GROUP_MIN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
@@ -94,10 +84,9 @@ public class MemoryGroupByMetaGetFieldsTest {
 
     doReturn(valueMeta).when(rowMeta).searchValueMeta("date");
 
-    memoryGroupByMeta.setSubjectField(new String[] {"date"});
-    memoryGroupByMeta.setGroupField(new String[] {});
-    memoryGroupByMeta.setAggregateField(new String[] {"maxDate"});
-    memoryGroupByMeta.setAggregateType(new int[] {TYPE_GROUP_MAX});
+    memoryGroupByMeta.getGroups().clear();
+    memoryGroupByMeta.setAggregates(
+        List.of(new GAggregate("maxDate", "date", MemoryGroupByMeta.GroupType.Maximum, null)));
 
     memoryGroupByMeta.getFields(
         rowMeta,
@@ -119,10 +108,8 @@ public class MemoryGroupByMetaGetFieldsTest {
 
     doReturn(valueMeta).when(rowMeta).searchValueMeta("date");
 
-    memoryGroupByMeta.setSubjectField(new String[] {"date"});
-    memoryGroupByMeta.setGroupField(new String[] {});
-    memoryGroupByMeta.setAggregateField(new String[] {"minDate"});
-    memoryGroupByMeta.setAggregateType(new int[] {TYPE_GROUP_MIN});
+    memoryGroupByMeta.setAggregates(
+        List.of(new GAggregate("minDate", "date", MemoryGroupByMeta.GroupType.Minimum, null)));
 
     memoryGroupByMeta.getFields(
         rowMeta, "Group by", mockInfo, mockNextTransform, mockSpace, mockIHopMetadataProvider);
@@ -139,10 +126,9 @@ public class MemoryGroupByMetaGetFieldsTest {
 
     doReturn(valueMeta).when(rowMeta).searchValueMeta("date");
 
-    memoryGroupByMeta.setSubjectField(new String[] {null});
-    memoryGroupByMeta.setGroupField(new String[] {"date"});
-    memoryGroupByMeta.setAggregateField(new String[] {"countDate"});
-    memoryGroupByMeta.setAggregateType(new int[] {TYPE_GROUP_COUNT_ANY});
+    memoryGroupByMeta.setGroups(List.of(new GGroup("date")));
+    memoryGroupByMeta.setAggregates(
+        List.of(new GAggregate("countDate", "date", MemoryGroupByMeta.GroupType.CountAny, null)));
 
     memoryGroupByMeta.getFields(
         rowMeta, "Group by", mockInfo, mockNextTransform, mockSpace, mockIHopMetadataProvider);

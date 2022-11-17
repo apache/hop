@@ -15,28 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.hop.beam.engines;
+package org.apache.hop.pipeline.transforms.memgroupby.beam;
 
-import org.apache.beam.sdk.options.PipelineOptions;
-import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 
-public interface IBeamPipelineEngineRunConfiguration extends IPipelineEngineRunConfiguration {
+public enum AggregationType {
+  SUM,
+  AVERAGE,
+  COUNT_ALL,
+  MIN,
+  MAX,
+  FIRST_INCL_NULL,
+  LAST_INCL_NULL,
+  FIRST,
+  LAST,
+  ;
 
-  RunnerType getRunnerType();
-
-  PipelineOptions getPipelineOptions() throws HopException;
-
-  boolean isRunningAsynchronous();
-
-  String getUserAgent();
-
-  String getTempLocation();
-
-  String getStreamingHopTransformsFlushInterval();
-
-  String getStreamingHopTransformsBufferSize();
-
-  String getFatJar();
+  public static final AggregationType getTypeFromName(String name) throws HopException {
+    for (AggregationType type : values()) {
+      if (name.equals(type.name())) {
+        return type;
+      }
+    }
+    throw new HopException("Aggregation type '" + name + "' is not recognized or supported");
+  }
 }

@@ -232,7 +232,7 @@ public class AccessOutputMeta extends BaseTransformMeta<AccessOutput, AccessOutp
     }
   }
 
-  public static final IRowMeta getLayout(Table table) throws SQLException, HopTransformException {
+  public static final IRowMeta getLayout(Table table) throws HopTransformException, IOException {
     IRowMeta row = new RowMeta();
     List<Column> columns = (List<Column>) table.getColumns();
     for (int i = 0; i < columns.size(); i++) {

@@ -36,7 +36,6 @@
 
 	<properties>
 		<ucanaccess.version>5.0.1</ucanaccess.version>
-		<jackcess.version>3.0.1</jackcess.version>
 		<hsqldb.version>2.5.0</hsqldb.version>
 	</properties>
 

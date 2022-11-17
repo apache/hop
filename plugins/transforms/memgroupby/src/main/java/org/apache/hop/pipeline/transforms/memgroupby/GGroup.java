@@ -13,40 +13,48 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.hop.beam.metadata;
+package org.apache.hop.pipeline.transforms.memgroupby;
 
-public enum RunnerType {
-  Direct,
-  DataFlow,
-  Spark,
-  Flink,
-  ;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
-  public static String[] getNames() {
-    String[] names = new String[values().length];
-    for (int i = 0; i < names.length; i++) {
-      names[i] = values()[i].name();
-    }
-    return names;
+public class GGroup {
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "GROUPFIELD",
+      injectionKeyDescription = "MemoryGroupBy.Injection.GROUPFIELD",
+      injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "MemoryGroupBy.Injection.FIELDS")
+  private String field;
+
+  public GGroup() {
+  }
+
+  public GGroup(GGroup g) {
+    this.field = g.field;
+  }
+
+  public GGroup(String field) {
+    this.field = field;
   }
 
   /**
-   * Find the runner type by name. If not found or if the name is null, return null.
+   * Gets field
    *
-   * @param name
-   * @return
+   * @return value of field
    */
-  public static RunnerType getRunnerTypeByName(String name) {
-    if (name == null) {
-      return null;
-    }
-    for (RunnerType type : values()) {
-      if (type.name().equalsIgnoreCase(name)) {
-        return type;
-      }
-    }
-    return null;
+  public String getField() {
+    return field;
+  }
+
+  /**
+   * Sets field
+   *
+   * @param field value of field
+   */
+  public void setField(String field) {
+    this.field = field;
   }
 }

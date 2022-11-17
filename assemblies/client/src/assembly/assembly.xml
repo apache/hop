@@ -36,11 +36,30 @@
             <includes>
                 <include>org.apache.hop:hop-assemblies-static:zip</include>
                 <include>org.apache.hop:hop-assemblies-samples:zip</include>
-                <include>org.apache.hop:hop-assemblies-libs:zip</include>
                 <include>org.apache.hop:hop-assemblies-plugins-dist:zip</include>
             </includes>
             <unpack>true</unpack>
             <outputDirectory>.</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <!-- hop lib jar files -->
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-assemblies-libs:zip</include>
+            </includes>
+            <unpack>true</unpack>
+            <outputDirectory>lib/core</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <!-- hop lib jar files -->
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-assemblies-libs-beam:zip</include>
+            </includes>
+            <unpack>true</unpack>
+            <outputDirectory>lib/beam</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
@@ -96,10 +115,17 @@
                 <include>org.eclipse.jetty:*</include>
                 <include>javax.servlet:javax.servlet-api</include>
             </includes>
-            <outputDirectory>lib</outputDirectory>
+            <outputDirectory>lib/core</outputDirectory>
             <useTransitiveDependencies>true</useTransitiveDependencies>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
-
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-engine-beam</include>
+            </includes>
+            <outputDirectory>lib/beam</outputDirectory>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
     </dependencySets>
 </assembly>

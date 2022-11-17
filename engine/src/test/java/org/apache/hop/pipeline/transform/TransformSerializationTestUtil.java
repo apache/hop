@@ -27,18 +27,20 @@ import org.w3c.dom.Node;
 
 public class TransformSerializationTestUtil {
 
-  public static final void testSerialization(
-      String filename, Class<? extends ITransformMeta> clazz, String xmlTag) throws Exception {
+  public static final <T extends ITransformMeta> T testSerialization(
+      String filename, Class<T> clazz, String xmlTag) throws Exception {
     Document document = XmlHandler.loadXmlFile(clazz.getResourceAsStream(filename));
     Node node = XmlHandler.getSubNode(document, xmlTag);
-    ITransformMeta meta = clazz.getConstructor().newInstance();
+    T meta = clazz.getConstructor().newInstance();
     XmlMetadataUtil.deSerializeFromXml(null, node, clazz, meta, new MemoryMetadataProvider());
     String xml = XmlHandler.openTag(xmlTag) + meta.getXml() + XmlHandler.closeTag(xmlTag);
 
     Document copyDocument = XmlHandler.loadXmlString(xml);
     Node copyNode = XmlHandler.getSubNode(copyDocument, xmlTag);
-    ITransformMeta copy = clazz.getConstructor().newInstance();
+    T copy = clazz.getConstructor().newInstance();
     XmlMetadataUtil.deSerializeFromXml(null, copyNode, clazz, copy, new MemoryMetadataProvider());
     Assert.assertEquals(meta.getXml(), copy.getXml());
+
+    return meta;
   }
 }

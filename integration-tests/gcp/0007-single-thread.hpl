@@ -34,31 +34,29 @@ limitations under the License.
     <created_date>2022/09/20 20:43:23.077</created_date>
     <modified_user>-</modified_user>
     <modified_date>2022/09/20 20:43:23.077</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
     <notepad>
+      <backgroundcolorblue>210</backgroundcolorblue>
+      <backgroundcolorgreen>136</backgroundcolorgreen>
+      <backgroundcolorred>15</backgroundcolorred>
+      <bordercolorblue>250</bordercolorblue>
+      <bordercolorgreen>231</bordercolorgreen>
+      <bordercolorred>200</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>250</fontcolorblue>
+      <fontcolorgreen>231</fontcolorgreen>
+      <fontcolorred>200</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>12</fontsize>
+      <height>64</height>
+      <xloc>32</xloc>
+      <yloc>208</yloc>
       <note>There is a google storage bug somewhere.
 Reading back a newly created xlsx file fails for some reason.
 </note>
-      <xloc>48</xloc>
-      <yloc>224</yloc>
       <width>359</width>
-      <heigth>64</heigth>
-      <fontname>Noto Sans</fontname>
-      <fontsize>12</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>200</fontcolorred>
-      <fontcolorgreen>231</fontcolorgreen>
-      <fontcolorblue>250</fontcolorblue>
-      <backgroundcolorred>15</backgroundcolorred>
-      <backgroundcolorgreen>136</backgroundcolorgreen>
-      <backgroundcolorblue>210</backgroundcolorblue>
-      <bordercolorred>200</bordercolorred>
-      <bordercolorgreen>231</bordercolorgreen>
-      <bordercolorblue>250</bordercolorblue>
     </notepad>
   </notepads>
   <order>
@@ -80,7 +78,7 @@ Reading back a newly created xlsx file fails for some reason.
     <hop>
       <from>FL,CA</from>
       <to>0007-customers-ca-fl.xlsx</to>
-      <enabled>N</enabled>
+      <enabled>Y</enabled>
     </hop>
     <hop>
       <from>FL,CA</from>
@@ -93,6 +91,101 @@ Reading back a newly created xlsx file fails for some reason.
       <enabled>Y</enabled>
     </hop>
   </order>
+  <transform>
+    <name>0007-customers-ca-fl.avro</name>
+    <type>AvroOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>SINGLE_BEAM</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <SpecifyFormat>N</SpecifyFormat>
+    <add_date>N</add_date>
+    <add_time>N</add_time>
+    <add_to_result_filenames>Y</add_to_result_filenames>
+    <compressiontype>snappy</compressiontype>
+    <create_parent_folder>Y</create_parent_folder>
+    <create_schema_file>Y</create_schema_file>
+    <fields>
+      <field>
+        <avroname>$.id</avroname>
+        <avrotype>5</avrotype>
+        <name>id</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.lastName</avroname>
+        <avrotype>6</avrotype>
+        <name>lastName</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.firstName</avroname>
+        <avrotype>6</avrotype>
+        <name>firstName</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.zipCode</avroname>
+        <avrotype>6</avrotype>
+        <name>zipCode</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.city</avroname>
+        <avrotype>6</avrotype>
+        <name>city</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.birthdate</avroname>
+        <avrotype>6</avrotype>
+        <name>birthdate</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.street</avroname>
+        <avrotype>6</avrotype>
+        <name>street</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.housenr</avroname>
+        <avrotype>6</avrotype>
+        <name>housenr</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.stateCode</avroname>
+        <avrotype>6</avrotype>
+        <name>stateCode</name>
+        <nullable>Y</nullable>
+      </field>
+      <field>
+        <avroname>$.state</avroname>
+        <avrotype>6</avrotype>
+        <name>state</name>
+        <nullable>Y</nullable>
+      </field>
+    </fields>
+    <filename>gs://apache-hop-it/output/0007-customers-ca-fl.avro</filename>
+    <haspartno>N</haspartno>
+    <namespace>customers</namespace>
+    <output_field_name>avro_record</output_field_name>
+    <output_type>BinaryFile</output_type>
+    <recordname>customer</recordname>
+    <schemafilename>gs://apache-hop-it/output/0007-customers-ca-fl.avsc</schemafilename>
+    <split>N</split>
+    <write_schema_file>N</write_schema_file>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
+      <yloc>496</yloc>
+    </GUI>
+  </transform>
   <transform>
     <name>0007-customers-ca-fl.csv</name>
     <type>TextFileOutput</type>
@@ -259,7 +352,7 @@ Reading back a newly created xlsx file fails for some reason.
     <attributes/>
     <GUI>
       <xloc>880</xloc>
-      <yloc>144</yloc>
+      <yloc>208</yloc>
     </GUI>
   </transform>
   <transform>
@@ -279,12 +372,6 @@ Reading back a newly created xlsx file fails for some reason.
     <doNotOpenNewFileInit>Y</doNotOpenNewFileInit>
     <encoding>UTF-8</encoding>
     <extension>json</extension>
-    <fileAppended>N</fileAppended>
-    <fileAsCommand>N</fileAsCommand>
-    <fileName>gs://apache-hop-it/output/0007-customers-ca-fl</fileName>
-    <jsonBloc>customers</jsonBloc>
-    <nrRowsInBloc>50000</nrRowsInBloc>
-    <operation_type>writetofile</operation_type>
     <fields>
       <field>
         <element>id</element>
@@ -327,6 +414,12 @@ Reading back a newly created xlsx file fails for some reason.
         <name>state</name>
       </field>
     </fields>
+    <fileAppended>N</fileAppended>
+    <fileAsCommand>N</fileAsCommand>
+    <fileName>gs://apache-hop-it/output/0007-customers-ca-fl</fileName>
+    <jsonBloc>customers</jsonBloc>
+    <nrRowsInBloc>50000</nrRowsInBloc>
+    <operation_type>writetofile</operation_type>
     <outputValue>outputValue</outputValue>
     <partNrInFilename>N</partNrInFilename>
     <specifyingFormat>N</specifyingFormat>
@@ -334,7 +427,7 @@ Reading back a newly created xlsx file fails for some reason.
     <transformNrInFilename>N</transformNrInFilename>
     <attributes/>
     <GUI>
-      <xloc>992</xloc>
+      <xloc>1008</xloc>
       <yloc>96</yloc>
     </GUI>
   </transform>
@@ -349,109 +442,173 @@ Reading back a newly created xlsx file fails for some reason.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <add_to_result_filenames>Y</add_to_result_filenames>
+    <add_to_result_filenames>N</add_to_result_filenames>
     <appendEmpty>0</appendEmpty>
     <appendLines>N</appendLines>
     <appendOffset>0</appendOffset>
     <appendOmitHeader>N</appendOmitHeader>
+    <fields>
+      <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format>0</format>
+        <formula>N</formula>
+        <hyperlinkField/>
+        <name>id</name>
+        <styleCell/>
+        <title>id</title>
+        <titleStyleCell/>
+        <type>Integer</type>
+      </field>
+      <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
+        <formula>N</formula>
+        <hyperlinkField/>
+        <name>lastName</name>
+        <styleCell/>
+        <title>lastName</title>
+        <titleStyleCell/>
+        <type>String</type>
+      </field>
+      <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
+        <formula>N</formula>
+        <hyperlinkField/>
+        <name>firstName</name>
+        <styleCell/>
+        <title>firstName</title>
+        <titleStyleCell/>
+        <type>String</type>
+      </field>
+      <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
+        <formula>N</formula>
+        <hyperlinkField/>
+        <name>zipCode</name>
+        <styleCell/>
+        <title>zipCode</title>
+        <titleStyleCell/>
+        <type>String</type>
+      </field>
+      <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
+        <formula>N</formula>
+        <hyperlinkField/>
+        <name>city</name>
+        <styleCell/>
+        <title>city</title>
+        <titleStyleCell/>
+        <type>String</type>
+      </field>
+      <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
+        <formula>N</formula>
+        <hyperlinkField/>
+        <name>birthdate</name>
+        <styleCell/>
+        <title>birthdate</title>
+        <titleStyleCell/>
+        <type>String</type>
+      </field>
+      <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
+        <formula>N</formula>
+        <hyperlinkField/>
+        <name>street</name>
+        <styleCell/>
+        <title>street</title>
+        <titleStyleCell/>
+        <type>String</type>
+      </field>
+      <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
+        <formula>N</formula>
+        <hyperlinkField/>
+        <name>housenr</name>
+        <styleCell/>
+        <title>housenr</title>
+        <titleStyleCell/>
+        <type>String</type>
+      </field>
+      <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
+        <formula>N</formula>
+        <hyperlinkField/>
+        <name>stateCode</name>
+        <styleCell/>
+        <title>stateCode</title>
+        <titleStyleCell/>
+        <type>String</type>
+      </field>
+      <field>
+        <commentAuthorField/>
+        <commentField/>
+        <format/>
+        <formula>N</formula>
+        <hyperlinkField/>
+        <name>state</name>
+        <styleCell/>
+        <title>state</title>
+        <titleStyleCell/>
+        <type>String</type>
+      </field>
+    </fields>
     <file>
-      <autosizecolums>Y</autosizecolums>
-      <createParentFolder>N</createParentFolder>
+      <SpecifyFormat>N</SpecifyFormat>
       <add_date>N</add_date>
+      <add_time>N</add_time>
+      <autosizecolums>N</autosizecolums>
+      <createParentFolder>N</createParentFolder>
+      <date_time_format/>
       <do_not_open_newfile_init>Y</do_not_open_newfile_init>
       <extension>xlsx</extension>
-      <name>gs://apache-hop-it/output/0007-customers-ca-fl</name>
+      <filename_field/>
       <filename_in_field>N</filename_in_field>
       <if_file_exists>new</if_file_exists>
       <if_sheet_exists>new</if_sheet_exists>
+      <name>gs:///apache-hop-it/output/0007-customers-ca-fl</name>
+      <password/>
       <protect_sheet>N</protect_sheet>
+      <protected_by/>
       <sheetname>CA-FL-Customers</sheetname>
-      <SpecifyFormat>N</SpecifyFormat>
+      <split>N</split>
       <splitevery>0</splitevery>
       <stream_data>N</stream_data>
-      <add_time>N</add_time>
-      <split>N</split>
     </file>
     <footer>N</footer>
     <forceFormulaRecalculation>N</forceFormulaRecalculation>
     <header>Y</header>
     <leaveExistingStylesUnchanged>N</leaveExistingStylesUnchanged>
     <makeSheetActive>Y</makeSheetActive>
-    <fields>
-      <field>
-        <format>0</format>
-        <formula>N</formula>
-        <name>id</name>
-        <title>id</title>
-        <type>Integer</type>
-      </field>
-      <field>
-        <formula>N</formula>
-        <name>lastName</name>
-        <title>lastName</title>
-        <type>String</type>
-      </field>
-      <field>
-        <formula>N</formula>
-        <name>firstName</name>
-        <title>firstName</title>
-        <type>String</type>
-      </field>
-      <field>
-        <formula>N</formula>
-        <name>zipCode</name>
-        <title>zipCode</title>
-        <type>String</type>
-      </field>
-      <field>
-        <formula>N</formula>
-        <name>city</name>
-        <title>city</title>
-        <type>String</type>
-      </field>
-      <field>
-        <formula>N</formula>
-        <name>birthdate</name>
-        <title>birthdate</title>
-        <type>String</type>
-      </field>
-      <field>
-        <formula>N</formula>
-        <name>street</name>
-        <title>street</title>
-        <type>String</type>
-      </field>
-      <field>
-        <formula>N</formula>
-        <name>housenr</name>
-        <title>housenr</title>
-        <type>String</type>
-      </field>
-      <field>
-        <formula>N</formula>
-        <name>stateCode</name>
-        <title>stateCode</title>
-        <type>String</type>
-      </field>
-      <field>
-        <formula>N</formula>
-        <name>state</name>
-        <title>state</title>
-        <type>String</type>
-      </field>
-    </fields>
     <rowWritingMethod>overwrite</rowWritingMethod>
     <startingCell>A1</startingCell>
     <template>
       <enabled>N</enabled>
       <filename>template.xls</filename>
-      <sheet_enabled>N</sheet_enabled>
       <hidden>N</hidden>
+      <sheet_enabled>N</sheet_enabled>
+      <sheetname/>
     </template>
     <attributes/>
     <GUI>
-      <xloc>768</xloc>
-      <yloc>176</yloc>
+      <xloc>736</xloc>
+      <yloc>304</yloc>
     </GUI>
   </transform>
   <transform>
@@ -510,7 +667,6 @@ Reading back a newly created xlsx file fails for some reason.
         <target_field>state</target_field>
       </field>
     </fields>
-    <filename_split_size>1000000</filename_split_size>
     <filename_base>gs://apache-hop-it/output/0007-customers-fl-ca</filename_base>
     <filename_create_parent_folders>Y</filename_create_parent_folders>
     <filename_datetime_format>yyyyMMdd-HHmmss</filename_datetime_format>
@@ -520,12 +676,13 @@ Reading back a newly created xlsx file fails for some reason.
     <filename_include_datetime>N</filename_include_datetime>
     <filename_include_split>Y</filename_include_split>
     <filename_include_time>N</filename_include_time>
+    <filename_split_size>1000000</filename_split_size>
     <row_group_size>20000</row_group_size>
     <version>2.0</version>
     <attributes/>
     <GUI>
-      <xloc>656</xloc>
-      <yloc>208</yloc>
+      <xloc>576</xloc>
+      <yloc>384</yloc>
     </GUI>
   </transform>
   <transform>
@@ -560,105 +717,8 @@ Reading back a newly created xlsx file fails for some reason.
     </compare>
     <attributes/>
     <GUI>
-      <xloc>304</xloc>
+      <xloc>400</xloc>
       <yloc>96</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>0007-customers-ca-fl.avro</name>
-    <type>AvroOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>SINGLE_BEAM</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <add_to_result_filenames>Y</add_to_result_filenames>
-    <compressiontype>snappy</compressiontype>
-    <create_parent_folder>Y</create_parent_folder>
-    <create_schema_file>Y</create_schema_file>
-    <add_date>N</add_date>
-    <date_time_format/>
-    <doc/>
-    <filename>gs://apache-hop-it/output/0007-customers-ca-fl.avro</filename>
-    <namespace>customers</namespace>
-    <output_field_name>avro_record</output_field_name>
-    <fields>
-      <field>
-        <avroname>$.id</avroname>
-        <avrotype>5</avrotype>
-        <name>id</name>
-        <nullable>Y</nullable>
-      </field>
-      <field>
-        <avroname>$.lastName</avroname>
-        <avrotype>6</avrotype>
-        <name>lastName</name>
-        <nullable>Y</nullable>
-      </field>
-      <field>
-        <avroname>$.firstName</avroname>
-        <avrotype>6</avrotype>
-        <name>firstName</name>
-        <nullable>Y</nullable>
-      </field>
-      <field>
-        <avroname>$.zipCode</avroname>
-        <avrotype>6</avrotype>
-        <name>zipCode</name>
-        <nullable>Y</nullable>
-      </field>
-      <field>
-        <avroname>$.city</avroname>
-        <avrotype>6</avrotype>
-        <name>city</name>
-        <nullable>Y</nullable>
-      </field>
-      <field>
-        <avroname>$.birthdate</avroname>
-        <avrotype>6</avrotype>
-        <name>birthdate</name>
-        <nullable>Y</nullable>
-      </field>
-      <field>
-        <avroname>$.street</avroname>
-        <avrotype>6</avrotype>
-        <name>street</name>
-        <nullable>Y</nullable>
-      </field>
-      <field>
-        <avroname>$.housenr</avroname>
-        <avrotype>6</avrotype>
-        <name>housenr</name>
-        <nullable>Y</nullable>
-      </field>
-      <field>
-        <avroname>$.stateCode</avroname>
-        <avrotype>6</avrotype>
-        <name>stateCode</name>
-        <nullable>Y</nullable>
-      </field>
-      <field>
-        <avroname>$.state</avroname>
-        <avrotype>6</avrotype>
-        <name>state</name>
-        <nullable>Y</nullable>
-      </field>
-    </fields>
-    <output_type>BinaryFile</output_type>
-    <haspartno>N</haspartno>
-    <recordname>customer</recordname>
-    <schemafilename>gs://apache-hop-it/output/0007-customers-ca-fl.avsc</schemafilename>
-    <SpecifyFormat>N</SpecifyFormat>
-    <add_time>N</add_time>
-    <split>N</split>
-    <write_schema_file>N</write_schema_file>
-    <attributes/>
-    <GUI>
-      <xloc>528</xloc>
-      <yloc>240</yloc>
     </GUI>
   </transform>
   <transform>
@@ -676,7 +736,7 @@ Reading back a newly created xlsx file fails for some reason.
     <input_location>gs://apache-hop-it/input/customers-noheader-1k.txt</input_location>
     <attributes/>
     <GUI>
-      <xloc>128</xloc>
+      <xloc>176</xloc>
       <yloc>96</yloc>
     </GUI>
   </transform>

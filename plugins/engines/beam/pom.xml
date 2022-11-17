@@ -50,15 +50,17 @@
     </parent>
 
     <properties>
-        <apache-beam-version>2.41.0</apache-beam-version>
-        <spark-version>3.3.0</spark-version>
-        <flink-version>1.15.2</flink-version>
+
         <json-simple.version>1.1.1</json-simple.version>
         <bigtable-hbase-beam.version>2.6.1</bigtable-hbase-beam.version>
-        <grpc.version>1.49.0</grpc.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.google.api.grpc</groupId>
+            <artifactId>proto-google-iam-v1</artifactId>
+            <version>1.6.10</version>
+        </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty-shaded</artifactId>
@@ -146,7 +148,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
+            <artifactId>hadoop-client-api</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
             <version>${hadoop.version}</version>
         </dependency>
         <dependency>
@@ -219,27 +226,8 @@
         <!-- The Apache Beam dependencies -->
         <dependency>
             <groupId>org.apache.beam</groupId>
-            <artifactId>beam-sdks-java-core</artifactId>
-            <version>${apache-beam-version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.11</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-direct-java</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -258,7 +246,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -281,7 +269,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-spark-3</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -300,7 +288,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-flink-1.15</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -319,7 +307,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-extensions-join-library</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -338,7 +326,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-hadoop-common</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -357,7 +345,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-hadoop-file-system</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -376,7 +364,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-kafka</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -395,7 +383,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-synthetic</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -414,7 +402,7 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-storage</artifactId>
-            <version>2.6.1</version>
+            <version>${google-cloud-storage.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -443,7 +431,7 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.12</artifactId>
-            <version>${spark-version}</version>
+            <version>${apache-spark.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -470,13 +458,13 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-amazon-web-services</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_2.12</artifactId>
-            <version>${spark-version}</version>
+            <version>${apache-spark.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -500,7 +488,7 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>3.2.3</version>
+            <version>${kafka-clients.version}</version>
         </dependency>
 
         <dependency>
@@ -522,7 +510,7 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-kinesis</artifactId>
-            <version>${apache-beam-version}</version>
+            <version>${apache-beam.version}</version>
         </dependency>
 
         <dependency>

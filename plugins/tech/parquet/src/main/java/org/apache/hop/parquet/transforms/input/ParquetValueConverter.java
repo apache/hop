@@ -23,6 +23,8 @@ import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.PrimitiveConverter;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.Date;
 
 public class ParquetValueConverter extends PrimitiveConverter {
@@ -51,7 +53,11 @@ public class ParquetValueConverter extends PrimitiveConverter {
         object = value.getBytes();
         break;
       case IValueMeta.TYPE_BIGNUMBER:
-        object = new BigDecimal(value.toStringUsingUTF8());
+        try {
+          object = new BigDecimal(value.toStringUsingUTF8());
+        } catch (NumberFormatException e) {
+          object = binaryToDecimal(value, valueMeta.getLength(), valueMeta.getPrecision());
+        }
         break;
       default:
         throw new RuntimeException(
@@ -140,5 +146,43 @@ public class ParquetValueConverter extends PrimitiveConverter {
   @Override
   public void addInt(int value) {
     addLong(value);
+  }
+
+  /**
+   * Source code from:
+   *
+   *   apache/parquet-mr/parquet-pig/src/main/java/org/apache/parquet/pig/convert/DecimalUtils.java
+   *
+   * @param value
+   * @param precision
+   * @param scale
+   * @return
+   */
+  public static BigDecimal binaryToDecimal(Binary value, int precision, int scale) {
+    /*
+     * Precision <= 18 checks for the max number of digits for an unscaled long,
+     * else treat with big integer conversion
+     */
+    if (precision <= 18) {
+      ByteBuffer buffer = value.toByteBuffer();
+      byte[] bytes = buffer.array();
+      int start = buffer.arrayOffset() + buffer.position();
+      int end = buffer.arrayOffset() + buffer.limit();
+      long unscaled = 0L;
+      int i = start;
+      while (i < end) {
+        unscaled = (unscaled << 8 | bytes[i] & 0xff);
+        i++;
+      }
+      int bits = 8 * (end - start);
+      long unscaledNew = (unscaled << (64 - bits)) >> (64 - bits);
+      if (unscaledNew <= -Math.pow(10, 18) || unscaledNew >= Math.pow(10, 18)) {
+        return new BigDecimal(unscaledNew);
+      } else {
+        return BigDecimal.valueOf(unscaledNew / Math.pow(10, scale));
+      }
+    } else {
+      return new BigDecimal(new BigInteger(value.getBytes()), scale);
+    }
   }
 }

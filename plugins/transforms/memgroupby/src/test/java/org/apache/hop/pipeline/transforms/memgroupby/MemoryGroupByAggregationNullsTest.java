@@ -26,6 +26,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry;
+import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -39,6 +40,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
+import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.spy;
@@ -81,8 +83,7 @@ public class MemoryGroupByAggregationNullsTest {
     data.subjectnrs = new int[] {0};
     meta = new MemoryGroupByMeta();
     meta.setDefault();
-    meta.setAggregateType(new int[] {5});
-    meta.setAggregateField(new String[] {"x"});
+    meta.getAggregates().add(new GAggregate("x", null, GroupType.Minimum, null));
     vmi = new ValueMetaInteger();
     when(mockHelper.transformMeta.getTransform()).thenReturn(meta);
     rmi = Mockito.mock(IRowMeta.class);
@@ -192,12 +193,13 @@ public class MemoryGroupByAggregationNullsTest {
   @Ignore
   public void addToAggregateBinaryData() throws Exception {
     MemoryGroupByMeta memoryGroupByMeta = spy(meta);
-    memoryGroupByMeta.setAggregateType(new int[] {MemoryGroupByMeta.TYPE_GROUP_COUNT_DISTINCT});
+    memoryGroupByMeta.setAggregates(
+        List.of(new GAggregate("f", "test", GroupType.CountDistinct, null)));
     when(mockHelper.transformMeta.getTransform()).thenReturn(memoryGroupByMeta);
     vmi.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
     vmi.setStorageMetadata(new ValueMetaString());
     aggregate.counts = new long[] {0L};
-    Mockito.doReturn(new String[] {"test"}).when(memoryGroupByMeta).getSubjectField();
+    // Mockito.doReturn(new String[] {"test"}).when(memoryGroupByMeta).getSubjectField();
     aggregate.agg = new Object[] {new byte[0]};
     transform =
         new MemoryGroupBy(

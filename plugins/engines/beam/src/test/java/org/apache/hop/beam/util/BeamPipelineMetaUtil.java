@@ -34,6 +34,8 @@ import org.apache.hop.pipeline.transforms.constant.ConstantField;
 import org.apache.hop.pipeline.transforms.constant.ConstantMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
+import org.apache.hop.pipeline.transforms.memgroupby.GAggregate;
+import org.apache.hop.pipeline.transforms.memgroupby.GGroup;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta;
 import org.apache.hop.pipeline.transforms.mergejoin.MergeJoinMeta;
 import org.apache.hop.pipeline.transforms.streamlookup.StreamLookupMeta;
@@ -120,16 +122,11 @@ public class BeamPipelineMetaUtil {
     // Add a dummy in between to get started...
     //
     MemoryGroupByMeta memoryGroupByMeta = new MemoryGroupByMeta();
-    memoryGroupByMeta.allocate(1, 2);
-    memoryGroupByMeta.getGroupField()[0] = "state";
-    // count(id)
-    memoryGroupByMeta.getAggregateField()[0] = "nrIds";
-    memoryGroupByMeta.getSubjectField()[0] = "id";
-    memoryGroupByMeta.getAggregateType()[0] = MemoryGroupByMeta.TYPE_GROUP_COUNT_ALL;
-    // sum(id)
-    memoryGroupByMeta.getAggregateField()[1] = "sumIds";
-    memoryGroupByMeta.getSubjectField()[1] = "id";
-    memoryGroupByMeta.getAggregateType()[1] = MemoryGroupByMeta.TYPE_GROUP_SUM;
+    memoryGroupByMeta.setGroups(List.of(new GGroup("state")));
+    memoryGroupByMeta.setAggregates(
+        List.of(
+            new GAggregate("nrIds", "id", MemoryGroupByMeta.GroupType.CountAll, null),
+            new GAggregate("sumIds", "id", MemoryGroupByMeta.GroupType.Sum, null)));
 
     TransformMeta memoryGroupByTransformMeta = new TransformMeta("Group By", memoryGroupByMeta);
     pipelineMeta.addTransform(memoryGroupByTransformMeta);
@@ -351,11 +348,10 @@ public class BeamPipelineMetaUtil {
 
     // Add a Memory Group By transform which will
     MemoryGroupByMeta memoryGroupByMeta = new MemoryGroupByMeta();
-    memoryGroupByMeta.allocate(1, 1);
-    memoryGroupByMeta.getGroupField()[0] = "stateCode";
-    memoryGroupByMeta.getAggregateType()[0] = MemoryGroupByMeta.TYPE_GROUP_COUNT_ALL;
-    memoryGroupByMeta.getAggregateField()[0] = "rowsPerState";
-    memoryGroupByMeta.getSubjectField()[0] = "id";
+    memoryGroupByMeta.setGroups(List.of(new GGroup("stateCode")));
+    memoryGroupByMeta.setAggregates(List.of(
+            new GAggregate("rowsPerState", "stateCode", MemoryGroupByMeta.GroupType.CountAll, null)
+    ));
     TransformMeta memoryGroupByTransformMeta = new TransformMeta("rowsPerState", memoryGroupByMeta);
     pipelineMeta.addTransform(memoryGroupByTransformMeta);
     pipelineMeta.addPipelineHop(
