@@ -83,7 +83,7 @@ pipeline {
                 }
             post {
                 always {
-                    archiveArtifacts(artifacts: 'integration-tests/hopweb/target/surefire-reports/images/*.png', allowEmptyArchive: true)
+                    archiveArtifacts(artifacts: 'integration-tests/hopweb/**/*.png', allowEmptyArchive: true)
                     junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
                 }
             }
