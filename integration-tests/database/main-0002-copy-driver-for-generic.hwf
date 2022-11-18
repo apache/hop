@@ -65,7 +65,7 @@ limitations under the License.
         <field>
           <source_filefolder>EMPTY_SOURCE_URL-0-${user.dir}/plugins/databases/postgresql/lib/</source_filefolder>
           <source_configuration_name>LOCAL-SOURCE-FILE-0</source_configuration_name>
-          <destination_filefolder>EMPTY_DEST_URL-0-${user.dir}/lib/</destination_filefolder>
+          <destination_filefolder>EMPTY_DEST_URL-0-${user.dir}/lib/core/</destination_filefolder>
           <destination_configuration_name>LOCAL-DEST-FILE-0</destination_configuration_name>
           <wildcard>postgresql.*</wildcard>
         </field>
