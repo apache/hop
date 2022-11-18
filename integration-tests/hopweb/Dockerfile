@@ -17,25 +17,43 @@
 
 FROM selenium/standalone-chrome
 
-RUN sudo useradd -s /bin/bash -m hop
-
 COPY integration-tests/hopweb/src/ /home/hop/src/
 COPY integration-tests/hopweb/pom.xml /home/hop/
 
-RUN sudo chown -R hop:hop /home/hop/
-RUN sudo mkdir /surefire-reports/ && sudo chown -R hop:hop /surefire-reports
+RUN sudo useradd -s /bin/bash -m hop \
+  && sudo chown -R hop:hop /home/hop/ \
+  && sudo mkdir /surefire-reports/ && sudo chown -R hop:hop /surefire-reports
+
+
+RUN sudo apt-get -qqy update \
+  && sudo apt-get -qqy remove docker docker.io containerd runc \
+  && sudo apt-get -qqy --no-install-recommends install \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release \
+    uidmap \
+    apt-utils \
+  && sudo mkdir -p /etc/apt/keyrings \
+  && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
+  && echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null \
+  && sudo apt-get -qqy update \
+  && sudo apt-get -qqy install docker-ce docker-ce-cli containerd.io docker-compose-plugin \
+  && sudo rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
 
 USER hop
 
-RUN wget https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.tar.gz -P /tmp
-RUN cd /tmp/ && tar -xvzf apache-maven-3.8.6-bin.tar.gz
+RUN wget https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.tar.gz -P /tmp \
+  && cd /tmp/ && tar -xvzf apache-maven-3.8.6-bin.tar.gz \
+  && cp /home/hop/src/test/resources/hopwebtest-docker.properties /home/hop/src/test/resources/hopwebtest.properties \
+  && cp /home/hop/src/test/resources/run-tests.sh /home/hop/ \
+  && chmod +x /home/hop/run-tests.sh
+
 
 ENV PATH=$PATH:/tmp/apache-maven-3.8.6/bin/
-
-RUN cp /home/hop/src/test/resources/hopwebtest-docker.properties /home/hop/src/test/resources/hopwebtest.properties
-RUN cp /home/hop/src/test/resources/run-tests.sh /home/hop/
-
-RUN chmod +x /home/hop/run-tests.sh
 
 WORKDIR /home/hop
 ENTRYPOINT ["/bin/bash", "/home/hop/run-tests.sh"]
