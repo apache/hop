@@ -59,9 +59,9 @@ public class HopWebTest {
 
     private static int MARGIN_TOP = 35;
     private static int MARGIN_LEFT = 10;
-    private static int WAIT_SHORT = 1000;
+    private static int WAIT_SHORT = 2000;
     private static int WAIT_MEDIUM = 1000;
-    private static int WAIT_LONG = 3000;
+    private static int WAIT_LONG = 5000;
     private static int WAIT_VERY_LONG = 5000;
     private static WebDriver driver;
     private static Actions actions;
