@@ -15,9 +15,165 @@
 # specific language governing permissions and limitations
 # under the License.
 Abort
+Add a checksum
+Add constants
+Add sequence
+Add value fields changing sequence
+Add XML
+Analytic query
 Apache Tika
+Append streams
+Block until transforms finish
+Blocking transform
+Calculator
+Call DB procedure
+Change file encoding
+Check if file is locked
+Check if webservice is available
+Clone row
+Closure generator
+Coalesce Fields
+Column exists
+Combination lookup/update
+Concat Fields
+Copy rows to result
+Credit card validator
+CSV file input
+Data grid
+Database join
+Database lookup
+De-serialize from file
+Delay row
 Delete
+Detect empty stream
+Dimension lookup/update
+Doris bulk loader
+Dynamic SQL row
+EDI to XML
+Email messages input
+Enhanced JSON Output
+ETL metadata injection
+Execute a process
+Execute row SQL script
+Execute SQL script
+Fake data
+File exists
+File Metadata
+Filter rows
+Formula
+Fuzzy match
+Generate random value
+Generate rows
+Get data from XML
+Get file names
+Get files from result
+Get files rows count
+Get ID from hop server
+Get records from stream
+Get rows from result
+Get Server Status
+Get subfolder names
+Get system info
+Get table names
+Get variables
+Group by
+HTTP client
+HTTP post
+Identify last row in a stream
+If Null
+Insert / update
+Java filter
+JavaScript
+Join rows (cartesian product)
+JSON input
+JSON output
+Kafka Consumer
+Kafka Producer
+LDAP input
+LDAP output
+Load file content in memory
+Mail
+Mapping Input
+Mapping Output
+Memory group by
 Merge join
+Merge rows (diff)
+Metadata Input
+Metadata structure of stream
+Microsoft Excel input
+Microsoft Excel writer
+MonetDB bulk loader
+MongoDB Delete
+MongoDB input
+MongoDB output
+Multiway merge join
+Null if
+Number range
+PGP decrypt stream
+PGP encrypt stream
+Pipeline executor
+PostgreSQL Bulk Loader
+Process files
+Properties input
+Properties output
+Regex evaluation
+Replace in string
+Reservoir sampling
+REST client
+Row denormaliser
+Row flattener
+Row normaliser
+Rules accumulator
+Rules executor
+Run SSH commands
+Salesforce delete
+Salesforce input
 Salesforce insert
 Salesforce update
+Salesforce upsert
+Sample rows
+SAS Input
+Serialize to file
+Set field value
+Set field value to a constant
+Set files in result
+Set variables
+Simple Mapping
+Snowflake Bulk Loader
+Sort rows
+Sorted merge
+Split field to rows
+Split fields
+SQL file output
+Standardize phone number
+Stream lookup
+Stream Schema Merge
+String operations
+Strings cut
+Switch / case
+Synchronize after merge
+Table compare
+Table exists
+Table input
+Table output
+Teradata Fastload bulk loader
+Text file input
+Text file input
+Text file output
+Token Replacement
+Unique rows
+Unique rows (HashSet)
+Update
+User defined Java class
+User defined Java expression
+Value mapper
+Web services lookup
+Workflow executor
+Write to log
+XML input stream (StAX)
+XML join
+XML output
+XSD validator
+XSL Transformation
+YAML input
 Zip file
