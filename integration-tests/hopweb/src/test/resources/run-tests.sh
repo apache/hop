@@ -17,6 +17,10 @@
 # specific language governing permissions and limitations
 # under the License.
 
+echo "Starting docker deamon"
+
+sudo systemctl start docker
+
 echo "Starting Hop Web UI tests"
 
 # make sure the chrome driver is executable.

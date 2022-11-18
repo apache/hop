@@ -79,13 +79,10 @@ pipeline {
         }
         stage('Run Selenium tests'){
             steps {
-                    sh "docker-compose -f integration-tests/hopweb/docker-compose.yml build"
-                    sh "docker-compose -f integration-tests/hopweb/docker-compose.yml up --abort-on-container-exit"
-                    sh "docker-compose -f integration-tests/hopweb/docker-compose.yml down --rmi all --remove-orphans"
+                 sh "mvn -f integration-tests/hopweb/pom.xml clean test"
                 }
             post {
                 always {
-                    sh "sleep 30"
                     archiveArtifacts(artifacts: 'integration-tests/hopweb/integration-tests/hopweb/target/surefire-reports/images/*.png', allowEmptyArchive: true)
                     junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
                 }

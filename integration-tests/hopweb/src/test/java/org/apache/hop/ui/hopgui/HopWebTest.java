@@ -36,6 +36,9 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.opentest4j.AssertionFailedError;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,7 +62,7 @@ public class HopWebTest {
     private static int WAIT_SHORT = 500;
     private static int WAIT_MEDIUM = 1000;
     private static int WAIT_LONG = 2000;
-    private static int  WAIT_VERY_LONG = 5000;
+    private static int WAIT_VERY_LONG = 5000;
     private static WebDriver driver;
     private static Actions actions;
     private static WebDriverWait wait;
@@ -70,19 +73,23 @@ public class HopWebTest {
     private static String baseUrl, transformName;
     private static String transformsFile;
     private static ScreenshotUtil screenshotUtil;
-
+    private static GenericContainer<?> hopWebContainer;
 
     @BeforeAll
     public static void setUp() throws Exception {
+        //network = Network.builder().driver("bridge").build();
+        hopWebContainer = new GenericContainer<>(DockerImageName.parse("apache/hop-web:Development")).withExposedPorts(8080)
+                .waitingFor(Wait.forHttp("/ui"));
+        hopWebContainer.start();
 
         screenshotUtil = new ScreenshotUtil();
 
         InputStream input = new FileInputStream(HopWebTest.class.getClassLoader().getResource("hopwebtest.properties").getFile());
         Properties properties = new Properties();
         properties.load(input);
-
         driverFile = new File(properties.getProperty("driverfile"));
-        baseUrl = properties.getProperty("baseUrl");
+        baseUrl = "http://" + hopWebContainer.getHost() + ":" + hopWebContainer.getFirstMappedPort() + "/ui";
+        System.out.println("Connection URL used: " + baseUrl);
         isHeadless = Boolean.valueOf(properties.getProperty("headless"));
         transformsFile = properties.getProperty("transformsFile");
 
@@ -111,6 +118,11 @@ public class HopWebTest {
 
     }
 
+    @AfterAll
+    public static void cleanUp() throws Exception {
+        hopWebContainer.stop();
+    }
+
     @Test
     @Order(1)
     public void testNewPipeline() throws InterruptedException, IOException {
@@ -127,7 +139,7 @@ public class HopWebTest {
 
         clickFirstCanvasElement(contextCanvas);
 
-        WebDriverWait wait = new WebDriverWait(driver,Duration.ofSeconds(5));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[text()='New pipeline']")));
         assertEquals(1, driver.findElements(By.xpath("//div[text()='New pipeline']")).size());
         Thread.sleep(WAIT_LONG);
@@ -141,7 +153,7 @@ public class HopWebTest {
      * @throws InterruptedException
      * @throws IOException
      */
-    @ParameterizedTest(name = "{index} => transform=''{0}''" )
+    @ParameterizedTest(name = "{index} => transform=''{0}''")
     @CsvFileSource(files = "src/test/resources/transforms.csv")
     @Order(2)
     public void testAddTransform(String transformName) throws InterruptedException, IOException {
@@ -156,13 +168,13 @@ public class HopWebTest {
      */
     private static void checkWelcomeDialog() throws InterruptedException, IOException {
 
-        try{
+        try {
             WebElement welcomeCloseElement = driver.findElement(By.xpath("//div[text()='" + "Apache Hop" + "']/../div[5]"));
 
-            if(welcomeCloseElement != null){
+            if (welcomeCloseElement != null) {
                 new Actions(driver).moveToElement(welcomeCloseElement).click().perform();
             }
-        }catch(NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             screenshotUtil.takeScreenshot(driver, "welcome-dialog-close-failed.png");
         }
     }
@@ -206,7 +218,7 @@ public class HopWebTest {
         // can we pick up the transform's dialog?
         try {
             assertTrue(isElementPresent(transformName));
-        }catch(AssertionFailedError e) {
+        } catch (AssertionFailedError e) {
             restartOnFailure(e);
         }
 
@@ -220,7 +232,7 @@ public class HopWebTest {
             // for some transforms (e.g. Append Streams), the dialog is closed correctly, but the dialog element keeps floating around, causing this assertion to fail.
             // check that we can't get the transform's dialog anymore
             assertFalse(isElementPresent(transformName));
-        }catch(AssertionFailedError e) {
+        } catch (AssertionFailedError e) {
             screenshotUtil.takeScreenshot(driver, transformName + "-could-not-get-dialog.png");
             restartOnFailure(e);
         }
@@ -242,12 +254,12 @@ public class HopWebTest {
             // the context dialog should have popped up, so we have 2 canvas elements available.
 //            int nbCanvasElements = driver.findElements(By.xpath("//canvas")).size();
 //            assertEquals(2, nbCanvasElements);
-        }catch(AssertionFailedError e) {
+        } catch (AssertionFailedError e) {
             screenshotUtil.takeScreenshot(driver, transformName + "-could-not-get-delete-dialog.png");
             restartOnFailure(e);
         }
 
-        try{
+        try {
             Thread.sleep(WAIT_SHORT);
 
             contextCanvas = getLastCanvas();
@@ -261,14 +273,14 @@ public class HopWebTest {
             // check if the context dialog was closed correctly.
 //            assertEquals(1, driver.findElements(By.xpath("//canvas")).size());
 
-        }catch(AssertionFailedError e){
+        } catch (AssertionFailedError e) {
             screenshotUtil.takeScreenshot(driver, transformName + "-delete-dialog-not-closed.png");
             restartOnFailure(e);
         }
     }
 
-    private String getElementHtml(String transformName){
-        try{
+    private String getElementHtml(String transformName) {
+        try {
             WebElement transformNameElement = driver.findElement(By.xpath("//div[text()='" + transformName + "']"));
             WebElement transformElement = transformNameElement.findElement(By.xpath("./../.."));
 
@@ -276,24 +288,24 @@ public class HopWebTest {
 
             return transformHtml;
 
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             screenshotUtil.takeScreenshot(driver, transformName + "-get-element-html.png");
         }
         return null;
     }
 
-    private boolean isElementPresent(String transformName){
-        try{
+    private boolean isElementPresent(String transformName) {
+        try {
             WebElement transformNameElement = driver.findElement(By.xpath("//div[text()='" + transformName + "']"));
             String transformHtml = transformNameElement.getAttribute("innerHTML");
 
-            if(transformNameElement != null){
+            if (transformNameElement != null) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
-        }catch(NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             return false;
         }
     }
@@ -303,7 +315,7 @@ public class HopWebTest {
         new Actions(driver).moveToElement(element).click().perform();
     }
 
-    private void clickElementById(String id){
+    private void clickElementById(String id) {
         WebElement element = driver.findElement(By.id(id));
         new Actions(driver).moveToElement(element).click().perform();
     }
@@ -312,26 +324,26 @@ public class HopWebTest {
 
         canvasDimension = canvas.getSize();
 
-        int posX = 0-(canvasDimension.getWidth()/2)+MARGIN_LEFT;
-        int posY = 0-(canvasDimension.getHeight()/2)+MARGIN_TOP;
+        int posX = 0 - (canvasDimension.getWidth() / 2) + MARGIN_LEFT;
+        int posY = 0 - (canvasDimension.getHeight() / 2) + MARGIN_TOP;
 
         clickCanvasAtPos(canvas, posX, posY);
     }
 
     private void clickCanvasAtPos(WebElement canvas, int posX, int posY) {
-        try{
+        try {
             new Actions(driver).moveToElement(canvas, posX, posY).click().pause(Duration.ofMillis(WAIT_SHORT)).perform();
-        }catch(Exception e){
+        } catch (Exception e) {
             screenshotUtil.takeScreenshot(driver, transformName + "-canvas-click" + posX + "-" + posY + ".png");
         }
     }
 
     private WebElement getCanvas(int canvasNb) throws IOException, InterruptedException {
-        try{
+        try {
             WebElement canvas = driver.findElements(By.xpath("//canvas")).get(canvasNb);
             assertNotNull(canvas);
             return canvas;
-        }catch(AssertionFailedError e){
+        } catch (AssertionFailedError e) {
             screenshotUtil.takeScreenshot(driver, transformName + "-get-canvas.png");
             restartOnFailure(e);
         }
@@ -342,6 +354,7 @@ public class HopWebTest {
         // pipeline and workflow canvas is the first one in the dom.
         return getCanvas(0);
     }
+
     private WebElement getContextCanvas() throws InterruptedException, IOException {
         // context canvas is the second one in the dom.
         return getCanvas(1);
@@ -349,7 +362,7 @@ public class HopWebTest {
 
     private WebElement getLastCanvas() throws InterruptedException, IOException {
         List<WebElement> canvasList = driver.findElements(By.xpath("//canvas"));
-        WebElement canvas = canvasList.get(canvasList.size()-1);
+        WebElement canvas = canvasList.get(canvasList.size() - 1);
         assertNotNull(canvas);
         return canvas;
     }
@@ -361,22 +374,23 @@ public class HopWebTest {
 
     public void sendInput(String inputString) throws InterruptedException, IOException {
         // safe to assume the input we need is the last one added.
-        try{
+        try {
             List<WebElement> inputElements = driver.findElements(By.tagName("input"));
-            WebElement inputElement = inputElements.get(inputElements.size()-1);
+            WebElement inputElement = inputElements.get(inputElements.size() - 1);
             assertTrue(inputElement.isDisplayed());
             Thread.sleep(WAIT_SHORT);
             inputElement.sendKeys(inputString);
             Thread.sleep(WAIT_SHORT);
-        }catch(ElementNotInteractableException e){
+        } catch (ElementNotInteractableException e) {
             e.printStackTrace();
             closeAndcreateNewPipeline();
             Thread.sleep(WAIT_LONG);
-        }catch(AssertionFailedError e){
+        } catch (AssertionFailedError e) {
             restartOnFailure(e);
             Thread.sleep(WAIT_LONG);
         }
     }
+
     private void restartOnFailure(AssertionFailedError e) throws InterruptedException, IOException {
         e.printStackTrace();
         closeAndcreateNewPipeline();
