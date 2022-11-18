@@ -548,8 +548,8 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
         case ConcatDistinct:
           IValueMeta subjMeta = data.inputRowMeta.getValueMeta(data.subjectnrs[i]);
           String separator = "";
-          if (!Utils.isEmpty(agg.getField())) {
-            separator = resolve(agg.getField());
+          if (!Utils.isEmpty(agg.getValueField())) {
+            separator = resolve(agg.getValueField());
           }
           StringJoiner joiner = new StringJoiner(separator);
           for (Object value : (SortedSet<Object>) ag) {
