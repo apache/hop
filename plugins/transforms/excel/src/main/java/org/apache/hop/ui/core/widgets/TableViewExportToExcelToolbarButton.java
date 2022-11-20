@@ -115,7 +115,7 @@ public class TableViewExportToExcelToolbarButton {
           String string = item.getText(i);
           cell = row.createCell(colNr++);
 
-          if (StringUtils.isEmpty(string)) {
+          if (StringUtils.isEmpty(string) || "<null>".equals(string)) {
             continue;
           }
 
