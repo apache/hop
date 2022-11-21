@@ -20,17 +20,12 @@ package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.plugins.ParentFirst;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -43,38 +38,92 @@ import java.util.List;
     description = "Writes to a filesystem directory as a Cassandra SSTable",
     keywords = "i18n::SSTableOutputMeta.keyword",
     categoryDescription = "Cassandra")
-@InjectionSupported(localizationPrefix = "SSTableOutput.Injection.")
 @ParentFirst(patterns = {".*"})
 public class SSTableOutputMeta extends BaseTransformMeta<SSTableOutput, SSTableOutputData> {
 
   protected static final Class<?> PKG = SSTableOutputMeta.class;
 
   /** The path to the yaml file */
-  @Injection(name = "YAML_FILE_PATH")
+  @HopMetadataProperty(key="yaml_path", injectionKey = "YAML_FILE_PATH", injectionKeyDescription = "SSTableOutput.Injection.YAML_FILE_PATH")
   protected String yamlPath;
 
   /** The directory to output to */
-  @Injection(name = "DIRECTORY")
+  @HopMetadataProperty(key="output_directory", injectionKey = "DIRECTORY", injectionKeyDescription = "SSTableOutput.Injection.DIRECTORY")
   protected String directory;
 
   /** The keyspace (database) to use */
-  @Injection(name = "CASSANDRA_KEYSPACE")
+  @HopMetadataProperty(key="cassandra_keyspace", injectionKey = "CASSANDRA_KEYSPACE", injectionKeyDescription = "SSTableOutput.Injection.CASSANDRA_KEYSPACE")
   protected String cassandraKeyspace;
 
   /** The table to write to */
-  @Injection(name = "TABLE")
+  @HopMetadataProperty(key="table", injectionKey = "TABLE", injectionKeyDescription = "SSTableOutput.Injection.TABLE")
   protected String table = "";
 
   /** The field in the incoming data to use as the key for inserts */
-  @Injection(name = "KEY_FIELD")
+  @HopMetadataProperty(key="key_field", injectionKey = "KEY_FIELD", injectionKeyDescription = "SSTableOutput.Injection.KEY_FIELD")
   protected String keyField = "";
 
   /** Size (MB) of write buffer */
-  @Injection(name = "BUFFER_SIZE")
+  @HopMetadataProperty(key="buffer_size_mb", injectionKey = "BUFFER_SIZE", injectionKeyDescription = "SSTableOutput.Injection.BUFFER_SIZE")
   protected String bufferSize = "16";
 
-  /** Whether to use CQL version 3 */
-  protected boolean useCql3 = true;
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info) {
+
+    CheckResult cr;
+
+    if ((prev == null) || (prev.size() == 0)) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_WARNING,
+              "Not receiving any fields from previous transforms!",
+              transformMeta);
+      remarks.add(cr);
+    } else {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              "Transform is connected to previous one, receiving " + prev.size() + " fields",
+              transformMeta);
+      remarks.add(cr);
+    }
+
+    // See if we have input streams leading to this transform!
+    if (input.length > 0) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              "Transform is receiving info from other transforms.",
+              transformMeta);
+      remarks.add(cr);
+    } else {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              "No input received from other transforms!",
+              transformMeta);
+      remarks.add(cr);
+    }
+  }
+
+  @Override
+  public void setDefault() {
+    directory = System.getProperty("java.io.tmpdir");
+    bufferSize = "16";
+    table = "";
+  }
+
+  @Override
+  public boolean supportsErrorHandling() {
+    // enable define error handling option
+    return true;
+  }
 
   /**
    * Get the path the the yaml file
@@ -135,7 +184,7 @@ public class SSTableOutputMeta extends BaseTransformMeta<SSTableOutput, SSTableO
    *
    * @param table the name of the table to write to
    */
-  public void setTableName(String table) {
+  public void setTable(String table) {
     this.table = table;
   }
 
@@ -144,7 +193,7 @@ public class SSTableOutputMeta extends BaseTransformMeta<SSTableOutput, SSTableO
    *
    * @return the name of the table to write to
    */
-  public String getTableName() {
+  public String getTable() {
     return table;
   }
 
@@ -182,105 +231,5 @@ public class SSTableOutputMeta extends BaseTransformMeta<SSTableOutput, SSTableO
    */
   public void setBufferSize(String bufferSize) {
     this.bufferSize = bufferSize;
-  }
-
-  /**
-   * Set whether to use CQL version 3 is to be used for CQL IO mode
-   *
-   * @param cql3 true if CQL version 3 is to be used
-   */
-  public void setUseCql3(boolean cql3) {
-    useCql3 = cql3;
-  }
-
-  /**
-   * Get whether to use CQL version 3 is to be used for CQL IO mode
-   *
-   * @return true if CQL version 3 is to be used
-   */
-  public boolean getUseCql3() {
-    return useCql3;
-  }
-
-  @Override
-  public boolean supportsErrorHandling() {
-    // enable define error handling option
-    return true;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuffer xml = new StringBuffer();
-    xml.append(XmlHandler.addTagValue("yaml_path", yamlPath));
-    xml.append(XmlHandler.addTagValue("output_directory", directory));
-    xml.append(XmlHandler.addTagValue("cassandra_keyspace", cassandraKeyspace));
-    xml.append(XmlHandler.addTagValue("table", table));
-    xml.append(XmlHandler.addTagValue("key_field", keyField));
-    xml.append(XmlHandler.addTagValue("buffer_size_mb", bufferSize));
-    xml.append(XmlHandler.addTagValue("use_cql3", useCql3));
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node node, IHopMetadataProvider metadataProvider) throws HopXmlException {
-    yamlPath = XmlHandler.getTagValue(node, "yaml_path");
-    directory = XmlHandler.getTagValue(node, "output_directory");
-    cassandraKeyspace = XmlHandler.getTagValue(node, "cassandra_keyspace");
-    table = XmlHandler.getTagValue(node, "table");
-    keyField = XmlHandler.getTagValue(node, "key_field");
-    bufferSize = XmlHandler.getTagValue(node, "buffer_size_mb");
-    useCql3 = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "use_cql3"));
-  }
-
-  public void check(
-      List<ICheckResult> remarks,
-      PipelineMeta pipelineMeta,
-      TransformMeta transformMeta,
-      IRowMeta prev,
-      String[] input,
-      String[] output,
-      IRowMeta info) {
-
-    CheckResult cr;
-
-    if ((prev == null) || (prev.size() == 0)) {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_WARNING,
-              "Not receiving any fields from previous transforms!",
-              transformMeta);
-      remarks.add(cr);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              "Transform is connected to previous one, receiving " + prev.size() + " fields",
-              transformMeta);
-      remarks.add(cr);
-    }
-
-    // See if we have input streams leading to this transform!
-    if (input.length > 0) {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              "Transform is receiving info from other transforms.",
-              transformMeta);
-      remarks.add(cr);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              "No input received from other transforms!",
-              transformMeta);
-      remarks.add(cr);
-    }
-  }
-
-  @Override
-  public void setDefault() {
-    directory = System.getProperty("java.io.tmpdir");
-    bufferSize = "16";
-    table = "";
   }
 }

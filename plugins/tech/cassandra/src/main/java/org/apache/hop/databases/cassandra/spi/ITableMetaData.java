@@ -17,7 +17,8 @@
  */
 package org.apache.hop.databases.cassandra.spi;
 
-import com.datastax.driver.core.DataType;
+import com.datastax.oss.driver.api.core.type.DataType;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.cassandra.util.Selector;
 
@@ -90,7 +91,7 @@ public interface ITableMetaData {
    * @param colName the Cassandra column name to get the Hop type for
    * @return the Hop type for the named column.
    */
-  IValueMeta getValueMetaForColumn(String colName);
+  IValueMeta getValueMetaForColumn(String colName) throws HopException;
 
   /**
    * Return a list of Hop types for all the columns explicitly defined in this table (not including
@@ -109,7 +110,7 @@ public interface ITableMetaData {
    *     function to get the Hop type
    * @return the Hop type for the selector
    */
-  IValueMeta getValueMeta(Selector selector);
+  IValueMeta getValueMeta(Selector selector) throws HopException;
 
   /**
    * Returns the CQL type for a given column in this table

@@ -112,6 +112,7 @@
 
 
         <!-- Third-party dependencies -->
+        <akka.version>2.5.32</akka.version>
         <avro.version>1.11.1</avro.version>
         <apache-beam.version>2.42.0</apache-beam.version>
         <apache-spark.version>3.3.0</apache-spark.version>
@@ -144,12 +145,16 @@
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <jetty.version>9.4.35.v20201120</jetty.version>
         <joda-time.version>2.10.14</joda-time.version>
+        <json4s.version>3.7.0-M11</json4s.version>
+        <json-simple.version>1.1.1</json-simple.version>
         <json-smart.version>2.4.8</json-smart.version>
         <jsch.version>0.1.55</jsch.version>
         <juniversalchardet.version>2.4.0</juniversalchardet.version>
         <kafka-clients.version>3.3.1</kafka-clients.version>
+        <log4j.version>2.19.0</log4j.version>
         <lz4.version>1.8.0</lz4.version>
         <metrics.version>4.2.12</metrics.version>
+        <minlog.version>1.3.1</minlog.version>
         <netty.version>4.1.85.Final</netty.version>
         <ognl.version>3.3.4</ognl.version>
         <okio.version>3.2.0</okio.version>
@@ -162,6 +167,7 @@
         <opencsv.version>5.7.1</opencsv.version>
         <paranamer.version>2.8</paranamer.version>
         <perfmark.version>0.26.0</perfmark.version>
+        <protobuf.version>3.21.9</protobuf.version>
         <rhino.version>1.7.12</rhino.version>
         <slf4j.version>2.0.3</slf4j.version>
         <sshlib.version>2.2.21</sshlib.version>
@@ -172,7 +178,7 @@
 
         <!-- Test dependencies -->
         <mockito-core.version>3.12.4</mockito-core.version>
-        <byte-buddy.version>1.11.13</byte-buddy.version>
+        <byte-buddy.version>1.12.18</byte-buddy.version>
         <objenesis.version>3.2</objenesis.version>
         <powermock-module-junit4.version>2.0.9</powermock-module-junit4.version>
         <powermock-api-mockito.version>2.0.9</powermock-api-mockito.version>

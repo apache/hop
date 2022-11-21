@@ -24,27 +24,7 @@ import static org.junit.Assert.assertTrue;
 public class SSTableOutputMetaTest {
 
   @Test
-  public void testgetXmlUseCQL3() throws Exception {
-    SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
-    ssTableOutputMeta.setDefault();
-    ssTableOutputMeta.setUseCql3(true);
-    assertTrue(
-        "getXml() does not cover setUseCQL3() ",
-        ssTableOutputMeta.getXml().contains("<use_cql3>Y</use_cql3>"));
-  }
-
-  @Test
-  public void testgetXmlUseCQL2() throws Exception {
-    SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
-    ssTableOutputMeta.setDefault();
-    ssTableOutputMeta.setUseCql3(false);
-    assertTrue(
-        "getXml() does not cover setUseCQL3() ",
-        ssTableOutputMeta.getXml().contains("<use_cql3>N</use_cql3>"));
-  }
-
-  @Test
-  public void testgetXmlKeyField() throws Exception {
+  public void testGetXmlKeyField() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setKeyField("some_key");
@@ -54,10 +34,10 @@ public class SSTableOutputMetaTest {
   }
 
   @Test
-  public void testgetXmlTableName() throws Exception {
+  public void testGetXmlTableName() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
-    ssTableOutputMeta.setTableName("someTableName");
+    ssTableOutputMeta.setTable("someTableName");
     assertTrue(
         "getXml() does not cover setTableName() ",
         ssTableOutputMeta.getXml().contains("<table>someTableName</table>"));
@@ -74,7 +54,7 @@ public class SSTableOutputMetaTest {
   }
 
   @Test
-  public void testgetXmlCassandraKeyspace() throws Exception {
+  public void testGetXmlCassandraKeyspace() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setCassandraKeyspace("someCassandraKeyspace");
@@ -86,7 +66,7 @@ public class SSTableOutputMetaTest {
   }
 
   @Test
-  public void testgetXmlYamlPath() throws Exception {
+  public void testGetXmlYamlPath() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setYamlPath("some_YamlPath");
@@ -96,7 +76,7 @@ public class SSTableOutputMetaTest {
   }
 
   @Test
-  public void testgetXmlDirectory() throws Exception {
+  public void testGetXmlDirectory() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setDirectory("someDirectory");
@@ -106,11 +86,10 @@ public class SSTableOutputMetaTest {
   }
 
   @Test
-  public void testgetXmlDefault() throws Exception {
+  public void testGetXmlDefault() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     String xml = ssTableOutputMeta.getXml();
-    assertTrue("getXml() does not cover defaults ", xml.contains("<use_cql3>Y</use_cql3>"));
     assertTrue(
         "getXml() does not cover defaults ", xml.contains("<buffer_size_mb>16</buffer_size_mb>"));
     String defDirectory =

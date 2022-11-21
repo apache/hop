@@ -17,77 +17,58 @@
  */
 package org.apache.hop.databases.cassandra.datastax;
 
-import com.datastax.driver.core.ColumnDefinitions;
-import com.datastax.driver.core.ConsistencyLevel;
-import com.datastax.driver.core.DataType;
-import com.datastax.driver.core.LocalDate;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.querybuilder.Batch;
-import com.datastax.driver.core.querybuilder.Insert;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.DefaultConsistencyLevel;
+import com.datastax.oss.driver.api.core.cql.BatchStatement;
+import com.datastax.oss.driver.api.core.cql.BatchStatementBuilder;
+import com.datastax.oss.driver.api.core.cql.BatchType;
+import com.datastax.oss.driver.api.core.cql.BoundStatement;
+import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
+import com.datastax.oss.driver.api.core.cql.PreparedStatement;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.Row;
+import com.datastax.oss.driver.api.core.type.reflect.GenericType;
+import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
+import com.datastax.oss.driver.api.querybuilder.insert.InsertInto;
+import com.datastax.oss.driver.api.querybuilder.insert.RegularInsert;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.databases.cassandra.spi.CqlRowHandler;
 import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
-import org.apache.hop.databases.cassandra.util.CassandraUtils;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.ITransform;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.Set;
 
 public class DriverCqlRowHandler implements CqlRowHandler {
 
-  private final Session session;
+  private final CqlSession session;
   DriverKeyspace keyspace;
   ResultSet result;
 
   ColumnDefinitions columns;
 
-  private int batchInsertTimeout;
-  private int ttlSec;
-
   private boolean unloggedBatch = true;
 
-  private boolean expandCollection = true;
-  private int primaryCollectionOutputIndex = -1;
+  private int ttlSec;
 
-  public DriverCqlRowHandler(DriverKeyspace keyspace, Session session, boolean expandCollection) {
+  public DriverCqlRowHandler(
+      DriverKeyspace keyspace, CqlSession session, boolean expandCollection) {
     this.keyspace = keyspace;
     this.session = session;
-    this.expandCollection = expandCollection;
   }
 
   public DriverCqlRowHandler(DriverKeyspace keyspace) {
     this(keyspace, keyspace.getConnection().getSession(keyspace.getName()), true);
-  }
-
-  public boolean supportsCQLVersion(int cqMajorlVersion) {
-    return cqMajorlVersion >= 3 && cqMajorlVersion <= 3;
-  }
-
-  @Override
-  public void setOptions(Map<String, String> options) {
-    keyspace.setOptions(options);
-    if (options.containsKey(CassandraUtils.BatchOptions.BATCH_TIMEOUT)) {
-      batchInsertTimeout = Integer.parseInt(options.get(CassandraUtils.BatchOptions.BATCH_TIMEOUT));
-    }
-    if (options.containsKey(CassandraUtils.BatchOptions.TTL)) {
-      ttlSec = Integer.parseInt(options.get(CassandraUtils.BatchOptions.TTL));
-    }
   }
 
   @Override
@@ -106,29 +87,12 @@ public class DriverCqlRowHandler implements CqlRowHandler {
       throws Exception {
     result = getSession().execute(cqlQuery);
     columns = result.getColumnDefinitions();
-    if (expandCollection) {
-      for (int i = 0; i < columns.size(); i++) {
-        if (columns.getType(i).isCollection()) {
-          if (primaryCollectionOutputIndex < 0) {
-            primaryCollectionOutputIndex = i;
-          } else if (!keyspace
-              .getTableMetaData(tableName)
-              .getValueMetaForColumn(columns.getName(i))
-              .isString()) {
-            throw new HopException(
-                BaseMessages.getString(
-                    DriverCqlRowHandler.class,
-                    "DriverCqlRowHandler.Error.CantHandleAdditionalCollectionsThatAreNotOfTypeText"));
-          }
-        }
-      }
-    }
   }
 
   @Override
   public Object[][] getNextOutputRow(IRowMeta outputRowMeta, Map<String, Integer> outputFormatMap)
       throws Exception {
-    if (result == null || result.isExhausted()) {
+    if (result == null || !result.iterator().hasNext()) {
       result = null;
       columns = null;
       return null;
@@ -141,40 +105,25 @@ public class DriverCqlRowHandler implements CqlRowHandler {
       baseOutputRowData[i] = readValue(outputRowMeta.getValueMeta(i), row, i);
     }
     outputRowData[0] = baseOutputRowData;
-    if (primaryCollectionOutputIndex > 0) {
-      Collection<?> collection = (Collection<?>) row.getObject(primaryCollectionOutputIndex);
-      if (collection != null && !collection.isEmpty()) {
-        outputRowData = new Object[collection.size()][];
-        int i = 0;
-        for (Object obj : collection) {
-          outputRowData[i] = Arrays.copyOf(baseOutputRowData, baseOutputRowData.length);
-          outputRowData[i++][primaryCollectionOutputIndex] = obj;
-        }
-      } else {
-        outputRowData[0][primaryCollectionOutputIndex] = null;
-      }
-    }
-
     return outputRowData;
   }
 
   public static Object readValue(IValueMeta meta, Row row, int i) {
+    if (row.isNull(i)) {
+      return null;
+    }
+
     switch (meta.getType()) {
       case IValueMeta.TYPE_INTEGER:
         return row.getLong(i);
       case IValueMeta.TYPE_NUMBER:
         return row.getDouble(i);
       case IValueMeta.TYPE_BIGNUMBER:
-        return row.getDecimal(i);
+        return row.get(i, GenericType.BIG_DECIMAL);
       case IValueMeta.TYPE_DATE:
-        // Check whether this is a CQL Date or Timestamp
-        ColumnDefinitions cdef = row.getColumnDefinitions();
-        if (cdef.getType(i).getName() == DataType.Name.DATE) {
-          LocalDate ld = row.getDate(i);
-          return new java.util.Date(ld.getMillisSinceEpoch());
-        } else {
-          return row.getTimestamp(i);
-        }
+        return row.get(i, GenericType.of(Date.class));
+      case IValueMeta.TYPE_TIMESTAMP:
+        return row.get(i, GenericType.of(Timestamp.class));
       default:
         return row.getObject(i);
     }
@@ -185,44 +134,68 @@ public class DriverCqlRowHandler implements CqlRowHandler {
       Iterable<Object[]> rows,
       ITableMetaData tableMeta,
       String consistencyLevel,
-      boolean insertFieldsNotInMetadata,
-      ILogChannel log)
+      boolean insertFieldsNotInMetadata)
       throws Exception {
     String[] columnNames = getColumnNames(inputMeta);
-    Batch batch = unloggedBatch ? QueryBuilder.unloggedBatch() : QueryBuilder.batch();
-    if (!Utils.isEmpty(consistencyLevel)) {
-      try {
-        batch.setConsistencyLevel(ConsistencyLevel.valueOf(consistencyLevel));
-      } catch (Exception e) {
-        log.logError(e.getLocalizedMessage(), e);
+
+    InsertInto insertInto = QueryBuilder.insertInto(tableMeta.getTableName());
+    RegularInsert insert = null;
+    Set<Integer> excludedIndexes = new HashSet<>();
+    for (int index = 0; index < columnNames.length; index++) {
+      String columnName = columnNames[index];
+
+      // See if the column is present in the table
+      //
+      if (insertFieldsNotInMetadata || tableMeta.columnExistsInSchema(columnName)) {
+        if (insert == null) {
+          insert = insertInto.value(columnName, QueryBuilder.bindMarker());
+        } else {
+          insert = insert.value(columnName, QueryBuilder.bindMarker());
+        }
+      } else {
+        excludedIndexes.add(index);
       }
     }
 
-    List<Integer> toRemove = new ArrayList<>();
-    if (!insertFieldsNotInMetadata) {
-      for (int i = 0; i < columnNames.length; i++) {
-        if (!tableMeta.columnExistsInSchema(columnNames[i])) {
-          toRemove.add(i);
-        }
-      }
-      if (toRemove.size() > 0) {
-        columnNames =
-            copyExcluding(columnNames, new String[columnNames.length - toRemove.size()], toRemove);
-      }
+    if (insert == null) {
+      throw new HopException("No fields found to insert");
     }
+
+    // Add all bound statements to a batch
+    //
+    BatchStatementBuilder batchBuilder =
+        new BatchStatementBuilder(unloggedBatch ? BatchType.UNLOGGED : BatchType.LOGGED);
+    PreparedStatement preparedInsert = getSession().prepare(insert.asCql());
 
     for (Object[] row : rows) {
-      Object[] values =
-          toRemove.size() == 0
-              ? Arrays.copyOf(row, columnNames.length)
-              : copyExcluding(row, new Object[columnNames.length], toRemove);
-      Insert insert = QueryBuilder.insertInto(keyspace.getName(), tableMeta.getTableName());
-      insert =
-          ttlSec > 0
-              ? insert.using(QueryBuilder.ttl(ttlSec)).values(columnNames, values)
-              : insert.values(columnNames, values);
-      batch.add(insert);
+      Object[] bindRow = new Object[columnNames.length - excludedIndexes.size()];
+      int bindIndex = 0;
+      for (int index = 0; index < columnNames.length; index++) {
+        if (!excludedIndexes.contains(index)) {
+          bindRow[bindIndex++] = row[index];
+        }
+      }
+      BoundStatement statement = preparedInsert.bind(bindRow);
+      batchBuilder.addStatement(statement);
     }
+
+    // Set the consistency level (if any)
+    //
+    if (StringUtils.isNotEmpty(consistencyLevel)) {
+      batchBuilder =
+          batchBuilder.setConsistencyLevel(DefaultConsistencyLevel.valueOf(consistencyLevel));
+    }
+
+    // Execute the batch statement
+    //
+    BatchStatement batch = batchBuilder.build();
+
+    session.execute(batch);
+
+    /*
+
+      TODO: set write timeout somewhere
+
     if (batchInsertTimeout > 0) {
       try {
         getSession()
@@ -235,27 +208,7 @@ public class DriverCqlRowHandler implements CqlRowHandler {
       }
     } else {
       getSession().execute(batch);
-    }
-  }
-
-  protected static <T> T[] copyExcluding(T[] source, T[] target, List<Integer> toRemove) {
-    int removed = toRemove.size();
-    int start = 0;
-    int dest = 0;
-    int removeCount = 0;
-    for (int idx : toRemove) {
-      int len = idx - start;
-      if (len > 0) {
-        System.arraycopy(source, start, target, dest, len);
-        dest += len;
-      }
-      start = idx + 1;
-      removeCount++;
-      if (removeCount == removed && dest < target.length) { // last one
-        System.arraycopy(source, start, target, dest, target.length - dest);
-      }
-    }
-    return target;
+    }*/
   }
 
   private String[] getColumnNames(IRowMeta inputMeta) {
@@ -285,11 +238,11 @@ public class DriverCqlRowHandler implements CqlRowHandler {
     return unloggedBatch;
   }
 
-  private Session getSession() {
+  private CqlSession getSession() {
     return session;
   }
 
   public void setTtlSec(int ttl) {
-    ttlSec = ttl;
+    this.ttlSec = ttl;
   }
 }

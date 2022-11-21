@@ -28,6 +28,9 @@ unzip -qu ../assemblies/plugins/dist/target/hop-assemblies-*.zip -d ../assemblie
 
 # copy recent changes in libraries...
 #
+ls -lrt ../assemblies/web/target/webapp/WEB-INF/lib/
+
+echo "Copying Hop jar file from the target folders."
 cp ../core/target/hop-core-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
 cp ../engine/target/hop-engine-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib
 cp ../ui/target/hop-ui-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/

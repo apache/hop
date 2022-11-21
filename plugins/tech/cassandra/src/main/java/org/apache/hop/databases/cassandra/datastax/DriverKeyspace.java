@@ -17,25 +17,27 @@
  */
 package org.apache.hop.databases.cassandra.datastax;
 
-import com.datastax.driver.core.KeyspaceMetadata;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.TableMetadata;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
-import com.datastax.driver.core.schemabuilder.Create;
-import com.datastax.driver.core.schemabuilder.SchemaBuilder;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.metadata.schema.KeyspaceMetadata;
+import com.datastax.oss.driver.api.core.metadata.schema.TableMetadata;
+import com.datastax.oss.driver.api.core.type.DataType;
+import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
+import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
+import com.datastax.oss.driver.api.querybuilder.schema.CreateTable;
+import com.datastax.oss.driver.api.querybuilder.schema.CreateTableStart;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.databases.cassandra.spi.Connection;
 import org.apache.hop.databases.cassandra.spi.CqlRowHandler;
 import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class DriverKeyspace implements Keyspace {
 
@@ -46,15 +48,13 @@ public class DriverKeyspace implements Keyspace {
   public DriverKeyspace(DriverConnection conn, KeyspaceMetadata keyspace) {
     this.meta = keyspace;
     this.conn = conn;
-    this.name = keyspace.getName();
+    this.name = keyspace.getName().asCql(false);
   }
 
-  @Override
-  public void setConnection(Connection conn) throws Exception {
+  public void setConnection(DriverConnection conn) throws Exception {
     this.conn = (DriverConnection) conn;
   }
 
-  @Override
   public DriverConnection getConnection() {
     return conn;
   }
@@ -74,7 +74,7 @@ public class DriverKeyspace implements Keyspace {
   }
 
   @Override
-  public void executeCQL(String cql, String compresson, String consistencyLevel, ILogChannel log)
+  public void executeCQL(String cql, String compression, String consistencyLevel, ILogChannel log)
       throws Exception {
     conn.getSession(name).execute(cql);
   }
@@ -87,17 +87,19 @@ public class DriverKeyspace implements Keyspace {
 
   @Override
   public List<String> getTableNamesCQL3() throws Exception {
-    return meta.getTables().stream().map(tab -> tab.getName()).collect(Collectors.toList());
+    List<String> names = new ArrayList<>();
+    meta.getTables().keySet().forEach(ti -> names.add(ti.asCql(false)));
+    return names;
   }
 
   @Override
   public boolean tableExists(String tableName) throws Exception {
-    return meta.getTable(tableName) != null;
+    return meta.getTable(tableName).isPresent();
   }
 
   @Override
   public ITableMetaData getTableMetaData(String familyName) throws Exception {
-    TableMetadata tableMeta = meta.getTable(familyName);
+    TableMetadata tableMeta = meta.getTable(familyName).get();
     return new TableMetaData(this, tableMeta);
   }
 
@@ -109,27 +111,41 @@ public class DriverKeyspace implements Keyspace {
       String createTableWithClause,
       ILogChannel log)
       throws Exception {
-    Create createTable = SchemaBuilder.createTable(tableName);
+    CreateTableStart createTableStart = SchemaBuilder.createTable(tableName).ifNotExists();
+
+    CreateTable createTable = null;
+    for (int i = 0; i < rowMeta.size(); i++) {
+      if (keyIndexes.contains(i)) {
+        IValueMeta key = rowMeta.getValueMeta(i);
+        createTable =
+            createTableStart.withPartitionKey(
+                key.getName(), CassandraUtils.getCassandraDataTypeFromValueMeta(key));
+      }
+    }
+
+    if (createTable == null) {
+      throw new HopException("Please specify one or more keys fields");
+    }
+
     for (int i = 0; i < rowMeta.size(); i++) {
       if (!keyIndexes.contains(i)) {
         IValueMeta valueMeta = rowMeta.getValueMeta(i);
-        createTable.addColumn(
-            valueMeta.getName(), CassandraUtils.getCassandraDataTypeFromValueMeta(valueMeta));
-      } else {
-        IValueMeta key = rowMeta.getValueMeta(i);
-        createTable.addPartitionKey(
-            key.getName(), CassandraUtils.getCassandraDataTypeFromValueMeta(key));
+        createTable =
+            createTable.withColumn(
+                valueMeta.getName(), CassandraUtils.getCassandraDataTypeFromValueMeta(valueMeta));
       }
     }
+
+    CqlSession session = getSession();
     if (!Utils.isEmpty(createTableWithClause)) {
-      StringBuilder cql = new StringBuilder(createTable.toString());
+      StringBuilder cql = new StringBuilder(createTable.asCql());
       if (!createTableWithClause.toLowerCase().trim().startsWith("with")) {
         cql.append(" WITH ");
       }
       cql.append(createTableWithClause);
-      getSession().execute(cql.toString());
+      session.execute(cql.toString());
     } else {
-      getSession().execute(createTable);
+      session.execute(createTable.asCql());
     }
     return true;
   }
@@ -139,24 +155,24 @@ public class DriverKeyspace implements Keyspace {
   public void updateTableCQL3(
       String tableName, IRowMeta rowMeta, List<Integer> keyIndexes, ILogChannel log)
       throws Exception {
-    Session session = getSession();
+    CqlSession session = getSession();
     ITableMetaData table = getTableMetaData(tableName);
     for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
       if (!table.columnExistsInSchema(valueMeta.getName())) {
-        session.execute(
-            SchemaBuilder.alterTable(tableName)
-                .alterColumn(valueMeta.getName())
-                .type(CassandraUtils.getCassandraDataTypeFromValueMeta(valueMeta)));
+        DataType dataType = CassandraUtils.getCassandraDataTypeFromValueMeta(valueMeta);
+        String cql =
+            SchemaBuilder.alterTable(tableName).addColumn(valueMeta.getName(), dataType).asCql();
+        session.execute(cql);
       }
     }
   }
 
   @Override
   public void truncateTable(String tableName, ILogChannel log) throws Exception {
-    getSession().execute(QueryBuilder.truncate(tableName));
+    getSession().execute(QueryBuilder.truncate(tableName).asCql());
   }
 
-  protected Session getSession() {
+  protected CqlSession getSession() {
     return conn.getSession(name);
   }
 

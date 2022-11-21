@@ -19,12 +19,12 @@ package org.apache.hop.pipeline.transforms.cassandraoutput;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.databases.cassandra.ConnectionFactory;
+import org.apache.hop.databases.cassandra.datastax.DriverConnection;
 import org.apache.hop.databases.cassandra.datastax.DriverCqlRowHandler;
 import org.apache.hop.databases.cassandra.metadata.CassandraConnection;
-import org.apache.hop.databases.cassandra.spi.Connection;
 import org.apache.hop.databases.cassandra.spi.CqlRowHandler;
 import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
@@ -191,7 +191,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
               cassandraConnection.getSchemaPort(),
               keyspaceName));
 
-      Connection connection = null;
+      DriverConnection connection = null;
 
       // open up a connection to perform any schema changes
       try {
@@ -375,8 +375,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
           batch,
           cassandraMeta,
           consistencyLevel,
-          getMeta().isInsertFieldsNotInMeta(),
-          getLogChannel());
+          getMeta().isInsertFieldsNotInMeta());
       // commit
       if (data.connection == null) {
         openConnection(false);
@@ -461,8 +460,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
     super.setStopped(stopped);
   }
 
-  protected Connection openConnection(boolean forSchemaChanges) throws HopException {
-
+  protected DriverConnection openConnection(boolean forSchemaChanges) throws HopException {
     String connectionName = resolve(meta.getConnectionName());
     if (StringUtils.isEmpty(connectionName)) {
       throw new HopException("Please specify a Cassandra connection to use");
@@ -476,8 +474,6 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
 
     options = cassandraConnection.getOptionsMap(this);
     options.put(CassandraUtils.BatchOptions.BATCH_TIMEOUT, "" + cqlBatchInsertTimeout);
-    options.put(
-        CassandraUtils.CQLOptions.DATASTAX_DRIVER_VERSION, CassandraUtils.CQLOptions.CQL3_STRING);
 
     // Set TTL if specified
     setTTLIfSpecified();
@@ -493,6 +489,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
     // Get the connection to Cassandra
     String hostS = resolve(cassandraConnection.getHostname());
     String portS = resolve(cassandraConnection.getPort());
+    String localDS = resolve(cassandraConnection.getLocalDataCenter());
     String userS = resolve(cassandraConnection.getUsername());
     String passS = resolve(cassandraConnection.getPassword());
     String schemaHostS = resolve(getMeta().getSchemaHost());
@@ -504,21 +501,15 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
       schemaPortS = portS;
     }
 
-    Connection connection = null;
+    String actualHostToUse = forSchemaChanges ? schemaHostS : hostS;
+    String actualPortToUse = forSchemaChanges ? schemaPortS : portS;
+
+    DriverConnection connection = null;
 
     try {
-
-      String actualHostToUse = forSchemaChanges ? schemaHostS : hostS;
-      String actualPortToUse = forSchemaChanges ? schemaPortS : portS;
-
       connection =
           CassandraUtils.getCassandraConnection(
-              actualHostToUse,
-              Integer.parseInt(actualPortToUse),
-              userS,
-              passS,
-              ConnectionFactory.Driver.BINARY_CQL3_PROTOCOL,
-              options);
+              actualHostToUse, Const.toInt(actualPortToUse, -1), localDS, userS, passS, options);
 
       // set the global connection only if this connection is not being used
       // just for schema changes
@@ -540,18 +531,11 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
     String ttl = getMeta().getTtl();
     ttl = resolve(ttl);
     if (!Utils.isEmpty(ttl) && !ttl.startsWith("-")) {
-      String ttlUnit = getMeta().getTtlUnit();
-      CassandraOutputMeta.TtlUnits theUnit = CassandraOutputMeta.TtlUnits.NONE;
-      for (CassandraOutputMeta.TtlUnits u : CassandraOutputMeta.TtlUnits.values()) {
-        if (ttlUnit.equals(u.toString())) {
-          theUnit = u;
-          break;
-        }
-      }
-      int value = -1;
+      CassandraOutputMeta.TtlUnits ttlUnit = getMeta().getTtlUnit();
+      long value = -1;
       try {
         value = Integer.parseInt(ttl);
-        value = theUnit.convertToSeconds(value);
+        value = ttlUnit.convertToSeconds((int) value);
         options.put(CassandraUtils.BatchOptions.TTL, "" + value);
       } catch (NumberFormatException e) {
         logDebug(
@@ -572,13 +556,13 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
     super.dispose();
   }
 
-  protected void closeConnection(Connection conn) throws HopException {
+  protected void closeConnection(DriverConnection conn) throws HopException {
     if (conn != null) {
       logBasic(
           BaseMessages.getString(
               CassandraOutputMeta.PKG, "CassandraOutput.Message.ClosingConnection"));
       try {
-        conn.closeConnection();
+        conn.close();
       } catch (Exception e) {
         throw new HopException(e);
       }

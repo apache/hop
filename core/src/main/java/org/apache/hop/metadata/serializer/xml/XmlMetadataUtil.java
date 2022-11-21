@@ -27,6 +27,7 @@ import org.apache.hop.metadata.api.HopMetadataObject;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataWrapper;
 import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -56,8 +57,8 @@ public class XmlMetadataUtil {
     String xml = "";
 
     HopMetadataWrapper wrapper = objectClass.getAnnotation(HopMetadataWrapper.class);
-    if (wrapper!=null) {
-      xml+=XmlHandler.openTag(wrapper.tag());
+    if (wrapper != null) {
+      xml += XmlHandler.openTag(wrapper.tag());
     }
 
     // Pick up all the fields with @HopMetadataProperty annotation, sorted by name.
@@ -108,8 +109,8 @@ public class XmlMetadataUtil {
       }
     }
 
-    if (wrapper!=null) {
-      xml+=XmlHandler.closeTag(wrapper.tag());
+    if (wrapper != null) {
+      xml += XmlHandler.closeTag(wrapper.tag());
     }
 
     return xml;
@@ -298,8 +299,8 @@ public class XmlMetadataUtil {
     }
 
     HopMetadataWrapper wrapper = clazz.getAnnotation(HopMetadataWrapper.class);
-    if (wrapper!=null) {
-      node=XmlHandler.getSubNode(node, wrapper.tag());
+    if (wrapper != null) {
+      node = XmlHandler.getSubNode(node, wrapper.tag());
     }
 
     // Pick up all the @HopMetadataProperty annotations.
@@ -447,6 +448,17 @@ public class XmlMetadataUtil {
             for (IEnumHasCode value : values) {
               if (value.getCode().equals(elementString)) {
                 return value;
+              }
+            }
+            // Retry with the description for compatibility with older versions
+            //
+            if (enumerationClass.isInstance(IEnumHasCodeAndDescription.class)) {
+              IEnumHasCodeAndDescription[] vals =
+                  (IEnumHasCodeAndDescription[]) enumerationClass.getEnumConstants();
+              for (IEnumHasCodeAndDescription value : vals) {
+                if (value.getDescription().equals(elementString)) {
+                  return value;
+                }
               }
             }
           } catch (Exception e) {

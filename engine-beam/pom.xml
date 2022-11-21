@@ -109,7 +109,7 @@
             <artifactId>minlog</artifactId>
             <version>${minlog.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
             <version>${netty.version}</version>
@@ -123,7 +123,7 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
             <version>${netty.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>

@@ -107,13 +107,13 @@
                 <include>commons-io:commons-io:jar</include>
             </includes>
         </dependencySet>
-        <dependencySet>
+        <!--<dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>org.apache.logging.log4j:log4j-api:jar</include>
             </includes>
-        </dependencySet>
+        </dependencySet>-->
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>

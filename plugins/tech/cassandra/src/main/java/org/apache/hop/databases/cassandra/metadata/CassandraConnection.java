@@ -20,14 +20,12 @@ package org.apache.hop.databases.cassandra.metadata;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.databases.cassandra.ConnectionFactory;
-import org.apache.hop.databases.cassandra.spi.Connection;
+import org.apache.hop.databases.cassandra.datastax.DriverConnection;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -49,6 +47,7 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
 
   public static final String WIDGET_ID_HOSTNAME = "10000-hostname";
   public static final String WIDGET_ID_PORT = "10100-port";
+  public static final String WIDGET_ID_DATA_CENTER = "10150-data-center";
   public static final String WIDGET_ID_USERNAME = "10200-username";
   public static final String WIDGET_ID_PASSWORD = "10300-password";
   public static final String WIDGET_ID_SOCKET_TIMEOUT = "10400-socket-timeout";
@@ -74,6 +73,16 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       label = "Port",
       toolTip = "The default port of a cassandra server is 9042")
   private String port = "9042";
+
+  @HopMetadataProperty
+  @GuiWidgetElement(
+      id = WIDGET_ID_DATA_CENTER,
+      type = GuiElementType.TEXT,
+      parentId = CassandraConnectionEditor.PARENT_WIDGET_ID,
+      label = "Local data center",
+      toolTip =
+          "The local data center needs to be specified when you connect to specific hostname(s), aka contact points")
+  private String localDataCenter;
 
   @HopMetadataProperty
   @GuiWidgetElement(
@@ -154,19 +163,12 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
     this.usingCompression = c.usingCompression;
   }
 
-  public Connection createConnection(IVariables variables, boolean output) throws Exception {
+  public DriverConnection createConnection(IVariables variables, boolean output) throws Exception {
     return createConnection(variables, getOptionsMap(variables), output);
   }
 
-  public Connection createConnection(
+  public DriverConnection createConnection(
       IVariables variables, Map<String, String> options, boolean output) throws Exception {
-
-    // See if we have a hostname.  The rest is optional in some way.
-    //
-    if (StringUtils.isEmpty(hostname)) {
-      throw new HopException(
-          "Please specify a hostname in Cassandra connection '" + getName() + "'");
-    }
 
     String chosenHostname = variables.resolve(hostname);
     String chosenPort = variables.resolve(port);
@@ -187,7 +189,7 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
         Const.toInt(chosenPort, 9042),
         variables.resolve(username),
         variables.resolve(password),
-        ConnectionFactory.Driver.BINARY_CQL3_PROTOCOL,
+        variables.resolve(localDataCenter),
         options);
   }
 
@@ -197,16 +199,14 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       options.put(
           CassandraUtils.ConnectionOptions.SOCKET_TIMEOUT, variables.resolve(socketTimeout));
     }
-    options.put(
-        CassandraUtils.CQLOptions.DATASTAX_DRIVER_VERSION, CassandraUtils.CQLOptions.CQL3_STRING);
-
     if (usingCompression) {
       options.put(CassandraUtils.ConnectionOptions.COMPRESSION, Boolean.TRUE.toString());
     }
     return options;
   }
 
-  public Keyspace lookupKeyspace(Connection connection, IVariables variables) throws Exception {
+  public Keyspace lookupKeyspace(DriverConnection connection, IVariables variables)
+      throws Exception {
     return connection.getKeyspace(variables.resolve(keyspace));
   }
 
@@ -219,7 +219,9 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
     return hostname;
   }
 
-  /** @param hostname The hostname to set */
+  /**
+   * @param hostname The hostname to set
+   */
   public void setHostname(String hostname) {
     this.hostname = hostname;
   }
@@ -233,7 +235,9 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
     return port;
   }
 
-  /** @param port The port to set */
+  /**
+   * @param port The port to set
+   */
   public void setPort(String port) {
     this.port = port;
   }
@@ -247,7 +251,9 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
     return username;
   }
 
-  /** @param username The username to set */
+  /**
+   * @param username The username to set
+   */
   public void setUsername(String username) {
     this.username = username;
   }
@@ -261,9 +267,29 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
     return password;
   }
 
-  /** @param password The password to set */
+  /**
+   * @param password The password to set
+   */
   public void setPassword(String password) {
     this.password = password;
+  }
+
+  /**
+   * Gets dataCenter
+   *
+   * @return value of dataCenter
+   */
+  public String getLocalDataCenter() {
+    return localDataCenter;
+  }
+
+  /**
+   * Sets dataCenter
+   *
+   * @param localDataCenter value of dataCenter
+   */
+  public void setLocalDataCenter(String localDataCenter) {
+    this.localDataCenter = localDataCenter;
   }
 
   /**
@@ -275,7 +301,9 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
     return socketTimeout;
   }
 
-  /** @param socketTimeout The socketTimeout to set */
+  /**
+   * @param socketTimeout The socketTimeout to set
+   */
   public void setSocketTimeout(String socketTimeout) {
     this.socketTimeout = socketTimeout;
   }
@@ -289,7 +317,9 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
     return keyspace;
   }
 
-  /** @param keyspace The keyspace to set */
+  /**
+   * @param keyspace The keyspace to set
+   */
   public void setKeyspace(String keyspace) {
     this.keyspace = keyspace;
   }
@@ -303,7 +333,9 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
     return schemaHostname;
   }
 
-  /** @param schemaHostname The schemaHostname to set */
+  /**
+   * @param schemaHostname The schemaHostname to set
+   */
   public void setSchemaHostname(String schemaHostname) {
     this.schemaHostname = schemaHostname;
   }
@@ -317,7 +349,9 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
     return schemaPort;
   }
 
-  /** @param schemaPort The schemaPort to set */
+  /**
+   * @param schemaPort The schemaPort to set
+   */
   public void setSchemaPort(String schemaPort) {
     this.schemaPort = schemaPort;
   }
@@ -331,7 +365,9 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
     return usingCompression;
   }
 
-  /** @param usingCompression The usingCompression to set */
+  /**
+   * @param usingCompression The usingCompression to set
+   */
   public void setUsingCompression(boolean usingCompression) {
     this.usingCompression = usingCompression;
   }

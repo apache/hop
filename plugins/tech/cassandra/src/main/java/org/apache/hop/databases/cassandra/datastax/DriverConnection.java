@@ -17,75 +17,72 @@
  */
 package org.apache.hop.databases.cassandra.datastax;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.CodecRegistry;
-import com.datastax.driver.core.KeyspaceMetadata;
-import com.datastax.driver.core.ProtocolOptions;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.SocketOptions;
-import com.datastax.driver.core.TypeCodec;
-import com.datastax.driver.core.schemabuilder.CreateKeyspace;
-import com.datastax.driver.core.schemabuilder.SchemaBuilder;
-import com.datastax.driver.extras.codecs.MappingCodec;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.CqlSessionBuilder;
+import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
+import com.datastax.oss.driver.api.core.config.ProgrammaticDriverConfigLoaderBuilder;
+import com.datastax.oss.driver.api.core.config.TypedDriverOption;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.metadata.schema.KeyspaceMetadata;
+import com.datastax.oss.driver.api.core.session.Session;
+import com.datastax.oss.driver.api.core.type.codec.MappingCodec;
+import com.datastax.oss.driver.api.core.type.codec.TypeCodecs;
+import com.datastax.oss.driver.api.core.type.codec.registry.MutableCodecRegistry;
+import com.datastax.oss.driver.api.core.type.reflect.GenericType;
+import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
+import com.datastax.oss.driver.api.querybuilder.schema.CreateKeyspace;
+import com.datastax.oss.driver.api.querybuilder.schema.CreateKeyspaceStart;
+import com.datastax.oss.driver.internal.core.type.codec.registry.DefaultCodecRegistry;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.databases.cassandra.spi.Connection;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
 
 import java.net.InetSocketAddress;
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * connection using standard datastax driver<br>
  * not thread-safe
  */
-public class DriverConnection implements Connection, AutoCloseable {
+public class DriverConnection implements AutoCloseable {
 
-  private String host;
+  private String hosts;
   private int port = 9042;
+  private String localDataCenter;
   private String username;
   private String password;
   private Map<String, String> opts = new HashMap<>();
-  private Cluster cluster;
   private boolean useCompression;
 
-  private Session session;
-  private Map<String, Session> sessions = new HashMap<>();
+  private CqlSession session;
+  private final Map<String, CqlSession> sessions = new HashMap<>();
 
-  private boolean expandCollection = true;
+  private final boolean expandCollection = true;
 
   public DriverConnection() {}
 
-  public DriverConnection(String host, int port) {
-    this.host = host;
+  public DriverConnection(String hosts, int port, String localDataCenter) {
+    this.hosts = hosts;
     this.port = port;
+    this.localDataCenter = localDataCenter;
   }
 
-  @Override
   public void setHosts(String hosts) {
-    this.host = hosts;
+    this.hosts = hosts;
   }
 
-  @Override
   public void setDefaultPort(int port) {
     this.port = port;
   }
 
-  @Override
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  @Override
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  @Override
   public void setAdditionalOptions(Map<String, String> opts) {
     this.opts = opts;
     if (opts.containsKey(CassandraUtils.ConnectionOptions.COMPRESSION)) {
@@ -93,31 +90,24 @@ public class DriverConnection implements Connection, AutoCloseable {
     }
   }
 
-  @Override
   public Map<String, String> getAdditionalOptions() {
     return opts;
   }
 
-  @Override
-  public Session openConnection() throws Exception {
-    session = getCluster().connect();
+  public CqlSession open() {
+    session = getSessionBuilder().build();
     return session;
   }
 
   @Override
-  public void closeConnection() throws Exception {
+  public void close() throws Exception {
     if (session != null) {
       session.close();
     }
     sessions.forEach((name, session) -> session.close());
     sessions.clear();
-    if (cluster != null) {
-      cluster.closeAsync();
-      cluster = null;
-    }
   }
 
-  @Override
   public Session getUnderlyingSession() {
     return session;
   }
@@ -126,66 +116,102 @@ public class DriverConnection implements Connection, AutoCloseable {
     this.useCompression = useCompression;
   }
 
-  public Cluster getCluster() {
-    if (cluster == null) {
-      Cluster.Builder builder = Cluster.builder().addContactPointsWithPorts(getAddresses());
-      if (!Utils.isEmpty(username)) {
-        builder = builder.withCredentials(username, password);
-      }
-      if (opts.containsKey(CassandraUtils.ConnectionOptions.SOCKET_TIMEOUT)) {
-        int timeoutMs =
-            Integer.parseUnsignedInt(
-                opts.get(CassandraUtils.ConnectionOptions.SOCKET_TIMEOUT).trim());
-        builder.withSocketOptions(new SocketOptions().setConnectTimeoutMillis(timeoutMs));
-      }
-      builder.withCompression(
-          useCompression ? ProtocolOptions.Compression.LZ4 : ProtocolOptions.Compression.NONE);
-      cluster = builder.build();
-      registerCodecs(cluster.getConfiguration().getCodecRegistry());
+  public CqlSessionBuilder getSessionBuilder() {
+
+    CqlSessionBuilder builder = CqlSession.builder().withApplicationName("Apache Hop");
+    for (InetSocketAddress inetSocketAddress : getAddresses()) {
+      builder = builder.addContactPoint(inetSocketAddress);
     }
-    return cluster;
+
+    if (StringUtils.isNotEmpty(localDataCenter)) {
+      builder = builder.withLocalDatacenter(localDataCenter);
+    }
+
+    ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder =
+        DriverConfigLoader.programmaticBuilder();
+
+    // Authentication
+    //
+    if (!StringUtils.isEmpty(username)) {
+      builder = builder.withAuthCredentials(username, password);
+    }
+
+    // Timeout
+    //
+    if (opts.containsKey(CassandraUtils.ConnectionOptions.SOCKET_TIMEOUT)) {
+      int timeoutMs =
+          Integer.parseUnsignedInt(
+              opts.get(CassandraUtils.ConnectionOptions.SOCKET_TIMEOUT).trim());
+
+      configLoaderBuilder =
+          configLoaderBuilder.withDuration(
+              TypedDriverOption.CONNECTION_CONNECT_TIMEOUT.getRawOption(),
+              Duration.ofMillis(timeoutMs));
+    }
+    // Compression
+    //
+    if (useCompression) {
+      configLoaderBuilder =
+          configLoaderBuilder.withString(
+              TypedDriverOption.PROTOCOL_COMPRESSION.getRawOption(), "lz4");
+    }
+
+    DefaultCodecRegistry codecRegistry = new DefaultCodecRegistry("Apache Hop");
+    registerCodecs(codecRegistry);
+    builder = builder.withCodecRegistry(codecRegistry);
+
+    // Use the configuration loader as well.
+    //
+    builder = builder.withConfigLoader(configLoaderBuilder.build());
+
+    return builder;
   }
 
-  public Session getSession(String keyspace) {
-    return sessions.computeIfAbsent(keyspace, ks -> getCluster().connect(ks));
+  public CqlSession getSession(String keyspace) {
+    return sessions.computeIfAbsent(
+        keyspace, ks -> getSessionBuilder().withKeyspace(keyspace).build());
   }
 
-  @Override
   public Keyspace getKeyspace(String keyspaceName) throws Exception {
-    KeyspaceMetadata keyspace = getCluster().getMetadata().getKeyspace(keyspaceName);
-    if (keyspace == null) {
+    Optional<KeyspaceMetadata> optionalKeyspace =
+        getSession(keyspaceName).getMetadata().getKeyspace(keyspaceName);
+    if (optionalKeyspace.isEmpty()) {
       throw new Exception("Unable to find keyspace '" + keyspaceName + "'");
     }
-    return new DriverKeyspace(this, keyspace);
+    return new DriverKeyspace(this, optionalKeyspace.get());
   }
 
-  @Override
   public String[] getKeyspaceNames() throws Exception {
-    List<KeyspaceMetadata> keyspaceList = getCluster().getMetadata().getKeyspaces();
-    String[] names = new String[keyspaceList.size()];
-    for (int i = 0; i < names.length; i++) {
-      names[i] = keyspaceList.get(i).getName();
+    try (CqlSession session = getSessionBuilder().build()) {
+      Collection<KeyspaceMetadata> keyspaceList = session.getMetadata().getKeyspaces().values();
+      String[] names = new String[keyspaceList.size()];
+      int i = 0;
+      for (KeyspaceMetadata keyspace : keyspaceList) {
+        names[i++] = keyspace.getName().asCql(false);
+      }
+      return names;
     }
-    return names;
   }
 
-  @Override
   public void createKeyspace(
       String keyspaceName, boolean ifNotExists, Map<String, Object> createOptions)
       throws Exception {
-    CreateKeyspace create = SchemaBuilder.createKeyspace(keyspaceName).ifNotExists();
+    CreateKeyspaceStart keyspaceStart = SchemaBuilder.createKeyspace(keyspaceName);
+    if (ifNotExists) {
+      keyspaceStart = keyspaceStart.ifNotExists();
+    }
+    CreateKeyspace createKeyspace = keyspaceStart.withReplicationOptions(createOptions);
 
-    create.with().replication(createOptions);
+    // Execute this
+    try (CqlSession session = getSessionBuilder().build()) {
+      session.execute(createKeyspace.build());
+    }
   }
 
   public ResultSet executeCql(String query, Map<String, Object> values) throws Exception {
-    Session session = cluster.connect();
-    return session.execute(query, values);
-  }
-
-  @Override
-  public void close() throws Exception {
-    closeConnection();
+    try (CqlSession session = getSessionBuilder().build()) {
+      return session.execute(query, values);
+    }
   }
 
   public boolean isExpandCollection() {
@@ -193,10 +219,14 @@ public class DriverConnection implements Connection, AutoCloseable {
   }
 
   public InetSocketAddress[] getAddresses() {
-    if (!host.contains(",") && !host.contains(":")) {
-      return new InetSocketAddress[] {new InetSocketAddress(host, port)};
+    if (!hosts.contains(",") && !hosts.contains(":")) {
+      if (StringUtils.isEmpty(hosts)) {
+        return new InetSocketAddress[] {};
+      } else {
+        return new InetSocketAddress[] {new InetSocketAddress(hosts, port)};
+      }
     } else {
-      String[] hostsStrings = StringUtils.split(this.host, ",");
+      String[] hostsStrings = StringUtils.split(this.hosts, ",");
       InetSocketAddress[] hosts = new InetSocketAddress[hostsStrings.length];
       for (int i = 0; i < hosts.length; i++) {
         String[] hostPair = StringUtils.split(hostsStrings[i], ":");
@@ -215,31 +245,209 @@ public class DriverConnection implements Connection, AutoCloseable {
     }
   }
 
-  private void registerCodecs(CodecRegistry registry) {
-    // where kettle expects specific types that don't match default deserialization
+  private void registerCodecs(MutableCodecRegistry registry) {
     registry.register(
-        new MappingCodec<Long, Integer>(TypeCodec.cint(), Long.class) {
+        new MappingCodec<>(TypeCodecs.INT, GenericType.LONG.unwrap()) {
+          @Nullable
           @Override
-          protected Long deserialize(Integer value) {
+          protected Long innerToOuter(@Nullable Integer value) {
             return value == null ? null : value.longValue();
           }
 
+          @Nullable
           @Override
-          protected Integer serialize(Long value) {
+          protected Integer outerToInner(@Nullable Long value) {
             return value == null ? null : value.intValue();
           }
         });
     registry.register(
-        new MappingCodec<Double, Float>(TypeCodec.cfloat(), Double.class) {
+        new MappingCodec<>(TypeCodecs.FLOAT, GenericType.DOUBLE.unwrap()) {
           @Override
-          protected Double deserialize(Float value) {
-            return value == null ? null : value.doubleValue();
+          protected Float outerToInner(Double value) {
+            return value == null ? null : value.floatValue();
           }
 
           @Override
-          protected Float serialize(Double value) {
-            return value == null ? null : value.floatValue();
+          protected Double innerToOuter(Float value) {
+            return value == null ? null : value.doubleValue();
           }
         });
+    registry.register(
+        new MappingCodec<>(TypeCodecs.TIMESTAMP, GenericType.of(Date.class)) {
+          @Nullable
+          @Override
+          protected Date innerToOuter(@Nullable Instant instant) {
+            if (instant == null) {
+              return null;
+            }
+            return new Date(instant.toEpochMilli());
+          }
+
+          @Nullable
+          @Override
+          protected Instant outerToInner(@Nullable Date date) {
+            if (date == null) {
+              return null;
+            }
+            return Instant.ofEpochMilli(date.getTime());
+          }
+        });
+    registry.register(
+        new MappingCodec<>(TypeCodecs.TIMESTAMP, GenericType.of(Timestamp.class)) {
+          @Nullable
+          @Override
+          protected Timestamp innerToOuter(@Nullable Instant value) {
+            if (value == null) {
+              return null;
+            }
+            Timestamp timestamp = new Timestamp(value.toEpochMilli());
+            timestamp.setNanos(value.getNano());
+            return timestamp;
+          }
+
+          @Nullable
+          @Override
+          protected Instant outerToInner(@Nullable Timestamp timestamp) {
+            if (timestamp == null) {
+              return null;
+            }
+            return Instant.ofEpochMilli(timestamp.getTime()).plusNanos(timestamp.getNanos());
+          }
+        });
+  }
+
+  /**
+   * Gets hosts
+   *
+   * @return value of hosts
+   */
+  public String getHosts() {
+    return hosts;
+  }
+
+  /**
+   * Gets port
+   *
+   * @return value of port
+   */
+  public int getPort() {
+    return port;
+  }
+
+  /**
+   * Sets port
+   *
+   * @param port value of port
+   */
+  public void setPort(int port) {
+    this.port = port;
+  }
+
+  /**
+   * Gets localDataCenter
+   *
+   * @return value of localDataCenter
+   */
+  public String getLocalDataCenter() {
+    return localDataCenter;
+  }
+
+  /**
+   * Sets localDataCenter
+   *
+   * @param localDataCenter value of localDataCenter
+   */
+  public void setLocalDataCenter(String localDataCenter) {
+    this.localDataCenter = localDataCenter;
+  }
+
+  /**
+   * Gets username
+   *
+   * @return value of username
+   */
+  public String getUsername() {
+    return username;
+  }
+
+  /**
+   * Sets username
+   *
+   * @param username value of username
+   */
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  /**
+   * Gets password
+   *
+   * @return value of password
+   */
+  public String getPassword() {
+    return password;
+  }
+
+  /**
+   * Sets password
+   *
+   * @param password value of password
+   */
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  /**
+   * Gets opts
+   *
+   * @return value of opts
+   */
+  public Map<String, String> getOpts() {
+    return opts;
+  }
+
+  /**
+   * Sets opts
+   *
+   * @param opts value of opts
+   */
+  public void setOpts(Map<String, String> opts) {
+    this.opts = opts;
+  }
+
+  /**
+   * Gets useCompression
+   *
+   * @return value of useCompression
+   */
+  public boolean isUseCompression() {
+    return useCompression;
+  }
+
+  /**
+   * Gets session
+   *
+   * @return value of session
+   */
+  public CqlSession getSession() {
+    return session;
+  }
+
+  /**
+   * Sets session
+   *
+   * @param session value of session
+   */
+  public void setSession(CqlSession session) {
+    this.session = session;
+  }
+
+  /**
+   * Gets sessions
+   *
+   * @return value of sessions
+   */
+  public Map<String, CqlSession> getSessions() {
+    return sessions;
   }
 }

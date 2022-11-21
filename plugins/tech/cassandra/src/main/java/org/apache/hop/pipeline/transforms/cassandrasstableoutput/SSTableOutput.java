@@ -68,7 +68,7 @@ public class SSTableOutput extends BaseTransform<SSTableOutputMeta, SSTableOutpu
     String yamlPath = resolve(getMeta().getYamlPath());
     String directory = resolve(getMeta().getDirectory());
     String keyspace = resolve(getMeta().getCassandraKeyspace());
-    String table = resolve(getMeta().getTableName());
+    String table = resolve(getMeta().getTable());
     String keyField = resolve(getMeta().getKeyField());
     String bufferSize = resolve(getMeta().getBufferSize());
 
@@ -123,7 +123,7 @@ public class SSTableOutput extends BaseTransform<SSTableOutputMeta, SSTableOutpu
             .withTable(table)
             .withRowMeta(getInputRowMeta())
             .withPrimaryKey(keyField)
-            .withCqlVersion(getMeta().getUseCql3() ? 3 : 2);
+            .withCqlVersion(3);
     try {
       builder.withBufferSize(Integer.parseInt(bufferSize));
     } catch (NumberFormatException nfe) {

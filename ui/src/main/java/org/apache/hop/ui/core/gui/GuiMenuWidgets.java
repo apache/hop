@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -120,14 +121,14 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
             try {
               executeMenuItem(guiMenuItem, instanceId);
             } catch (Exception ex) {
-              System.err.println(
+              LogChannel.UI.logError(
                   "Unable to call method "
                       + guiMenuItem.getListenerMethod()
                       + " in singleton "
                       + guiMenuItem.getListenerClassName()
                       + " : "
-                      + ex.getMessage());
-              ex.printStackTrace(System.err);
+                      + ex.getMessage(),
+                  e);
             }
           });
 
@@ -339,7 +340,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
 
     boolean hasCapability = fileType.hasCapability(permission);
     boolean enable = hasCapability && active;
-    if (menuItem!=null && enable != menuItem.isEnabled()) {
+    if (menuItem != null && enable != menuItem.isEnabled()) {
       menuItem.setEnabled(enable);
     }
     menuEnabledMap.put(id, enable);

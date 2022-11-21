@@ -28,7 +28,7 @@ services:
       - cassandra
 
   cassandra:
-    image: cassandra:3
+    image: cassandra:4
     ports:
       - "9042"
       - "9160"

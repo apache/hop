@@ -16,9 +16,10 @@
  */
 package org.apache.hop.databases.cassandra.util;
 
-import com.datastax.driver.core.DataType;
-import com.datastax.driver.core.LocalDate;
+import com.datastax.oss.driver.api.core.type.DataType;
+import com.datastax.oss.driver.api.core.type.DataTypes;
 import com.google.common.base.Joiner;
+import org.apache.cassandra.cql3.functions.types.LocalDate;
 import org.apache.cassandra.db.marshal.BooleanType;
 import org.apache.cassandra.db.marshal.DecimalType;
 import org.apache.cassandra.db.marshal.DoubleType;
@@ -36,8 +37,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.databases.cassandra.ConnectionFactory;
-import org.apache.hop.databases.cassandra.spi.Connection;
+import org.apache.hop.databases.cassandra.datastax.DriverConnection;
 import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -62,13 +62,6 @@ public class CassandraUtils {
     public static final String SOCKET_TIMEOUT = "socketTimeout";
     public static final String MAX_LENGTH = "maxLength";
     public static final String COMPRESSION = "compression";
-  }
-
-  public static class CQLOptions {
-    public static final String DATASTAX_DRIVER_VERSION = "driverVersion";
-
-    /** The highest release of CQL 3 supported by Datastax Cassandra (v3.11.1) at time of coding */
-    public static final String CQL3_STRING = "3.4.0";
   }
 
   public static class BatchOptions {
@@ -113,22 +106,22 @@ public class CassandraUtils {
   public static DataType getCassandraDataTypeFromValueMeta(IValueMeta vm) {
     switch (vm.getType()) {
       case IValueMeta.TYPE_STRING:
-        return DataType.varchar();
+        return DataTypes.TEXT;
       case IValueMeta.TYPE_BIGNUMBER:
-        return DataType.decimal();
+        return DataTypes.DECIMAL;
       case IValueMeta.TYPE_BOOLEAN:
-        return DataType.cboolean();
+        return DataTypes.BOOLEAN;
       case IValueMeta.TYPE_INTEGER:
-        return DataType.bigint();
+        return DataTypes.BIGINT;
       case IValueMeta.TYPE_NUMBER:
-        return DataType.cdouble();
+        return DataTypes.DOUBLE;
       case IValueMeta.TYPE_DATE:
       case IValueMeta.TYPE_TIMESTAMP:
-        return DataType.timestamp(); // CQL timestamp
+        return DataTypes.TIMESTAMP; // CQL timestamp
       case IValueMeta.TYPE_BINARY:
       case IValueMeta.TYPE_SERIALIZABLE:
       default:
-        return DataType.blob();
+        return DataTypes.BLOB;
     }
   }
   /**
@@ -479,7 +472,7 @@ public class CassandraUtils {
         continue;
       }
 
-      columnValues.put(colName, kettleValueToCQL(colMeta, row[i], cqlMajVersion));
+      columnValues.put(colName, hopValueToCql(colMeta, row[i], cqlMajVersion));
     }
 
     Collection<String> columnOrder;
@@ -590,7 +583,7 @@ public class CassandraUtils {
    *     an CQL query.
    * @throws HopValueException if there is an error converting.
    */
-  public static String kettleValueToCQL(IValueMeta vm, Object value, int cqlMajVersion)
+  public static String hopValueToCql(IValueMeta vm, Object value, int cqlMajVersion)
       throws HopValueException {
 
     String quote = cqlMajVersion == 2 ? "'" : "";
@@ -715,26 +708,26 @@ public class CassandraUtils {
   /**
    * Get a connection to cassandra
    *
-   * @param host the hostname of a cassandra node
+   * @param hosts the hostname of a cassandra node
    * @param port the port that cassandra is listening on
    * @param username the username for (optional) authentication
    * @param password the password for (optional) authentication
-   * @param driver the driver to use
    * @param opts the additional options to the driver
    * @return a connection to cassandra
    * @throws Exception if a problem occurs during connection
    */
-  public static Connection getCassandraConnection(
-      String host,
+  public static DriverConnection getCassandraConnection(
+      String hosts,
       int port,
+      String localDataCenter,
       String username,
       String password,
-      ConnectionFactory.Driver driver,
       Map<String, String> opts)
       throws Exception {
-    Connection conn = ConnectionFactory.getFactory().getConnection(driver);
-    conn.setHosts(host);
+    DriverConnection conn = new DriverConnection();
+    conn.setHosts(hosts);
     conn.setDefaultPort(port);
+    conn.setLocalDataCenter(localDataCenter);
     conn.setUsername(username);
     conn.setPassword(password);
     conn.setAdditionalOptions(opts);
@@ -791,8 +784,11 @@ public class CassandraUtils {
       // Columns
       for (int j = 0; j < batch.get(i).length; j++) {
         if (batch.get(i)[j] != null) {
+          DataType dataType = cassandraMeta.getColumnCQLType(colNames.get(j));
+          String typeCql = dataType.asCql(true, false);
+          String dateCql = DataTypes.DATE.asCql(true, false);
           // CQL Date / Timestamp type checks
-          if (cassandraMeta.getColumnCQLType(colNames.get(j)).getName() == DataType.Name.DATE) {
+          if (typeCql.equals(dateCql)) {
             // Check that Hop type isn't actually more like a timestamp
             // NOTE: batch order does not match cassandraMeta order, need to pair up
             int index = inputMeta.indexOfValue(colNames.get(j));

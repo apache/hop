@@ -28,11 +28,7 @@ import java.util.Map;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CassandraOutputTest {
 
@@ -98,7 +94,7 @@ public class CassandraOutputTest {
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionNone() {
     String ttlResolveValue = "1"; // none option, this value is ignored default will be -1
-    String ttlOption = "None";
+    CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.NONE;
     int expectedValue = -1;
 
     when(co.resolve(anyString())).thenReturn(ttlResolveValue);
@@ -115,7 +111,8 @@ public class CassandraOutputTest {
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionSeconds() {
     String ttlResolveValue = "1"; // 1 second
-    String ttlOption = "Seconds";
+    CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.SECONDS;
+
     int expectedValue = 1;
 
     when(co.resolve(anyString())).thenReturn(ttlResolveValue);
@@ -132,7 +129,8 @@ public class CassandraOutputTest {
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionMinutes() {
     String ttlResolveValue = "1"; // 1 minute
-    String ttlOption = "Minutes";
+    CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.MINUTES;
+
     int expectedValue = 60;
 
     when(co.resolve(anyString())).thenReturn(ttlResolveValue);
@@ -149,7 +147,8 @@ public class CassandraOutputTest {
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionHours() {
     String ttlResolveValue = "1"; // 1 hour
-    String ttlOption = "Hours";
+    CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.HOURS;
+
     int expectedValue = 3600;
 
     when(co.resolve(anyString())).thenReturn(ttlResolveValue);
@@ -166,7 +165,8 @@ public class CassandraOutputTest {
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionDays() {
     String ttlResolveValue = "1"; // 1 day
-    String ttlOption = "Days";
+    CassandraOutputMeta.TtlUnits ttlOption = CassandraOutputMeta.TtlUnits.DAYS;
+
     int expectedValue = 86400;
 
     when(co.resolve(anyString())).thenReturn(ttlResolveValue);
