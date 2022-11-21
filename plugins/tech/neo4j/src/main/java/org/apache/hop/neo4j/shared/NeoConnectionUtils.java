@@ -31,10 +31,10 @@ public class NeoConnectionUtils {
 
     // If we have no properties or labels, we have nothing to do here
     //
-    if (keyProperties.size() == 0) {
+    if (keyProperties.isEmpty()) {
       return;
     }
-    if (labels.size() == 0) {
+    if (labels.isEmpty()) {
       return;
     }
 
@@ -42,14 +42,14 @@ public class NeoConnectionUtils {
     //
     String labelsClause = ":" + labels.get(0);
 
-    // CREATE CONSTRAINT ON (n:NodeLabel) ASSERT n.property1 IS UNIQUE
+    // CREATE CONSTRAINT FOR (n:NodeLabel) REQUIRE n.property1 IS UNIQUE
     //
     if (keyProperties.size() == 1) {
       String property = keyProperties.get(0);
       String constraintCypher =
-          "CREATE CONSTRAINT IF NOT EXISTS ON (n"
+          "CREATE CONSTRAINT IF NOT EXISTS FOR (n"
               + labelsClause
-              + ") ASSERT n."
+              + ") REQUIRE n."
               + property
               + " IS UNIQUE;";
 

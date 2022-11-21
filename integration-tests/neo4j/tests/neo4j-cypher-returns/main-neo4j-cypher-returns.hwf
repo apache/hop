@@ -45,7 +45,7 @@ limitations under the License.
       <weekDay>1</weekDay>
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
-      <xloc>80</xloc>
+      <xloc>64</xloc>
       <yloc>128</yloc>
       <attributes_hac/>
     </action>
@@ -65,16 +65,14 @@ limitations under the License.
       <add_time>N</add_time>
       <loglevel>Nothing</loglevel>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
-      <pass_export>N</pass_export>
       <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <set_append_logfile>N</set_append_logfile>
       <parallel>N</parallel>
-      <xloc>400</xloc>
+      <xloc>464</xloc>
       <yloc>128</yloc>
       <attributes_hac/>
     </action>
@@ -96,15 +94,14 @@ limitations under the License.
       <loglevel>Basic</loglevel>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>816</xloc>
-      <yloc>128</yloc>
+      <xloc>464</xloc>
+      <yloc>224</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -113,11 +110,11 @@ limitations under the License.
       <type>NEO4J_CYPHER_SCRIPT</type>
       <attributes/>
       <connection>Test</connection>
-      <script>CREATE INDEX ON :Customer(id)
+      <script>CREATE INDEX FOR (c:Customer) ON (c.id)
 ;</script>
       <replace_variables>N</replace_variables>
       <parallel>N</parallel>
-      <xloc>592</xloc>
+      <xloc>656</xloc>
       <yloc>128</yloc>
       <attributes_hac/>
     </action>
@@ -148,8 +145,8 @@ limitations under the License.
         </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>1024</xloc>
-      <yloc>128</yloc>
+      <xloc>800</xloc>
+      <yloc>224</yloc>
       <attributes_hac/>
     </action>
   </actions>
