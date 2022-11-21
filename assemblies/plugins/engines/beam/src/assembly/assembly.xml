@@ -220,7 +220,7 @@
                 <include>org.roaringbitmap:RoaringBitmap</include>
                 <include>org.roaringbitmap:shims</include>
                 <include>org.scala-lang:scala-compiler</include>
-                <include>org.scala-lang:scala-library</include>
+                <!--<include>org.scala-lang:scala-library</include>-->
                 <include>org.scala-lang:scala-reflect</include>
                 <include>org.scala-lang.modules:scala-collection-compat_2.12</include>
                 <include>org.scala-lang.modules:scala-parser-combinators_2.12</include>
