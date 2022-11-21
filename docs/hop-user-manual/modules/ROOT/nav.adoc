@@ -189,6 +189,7 @@ under the License.
 *** xref:pipeline/transforms/neo4j-split-graph.adoc[Neo4j Split Graph]
 *** xref:pipeline/transforms/nullif.adoc[Null If]
 *** xref:pipeline/transforms/numberrange.adoc[Number range]
+*** xref:pipeline/transforms/orabulkloader.adoc[Oracle Bulk Loader]
 *** xref:pipeline/transforms/parquet-file-input.adoc[Parquet File Input]
 *** xref:pipeline/transforms/parquet-file-output.adoc[Parquet File Output]
 *** xref:pipeline/transforms/pgpdecryptstream.adoc[PGP decrypt stream]
