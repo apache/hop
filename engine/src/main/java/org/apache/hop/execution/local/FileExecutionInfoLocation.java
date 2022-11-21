@@ -177,12 +177,15 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
         throw new HopException("Please provide a non-null ExecutionState to update");
       }
 
-      // We need to add the logging text incrementally.
-      // This means: read the previous value first and then add the new lines here...
-      //
-      ExecutionState oldState = getExecutionState(executionState.getId());
-      if (oldState != null) {
-        executionState.setLoggingText(oldState.getLoggingText() + executionState.getLoggingText());
+      if (executionState.getLastLogLineNr() != null) {
+        // We need to add the logging text incrementally.
+        // This means: read the previous value first and then add the new lines here...
+        //
+        ExecutionState oldState = getExecutionState(executionState.getId());
+        if (oldState != null) {
+          executionState.setLoggingText(
+              oldState.getLoggingText() + executionState.getLoggingText());
+        }
       }
 
       // We'll store the execution updates for transforms and actions in the same folder as the

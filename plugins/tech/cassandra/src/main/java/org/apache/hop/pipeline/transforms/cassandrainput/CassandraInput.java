@@ -101,8 +101,8 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
         String maxLength = resolve(meta.getMaxLength());
         String keyspace = resolve(data.cassandraConnection.getKeyspace());
 
-        if (Utils.isEmpty(hostname) || Utils.isEmpty(port) || Utils.isEmpty(keyspace)) {
-          throw new HopException("Some connection details are missing!!");
+        if (Utils.isEmpty(keyspace)) {
+          throw new HopException("Please specify the keyspace to use.");
         }
 
         logBasic(
@@ -282,7 +282,7 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
       logBasic(
           BaseMessages.getString(CassandraInputMeta.PKG, "CassandraInput.Info.ClosingConnection"));
       try {
-        data.connection.closeConnection();
+        data.connection.close();
         data.connection = null;
       } catch (Exception e) {
         throw new HopException(e.getMessage(), e);

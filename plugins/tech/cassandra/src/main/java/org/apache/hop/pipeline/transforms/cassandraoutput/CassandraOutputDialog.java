@@ -24,8 +24,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.databases.cassandra.datastax.DriverConnection;
 import org.apache.hop.databases.cassandra.metadata.CassandraConnection;
-import org.apache.hop.databases.cassandra.spi.Connection;
 import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
@@ -370,9 +370,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     fdTtl.right = new FormAttachment(100, 0);
     fdTtl.top = new FormAttachment(wlTtl, 0, SWT.CENTER);
     wTtlUnits.setLayoutData(fdTtl);
-    for (CassandraOutputMeta.TtlUnits u : CassandraOutputMeta.TtlUnits.values()) {
-      wTtlUnits.add(u.toString());
-    }
+    wTtlUnits.setItems(CassandraOutputMeta.TtlUnits.getDescriptions());
     wTtlUnits.select(0);
     wTtlUnits.addListener(
         SWT.Selection,
@@ -600,7 +598,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
   }
 
   protected void setupTablesCombo() {
-    Connection conn = null;
+    DriverConnection conn = null;
     Keyspace kSpace = null;
 
     try {
@@ -657,7 +655,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     } finally {
       if (conn != null) {
         try {
-          conn.closeConnection();
+          conn.close();
         } catch (Exception e) {
           // TODO popup another error dialog
           e.printStackTrace();
@@ -789,7 +787,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     input.setUseUnloggedBatch(wUnloggedBatch.getSelection());
 
     input.setTtl(wTtlValue.getText());
-    input.setTtlUnit(wTtlUnits.getText());
+    input.setTtlUnit(CassandraOutputMeta.TtlUnits.findWithDescription(wTtlUnits.getText()));
 
     input.setChanged();
 
@@ -802,8 +800,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
   }
 
   protected void popupSchemaInfo() {
-
-    Connection conn = null;
+    DriverConnection conn = null;
     Keyspace kSpace = null;
     try {
 
@@ -875,7 +872,7 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     } finally {
       if (conn != null) {
         try {
-          conn.closeConnection();
+          conn.close();
         } catch (Exception e) {
           // TODO popup another error dialog
           e.printStackTrace();
@@ -901,10 +898,8 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
     wInsertFieldsNotInTableMeta.setSelection(input.isInsertFieldsNotInMeta());
     wUnloggedBatch.setSelection(input.isUseUnloggedBatch());
 
-    if (!Utils.isEmpty(input.getTtl())) {
-      wTtlValue.setText(input.getTtl());
-      wTtlUnits.setText(input.getTtlUnit());
-      wTtlValue.setEnabled(wTtlUnits.getSelectionIndex() > 0);
-    }
+    wTtlValue.setText(Const.NVL(input.getTtl(), ""));
+    wTtlUnits.setText(input.getTtlUnit() == null ? "" : input.getTtlUnit().getDescription());
+    wTtlValue.setEnabled(wTtlUnits.getSelectionIndex() > 0);
   }
 }

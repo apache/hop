@@ -24,7 +24,7 @@ public class CassandraOutputMetaTest {
   @Test
   public void validateConvertToSecondsWithNONETTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.NONE;
-    int value = 1;
+    long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
     Assert.assertEquals(-1, value);
@@ -33,7 +33,7 @@ public class CassandraOutputMetaTest {
   @Test
   public void validateConvertToSecondsWithSecondsTTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.SECONDS;
-    int value = 1;
+    long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
     Assert.assertEquals(1, value);
@@ -42,7 +42,7 @@ public class CassandraOutputMetaTest {
   @Test
   public void validateConvertToSecondsWithMinutesTTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.MINUTES;
-    int value = 1;
+    long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
     Assert.assertEquals(60, value);
@@ -51,7 +51,7 @@ public class CassandraOutputMetaTest {
   @Test
   public void validateConvertToSecondsWithHOURSTTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.HOURS;
-    int value = 1;
+    long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
     Assert.assertEquals(3600, value);
@@ -60,7 +60,7 @@ public class CassandraOutputMetaTest {
   @Test
   public void validateConvertToSecondsWithDAYSTTLUnits() {
     CassandraOutputMeta.TtlUnits ttlUnit = CassandraOutputMeta.TtlUnits.DAYS;
-    int value = 1;
+    long value = 1;
     value = ttlUnit.convertToSeconds(value);
 
     Assert.assertEquals(86400, value);

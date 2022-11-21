@@ -22,10 +22,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -42,7 +44,6 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -67,8 +68,7 @@ public class TableViewExportToExcelToolbarButton {
     Cursor oldCursor = shell.getCursor();
     shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
-    try {
-      XSSFWorkbook workbook = new XSSFWorkbook();
+    try (XSSFWorkbook workbook = new XSSFWorkbook()) {
       XSSFSheet sheet = workbook.createSheet("Apache Hop data export");
 
       // Header style
@@ -115,7 +115,7 @@ public class TableViewExportToExcelToolbarButton {
           String string = item.getText(i);
           cell = row.createCell(colNr++);
 
-          if (StringUtils.isEmpty(string)) {
+          if (StringUtils.isEmpty(string) || "<null>".equals(string)) {
             continue;
           }
 
@@ -165,18 +165,35 @@ public class TableViewExportToExcelToolbarButton {
         sheet.autoSizeColumn(column);
       }
 
-      // Write the file to a temporary file
+      FileObject fileObject;
+
+      if (EnvironmentUtils.getInstance().isWeb()) {
+        LogChannel.UI.logBasic("Asking where to save the Excel file...");
+        String filename =
+            BaseDialog.presentFileDialog(
+                shell, new String[] {"*.xlsx"}, new String[] {"Excel XLSX files"}, true);
+        if (StringUtils.isEmpty(filename)) {
+          return;
+        }
+        fileObject = HopVfs.getFileObject(filename);
+      } else {
+        // Just create a temporary file
+        //
+        fileObject =
+            HopVfs.createTempFile(
+                "apache-hop-table-export", ".xlsx", System.getProperty("java.io.tmpdir"));
+      }
+
+      String filename = HopVfs.getFilename(fileObject);
+      LogChannel.UI.logBasic("Saving to file: " + filename);
+
+      // Write the spreadsheet to the file
       //
-      FileObject fileObject =
-          HopVfs.createTempFile(
-              "apache-hop-table-export", ".xlsx", System.getProperty("java.io.tmpdir"));
       try (OutputStream outputStream = HopVfs.getOutputStream(fileObject, false)) {
         workbook.write(outputStream);
       }
 
       shell.setCursor(oldCursor);
-
-      String filename = HopVfs.getFilename(fileObject);
       EnvironmentUtils.getInstance().openUrl(filename);
       if (EnvironmentUtils.getInstance().isWeb()) {
         MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
@@ -184,7 +201,7 @@ public class TableViewExportToExcelToolbarButton {
         messageBox.setMessage("The Excel file was written to: " + filename);
         messageBox.open();
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       shell.setCursor(oldCursor);
       new ErrorDialog(shell, "Error", "Error exporting rows to a new Excel file", e);
     }

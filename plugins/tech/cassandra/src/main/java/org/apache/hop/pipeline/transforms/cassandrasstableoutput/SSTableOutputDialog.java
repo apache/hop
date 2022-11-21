@@ -295,11 +295,6 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     return transformName;
   }
 
-  protected void onCql3CheckSelection() {
-    wbGetFields.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.SelectFields.Button"));
-    wlKeyField.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.KeyFields.Label"));
-  }
-
   protected void setupFieldsCombo() {
     // try and set up from incoming fields from previous transform
 
@@ -343,7 +338,7 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
     input.setYamlPath(wYaml.getText());
     input.setDirectory(wDirectory.getText());
     input.setCassandraKeyspace(wKeyspace.getText());
-    input.setTableName(wTable.getText());
+    input.setTable(wTable.getText());
     input.setKeyField(wKeyField.getText());
     input.setBufferSize(wBufferSize.getText());
 
@@ -371,8 +366,8 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
       wKeyspace.setText(input.getCassandraKeyspace());
     }
 
-    if (!Utils.isEmpty(input.getTableName())) {
-      wTable.setText(input.getTableName());
+    if (!Utils.isEmpty(input.getTable())) {
+      wTable.setText(input.getTable());
     }
 
     if (!Utils.isEmpty(input.getKeyField())) {
@@ -383,7 +378,8 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
       wBufferSize.setText(input.getBufferSize());
     }
 
-    onCql3CheckSelection();
+    wbGetFields.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.SelectFields.Button"));
+    wlKeyField.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.KeyFields.Label"));
   }
 
   protected void showEnterSelectionDialog() {

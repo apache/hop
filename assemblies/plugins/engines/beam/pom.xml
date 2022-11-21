@@ -51,7 +51,6 @@
 
     <properties>
         <bigtable-hbase-beam.version>2.6.1</bigtable-hbase-beam.version>
-        <scala.version>2.12.15</scala.version>
     </properties>
 
     <dependencies>

@@ -360,7 +360,6 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       IWorkflowEngine<WorkflowMeta> workflow =
           WorkflowEngineFactory.createWorkflowEngine(
               variables, runConfigurationName, metadataProvider, workflowMeta, null);
-      workflow.initializeFrom(null);
       workflow.getWorkflowMeta().setInternalHopVariables(workflow);
       workflow.setVariables(configuration.getVariablesMap());
 

@@ -17,9 +17,10 @@
  */
 package org.apache.hop.databases.cassandra.datastax;
 
-import com.datastax.driver.core.ColumnMetadata;
-import com.datastax.driver.core.DataType;
-import com.datastax.driver.core.TableMetadata;
+import com.datastax.oss.driver.api.core.metadata.schema.ColumnMetadata;
+import com.datastax.oss.driver.api.core.metadata.schema.TableMetadata;
+import com.datastax.oss.driver.api.core.type.DataType;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
@@ -32,9 +33,12 @@ import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
 import org.apache.hop.databases.cassandra.util.Selector;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class TableMetaData implements ITableMetaData {
 
@@ -47,7 +51,7 @@ public class TableMetaData implements ITableMetaData {
 
   public TableMetaData(DriverKeyspace keyspace, TableMetadata metadata) {
     meta = metadata;
-    name = meta.getName();
+    name = meta.getName().asCql(false);
     setKeyspace(keyspace);
   }
 
@@ -69,12 +73,12 @@ public class TableMetaData implements ITableMetaData {
 
   @Override
   public String describe() throws Exception {
-    return meta.exportAsString();
+    return meta.toString(); // TODO verify this
   }
 
   @Override
   public boolean columnExistsInSchema(String colName) {
-    return meta.getColumn(colName) != null;
+    return meta.getColumn(colName).isPresent();
   }
 
   @Override
@@ -83,46 +87,62 @@ public class TableMetaData implements ITableMetaData {
     if (partKeys.size() > 1) {
       return new ValueMetaString("KEY");
     }
-    return toValueMeta(partKeys.get(0).getName(), partKeys.get(0).getType());
+    ColumnMetadata key = partKeys.get(0);
+    return toValueMeta(key.getName().asCql(false), key.getType());
   }
 
   @Override
   public List<String> getKeyColumnNames() {
-    return meta.getPrimaryKey().stream().map(col -> col.getName()).collect(Collectors.toList());
+    List<String> names = new ArrayList<>();
+    meta.getPartitionKey().forEach(cm->names.add(cm.getName().asCql(false)));
+    return names;
   }
 
   @Override
-  public IValueMeta getValueMetaForColumn(String colName) {
-    ColumnMetadata column = meta.getColumn(colName);
-    return getValueMetaForColumn(column);
+  public IValueMeta getValueMetaForColumn(String colName) throws HopException {
+    Optional<ColumnMetadata> optionalColumn = meta.getColumn(colName);
+    if (optionalColumn.isEmpty()) {
+      throw new HopException("Column "+colName+" is not present");
+    }
+    return getValueMetaForColumn(optionalColumn.get());
   }
 
   protected IValueMeta getValueMetaForColumn(ColumnMetadata column) {
     if (column != null) {
-      return toValueMeta(column.getName(), column.getType());
+      String name = column.getName().asCql(false);
+      if (name.startsWith("\"")) {
+        name = name.substring(1);
+      }
+      if (name.endsWith("\"")) {
+        name = name.substring(0, name.length()-1);
+      }
+      return toValueMeta(name, column.getType());
     }
     return new ValueMetaString(name);
   }
 
   @Override
   public List<IValueMeta> getValueMetasForSchema() {
-    return meta.getColumns().stream()
-        .map(col -> getValueMetaForColumn(col))
-        .collect(Collectors.toList());
+    List<IValueMeta> values = new ArrayList<>();
+    Collection<ColumnMetadata> columns = meta.getColumns().values();
+    for (ColumnMetadata column : columns) {
+      values.add(getValueMetaForColumn(column));
+    }
+    return values;
   }
 
   @Override
-  public IValueMeta getValueMeta(Selector selector) {
+  public IValueMeta getValueMeta(Selector selector) throws HopException {
     String name = selector.getColumnName();
     return getValueMetaForColumn(name);
   }
 
   @Override
   public List<String> getColumnNames() {
-    List<ColumnMetadata> colMeta = meta.getColumns();
+    Collection<ColumnMetadata> colMeta = meta.getColumns().values();
     List<String> colNames = new ArrayList<>();
     for (ColumnMetadata c : colMeta) {
-      colNames.add(c.getName());
+      colNames.add(c.getName().asCql(false));
     }
 
     return colNames;
@@ -130,35 +150,38 @@ public class TableMetaData implements ITableMetaData {
 
   @Override
   public DataType getColumnCQLType(String colName) {
-    return meta.getColumn(colName).getType();
+    ColumnMetadata columnMetadata = meta.getColumn(colName).get();
+    return columnMetadata.getType();
   }
 
   protected IValueMeta toValueMeta(String name, DataType dataType) {
-    if (expandCollection
-        && dataType.isCollection()
-        && dataType.getName().equals(DataType.Name.MAP)) {
-      dataType = dataType.getTypeArguments().get(0);
-    }
+    //    if (expandCollection
+    //        && dataType.isCollection()
+    //        && dataType.getName().equals(DataType.Name.MAP)) {
+    //      dataType = dataType.getTypeArguments().get(0);
+    //    }
     // http://docs.datastax.com/en/cql/3.1/cql/cql_reference/cql_data_types_c.html
-    switch (dataType.getName()) {
-      case BIGINT:
-      case COUNTER:
-      case INT:
-      case SMALLINT:
-      case TINYINT:
+
+    String typeCql = dataType.asCql(false, false).toUpperCase();
+    switch (typeCql) {
+      case "BIGINT":
+      case "COUNTER":
+      case "INT":
+      case "SMALLINT":
+      case "TINYINT":
         return new ValueMetaInteger(name);
-      case DOUBLE:
-      case FLOAT:
+      case "DOUBLE":
+      case "FLOAT":
         return new ValueMetaNumber(name);
-      case DATE:
-      case TIMESTAMP:
+      case "DATE":
+      case "TIMESTAMP":
         return new ValueMetaDate(name);
-      case DECIMAL:
-      case VARINT:
+      case "DECIMAL":
+      case "VARINT":
         return new ValueMetaBigNumber(name);
-      case BLOB:
+      case "BLOB":
         return new ValueMetaBinary(name);
-      case BOOLEAN:
+      case "BOOLEAN":
         return new ValueMetaBoolean(name);
       default:
         return new ValueMetaString(name);

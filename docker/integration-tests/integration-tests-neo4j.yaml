@@ -28,7 +28,7 @@ services:
       - neo4j
 
   neo4j:
-    image: neo4j:4.4-community
+    image: neo4j
     ports:
       - "7474"
       - "7687"

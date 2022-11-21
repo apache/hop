@@ -33,7 +33,7 @@ public class SSTableOutputMetaInjectionTest extends BaseMetadataInjectionTest<SS
     check("YAML_FILE_PATH", () -> meta.getYamlPath());
     check("DIRECTORY", () -> meta.getDirectory());
     check("CASSANDRA_KEYSPACE", () -> meta.getCassandraKeyspace());
-    check("TABLE", () -> meta.getTableName());
+    check("TABLE", () -> meta.getTable());
     check("KEY_FIELD", () -> meta.getKeyField());
     check("BUFFER_SIZE", () -> meta.getBufferSize());
   }

@@ -72,7 +72,7 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>288</xloc>
+      <xloc>512</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
     </action>
@@ -87,25 +87,50 @@ limitations under the License.
         </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>512</xloc>
+      <xloc>784</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>delete /tmp/0008/*</name>
+      <description/>
+      <type>DELETE_FILES</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <fields>
+        <field>
+          <name>${java.io.tmpdir}/0008/</name>
+          <filemask>.*</filemask>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>256</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
     <hop>
-      <from>Start</from>
-      <to>0008-target-output-transform</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
       <from>0008-target-output-transform</from>
       <to>Run Pipeline Unit Tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Start</from>
+      <to>delete /tmp/0008/*</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>delete /tmp/0008/*</from>
+      <to>0008-target-output-transform</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
     </hop>
   </hops>
   <notepads>

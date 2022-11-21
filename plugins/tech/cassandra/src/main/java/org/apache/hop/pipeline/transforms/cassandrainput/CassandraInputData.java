@@ -18,8 +18,8 @@
 package org.apache.hop.pipeline.transforms.cassandrainput;
 
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.databases.cassandra.datastax.DriverConnection;
 import org.apache.hop.databases.cassandra.metadata.CassandraConnection;
-import org.apache.hop.databases.cassandra.spi.Connection;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class CassandraInputData extends BaseTransformData implements ITransformData {
 
   public CassandraConnection cassandraConnection;
-  public Connection connection;
+  public DriverConnection connection;
   public Keyspace keyspace;
   public IRowMeta outputRowMeta;
 }

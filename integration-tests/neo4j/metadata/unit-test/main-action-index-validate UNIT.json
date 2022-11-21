@@ -23,34 +23,22 @@
           "data_set_field": "properties"
         },
         {
-          "transform_field": "provider",
-          "data_set_field": "provider"
-        },
-        {
           "transform_field": "state",
           "data_set_field": "state"
-        },
-        {
-          "transform_field": "type",
-          "data_set_field": "type"
-        },
-        {
-          "transform_field": "uniqueness",
-          "data_set_field": "uniqueness"
         }
       ],
       "field_order": [
         "name"
       ],
-      "transform_name": "Validate",
-      "data_set_name": "indexes"
+      "data_set_name": "indexes",
+      "transform_name": "Validate"
     }
   ],
   "input_data_sets": [],
   "name": "main-action-index-validate UNIT",
   "description": "",
-  "trans_test_tweaks": [],
   "persist_filename": "",
+  "trans_test_tweaks": [],
   "pipeline_filename": "./tests/neo4j-action-index/main-action-index-validate.hpl",
   "test_type": "UNIT_TEST"
 }

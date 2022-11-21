@@ -1,13 +1,13 @@
 {
   "keyspace": "hop",
-  "hostname": "cassandra",
+  "hostname": "",
   "password": "",
   "schemaPort": "",
-  "port": "9042",
+  "localDataCenter": "",
+  "port": "",
   "schemaHostname": "",
-  "socketTimeout": "",
   "name": "local",
-  "maxLength": "",
+  "socketTimeout": "",
   "username": "",
   "usingCompression": false
 }

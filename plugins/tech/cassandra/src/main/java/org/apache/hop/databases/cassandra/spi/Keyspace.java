@@ -19,6 +19,7 @@ package org.apache.hop.databases.cassandra.spi;
 
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.databases.cassandra.datastax.DriverConnection;
 
 import java.util.List;
 import java.util.Map;
@@ -32,14 +33,14 @@ public interface Keyspace {
    * @param conn the connection to use
    * @throws Exception if a problem occurs
    */
-  void setConnection(Connection conn) throws Exception;
+  void setConnection(DriverConnection conn) throws Exception;
 
   /**
    * Get the current connection
    *
    * @return the current connection
    */
-  Connection getConnection();
+  DriverConnection getConnection();
 
   /**
    * Set the current keyspace

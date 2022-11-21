@@ -13,33 +13,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-package org.apache.hop.databases.cassandra;
 
-import org.apache.hop.databases.cassandra.datastax.DriverConnection;
-import org.apache.hop.databases.cassandra.spi.Connection;
+package org.apache.hop.metadata.api;
 
-public class ConnectionFactory {
-  private static ConnectionFactory instance = new ConnectionFactory();
-
-  public enum Driver {
-    ASTYANAX,
-    BINARY_CQL3_PROTOCOL;
-  }
-
-  private ConnectionFactory() {}
-
-  public static ConnectionFactory getFactory() {
-    return instance;
-  }
-
-  public Connection getConnection(Driver d) {
-    switch (d) {
-      case BINARY_CQL3_PROTOCOL:
-        return new DriverConnection();
-      default:
-        return null;
-    }
-  }
+public interface IEnumHasCodeAndDescription extends IEnumHasCode {
+  String getDescription();
 }

@@ -21,7 +21,7 @@ package org.apache.hop.databases.cassandra.metadata;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.databases.cassandra.spi.Connection;
+import org.apache.hop.databases.cassandra.datastax.DriverConnection;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -149,12 +149,12 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
       CassandraConnection meta = new CassandraConnection();
       getWidgetsContent(meta);
 
-      Connection connection = meta.createConnection(manager.getVariables(), false);
+      DriverConnection connection = meta.createConnection(manager.getVariables(), false);
       try {
-        connection.openConnection();
+        connection.open();
         connection.getKeyspaceNames();
       } finally {
-        connection.closeConnection();
+        connection.close();
       }
 
       MessageBox box = new MessageBox(parent.getShell(), SWT.ICON_INFORMATION | SWT.OK);
@@ -171,10 +171,8 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
     try {
       CassandraConnection meta = new CassandraConnection();
       getWidgetsContent(meta);
-
-      Connection connection = meta.createConnection(manager.getVariables(), false);
-      try {
-        connection.openConnection();
+      try (DriverConnection connection = meta.createConnection(manager.getVariables(), false)) {
+        connection.open();
         String[] keyspaceNames = connection.getKeyspaceNames();
         EnterSelectionDialog dialog =
             new EnterSelectionDialog(
@@ -185,8 +183,6 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
           setMetadata(meta);
           setWidgetsContent();
         }
-      } finally {
-        connection.closeConnection();
       }
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error selecting keyspace", e);

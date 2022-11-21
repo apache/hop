@@ -8,7 +8,7 @@
       "field_length": 15,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "",
+      "field_format": "0",
       "field_name": "id"
     },
     {

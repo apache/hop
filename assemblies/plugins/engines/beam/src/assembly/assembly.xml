@@ -138,9 +138,9 @@
                 <include>io.dropwizard.metrics:metrics-graphite</include>
                 <include>io.dropwizard.metrics:metrics-json</include>
                 <include>io.github.classgraph:classgraph</include>
-                <include>io.netty:netty-codec-socks</include>
+                <!--<include>io.netty:netty-codec-socks</include>
                 <include>io.netty:netty-handler-proxy</include>
-                <include>io.netty:netty-tcnative-boringssl-static</include>
+                <include>io.netty:netty-tcnative-boringssl-static</include>-->
                 <include>io.opencensus:opencensus-contrib-grpc-util</include>
                 <include>javax.annotation:javax.annotation-api</include>
                 <include>javax.servlet:javax.servlet-api</include>
@@ -220,7 +220,7 @@
                 <include>org.roaringbitmap:RoaringBitmap</include>
                 <include>org.roaringbitmap:shims</include>
                 <include>org.scala-lang:scala-compiler</include>
-                <include>org.scala-lang:scala-library</include>
+                <!--<include>org.scala-lang:scala-library</include>-->
                 <include>org.scala-lang:scala-reflect</include>
                 <include>org.scala-lang.modules:scala-collection-compat_2.12</include>
                 <include>org.scala-lang.modules:scala-parser-combinators_2.12</include>

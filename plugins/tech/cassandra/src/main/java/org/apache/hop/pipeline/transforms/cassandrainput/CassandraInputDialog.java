@@ -20,8 +20,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.databases.cassandra.datastax.DriverConnection;
 import org.apache.hop.databases.cassandra.metadata.CassandraConnection;
-import org.apache.hop.databases.cassandra.spi.Connection;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
 import org.apache.hop.i18n.BaseMessages;
@@ -424,17 +424,14 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
   }
 
   protected void popupSchemaInfo() {
-
-    Connection conn = null;
-    Keyspace kSpace = null;
+    Keyspace kSpace;
     try {
       CassandraConnection cassandraConnection =
           metadataProvider
               .getSerializer(CassandraConnection.class)
               .load(variables.resolve(wConnection.getText()));
 
-      try {
-        conn = cassandraConnection.createConnection(variables, false);
+      try (DriverConnection conn = cassandraConnection.createConnection(variables, false)) {
         kSpace = cassandraConnection.lookupKeyspace(conn, variables);
       } catch (Exception e) {
         logError(
@@ -489,15 +486,6 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
               + ":\n\n"
               + e1.getMessage(),
           e1);
-    } finally {
-      if (conn != null) {
-        try {
-          conn.closeConnection();
-        } catch (Exception e) {
-          log.logError(e.getLocalizedMessage(), e);
-          // TODO popup another error dialog
-        }
-      }
     }
   }
 }

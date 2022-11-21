@@ -72,14 +72,13 @@ limitations under the License.
       <loglevel>Basic</loglevel>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>432</xloc>
+      <xloc>512</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
@@ -101,7 +100,6 @@ limitations under the License.
       <loglevel>Basic</loglevel>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>
@@ -113,7 +111,7 @@ limitations under the License.
         </parameter>
       </parameters>
       <parallel>N</parallel>
-      <xloc>624</xloc>
+      <xloc>816</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>

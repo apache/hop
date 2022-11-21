@@ -95,7 +95,7 @@ limitations under the License.
     <uri-field>uri</uri-field>
     <attributes/>
     <GUI>
-      <xloc>128</xloc>
+      <xloc>144</xloc>
       <yloc>96</yloc>
     </GUI>
   </transform>

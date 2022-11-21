@@ -18,7 +18,7 @@
 
 package org.apache.hop.workflow.actions.execcql;
 
-import com.datastax.driver.core.Session;
+import com.datastax.oss.driver.api.core.CqlSession;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -27,8 +27,8 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.databases.cassandra.datastax.DriverConnection;
 import org.apache.hop.databases.cassandra.metadata.CassandraConnection;
-import org.apache.hop.databases.cassandra.spi.Connection;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.workflow.action.ActionBase;
@@ -146,10 +146,8 @@ public class ExecCql extends ActionBase implements IAction {
 
     // Connect to the database
     //
-    Connection connection = null;
-    try {
-      connection = cassandraConnection.createConnection(variables, true);
-      Session session = connection.openConnection();
+    try (DriverConnection connection = cassandraConnection.createConnection(variables, true)) {
+      CqlSession session = connection.open();
 
       try {
         // Split the script into parts : semi-colon at the start of a separate line
@@ -177,15 +175,6 @@ public class ExecCql extends ActionBase implements IAction {
     } catch (Exception e) {
       throw new HopException(
           "Error executing CQL on Cassandra connection " + cassandraConnection.getName(), e);
-    } finally {
-      if (connection != null) {
-        try {
-          connection.closeConnection();
-        } catch (Exception e) {
-          throw new HopException(
-              "Error closing Cassandra connection " + cassandraConnection.getName(), e);
-        }
-      }
     }
     return nrExecuted;
   }
@@ -214,7 +203,9 @@ public class ExecCql extends ActionBase implements IAction {
     return connectionName;
   }
 
-  /** @param connectionName The connectionName to set */
+  /**
+   * @param connectionName The connectionName to set
+   */
   public void setConnectionName(String connectionName) {
     this.connectionName = connectionName;
   }
@@ -228,7 +219,9 @@ public class ExecCql extends ActionBase implements IAction {
     return script;
   }
 
-  /** @param script The script to set */
+  /**
+   * @param script The script to set
+   */
   public void setScript(String script) {
     this.script = script;
   }
@@ -242,7 +235,9 @@ public class ExecCql extends ActionBase implements IAction {
     return replacingVariables;
   }
 
-  /** @param replacingVariables The replacingVariables to set */
+  /**
+   * @param replacingVariables The replacingVariables to set
+   */
   public void setReplacingVariables(boolean replacingVariables) {
     this.replacingVariables = replacingVariables;
   }

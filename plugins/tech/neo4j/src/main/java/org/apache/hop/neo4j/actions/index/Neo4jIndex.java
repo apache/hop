@@ -106,7 +106,7 @@ public class Neo4jIndex extends ActionBase implements IAction {
     if (StringUtils.isNotEmpty(indexUpdate.getIndexName())) {
       cypher += indexUpdate.getIndexName();
     } else {
-      cypher += " ON ";
+      cypher += " FOR ";
       switch (indexUpdate.getObjectType()) {
         case NODE:
           cypher +=

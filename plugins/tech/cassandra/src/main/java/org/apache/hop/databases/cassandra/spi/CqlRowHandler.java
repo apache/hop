@@ -26,13 +26,6 @@ import java.util.Map;
 /** Interface to something that can process rows (read and write) via CQL. */
 public interface CqlRowHandler {
   /**
-   * Set any special options for (e.g. timeouts etc)
-   *
-   * @param options the options to use. Can be null.
-   */
-  void setOptions(Map<String, String> options);
-
-  /**
    * Set the specific underlying Keyspace implementation to use
    *
    * @param keyspace the keyspace to use

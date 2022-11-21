@@ -44,16 +44,8 @@
     </licenses>
 
     <properties>
-        <cassandra.version>3.11.12</cassandra.version>
-        <cassandra-driver.version>3.11.1</cassandra-driver.version>
-
-        <clearspring-stream.version>2.8.0</clearspring-stream.version>
-        <sigar.version>1.6.4</sigar.version>
-        <dropwizard-metrics.version>3.1.0</dropwizard-metrics.version>
-        <jna.version>4.0.0</jna.version>
-        <jamm.version>0.3.0</jamm.version>
-        <high-scale-lib.version>1.0.6</high-scale-lib.version>
-        <supercsv.version>2.1.0</supercsv.version>
+        <cassandra-all.version>4.0.7</cassandra-all.version>
+        <cassandra-java-driver.version>4.15.0</cassandra-java-driver.version>
     </properties>
 
     <dependencies>
@@ -61,39 +53,17 @@
         <dependency>
             <groupId>org.apache.cassandra</groupId>
             <artifactId>cassandra-all</artifactId>
-            <version>${cassandra.version}</version>
-            <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.addthis.metrics</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>${cassandra-all.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.datastax.cassandra</groupId>
-            <artifactId>cassandra-driver-core</artifactId>
-            <version>${cassandra-driver.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.datastax.cassandra</groupId>
-            <artifactId>cassandra-driver-extras</artifactId>
-            <version>${cassandra-driver.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>com.datastax.oss</groupId>
-            <artifactId>java-driver-shaded-guava</artifactId>
-            <version>25.1-jre</version>
+            <artifactId>java-driver-core</artifactId>
+            <version>${cassandra-java-driver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.datastax.oss</groupId>
+            <artifactId>java-driver-query-builder</artifactId>
+            <version>${cassandra-java-driver.version}</version>
         </dependency>
 
         <!-- Test dependencies -->

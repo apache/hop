@@ -17,8 +17,8 @@
  */
 package org.apache.hop.database.cassandra.util;
 
-import com.datastax.driver.core.DataType;
-import com.datastax.driver.core.LocalDate;
+import com.datastax.oss.driver.api.core.type.DataTypes;
+import org.apache.cassandra.cql3.functions.types.LocalDate;
 import org.apache.cassandra.dht.ByteOrderedPartitioner;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.OrderPreservingPartitioner;
@@ -36,9 +36,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -149,10 +147,9 @@ public class CassandraUtilsTest {
     when(vmTimestamp.getDate(any())).thenReturn(testTimestamp);
 
     assertEquals(
-        "'2018-03-12T01:02:03.456Z'", CassandraUtils.kettleValueToCQL(vmDate, testTimestamp, 3));
+        "'2018-03-12T01:02:03.456Z'", CassandraUtils.hopValueToCql(vmDate, testTimestamp, 3));
     assertEquals(
-        "'2018-03-12T01:02:03.456Z'",
-        CassandraUtils.kettleValueToCQL(vmTimestamp, testTimestamp, 3));
+        "'2018-03-12T01:02:03.456Z'", CassandraUtils.hopValueToCql(vmTimestamp, testTimestamp, 3));
   }
 
   @Test
@@ -166,8 +163,8 @@ public class CassandraUtilsTest {
     cqlColumnNames.add("date");
     cqlColumnNames.add("timestamp");
     when(mockTableMeta.getColumnNames()).thenReturn(cqlColumnNames);
-    when(mockTableMeta.getColumnCQLType("date")).thenReturn(DataType.date());
-    when(mockTableMeta.getColumnCQLType("timestamp")).thenReturn(DataType.timestamp());
+    when(mockTableMeta.getColumnCQLType("date")).thenReturn(DataTypes.DATE);
+    when(mockTableMeta.getColumnCQLType("timestamp")).thenReturn(DataTypes.TIMESTAMP);
 
     when(inputMeta.indexOfValue("date")).thenReturn(0);
     when(inputMeta.indexOfValue("timestamp")).thenReturn(1);
