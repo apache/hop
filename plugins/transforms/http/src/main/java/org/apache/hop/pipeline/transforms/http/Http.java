@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -294,16 +295,17 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
 
   @Override
   public boolean processRow() throws HopException {
+    Object[] r = getRow();
 
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if (r == null) { // no more input to be expected...
+    boolean firstWithoutPreviousTransforms = first && data.withoutPreviousTransforms;
+    if (r == null && !firstWithoutPreviousTransforms) {
       setOutputDone();
       return false;
     }
 
     if (first) {
-      data.outputRowMeta = getInputRowMeta().clone();
-      data.inputRowMeta = getInputRowMeta();
+      data.inputRowMeta = data.withoutPreviousTransforms ? new RowMeta() : getInputRowMeta();
+      data.outputRowMeta = data.inputRowMeta.clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       if (meta.isUrlInField()) {
@@ -314,13 +316,13 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
 
         // cache the position of the field
         if (data.indexOfUrlField < 0) {
-          String realUrlfieldName = resolve(meta.getUrlField());
-          data.indexOfUrlField = getInputRowMeta().indexOfValue(realUrlfieldName);
+          String realUrlFieldName = resolve(meta.getUrlField());
+          data.indexOfUrlField = data.inputRowMeta.indexOfValue(realUrlFieldName);
           if (data.indexOfUrlField < 0) {
             // The field is unreachable !
-            logError(BaseMessages.getString(PKG, "HTTP.Log.ErrorFindingField", realUrlfieldName));
+            logError(BaseMessages.getString(PKG, "HTTP.Log.ErrorFindingField", realUrlFieldName));
             throw new HopException(
-                BaseMessages.getString(PKG, "HTTP.Exception.ErrorFindingField", realUrlfieldName));
+                BaseMessages.getString(PKG, "HTTP.Exception.ErrorFindingField", realUrlFieldName));
           }
         }
       } else {
@@ -358,7 +360,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
     } // end if first
 
     try {
-      Object[] outputRowData = execHttp(getInputRowMeta(), r); // add new values to the row
+      Object[] outputRowData = execHttp(data.inputRowMeta, r); // add new values to the row
       putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
       if (checkFeedback(getLinesRead())) {
@@ -382,7 +384,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
       }
       if (sendToErrorRow) {
         // Simply add this row to the error row
-        putError(getInputRowMeta(), r, 1, errorMessage, null, "HTTP001");
+        putError(data.inputRowMeta, r, 1, errorMessage, null, "HTTP001");
       }
     }
 
@@ -401,6 +403,9 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
 
       data.realSocketTimeout = Const.toInt(resolve(meta.getSocketTimeout()), -1);
       data.realConnectionTimeout = Const.toInt(resolve(meta.getSocketTimeout()), -1);
+
+      data.withoutPreviousTransforms =
+          getPipelineMeta().getPrevTransforms(getTransformMeta()).length == 0;
 
       return true;
     }

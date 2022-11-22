@@ -38,7 +38,7 @@ public class HttpData extends BaseTransformData implements ITransformData {
 
   public int realSocketTimeout;
   public int realConnectionTimeout;
-  public int realcloseIdleConnectionsTime;
+  public boolean withoutPreviousTransforms;
 
   /** Default constructor. */
   public HttpData() {
