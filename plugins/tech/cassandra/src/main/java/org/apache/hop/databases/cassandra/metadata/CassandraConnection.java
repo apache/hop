@@ -187,9 +187,9 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
     return CassandraUtils.getCassandraConnection(
         chosenHostname,
         Const.toInt(chosenPort, 9042),
+        variables.resolve(localDataCenter),
         variables.resolve(username),
         variables.resolve(password),
-        variables.resolve(localDataCenter),
         options);
   }
 
