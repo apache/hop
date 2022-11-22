@@ -17,20 +17,16 @@
 
 package org.apache.hop.workflow.actions.start;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopWorkflowException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.w3c.dom.Node;
 
 import java.util.Calendar;
 import java.util.List;
@@ -55,14 +51,17 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
   public static final int WEEKLY = 3;
   public static final int MONTHLY = 4;
 
-  private boolean repeat = false;
-  private int schedulerType = NOSCHEDULING;
-  private int intervalSeconds = 0;
-  private int intervalMinutes = 60;
+  @HopMetadataProperty private boolean repeat = false;
+  @HopMetadataProperty private int schedulerType = NOSCHEDULING;
+  @HopMetadataProperty private int intervalSeconds = 0;
+  @HopMetadataProperty private int intervalMinutes = 60;
+
+  @HopMetadataProperty(key = "DayOfMonth")
   private int dayOfMonth = 1;
-  private int weekDay = 1;
-  private int minutes = 0;
-  private int hour = 12;
+
+  @HopMetadataProperty private int weekDay = 1;
+  @HopMetadataProperty private int minutes = 0;
+  @HopMetadataProperty private int hour = 12;
 
   public ActionStart() {
     this(null);
@@ -73,51 +72,12 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public Object clone() {
-    ActionStart je = (ActionStart) super.clone();
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("repeat", repeat));
-    retval.append("      ").append(XmlHandler.addTagValue("schedulerType", schedulerType));
-    retval.append("      ").append(XmlHandler.addTagValue("intervalSeconds", intervalSeconds));
-    retval.append("      ").append(XmlHandler.addTagValue("intervalMinutes", intervalMinutes));
-    retval.append("      ").append(XmlHandler.addTagValue("hour", hour));
-    retval.append("      ").append(XmlHandler.addTagValue("minutes", minutes));
-    retval.append("      ").append(XmlHandler.addTagValue("weekDay", weekDay));
-    retval.append("      ").append(XmlHandler.addTagValue("DayOfMonth", dayOfMonth));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(actionNode);
-      repeat = "Y".equalsIgnoreCase(XmlHandler.getTagValue(actionNode, "repeat"));
-      setSchedulerType(
-          Const.toInt(XmlHandler.getTagValue(actionNode, "schedulerType"), NOSCHEDULING));
-      setIntervalSeconds(Const.toInt(XmlHandler.getTagValue(actionNode, "intervalSeconds"), 0));
-      setIntervalMinutes(Const.toInt(XmlHandler.getTagValue(actionNode, "intervalMinutes"), 0));
-      setHour(Const.toInt(XmlHandler.getTagValue(actionNode, "hour"), 0));
-      setMinutes(Const.toInt(XmlHandler.getTagValue(actionNode, "minutes"), 0));
-      setWeekDay(Const.toInt(XmlHandler.getTagValue(actionNode, "weekDay"), 0));
-      setDayOfMonth(Const.toInt(XmlHandler.getTagValue(actionNode, "dayOfMonth"), 0));
-    } catch (HopException e) {
-      throw new HopXmlException("Unable to load action of type 'special' from XML node", e);
-    }
+  public ActionStart clone() {
+    return (ActionStart) super.clone();
   }
 
   @Override
   public Result execute(Result previousResult, int nr) throws HopWorkflowException {
-    Result result = previousResult;
-
     try {
       long sleepTime = getNextExecutionTime();
       if (sleepTime > 0) {
@@ -135,9 +95,8 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
     } catch (InterruptedException e) {
       throw new HopWorkflowException(e);
     }
-    result = previousResult;
-    result.setResult(true);
-    return result;
+    previousResult.setResult(true);
+    return previousResult;
   }
 
   private long getNextExecutionTime() {
