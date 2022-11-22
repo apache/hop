@@ -111,6 +111,12 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
         throw new HopException("Web service '" + webServiceName + "' is disabled.");
       }
 
+      // If a run configuration is set in the web service and none is specified here, we take it.
+      //
+      if (StringUtils.isEmpty(runConfigurationName)) {
+        runConfigurationName = variables.resolve(webService.getRunConfigurationName());
+      }
+
       String filename = variables.resolve(webService.getFilename());
       String transformName = variables.resolve(webService.getTransformName());
       String fieldName = variables.resolve(webService.getFieldName());
