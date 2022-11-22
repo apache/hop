@@ -23,7 +23,7 @@ REM switch to script directory
 cd /D %~dp0
 
 set LIBSPATH=lib\core;lib\beam
-set SWTJAR=libswt\win64
+set CLASSPATH=lib\core\*;lib\beam\*;libswt\win64\*
 
 :NormalStart
 REM set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java
@@ -89,10 +89,10 @@ goto TopArg
 :EndArg
 
 echo Command to start Hop will be:
-echo %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.config.HopConfig %_cmdline%
+echo %_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.config.HopConfig %_cmdline%
 echo.
 echo ===[Starting HopConfig]=========================================================
 
-%_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.imp.HopImport %_cmdline%
+%_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.imp.HopImport %_cmdline%
 @echo off
 :End

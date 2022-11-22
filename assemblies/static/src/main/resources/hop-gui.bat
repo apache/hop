@@ -26,7 +26,7 @@ REM Option to change the Characterset of the Windows Shell to show foreign carac
 if not "%HOP_WINDOWS_SHELL_ENCODING%"=="" chcp %HOP_WINDOWS_SHELL_ENCODING%
 
 set LIBSPATH=lib\core;lib\beam
-set SWTJAR=libswt\win64
+set CLASSPATH=lib\core\*;lib\beam\*;libswt\win64\*
 
 set _temphelp=0
 if [%1]==[help] set _temphelp=1
@@ -101,11 +101,11 @@ echo.
 echo HOP_OPTIONS=%HOP_OPTIONS%
 echo.
 echo Command to start Hop will be:
-echo %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
+echo %_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
 echo.
 echo ===[Starting Hop]=========================================================
 
-%_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Dswt.autoScale=false -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
+%_HOP_JAVA% -classpath %CLASSPATH% -Dswt.autoScale=false -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
 if ERRORLEVEL 1 (pause)
 @echo off
 :End

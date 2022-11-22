@@ -26,7 +26,7 @@ REM Option to change the Characterset of the Windows Shell to show foreign carac
 if not "%HOP_WINDOWS_SHELL_ENCODING%"=="" chcp %HOP_WINDOWS_SHELL_ENCODING%
 
 set LIBSPATH=lib\core;lib\beam
-set SWTJAR=libswt\win64
+set CLASSPATH=lib\core\*;lib\beam\*;libswt\win64\*
 
 set _temphelp=0
 if [%1]==[help] set _temphelp=1
@@ -113,9 +113,9 @@ echo Consolidated parameters to pass to HopRun are
 echo %_cmdline%%
 echo.
 echo Command to start HopRun will be:
-echo %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.run.HopRun %_cmdline%%
+echo %_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.run.HopRun %_cmdline%%
 echo.
 echo ===[Starting HopRun]=========================================================
-%_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.run.HopRun %_cmdline%%
+%_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.run.HopRun %_cmdline%%
 @echo off
 :End
