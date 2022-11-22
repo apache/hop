@@ -2061,7 +2061,7 @@ public class TableView extends Composite {
   @GuiToolbarElement(
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_SELECT_ALL_ROWS,
-      image = "ui/images/add_all.svg",
+      image = "ui/images/select-all.svg",
       toolTip = "Select all rows",
       separator = true)
   public void selectAll() {
@@ -2071,7 +2071,7 @@ public class TableView extends Composite {
   @GuiToolbarElement(
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_CLEAR_SELECTION,
-      image = "ui/images/cancel.svg",
+      image = "ui/images/unselect-all.svg",
       toolTip = "Clear selection")
   public void unselectAll() {
     table.deselectAll();
