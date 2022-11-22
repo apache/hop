@@ -146,6 +146,7 @@
                 <module>normaliser</module>
                 <module>nullif</module>
                 <module>numberrange</module>
+                <module>orabulkloader</module>
                 <module>pipelineexecutor</module>
                 <module>pgbulkloader</module>
                 <module>pgp</module>
