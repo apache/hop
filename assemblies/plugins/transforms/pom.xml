@@ -116,6 +116,7 @@
     <module>nullif</module>
     <module>numberrange</module>
     <module>pipelineexecutor</module>
+    <module>orabulkloader</module>
     <module>pgbulkloader</module>
     <module>pgp</module>
     <module>processfiles</module>
