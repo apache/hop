@@ -116,7 +116,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     shell.setText(BaseMessages.getString(PKG, "Repeat.Name"));
 
     int middle = props.getMiddlePct();
-    int margin = (int) (PropsUi.getMargin() * props.getZoomFactor());
+    int margin = PropsUi.getMargin();
 
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText("Action name");
