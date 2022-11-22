@@ -110,6 +110,10 @@ http://<hop-server-url>/hop/webService
 |The name of the service.
 This corresponds to the Web Service metadata object.
 
+|`runConfig`
+|The name of the pipeline run configuration.
+Please note that returning values is only supported on the "Local" pipeline engine.
+
 |Any parameter name
 |Any parameter can be set simply by passing the value through the request URL
 

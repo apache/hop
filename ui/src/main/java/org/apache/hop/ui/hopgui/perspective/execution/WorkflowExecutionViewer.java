@@ -301,6 +301,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       infoView.add("Type", executionState.getExecutionType().name());
       infoView.add("Status", statusDescription);
       infoView.add("Status Last updated", formatDate(executionState.getUpdateTime()));
+      infoView.add("Container ID", executionState.getContainerId());
 
       infoView.optimizeTableView();
 

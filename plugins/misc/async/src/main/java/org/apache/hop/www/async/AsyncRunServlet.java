@@ -36,6 +36,8 @@ import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.apache.hop.www.BaseHttpServlet;
 import org.apache.hop.www.IHopServerPlugin;
@@ -53,6 +55,9 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 @HopServerServlet(id = "asyncRun", name = "Asynchronously run a workflow")
 public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -71,7 +76,6 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
-
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
@@ -100,6 +104,11 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
       log.logError(
           "Please specify a service parameter pointing to the name of the asynchronous webservice object");
     }
+    String runConfigurationName = request.getParameter("runConfig");
+    if (StringUtils.isNotEmpty(runConfigurationName)) {
+      log.logBasic(
+          "Running asynchronous workflow with run configuration '" + runConfigurationName + "'");
+    }
 
     try {
       IHopMetadataSerializer<AsyncWebService> serializer =
@@ -114,6 +123,12 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
 
       if (!webService.isEnabled()) {
         throw new HopException("Asynchronous Web service '" + webServiceName + "' is disabled.");
+      }
+
+      // If a run configuration is set in the async web service and none is specified here, we take it.
+      //
+      if (StringUtils.isEmpty(runConfigurationName)) {
+        runConfigurationName = variables.resolve(webService.getRunConfigurationName());
       }
 
       String filename = variables.resolve(webService.getFilename());
@@ -133,7 +148,18 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
       //
       WorkflowMeta workflowMeta = new WorkflowMeta(variables, filename, metadataProvider);
 
-      LocalWorkflowEngine workflow = new LocalWorkflowEngine(workflowMeta, servletLoggingObject);
+      IWorkflowEngine<WorkflowMeta> workflow;
+      if (StringUtils.isEmpty(runConfigurationName)) {
+        workflow = new LocalWorkflowEngine(workflowMeta, servletLoggingObject);
+      } else {
+        workflow =
+            WorkflowEngineFactory.createWorkflowEngine(
+                variables,
+                runConfigurationName,
+                metadataProvider,
+                workflowMeta,
+                servletLoggingObject);
+      }
       workflow.setContainerId(serverObjectId);
       workflow.setMetadataProvider(metadataProvider);
       workflow.setLogLevel(LogLevel.BASIC);
@@ -158,7 +184,7 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
 
             // Now we have the content...
             //
-            content = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+            content = outputStream.toString(StandardCharsets.UTF_8);
           }
         }
         workflow.setVariable(contentVariable, Const.NVL(content, ""));
@@ -187,7 +213,6 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
 
       // Add the workflow to the status map, so we can retrieve statuses later on
       //
-
       WorkflowExecutionConfiguration workflowExecutionConfiguration =
           new WorkflowExecutionConfiguration();
       WorkflowConfiguration workflowConfiguration =
@@ -201,9 +226,21 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
       //
       getWorkflowMap().addWorkflow(webServiceName, serverObjectId, workflow, workflowConfiguration);
 
+      // We want to know when we have the log channel ID of the workflow.
+      // However, we only get that once the workflow is started.
+      //
+      BlockingQueue<Object> waitForLogChannelIdQueue = new ArrayBlockingQueue<>(10);
+      workflow.addWorkflowStartedListener(engine -> waitForLogChannelIdQueue.add(new Object()));
+
       // Allocate the workflow in the background...
       //
       new Thread(workflow::startExecution).start();
+
+      // This should only take a tiny fraction of a second
+      //
+      waitForLogChannelIdQueue.poll(30, TimeUnit.SECONDS);
+
+      String logChannelId = workflow.getLogChannelId();
 
       try (OutputStream outputStream = response.getOutputStream()) {
 
@@ -212,6 +249,7 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
         JSONObject json = new JSONObject();
         json.put("name", workflowMeta.getName());
         json.put("id", serverObjectId);
+        json.put("logChannelId", logChannelId);
 
         String jsonString = json.toJSONString();
         outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
@@ -221,7 +259,7 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
         log.logError("Error running asynchronous web service", e);
       }
       response.setStatus(HttpServletResponse.SC_OK);
-    } catch (IOException | HopException e) {
+    } catch (IOException | HopException | InterruptedException e) {
       log.logError("Error running asynchronous web service", e);
     }
   }

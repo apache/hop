@@ -36,6 +36,8 @@ import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.www.service.WebService;
@@ -65,7 +67,8 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
   }
 
   @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  protected void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
     this.doGet(request, response);
   }
 
@@ -90,6 +93,8 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
       throw new ServletException(
           "Please specify a service parameter pointing to the name of the web service object");
     }
+
+    String runConfigurationName = request.getParameter("runConfig");
 
     try {
       IHopMetadataSerializer<WebService> serializer =
@@ -135,8 +140,14 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
       // Output the data to the response output stream...
       //
       PipelineMeta pipelineMeta = new PipelineMeta(filename, metadataProvider, variables);
-      LocalPipelineEngine pipeline =
-          new LocalPipelineEngine(pipelineMeta, variables, servletLoggingObject);
+      IPipelineEngine<PipelineMeta> pipeline;
+      if (StringUtils.isEmpty(runConfigurationName)) {
+        pipeline = new LocalPipelineEngine(pipelineMeta, variables, servletLoggingObject);
+      } else {
+        pipeline =
+            PipelineEngineFactory.createPipelineEngine(
+                variables, runConfigurationName, metadataProvider, pipelineMeta);
+      }
       pipeline.setContainerId(serverObjectId);
 
       if (StringUtils.isNotEmpty(bodyContentVariable)) {

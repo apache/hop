@@ -113,6 +113,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public static final String EP_CHILD_IDS = "childIds";
   public static final String EP_FAILED = "failed";
   public static final String EP_DETAILS = "details";
+  public static final String EP_CONTAINER_ID = "containerId";
 
   public static final String CL_EXECUTION_METRIC = "ExecutionMetric";
   public static final String CP_ID = "id";
@@ -638,7 +639,9 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
               .withValue(EP_UPDATE_TIME, state.getUpdateTime())
               .withValue(EP_CHILD_IDS, state.getChildIds())
               .withValue(EP_FAILED, state.isFailed())
-              .withValue(EP_DETAILS, state.getDetails());
+              .withValue(EP_DETAILS, state.getDetails())
+              .withValue(EP_CONTAINER_ID, state.getContainerId());
+
       transaction.run(stateCypherBuilder.cypher(), stateCypherBuilder.parameters());
 
       // Save the metrics as well...
@@ -698,7 +701,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                 EP_UPDATE_TIME,
                 EP_CHILD_IDS,
                 EP_FAILED,
-                EP_DETAILS);
+                EP_DETAILS,
+                EP_CONTAINER_ID);
     Result result = transaction.run(executionBuilder.cypher(), executionBuilder.parameters());
 
     // We expect exactly one result
@@ -720,7 +724,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
             .withUpdateTime(getDate(record, EP_UPDATE_TIME))
             .withChildIds(getList(record, EP_CHILD_IDS))
             .withFailed(getBoolean(record, EP_FAILED))
-            .withDetails(getMap(record, EP_DETAILS));
+            .withDetails(getMap(record, EP_DETAILS))
+            .withContainerId(getString(record, EP_CONTAINER_ID));
 
     // Add the metrics to the state...
     //

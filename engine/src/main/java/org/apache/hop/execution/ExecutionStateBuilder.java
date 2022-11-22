@@ -51,6 +51,7 @@ public final class ExecutionStateBuilder {
   private List<String> childIds;
   private boolean failed;
   private Map<String, String> details;
+  private String containerId;
 
   private ExecutionStateBuilder() {
     this.updateTime = new Date();
@@ -93,7 +94,8 @@ public final class ExecutionStateBuilder {
             .withFailed(pipeline.getErrors() > 0)
             .withStatusDescription(pipeline.getStatusDescription())
             .withChildIds(
-                LoggingRegistry.getInstance().getChildrenMap().get(pipeline.getLogChannelId()));
+                LoggingRegistry.getInstance().getChildrenMap().get(pipeline.getLogChannelId()))
+            .withContainerId(pipeline.getContainerId());
 
     EngineMetrics engineMetrics = pipeline.getEngineMetrics();
 
@@ -131,7 +133,8 @@ public final class ExecutionStateBuilder {
         .withFailed(component.getErrors() > 0)
         .withName(component.getName())
         .withCopyNr(Integer.toString(component.getCopyNr()))
-        .withParentId(pipeline.getLogChannelId());
+        .withParentId(pipeline.getLogChannelId())
+        .withContainerId(pipeline.getContainerId());
   }
 
   private static void addMetric(
@@ -165,7 +168,8 @@ public final class ExecutionStateBuilder {
         .withFailed(result != null && !result.getResult())
         .withStatusDescription(workflow.getStatusDescription())
         .withChildIds(
-            LoggingRegistry.getInstance().getChildrenMap().get(workflow.getLogChannelId()));
+            LoggingRegistry.getInstance().getChildrenMap().get(workflow.getLogChannelId()))
+        .withContainerId(workflow.getContainerId());
   }
 
   public ExecutionStateBuilder withExecutionType(ExecutionType executionType) {
@@ -239,6 +243,11 @@ public final class ExecutionStateBuilder {
     return this;
   }
 
+  public ExecutionStateBuilder withContainerId(String containerId) {
+    this.containerId = containerId;
+    return this;
+  }
+
   public ExecutionState build() {
     ExecutionState state = new ExecutionState();
     state.setExecutionType(executionType);
@@ -254,6 +263,7 @@ public final class ExecutionStateBuilder {
     state.setChildIds(childIds);
     state.setFailed(failed);
     state.setDetails(details);
+    state.setContainerId(containerId);
     return state;
   }
 }

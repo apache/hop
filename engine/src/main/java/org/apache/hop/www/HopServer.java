@@ -44,6 +44,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
@@ -66,7 +67,7 @@ import java.util.stream.Stream;
 public class HopServer implements Runnable, IHasHopMetadataProvider {
   private static final Class<?> PKG = HopServer.class; // For Translator
 
-  @Parameters(description = "One XML configuration file or a hostname and port", arity = "1..2")
+  @Parameters(description = "One XML configuration file or a hostname and port", arity = "0..2")
   private List<String> parameters;
 
   @picocli.CommandLine.Option(
@@ -89,7 +90,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
 
   @picocli.CommandLine.Option(
       names = {"-l", "--level"},
-      description = "The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL")
+      description =
+          "The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL")
   private String level;
 
   @CommandLine.Option(
@@ -117,6 +119,11 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
       names = {"-id"},
       description = "Specify the ID of the pipeline or workflow to query")
   private String id;
+
+  @CommandLine.Option(
+          names = {"-n", "--server-name"},
+          description = "The name of the server to start as defined in the metadata.")
+  private String serverName;
 
   private WebServer webServer;
   private HopServerConfig config;
@@ -208,6 +215,22 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
         if (mixin instanceof IConfigOptions) {
           IConfigOptions configOptions = (IConfigOptions) mixin;
           configOptions.handleOption(log, this, variables);
+        }
+      }
+
+      // If the server name was specified we make it look like 2 parameters were specified
+      //
+      if (parameters==null || parameters.isEmpty()) {
+        if (StringUtils.isNotEmpty(serverName)) {
+          IHopMetadataSerializer<org.apache.hop.server.HopServer> serializer = metadataProvider.getSerializer(org.apache.hop.server.HopServer.class);
+          String name = variables.resolve(serverName);
+          org.apache.hop.server.HopServer hopServer = serializer.load(name);
+          if (hopServer==null) {
+            throw new HopException("Unable to find Hop Server '"+name+"' couldn't be found in the server metadata");
+          }
+          String hostname = variables.resolve(hopServer.getHostname());
+          String port = variables.resolve(hopServer.getPort());
+          parameters = List.of(hostname, port);
         }
       }
 

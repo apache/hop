@@ -32,6 +32,8 @@ Here is the lifecycle:
 Executing an asynchronous web service is done by calling method `hop/asyncRun` with the main parameter being the name of the asynchronous web service. (`service=<name of metadata object>`) The response will be a JSON document which includes the ID of the workflow.
 Any other parameters will be considered to be variables or parameters of the workflow and are set in the underlying workflow.
 
+You can choose the workflow run configuration to use for the execution with the `runConfig` parameter.  Please note that the more advanced features, like tracking of the progress of a running pipeline, are only available on a Local workflow engine.
+
 You can also POST content to the web service which can be set as a variable in the executing workflow.
 See the "Content variable" option below.
 In the following example we execute service `dataload` with parameter `MAX` set to 50M.
@@ -70,9 +72,9 @@ curl --user cluster:cluster \
      'http://localhost:8282/hop/asyncStatus/?service=dataload&id='$ID
 ----
 
-The ID of the executing asynchronous web service is the same as the ID of the executing workflow.
-This means you can query the workflow itself as well with the `hop/getWorkflowStatus` service.
-The output of that service can be given in HTML (default), XML (parameter `&xml=Y`) or JSON (parameter `&json=Y`).
+The ID of the executing asynchronous web service is the same as the "container ID" of the executing workflow.  This means you can query the workflow itself as well with the `hop/getWorkflowStatus` service. The output of that service can be given in HTML (default), XML (parameter `&xml=Y`) or JSON (parameter `&json=Y`).
+The web service will also include the log channel ID of the workflow so that you can match it with the execution ID listed in the xref:metadata-types/execution-information-location.adoc[execution information location] of your choice.
+
 See also: xref:hop-server/rest-api.adoc#_getworkflowstatus[Get Workflow Status].
 
 == Options

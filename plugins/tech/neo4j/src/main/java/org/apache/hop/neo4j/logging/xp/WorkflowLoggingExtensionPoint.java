@@ -29,7 +29,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.neo4j.logging.Defaults;
 import org.apache.hop.neo4j.logging.util.LoggingCore;
 import org.apache.hop.neo4j.shared.NeoConnection;
-import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -37,7 +36,6 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
 import org.neo4j.driver.TransactionWork;
 
 import java.text.SimpleDateFormat;
@@ -91,29 +89,25 @@ public class WorkflowLoggingExtensionPoint
       logStartOfWorkflow(log, session, connection, workflow);
 
       workflow.addWorkflowFinishedListener(
-          new IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>() {
-            @Override
-            public void finished(IWorkflowEngine<WorkflowMeta> workflowMetaIWorkflowEngine)
-                throws HopException {
-              logEndOfWorkflow(log, session, connection, workflow);
+          workflowMetaIWorkflowEngine -> {
+            logEndOfWorkflow(log, session, connection, workflow);
 
-              // If there are no other parents, we now have the complete log channel hierarchy
-              //
-              if (workflow.getParentWorkflow() == null && workflow.getParentPipeline() == null) {
-                String logChannelId = workflow.getLogChannelId();
-                List<LoggingHierarchy> loggingHierarchy =
-                    LoggingCore.getLoggingHierarchy(logChannelId);
-                logHierarchy(log, session, connection, loggingHierarchy, logChannelId);
-              }
+            // If there are no other parents, we now have the complete log channel hierarchy
+            //
+            if (workflow.getParentWorkflow() == null && workflow.getParentPipeline() == null) {
+              String logChannelId = workflow.getLogChannelId();
+              List<LoggingHierarchy> loggingHierarchy =
+                  LoggingCore.getLoggingHierarchy(logChannelId);
+              logHierarchy(log, session, connection, loggingHierarchy, logChannelId);
+            }
 
-              // Let's not forget to close the session and driver...
-              //
-              if (session != null) {
-                session.close();
-              }
-              if (driver != null) {
-                driver.close();
-              }
+            // Let's not forget to close the session and driver...
+            //
+            if (session != null) {
+              session.close();
+            }
+            if (driver != null) {
+              driver.close();
             }
           });
 
@@ -231,43 +225,43 @@ public class WorkflowLoggingExtensionPoint
 
     synchronized (session) {
       session.writeTransaction(
-          new TransactionWork<Void>() {
-            @Override
-            public Void execute(Transaction transaction) {
-              try {
-                // Create a new node for each log channel and it's owner
-                // Start with the workflow
-                //
-                ILogChannel channel = workflow.getLogChannel();
-                Date startDate = (Date) workflow.getExtensionDataMap().get(WORKFLOW_START_DATE);
+          (TransactionWork<Void>)
+              transaction -> {
+                try {
+                  // Create a new node for each log channel and it's owner
+                  // Start with the workflow
+                  //
+                  ILogChannel channel = workflow.getLogChannel();
+                  Date startDate = (Date) workflow.getExtensionDataMap().get(WORKFLOW_START_DATE);
 
-                Map<String, Object> workflowPars = new HashMap<>();
-                workflowPars.put("workflowName", workflowMeta.getName());
-                workflowPars.put("id", channel.getLogChannelId());
-                workflowPars.put("type", EXECUTION_TYPE_WORKFLOW);
-                workflowPars.put(
-                    "executionStart",
-                    new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss").format(startDate));
+                  Map<String, Object> workflowPars = new HashMap<>();
+                  workflowPars.put("workflowName", workflowMeta.getName());
+                  workflowPars.put("id", channel.getLogChannelId());
+                  workflowPars.put("type", EXECUTION_TYPE_WORKFLOW);
+                  workflowPars.put("containerId", workflow.getContainerId());
+                  workflowPars.put(
+                      "executionStart",
+                      new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss").format(startDate));
 
-                StringBuilder workflowCypher = new StringBuilder();
-                workflowCypher.append("MATCH (w:Workflow { name : $workflowName} ) ");
-                workflowCypher.append(
-                    "MERGE (e:Execution { name : $workflowName, type : $type, id : $id} ) ");
-                workflowCypher.append("SET ");
-                workflowCypher.append(" e.executionStart = $executionStart ");
-                workflowCypher.append("MERGE (e)-[r:EXECUTION_OF_WORKFLOW]->(w) ");
+                  StringBuilder workflowCypher = new StringBuilder();
+                  workflowCypher.append("MATCH (w:Workflow { name : $workflowName} ) ");
+                  workflowCypher.append(
+                      "MERGE (e:Execution { name : $workflowName, type : $type, id : $id} ) ");
+                  workflowCypher.append("SET ");
+                  workflowCypher.append("  e.executionStart = $executionStart ");
+                  workflowCypher.append(", e.containerId = $containerId ");
+                  workflowCypher.append("MERGE (e)-[r:EXECUTION_OF_WORKFLOW]->(w) ");
 
-                transaction.run(workflowCypher.toString(), workflowPars);
+                  transaction.run(workflowCypher.toString(), workflowPars);
 
-                transaction.commit();
-              } catch (Exception e) {
-                transaction.rollback();
-                log.logError("Error logging workflow start", e);
-              }
+                  transaction.commit();
+                } catch (Exception e) {
+                  transaction.rollback();
+                  log.logError("Error logging workflow start", e);
+                }
 
-              return null;
-            }
-          });
+                return null;
+              });
     }
   }
 
@@ -319,31 +313,31 @@ public class WorkflowLoggingExtensionPoint
                   workflowPars.put("result", workflowResult.getResult());
                   workflowPars.put("nrResultRows", workflowResult.getRows().size());
                   workflowPars.put("nrResultFiles", workflowResult.getResultFilesList().size());
+                  workflowPars.put("containerId", workflowResult.getContainerId());
 
-                  StringBuilder execCypher = new StringBuilder();
-                  execCypher.append(
-                      "MERGE (e:Execution { name : $workflowName, type : $type, id : $id } ) ");
-                  execCypher.append("SET ");
-                  execCypher.append("  e.executionEnd = $executionEnd ");
-                  execCypher.append(", e.durationMs = $durationMs ");
-                  execCypher.append(", e.errors = $errors ");
-                  execCypher.append(", e.linesInput = $linesInput ");
-                  execCypher.append(", e.linesOutput = $linesOutput ");
-                  execCypher.append(", e.linesRead = $linesRead ");
-                  execCypher.append(", e.linesWritten = $linesWritten ");
-                  execCypher.append(", e.linesRejected = $linesRejected ");
-                  execCypher.append(", e.loggingText = $loggingText ");
-                  execCypher.append(", e.result = $result ");
-                  execCypher.append(", e.nrResultRows = $nrResultRows ");
-                  execCypher.append(", e.nrResultFiles = $nrResultFiles ");
-                  transaction.run(execCypher.toString(), workflowPars);
+                  String execCypher =
+                      "MERGE (e:Execution { name : $workflowName, type : $type, id : $id } ) "
+                          + "SET "
+                          + "  e.executionEnd = $executionEnd "
+                          + ", e.durationMs = $durationMs "
+                          + ", e.errors = $errors "
+                          + ", e.linesInput = $linesInput "
+                          + ", e.linesOutput = $linesOutput "
+                          + ", e.linesRead = $linesRead "
+                          + ", e.linesWritten = $linesWritten "
+                          + ", e.linesRejected = $linesRejected "
+                          + ", e.loggingText = $loggingText "
+                          + ", e.result = $result "
+                          + ", e.nrResultRows = $nrResultRows "
+                          + ", e.nrResultFiles = $nrResultFiles "
+                          + ", e.containerId = $containerId ";
+                  transaction.run(execCypher, workflowPars);
 
-                  StringBuilder relCypher = new StringBuilder();
-                  relCypher.append("MATCH (w:Workflow { name : $workflowName } ) ");
-                  relCypher.append(
-                      "MATCH (e:Execution { name : $workflowName, type : $type, id : $id } ) ");
-                  relCypher.append("MERGE (e)-[r:EXECUTION_OF_WORKFLOW]->(w) ");
-                  transaction.run(relCypher.toString(), workflowPars);
+                  String relCypher =
+                      "MATCH (w:Workflow { name : $workflowName } ) "
+                          + "MATCH (e:Execution { name : $workflowName, type : $type, id : $id } ) "
+                          + "MERGE (e)-[r:EXECUTION_OF_WORKFLOW]->(w) ";
+                  transaction.run(relCypher, workflowPars);
 
                   // Also log every workflow action execution results.
                   //
@@ -369,28 +363,25 @@ public class WorkflowLoggingExtensionPoint
                     actionPars.put("linesOutput", result.getNrLinesOutput());
                     actionPars.put("linesRejected", result.getNrLinesRejected());
 
-                    StringBuilder actionExecCypher = new StringBuilder();
-                    actionExecCypher.append(
-                        "MERGE (e:Execution { name : $name, type : $type, id : $id } ) ");
-                    actionExecCypher.append("SET ");
-                    actionExecCypher.append("  e.workflowId = $workflowId ");
-                    actionExecCypher.append(", e.loggingText = $loggingText ");
-                    actionExecCypher.append(", e.comment = $comment ");
-                    actionExecCypher.append(", e.reason = $reason ");
-                    actionExecCypher.append(", e.linesRead = $linesRead ");
-                    actionExecCypher.append(", e.linesWritten = $linesWritten ");
-                    actionExecCypher.append(", e.linesInput = $linesInput ");
-                    actionExecCypher.append(", e.linesOutput = $linesOutput ");
-                    actionExecCypher.append(", e.linesRejected = $linesRejected ");
-                    transaction.run(actionExecCypher.toString(), actionPars);
+                    String actionExecCypher =
+                        "MERGE (e:Execution { name : $name, type : $type, id : $id } ) "
+                            + "SET "
+                            + "  e.workflowId = $workflowId "
+                            + ", e.loggingText = $loggingText "
+                            + ", e.comment = $comment "
+                            + ", e.reason = $reason "
+                            + ", e.linesRead = $linesRead "
+                            + ", e.linesWritten = $linesWritten "
+                            + ", e.linesInput = $linesInput "
+                            + ", e.linesOutput = $linesOutput "
+                            + ", e.linesRejected = $linesRejected ";
+                    transaction.run(actionExecCypher, actionPars);
 
-                    StringBuilder actionRelCypher = new StringBuilder();
-                    actionRelCypher.append(
-                        "MATCH (a:Action { workflowName : $workflowName, name : $name } ) ");
-                    actionRelCypher.append(
-                        "MATCH (e:Execution { name : $name, type : $type, id : $id } ) ");
-                    actionRelCypher.append("MERGE (e)-[r:EXECUTION_OF_ACTION]->(a) ");
-                    transaction.run(actionRelCypher.toString(), actionPars);
+                    String actionRelCypher =
+                        "MATCH (a:Action { workflowName : $workflowName, name : $name } ) "
+                            + "MATCH (e:Execution { name : $name, type : $type, id : $id } ) "
+                            + "MERGE (e)-[r:EXECUTION_OF_ACTION]->(a) ";
+                    transaction.run(actionRelCypher, actionPars);
                   }
 
                   transaction.commit();
@@ -412,16 +403,14 @@ public class WorkflowLoggingExtensionPoint
 
     synchronized (session) {
       session.writeTransaction(
-          new TransactionWork<Void>() {
-            @Override
-            public Void execute(Transaction transaction) {
-              // Update create the Execution relationships
-              //
-              LoggingCore.writeHierarchies(
-                  log, connection, transaction, hierarchies, rootLogChannelId);
-              return null;
-            }
-          });
+          (TransactionWork<Void>)
+              transaction -> {
+                // Update create the Execution relationships
+                //
+                LoggingCore.writeHierarchies(
+                    log, connection, transaction, hierarchies, rootLogChannelId);
+                return null;
+              });
     }
   }
 }

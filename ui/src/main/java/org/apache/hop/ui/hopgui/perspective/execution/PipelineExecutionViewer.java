@@ -319,6 +319,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       infoView.add("Type", executionState.getExecutionType().name());
       infoView.add("Status", statusDescription);
       infoView.add("Status Last updated", formatDate(executionState.getUpdateTime()));
+      infoView.add("Container ID", executionState.getContainerId());
 
       infoView.optimizeTableView();
 
@@ -1016,10 +1017,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
             break;
           }
           Execution child = childExecutions.get(0);
-            ExecutionState executionState = iLocation.getExecutionState(execution.getId());
-            perspective.createExecutionViewer(locationName, child, executionState);
-            return;
-
+          ExecutionState executionState = iLocation.getExecutionState(execution.getId());
+          perspective.createExecutionViewer(locationName, child, executionState);
+          return;
         }
       }
 
