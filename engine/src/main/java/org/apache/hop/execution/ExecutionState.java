@@ -64,12 +64,17 @@ public class ExecutionState {
   /** The list of immediate child IDs for this execution */
   private List<String> childIds;
 
-  /**
-   * Extra details that a plugin might want to save in the state
-   */
+  /** Extra details that a plugin might want to save in the state */
   private Map<String, String> details;
 
+  /** Indicates whether or not the execution failed */
   private boolean failed;
+
+  /**
+   * The ID of the container where we are executing in. Usually this is the Object ID found on the
+   * Hop server.
+   */
+  private String containerId;
 
   public ExecutionState() {
     this.metrics = new ArrayList<>();
@@ -310,5 +315,23 @@ public class ExecutionState {
    */
   public void setDetails(Map<String, String> details) {
     this.details = details;
+  }
+
+  /**
+   * Gets containerId
+   *
+   * @return value of containerId
+   */
+  public String getContainerId() {
+    return containerId;
+  }
+
+  /**
+   * Sets containerId
+   *
+   * @param containerId value of containerId
+   */
+  public void setContainerId(String containerId) {
+    this.containerId = containerId;
   }
 }

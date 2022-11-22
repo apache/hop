@@ -484,7 +484,6 @@ public class HopNeo4jPerspective implements IHopPerspective {
   private void analyze(Event event) {
     ILogChannel log = hopGui.getLog();
 
-    System.out.println("Analyze");
     if (!(event.item instanceof TableItem)) {
       return;
     }
@@ -718,7 +717,6 @@ public class HopNeo4jPerspective implements IHopPerspective {
   }
 
   private void open(Event event) {
-
     try {
       NeoConnection connection = findLoggingConnection();
       if (connection == null) {
@@ -728,7 +726,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
       // See if there is a selected line in the error tree...
       //
       TreeItem[] treeSelection = wTree.getSelection();
-      if (treeSelection != null || treeSelection.length > 0) {
+      if (treeSelection != null && treeSelection.length > 0) {
         TreeItem treeItem = treeSelection[0];
         String id = treeItem.getText(1);
         if (StringUtils.isNotEmpty(id)) {

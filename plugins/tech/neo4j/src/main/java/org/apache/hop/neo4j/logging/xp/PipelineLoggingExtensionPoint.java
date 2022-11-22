@@ -197,13 +197,11 @@ public class PipelineLoggingExtensionPoint
                     hopPars.put("toTransform", hopMeta.getToTransform().getName());
                     hopPars.put("pipelineName", pipelineMeta.getName());
 
-                    StringBuilder hopCypher = new StringBuilder();
-                    hopCypher.append(
-                        "MATCH (from:Transform { pipelineName : $pipelineName, name : $fromTransform }) ");
-                    hopCypher.append(
-                        "MATCH (to:Transform { pipelineName : $pipelineName, name : $toTransform }) ");
-                    hopCypher.append("MERGE (from)-[rel:PRECEDES]->(to) ");
-                    transaction.run(hopCypher.toString(), hopPars);
+                    String hopCypher =
+                        "MATCH (from:Transform { pipelineName : $pipelineName, name : $fromTransform }) "
+                            + "MATCH (to:Transform { pipelineName : $pipelineName, name : $toTransform }) "
+                            + "MERGE (from)-[rel:PRECEDES]->(to) ";
+                    transaction.run(hopCypher, hopPars);
                   }
 
                   transaction.commit();
@@ -229,45 +227,44 @@ public class PipelineLoggingExtensionPoint
 
     synchronized (session) {
       session.writeTransaction(
-          new TransactionWork<Void>() {
-            @Override
-            public Void execute(Transaction transaction) {
-              try {
-                // Create a new node for each log channel and it's owner
-                // Start with the pipeline
-                //
-                ILogChannel channel = pipeline.getLogChannel();
-                Date startDate = (Date) pipeline.getExtensionDataMap().get(PIPELINE_START_DATE);
+              (TransactionWork<Void>) transaction -> {
+                try {
+                  // Create a new node for each log channel and its owner.
+                  // Start with the pipeline.
+                  //
+                  ILogChannel channel = pipeline.getLogChannel();
+                  Date startDate = (Date) pipeline.getExtensionDataMap().get(PIPELINE_START_DATE);
 
-                Map<String, Object> transPars = new HashMap<>();
-                transPars.put("pipelineName", pipelineMeta.getName());
-                transPars.put("id", channel.getLogChannelId());
-                transPars.put("type", EXECUTION_TYPE_PIPELINE);
-                transPars.put(
-                    "executionStart",
-                    new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss").format(startDate));
-                transPars.put("status", pipeline.getStatusDescription());
+                  Map<String, Object> pipelinePars = new HashMap<>();
+                  pipelinePars.put("pipelineName", pipelineMeta.getName());
+                  pipelinePars.put("id", channel.getLogChannelId());
+                  pipelinePars.put("type", EXECUTION_TYPE_PIPELINE);
+                  pipelinePars.put("containerId", pipeline.getContainerId());
 
-                StringBuilder transCypher = new StringBuilder();
-                transCypher.append("MATCH (pipeline:Pipeline { name : $pipelineName } ) ");
-                transCypher.append(
-                    "MERGE (exec:Execution { name : $pipelineName, type : $type, id : $id } ) ");
-                transCypher.append("SET ");
-                transCypher.append("  exec.executionStart = $executionStart ");
-                transCypher.append(", exec.status = $status ");
-                transCypher.append("MERGE (exec)-[r:EXECUTION_OF_PIPELINE]->(pipeline) ");
+                  pipelinePars.put(
+                      "executionStart",
+                      new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss").format(startDate));
+                  pipelinePars.put("status", pipeline.getStatusDescription());
 
-                transaction.run(transCypher.toString(), transPars);
+                  String pipelineCypher =
+                      "MATCH (pipeline:Pipeline { name : $pipelineName } ) "
+                          + "MERGE (exec:Execution { name : $pipelineName, type : $type, id : $id } ) "
+                          + "SET "
+                          + "  exec.executionStart = $executionStart "
+                          + ", exec.status = $status "
+                          + ", exec.containerId = $containerId "
+                          + "MERGE (exec)-[r:EXECUTION_OF_PIPELINE]->(pipeline) ";
 
-                transaction.commit();
-              } catch (Exception e) {
-                transaction.rollback();
-                log.logError("Error logging pipeline start", e);
-              }
+                  transaction.run(pipelineCypher, pipelinePars);
 
-              return null;
-            }
-          });
+                  transaction.commit();
+                } catch (Exception e) {
+                  transaction.rollback();
+                  log.logError("Error logging pipeline start", e);
+                }
+
+                return null;
+              });
     }
   }
 
@@ -284,148 +281,140 @@ public class PipelineLoggingExtensionPoint
 
     synchronized (session) {
       session.writeTransaction(
-          new TransactionWork<Void>() {
-            @Override
-            public Void execute(Transaction transaction) {
-              try {
+              (TransactionWork<Void>) transaction -> {
+                try {
 
-                // Create a new node for each log channel and it's owner
-                // Start with the pipeline
-                //
-                ILogChannel channel = pipeline.getLogChannel();
-                Result result = pipeline.getResult();
-                String transLogChannelId = pipeline.getLogChannelId();
-                String transLoggingText =
-                    HopLogStore.getAppender().getBuffer(transLogChannelId, false).toString();
-                Date endDate = new Date();
-                pipeline.getExtensionDataMap().put(PIPELINE_END_DATE, endDate);
-                Date startDate = (Date) pipeline.getExtensionDataMap().get(PIPELINE_START_DATE);
-
-                Map<String, Object> transPars = new HashMap<>();
-                transPars.put("pipelineName", pipelineMeta.getName());
-                transPars.put("type", EXECUTION_TYPE_PIPELINE);
-                transPars.put("id", channel.getLogChannelId());
-                transPars.put(
-                    "executionEnd", new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss").format(endDate));
-                transPars.put("durationMs", endDate.getTime() - startDate.getTime());
-                transPars.put("errors", result.getNrErrors());
-                transPars.put("linesInput", result.getNrLinesInput());
-                transPars.put("linesOutput", result.getNrLinesOutput());
-                transPars.put("linesRead", result.getNrLinesRead());
-                transPars.put("linesWritten", result.getNrLinesWritten());
-                transPars.put("linesRejected", result.getNrLinesRejected());
-                transPars.put("loggingText", transLoggingText);
-                transPars.put("status", pipeline.getStatusDescription());
-
-                StringBuilder transCypher = new StringBuilder();
-                transCypher.append("MATCH (pipeline:Pipeline { name : $pipelineName } ) ");
-                transCypher.append(
-                    "MERGE (exec:Execution { name : $pipelineName, type : $type, id : $id } ) ");
-                transCypher.append("SET ");
-                transCypher.append("  exec.executionEnd = $executionEnd ");
-                transCypher.append(", exec.durationMs = $durationMs ");
-                transCypher.append(", exec.status = $status ");
-                transCypher.append(", exec.errors = $errors ");
-                transCypher.append(", exec.linesInput = $linesInput ");
-                transCypher.append(", exec.linesOutput = $linesOutput ");
-                transCypher.append(", exec.linesRead = $linesRead ");
-                transCypher.append(", exec.linesWritten = $linesWritten ");
-                transCypher.append(", exec.linesRejected = $linesRejected ");
-                transCypher.append(", exec.loggingText = $loggingText ");
-                transCypher.append("MERGE (exec)-[r:EXECUTION_OF_PIPELINE]->(pipeline) ");
-
-                transaction.run(transCypher.toString(), transPars);
-
-                // Also log every transform copy
-                //
-                List<TransformMetaDataCombi> combis =
-                    ((Pipeline) pipeline).getTransforms();
-                for (TransformMetaDataCombi combi : combis) {
-                  String transformLogChannelId = combi.transform.getLogChannel().getLogChannelId();
-                  String transformLoggingText =
-                      HopLogStore.getAppender().getBuffer(transformLogChannelId, false).toString();
-                  Map<String, Object> transformPars = new HashMap<>();
-                  transformPars.put("pipelineName", pipelineMeta.getName());
-                  transformPars.put("name", combi.transformName);
-                  transformPars.put("type", EXECUTION_TYPE_TRANSFORM);
-                  transformPars.put("id", transformLogChannelId);
-                  transformPars.put("transId", transLogChannelId);
-                  transformPars.put("copy", Long.valueOf(combi.copy));
-                  transformPars.put("status", combi.transform.getStatus().getDescription());
-                  transformPars.put("loggingText", transformLoggingText);
-                  transformPars.put("errors", combi.transform.getErrors());
-                  transformPars.put("linesRead", combi.transform.getLinesRead());
-                  transformPars.put("linesWritten", combi.transform.getLinesWritten());
-                  transformPars.put("linesInput", combi.transform.getLinesInput());
-                  transformPars.put("linesOutput", combi.transform.getLinesOutput());
-                  transformPars.put("linesRejected", combi.transform.getLinesRejected());
-
-                  StringBuilder transformCypher = new StringBuilder();
-                  transformCypher.append(
-                      "MATCH (transform:Transform { pipelineName : $pipelineName, name : $name } ) ");
-                  transformCypher.append(
-                      "MERGE (exec:Execution { name : $name, type : $type, id : $id } ) ");
-                  transformCypher.append("SET ");
-                  transformCypher.append("  exec.transId = $transId ");
-                  transformCypher.append(", exec.copy = $copy ");
-                  transformCypher.append(", exec.status = $status ");
-                  transformCypher.append(", exec.loggingText = $loggingText ");
-                  transformCypher.append(", exec.errors = $errors ");
-                  transformCypher.append(", exec.linesRead = $linesRead ");
-                  transformCypher.append(", exec.linesWritten = $linesWritten ");
-                  transformCypher.append(", exec.linesInput = $linesInput ");
-                  transformCypher.append(", exec.linesOutput = $linesOutput ");
-                  transformCypher.append(", exec.linesRejected = $linesRejected ");
-                  transformCypher.append("MERGE (exec)-[r:EXECUTION_OF_TRANSFORM]->(transform) ");
-
-                  transaction.run(transformCypher.toString(), transformPars);
-
-                  // Log graph usage as well
-                  // This Map is left by the Neo4j transform plugins : Neo4j Output and Neo4j Graph
-                  // Output
+                  // Create a new node for each log channel and it's owner
+                  // Start with the pipeline
                   //
-                  Map<String, Map<String, Set<String>>> usageMap =
-                      (Map<String, Map<String, Set<String>>>)
-                          pipeline.getExtensionDataMap().get(Defaults.TRANS_NODE_UPDATES_GROUP);
-                  if (usageMap != null) {
-                    for (String graphUsage : usageMap.keySet()) {
-                      Map<String, Set<String>> transformsMap = usageMap.get(graphUsage);
+                  ILogChannel channel = pipeline.getLogChannel();
+                  Result result = pipeline.getResult();
+                  String transLogChannelId = pipeline.getLogChannelId();
+                  String transLoggingText =
+                      HopLogStore.getAppender().getBuffer(transLogChannelId, false).toString();
+                  Date endDate = new Date();
+                  pipeline.getExtensionDataMap().put(PIPELINE_END_DATE, endDate);
+                  Date startDate = (Date) pipeline.getExtensionDataMap().get(PIPELINE_START_DATE);
 
-                      Set<String> labels = transformsMap.get(combi.transformName);
-                      if (labels != null) {
-                        for (String label : labels) {
-                          // Save relationship to GraphUsage node
-                          //
-                          Map<String, Object> usagePars = new HashMap<>();
-                          usagePars.put("transform", combi.transformName);
-                          usagePars.put("type", "TRANSFORM");
-                          usagePars.put("id", transformLogChannelId);
-                          usagePars.put("label", label);
-                          usagePars.put("usage", graphUsage);
+                  Map<String, Object> pipelinePars = new HashMap<>();
+                  pipelinePars.put("pipelineName", pipelineMeta.getName());
+                  pipelinePars.put("type", EXECUTION_TYPE_PIPELINE);
+                  pipelinePars.put("id", channel.getLogChannelId());
+                  pipelinePars.put(
+                      "executionEnd", new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss").format(endDate));
+                  pipelinePars.put("durationMs", endDate.getTime() - startDate.getTime());
+                  pipelinePars.put("errors", result.getNrErrors());
+                  pipelinePars.put("linesInput", result.getNrLinesInput());
+                  pipelinePars.put("linesOutput", result.getNrLinesOutput());
+                  pipelinePars.put("linesRead", result.getNrLinesRead());
+                  pipelinePars.put("linesWritten", result.getNrLinesWritten());
+                  pipelinePars.put("linesRejected", result.getNrLinesRejected());
+                  pipelinePars.put("loggingText", transLoggingText);
+                  pipelinePars.put("status", pipeline.getStatusDescription());
 
-                          StringBuilder usageCypher = new StringBuilder();
-                          usageCypher.append(
-                              "MATCH (transform:Execution { name : $transform, type : $type, id : $id } ) ");
-                          usageCypher.append(
-                              "MERGE (usage:Usage { usage : $usage, label : $label } ) ");
-                          usageCypher.append(
-                              "MERGE (transform)-[r:PERFORMS_" + graphUsage + "]->(usage)");
+                  String pipelineCypher =
+                      "MATCH (pipeline:Pipeline { name : $pipelineName } ) "
+                          + "MERGE (exec:Execution { name : $pipelineName, type : $type, id : $id } ) "
+                          + "SET "
+                          + "  exec.executionEnd = $executionEnd "
+                          + ", exec.durationMs = $durationMs "
+                          + ", exec.status = $status "
+                          + ", exec.errors = $errors "
+                          + ", exec.linesInput = $linesInput "
+                          + ", exec.linesOutput = $linesOutput "
+                          + ", exec.linesRead = $linesRead "
+                          + ", exec.linesWritten = $linesWritten "
+                          + ", exec.linesRejected = $linesRejected "
+                          + ", exec.loggingText = $loggingText "
+                          + "MERGE (exec)-[r:EXECUTION_OF_PIPELINE]->(pipeline) ";
 
-                          transaction.run(usageCypher.toString(), usagePars);
+                  transaction.run(pipelineCypher, pipelinePars);
+
+                  // Also log every transform copy
+                  //
+                  List<TransformMetaDataCombi> combis = ((Pipeline) pipeline).getTransforms();
+                  for (TransformMetaDataCombi combi : combis) {
+                    String transformLogChannelId = combi.transform.getLogChannel().getLogChannelId();
+                    String transformLoggingText =
+                        HopLogStore.getAppender().getBuffer(transformLogChannelId, false).toString();
+                    Map<String, Object> transformPars = new HashMap<>();
+                    transformPars.put("pipelineName", pipelineMeta.getName());
+                    transformPars.put("name", combi.transformName);
+                    transformPars.put("type", EXECUTION_TYPE_TRANSFORM);
+                    transformPars.put("id", transformLogChannelId);
+                    transformPars.put("transId", transLogChannelId);
+                    transformPars.put("copy", Long.valueOf(combi.copy));
+                    transformPars.put("status", combi.transform.getStatus().getDescription());
+                    transformPars.put("loggingText", transformLoggingText);
+                    transformPars.put("errors", combi.transform.getErrors());
+                    transformPars.put("linesRead", combi.transform.getLinesRead());
+                    transformPars.put("linesWritten", combi.transform.getLinesWritten());
+                    transformPars.put("linesInput", combi.transform.getLinesInput());
+                    transformPars.put("linesOutput", combi.transform.getLinesOutput());
+                    transformPars.put("linesRejected", combi.transform.getLinesRejected());
+
+                    String transformCypher =
+                        "MATCH (transform:Transform { pipelineName : $pipelineName, name : $name } ) "
+                            + "MERGE (exec:Execution { name : $name, type : $type, id : $id } ) "
+                            + "SET "
+                            + "  exec.transId = $transId "
+                            + ", exec.copy = $copy "
+                            + ", exec.status = $status "
+                            + ", exec.loggingText = $loggingText "
+                            + ", exec.errors = $errors "
+                            + ", exec.linesRead = $linesRead "
+                            + ", exec.linesWritten = $linesWritten "
+                            + ", exec.linesInput = $linesInput "
+                            + ", exec.linesOutput = $linesOutput "
+                            + ", exec.linesRejected = $linesRejected "
+                            + "MERGE (exec)-[r:EXECUTION_OF_TRANSFORM]->(transform) ";
+
+                    transaction.run(transformCypher, transformPars);
+
+                    // Log graph usage as well
+                    // This Map is left by the Neo4j transform plugins : Neo4j Output and Neo4j Graph
+                    // Output
+                    //
+                    Map<String, Map<String, Set<String>>> usageMap =
+                        (Map<String, Map<String, Set<String>>>)
+                            pipeline.getExtensionDataMap().get(Defaults.TRANS_NODE_UPDATES_GROUP);
+                    if (usageMap != null) {
+                      for (String graphUsage : usageMap.keySet()) {
+                        Map<String, Set<String>> transformsMap = usageMap.get(graphUsage);
+
+                        Set<String> labels = transformsMap.get(combi.transformName);
+                        if (labels != null) {
+                          for (String label : labels) {
+                            // Save relationship to GraphUsage node
+                            //
+                            Map<String, Object> usagePars = new HashMap<>();
+                            usagePars.put("transform", combi.transformName);
+                            usagePars.put("type", "TRANSFORM");
+                            usagePars.put("id", transformLogChannelId);
+                            usagePars.put("label", label);
+                            usagePars.put("usage", graphUsage);
+
+                            String usageCypher =
+                                "MATCH (transform:Execution { name : $transform, type : $type, id : $id } ) "
+                                    + "MERGE (usage:Usage { usage : $usage, label : $label } ) "
+                                    + "MERGE (transform)-[r:PERFORMS_"
+                                    + graphUsage
+                                    + "]->(usage)";
+
+                            transaction.run(usageCypher, usagePars);
+                          }
                         }
                       }
                     }
                   }
-                }
 
-                transaction.commit();
-              } catch (Exception e) {
-                transaction.rollback();
-                log.logError("Error logging pipeline end", e);
-              }
-              return null;
-            }
-          });
+                  transaction.commit();
+                } catch (Exception e) {
+                  transaction.rollback();
+                  log.logError("Error logging pipeline end", e);
+                }
+                return null;
+              });
     }
   }
 

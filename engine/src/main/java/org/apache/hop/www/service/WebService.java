@@ -38,6 +38,7 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty private String contentType;
   @HopMetadataProperty private boolean listingStatus;
   @HopMetadataProperty private String bodyContentVariable;
+  @HopMetadataProperty private String runConfigurationName;
 
   public WebService() {}
 
@@ -49,7 +50,8 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
       String fieldName,
       String contentType,
       boolean listingStatus,
-      String bodyContentVariable) {
+      String bodyContentVariable,
+      String runConfigurationName) {
     super(name);
     this.enabled = enabled;
     this.filename = filename;
@@ -58,6 +60,7 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     this.contentType = contentType;
     this.listingStatus = listingStatus;
     this.bodyContentVariable = bodyContentVariable;
+    this.runConfigurationName = runConfigurationName;
   }
 
   /**
@@ -156,11 +159,39 @@ public class WebService extends HopMetadataBase implements IHopMetadata {
     this.listingStatus = listingStatus;
   }
 
+  /**
+   * Gets bodyContentVariable
+   *
+   * @return value of bodyContentVariable
+   */
   public String getBodyContentVariable() {
     return bodyContentVariable;
   }
 
+  /**
+   * Sets bodyContentVariable
+   *
+   * @param bodyContentVariable value of bodyContentVariable
+   */
   public void setBodyContentVariable(String bodyContentVariable) {
     this.bodyContentVariable = bodyContentVariable;
+  }
+
+  /**
+   * Gets runConfigurationName
+   *
+   * @return value of runConfigurationName
+   */
+  public String getRunConfigurationName() {
+    return runConfigurationName;
+  }
+
+  /**
+   * Sets runConfigurationName
+   *
+   * @param runConfigurationName value of runConfigurationName
+   */
+  public void setRunConfigurationName(String runConfigurationName) {
+    this.runConfigurationName = runConfigurationName;
   }
 }

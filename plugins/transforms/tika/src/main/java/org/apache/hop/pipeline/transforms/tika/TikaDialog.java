@@ -153,7 +153,7 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
     shell.setText(BaseMessages.getString(PKG, "TikaDialog.DialogTitle"));
 
     middle = props.getMiddlePct();
-    margin = (int) (PropsUi.getMargin() * props.getZoomFactor());
+    margin = PropsUi.getMargin();
 
     // Buttons at the bottom:
     //

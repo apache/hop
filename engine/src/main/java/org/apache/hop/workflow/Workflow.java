@@ -263,6 +263,19 @@ public abstract class Workflow extends Variables
     return workflowMeta.getName();
   }
 
+  private Result newResult() {
+    Result r = new Result();
+    r.setContainerId(containerObjectId);
+    return r;
+  }
+
+  private Result newErrorResult() {
+    Result r = newResult();
+    r.setResult(false);
+    r.setNrErrors(1L);
+    return r;
+  }
+
   @Override
   public Result startExecution() {
 
@@ -293,9 +306,7 @@ public abstract class Workflow extends Variables
       // we don't have result object because execute() threw a curve-ball.
       // So we create a new error object.
       //
-      result = new Result();
-      result.setNrErrors(1L);
-      result.setResult(false);
+      result = newErrorResult();
       addErrors(1); // This can be before actual execution
 
       emergencyWriteWorkflowTracker(result);
@@ -413,7 +424,7 @@ public abstract class Workflow extends Variables
         if (result != null) {
           inputRes = result;
         } else {
-          inputRes = new Result();
+          inputRes = newResult();
         }
 
         // Perhaps there is already a list of input rows available?
@@ -568,8 +579,9 @@ public abstract class Workflow extends Variables
     Result res = null;
 
     if (isStopped()) {
-      res = new Result(nr);
-      res.stopped = true;
+      res = newResult();
+      res.setEntryNr(nr);
+      res.setStopped(true);
       return res;
     }
 
@@ -580,7 +592,7 @@ public abstract class Workflow extends Variables
     if (previousResult != null) {
       prevResult = previousResult.clone();
     } else {
-      prevResult = new Result();
+      prevResult = newResult();
     }
 
     WorkflowExecutionExtension extension =
@@ -764,9 +776,7 @@ public abstract class Workflow extends Variables
                           BaseMessages.getString(
                               PKG, "Workflow.Log.UnexpectedError", nextAction.toString()),
                           e));
-                  Result threadResult = new Result();
-                  threadResult.setResult(false);
-                  threadResult.setNrErrors(1L);
+                  Result threadResult = newErrorResult();
                   threadResults.add(threadResult);
                 }
               };
@@ -989,7 +999,9 @@ public abstract class Workflow extends Variables
     return workflowMeta;
   }
 
-  /** @param workflowMeta The workflowMeta to set */
+  /**
+   * @param workflowMeta The workflowMeta to set
+   */
   @Override
   public void setWorkflowMeta(WorkflowMeta workflowMeta) {
     this.workflowMeta = workflowMeta;
@@ -1013,7 +1025,9 @@ public abstract class Workflow extends Variables
     return sourceRows;
   }
 
-  /** @param sourceRows The sourceRows to set */
+  /**
+   * @param sourceRows The sourceRows to set
+   */
   @Override
   public void setSourceRows(List<RowMetaAndData> sourceRows) {
     this.sourceRows = sourceRows;
@@ -1074,9 +1088,11 @@ public abstract class Workflow extends Variables
     } else {
       workflowMeta.setInternalHopVariables(this);
     }
-    this.setVariable(Const.INTERNAL_VARIABLE_WORKFLOW_ID, log!=null ? log.getLogChannelId() : null);
-    if (parentLoggingObject!=null) {
-      this.setVariable(Const.INTERNAL_VARIABLE_WORKFLOW_PARENT_ID, parentLoggingObject.getLogChannelId());
+    this.setVariable(
+        Const.INTERNAL_VARIABLE_WORKFLOW_ID, log != null ? log.getLogChannelId() : null);
+    if (parentLoggingObject != null) {
+      this.setVariable(
+          Const.INTERNAL_VARIABLE_WORKFLOW_PARENT_ID, parentLoggingObject.getLogChannelId());
     } else {
       this.setVariable(Const.INTERNAL_VARIABLE_WORKFLOW_PARENT_ID, null);
     }
@@ -1422,7 +1438,9 @@ public abstract class Workflow extends Variables
     return parentLoggingObject;
   }
 
-  /** @param parentLoggingObject The parentLoggingObject to set */
+  /**
+   * @param parentLoggingObject The parentLoggingObject to set
+   */
   public void setParentLoggingObject(ILoggingObject parentLoggingObject) {
     this.parentLoggingObject = parentLoggingObject;
   }
@@ -1556,7 +1574,9 @@ public abstract class Workflow extends Variables
     return executionStartDate;
   }
 
-  /** @param executionStartDate The executionStartDate to set */
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
   public void setExecutionStartDate(Date executionStartDate) {
     this.executionStartDate = executionStartDate;
   }
@@ -1571,7 +1591,9 @@ public abstract class Workflow extends Variables
     return executionEndDate;
   }
 
-  /** @param executionEndDate The executionEndDate to set */
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
   public void setExecutionEndDate(Date executionEndDate) {
     this.executionEndDate = executionEndDate;
   }
@@ -1587,7 +1609,9 @@ public abstract class Workflow extends Variables
     return workflowFinishedListeners;
   }
 
-  /** @param workflowFinishedListeners The workflowFinishedListeners to set */
+  /**
+   * @param workflowFinishedListeners The workflowFinishedListeners to set
+   */
   public void setWorkflowFinishedListeners(
       List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>> workflowFinishedListeners) {
     this.workflowFinishedListeners = workflowFinishedListeners;
@@ -1604,7 +1628,9 @@ public abstract class Workflow extends Variables
     return workflowStartedListeners;
   }
 
-  /** @param workflowStartedListeners The workflowStartedListeners to set */
+  /**
+   * @param workflowStartedListeners The workflowStartedListeners to set
+   */
   public void setWorkflowStartedListeners(
       List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>> workflowStartedListeners) {
     this.workflowStartedListeners = workflowStartedListeners;
@@ -1619,7 +1645,9 @@ public abstract class Workflow extends Variables
     return workflowRunConfiguration;
   }
 
-  /** @param workflowRunConfiguration The workflowRunConfiguration to set */
+  /**
+   * @param workflowRunConfiguration The workflowRunConfiguration to set
+   */
   @Override
   public void setWorkflowRunConfiguration(WorkflowRunConfiguration workflowRunConfiguration) {
     this.workflowRunConfiguration = workflowRunConfiguration;
@@ -1635,7 +1663,9 @@ public abstract class Workflow extends Variables
     return metadataProvider;
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   @Override
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;

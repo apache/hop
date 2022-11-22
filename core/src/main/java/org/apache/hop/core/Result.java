@@ -125,6 +125,9 @@ public class Result implements Cloneable {
   /** Unique identifier of an ETL execution, should one ever care to declare one such */
   private String executionId;
 
+  /** The ID of the container in which the execution is taking place */
+  private String containerId;
+
   /** Instantiates a new Result object, setting default values for all members */
   public Result() {
     nrErrors = 0L;
@@ -567,6 +570,7 @@ public class Result implements Cloneable {
     xml.append(XmlHandler.addTagValue("log_text", logText));
     xml.append(XmlHandler.addTagValue("elapsedTimeMillis", elapsedTimeMillis));
     xml.append(XmlHandler.addTagValue("executionId", executionId));
+    xml.append(XmlHandler.addTagValue("containerId", containerId));
 
     return xml;
   }
@@ -613,6 +617,7 @@ public class Result implements Cloneable {
 
     elapsedTimeMillis = Const.toLong(XmlHandler.getTagValue(node, "elapsedTimeMillis"), 0L);
     executionId = XmlHandler.getTagValue(node, "executionId");
+    containerId = XmlHandler.getTagValue(node, "containerId");
 
     // Now read back the result files...
     //
@@ -836,5 +841,23 @@ public class Result implements Cloneable {
    */
   public void setExecutionId(String executionId) {
     this.executionId = executionId;
+  }
+
+  /**
+   * Gets containerId
+   *
+   * @return value of containerId
+   */
+  public String getContainerId() {
+    return containerId;
+  }
+
+  /**
+   * Sets containerId
+   *
+   * @param containerId value of containerId
+   */
+  public void setContainerId(String containerId) {
+    this.containerId = containerId;
   }
 }

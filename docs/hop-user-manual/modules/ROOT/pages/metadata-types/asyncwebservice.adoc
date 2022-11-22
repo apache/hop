@@ -16,7 +16,7 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
-:description: This web service variant is used to execute long-running workflows. Instead of getting immediate results from a pipeline with a Web Service call, the only thing that is given back after the call in the unique ID of the executing workflow.
+:description: This web service variant is used to execute long-running workflows.
 
 = Asynchronous Web Service
 

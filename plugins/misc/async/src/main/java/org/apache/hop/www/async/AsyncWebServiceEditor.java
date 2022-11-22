@@ -20,18 +20,21 @@ package org.apache.hop.www.async;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.www.service.WebServiceEditor;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
@@ -53,6 +56,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
   private Text wName;
   private Button wEnabled;
   private TextVar wFilename;
+  private MetaSelectionLine<WorkflowRunConfiguration> wRunConfiguration;
   private TextVar wStatusVars;
   private TextVar wContentVar;
 
@@ -67,7 +71,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     PropsUi props = PropsUi.getInstance();
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     Label wIcon = new Label(parent, SWT.RIGHT);
     wIcon.setImage(getImage());
@@ -166,6 +170,23 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wFilename.setLayoutData(fdFilename);
     lastControl = wlFilename;
 
+    wRunConfiguration =
+        new MetaSelectionLine<>(
+            manager.getVariables(),
+            manager.getMetadataProvider(),
+            WorkflowRunConfiguration.class,
+            parent,
+            SWT.NONE,
+            "Workflow run configuration",
+            "This is the workflow run configuration to use on the server. "
+                + "If left blank a standard local workflow engine is used.");
+    FormData fdRunConfiguration = new FormData();
+    fdRunConfiguration.left = new FormAttachment(0, 0);
+    fdRunConfiguration.top = new FormAttachment(lastControl, margin);
+    fdRunConfiguration.right = new FormAttachment(100, 0);
+    wRunConfiguration.setLayoutData(fdRunConfiguration);
+    lastControl = wRunConfiguration;
+
     // Status variables
     //
     Label wlStatusVars = new Label(parent, SWT.RIGHT);
@@ -221,7 +242,6 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
    */
   private void createWorkflowFile(Composite parent) {
     try {
-
       // Create an empty workflow...
       //
       WorkflowMeta workflowMeta = new WorkflowMeta();
@@ -312,6 +332,12 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wFilename.setText(Const.NVL(ws.getFilename(), ""));
     wStatusVars.setText(Const.NVL(ws.getStatusVariables(), ""));
     wContentVar.setText(Const.NVL(ws.getBodyContentVariable(), ""));
+    try {
+      wRunConfiguration.fillItems();
+      wRunConfiguration.setText(Const.NVL(ws.getRunConfigurationName(), ""));
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error getting workflow run configurations", e);
+    }
   }
 
   @Override
@@ -321,6 +347,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     ws.setFilename(wFilename.getText());
     ws.setStatusVariables(wStatusVars.getText());
     ws.setBodyContentVariable(wContentVar.getText());
+    ws.setRunConfigurationName(wRunConfiguration.getText());
   }
 
   @Override

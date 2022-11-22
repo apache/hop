@@ -43,6 +43,7 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
@@ -112,7 +113,6 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       data.realUrl = data.inputRowMeta.getString(rowData, data.indexOfUrlField);
     }
     // Prepare HTTP POST
-    FileInputStream fis = null;
     try {
       if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "HTTPPOST.Log.ConnectingToURL", data.realUrl));
@@ -208,9 +208,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         // content length is explicitly specified
 
         if (meta.isPostAFile()) {
-          File input = new File(tmp);
-          fis = new FileInputStream(input);
-          post.setEntity(new InputStreamEntity(fis, input.length()));
+          post.setEntity(new FileEntity(new File(tmp)));
         } else {
           byte[] bytes;
           if ((data.realEncoding != null) && (data.realEncoding.length() > 0)) {
@@ -340,10 +338,6 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       throw new HopException(
           BaseMessages.getString(PKG, "HTTPPOST.Error.CanNotReadURL", data.realUrl), e);
 
-    } finally {
-      if (fis != null) {
-        BaseTransform.closeQuietly(fis);
-      }
     }
   }
 

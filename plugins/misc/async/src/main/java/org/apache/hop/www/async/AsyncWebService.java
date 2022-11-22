@@ -40,6 +40,7 @@ public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty private String filename;
   @HopMetadataProperty private String statusVariables;
   @HopMetadataProperty private String bodyContentVariable;
+  @HopMetadataProperty private String runConfigurationName;
 
   public AsyncWebService() {
     this.enabled = true;
@@ -51,12 +52,13 @@ public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
       boolean enabled,
       String filename,
       String statusVariables,
-      String bodyContentVariable) {
+      String bodyContentVariable, String runConfigurationName) {
     super(name);
     this.enabled = enabled;
     this.filename = filename;
     this.statusVariables = statusVariables;
     this.bodyContentVariable = bodyContentVariable;
+    this.runConfigurationName = runConfigurationName;
   }
 
   /**
@@ -131,5 +133,23 @@ public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
   /** @param bodyContentVariable The bodyContentVariable to set */
   public void setBodyContentVariable(String bodyContentVariable) {
     this.bodyContentVariable = bodyContentVariable;
+  }
+
+  /**
+   * Gets runConfigurationName
+   *
+   * @return value of runConfigurationName
+   */
+  public String getRunConfigurationName() {
+    return runConfigurationName;
+  }
+
+  /**
+   * Sets runConfigurationName
+   *
+   * @param runConfigurationName value of runConfigurationName
+   */
+  public void setRunConfigurationName(String runConfigurationName) {
+    this.runConfigurationName = runConfigurationName;
   }
 }

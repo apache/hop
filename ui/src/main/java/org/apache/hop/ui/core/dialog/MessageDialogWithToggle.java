@@ -75,16 +75,16 @@ public class MessageDialogWithToggle {
   }
 
   public int open() {
-    int zoomedMargin = (int) (PropsUi.getMargin() * props.getZoomFactor());
+    int margin = PropsUi.getMargin();
 
     // Create the shell with the appropriate look and title...
     //
     shell = new Shell(parent, SWT.APPLICATION_MODAL | SWT.CLOSE);
     FormLayout shellLayout = new FormLayout();
-    shellLayout.marginTop = zoomedMargin;
-    shellLayout.marginLeft = zoomedMargin;
-    shellLayout.marginRight = zoomedMargin;
-    shellLayout.marginBottom = zoomedMargin;
+    shellLayout.marginTop = margin;
+    shellLayout.marginLeft = margin;
+    shellLayout.marginRight = margin;
+    shellLayout.marginBottom = margin;
     shell.setLayout(shellLayout);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.setText(Const.NVL(title, ""));
@@ -111,7 +111,7 @@ public class MessageDialogWithToggle {
     FormData fdMessage = new FormData();
     fdMessage.left = new FormAttachment(0, 0);
     fdMessage.top = new FormAttachment(0, 0);
-    fdMessage.right = new FormAttachment(wlImage, -zoomedMargin);
+    fdMessage.right = new FormAttachment(wlImage, -margin);
     wlMessage.setLayoutData(fdMessage);
 
     // Below these 2 we put the checkbox with a label and a default state...
@@ -123,7 +123,7 @@ public class MessageDialogWithToggle {
     FormData fdToggle = new FormData();
     fdToggle.left = new FormAttachment(0, 0);
     fdToggle.right = new FormAttachment(100, 0);
-    fdToggle.top = new FormAttachment(wlMessage, 2 * zoomedMargin);
+    fdToggle.top = new FormAttachment(wlMessage, 2 * margin);
     wToggle.setLayoutData(fdToggle);
     // Keep the state sync'ed up...
     wToggle.addListener(SWT.Selection, e -> toggleState = wToggle.getSelection());
@@ -143,7 +143,7 @@ public class MessageDialogWithToggle {
             dispose();
           });
     }
-    BaseTransformDialog.positionBottomButtons(shell, buttons, zoomedMargin, wToggle);
+    BaseTransformDialog.positionBottomButtons(shell, buttons, margin, wToggle);
 
     BaseTransformDialog.setSize(shell);
     shell.pack();

@@ -101,6 +101,7 @@ public class WebServiceGuiPlugin {
                   fieldName,
                   "text/plain",
                   false,
+                  null,
                   null);
           manager.newMetadata(webService);
           return;
@@ -156,8 +157,6 @@ public class WebServiceGuiPlugin {
           perspective.activate();
 
           perspective.setActiveEditor(editor);
-
-          return;
         } else {
           // Not opened in the perspective, simply set the web service details
           //

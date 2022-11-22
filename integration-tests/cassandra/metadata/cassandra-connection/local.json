@@ -1,10 +1,10 @@
 {
   "keyspace": "hop",
-  "hostname": "",
+  "hostname": "127.0.0.1",
   "password": "",
   "schemaPort": "",
-  "localDataCenter": "",
-  "port": "",
+  "localDataCenter": "dc1",
+  "port": "9042",
   "schemaHostname": "",
   "name": "local",
   "socketTimeout": "",

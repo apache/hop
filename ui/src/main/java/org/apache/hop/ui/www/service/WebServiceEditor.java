@@ -21,11 +21,13 @@ package org.apache.hop.ui.www.service;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -33,6 +35,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
@@ -60,6 +63,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
   private Text wName;
   private Button wEnabled;
   private TextVar wFilename;
+  private MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;
   private TextVar wTransform;
   private TextVar wField;
   private ComboVar wContentType;
@@ -175,6 +179,24 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wFilename.setLayoutData(fdFilename);
     lastControl = wlFilename;
 
+    wRunConfiguration =
+        new MetaSelectionLine<>(
+            manager.getVariables(),
+            manager.getMetadataProvider(),
+            PipelineRunConfiguration.class,
+            parent,
+            SWT.NONE,
+            "Pipeline run configuration",
+            "This is the pipeline run configuration to use on the server. "
+                + "If left blank a standard local pipeline engine is used. "
+                + "To return values please use a local pipeline engine.");
+    FormData fdRunConfiguration = new FormData();
+    fdRunConfiguration.left = new FormAttachment(0, 0);
+    fdRunConfiguration.top = new FormAttachment(lastControl, margin);
+    fdRunConfiguration.right = new FormAttachment(100, 0);
+    wRunConfiguration.setLayoutData(fdRunConfiguration);
+    lastControl = wRunConfiguration;
+
     // The transform to read from
     //
     Label wlTransform = new Label(parent, SWT.RIGHT);
@@ -259,15 +281,19 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     //
     Label wlBodyContentVariable = new Label(parent, SWT.RIGHT);
     PropsUi.setLook(wlBodyContentVariable);
-    wlBodyContentVariable.setText(BaseMessages.getString(PKG, "WebServiceEditor.BodyContentVariable.Label"));
-    wlBodyContentVariable.setToolTipText(BaseMessages.getString(PKG, "WebServiceEditor.BodyContentVariable.Tooltip"));
+    wlBodyContentVariable.setText(
+        BaseMessages.getString(PKG, "WebServiceEditor.BodyContentVariable.Label"));
+    wlBodyContentVariable.setToolTipText(
+        BaseMessages.getString(PKG, "WebServiceEditor.BodyContentVariable.Tooltip"));
     FormData fdlBodyContentVariable = new FormData();
     fdlBodyContentVariable.left = new FormAttachment(0, 0);
     fdlBodyContentVariable.right = new FormAttachment(middle, 0);
     fdlBodyContentVariable.top = new FormAttachment(lastControl, 2 * margin);
     wlBodyContentVariable.setLayoutData(fdlBodyContentVariable);
-    wBodyContentVariable = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wBodyContentVariable.setToolTipText(BaseMessages.getString(PKG, "WebServiceEditor.BodyContentVariable.Tooltip"));
+    wBodyContentVariable =
+        new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBodyContentVariable.setToolTipText(
+        BaseMessages.getString(PKG, "WebServiceEditor.BodyContentVariable.Tooltip"));
     PropsUi.setLook(wBodyContentVariable);
     FormData fdBodyContentVariable = new FormData();
     fdBodyContentVariable.left = new FormAttachment(middle, margin);
@@ -391,6 +417,12 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     wContentType.setText(Const.NVL(ws.getContentType(), ""));
     wListStatus.setSelection(ws.isListingStatus());
     wBodyContentVariable.setText(Const.NVL(ws.getBodyContentVariable(), ""));
+    try {
+      wRunConfiguration.fillItems();
+      wRunConfiguration.setText(Const.NVL(ws.getRunConfigurationName(), ""));
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error getting workflow run configurations", e);
+    }
   }
 
   @Override
@@ -403,7 +435,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     ws.setContentType(wContentType.getText());
     ws.setListingStatus(wListStatus.getSelection());
     ws.setBodyContentVariable(wBodyContentVariable.getText());
-
+    ws.setRunConfigurationName(wRunConfiguration.getText());
   }
 
   @Override
