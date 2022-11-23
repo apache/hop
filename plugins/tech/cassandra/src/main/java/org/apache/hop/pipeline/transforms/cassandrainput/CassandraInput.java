@@ -71,9 +71,7 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
 
   @Override
   public boolean processRow() throws HopException {
-
     if (!isStopped()) {
-
       if (meta.isExecuteForEachIncomingRow() && currentInputRowDrivingQuery == null) {
         currentInputRowDrivingQuery = getRow();
 

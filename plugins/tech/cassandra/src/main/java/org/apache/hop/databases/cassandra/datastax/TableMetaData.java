@@ -154,7 +154,7 @@ public class TableMetaData implements ITableMetaData {
     return columnMetadata.getType();
   }
 
-  protected IValueMeta toValueMeta(String name, DataType dataType) {
+  public static IValueMeta toValueMeta(String name, DataType dataType) {
     //    if (expandCollection
     //        && dataType.isCollection()
     //        && dataType.getName().equals(DataType.Name.MAP)) {

@@ -17,6 +17,7 @@
  */
 package org.apache.hop.pipeline.transforms.cassandraoutput;
 
+import com.datastax.oss.driver.api.core.CqlSession;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.databases.cassandra.datastax.DriverConnection;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
@@ -32,5 +33,6 @@ public class CassandraOutputData extends BaseTransformData implements ITransform
 
   public IRowMeta outputRowMeta;
   public DriverConnection connection;
+  public CqlSession session;
   public Keyspace keyspace;
 }

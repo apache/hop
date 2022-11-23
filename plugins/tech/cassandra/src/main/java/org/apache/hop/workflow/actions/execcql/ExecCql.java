@@ -19,21 +19,34 @@
 package org.apache.hop.workflow.actions.execcql;
 
 import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.ColumnDefinition;
+import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.Row;
+import com.datastax.oss.driver.api.core.type.DataType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.databases.cassandra.datastax.DriverConnection;
+import org.apache.hop.databases.cassandra.datastax.DriverCqlRowHandler;
+import org.apache.hop.databases.cassandra.datastax.TableMetaData;
 import org.apache.hop.databases.cassandra.metadata.CassandraConnection;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.w3c.dom.Node;
+
+import java.util.Iterator;
 
 @Action(
     id = "CASSANDRA_EXEC_CQL",
@@ -147,36 +160,72 @@ public class ExecCql extends ActionBase implements IAction {
     // Connect to the database
     //
     try (DriverConnection connection = cassandraConnection.createConnection(variables, true)) {
-      CqlSession session = connection.open();
-
-      try {
-        // Split the script into parts : semi-colon at the start of a separate line
-        //
-        String[] commands = cqlStatements.split("\\r?\\n;");
-        for (String command : commands) {
-          // Cleanup command: replace leading and trailing whitespaces and newlines
+      try (CqlSession session = connection.open()) {
+        try {
+          // Split the script into parts : semi-colon at the start of a separate line
           //
-          String cql = command.replaceFirst("^\\s+", "").replaceFirst("\\s+$", "");
+          String[] commands = cqlStatements.split("\\r?\\n;");
+          for (String command : commands) {
+            // Cleanup command: replace leading and trailing whitespaces and newlines
+            //
+            String cql = command.replaceFirst("^\\s+", "").replaceFirst("\\s+$", "");
 
-          // Only execute if the statement is not empty
-          //
-          if (StringUtils.isNotEmpty(cql)) {
-            session.execute(cql);
-            nrExecuted++;
-            log.logDetailed("Executed cql statement: " + cql);
+            // Only execute if the statement is not empty
+            //
+            if (StringUtils.isNotEmpty(cql)) {
+              ResultSet resultSet = session.execute(cql);
+
+              // Consume the result set rows
+              //
+              Iterator<Row> iterator = resultSet.iterator();
+              IRowMeta resultRowMeta = null;
+              while (iterator.hasNext()) {
+                Row row = iterator.next();
+                if (resultRowMeta == null) {
+                  resultRowMeta = getRowMeta(row.getColumnDefinitions());
+                }
+                Object[] resultRowData = DriverCqlRowHandler.readRow(resultRowMeta, row);
+                result.getRows().add(new RowMetaAndData(resultRowMeta, resultRowData));
+              }
+
+              // Wait until the CQL is completely executed.
+              //
+              while (!resultSet.wasApplied()) {
+                Thread.sleep(50);
+              }
+              nrExecuted++;
+              log.logDetailed("Executed cql statement: " + cql);
+            }
           }
+        } catch (Exception e) {
+          log.logError("Error executing CQL statements...", e);
+          result.increaseErrors(1L);
+          result.setResult(false);
         }
-      } catch (Exception e) {
-        log.logError("Error executing CQL statements...", e);
-        result.increaseErrors(1L);
-        result.setResult(false);
       }
-
     } catch (Exception e) {
       throw new HopException(
           "Error executing CQL on Cassandra connection " + cassandraConnection.getName(), e);
     }
     return nrExecuted;
+  }
+
+  public static IRowMeta getRowMeta(ColumnDefinitions columnDefinitions) {
+    IRowMeta rowMeta = new RowMeta();
+    for (int i = 0; i < columnDefinitions.size(); i++) {
+      ColumnDefinition columnDefinition = columnDefinitions.get(i);
+      DataType dataType = columnDefinition.getType();
+      String name = columnDefinition.getName().asCql(false);
+      if (name.startsWith("\"")) {
+        name = name.substring(1);
+      }
+      if (name.endsWith("\"")) {
+        name = name.substring(0, name.length() - 1);
+      }
+      IValueMeta valueMeta = TableMetaData.toValueMeta(name, dataType);
+      rowMeta.addValueMeta(valueMeta);
+    }
+    return rowMeta;
   }
 
   @Override

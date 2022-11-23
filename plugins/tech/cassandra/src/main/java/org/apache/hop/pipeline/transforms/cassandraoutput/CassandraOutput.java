@@ -97,8 +97,6 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
   protected Map<String, String> options;
 
   protected void initialize() throws HopException {
-
-    first = false;
     rowsSeen = 0;
 
     String connectionName = resolve(getMeta().getConnectionName());
@@ -196,6 +194,8 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
       // open up a connection to perform any schema changes
       try {
         connection = cassandraConnection.createConnection(this, true);
+        connection.open();
+
         Keyspace keyspace = connection.getKeyspace(keyspaceName);
 
         if (!keyspace.tableExists(tableName)) {
@@ -215,6 +215,11 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
                       CassandraOutputMeta.PKG,
                       "CassandraOutput.Error.NeedAtLeastOneFieldAppartFromKey"));
             }
+
+            // Get the keyspace again since it's immutable
+            //
+            keyspace = connection.getKeyspace(keyspaceName);
+
           } else {
             throw new HopException(
                 BaseMessages.getString(
@@ -309,6 +314,7 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
 
     if (!isStopped()) {
       if (first) {
+        first = false;
         initialize();
       }
 

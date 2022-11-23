@@ -671,41 +671,6 @@ public class CassandraUtils {
   }
 
   /**
-   * Returns how many fields (including the key) will be written given the incoming Hop row format
-   *
-   * @param inputMeta the incoming Hop row format
-   * @param keyIndex the index(es) of the key field in the incoming row format
-   * @param cassandraMeta table meta data
-   * @param insertFieldsNotInMetaData true if incoming fields not explicitly defined in the table
-   *     schema are to be inserted
-   * @return
-   */
-  public static int numFieldsToBeWritten(
-      IRowMeta inputMeta,
-      List<Integer> keyIndex,
-      ITableMetaData cassandraMeta,
-      boolean insertFieldsNotInMetaData) {
-
-    // check how many fields will actually be inserted - we must insert at least
-    // one field
-    // apart from the key (CQL 2 only) or Cassandra will complain.
-
-    int count = keyIndex.size(); // key(s)
-    for (int i = 0; i < inputMeta.size(); i++) {
-      if (!keyIndex.contains(i)) {
-        IValueMeta colMeta = inputMeta.getValueMeta(i);
-        String colName = colMeta.getName();
-        if (!cassandraMeta.columnExistsInSchema(colName) && !insertFieldsNotInMetaData) {
-          continue;
-        }
-        count++;
-      }
-    }
-
-    return count;
-  }
-
-  /**
    * Get a connection to cassandra
    *
    * @param hosts the hostname of a cassandra node
@@ -777,27 +742,29 @@ public class CassandraUtils {
    */
   public static List<Object[]> fixBatchMismatchedTypes(
       List<Object[]> batch, IRowMeta inputMeta, ITableMetaData cassandraMeta) {
-    List<String> colNames = cassandraMeta.getColumnNames();
 
-    // List of rows
-    for (int i = 0; i < batch.size(); i++) {
-      // Columns
-      for (int j = 0; j < batch.get(i).length; j++) {
-        if (batch.get(i)[j] != null) {
-          DataType dataType = cassandraMeta.getColumnCQLType(colNames.get(j));
-          String typeCql = dataType.asCql(true, false);
-          String dateCql = DataTypes.DATE.asCql(true, false);
-          // CQL Date / Timestamp type checks
-          if (typeCql.equals(dateCql)) {
-            // Check that Hop type isn't actually more like a timestamp
-            // NOTE: batch order does not match cassandraMeta order, need to pair up
-            int index = inputMeta.indexOfValue(colNames.get(j));
-            if (batch.get(i)[index].getClass() == Date.class) {
-              Date d = (Date) batch.get(i)[index];
+    if (cassandraMeta != null) {
+      List<String> colNames = cassandraMeta.getColumnNames();
+      // List of rows
+      for (int i = 0; i < batch.size(); i++) {
+        // Columns
+        for (int j = 0; j < batch.get(i).length; j++) {
+          if (batch.get(i)[j] != null) {
+            DataType dataType = cassandraMeta.getColumnCQLType(colNames.get(j));
+            String typeCql = dataType.asCql(true, false);
+            String dateCql = DataTypes.DATE.asCql(true, false);
+            // CQL Date / Timestamp type checks
+            if (typeCql.equals(dateCql)) {
+              // Check that Hop type isn't actually more like a timestamp
+              // NOTE: batch order does not match cassandraMeta order, need to pair up
+              int index = inputMeta.indexOfValue(colNames.get(j));
+              if (batch.get(i)[index].getClass() == Date.class) {
+                Date d = (Date) batch.get(i)[index];
 
-              // Convert java.util.Date to CQL friendly Date format (rounds to the day)
-              LocalDate ld = LocalDate.fromMillisSinceEpoch(d.getTime());
-              batch.get(i)[index] = ld;
+                // Convert java.util.Date to CQL friendly Date format (rounds to the day)
+                LocalDate ld = LocalDate.fromMillisSinceEpoch(d.getTime());
+                batch.get(i)[index] = ld;
+              }
             }
           }
         }

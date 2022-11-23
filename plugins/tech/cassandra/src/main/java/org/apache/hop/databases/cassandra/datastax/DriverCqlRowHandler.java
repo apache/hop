@@ -129,6 +129,15 @@ public class DriverCqlRowHandler implements CqlRowHandler {
     }
   }
 
+  public static Object[] readRow(IRowMeta rowMeta, Row row) {
+    Object[] hopRow = RowDataUtil.allocateRowData(rowMeta.size());
+    for (int i = 0; i < rowMeta.size(); i++) {
+      IValueMeta valueMeta = rowMeta.getValueMeta(i);
+      hopRow[i] = readValue(valueMeta, row, i);
+    }
+    return hopRow;
+  }
+
   public void batchInsert(
       IRowMeta inputMeta,
       Iterable<Object[]> rows,
