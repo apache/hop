@@ -23,7 +23,7 @@ REM switch to script directory
 cd /D %~dp0
 
 set LIBSPATH=lib\core;lib\beam
-set SWTJAR=libswt\win64
+set CLASSPATH=lib\core\*;lib\beam\*;libswt\win64\*
 
 :NormalStart
 REM set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java
@@ -88,10 +88,10 @@ goto TopArg
 :EndArg
 
 echo Command to start Hop will be:
-echo %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.core.encryption.Encr %_cmdline%
+echo %_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.core.encryption.Encr %_cmdline%
 echo.
 echo ===[Starting HopEncrypt]=========================================================
 
-%_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.encryption.HopEncrypt %_cmdline%
+%_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.encryption.HopEncrypt %_cmdline%
 @echo off
 :End

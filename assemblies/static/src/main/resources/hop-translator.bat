@@ -23,7 +23,7 @@ REM switch to script directory
 cd /D %~dp0
 
 set LIBSPATH=lib\core;lib\beam
-set SWTJAR=libswt\win64
+set CLASSPATH=lib\core\*;lib\beam\*;libswt\win64\*
 
 :NormalStart
 REM set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java
@@ -90,10 +90,11 @@ goto TopArg
 :EndArg
 
 echo Command to start Hop will be:
-echo %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.i18n.editor.Translator %_cmdline%
+echo %_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.i18n.editor.Translator %_cmdline%
 echo.
 echo ===[Starting Hop Translator]=========================================================
 
-%_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Dswt.autoScale=false -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.i18n.editor.Translator %_cmdline%
+%_HOP_JAVA% -classpath %CLASSPATH% -Dswt.autoScale=false -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.i18n.editor.Translator %_cmdline%
+if ERRORLEVEL 1 (pause)
 @echo off
 :End
