@@ -38,6 +38,7 @@ import org.apache.hop.databases.cassandra.util.CassandraUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class DriverKeyspace implements Keyspace {
 
@@ -52,7 +53,7 @@ public class DriverKeyspace implements Keyspace {
   }
 
   public void setConnection(DriverConnection conn) throws Exception {
-    this.conn = (DriverConnection) conn;
+    this.conn = conn;
   }
 
   public DriverConnection getConnection() {
@@ -99,7 +100,11 @@ public class DriverKeyspace implements Keyspace {
 
   @Override
   public ITableMetaData getTableMetaData(String familyName) throws Exception {
-    TableMetadata tableMeta = meta.getTable(familyName).get();
+    Optional<TableMetadata> optionalTable = meta.getTable(familyName);
+    if (optionalTable.isEmpty()) {
+      return null;
+    }
+    TableMetadata tableMeta = optionalTable.get();
     return new TableMetaData(this, tableMeta);
   }
 

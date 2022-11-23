@@ -220,20 +220,21 @@ limitations under the License.
     </partitioning>
     <batch_size>11</batch_size>
     <connection>local</connection>
-    <consistency/>
+    <consistency>ONE</consistency>
     <cql_batch_timeout/>
-    <cql_sub_batch_size>4</cql_sub_batch_size>
+    <cql_sub_batch_size>11</cql_sub_batch_size>
     <create_table>Y</create_table>
+    <create_table_with_clause/>
     <insert_fields_not_in_meta>N</insert_fields_not_in_meta>
     <key_field>id</key_field>
     <schema_host>localhost</schema_host>
     <schema_port>9042</schema_port>
     <table>customers</table>
-    <truncate_table>Y</truncate_table>
+    <truncate_table>N</truncate_table>
     <ttl/>
     <ttl_unit>
 </ttl_unit>
-    <unlogged_batch>Y</unlogged_batch>
+    <unlogged_batch>N</unlogged_batch>
     <update_cassandra_meta>N</update_cassandra_meta>
     <attributes/>
     <GUI>

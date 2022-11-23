@@ -41,16 +41,16 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
-      <hour>12</hour>
-      <minutes>0</minutes>
       <weekDay>1</weekDay>
-      <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
-      <xloc>64</xloc>
+      <xloc>48</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
@@ -78,7 +78,7 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>512</xloc>
+      <xloc>640</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
@@ -111,8 +111,8 @@ limitations under the License.
         </parameter>
       </parameters>
       <parallel>N</parallel>
-      <xloc>816</xloc>
-      <yloc>64</yloc>
+      <xloc>640</xloc>
+      <yloc>160</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -124,10 +124,64 @@ limitations under the License.
       <script>CREATE KEYSPACE IF NOT EXISTS hop
 WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1}
 ;
+DROP TABLE IF EXISTS hop.customers
+;
 </script>
       <replace_variables>N</replace_variables>
       <parallel>N</parallel>
-      <xloc>240</xloc>
+      <xloc>224</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>DROP KEYSPACE hop</name>
+      <description/>
+      <type>CASSANDRA_EXEC_CQL</type>
+      <attributes/>
+      <connection>local</connection>
+      <script>DROP KEYSPACE IF EXISTS hop
+;
+</script>
+      <replace_variables>N</replace_variables>
+      <parallel>N</parallel>
+      <xloc>848</xloc>
+      <yloc>160</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>992</xloc>
+      <yloc>160</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>wait-for-hop-keyspace</name>
+      <description/>
+      <type>WORKFLOW</type>
+      <attributes/>
+      <run_configuration>local</run_configuration>
+      <filename>${PROJECT_HOME}/tests/cassandra-input-output/wait-for-hop-keyspace.hwf</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Nothing</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <set_append_logfile>N</set_append_logfile>
+      <parallel>N</parallel>
+      <xloc>416</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
@@ -141,6 +195,13 @@ WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1}
       <unconditional>N</unconditional>
     </hop>
     <hop>
+      <from>validate-tests-in-folder.hpl</from>
+      <to>DROP KEYSPACE hop</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
       <from>Start</from>
       <to>CREATE KEYSPACE hop</to>
       <enabled>Y</enabled>
@@ -148,14 +209,50 @@ WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1}
       <unconditional>Y</unconditional>
     </hop>
     <hop>
+      <from>DROP KEYSPACE hop</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
       <from>CREATE KEYSPACE hop</from>
+      <to>wait-for-hop-keyspace</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>wait-for-hop-keyspace</from>
       <to>cassandra-output-to-table.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
+      <unconditional>Y</unconditional>
     </hop>
   </hops>
   <notepads>
+    <notepad>
+      <backgroundcolorblue>210</backgroundcolorblue>
+      <backgroundcolorgreen>136</backgroundcolorgreen>
+      <backgroundcolorred>15</backgroundcolorred>
+      <bordercolorblue>250</bordercolorblue>
+      <bordercolorgreen>231</bordercolorgreen>
+      <bordercolorred>200</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>250</fontcolorblue>
+      <fontcolorgreen>231</fontcolorgreen>
+      <fontcolorred>200</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>10</fontsize>
+      <height>49</height>
+      <xloc>80</xloc>
+      <yloc>176</yloc>
+      <note>Timeout exceptions can be ignored, the operation simply takes too long:
+
+DriverTimeoutException: Query timed out after PT2S </note>
+      <width>321</width>
+    </notepad>
   </notepads>
   <attributes/>
 </workflow>
