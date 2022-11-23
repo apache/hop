@@ -110,16 +110,19 @@
         <!-- License Configuration -->
         <license.licenseName>apache_v2</license.licenseName>
 
-
         <!-- Third-party dependencies -->
         <akka.version>2.5.32</akka.version>
         <avro.version>1.11.1</avro.version>
-        <apache-beam.version>2.42.0</apache-beam.version>
+        <apache-beam.version>2.43.0</apache-beam.version>
         <apache-spark.version>3.3.0</apache-spark.version>
         <apache-flink.version>1.15.2</apache-flink.version>
         <asm.version>9.3</asm.version>
+        <aws-java-sdk.version>1.12.347</aws-java-sdk.version>
+        <batik.version>1.16</batik.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
+        <commons-compress.version>1.21</commons-compress.version>
+        <commons-fileupload.version>1.4</commons-fileupload.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-logging.version>1.1.3</commons-logging.version>
         <curator.version>5.4.0</curator.version>
@@ -141,10 +144,11 @@
         <httpclient.version>4.5.13</httpclient.version>
         <httpccore.version>4.4.15</httpccore.version>
         <jackcess.version>4.0.4</jackcess.version>
+        <jackson.version>2.14.1</jackson.version>
         <jakarta-mail.version>2.0.1</jakarta-mail.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <jetty.version>9.4.35.v20201120</jetty.version>
-        <joda-time.version>2.10.14</joda-time.version>
+        <joda-time.version>2.12.1</joda-time.version>
         <json4s.version>3.7.0-M11</json4s.version>
         <json-simple.version>1.1.1</json-simple.version>
         <json-smart.version>2.4.8</json-smart.version>
@@ -152,6 +156,7 @@
         <juniversalchardet.version>2.4.0</juniversalchardet.version>
         <kafka-clients.version>3.3.1</kafka-clients.version>
         <kryo.version>5.3.0</kryo.version>
+        <libthrift.version>0.17.0</libthrift.version>
         <log4j.version>2.19.0</log4j.version>
         <lz4.version>1.8.0</lz4.version>
         <metrics.version>4.2.12</metrics.version>
@@ -171,25 +176,24 @@
         <protobuf.version>3.21.9</protobuf.version>
         <rhino.version>1.7.12</rhino.version>
         <scala.version>2.12.17</scala.version>
-        <slf4j.version>2.0.3</slf4j.version>
+        <slf4j.version>2.0.4</slf4j.version>
         <sshlib.version>2.2.21</sshlib.version>
         <snappy-java.version>1.1.8.4</snappy-java.version>
         <woodstox.version>6.4.0</woodstox.version>
         <zookeeper.version>3.8.0</zookeeper.version>
-        <libthrift.version>0.17.0</libthrift.version>
+        <xerces.version>2.12.2</xerces.version>
 
         <!-- Test dependencies -->
+        <byte-buddy.version>1.12.19</byte-buddy.version>
+        <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
+        <junit.version>4.13.1</junit.version>
         <mockito-core.version>3.12.4</mockito-core.version>
-        <byte-buddy.version>1.12.18</byte-buddy.version>
         <objenesis.version>3.2</objenesis.version>
         <powermock-module-junit4.version>2.0.9</powermock-module-junit4.version>
         <powermock-api-mockito.version>2.0.9</powermock-api-mockito.version>
-        <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
-        <junit.version>4.13.1</junit.version>
 
         <!-- Copy from master POM (NEEDS CLEANUP) -->
         <!-- VERSIONS -->
-        <batik.version>1.14</batik.version>
         <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
@@ -216,15 +220,8 @@
         <jandex-maven-plugin.version>1.0.8</jandex-maven-plugin.version>
         <wagon-plugin.version>2.0.0</wagon-plugin.version>
 
-        <jackson.version>2.14.0</jackson.version>
-        <commons-compress.version>1.21</commons-compress.version>
-        <commons-fileupload.version>1.4</commons-fileupload.version>
-        <aws-java-sdk.version>1.12.279</aws-java-sdk.version>
-
         <!-- spring-security version -->
         <spring-security.version>4.1.5.RELEASE</spring-security.version>
-
-        <xerces.version>2.12.2</xerces.version>
 
         <!-- jdk version -->
         <source.jdk.version>11</source.jdk.version>
