@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /technology/cassandra/
 :language: en_US
-:description: Apache Hop supports Apache Cassandra through a Cassandra connection metadata type, an Exec CQL action and transforms for Cassandra input and output, and an SSTable output.
+:description: Apache Hop supports Apache Cassandra through a connection metadata type, actions and transforms.
 
 = Cassandra Technology
 
@@ -33,7 +33,7 @@ Cassandra was designed to implement a combination of Amazon's Dynamo distributed
 
 == Cassandra Support in Hop
 
-Hop supports Cassandra in the following metadata objects:
+Hop supports Cassandra 4 (since version 2.2.0) with the following:
 
 === Metadata Types
 

@@ -83,9 +83,8 @@ RUN unzip -q ${DEPLOYMENT_PATH}/hop.zip -d ${DEPLOYMENT_PATH} \
   && rm ${DEPLOYMENT_PATH}/hop.zip \
   && chown -R ${JENKINS_USER}:${JENKINS_GROUP} ${DEPLOYMENT_PATH}/hop \
   && chmod 700 ${DEPLOYMENT_PATH}/hop/*.sh \
-  && cd ${DEPLOYMENT_PATH}/hop
-
-#  && ./hop-conf.sh --generate-fat-jar=/tmp/hop-fatjar.jar
+  && cd ${DEPLOYMENT_PATH}/hop \
+  && ./hop-conf.sh --generate-fat-jar=/tmp/hop-fatjar.jar
 
 # make volume available so that hop pipeline and workflow files can be provided easily
 VOLUME ["/files"]

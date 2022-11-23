@@ -43,3 +43,8 @@ CREATE KEYSPACE IF NOT EXISTS hop
 WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 3}
 ;
 ----
+
+== Result rows
+
+It's possible to perform one or more queries in this action.  The output of the queries will be added to the result rows of the action.  You can access these with the plugins like the xref:pipeline/transforms/getrowsfromresult.adoc[Get Rows From Result] transform or in the xref:workflow/actions/eval.adoc[JavaScript] action.
+Please note that result rows are kept in memory so this is intended for small queries, for example getting information from the `system_schema` tables.
