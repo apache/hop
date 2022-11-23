@@ -198,8 +198,8 @@ public class FastJsonReader implements IJsonReader {
     private final int rowCount;
     private int rowNbr;
     /**
-     * if should skip null-only rows; size won't be exact if set If HOP_JSON_INPUT_INCLUDE_NULLS is
-     * "Y" then nulls will be included otherwise they will not (default behavior)
+     * if should skip null-only rows; size won't be exact if set. If HOP_JSON_INPUT_INCLUDE_NULLS is
+     * "Y" (default behavior) then nulls will be included otherwise they will not
      */
     private boolean cullNulls = true;
 
