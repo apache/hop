@@ -67,5 +67,7 @@ Options:
 
 With this location type you can store execution information in a xref:technology/neo4j/index.adoc[Neo4j] graph database.  For more information on this plugin, see the xref:metadata-types/neo4j/neo4j-location-type.adoc[Neo4j location type] documentation.
 
+=== Cleanup
 
+If you want to automate removal of execution information from your graph database you can use a pipeline or workflow to do so.  
 
