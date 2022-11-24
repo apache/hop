@@ -77,6 +77,9 @@ public class ManageConfigFileOptionPlugin implements IConfigOptions {
           if (equalsIndex > 0) {
             String variableName = varValue.substring(0, equalsIndex);
             String variableValue = varValue.substring(equalsIndex + 1);
+            if (variableValue != null && variableValue.startsWith("\"") && variableValue.endsWith("\"")) {
+              variableValue = variableValue.substring(1, variableValue.length() - 1);
+            }
             DescribedVariable describedVariable =
                 variablesConfigFile.findDescribedVariable(variableName);
             if (describedVariable == null) {
