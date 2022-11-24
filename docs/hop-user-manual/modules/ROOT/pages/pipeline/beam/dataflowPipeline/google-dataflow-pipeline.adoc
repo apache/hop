@@ -27,22 +27,26 @@ Apache Hop pipelines can be scheduled and triggered in various ways. In this sec
 
 Before we can add a new pipeline in the Google Cloud Platform https://console.cloud.google.com/dataflow/pipelines[console] we need to create a Google Storage bucket that contains 3 types of files.
 
-==== Hop pipelines:
+=== Hop pipelines
+
 The pipelines you created using the Hop Gui and wish to schedule in Google Dataflow.
 
 Tip:: You can also create a Hop project using a Google Storage bucket this way you can directly create and edit Hop pipelines in GS
 
-==== Hop Metadata:
+=== Hop Metadata
+
 For the pipeline to be able to use Hop metadata objects and other run configurations we need to generate a hop metadata.json file.
 This file can be generated from the GUI under Tools -> Export metadata to JSON or using the export-metadata function from the xref:hop-tools/hop-conf/hop-conf.adoc[Hop conf] tool.
 
-==== Beam Flex template metadata file:
+=== Beam Flex template metadata file
+
 The final part to get everything working is a metadata file used by Dataflow to stitch all the parts together. You can find the file you need xref:pipeline/beam/dataflowPipeline/hopFlexTemplateMetadata.json[here].
 
 Important:: You can change the docker image used in the metadata file
 
 
 == Creating a Dataflow pipeline
+
 Now we can go back to the https://console.cloud.google.com/dataflow/pipelines[console] and "Create data pipeline"
 
 image::beam/beam-dataflow-template.png[]
