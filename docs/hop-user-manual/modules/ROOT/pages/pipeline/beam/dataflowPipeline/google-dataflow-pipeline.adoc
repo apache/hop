@@ -38,7 +38,7 @@ Tip:: You can also create a Hop project using a Google Storage bucket this way y
 For the pipeline to be able to use Hop metadata objects and other run configurations we need to generate a hop metadata.json file.
 This file can be generated from the GUI under Tools -> Export metadata to JSON or using the export-metadata function from the xref:hop-tools/hop-conf/hop-conf.adoc[Hop conf] tool.
 
-==== Beam Flex template metadata file:
+=== Beam Flex template metadata file:
 The final part to get everything working is a metadata file used by Dataflow to stitch all the parts together.
 
 [source,json]
