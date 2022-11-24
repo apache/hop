@@ -17,44 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.cubeoutput;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.ClassRule;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class CubeOutputMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
-  public void testRoundTrip() throws HopException {
-    List<String> attributes =
-        Arrays.asList("name", "add_to_result_filenames", "do_not_open_newfile_init");
+  public void testRoundTrip() throws Exception {
+    CubeOutputMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/serialize-transform.xml", CubeOutputMeta.class, TransformMeta.XML_TAG);
 
-    Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("name", "getFilename");
-    getterMap.put("add_to_result_filenames", "isAddToResultFiles");
-    getterMap.put("do_not_open_newfile_init", "isDoNotOpenNewFileInit");
-
-    Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("name", "setFilename");
-    setterMap.put("add_to_result_filenames", "setAddToResultFiles");
-    setterMap.put("do_not_open_newfile_init", "setDoNotOpenNewFileInit");
-
-    LoadSaveTester loadSaveTester =
-        new LoadSaveTester(
-            CubeOutputMeta.class,
-            attributes,
-            getterMap,
-            setterMap,
-            new HashMap<>(),
-            new HashMap<>());
-
-    loadSaveTester.testSerialization();
+    Assert.assertNotNull(meta.getFilename());
   }
 }

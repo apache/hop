@@ -19,23 +19,21 @@ package org.apache.hop.pipeline.transforms.cubeoutput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataWrapper;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
-import org.w3c.dom.Node;
 
 import java.util.List;
 import java.util.Map;
@@ -48,80 +46,34 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::CubeOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/serialize-to-file.html")
+@HopMetadataWrapper(tag = "file")
 public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData> {
-
   private static final Class<?> PKG = CubeOutputMeta.class; // For Translator
 
+  @HopMetadataProperty(key = "name")
   private String filename;
+
   /** Flag: add the filenames to result filenames */
+  @HopMetadataProperty(key = "add_to_result_filenames")
   private boolean addToResultFilenames;
 
   /** Flag : Do not open new file when pipeline start */
+  @HopMetadataProperty(key = "do_not_open_newfile_init")
   private boolean doNotOpenNewFileInit;
 
   public CubeOutputMeta() {
     super(); // allocate BaseTransformMeta
   }
 
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  /** @param filename The filename to set. */
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  /** @return Returns the filename. */
-  public String getFilename() {
-    return filename;
-  }
-
-  /** @return Returns the add to result filesname. */
-  public boolean isAddToResultFiles() {
-    return addToResultFilenames;
-  }
-
-  /** @param addtoresultfilenamesin The addtoresultfilenames to set. */
-  public void setAddToResultFiles(boolean addtoresultfilenamesin) {
-    this.addToResultFilenames = addtoresultfilenamesin;
-  }
-
-  /** @return Returns the "do not open new file at init" flag. */
-  public boolean isDoNotOpenNewFileInit() {
-    return doNotOpenNewFileInit;
-  }
-
-  /** @param doNotOpenNewFileInit The "do not open new file at init" flag to set. */
-  public void setDoNotOpenNewFileInit(boolean doNotOpenNewFileInit) {
-    this.doNotOpenNewFileInit = doNotOpenNewFileInit;
+  public CubeOutputMeta(CubeOutputMeta m) {
+    this.filename = m.filename;
+    this.addToResultFilenames = m.addToResultFilenames;
+    this.doNotOpenNewFileInit = m.doNotOpenNewFileInit;
   }
 
   @Override
-  public Object clone() {
-    CubeOutputMeta retval = (CubeOutputMeta) super.clone();
-
-    return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      filename = XmlHandler.getTagValue(transformNode, "file", "name");
-      addToResultFilenames =
-          "Y"
-              .equalsIgnoreCase(
-                  XmlHandler.getTagValue(transformNode, "file", "add_to_result_filenames"));
-      doNotOpenNewFileInit =
-          "Y"
-              .equalsIgnoreCase(
-                  XmlHandler.getTagValue(transformNode, "file", "do_not_open_newfile_init"));
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "CubeOutputMeta.Exception.UnableToLoadTransformMeta"), e);
-    }
+  public CubeOutputMeta clone() {
+    return new CubeOutputMeta(this);
   }
 
   @Override
@@ -129,24 +81,6 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
     filename = "file.cube";
     addToResultFilenames = false;
     doNotOpenNewFileInit = false;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append("    <file>").append(Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("name", filename));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("add_to_result_filenames", addToResultFilenames));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("do_not_open_newfile_init", doNotOpenNewFileInit));
-
-    retval.append("    </file>").append(Const.CR);
-
-    return retval.toString();
   }
 
   @Override
@@ -217,5 +151,59 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
     } catch (Exception e) {
       throw new HopException(e);
     }
+  }
+
+  /**
+   * Gets filename
+   *
+   * @return value of filename
+   */
+  public String getFilename() {
+    return filename;
+  }
+
+  /**
+   * Sets filename
+   *
+   * @param filename value of filename
+   */
+  public void setFilename(String filename) {
+    this.filename = filename;
+  }
+
+  /**
+   * Gets addToResultFilenames
+   *
+   * @return value of addToResultFilenames
+   */
+  public boolean isAddToResultFilenames() {
+    return addToResultFilenames;
+  }
+
+  /**
+   * Sets addToResultFilenames
+   *
+   * @param addToResultFilenames value of addToResultFilenames
+   */
+  public void setAddToResultFilenames(boolean addToResultFilenames) {
+    this.addToResultFilenames = addToResultFilenames;
+  }
+
+  /**
+   * Gets doNotOpenNewFileInit
+   *
+   * @return value of doNotOpenNewFileInit
+   */
+  public boolean isDoNotOpenNewFileInit() {
+    return doNotOpenNewFileInit;
+  }
+
+  /**
+   * Sets doNotOpenNewFileInit
+   *
+   * @param doNotOpenNewFileInit value of doNotOpenNewFileInit
+   */
+  public void setDoNotOpenNewFileInit(boolean doNotOpenNewFileInit) {
+    this.doNotOpenNewFileInit = doNotOpenNewFileInit;
   }
 }

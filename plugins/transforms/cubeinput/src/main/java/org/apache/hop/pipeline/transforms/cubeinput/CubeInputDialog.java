@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.cubeinput;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -189,11 +190,10 @@ public class CubeInputDialog extends BaseTransformDialog implements ITransformDi
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getFilename() != null) {
-      wFilename.setText(input.getFilename());
-    }
+
+    wFilename.setText(Const.NVL(input.getFile().getName(), ""));
     wLimit.setText("" + input.getRowLimit());
-    wAddResult.setSelection(input.isAddResultFile());
+    wAddResult.setSelection(input.isAddFilenameResult());
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -212,9 +212,9 @@ public class CubeInputDialog extends BaseTransformDialog implements ITransformDi
 
     transformName = wTransformName.getText(); // return value
     // copy info to Meta class (input)
-    input.setFilename(wFilename.getText());
+    input.getFile().setName(wFilename.getText());
     input.setRowLimit(wLimit.getText());
-    input.setAddResultFile(wAddResult.getSelection());
+    input.setAddFilenameResult(wAddResult.getSelection());
 
     dispose();
   }

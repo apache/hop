@@ -219,7 +219,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
       wFilename.setText(input.getFilename());
     }
     wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
-    wAddToResult.setSelection(input.isAddToResultFiles());
+    wAddToResult.setSelection(input.isAddToResultFilenames());
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -238,7 +238,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     }
 
     transformName = wTransformName.getText(); // return value
-    input.setAddToResultFiles(wAddToResult.getSelection());
+    input.setAddToResultFilenames(wAddToResult.getSelection());
     input.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
     input.setFilename(wFilename.getText());
 

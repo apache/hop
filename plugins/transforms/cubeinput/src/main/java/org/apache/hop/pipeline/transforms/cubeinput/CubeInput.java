@@ -89,10 +89,10 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
 
     if (super.init()) {
       try {
-        String filename = resolve(meta.getFilename());
+        String filename = resolve(meta.getFile().getName());
 
         // Add filename to result filenames ?
-        if (meta.isAddResultFile()) {
+        if (meta.isAddFilenameResult()) {
           ResultFile resultFile =
               new ResultFile(
                   ResultFile.FILE_TYPE_GENERAL,
