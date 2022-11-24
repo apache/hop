@@ -26,7 +26,7 @@ REM Option to change the Characterset of the Windows Shell to show foreign carac
 if not "%HOP_WINDOWS_SHELL_ENCODING%"=="" chcp %HOP_WINDOWS_SHELL_ENCODING%
 
 set LIBSPATH=lib\core;lib\beam
-set CLASSPATH=lib\core\*;lib\beam\*;libswt\win64\*
+set CLASSPATH=lib\core\*;lib\beam\*;lib\swt\win64\*
 
 :NormalStart
 REM set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java
