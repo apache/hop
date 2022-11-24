@@ -368,7 +368,7 @@ public class DataSetConst {
               try {
                 int cmp =
                     transformValueMeta.compare(
-                        transformValue, transformValueMeta, goldenValueConverted);
+                        transformValue, goldenValueMeta, goldenValueConverted);
                 if (cmp != 0) {
 
                   // See if it's a floating point issue...
