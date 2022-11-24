@@ -26,7 +26,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -34,14 +33,14 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
@@ -53,162 +52,52 @@ import java.util.List;
     keywords = "i18n::DBProcMeta.keyword",
     documentationUrl = "/pipeline/transforms/calldbproc.html")
 public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
-
   private static final Class<?> PKG = DBProcMeta.class; // For Translator
 
   /** database connection */
+  @HopMetadataProperty(key = "connection", storeWithName = true)
   private DatabaseMeta database;
 
   /** proc.-name to be called */
-  private String procedure;
+  @HopMetadataProperty private String procedure;
 
   /** function arguments */
-  private String[] argument;
+  @HopMetadataProperty(groupKey = "lookup", key = "arg")
+  List<ProcArgument> arguments;
 
-  /** IN / OUT / INOUT */
-  private String[] argumentDirection;
-
-  /** value type for OUT */
-  private int[] argumentType;
-
-  /** function result: new value name */
-  private String resultName;
-
-  /** function result: new value type */
-  private int resultType;
+  @HopMetadataProperty private ProcResult result;
 
   /** The flag to set auto commit on or off on the connection */
+  @HopMetadataProperty(key = "auto_commit")
   private boolean autoCommit;
 
   public DBProcMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    this.arguments = new ArrayList<>();
+    this.result = new ProcResult();
   }
 
-  /** @return Returns the argument. */
-  public String[] getArgument() {
-    return argument;
-  }
-
-  /** @param argument The argument to set. */
-  public void setArgument(String[] argument) {
-    this.argument = argument;
-  }
-
-  /** @return Returns the argumentDirection. */
-  public String[] getArgumentDirection() {
-    return argumentDirection;
-  }
-
-  /** @param argumentDirection The argumentDirection to set. */
-  public void setArgumentDirection(String[] argumentDirection) {
-    this.argumentDirection = argumentDirection;
-  }
-
-  /** @return Returns the argumentType. */
-  public int[] getArgumentType() {
-    return argumentType;
-  }
-
-  /** @param argumentType The argumentType to set. */
-  public void setArgumentType(int[] argumentType) {
-    this.argumentType = argumentType;
-  }
-
-  /** @return Returns the database. */
-  public DatabaseMeta getDatabase() {
-    return database;
-  }
-
-  /** @param database The database to set. */
-  public void setDatabase(DatabaseMeta database) {
-    this.database = database;
-  }
-
-  /** @return Returns the procedure. */
-  public String getProcedure() {
-    return procedure;
-  }
-
-  /** @param procedure The procedure to set. */
-  public void setProcedure(String procedure) {
-    this.procedure = procedure;
-  }
-
-  /** @return Returns the resultName. */
-  public String getResultName() {
-    return resultName;
-  }
-
-  /** @param resultName The resultName to set. */
-  public void setResultName(String resultName) {
-    this.resultName = resultName;
-  }
-
-  /** @return Returns the resultType. */
-  public int getResultType() {
-    return resultType;
-  }
-
-  /** @param resultType The resultType to set. */
-  public void setResultType(int resultType) {
-    this.resultType = resultType;
-  }
-
-  /** @return Returns the autoCommit. */
-  public boolean isAutoCommit() {
-    return autoCommit;
-  }
-
-  /** @param autoCommit The autoCommit to set. */
-  public void setAutoCommit(boolean autoCommit) {
-    this.autoCommit = autoCommit;
+  public DBProcMeta(DBProcMeta m) {
+    this();
+    this.database = database == null ? null : new DatabaseMeta(m.database);
+    this.procedure = m.procedure;
+    for (ProcArgument argument : m.arguments) {
+      this.arguments.add(new ProcArgument(argument));
+    }
+    this.result = new ProcResult(m.result);
+    this.autoCommit = m.autoCommit;
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
-  public void allocate(int nrargs) {
-    argument = new String[nrargs];
-    argumentDirection = new String[nrargs];
-    argumentType = new int[nrargs];
-  }
-
-  @Override
-  public Object clone() {
-    DBProcMeta retval = (DBProcMeta) super.clone();
-    int nrargs = argument.length;
-
-    retval.allocate(nrargs);
-
-    System.arraycopy(argument, 0, retval.argument, 0, nrargs);
-    System.arraycopy(argumentDirection, 0, retval.argumentDirection, 0, nrargs);
-    System.arraycopy(argumentType, 0, retval.argumentType, 0, nrargs);
-
-    return retval;
+  public DBProcMeta clone() {
+    return new DBProcMeta(this);
   }
 
   @Override
   public void setDefault() {
-    int i;
-    int nrargs;
-
     database = null;
-
-    nrargs = 0;
-
-    allocate(nrargs);
-
-    for (i = 0; i < nrargs; i++) {
-      argument[i] = "arg" + i;
-      argumentDirection[i] = "IN";
-      argumentType[i] = IValueMeta.TYPE_NUMBER;
-    }
-
-    resultName = "result";
-    resultType = IValueMeta.TYPE_NUMBER;
+    result.name = "result";
+    result.type = "Number";
     autoCommit = true;
   }
 
@@ -222,10 +111,10 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    if (!Utils.isEmpty(resultName)) {
+    if (!Utils.isEmpty(result.getName())) {
       IValueMeta v;
       try {
-        v = ValueMetaFactory.createValueMeta(resultName, resultType);
+        v = ValueMetaFactory.createValueMeta(result.getName(), result.getHopType());
         v.setOrigin(name);
         r.addValueMeta(v);
       } catch (HopPluginException e) {
@@ -233,89 +122,19 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
       }
     }
 
-    for (int i = 0; i < argument.length; i++) {
-      if (argumentDirection[i].equalsIgnoreCase("OUT")) {
+    for (int i = 0; i < arguments.size(); i++) {
+      ProcArgument argument = arguments.get(i);
+
+      if (argument.getDirection().equalsIgnoreCase("OUT")) {
         IValueMeta v;
         try {
-          v = ValueMetaFactory.createValueMeta(argument[i], argumentType[i]);
+          v = ValueMetaFactory.createValueMeta(argument.getName(), argument.getHopType());
           v.setOrigin(name);
           r.addValueMeta(v);
         } catch (HopPluginException e) {
           throw new HopTransformException(e);
         }
       }
-    }
-
-    return;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(500);
-
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("connection", database == null ? "" : database.getName()));
-    retval.append("    ").append(XmlHandler.addTagValue("procedure", procedure));
-    retval.append("    <lookup>").append(Const.CR);
-
-    for (int i = 0; i < argument.length; i++) {
-      retval.append("      <arg>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", argument[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("direction", argumentDirection[i]));
-      retval
-          .append("        ")
-          .append(
-              XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(argumentType[i])));
-      retval.append("      </arg>").append(Const.CR);
-    }
-
-    retval.append("    </lookup>").append(Const.CR);
-
-    retval.append("    <result>").append(Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("name", resultName));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(resultType)));
-    retval.append("    </result>").append(Const.CR);
-
-    retval.append("    ").append(XmlHandler.addTagValue("auto_commit", autoCommit));
-
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      int i;
-      int nrargs;
-
-      String con = XmlHandler.getTagValue(transformNode, "connection");
-      database = DatabaseMeta.loadDatabase(metadataProvider, con);
-      procedure = XmlHandler.getTagValue(transformNode, "procedure");
-
-      Node lookup = XmlHandler.getSubNode(transformNode, "lookup");
-      nrargs = XmlHandler.countNodes(lookup, "arg");
-
-      allocate(nrargs);
-
-      for (i = 0; i < nrargs; i++) {
-        Node anode = XmlHandler.getSubNodeByNr(lookup, "arg", i);
-
-        argument[i] = XmlHandler.getTagValue(anode, "name");
-        argumentDirection[i] = XmlHandler.getTagValue(anode, "direction");
-        argumentType[i] = ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(anode, "type"));
-      }
-
-      resultName = XmlHandler.getTagValue(transformNode, "result", "name"); // Optional, can be null
-      //
-      resultType =
-          ValueMetaFactory.getIdForValueMeta(
-              XmlHandler.getTagValue(transformNode, "result", "type"));
-      autoCommit = !"N".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "auto_commit"));
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "DBProcMeta.Exception.UnableToReadTransformMeta"), e);
     }
   }
 
@@ -345,8 +164,10 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
           errorMessage = "";
           boolean errorFound = false;
 
-          for (int i = 0; i < argument.length; i++) {
-            IValueMeta v = prev.searchValueMeta(argument[i]);
+          for (int i = 0; i < arguments.size(); i++) {
+            ProcArgument argument = arguments.get(i);
+
+            IValueMeta v = prev.searchValueMeta(argument.getName());
             if (v == null) {
               if (first) {
                 first = false;
@@ -355,21 +176,20 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
                         + Const.CR;
               }
               errorFound = true;
-              errorMessage += "\t\t" + argument[i] + Const.CR;
+              errorMessage += "\t\t" + argument.getName() + Const.CR;
             } else {
               // Argument exists in input stream: same type?
-
-              if (v.getType() != argumentType[i]
-                  && !(v.isNumeric() && ValueMetaBase.isNumeric(argumentType[i]))) {
+              int hopType = argument.getHopType();
+              if (v.getType() != hopType && !(v.isNumeric() && ValueMetaBase.isNumeric(hopType))) {
                 errorFound = true;
                 errorMessage +=
                     "\t\t"
-                        + argument[i]
+                        + argument.getName()
                         + BaseMessages.getString(
                             PKG,
                             "DBProcMeta.CheckResult.WrongTypeArguments",
                             v.getTypeDesc(),
-                            ValueMetaFactory.getValueMetaName(argumentType[i]))
+                            ValueMetaFactory.getValueMetaName(hopType))
                         + Const.CR;
               }
             }
@@ -421,8 +241,244 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
     }
   }
 
-  @Override
-  public boolean supportsErrorHandling() {
-    return true;
+  public String[] argumentNames() {
+    String[] names = new String[arguments.size()];
+    for (int i = 0; i < names.length; i++) {
+      names[i] = arguments.get(i).getName();
+    }
+    return names;
+  }
+
+  public String[] argumentDirections() {
+    String[] directions = new String[arguments.size()];
+    for (int i = 0; i < directions.length; i++) {
+      directions[i] = arguments.get(i).getDirection();
+    }
+    return directions;
+  }
+
+  public int[] argumentTypes() {
+    int[] types = new int[arguments.size()];
+    for (int i = 0; i < types.length; i++) {
+      types[i] = arguments.get(i).getHopType();
+    }
+    return types;
+  }
+
+  public static class ProcArgument {
+    @HopMetadataProperty private String name;
+    @HopMetadataProperty private String direction;
+    @HopMetadataProperty private String type;
+
+    public ProcArgument() {}
+
+    public ProcArgument(ProcArgument a) {
+      this.name = a.name;
+      this.direction = a.direction;
+      this.type = a.type;
+    }
+
+    /**
+     * Gets name
+     *
+     * @return value of name
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
+     * Sets name
+     *
+     * @param name value of name
+     */
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    /**
+     * Gets direction
+     *
+     * @return value of direction
+     */
+    public String getDirection() {
+      return direction;
+    }
+
+    /**
+     * Sets direction
+     *
+     * @param direction value of direction
+     */
+    public void setDirection(String direction) {
+      this.direction = direction;
+    }
+
+    /**
+     * Gets type
+     *
+     * @return value of type
+     */
+    public String getType() {
+      return type;
+    }
+
+    /**
+     * Sets type
+     *
+     * @param type value of type
+     */
+    public void setType(String type) {
+      this.type = type;
+    }
+
+    public int getHopType() {
+      return ValueMetaFactory.getIdForValueMeta(type);
+    }
+  }
+
+  public static class ProcResult {
+    /** function result: new value name */
+    @HopMetadataProperty private String name;
+
+    /** function result: new value type */
+    @HopMetadataProperty private String type;
+
+    public ProcResult() {}
+
+    public ProcResult(ProcResult r) {
+      this.name = r.name;
+      this.type = r.type;
+    }
+
+    /**
+     * Gets name
+     *
+     * @return value of name
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
+     * Sets name
+     *
+     * @param name value of name
+     */
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    /**
+     * Gets type
+     *
+     * @return value of type
+     */
+    public String getType() {
+      return type;
+    }
+
+    /**
+     * Sets type
+     *
+     * @param type value of type
+     */
+    public void setType(String type) {
+      this.type = type;
+    }
+
+    public int getHopType() {
+      return ValueMetaFactory.getIdForValueMeta(type);
+    }
+  }
+
+  /**
+   * Gets database
+   *
+   * @return value of database
+   */
+  public DatabaseMeta getDatabase() {
+    return database;
+  }
+
+  /**
+   * Sets database
+   *
+   * @param database value of database
+   */
+  public void setDatabase(DatabaseMeta database) {
+    this.database = database;
+  }
+
+  /**
+   * Gets procedure
+   *
+   * @return value of procedure
+   */
+  public String getProcedure() {
+    return procedure;
+  }
+
+  /**
+   * Sets procedure
+   *
+   * @param procedure value of procedure
+   */
+  public void setProcedure(String procedure) {
+    this.procedure = procedure;
+  }
+
+  /**
+   * Gets arguments
+   *
+   * @return value of arguments
+   */
+  public List<ProcArgument> getArguments() {
+    return arguments;
+  }
+
+  /**
+   * Sets arguments
+   *
+   * @param arguments value of arguments
+   */
+  public void setArguments(List<ProcArgument> arguments) {
+    this.arguments = arguments;
+  }
+
+  /**
+   * Gets result
+   *
+   * @return value of result
+   */
+  public ProcResult getResult() {
+    return result;
+  }
+
+  /**
+   * Sets result
+   *
+   * @param result value of result
+   */
+  public void setResult(ProcResult result) {
+    this.result = result;
+  }
+
+  /**
+   * Gets autoCommit
+   *
+   * @return value of autoCommit
+   */
+  public boolean isAutoCommit() {
+    return autoCommit;
+  }
+
+  /**
+   * Sets autoCommit
+   *
+   * @param autoCommit value of autoCommit
+   */
+  public void setAutoCommit(boolean autoCommit) {
+    this.autoCommit = autoCommit;
   }
 }
