@@ -21,7 +21,6 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,8 +33,8 @@ public class CreditCardValidatorMetaTest {
     CreditCardValidatorMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/credit-card-validator-transform.xml",
-            CreditCardValidatorMeta.class,
-            TransformMeta.XML_TAG);
+            CreditCardValidatorMeta.class
+        );
     Assert.assertNotNull(meta.getFieldName());
     Assert.assertNotNull(meta.getResultFieldName());
     Assert.assertNotNull(meta.getNotValidMessage());

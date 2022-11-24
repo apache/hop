@@ -18,7 +18,6 @@
 
 package org.apache.hop.pipeline.transforms.concatfields;
 
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Test;
 
@@ -29,7 +28,7 @@ public class ConcatFieldsMetaTest {
     @Test
     public void testSerialization() throws Exception {
         ConcatFieldsMeta meta = TransformSerializationTestUtil.testSerialization("/concat-fields-transform.xml",
-                ConcatFieldsMeta.class, TransformMeta.XML_TAG);
+                ConcatFieldsMeta.class);
 
         assertEquals(meta.getOutputFields().size(), 9);
     }

@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.cubeoutput;
 
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,7 +27,7 @@ public class CubeOutputMetaTest {
   public void testRoundTrip() throws Exception {
     CubeOutputMeta meta =
         TransformSerializationTestUtil.testSerialization(
-            "/serialize-transform.xml", CubeOutputMeta.class, TransformMeta.XML_TAG);
+            "/serialize-transform.xml", CubeOutputMeta.class);
 
     Assert.assertNotNull(meta.getFilename());
   }

@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.input;
 
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -62,7 +61,7 @@ public class MappingInputMetaTest {
   @Test
   public void testSerialization() throws Exception {
     TransformSerializationTestUtil.testSerialization(
-        "/mapping-input-transform.xml", MappingInputMeta.class, TransformMeta.XML_TAG);
+        "/mapping-input-transform.xml", MappingInputMeta.class);
 
     Document document =
         XmlHandler.loadXmlFile(this.getClass().getResourceAsStream("/mapping-input-transform.xml"));

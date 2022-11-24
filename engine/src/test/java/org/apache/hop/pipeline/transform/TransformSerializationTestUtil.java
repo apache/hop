@@ -26,6 +26,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class TransformSerializationTestUtil {
+  public static final <T extends ITransformMeta> T testSerialization(
+      String filename, Class<T> clazz) throws Exception {
+    return testSerialization(filename, clazz, TransformMeta.XML_TAG);
+  }
 
   public static final <T extends ITransformMeta> T testSerialization(
       String filename, Class<T> clazz, String xmlTag) throws Exception {

@@ -18,16 +18,9 @@ package org.apache.hop.pipeline.transforms.mapping;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
-import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 public class SimpleMappingMetaTest {
   @Before
@@ -40,8 +33,7 @@ public class SimpleMappingMetaTest {
   public void testSerialization() throws Exception {
     TransformSerializationTestUtil.testSerialization(
             "/simple-mapping-transform.xml",
-            SimpleMappingMeta.class,
-            TransformMeta.XML_TAG
+            SimpleMappingMeta.class
     );
     /*Document document =
         XmlHandler.loadXmlFile(this.getClass().getResourceAsStream("/simple-mapping-transform.xml"));

@@ -31,7 +31,6 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +53,7 @@ public class MemoryGroupByMetaTest {
   public void testSerialization() throws Exception {
     MemoryGroupByMeta meta =
         TransformSerializationTestUtil.testSerialization(
-            "/memory-group-by-transform.xml", MemoryGroupByMeta.class, TransformMeta.XML_TAG);
+            "/memory-group-by-transform.xml", MemoryGroupByMeta.class);
 
     assertEquals(1, meta.getGroups().size());
     assertEquals("fruit", meta.getGroups().get(0).getField());
