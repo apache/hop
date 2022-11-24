@@ -285,6 +285,13 @@ public class BaseTransformDialog extends Dialog {
     shell.dispose();
   }
 
+  public boolean isDisposed() {
+    if (shell != null) {
+      return shell.isDisposed();
+    }
+    return true;
+  }
+
   /**
    * Set the shell size, based upon the previous time the geometry was saved in the Properties file.
    */

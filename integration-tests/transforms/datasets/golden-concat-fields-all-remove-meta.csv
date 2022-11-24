@@ -1,0 +1,2 @@
+Position,Fieldname,Comments,Type,Length,Precision,Origin
+1,fields,,String,500,-1,concat with comma

@@ -45,4 +45,9 @@ public interface ITransformDialog {
    * @param metadataProvider The MetaStore to pass
    */
   void setMetadataProvider(IHopMetadataProvider metadataProvider);
+
+  /**
+   * @return true if the dialog is disposed.
+   */
+  boolean isDisposed();
 }

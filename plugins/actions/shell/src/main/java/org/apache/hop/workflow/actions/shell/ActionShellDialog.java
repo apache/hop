@@ -327,7 +327,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
           public void widgetSelected(SelectionEvent e) {
             action.setLogfile = !action.setLogfile;
             action.setChanged();
-            setActive();
+            enableFields();
           }
         });
     // Append logfile?
@@ -629,7 +629,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
-    setActive();
+    enableFields();
     activeInsertScript();
     wTabFolder.setSelection(0);
 
@@ -664,7 +664,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  public void setActive() {
+  public void enableFields() {
     wlLogfile.setEnabled(action.setLogfile);
     wLogfile.setEnabled(action.setLogfile);
 

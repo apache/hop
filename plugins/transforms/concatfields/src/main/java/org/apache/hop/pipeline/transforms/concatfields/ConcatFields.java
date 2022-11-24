@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.concatfields;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
@@ -28,6 +29,8 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+
+import java.util.ArrayList;
 
 public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsData> {
 
@@ -46,70 +49,81 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
   @Override
   public synchronized boolean processRow() throws HopException {
 
-    boolean result = true;
-    boolean bEndedLineWrote = false;
+    Object[] row = getRow(); // This also waits for a row to be finished.
+    if (row == null) {
+      setOutputDone();
+      return false;
+    }
 
-    Object[] r = getRow(); // This also waits for a row to be finished.
-
-    if (r != null && first) {
+    if (first) {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      // the field precisions and lengths are altered! see TextFileOutputMeta.getFields().
-      // otherwise trim(), padding etc. will not work
-      data.inputRowMetaModified = getInputRowMeta().clone();
-      meta.getFieldsModifyInput(
-          data.inputRowMetaModified, getTransformName(), null, null, this, metadataProvider);
-
-      data.posTargetField = data.outputRowMeta.indexOfValue(meta.getTargetFieldName());
+      data.posTargetField =
+          data.outputRowMeta.indexOfValue(meta.getExtraFields().getTargetFieldName());
       if (data.posTargetField < 0) {
         throw new HopTransformException(
             BaseMessages.getString(
                 PKG,
                 "ConcatFields.Error.TargetFieldNotFoundOutputStream",
-                "" + meta.getTargetFieldName()));
+                "" + meta.getExtraFields().getTargetFieldName()));
       }
 
-      data.fieldnrs = new int[meta.getOutputFields().length];
-      for (int i = 0; i < meta.getOutputFields().length; i++) {
-        data.fieldnrs[i] =
-            data.inputRowMetaModified.indexOfValue(meta.getOutputFields()[i].getName());
-        if (data.fieldnrs[i] < 0) {
-          throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG,
-                  "ConcatFields.Error.FieldNotFoundInputStream",
-                  "" + meta.getOutputFields()[i].getName()));
+      // Assume we want to keep all input fields in the output
+      //
+      data.outputFieldIndexes = new ArrayList<>();
+      for (int i = 0; i < getInputRowMeta().size(); i++) {
+        data.outputFieldIndexes.add(i);
+      }
+
+      data.inputFieldIndexes = new ArrayList<>();
+      if (meta.getOutputFields().isEmpty()) {
+        for (int i = 0; i < getInputRowMeta().size(); i++) {
+          data.inputFieldIndexes.add(i);
+          if (meta.getExtraFields().isRemoveSelectedFields()) {
+            data.outputFieldIndexes.remove((Integer) i);
+          }
+        }
+      } else {
+        for (int i = 0; i < meta.getOutputFields().size(); i++) {
+          ConcatField field = meta.getOutputFields().get(i);
+          int fieldIndex = getInputRowMeta().indexOfValue(field.getName());
+          if (fieldIndex < 0) {
+            throw new HopTransformException(
+                BaseMessages.getString(
+                    PKG, "ConcatFields.Error.FieldNotFoundInputStream", "" + field.getName()));
+          }
+          data.inputFieldIndexes.add(fieldIndex);
+          if (meta.getExtraFields().isRemoveSelectedFields()) {
+            data.outputFieldIndexes.remove((Integer) fieldIndex);
+          }
         }
       }
 
-      // prepare for fast data dump (StringBuilder size)
-      data.targetFieldLengthFastDataDump = meta.getTargetFieldLength();
-      if (data.targetFieldLengthFastDataDump <= 0) { // try it as a guess: 50 * size
-        if (meta.getOutputFields().length == 0) {
-          data.targetFieldLengthFastDataDump = 50 * getInputRowMeta().size();
+      // What's the target field length?
+      // If the user didn't specify anything, take a guess.
+      //
+      data.targetFieldLength = meta.getExtraFields().getTargetFieldLength();
+      if (data.targetFieldLength <= 0) { // try it as a guess: 50 * size
+        if (meta.getOutputFields().isEmpty()) {
+          data.targetFieldLength = 50 * getInputRowMeta().size();
         } else {
-          data.targetFieldLengthFastDataDump = 50 * meta.getOutputFields().length;
+          data.targetFieldLength = 50 * meta.getOutputFields().size();
         }
       }
-      prepareForReMap();
     }
 
-    if (r == null) {
-      setOutputDone();
-      return false;
-    }
-
-    r = putRowFastDataDump(r);
+    Object[] outputRowData = concatFields(row);
+    putRow(data.outputRowMeta, outputRowData);
 
     if (log.isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(PKG, "ConcatFields.Log.WriteRow")
               + getLinesWritten()
               + " : "
-              + data.outputRowMeta.getString(r));
+              + data.outputRowMeta.getString(row));
     }
     if (checkFeedback(getLinesRead())) {
       if (log.isBasic()) {
@@ -117,77 +131,42 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
       }
     }
 
-    return result;
+    return true;
   }
 
-  void prepareForReMap() throws HopTransformException {
-    // prepare for re-map when removeSelectedFields
-    if (meta.isRemoveSelectedFields()) {
-      data.remainingFieldsInputOutputMapping =
-          new int[data.outputRowMeta.size() - 1]; // -1: don't need the new
-      // target field
-      String[] fieldNames = data.outputRowMeta.getFieldNames();
-      for (int i = 0; i < fieldNames.length - 1; i++) { // -1: don't search the new target field
-        data.remainingFieldsInputOutputMapping[i] =
-            data.inputRowMetaModified.indexOfValue(fieldNames[i]);
-        if (data.remainingFieldsInputOutputMapping[i] < 0) {
-          throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG, "ConcatFields.Error.RemainingFieldNotFoundInputStream", "" + fieldNames[i]));
-        }
+  /** Concat the field values and call putRow() */
+  private Object[] concatFields(Object[] inputRowData) throws HopException {
+    Object[] outputRowData = createOutputRow(inputRowData);
+
+    StringBuilder targetString = new StringBuilder(data.targetFieldLength); // use a good capacity
+
+    for (int i = 0; i < data.inputFieldIndexes.size(); i++) {
+      if (i > 0) {
+        targetString.append(data.stringSeparator);
       }
+
+      int inputRowIndex = data.inputFieldIndexes.get(i);
+      IValueMeta valueMeta = getInputRowMeta().getValueMeta(inputRowIndex);
+      Object valueData = inputRowData[inputRowIndex];
+
+      String nullString;
+      if (meta.getOutputFields().isEmpty()) {
+        // No specific null value defined
+        nullString = "";
+      } else {
+        ConcatField field = meta.getOutputFields().get(i);
+        nullString = Const.NVL(field.getNullString(), "");
+      }
+
+      concatField(targetString, valueMeta, valueData, nullString);
     }
-  }
 
-  // reads the row from the stream, flushs, add target field and call putRow()
-  Object[] putRowFromStream(Object[] r) throws HopTransformException {
+    outputRowData[data.outputRowMeta.size() - 1] = targetString.toString();
 
-    Object[] outputRowData = prepareOutputRow(r);
-
-    // add target field
-    outputRowData[data.posTargetField] = null;
-
-    putRow(data.outputRowMeta, outputRowData);
     return outputRowData;
   }
 
-  // concat as a fast data dump (no formatting) and call putRow()
-  // this method is only called from a normal line, never from header/footer/split stuff
-  Object[] putRowFastDataDump(Object[] r) throws HopException {
-
-    Object[] outputRowData = prepareOutputRow(r);
-
-    StringBuilder targetString =
-        new StringBuilder(data.targetFieldLengthFastDataDump); // use a good capacity
-
-    if (meta.getOutputFields() == null || meta.getOutputFields().length == 0) {
-      // all values in stream
-      for (int i = 0; i < getInputRowMeta().size(); i++) {
-        if (i > 0) {
-          targetString.append(data.stringSeparator);
-        }
-        IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.fieldnrs[i]);
-        concatFieldFastDataDump(
-            targetString, valueMeta, r[i], ""); // "": no specific null value defined
-      }
-    } else {
-      for (int i = 0; i < data.fieldnrs.length; i++) {
-        if (i > 0) {
-          targetString.append(data.stringSeparator);
-        }
-        IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.fieldnrs[i]);
-        concatFieldFastDataDump(
-            targetString, valueMeta, r[data.fieldnrs[i]], data.stringNullValue[i]);
-      }
-    }
-
-    outputRowData[data.posTargetField] = new String(targetString);
-
-    putRow(data.outputRowMeta, outputRowData);
-    return outputRowData;
-  }
-
-  private void concatFieldFastDataDump(
+  private void concatField(
       StringBuilder targetField, IValueMeta valueMeta, Object valueData, String nullString)
       throws HopValueException {
 
@@ -199,24 +178,26 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
   }
 
   // reserve room for the target field and eventually re-map the fields
-  private Object[] prepareOutputRow(Object[] r) {
-    Object[] outputRowData = null;
-    if (!meta.isRemoveSelectedFields()) {
-      // reserve room for the target field
-      outputRowData = RowDataUtil.resizeArray(r, data.outputRowMeta.size());
-    } else {
-      // reserve room for the target field and re-map the fields
-      outputRowData = new Object[data.outputRowMeta.size() + RowDataUtil.OVER_ALLOCATE_SIZE];
-      if (r != null) {
-        // re-map the fields
-        for (int i = 0;
-            i < data.remainingFieldsInputOutputMapping.length;
-            i++) { // BTW: the new target field is not
-          // here
-          outputRowData[i] = r[data.remainingFieldsInputOutputMapping[i]];
-        }
+  private Object[] createOutputRow(Object[] inputRowData) {
+    // Allocate a new empty row
+    //
+    Object[] outputRowData;
+
+    if (meta.getExtraFields().isRemoveSelectedFields()) {
+      outputRowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
+      int outputRowIndex = 0;
+
+      // Copy over only the fields we want from the input.
+      //
+      for (int inputRowIndex : data.outputFieldIndexes) {
+        outputRowData[outputRowIndex++] = inputRowData[inputRowIndex];
       }
+    } else {
+      // Keep the current row and add a field
+      //
+      outputRowData = RowDataUtil.createResizedCopy(inputRowData, data.outputRowMeta.size());
     }
+
     return outputRowData;
   }
 
@@ -239,10 +220,10 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
       data.stringEnclosure = resolve(meta.getEnclosure());
     }
 
-    data.stringNullValue = new String[meta.getOutputFields().length];
-    for (int i = 0; i < meta.getOutputFields().length; i++) {
+    data.stringNullValue = new String[meta.getOutputFields().size()];
+    for (int i = 0; i < meta.getOutputFields().size(); i++) {
       data.stringNullValue[i] = "";
-      String nullString = meta.getOutputFields()[i].getNullString();
+      String nullString = meta.getOutputFields().get(i).getNullString();
       if (!StringUtil.isEmpty(nullString)) {
         data.stringNullValue[i] = nullString;
       }

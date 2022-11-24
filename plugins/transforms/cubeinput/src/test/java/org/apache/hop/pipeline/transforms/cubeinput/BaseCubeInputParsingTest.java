@@ -38,7 +38,7 @@ public class BaseCubeInputParsingTest
 
   /** Initialize for processing specified file. */
   protected void init(String file) throws Exception {
-    meta.setFilename(getFile(file).getURL().getFile());
+    meta.getFile().setName(getFile(file).getURL().getFile());
 
     transform = new CubeInput(transformMeta, meta, null, 1, pipelineMeta, pipeline);
     transform.init();

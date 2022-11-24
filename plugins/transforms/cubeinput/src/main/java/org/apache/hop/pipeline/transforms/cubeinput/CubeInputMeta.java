@@ -19,26 +19,23 @@ package org.apache.hop.pipeline.transforms.cubeinput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
-import org.w3c.dom.Node;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -56,77 +53,39 @@ import java.util.zip.GZIPInputStream;
     keywords = "i18n::CubeInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/serialize-de-from-file.html")
 public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
-
   private static final Class<?> PKG = CubeInputMeta.class; // For Translator
 
-  private String filename;
+  @HopMetadataProperty(key = "file")
+  private CubeFile file;
+
+  @HopMetadataProperty(key = "limit")
   private String rowLimit;
-  private boolean addfilenameresult;
+
+  @HopMetadataProperty(key = "addfilenameresult")
+  private boolean addFilenameResult;
 
   public CubeInputMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    file = new CubeFile();
+  }
+
+  public CubeInputMeta(CubeInputMeta m) {
+    this();
+    this.file = new CubeFile(m.file);
+    this.rowLimit = m.rowLimit;
+    this.addFilenameResult = m.addFilenameResult;
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  /** @return Returns the filename. */
-  public String getFilename() {
-    return filename;
-  }
-
-  /** @param filename The filename to set. */
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  /** @param rowLimit The rowLimit to set. */
-  public void setRowLimit(String rowLimit) {
-    this.rowLimit = rowLimit;
-  }
-
-  /** @return Returns the rowLimit. */
-  public String getRowLimit() {
-    return rowLimit;
-  }
-
-  /** @return Returns the addfilenameresult. */
-  public boolean isAddResultFile() {
-    return addfilenameresult;
-  }
-
-  /** @param addfilenameresult The addfilenameresult to set. */
-  public void setAddResultFile(boolean addfilenameresult) {
-    this.addfilenameresult = addfilenameresult;
-  }
-
-  @Override
-  public Object clone() {
-    CubeInputMeta retval = (CubeInputMeta) super.clone();
-    return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      filename = XmlHandler.getTagValue(transformNode, "file", "name");
-      rowLimit = XmlHandler.getTagValue(transformNode, "limit");
-      addfilenameresult =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "addfilenameresult"));
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "CubeInputMeta.Exception.UnableToLoadTransformMeta"), e);
-    }
+  public CubeInputMeta clone() {
+    return new CubeInputMeta(this);
   }
 
   @Override
   public void setDefault() {
-    filename = "file";
-    rowLimit = "0";
-    addfilenameresult = false;
+    this.file = new CubeFile("file");
+    this.rowLimit = "0";
+    this.addFilenameResult = false;
   }
 
   @Override
@@ -141,7 +100,7 @@ public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
     GZIPInputStream fis = null;
     DataInputStream dis = null;
     try {
-      InputStream is = HopVfs.getInputStream(variables.resolve(filename));
+      InputStream is = HopVfs.getInputStream(variables.resolve(file.getName()));
       fis = new GZIPInputStream(is);
       dis = new DataInputStream(fis);
 
@@ -169,19 +128,6 @@ public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
             BaseMessages.getString(PKG, "CubeInputMeta.Exception.UnableToCloseCubeFile"), ioe);
       }
     }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append("    <file>").append(Const.CR);
-    retval.append("      ").append(XmlHandler.addTagValue("name", filename));
-    retval.append("    </file>").append(Const.CR);
-    retval.append("    ").append(XmlHandler.addTagValue("limit", rowLimit));
-    retval.append("    ").append(XmlHandler.addTagValue("addfilenameresult", addfilenameresult));
-
-    return retval.toString();
   }
 
   @Override
@@ -226,20 +172,105 @@ public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
       // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
       // To : /home/matt/test/files/foo/bar.data
       //
-      FileObject fileObject = HopVfs.getFileObject(variables.resolve(filename));
+      FileObject fileObject = HopVfs.getFileObject(variables.resolve(file.getName()));
 
       // If the file doesn't exist, forget about this effort too!
       //
       if (fileObject.exists()) {
         // Convert to an absolute path...
         //
-        filename = iResourceNaming.nameResource(fileObject, variables, true);
-
-        return filename;
+        file.name = iResourceNaming.nameResource(fileObject, variables, true);
+        return file.name;
       }
       return null;
     } catch (Exception e) {
       throw new HopException(e);
     }
+  }
+
+  public static class CubeFile {
+    @HopMetadataProperty private String name;
+
+    public CubeFile() {}
+
+    public CubeFile(String name) {
+      this.name = name;
+    }
+
+    public CubeFile(CubeFile f) {
+      this.name = f.name;
+    }
+
+    /**
+     * Gets name
+     *
+     * @return value of name
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
+     * Sets name
+     *
+     * @param name value of name
+     */
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
+
+  /**
+   * Gets file
+   *
+   * @return value of file
+   */
+  public CubeFile getFile() {
+    return file;
+  }
+
+  /**
+   * Sets file
+   *
+   * @param file value of file
+   */
+  public void setFile(CubeFile file) {
+    this.file = file;
+  }
+
+  /**
+   * Gets rowLimit
+   *
+   * @return value of rowLimit
+   */
+  public String getRowLimit() {
+    return rowLimit;
+  }
+
+  /**
+   * Sets rowLimit
+   *
+   * @param rowLimit value of rowLimit
+   */
+  public void setRowLimit(String rowLimit) {
+    this.rowLimit = rowLimit;
+  }
+
+  /**
+   * Gets addFilenameResult
+   *
+   * @return value of addFilenameResult
+   */
+  public boolean isAddFilenameResult() {
+    return addFilenameResult;
+  }
+
+  /**
+   * Sets addFilenameResult
+   *
+   * @param addFilenameResult value of addFilenameResult
+   */
+  public void setAddFilenameResult(boolean addFilenameResult) {
+    this.addFilenameResult = addFilenameResult;
   }
 }

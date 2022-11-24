@@ -17,34 +17,29 @@
 
 package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.ClassRule;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CreditCardValidatorMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
   @Test
-  public void testLoadSave() throws HopException {
-    List<String> attributes =
-        Arrays.asList("DynamicField", "ResultFieldName", "CardType", "OnlyDigits", "NotValidMsg");
-    LoadSaveTester<CreditCardValidatorMeta> loadSaveTester =
-        new LoadSaveTester<>(CreditCardValidatorMeta.class, attributes);
-
-    loadSaveTester.testSerialization();
+  public void testLoadSave() throws Exception {
+    CreditCardValidatorMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/credit-card-validator-transform.xml",
+            CreditCardValidatorMeta.class
+        );
+    Assert.assertNotNull(meta.getFieldName());
+    Assert.assertNotNull(meta.getResultFieldName());
+    Assert.assertNotNull(meta.getNotValidMessage());
+    Assert.assertTrue(meta.isOnlyDigits());
+    Assert.assertNotNull(meta.getCardType());
   }
 
   @Test
@@ -59,7 +54,7 @@ public class CreditCardValidatorMetaTest {
     assertEquals("result", meta.getResultFieldName());
     assertFalse(meta.isOnlyDigits());
     assertEquals("card type", meta.getCardType());
-    assertEquals("not valid message", meta.getNotValidMsg());
+    assertEquals("not valid message", meta.getNotValidMessage());
   }
 
   @Test
@@ -68,7 +63,7 @@ public class CreditCardValidatorMetaTest {
     meta.setDefault();
     meta.setResultFieldName("The Result Field");
     meta.setCardType("The Card Type Field");
-    meta.setNotValidMsg("Is Card Valid");
+    meta.setNotValidMessage("Is Card Valid");
 
     RowMeta rowMeta = new RowMeta();
     meta.getFields(rowMeta, "this transform", null, null, new Variables(), null);

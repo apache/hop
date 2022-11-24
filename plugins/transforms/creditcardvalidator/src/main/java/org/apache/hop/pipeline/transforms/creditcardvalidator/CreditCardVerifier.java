@@ -142,16 +142,14 @@ public class CreditCardVerifier {
         int k = 0;
 
         if (i > 0) {
-          k = Integer.valueOf(s1[i - 1]).intValue() * 2;
+          k = Integer.parseInt(s1[i - 1]) * 2;
           if (k > 9) {
             String s = "" + k;
-            k =
-                Integer.valueOf(s.substring(0, 1)).intValue()
-                    + Integer.valueOf(s.substring(1)).intValue();
+            k = Integer.parseInt(s.substring(0, 1)) + Integer.parseInt(s.substring(1));
           }
-          checksum += Integer.valueOf(s1[i]).intValue() + k;
+          checksum += Integer.parseInt(s1[i]) + k;
         } else {
-          checksum += Integer.valueOf(s1[0]).intValue();
+          checksum += Integer.parseInt(s1[0]);
         }
       }
       return ((checksum % 10) == 0);
@@ -167,14 +165,15 @@ public class CreditCardVerifier {
     String digit2 = number.substring(0, 2);
     String digit3 = number.substring(0, 3);
     String digit4 = number.substring(0, 4);
+    String digit6 = number.substring(0, 4);
 
     if (isNumber(number)) {
       if (digit4.equals("4903")
           || digit4.equals("4905")
           || digit4.equals("4911")
           || digit4.equals("4936")
-          || digit4.equals("564182")
-          || digit4.equals("633110")
+          || digit6.equals("564182")
+          || digit6.equals("633110")
           || digit4.equals("6333")
           || digit4.equals("6759")) {
         if (number.length() == 16 || number.length() == 18 || number.length() == 19) {
@@ -267,11 +266,11 @@ public class CreditCardVerifier {
           valid = JCB2;
         }
       } else if (digit4.equals("5610")
-          || digit4.equals("560221")
-          || digit4.equals("560222")
-          || digit4.equals("560223")
-          || digit4.equals("560224")
-          || digit4.equals("560225")) {
+          || digit6.equals("560221")
+          || digit6.equals("560222")
+          || digit6.equals("560223")
+          || digit6.equals("560224")
+          || digit6.equals("560225")) {
         if (number.length() == 16) {
 
           /*
@@ -330,7 +329,7 @@ public class CreditCardVerifier {
 
   public static boolean isNumber(String n) {
     try {
-      Double.valueOf(n).doubleValue();
+      Double.valueOf(n);
       return true;
     } catch (NumberFormatException e) { // ignore this exception
       return false;

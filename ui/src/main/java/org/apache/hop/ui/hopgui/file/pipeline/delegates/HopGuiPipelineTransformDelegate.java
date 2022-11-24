@@ -156,7 +156,7 @@ public class HopGuiPipelineTransformDelegate {
 
       // Check if transform dialog is already open
       ITransformDialog dialog = dialogs.get(name);
-      if ( dialog!=null) {
+      if ( dialog!=null && !dialog.isDisposed()) {
          dialog.setActive();
          return null;
       }

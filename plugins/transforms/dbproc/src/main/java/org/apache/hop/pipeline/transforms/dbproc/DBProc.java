@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.dbproc;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -26,7 +27,6 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -59,18 +59,19 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
       data.outputMeta = data.inputRowMeta.clone();
       meta.getFields(data.outputMeta, getTransformName(), null, null, this, metadataProvider);
 
-      data.argnrs = new int[meta.getArgument().length];
-      for (int i = 0; i < meta.getArgument().length; i++) {
-        if (!meta.getArgumentDirection()[i].equalsIgnoreCase("OUT")) { // IN or INOUT
-          data.argnrs[i] = rowMeta.indexOfValue(meta.getArgument()[i]);
+      data.argnrs = new int[meta.getArguments().size()];
+      for (int i = 0; i < meta.getArguments().size(); i++) {
+        DBProcMeta.ProcArgument argument = meta.getArguments().get(i);
+        if (!argument.getDirection().equalsIgnoreCase("OUT")) { // IN or INOUT
+          data.argnrs[i] = rowMeta.indexOfValue(argument.getName());
           if (data.argnrs[i] < 0) {
             logError(
                 BaseMessages.getString(PKG, "DBProc.Log.ErrorFindingField")
-                    + meta.getArgument()[i]
+                    + argument.getName()
                     + "]");
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "DBProc.Exception.CouldnotFindField", meta.getArgument()[i]));
+                    PKG, "DBProc.Exception.CouldnotFindField", argument.getName()));
           }
         } else {
           data.argnrs[i] = -1;
@@ -79,11 +80,11 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
 
       data.db.setProcLookup(
           resolve(meta.getProcedure()),
-          meta.getArgument(),
-          meta.getArgumentDirection(),
-          meta.getArgumentType(),
-          meta.getResultName(),
-          meta.getResultType());
+          meta.argumentNames(),
+          meta.argumentDirections(),
+          meta.argumentTypes(),
+          meta.getResult().getName(),
+          meta.getResult().getHopType());
     }
 
     Object[] outputRowData = RowDataUtil.resizeArray(rowData, data.outputMeta.size());
@@ -93,20 +94,20 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
         rowMeta,
         rowData,
         data.argnrs,
-        meta.getArgumentDirection(),
-        !Utils.isEmpty(meta.getResultName()));
+        meta.argumentDirections(),
+        StringUtils.isNotEmpty(meta.getResult().getName()));
 
     RowMetaAndData add =
         data.db.callProcedure(
-            meta.getArgument(),
-            meta.getArgumentDirection(),
-            meta.getArgumentType(),
-            meta.getResultName(),
-            meta.getResultType());
+            meta.argumentNames(),
+            meta.argumentDirections(),
+            meta.argumentTypes(),
+            meta.getResult().getName(),
+            meta.getResult().getHopType());
     int addIndex = 0;
 
     // Function return?
-    if (!Utils.isEmpty(meta.getResultName())) {
+    if (StringUtils.isNotEmpty(meta.getResult().getName())) {
       outputRowData[outputIndex++] = add.getData()[addIndex++]; // first is the function return
     }
 
@@ -114,10 +115,11 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
     // The INOUT values need to replace the value with the same name in the row.
     //
     for (int i = 0; i < data.argnrs.length; i++) {
-      if (meta.getArgumentDirection()[i].equalsIgnoreCase("OUT")) {
+      DBProcMeta.ProcArgument argument = meta.getArguments().get(i);
+      if ("OUT".equalsIgnoreCase(argument.getDirection())) {
         // add
         outputRowData[outputIndex++] = add.getData()[addIndex++];
-      } else if (meta.getArgumentDirection()[i].equalsIgnoreCase("INOUT")) {
+      } else if ("INOUT".equalsIgnoreCase(argument.getDirection())) {
         // replace
         outputRowData[data.argnrs[i]] = add.getData()[addIndex];
         addIndex++;

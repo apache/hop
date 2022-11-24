@@ -1,0 +1,69 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "fields",
+          "data_set_field": "fields"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-concat-fields-remove",
+      "transform_name": "OUTPUT"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Position",
+          "data_set_field": "Position"
+        },
+        {
+          "transform_field": "Fieldname",
+          "data_set_field": "Fieldname"
+        },
+        {
+          "transform_field": "Comments",
+          "data_set_field": "Comments"
+        },
+        {
+          "transform_field": "Type",
+          "data_set_field": "Type"
+        },
+        {
+          "transform_field": "Length",
+          "data_set_field": "Length"
+        },
+        {
+          "transform_field": "Precision",
+          "data_set_field": "Precision"
+        },
+        {
+          "transform_field": "Origin",
+          "data_set_field": "Origin"
+        }
+      ],
+      "field_order": [
+        "Position"
+      ],
+      "data_set_name": "golden-concat-fields-remove-meta",
+      "transform_name": "META"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0004-concat-fields-remove UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0004-concat-fields-remove.hpl",
+  "test_type": "UNIT_TEST"
+}

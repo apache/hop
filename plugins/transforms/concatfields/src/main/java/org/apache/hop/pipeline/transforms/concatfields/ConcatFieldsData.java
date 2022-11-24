@@ -21,21 +21,24 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /*
  * ConcatFieldsData
  *
  */
 public class ConcatFieldsData extends BaseTransformData implements ITransformData {
-  public int[] fieldnrs;
+  public List<Integer> inputFieldIndexes;
+  public List<Integer> outputFieldIndexes;
+  public IRowMeta outputRowMeta;
+
   public int posTargetField;
   public int[] remainingFieldsInputOutputMapping;
-  public IRowMeta outputRowMeta;
-  public IRowMeta inputRowMetaModified; // the field precisions and lengths are altered! see
-  // TextFileOutputMeta.getFields().
   public String stringSeparator;
   public String stringEnclosure;
   public String[] stringNullValue;
-  public int targetFieldLengthFastDataDump; // for fast data dump (StringBuilder size)
+  public int targetFieldLength; // for fast data dump (StringBuilder size)
 
   public ConcatFieldsData() {
     super(); // allocate TextFileOutputData

@@ -25,7 +25,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +42,7 @@ public class CombinationLookupMetaTest {
   @Test
   public void testSerialization() throws Exception {
     TransformSerializationTestUtil.testSerialization(
-        "/combination-lookup-transform.xml", CombinationLookupMeta.class, TransformMeta.XML_TAG);
+        "/combination-lookup-transform.xml", CombinationLookupMeta.class);
   }
 
   @Test

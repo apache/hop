@@ -69,7 +69,7 @@ public abstract class ActionDialog extends Dialog {
 
   /** A reference to the shell */
   protected Shell shell;
-  
+
   /**
    * Instantiates a new action dialog.
    *
@@ -85,8 +85,8 @@ public abstract class ActionDialog extends Dialog {
   }
 
   public void setActive() {
-    if (shell != null && !shell.isDisposed() ) {
-      shell.setActive();      
+    if (shell != null && !shell.isDisposed()) {
+      shell.setActive();
     }
   }
 
@@ -94,7 +94,14 @@ public abstract class ActionDialog extends Dialog {
     props.setScreen(new WindowProperty(shell));
     shell.dispose();
   }
-  
+
+  public boolean isDisposed() {
+    if (shell != null) {
+      return shell.isDisposed();
+    }
+    return true;
+  }
+
   /**
    * Adds the connection line for the given parent and previous control, and returns a meta
    * selection manager control

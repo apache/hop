@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        }
+      ],
+      "field_order": [
+        "value",
+        "count"
+      ],
+      "data_set_name": "golden-db-procedure",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0023-db-procedure UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0023-db-procedure.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -17,43 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.cubeinput;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.ClassRule;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static org.apache.hop.core.util.Assert.*;
 
 public class CubeInputMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
-  public void testRoundTrip() throws HopException {
-    List<String> attributes = Arrays.asList("name", "limit", "addfilenameresult");
-
-    Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("name", "getFilename");
-    getterMap.put("limit", "getRowLimit");
-    getterMap.put("addfilenameresult", "isAddResultFile");
-
-    Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("name", "setFilename");
-    setterMap.put("limit", "setRowLimit");
-    setterMap.put("addfilenameresult", "setAddResultFile");
-
-    LoadSaveTester loadSaveTester =
-        new LoadSaveTester(
-            CubeInputMeta.class,
-            attributes,
-            getterMap,
-            setterMap,
-            new HashMap<>(),
-            new HashMap<>());
-
-    loadSaveTester.testSerialization();
+  public void testRoundTrip() throws Exception {
+    CubeInputMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/de-serialize-transform.xml", CubeInputMeta.class);
+    assertNotNull(meta.getFile());
+    assertNotNull(meta.getFile().getName());
   }
 }

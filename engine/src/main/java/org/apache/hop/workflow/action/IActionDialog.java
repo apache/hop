@@ -70,4 +70,9 @@ public interface IActionDialog {
    * @param metadataProvider
    */
   void setMetadataProvider(IHopMetadataProvider metadataProvider);
+
+  /**
+   * @return true if the dialog is disposed.
+   */
+  boolean isDisposed();
 }
