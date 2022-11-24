@@ -305,6 +305,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
         if (equalsIndex > 0) {
           String varName = projectVariable.substring(0, equalsIndex);
           String varValue = projectVariable.substring(equalsIndex + 1);
+          if (varValue != null && varValue.startsWith("\"") && varValue.endsWith("\"")) {
+            varValue = varValue.substring(1, varValue.length() - 1);
+          }
           DescribedVariable describedVariable = new DescribedVariable(varName, varValue, "");
           project.setDescribedVariable(describedVariable);
           changed = true;

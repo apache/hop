@@ -151,7 +151,7 @@ Result:
 |Key|value
 |key1|value1,value2
 |===
-==== Forcing commas in value
+==== Forcing quotes in value
 ----
 --parameters=key1="\"\"String with spaces\"\""
 ----

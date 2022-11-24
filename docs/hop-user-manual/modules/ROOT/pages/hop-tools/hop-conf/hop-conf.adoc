@@ -212,6 +212,53 @@ TIP: `-sv` can be used to unset a variable by specifying a variable without a va
 |-pv|--project-variables=<projectVariables>[,<projectVariables>...]| A list of variable=value combinations separated by a comma
 |===
 
+=== project variables Examples
+This is a list of examples on how the parameters on this command are parsed
+
+==== Normal Usage
+----
+--project-variables=key1=value1,key2=value2
+----
+Result:
+[options="header"]
+|===
+|Key|value
+|key1|value1
+|key2|value2
+|===
+==== Spaces in value Usage
+----
+--project-variables=key1="This value contains spaces",key2=value2
+----
+Result:
+[options="header"]
+|===
+|Key|value
+|key1|This value contains spaces
+|key2|value2
+|===
+
+==== Commas in value Usage
+----
+--project-variables=key1=\"value1,value2\"
+----
+Result:
+[options="header"]
+|===
+|Key|value
+|key1|value1,value2
+|===
+==== Forcing quotes in value
+----
+--project-variables=key1="\"\"String with spaces\"\""
+----
+Result:
+[options="header"]
+|===
+|Key|value
+|key1|"String with spaces"
+|===
+
 == Project Usage and Configuration
 
 include::hop-conf-projects.adoc[]
