@@ -1,0 +1,31 @@
+Brand,CardNumber,result,card type,not valid message
+American Express,378282246310005,Y,American Express,
+American Express,371449635398431,Y,American Express,
+American Express Corporate,378734493671000,Y,American Express,
+Australian BankCard,5610591081018250,Y,BankCard,
+Diners Club,30569309025904,Y,Diner's CLub/HopServer Blanche,
+Diners Club,38520000023237,Y,Diner's CLub/HopServer Blanche,
+Discover,6011111111111117,Y,Discover,
+Discover,6011000990139424,Y,Discover,
+JCB,3530111333300000,Y,JCB1,
+JCB,3566002020360505,Y,JCB1,
+MasterCard,5555555555554444,Y,Mastercard,
+MasterCard,5105105105105100,Y,Mastercard,
+Visa,4111111111111111,Y,Visa,
+Visa,4012888888881881,Y,Visa,
+Visa,4222222222222,Y,Visa,
+American Express,378282246310004,N,,Not a valid number for American Express.
+American Express,371449635398432,N,,Not a valid number for American Express.
+American Express Corporate,234734493671000,N,,This card is not valid!
+Australian BankCard,5610591081018249,N,,Not a valid bank card
+Diners Club,30569309025900,N,,Not a valid number for Diners CLub/Hop Server Blanche.
+Diners Club,38520000023226,N,,Not a valid number for Diners CLub/Hop Server Blanche.
+Discover,6011111111111111,N,,Not a valid number for Discover
+Discover,6011000990139420,N,,Not a valid number for Discover
+JCB,3530111333300033,N,,Not a valid number for JCB1
+JCB,3566002020360553,N,,Not a valid number for JCB1
+MasterCard,555555555555444,N,,This card is not valid!
+MasterCard,510510510510510,N,,This card is not valid!
+Visa,411111111111111,N,,This card is not valid!
+Visa,401288888888188,N,,This card is not valid!
+Visa,4222222222221,N,,Not a valid number for Visa.

@@ -30,6 +30,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -47,92 +48,48 @@ import java.util.List;
     keywords = "i18n::CreditCardValidatorMeta.keyword",
     documentationUrl = "/pipeline/transforms/creditcardvalidator.html")
 public class CreditCardValidatorMeta extends BaseTransformMeta<CreditCardValidator, CreditCardValidatorData> {
-
   private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator
 
   /** dynamic field */
-  private String fieldname;
+  @HopMetadataProperty(key="fieldname")
+  private String fieldName;
 
-  private String cardtype;
+  @HopMetadataProperty(key="cardtype")
+  private String cardType;
 
-  private String notvalidmsg;
+  @HopMetadataProperty(key="notvalidmsg")
+  private String notValidMessage;
 
   /** function result: new value name */
-  private String resultfieldname;
+  @HopMetadataProperty(key="resultfieldname")
+  private String resultFieldName;
 
-  private boolean onlydigits;
+  @HopMetadataProperty(key="onlydigits")
+  private boolean onlyDigits;
 
   public CreditCardValidatorMeta() {
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the fieldname. */
-  public String getDynamicField() {
-    return this.fieldname;
-  }
-
-  /** @param fieldname The fieldname to set. */
-  public void setDynamicField(String fieldname) {
-    this.fieldname = fieldname;
-  }
-
-  /** @return Returns the resultName. */
-  public String getResultFieldName() {
-    return resultfieldname;
-  }
-
-  public void setOnlyDigits(boolean onlydigits) {
-    this.onlydigits = onlydigits;
-  }
-
-  public boolean isOnlyDigits() {
-    return this.onlydigits;
-  }
-
-  /** @param resultfieldname The resultfieldname to set. */
-  public void setResultFieldName(String resultfieldname) {
-    this.resultfieldname = resultfieldname;
-  }
-
-  /** @param cardtype The cardtype to set. */
-  public void setCardType(String cardtype) {
-    this.cardtype = cardtype;
-  }
-
-  /** @return Returns the cardtype. */
-  public String getCardType() {
-    return cardtype;
-  }
-
-  /** @param notvalidmsg The notvalidmsg to set. */
-  public void setNotValidMsg(String notvalidmsg) {
-    this.notvalidmsg = notvalidmsg;
-  }
-
-  /** @return Returns the notvalidmsg. */
-  public String getNotValidMsg() {
-    return notvalidmsg;
+  public CreditCardValidatorMeta(CreditCardValidatorMeta m) {
+    this.fieldName = m.fieldName;
+    this.cardType = m.cardType;
+    this.notValidMessage = m.notValidMessage;
+    this.resultFieldName = m.resultFieldName;
+    this.onlyDigits = m.onlyDigits;
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  @Override
-  public Object clone() {
-    CreditCardValidatorMeta retval = (CreditCardValidatorMeta) super.clone();
-
-    return retval;
+  public CreditCardValidatorMeta clone() {
+    return new CreditCardValidatorMeta(this);
   }
 
   @Override
   public void setDefault() {
-    resultfieldname = "result";
-    onlydigits = false;
-    cardtype = "card type";
-    notvalidmsg = "not valid message";
+    resultFieldName = "result";
+    onlyDigits = false;
+    cardType = "card type";
+    notValidMessage = "not valid message";
   }
 
   @Override
@@ -144,52 +101,23 @@ public class CreditCardValidatorMeta extends BaseTransformMeta<CreditCardValidat
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    String realresultfieldname = variables.resolve(resultfieldname);
-    if (!Utils.isEmpty(realresultfieldname)) {
-      IValueMeta v = new ValueMetaBoolean(realresultfieldname);
+    String realResultFieldName = variables.resolve(resultFieldName);
+    if (!Utils.isEmpty(realResultFieldName)) {
+      IValueMeta v = new ValueMetaBoolean(realResultFieldName);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
-    String realcardtype = variables.resolve(cardtype);
-    if (!Utils.isEmpty(realcardtype)) {
-      IValueMeta v = new ValueMetaString(realcardtype);
+    String realCardType = variables.resolve(cardType);
+    if (!Utils.isEmpty(realCardType)) {
+      IValueMeta v = new ValueMetaString(realCardType);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
-    String realnotvalidmsg = variables.resolve(notvalidmsg);
-    if (!Utils.isEmpty(notvalidmsg)) {
-      IValueMeta v = new ValueMetaString(realnotvalidmsg);
+    String realNotValidMessage = variables.resolve(notValidMessage);
+    if (!Utils.isEmpty(notValidMessage)) {
+      IValueMeta v = new ValueMetaString(realNotValidMessage);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    ").append(XmlHandler.addTagValue("fieldname", fieldname));
-    retval.append("    ").append(XmlHandler.addTagValue("resultfieldname", resultfieldname));
-    retval.append("    ").append(XmlHandler.addTagValue("cardtype", cardtype));
-    retval.append("    ").append(XmlHandler.addTagValue("onlydigits", onlydigits));
-    retval.append("    ").append(XmlHandler.addTagValue("notvalidmsg", notvalidmsg));
-
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      fieldname = XmlHandler.getTagValue(transformNode, "fieldname");
-      resultfieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
-      cardtype = XmlHandler.getTagValue(transformNode, "cardtype");
-      notvalidmsg = XmlHandler.getTagValue(transformNode, "notvalidmsg");
-      onlydigits = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "onlydigits"));
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "CreditCardValidatorMeta.Exception.UnableToReadTransformMeta"),
-          e);
     }
   }
 
@@ -207,7 +135,7 @@ public class CreditCardValidatorMeta extends BaseTransformMeta<CreditCardValidat
     CheckResult cr;
     String errorMessage = "";
 
-    String realresultfieldname = variables.resolve(resultfieldname);
+    String realresultfieldname = variables.resolve(resultFieldName);
     if (Utils.isEmpty(realresultfieldname)) {
       errorMessage =
           BaseMessages.getString(PKG, "CreditCardValidatorMeta.CheckResult.ResultFieldMissing");
@@ -219,7 +147,7 @@ public class CreditCardValidatorMeta extends BaseTransformMeta<CreditCardValidat
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
-    if (Utils.isEmpty(fieldname)) {
+    if (Utils.isEmpty(fieldName)) {
       errorMessage =
           BaseMessages.getString(PKG, "CreditCardValidatorMeta.CheckResult.CardFieldMissing");
       cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
@@ -251,5 +179,95 @@ public class CreditCardValidatorMeta extends BaseTransformMeta<CreditCardValidat
   @Override
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  /**
+   * Gets fieldName
+   *
+   * @return value of fieldName
+   */
+  public String getFieldName() {
+    return fieldName;
+  }
+
+  /**
+   * Sets fieldName
+   *
+   * @param fieldName value of fieldName
+   */
+  public void setFieldName(String fieldName) {
+    this.fieldName = fieldName;
+  }
+
+  /**
+   * Gets cardType
+   *
+   * @return value of cardType
+   */
+  public String getCardType() {
+    return cardType;
+  }
+
+  /**
+   * Sets cardType
+   *
+   * @param cardType value of cardType
+   */
+  public void setCardType(String cardType) {
+    this.cardType = cardType;
+  }
+
+  /**
+   * Gets notValidMessage
+   *
+   * @return value of notValidMessage
+   */
+  public String getNotValidMessage() {
+    return notValidMessage;
+  }
+
+  /**
+   * Sets notValidMessage
+   *
+   * @param notValidMessage value of notValidMessage
+   */
+  public void setNotValidMessage(String notValidMessage) {
+    this.notValidMessage = notValidMessage;
+  }
+
+  /**
+   * Gets resultFieldName
+   *
+   * @return value of resultFieldName
+   */
+  public String getResultFieldName() {
+    return resultFieldName;
+  }
+
+  /**
+   * Sets resultFieldName
+   *
+   * @param resultFieldName value of resultFieldName
+   */
+  public void setResultFieldName(String resultFieldName) {
+    this.resultFieldName = resultFieldName;
+  }
+
+  /**
+   * Gets onlyDigits
+   *
+   * @return value of onlyDigits
+   */
+  public boolean isOnlyDigits() {
+    return onlyDigits;
+  }
+
+  /**
+   * Sets onlyDigits
+   *
+   * @param onlyDigits value of onlyDigits
+   */
+  public void setOnlyDigits(boolean onlyDigits) {
+    this.onlyDigits = onlyDigits;
   }
 }

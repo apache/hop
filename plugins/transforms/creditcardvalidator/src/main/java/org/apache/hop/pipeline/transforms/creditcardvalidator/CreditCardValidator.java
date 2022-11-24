@@ -45,18 +45,16 @@ public class CreditCardValidator
 
   @Override
   public boolean processRow() throws HopException {
+    boolean sendToErrorRow;
+    String errorMessage;
 
-    boolean sendToErrorRow = false;
-    String errorMessage = null;
-
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if (r == null) { // no more input to be expected...
-
+    Object[] row = getRow();
+    if (row == null) {
       setOutputDone();
       return false;
     }
 
-    boolean isValid = false;
+    boolean isValid;
     String cardType = null;
     String unValid = null;
 
@@ -70,7 +68,7 @@ public class CreditCardValidator
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // Check if field is provided
-      if (Utils.isEmpty(meta.getDynamicField())) {
+      if (Utils.isEmpty(meta.getFieldName())) {
         logError(BaseMessages.getString(PKG, "CreditCardValidator.Error.CardFieldMissing"));
         throw new HopException(
             BaseMessages.getString(PKG, "CreditCardValidator.Error.CardFieldMissing"));
@@ -78,12 +76,12 @@ public class CreditCardValidator
 
       // cache the position of the field
       if (data.indexOfField < 0) {
-        data.indexOfField = getInputRowMeta().indexOfValue(meta.getDynamicField());
+        data.indexOfField = getInputRowMeta().indexOfValue(meta.getFieldName());
         if (data.indexOfField < 0) {
           // The field is unreachable !
           throw new HopException(
               BaseMessages.getString(
-                  PKG, "CreditCardValidator.Exception.CouldnotFindField", meta.getDynamicField()));
+                  PKG, "CreditCardValidator.Exception.CouldnotFindField", meta.getFieldName()));
         }
       }
       data.realResultFieldname = resolve(meta.getResultFieldName());
@@ -92,21 +90,18 @@ public class CreditCardValidator
             BaseMessages.getString(PKG, "CreditCardValidator.Exception.ResultFieldMissing"));
       }
       data.realCardTypeFieldname = resolve(meta.getCardType());
-      data.realNotValidMsgFieldname = resolve(meta.getNotValidMsg());
+      data.realNotValidMsgFieldname = resolve(meta.getNotValidMessage());
     } // End If first
 
-    Object[] outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-    for (int i = 0; i < data.NrPrevFields; i++) {
-      outputRow[i] = r[i];
-    }
+    Object[] outputRow = RowDataUtil.createResizedCopy(row, data.outputRowMeta.size());
     try {
       // get field
-      String fieldvalue = getInputRowMeta().getString(r, data.indexOfField);
+      String fieldValue = getInputRowMeta().getString(row, data.indexOfField);
       if (meta.isOnlyDigits()) {
-        fieldvalue = Const.getDigitsOnly(fieldvalue);
+        fieldValue = Const.getDigitsOnly(fieldValue);
       }
 
-      ReturnIndicator rt = CreditCardVerifier.CheckCC(fieldvalue);
+      ReturnIndicator rt = CreditCardVerifier.CheckCC(fieldValue);
 
       // Check if Card is Valid?
       isValid = rt.CardValid;
@@ -141,7 +136,7 @@ public class CreditCardValidator
             BaseMessages.getString(
                 PKG,
                 "CreditCardValidator.LineNumber",
-                getLinesRead() + " : " + getInputRowMeta().getString(r)));
+                getLinesRead() + " : " + getInputRowMeta().getString(row)));
       }
 
     } catch (Exception e) {
@@ -161,7 +156,7 @@ public class CreditCardValidator
         // Simply add this row to the error row
         putError(
             getInputRowMeta(),
-            r,
+            row,
             1,
             errorMessage,
             meta.getResultFieldName(),

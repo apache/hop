@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -273,19 +274,12 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getDynamicField() != null) {
-      wFieldName.setText(input.getDynamicField());
-    }
+
+    wFieldName.setText(Const.NVL(input.getFieldName(), ""));
     wgetOnlyDigits.setSelection(input.isOnlyDigits());
-    if (input.getResultFieldName() != null) {
-      wResult.setText(input.getResultFieldName());
-    }
-    if (input.getCardType() != null) {
-      wFileType.setText(input.getCardType());
-    }
-    if (input.getNotValidMsg() != null) {
-      wNotValidMsg.setText(input.getNotValidMsg());
-    }
+    wResult.setText(Const.NVL(input.getResultFieldName(), ""));
+    wFileType.setText(Const.NVL(input.getCardType(), ""));
+    wNotValidMsg.setText(Const.NVL(input.getNotValidMessage(), ""));
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -301,11 +295,11 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-    input.setDynamicField(wFieldName.getText());
+    input.setFieldName(wFieldName.getText());
     input.setOnlyDigits(wgetOnlyDigits.getSelection());
     input.setResultFieldName(wResult.getText());
     input.setCardType(wFileType.getText());
-    input.setNotValidMsg(wNotValidMsg.getText());
+    input.setNotValidMessage(wNotValidMsg.getText());
     transformName = wTransformName.getText(); // return value
 
     dispose();
