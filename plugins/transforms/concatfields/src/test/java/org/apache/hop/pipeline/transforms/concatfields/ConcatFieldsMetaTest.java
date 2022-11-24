@@ -13,34 +13,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.hop.pipeline.transforms.concatfields;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.Assert.*;
 
-/*
- * ConcatFieldsData
- *
- */
-public class ConcatFieldsData extends BaseTransformData implements ITransformData {
-  public List<Integer> inputFieldIndexes;
-  public List<Integer> outputFieldIndexes;
-  public IRowMeta outputRowMeta;
+public class ConcatFieldsMetaTest {
 
-  public int posTargetField;
-  public int[] remainingFieldsInputOutputMapping;
-  public String stringSeparator;
-  public String stringEnclosure;
-  public String[] stringNullValue;
-  public int targetFieldLength; // for fast data dump (StringBuilder size)
+    @Test
+    public void testSerialization() throws Exception {
+        ConcatFieldsMeta meta = TransformSerializationTestUtil.testSerialization("/concat-fields-transform.xml",
+                ConcatFieldsMeta.class, TransformMeta.XML_TAG);
 
-  public ConcatFieldsData() {
-    super(); // allocate TextFileOutputData
-  }
+        assertEquals(meta.getOutputFields().size(), 9);
+    }
+
 }
