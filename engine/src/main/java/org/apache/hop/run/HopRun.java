@@ -32,6 +32,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.parameters.INamedParameters;
@@ -357,13 +358,16 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       WorkflowMeta workflowMeta) {
     try {
       String runConfigurationName = variables.resolve(configuration.getRunConfiguration());
+      //Create a logging object to push down the correct loglevel to the Workflow
+      //
+      LoggingObject workflowLog = new LoggingObject(log);
+      workflowLog.setLogLevel(configuration.getLogLevel());
+
       IWorkflowEngine<WorkflowMeta> workflow =
           WorkflowEngineFactory.createWorkflowEngine(
-              variables, runConfigurationName, metadataProvider, workflowMeta, null);
+              variables, runConfigurationName, metadataProvider, workflowMeta, workflowLog);
       workflow.getWorkflowMeta().setInternalHopVariables(workflow);
       workflow.setVariables(configuration.getVariablesMap());
-
-      workflow.setLogLevel(configuration.getLogLevel());
 
       // Copy the parameter definitions from the metadata, with empty values
       //
