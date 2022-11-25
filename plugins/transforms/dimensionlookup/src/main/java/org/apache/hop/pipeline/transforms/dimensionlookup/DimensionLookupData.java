@@ -69,7 +69,7 @@ public class DimensionLookupData extends BaseTransformData implements ITransform
   public String realTableName;
   public String realSchemaName;
 
-  public int startDateChoice;
+  public DimensionLookupMeta.StartDateAlternative startDateAlternative;
 
   public int startDateFieldIndex;
 
