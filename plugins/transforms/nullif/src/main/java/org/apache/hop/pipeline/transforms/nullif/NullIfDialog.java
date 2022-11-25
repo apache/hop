@@ -89,7 +89,7 @@ public class NullIfDialog extends BaseTransformDialog implements ITransformDialo
     shell.setText(BaseMessages.getString(PKG, "NullIfDialog.Shell.Label"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Some buttons at the bottom
     //
@@ -132,7 +132,7 @@ public class NullIfDialog extends BaseTransformDialog implements ITransformDialo
     wlFields.setLayoutData(fdlFields);
 
     final int FieldsCols = 2;
-    final int fieldsRows = input.getFields().length;
+    final int fieldsRows = input.getFields().size();
 
     colinf = new ColumnInfo[FieldsCols];
     colinf[0] =
@@ -215,10 +215,10 @@ public class NullIfDialog extends BaseTransformDialog implements ITransformDialo
   public void getData() {
     wTransformName.setText(transformName);
 
-    for (int i = 0; i < input.getFields().length; i++) {
+    for (int i = 0; i < input.getFields().size(); i++) {
       TableItem item = wFields.table.getItem(i);
-      String name = input.getFields()[i].getFieldName();
-      String type = input.getFields()[i].getFieldValue();
+      String name = input.getFields().get(i).getName();
+      String type = input.getFields().get(i).getValue();
 
       if (name != null) {
         item.setText(1, name);
@@ -248,15 +248,14 @@ public class NullIfDialog extends BaseTransformDialog implements ITransformDialo
 
     transformName = wTransformName.getText(); // return value
 
-    int count = wFields.nrNonEmpty();
-    input.allocate(count);
-
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < count; i++) {
-      TableItem item = wFields.getNonEmpty(i);
-      input.getFields()[i].setFieldName(item.getText(1));
-      input.getFields()[i].setFieldValue(item.getText(2));
+    input.getFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      NullIfField field = new NullIfField();
+      field.setName(item.getText(1));
+      field.setValue(item.getText(2));
+      input.getFields().add(field);
     }
+
     dispose();
   }
 

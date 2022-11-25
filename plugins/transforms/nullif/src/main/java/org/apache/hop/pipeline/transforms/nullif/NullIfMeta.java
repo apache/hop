@@ -18,25 +18,18 @@
 package org.apache.hop.pipeline.transforms.nullif;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
-
+import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
@@ -47,126 +40,37 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::NullIfMeta.keyword",
     documentationUrl = "/pipeline/transforms/nullif.html")
-@InjectionSupported(
-    localizationPrefix = "Injection.NullIf.",
-    groups = {"FIELDS"})
 public class NullIfMeta extends BaseTransformMeta<NullIf, NullIfData> {
 
   private static final Class<?> PKG = NullIfMeta.class; // For Translator
 
-  public static class Field implements Cloneable {
-
-    @Injection(name = "FIELDNAME", group = "FIELDS")
-    private String fieldName;
-
-    @Injection(name = "FIELDVALUE", group = "FIELDS")
-    private String fieldValue;
-
-    /** @return Returns the fieldName. */
-    public String getFieldName() {
-      return fieldName;
-    }
-
-    /** @param fieldName The fieldName to set. */
-    public void setFieldName(String fieldName) {
-      this.fieldName = fieldName;
-    }
-
-    /** @return Returns the fieldValue. */
-    public String getFieldValue() {
-      return fieldValue;
-    }
-
-    /** @param fieldValue The fieldValue to set. */
-    public void setFieldValue(String fieldValue) {
-      Boolean isEmptyAndNullDiffer =
-          ValueMetaBase.convertStringToBoolean(
-              Const.NVL(System.getProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N"), "N"));
-
-      this.fieldValue =
-          fieldValue == null && isEmptyAndNullDiffer ? Const.EMPTY_STRING : fieldValue;
-    }
-
-    @Override
-    public Field clone() {
-      try {
-        return (Field) super.clone();
-      } catch (CloneNotSupportedException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
-  @InjectionDeep private Field[] fields;
+  @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "NullIf.Injection.FIELDS")
+  private List<NullIfField> fields;
 
   public NullIfMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    this.fields = new ArrayList<>();
   }
-
-  public Field[] getFields() {
+  
+  public NullIfMeta(NullIfMeta meta) {    
+    this();
+    for (NullIfField field : meta.fields) {
+      fields.add(new NullIfField(field.getName(), field.getValue()));
+    }
+  }
+  
+  public List<NullIfField> getFields() {
     return fields;
   }
 
-  public void setFields(Field[] fields) {
+  public void setFields(List<NullIfField> fields) {
     this.fields = fields;
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  public void allocate(int count) {
-    fields = new Field[count];
-    for (int i = 0; i < count; i++) {
-      fields[i] = new Field();
-    }
-  }
-
-  @Override
   public Object clone() {
-    NullIfMeta retval = (NullIfMeta) super.clone();
-
-    int count = fields.length;
-
-    retval.allocate(count);
-
-    for (int i = 0; i < count; i++) {
-      retval.getFields()[i] = fields[i].clone();
-    }
-    return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      Node fieldNodes = XmlHandler.getSubNode(transformNode, "fields");
-      int count = XmlHandler.countNodes(fieldNodes, "field");
-
-      allocate(count);
-
-      for (int i = 0; i < count; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fieldNodes, "field", i);
-
-        fields[i].setFieldName(XmlHandler.getTagValue(fnode, "name"));
-        fields[i].setFieldValue(XmlHandler.getTagValue(fnode, "value"));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "NullIfMeta.Exception.UnableToReadTransformMetaFromXML"), e);
-    }
-  }
-
-  @Override
-  public void setDefault() {
-    int count = 0;
-
-    allocate(count);
-
-    for (int i = 0; i < count; i++) {
-      fields[i].setFieldName("field" + i);
-      fields[i].setFieldValue("");
-    }
+    return new NullIfMeta(this);  
   }
 
   @Override
@@ -183,23 +87,6 @@ public class NullIfMeta extends BaseTransformMeta<NullIf, NullIfData> {
     }
 
     return;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    <fields>" + Const.CR);
-
-    for (int i = 0; i < fields.length; i++) {
-      retval.append("      <field>" + Const.CR);
-      retval.append("        " + XmlHandler.addTagValue("name", fields[i].getFieldName()));
-      retval.append("        " + XmlHandler.addTagValue("value", fields[i].getFieldValue()));
-      retval.append("        </field>" + Const.CR);
-    }
-    retval.append("      </fields>" + Const.CR);
-
-    return retval.toString();
   }
 
   @Override

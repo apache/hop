@@ -33,7 +33,6 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.apache.hop.pipeline.transforms.nullif.NullIfMeta.Field;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -42,8 +41,9 @@ import org.junit.Test;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-
+import java.util.List;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -73,7 +73,7 @@ public class NullIfTest {
 
   private NullIfMeta mockProcessRowMeta() throws HopTransformException {
     NullIfMeta processRowMeta = smh.iTransformMeta;
-    Field[] fields = createArrayWithOneField("nullable-field", "nullable-value");
+    List<NullIfField> fields = createArrayWithOneField("nullable-field", "nullable-value");
     doReturn(fields).when(processRowMeta).getFields();
     doCallRealMethod()
         .when(processRowMeta)
@@ -133,11 +133,13 @@ public class NullIfTest {
     }
   }
 
-  private static Field[] createArrayWithOneField(String fieldName, String fieldValue) {
-    Field field = new Field();
-    field.setFieldName(fieldName);
-    field.setFieldValue(fieldValue);
-    return new Field[] {field};
+  private static List<NullIfField> createArrayWithOneField(String name, String value) {
+    List<NullIfField> fields = new ArrayList<>();
+    NullIfField field = new NullIfField();
+    field.setName(name);
+    field.setValue(value);
+    fields.add(field);
+    return fields;
   }
 
   private RowMeta getInputRowMeta2() {
@@ -160,11 +162,11 @@ public class NullIfTest {
 
   private NullIfMeta mockProcessRowMeta2() throws HopTransformException {
     NullIfMeta processRowMeta = smh.iTransformMeta;
-    Field[] fields = new Field[4];
-    fields[0] = createArrayWithOneField("value1", "20150606")[0];
-    fields[1] = createArrayWithOneField("value2", "2015/06/06 00:00:00.000")[0];
-    fields[2] = createArrayWithOneField("value3", "20150606")[0];
-    fields[3] = createArrayWithOneField("value4", "2015/06/06 00:00:00.000")[0];
+    List<NullIfField> fields = new ArrayList<>();
+    fields.add(new NullIfField("value1", "20150606"));
+    fields.add(new NullIfField("value2", "2015/06/06 00:00:00.000"));
+    fields.add(new NullIfField("value3", "20150606"));
+    fields.add(new NullIfField("value4", "2015/06/06 00:00:00.000"));
     doReturn(fields).when(processRowMeta).getFields();
     doCallRealMethod()
         .when(processRowMeta)

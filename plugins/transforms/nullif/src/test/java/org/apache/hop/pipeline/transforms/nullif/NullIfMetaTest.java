@@ -17,108 +17,57 @@
 
 package org.apache.hop.pipeline.transforms.nullif;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
+import static org.junit.Assert.assertEquals;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.nullif.NullIfMeta.Field;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-
 public class NullIfMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  LoadSaveTester loadSaveTester;
-
   @Before
-  public void setUp() throws Exception {
-
-    List<String> attributes = Arrays.asList("fields");
-
-    Map<String, String> getterMap =
-        new HashMap<String, String>() {
-          {
-            put("fields", "getFields");
-          }
-        };
-    Map<String, String> setterMap =
-        new HashMap<String, String>() {
-          {
-            put("fields", "setFields");
-          }
-        };
-    Field field = new Field();
-    field.setFieldName("fieldName");
-    field.setFieldValue("fieldValue");
-    IFieldLoadSaveValidator<Field[]> fieldArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new NullIfFieldLoadSaveValidator(field), 5);
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    typeValidatorMap.put(Field[].class.getCanonicalName(), fieldArrayLoadSaveValidator);
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("fields", fieldArrayLoadSaveValidator);
-
-    loadSaveTester =
-        new LoadSaveTester(
-            NullIfMeta.class, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
+  public void setUpLoadSave() throws Exception {
+    HopEnvironment.init();
+    PluginRegistry.init();
   }
 
   @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
+  public void testSerialization() throws Exception {
+    NullIfMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/null-if-transform.xml", NullIfMeta.class);
+    
+    assertEquals(2, meta.getFields().size());
+    assertEquals("fieldName", meta.getFields().get(0).getName());
+    assertEquals("two", meta.getFields().get(0).getValue());    
   }
 
   @Test
   public void setFieldValueTest() {
-    Field field = new Field();
+    NullIfField field = new NullIfField();
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
-    field.setFieldValue("theValue");
-    assertEquals("theValue", field.getFieldValue());
+    field.setValue("theValue");
+    assertEquals("theValue", field.getValue());
   }
 
   @Test
   public void setFieldValueNullTest() {
-    Field field = new Field();
+    NullIfField field = new NullIfField();
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
-    field.setFieldValue(null);
-    assertEquals(null, field.getFieldValue());
+    field.setValue(null);
+    assertEquals(null, field.getValue());
   }
 
   @Test
   public void setFieldValueNullWithEmptyStringsDiffersFromNullTest() {
-    Field field = new Field();
+    NullIfField field = new NullIfField();
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
-    field.setFieldValue(null);
-    assertEquals("", field.getFieldValue());
-  }
-
-  public static class NullIfFieldLoadSaveValidator implements IFieldLoadSaveValidator<Field> {
-
-    private final Field defaultValue;
-
-    public NullIfFieldLoadSaveValidator(Field defaultValue) {
-      this.defaultValue = defaultValue;
-    }
-
-    @Override
-    public Field getTestObject() {
-      return defaultValue;
-    }
-
-    @Override
-    public boolean validateTestObject(Field testObject, Object actual) {
-      return EqualsBuilder.reflectionEquals(testObject, actual);
-    }
+    field.setValue(null);
+    assertEquals("", field.getValue());
   }
 }
