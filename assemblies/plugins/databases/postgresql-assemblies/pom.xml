@@ -37,7 +37,7 @@
     <description></description>
 
     <properties>
-        <postgresql.version>42.4.1</postgresql.version>
+        <postgresql.version>42.4.3</postgresql.version>
     </properties>
 
     <dependencies>

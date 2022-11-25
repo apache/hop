@@ -264,9 +264,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
     pipelineOptions.setUserAgent(variables.resolve(pipelineRunConfiguration.getUserAgent()));
     pipelineOptions.setTempLocation(variables.resolve(pipelineRunConfiguration.getTempLocation()));
 
-    if (pipelineOptions.getJobName() == null || pipelineOptions.getJobName().isEmpty()) {
-      pipelineOptions.setJobName(sanitizeJobName(pipelineMeta.getName()));
-    }
+    pipelineOptions.setJobName(sanitizeJobName(pipelineMeta.getName()));
 
     pipelineOptions
         .as(HopPipelineExecutionOptions.class)
