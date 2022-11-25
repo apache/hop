@@ -35,7 +35,7 @@ import java.util.List;
 
 @Transform(
     id = "TypeExitEdi2XmlTransform",
-    image = "EDI2XML.svg",
+    image = "edi2xml.svg",
     name = "i18n::Edi2Xml.Name",
     description = "i18n::Edi2Xml.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",

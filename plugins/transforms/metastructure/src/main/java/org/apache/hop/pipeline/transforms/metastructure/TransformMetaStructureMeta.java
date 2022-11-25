@@ -42,7 +42,7 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::TransformMetaStructureMeta.keyword",
     documentationUrl = "/pipeline/transforms/metastructure.html",
-    image = "MetaStructure.svg")
+    image = "metastructure.svg")
 public class TransformMetaStructureMeta extends BaseTransformMeta<TransformMetaStructure, TransformMetaStructureData> {
 
   private static final Class<?> PKG = TransformMetaStructureMeta.class; // needed by Translator

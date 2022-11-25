@@ -32,7 +32,7 @@ import java.util.List;
 /** Provides metadata for the Cassandra SSTable output transform. */
 @Transform(
     id = "SSTableOutput",
-    image = "Cassandra.svg",
+    image = "cassandra.svg",
     name = "SSTable output",
     documentationUrl = "/pipeline/transforms/sstable-output.html",
     description = "Writes to a filesystem directory as a Cassandra SSTable",

@@ -40,7 +40,7 @@ import java.util.List;
 
 @Transform(
     id = "SASInput",
-    image = "SASInput.svg",
+    image = "sasinput.svg",
     name = "i18n::SasInput.Transform.Name",
     description = "i18n::SasInput.Transform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",

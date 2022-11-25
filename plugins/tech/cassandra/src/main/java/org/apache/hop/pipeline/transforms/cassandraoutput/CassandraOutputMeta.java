@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
  */
 @Transform(
     id = "CassandraOutput",
-    image = "Cassandraout.svg",
+    image = "cassandraout.svg",
     name = "Cassandra output",
     description = "Writes to a Cassandra table",
     documentationUrl = "/pipeline/transforms/cassandra-output.html",

@@ -45,7 +45,7 @@ import java.util.List;
 
 @Transform(
     id = "TeraFast",
-    image = "TeraFast.svg",
+    image = "terafast.svg",
     description = "i18n::TeraFast.Description",
     name = "i18n::TeraFast.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",

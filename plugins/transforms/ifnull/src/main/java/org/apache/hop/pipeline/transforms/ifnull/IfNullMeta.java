@@ -40,7 +40,7 @@ import java.util.List;
 
 @Transform(
     id = "IfNull",
-    image = "IfNull.svg",
+    image = "ifnull.svg",
     name = "i18n::IfNull.Name",
     description = "i18n::IfNull.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
