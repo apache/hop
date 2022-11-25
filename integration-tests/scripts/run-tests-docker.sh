@@ -74,25 +74,29 @@ mkdir -p "${CURRENT_DIR}"/../surefire-reports/
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
   if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
+    # If there is a file called disabled.txt the project is disabled
+    #
+    if [ ! -f "$d/disabled.txt" ]; then
 
-    PROJECT_NAME=$(basename $d)
+      PROJECT_NAME=$(basename $d)
 
-    echo "Project name: ${PROJECT_NAME}"
-    echo "project path: $d"
-    echo "docker compose path: ${DOCKER_FILES_DIR}"
+      echo "Project name: ${PROJECT_NAME}"
+      echo "project path: $d"
+      echo "docker compose path: ${DOCKER_FILES_DIR}"
 
-    #Check if specific compose exists
+      #Check if specific compose exists
 
-    if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
-      echo "Project compose exists."
-      PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
-      PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
-      docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml down
-    else
-      echo "Project compose does not exists."
-      PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
-      PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
-      docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml down
+      if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
+        echo "Project compose exists."
+        PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
+        PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
+        docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml down
+      else
+        echo "Project compose does not exists."
+        PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
+        PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
+        docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml down
+      fi
     fi
   fi
 
