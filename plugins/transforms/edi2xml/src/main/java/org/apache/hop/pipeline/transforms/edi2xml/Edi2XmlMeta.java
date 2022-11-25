@@ -20,19 +20,16 @@ package org.apache.hop.pipeline.transforms.edi2xml;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -45,52 +42,31 @@ import java.util.List;
     keywords = "i18n::Edi2XmlMeta.keyword",
     documentationUrl = "/pipeline/transforms/edi2xml.html")
 public class Edi2XmlMeta extends BaseTransformMeta<Edi2Xml, Edi2XmlData> {
-
-  private static final Class<?> PKG = Edi2XmlMeta.class; // For Translator
-
+  @HopMetadataProperty(key = "inputfield")
   private String outputField;
+
+  @HopMetadataProperty(key = "outputfield")
   private String inputField;
 
   public Edi2XmlMeta() {
     super();
   }
 
-  public String getInputField() {
-    return inputField;
+  @Override
+  public void setDefault() {
+    outputField = "edi_xml";
+    inputField = "";
   }
 
-  public void setInputField(String inputField) {
-    this.inputField = inputField;
-  }
-
-  public String getOutputField() {
-    return outputField;
-  }
-
-  public void setOutputField(String outputField) {
-    this.outputField = outputField;
+  public Edi2XmlMeta(Edi2XmlMeta m) {
+    this();
+    this.outputField = m.outputField;
+    this.inputField = m.inputField;
   }
 
   @Override
-  public String getXml() throws HopValueException {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("   " + XmlHandler.addTagValue("inputfield", inputField));
-    retval.append("   " + XmlHandler.addTagValue("outputfield", outputField));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-
-    try {
-      setInputField(XmlHandler.getNodeValue(XmlHandler.getSubNode(transformNode, "inputfield")));
-      setOutputField(XmlHandler.getNodeValue(XmlHandler.getSubNode(transformNode, "outputfield")));
-    } catch (Exception e) {
-      throw new HopXmlException("Template Plugin Unable to read transform info from XML node", e);
-    }
+  public Edi2XmlMeta clone() {
+    return new Edi2XmlMeta(this);
   }
 
   @Override
@@ -186,19 +162,23 @@ public class Edi2XmlMeta extends BaseTransformMeta<Edi2Xml, Edi2XmlData> {
   }
 
   @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
-  }
-
-  @Override
-  public void setDefault() {
-    outputField = "edi_xml";
-    inputField = "";
-  }
-
-  @Override
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  public String getInputField() {
+    return inputField;
+  }
+
+  public void setInputField(String inputField) {
+    this.inputField = inputField;
+  }
+
+  public String getOutputField() {
+    return outputField;
+  }
+
+  public void setOutputField(String outputField) {
+    this.outputField = outputField;
   }
 }

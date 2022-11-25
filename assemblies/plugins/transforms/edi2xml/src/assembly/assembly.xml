@@ -46,5 +46,13 @@
                 <include>org.apache.hop:hop-transform-edi2xml:jar</include>
             </includes>
         </dependencySet>
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>org.antlr:antlr-runtime:jar</include>
+                <include>org.antlr:antlr-complete:jar</include>
+            </includes>
+        </dependencySet>
     </dependencySets>
 </assembly>

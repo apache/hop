@@ -1,0 +1,63 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "xml_data_type_description",
+          "data_set_field": "xml_data_type_description"
+        },
+        {
+          "transform_field": "xml_element_id",
+          "data_set_field": "xml_element_id"
+        },
+        {
+          "transform_field": "xml_parent_element_id",
+          "data_set_field": "xml_parent_element_id"
+        },
+        {
+          "transform_field": "xml_element_level",
+          "data_set_field": "xml_element_level"
+        },
+        {
+          "transform_field": "xml_path",
+          "data_set_field": "xml_path"
+        },
+        {
+          "transform_field": "xml_parent_path",
+          "data_set_field": "xml_parent_path"
+        },
+        {
+          "transform_field": "xml_data_name",
+          "data_set_field": "xml_data_name"
+        },
+        {
+          "transform_field": "xml_data_value",
+          "data_set_field": "xml_data_value"
+        }
+      ],
+      "field_order": [
+        "xml_data_type_description",
+        "xml_element_id",
+        "xml_parent_element_id",
+        "xml_element_level",
+        "xml_path",
+        "xml_parent_path",
+        "xml_data_name",
+        "xml_data_value"
+      ],
+      "data_set_name": "golden-edi-to-xml",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0052-edi-to-xml-verify UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0052-edi-to-xml-verify.hpl",
+  "test_type": "UNIT_TEST"
+}

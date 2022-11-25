@@ -17,6 +17,7 @@
 
 package org.apache.hop.core;
 
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -24,7 +25,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.util.List;
 
 public interface IProvidesModelerMeta extends IProvidesDatabaseConnectionInformation {
-  RowMeta getRowMeta(IVariables variables, ITransformData transformData);
+  IRowMeta getRowMeta(IVariables variables, ITransformData transformData);
 
   List<String> getDatabaseFields();
 

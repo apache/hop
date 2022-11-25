@@ -869,12 +869,11 @@ public class PropsUi extends Props {
   }
 
   public Layout createFormLayout() {
-    int margin = (int) (getMargin() * getZoomFactor());
     FormLayout formLayout = new FormLayout();
-    formLayout.marginLeft = margin;
-    formLayout.marginTop = margin;
-    formLayout.marginBottom = margin;
-    formLayout.marginRight = margin;
+    formLayout.marginLeft = getFormMargin();
+    formLayout.marginTop = getFormMargin();
+    formLayout.marginBottom = getFormMargin();
+    formLayout.marginRight = getFormMargin();
     return formLayout;
   }
 }

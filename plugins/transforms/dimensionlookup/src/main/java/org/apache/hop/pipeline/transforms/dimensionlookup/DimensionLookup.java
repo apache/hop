@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -28,17 +29,22 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.hash.ByteArrayHashMap;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DLField;
+import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DLFields;
+import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DLKey;
+import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DimensionUpdateType;
+import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -48,16 +54,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DimensionUpdateType.INSERT;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DimensionUpdateType.PUNCH_THROUGH;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.*;
+
 /** Manages a slowly changing dimension (lookup or update) */
 public class DimensionLookup extends BaseTransform<DimensionLookupMeta, DimensionLookupData> {
 
   private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
-
-  private static final int CREATION_METHOD_AUTOINC = 1;
-  private static final int CREATION_METHOD_SEQUENCE = 2;
-  private static final int CREATION_METHOD_TABLEMAX = 3;
-
-  private int techKeyCreation;
 
   int[] columnLookupArray = null;
 
@@ -69,27 +73,6 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
-  }
-
-  private void setTechKeyCreation(int method) {
-    techKeyCreation = method;
-  }
-
-  private int getTechKeyCreation() {
-    return techKeyCreation;
-  }
-
-  private void determineTechKeyCreation() {
-    String keyCreation = meta.getTechKeyCreation();
-    if (meta.getDatabaseMeta().supportsAutoinc()
-        && DimensionLookupMeta.CREATION_METHOD_AUTOINC.equals(keyCreation)) {
-      setTechKeyCreation(CREATION_METHOD_AUTOINC);
-    } else if (meta.getDatabaseMeta().supportsSequences()
-        && DimensionLookupMeta.CREATION_METHOD_SEQUENCE.equals(keyCreation)) {
-      setTechKeyCreation(CREATION_METHOD_SEQUENCE);
-    } else {
-      setTechKeyCreation(CREATION_METHOD_TABLEMAX);
-    }
   }
 
   @Override
@@ -128,7 +111,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       // The start date value column (if applicable)
       //
       data.startDateFieldIndex = -1;
-      if (data.startDateChoice == DimensionLookupMeta.START_DATE_ALTERNATIVE_COLUMN_VALUE) {
+      if (data.startDateAlternative == COLUMN_VALUE) {
         data.startDateFieldIndex = data.inputRowMeta.indexOfValue(meta.getStartDateFieldName());
         if (data.startDateFieldIndex < 0) {
           throw new HopTransformException(
@@ -138,28 +121,36 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
                   meta.getStartDateFieldName()));
         }
       }
+      DLFields f = meta.getFields();
 
       // Lookup values
-      data.keynrs = new int[meta.getKeyStream().length];
-      for (int i = 0; i < meta.getKeyStream().length; i++) {
-        data.keynrs[i] = data.inputRowMeta.indexOfValue(meta.getKeyStream()[i]);
+      data.keynrs = new int[f.getKeys().size()];
+      for (int i = 0; i < data.keynrs.length; i++) {
+        DLKey key = f.getKeys().get(i);
+
+        data.keynrs[i] = data.inputRowMeta.indexOfValue(key.getName());
         if (data.keynrs[i] < 0) { // couldn't find field!
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "DimensionLookup.Exception.KeyFieldNotFound", meta.getKeyStream()[i]));
+                  PKG, "DimensionLookup.Exception.KeyFieldNotFound", key.getName()));
         }
       }
 
       // Return values
-      data.fieldnrs = new int[meta.getFieldStream().length];
-      for (int i = 0; meta.getFieldStream() != null && i < meta.getFieldStream().length; i++) {
-        if (!DimensionLookupMeta.isUpdateTypeWithoutArgument(
-            meta.isUpdate(), meta.getFieldUpdate()[i])) {
-          data.fieldnrs[i] = data.outputRowMeta.indexOfValue(meta.getFieldStream()[i]);
+      data.fieldnrs = new int[f.getFields().size()];
+      for (int i = 0; i < data.fieldnrs.length; i++) {
+        DLField field = f.getFields().get(i);
+        DimensionUpdateType updateType = field.getUpdateType();
+        if (updateType == null) {
+          throw new HopTransformException(
+              "Please specify an update type for field nr " + (i + 1) + " : " + field.getName());
+        }
+        if (DimensionLookupMeta.isUpdateTypeWithArgument(meta.isUpdate(), updateType)) {
+          data.fieldnrs[i] = data.outputRowMeta.indexOfValue(field.getName());
           if (data.fieldnrs[i] < 0) {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "DimensionLookup.Exception.KeyFieldNotFound", meta.getFieldStream()[i]));
+                    PKG, "DimensionLookup.Exception.KeyFieldNotFound", field.getName()));
           }
         } else {
           data.fieldnrs[i] = -1;
@@ -186,8 +177,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         }
       }
 
-      if (!Utils.isEmpty(meta.getDateField())) {
-        data.datefieldnr = data.inputRowMeta.indexOfValue(meta.getDateField());
+      if (StringUtils.isNotEmpty(f.getDate().getName())) {
+        data.datefieldnr = data.inputRowMeta.indexOfValue(f.getDate().getName());
       } else {
         data.datefieldnr = -1;
       }
@@ -196,9 +187,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       //
       data.valueDateNow = determineDimensionUpdatedDate(r);
 
-      determineTechKeyCreation();
-
-      data.notFoundTk = Long.valueOf(meta.getDatabaseMeta().getNotFoundTK(isAutoIncrement()));
+      data.notFoundTk = (long) meta.getDatabaseMeta().getNotFoundTK(isAutoIncrement());
 
       if (getCopy() == 0) {
         checkDimZero();
@@ -244,7 +233,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       if (rtn != null) {
         return rtn;
       } else {
-        String inputRowMetaStringMeta = null;
+        String inputRowMetaStringMeta;
         try {
           inputRowMetaStringMeta = data.inputRowMeta.toStringMeta();
         } catch (Exception ex) {
@@ -266,31 +255,48 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     try {
       DatabaseMeta databaseMeta = meta.getDatabaseMeta();
 
-      // tk, version, from, to, natural keys, retrieval fields...
+      DLFields f = meta.getFields();
+
+      // Retrieve: tk, version, from, to, natural keys, retrieval fields.
+      // Store these rows in the cache.
       //
-      String sql = "SELECT " + databaseMeta.quoteField(meta.getKeyField());
-      for (int i = 0; i < meta.getKeyLookup().length; i++) {
-        sql += ", " + meta.getKeyLookup()[i]; // the natural key field in the table
+      String sql = "SELECT " + databaseMeta.quoteField(f.getReturns().getKeyField());
+
+      // Add the natural key field in the table.
+      //
+      for (DLKey key : f.getKeys()) {
+        sql += ", " + key.getLookup();
       }
-      for (int i = 0; i < meta.getFieldLookup().length; i++) {
-        sql += ", " + meta.getFieldLookup()[i]; // the extra fields to retrieve...
+
+      // Add the extra fields to retrieve.
+      //
+      for (DLField field : f.getFields()) {
+        sql += ", " + field.getLookup();
       }
-      sql += ", " + databaseMeta.quoteField(meta.getDateFrom()); // extra info in cache
-      sql += ", " + databaseMeta.quoteField(meta.getDateTo()); // extra info in cache
+
+      // Add the date range fields
+      //
+      sql += ", " + databaseMeta.quoteField(f.getDate().getFrom());
+      sql += ", " + databaseMeta.quoteField(f.getDate().getTo());
 
       sql += " FROM " + data.schemaTable;
-      logDetailed("Pre-loading cache by reading from database with: " + Const.CR + sql + Const.CR);
+
+      if (log.isDetailed()) {
+        logDetailed(
+            "Pre-loading cache by reading from database with: " + Const.CR + sql + Const.CR);
+      }
 
       List<Object[]> rows = data.db.getRows(sql, -1);
       IRowMeta rowMeta = data.db.getReturnRowMeta();
 
-      data.preloadKeyIndexes = new int[meta.getKeyLookup().length];
+      data.preloadKeyIndexes = new int[f.getKeys().size()];
       for (int i = 0; i < data.preloadKeyIndexes.length; i++) {
-        data.preloadKeyIndexes[i] =
-            rowMeta.indexOfValue(meta.getKeyLookup()[i]); // the field in the table
+        DLKey key = f.getKeys().get(i);
+        // The field in the table:
+        data.preloadKeyIndexes[i] = rowMeta.indexOfValue(key.getLookup());
       }
-      data.preloadFromDateIndex = rowMeta.indexOfValue(meta.getDateFrom());
-      data.preloadToDateIndex = rowMeta.indexOfValue(meta.getDateTo());
+      data.preloadFromDateIndex = rowMeta.indexOfValue(f.getDate().getFrom());
+      data.preloadToDateIndex = rowMeta.indexOfValue(f.getDate().getTo());
 
       data.preloadCache =
           new DimensionCache(
@@ -305,14 +311,15 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       // We only ever compare indexes and the lookup date in the cache, the rest is not needed...
       //
       data.preloadIndexes = new ArrayList<>();
-      for (int i = 0; i < meta.getKeyStream().length; i++) {
-        int index = data.inputRowMeta.indexOfValue(meta.getKeyStream()[i]);
+      for (int i = 0; i < f.getKeys().size(); i++) {
+        DLKey key = f.getKeys().get(i);
+        int index = data.inputRowMeta.indexOfValue(key.getName());
         if (index < 0) {
           // Just to be safe...
           //
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "DimensionLookup.Exception.KeyFieldNotFound", meta.getFieldStream()[i]));
+                  PKG, "DimensionLookup.Exception.KeyFieldNotFound", key.getName()));
         }
         data.preloadIndexes.add(index);
       }
@@ -324,25 +331,17 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
   }
 
   private synchronized Object[] lookupValues(IRowMeta rowMeta, Object[] row) throws HopException {
-    Object[] outputRow = new Object[data.outputRowMeta.size()];
-
-    IRowMeta lookupRowMeta;
-    Object[] lookupRow;
-
-    Object[] returnRow = null;
-
-    Long technicalKey;
-    Long valueVersion;
-    Date valueDate = null;
-    Date valueDateFrom = null;
-    Date valueDateTo = null;
+    DLFields f = meta.getFields();
 
     // Determine the lookup date ("now") if we have a field that carries said
     // date.
     // If not, the system date is taken.
     //
-    valueDate = determineDimensionUpdatedDate(row);
+    Date valueDate = determineDimensionUpdatedDate(row);
 
+    IRowMeta lookupRowMeta;
+    Object[] lookupRow;
+    Object[] returnRow = null;
     if (!meta.isUpdate() && meta.isPreloadingCache()) {
       // Obtain a result row from the pre-load cache...
       //
@@ -392,32 +391,20 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       int index = data.preloadCache.lookupRow(lookupRow);
       if (index >= 0) {
         returnRow = data.preloadCache.getRow(index);
-      } else {
-        returnRow = null; // Nothing found!
       }
-
     } else {
       lookupRow = new Object[data.lookupRowMeta.size()];
       lookupRowMeta = data.lookupRowMeta;
 
       // Construct the lookup row...
       //
-      for (int i = 0; i < meta.getKeyStream().length; i++) {
-        try {
-          lookupRow[i] = row[data.keynrs[i]];
-        } catch (Exception e) { // TODO : remove exception??
-          throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG,
-                  "DimensionLookup.Exception.ErrorDetectedInGettingKey",
-                  i + "",
-                  data.keynrs[i] + "/" + rowMeta.size(),
-                  rowMeta.getString(row)));
-        }
+      int outputIndex = 0;
+      for (int i = 0; i < f.getKeys().size(); i++) {
+        lookupRow[outputIndex++] = row[data.keynrs[i]];
       }
 
-      lookupRow[meta.getKeyStream().length] = valueDate; // ? >= date_from
-      lookupRow[meta.getKeyStream().length + 1] = valueDate; // ? < date_to
+      lookupRow[outputIndex++] = valueDate; // ? >= date_from
+      lookupRow[outputIndex] = valueDate; // ? < date_to
 
       if (isDebug()) {
         logDebug(
@@ -467,6 +454,10 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       //
       // The dimension entry was not found, we need to add it!
       //
+      Long valueVersion;
+      Long technicalKey;
+      Date valueDateFrom = null;
+      Date valueDateTo = null;
       if (returnRow == null) {
         if (isRowLevel()) {
           logRowlevel(
@@ -478,7 +469,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         // Date range: ]-oo,+oo[
         //
 
-        if (data.startDateChoice == DimensionLookupMeta.START_DATE_ALTERNATIVE_SYSDATE) {
+        if (data.startDateAlternative == SYSTEM_DATE) {
           // use the time the transform execution begins as the date from.
           // before, the current system time was used. this caused an exclusion of the row in the
           // lookup portion of the transform that uses this 'valueDate' and not the current time.
@@ -489,24 +480,29 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         }
 
         valueDateTo = data.maxDate;
-        valueVersion = Long.valueOf(1L); // Versions always start at 1.
+        valueVersion = 1L; // Versions always start at 1.
 
         // get a new value from the sequence generator chosen.
         //
-        technicalKey = null;
-        switch (getTechKeyCreation()) {
-          case CREATION_METHOD_TABLEMAX:
+        TechnicalKeyCreationMethod creationMethod = f.getReturns().getCreationMethod();
+        if (creationMethod == null) {
+          throw new HopTransformException(
+              "Please specify a valid method for creating new technical (surrogate) keys");
+        }
+        switch (creationMethod) {
+          case TABLE_MAXIMUM:
             // What's the next value for the technical key?
             technicalKey =
-                data.db.getNextValue(data.realSchemaName, data.realTableName, meta.getKeyField());
+                data.db.getNextValue(
+                    data.realSchemaName, data.realTableName, f.getReturns().getKeyField());
             break;
-          case CREATION_METHOD_AUTOINC:
+          case AUTO_INCREMENT:
             technicalKey = null; // Set to null to flag auto-increment usage
             break;
-          case CREATION_METHOD_SEQUENCE:
+          case SEQUENCE:
             technicalKey =
                 data.db.getNextSequenceValue(
-                    data.realSchemaName, meta.getSequenceName(), meta.getKeyField());
+                    data.realSchemaName, meta.getSequenceName(), f.getReturns().getKeyField());
             if (technicalKey != null && isRowLevel()) {
               logRowlevel(
                   BaseMessages.getString(PKG, "DimensionLookup.Log.FoundNextSequence")
@@ -514,14 +510,14 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
             }
             break;
           default:
-            break;
+            throw new HopTransformException(
+                "Unknown technical key creation method encountered: " + creationMethod);
         }
 
         /*
          * INSERT INTO table(version, datefrom, dateto, fieldlookup) VALUES(valueVersion, valueDateFrom, valueDateTo,
          * row.fieldnrs)
          */
-
         technicalKey =
             dimInsert(
                 data.inputRowMeta,
@@ -537,7 +533,6 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         int returnIndex = 0;
 
         returnRow[returnIndex] = technicalKey;
-        returnIndex++;
 
         if (isRowLevel()) {
           logRowlevel(
@@ -574,22 +569,22 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         boolean identical = true;
         boolean punch = false;
 
-        // Column lookup array - initialize to all -1
+        // Column lookup array : initialize all to -1
+        //
         if (columnLookupArray == null) {
-          columnLookupArray = new int[meta.getFieldStream().length];
-          for (int i = 0; i < columnLookupArray.length; i++) {
-            columnLookupArray[i] = -1;
-          }
+          columnLookupArray = new int[f.getFields().size()];
+          Arrays.fill(columnLookupArray, -1);
         }
         int returnRowColNum = -1;
         String findColumn = null;
-        for (int i = 0; i < meta.getFieldStream().length; i++) {
+        for (int i = 0; i < f.getFields().size(); i++) {
+          DLField field = f.getFields().get(i);
           if (data.fieldnrs[i] >= 0) {
             // Only compare real fields, not last updated row, last version, etc
             //
             IValueMeta v1 = data.outputRowMeta.getValueMeta(data.fieldnrs[i]);
             Object valueData1 = row[data.fieldnrs[i]];
-            findColumn = meta.getFieldStream()[i];
+            findColumn = field.getName();
             // find the returnRowMeta based on the field in the fieldLookup list
             IValueMeta v2 = null;
             Object valueData2 = null;
@@ -625,20 +620,21 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
               valueData2 = returnRow[returnRowColNum];
             }
             if (v2 == null) {
-              // If we made it here, then maybe someone tweaked the XML in the pipeline
-              // and we're matching a stream column to a column that doesn't really exist. Throw an
+              // If we made it here, then maybe someone tweaked the XML in the pipeline.
+              // We're matching a stream column to a column that doesn't really exist. Throw an
               // exception.
+              //
               throw new HopTransformException(
                   BaseMessages.getString(
                       PKG,
                       "DimensionLookup.Exception.ErrorDetectedInComparingFields",
-                      meta.getFieldStream()[i]));
+                      field.getName()));
             }
 
             try {
               cmp = v1.compare(valueData1, v2, valueData2);
             } catch (ClassCastException e) {
-              throw e;
+              throw new HopTransformException("Error comparing values", e);
             }
 
             // Not the same and update = 'N' --> insert
@@ -647,14 +643,12 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
             }
 
             // Field flagged for insert: insert
-            if (cmp != 0
-                && meta.getFieldUpdate()[i] == DimensionLookupMeta.TYPE_UPDATE_DIM_INSERT) {
+            if ((cmp != 0) && (field.getUpdateType() == INSERT)) {
               insert = true;
             }
 
-            // Field flagged for punchthrough
-            if (cmp != 0
-                && meta.getFieldUpdate()[i] == DimensionLookupMeta.TYPE_UPDATE_DIM_PUNCHTHROUGH) {
+            // Field flagged for punch-through (update all versions)
+            if (cmp != 0 && field.getUpdateType() == PUNCH_THROUGH) {
               punch = true;
             }
 
@@ -675,9 +669,11 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
         // After comparing the record in the database and the data in the input
         // and taking into account the rules of the slowly changing dimension,
-        // we found out whether or not to perform an insert or an update.
+        // we found out if we need to perform an insert or an update.
         //
-        if (!insert) { // Just an update of row at key = valueKey
+        if (!insert) {
+          // We simply perform an update of row at key = valueKey.
+          //
           if (!identical) {
             if (isRowLevel()) {
               logRowlevel(
@@ -727,7 +723,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
               && meta.getSequenceName().length() > 0) {
             technicalKey =
                 data.db.getNextSequenceValue(
-                    data.realSchemaName, meta.getSequenceName(), meta.getKeyField());
+                    data.realSchemaName, meta.getSequenceName(), f.getReturns().getKeyField());
             if (technicalKey != null && isRowLevel()) {
               logRowlevel(
                   BaseMessages.getString(PKG, "DimensionLookup.Log.FoundNextSequence2")
@@ -737,7 +733,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
             // Use our own sequence here...
             // What's the next value for the technical key?
             technicalKey =
-                data.db.getNextValue(data.realSchemaName, data.realTableName, meta.getKeyField());
+                data.db.getNextValue(
+                    data.realSchemaName, data.realTableName, f.getReturns().getKeyField());
           }
 
           // update our technicalKey with the return of the insert
@@ -785,9 +782,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     //
     // First copy the input row values to the output..
     //
-    for (int i = 0; i < rowMeta.size(); i++) {
-      outputRow[i] = row[i];
-    }
+    Object[] outputRow = RowDataUtil.createResizedCopy(row, data.outputRowMeta.size());
 
     int outputIndex = rowMeta.size();
     int inputIndex = 0;
@@ -826,6 +821,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
    * key to return datefield: do we have a datefield? datefrom, dateto: date-range, if any.
    */
   private void setDimLookup(IRowMeta rowMeta) throws HopDatabaseException {
+    DLFields f = meta.getFields();
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
 
     data.lookupRowMeta = new RowMeta();
@@ -843,65 +839,62 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
      */
     String sql =
         "SELECT "
-            + databaseMeta.quoteField(meta.getKeyField())
+            + databaseMeta.quoteField(f.getReturns().getKeyField())
             + ", "
-            + databaseMeta.quoteField(meta.getVersionField());
+            + databaseMeta.quoteField(f.getReturns().getVersionField());
 
-    if (!Utils.isEmpty(meta.getFieldLookup())) {
-      for (int i = 0; i < meta.getFieldLookup().length; i++) {
-        // Don't retrieve the fields without input
-        if (!Utils.isEmpty(meta.getFieldLookup()[i])
-            && !DimensionLookupMeta.isUpdateTypeWithoutArgument(
-                meta.isUpdate(), meta.getFieldUpdate()[i])) {
-          sql += ", " + databaseMeta.quoteField(meta.getFieldLookup()[i]);
+    for (DLField field : f.getFields()) {
+      // Don't retrieve the fields without input
+      if (StringUtils.isNotEmpty(field.getLookup())
+          && DimensionLookupMeta.isUpdateTypeWithArgument(
+              meta.isUpdate(), field.getUpdateType())) {
+        sql += ", " + databaseMeta.quoteField(field.getLookup());
 
-          if (!Utils.isEmpty(meta.getFieldStream()[i])
-              && !meta.getFieldLookup()[i].equals(meta.getFieldStream()[i])) {
-            sql += " AS " + databaseMeta.quoteField(meta.getFieldStream()[i]);
-          }
+        if (StringUtils.isNotEmpty(field.getName()) && !field.getLookup().equals(field.getName())) {
+          sql += " AS " + databaseMeta.quoteField(field.getName());
         }
       }
     }
+
     if (meta.getCacheSize() >= 0) {
       sql +=
           ", "
-              + databaseMeta.quoteField(meta.getDateFrom())
+              + databaseMeta.quoteField(f.getDate().getFrom())
               + ", "
-              + databaseMeta.quoteField(meta.getDateTo());
+              + databaseMeta.quoteField(f.getDate().getTo());
     }
 
     sql += " FROM " + data.schemaTable + " WHERE ";
 
-    for (int i = 0; i < meta.getKeyLookup().length; i++) {
+    for (int i = 0; i < f.getKeys().size(); i++) {
+      DLKey key = f.getKeys().get(i);
       if (i != 0) {
         sql += " AND ";
       }
-      sql += databaseMeta.quoteField(meta.getKeyLookup()[i]) + " = ? ";
+      sql += databaseMeta.quoteField(key.getLookup()) + " = ? ";
       data.lookupRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]));
     }
 
-    String dateFromField = databaseMeta.quoteField(meta.getDateFrom());
-    String dateToField = databaseMeta.quoteField(meta.getDateTo());
+    String dateFromField = databaseMeta.quoteField(f.getDate().getFrom());
+    String dateToField = databaseMeta.quoteField(f.getDate().getTo());
 
-    if (meta.isUsingStartDateAlternative()
-            && (meta.getStartDateAlternative() == DimensionLookupMeta.START_DATE_ALTERNATIVE_NULL)
-        || (meta.getStartDateAlternative()
-            == DimensionLookupMeta.START_DATE_ALTERNATIVE_COLUMN_VALUE)) {
+    if (meta.isUsingStartDateAlternative() && meta.getStartDateAlternative() == NULL
+        || meta.getStartDateAlternative() == COLUMN_VALUE) {
       // Null as a start date is possible...
       //
       sql += " AND ( " + dateFromField + " IS NULL OR " + dateFromField + " <= ? )" + Const.CR;
       sql += " AND " + dateToField + " > ?" + Const.CR;
 
-      data.lookupRowMeta.addValueMeta(new ValueMetaDate(meta.getDateFrom()));
-      data.lookupRowMeta.addValueMeta(new ValueMetaDate(meta.getDateTo()));
+      data.lookupRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getFrom()));
+      data.lookupRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getTo()));
     } else {
       // Null as a start date is NOT possible
       //
       sql += " AND ? >= " + dateFromField + Const.CR;
       sql += " AND ? < " + dateToField + Const.CR;
 
-      data.lookupRowMeta.addValueMeta(new ValueMetaDate(meta.getDateFrom()));
-      data.lookupRowMeta.addValueMeta(new ValueMetaDate(meta.getDateTo()));
+      data.lookupRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getFrom()));
+      data.lookupRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getTo()));
     }
 
     try {
@@ -921,7 +914,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
   }
 
   protected boolean isAutoIncrement() {
-    return techKeyCreation == CREATION_METHOD_AUTOINC;
+    return meta.getFields().getReturns().getCreationMethod() == TechnicalKeyCreationMethod.AUTO_INCREMENT;
   }
 
   /**
@@ -937,6 +930,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       Date dateFrom,
       Date dateTo)
       throws HopException {
+    DLFields f = meta.getFields();
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
 
     if (data.prepStatementInsert == null
@@ -954,8 +948,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       String sql = "INSERT INTO " + data.schemaTable + "( ";
 
       if (!isAutoIncrement()) {
-        sql += databaseMeta.quoteField(meta.getKeyField()) + ", "; // NO
-        // AUTOINCREMENT
+        // NO AUTOINCREMENT
+        sql += databaseMeta.quoteField(f.getReturns().getKeyField()) + ", ";
         insertRowMeta.addValueMeta(
             data.outputRowMeta.getValueMeta(inputRowMeta.size())); // the first return value
         // after the input
@@ -966,42 +960,45 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       }
 
       sql +=
-          databaseMeta.quoteField(meta.getVersionField())
+          databaseMeta.quoteField(f.getReturns().getVersionField())
               + ", "
-              + databaseMeta.quoteField(meta.getDateFrom())
+              + databaseMeta.quoteField(f.getDate().getFrom())
               + ", "
-              + databaseMeta.quoteField(meta.getDateTo());
-      insertRowMeta.addValueMeta(new ValueMetaInteger(meta.getVersionField()));
-      insertRowMeta.addValueMeta(new ValueMetaDate(meta.getDateFrom()));
-      insertRowMeta.addValueMeta(new ValueMetaDate(meta.getDateTo()));
+              + databaseMeta.quoteField(f.getDate().getTo());
+      insertRowMeta.addValueMeta(new ValueMetaInteger(f.getReturns().getVersionField()));
+      insertRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getFrom()));
+      insertRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getTo()));
 
-      for (int i = 0; i < meta.getKeyLookup().length; i++) {
-        sql += ", " + databaseMeta.quoteField(meta.getKeyLookup()[i]);
+      for (int i = 0; i < f.getKeys().size(); i++) {
+        DLKey key = f.getKeys().get(i);
+        sql += ", " + databaseMeta.quoteField(key.getLookup());
         insertRowMeta.addValueMeta(inputRowMeta.getValueMeta(data.keynrs[i]));
       }
 
-      for (int i = 0; i < meta.getFieldLookup().length; i++) {
+      for (int i = 0; i < f.getFields().size(); i++) {
+        DLField field = f.getFields().get(i);
         // Ignore last_version, last_updated etc, they are handled below (at the
         // back of the row).
         //
-        if (!DimensionLookupMeta.isUpdateTypeWithoutArgument(
-            meta.isUpdate(), meta.getFieldUpdate()[i])) {
-          sql += ", " + databaseMeta.quoteField(meta.getFieldLookup()[i]);
+        if (DimensionLookupMeta.isUpdateTypeWithArgument(
+                meta.isUpdate(), field.getUpdateType())) {
+          sql += ", " + databaseMeta.quoteField(field.getLookup());
           insertRowMeta.addValueMeta(inputRowMeta.getValueMeta(data.fieldnrs[i]));
         }
       }
 
       // Finally, the special update fields...
       //
-      for (int i = 0; i < meta.getFieldUpdate().length; i++) {
+      for (int i = 0; i < f.getFields().size(); i++) {
+        DLField field = f.getFields().get(i);
         IValueMeta valueMeta = null;
-        switch (meta.getFieldUpdate()[i]) {
-          case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
-          case DimensionLookupMeta.TYPE_UPDATE_DATE_INSERTED:
-            valueMeta = new ValueMetaDate(meta.getFieldLookup()[i]);
+        switch (field.getUpdateType()) {
+          case INSERT_UPDATE:
+          case INSERT:
+            valueMeta = new ValueMetaDate(field.getLookup());
             break;
-          case DimensionLookupMeta.TYPE_UPDATE_LAST_VERSION:
-            valueMeta = new ValueMetaBoolean(meta.getFieldLookup()[i]);
+          case LAST_VERSION:
+            valueMeta = new ValueMetaBoolean(field.getLookup());
             break;
           default:
             break;
@@ -1023,22 +1020,22 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         sql += ", ?";
       }
 
-      for (int i = 0; i < meta.getFieldLookup().length; i++) {
+      for (DLField field : f.getFields()) {
         // Ignore last_version, last_updated, etc. These are handled below...
         //
-        if (!DimensionLookupMeta.isUpdateTypeWithoutArgument(
-            meta.isUpdate(), meta.getFieldUpdate()[i])) {
+        if (DimensionLookupMeta.isUpdateTypeWithArgument(
+                meta.isUpdate(), field.getUpdateType())) {
           sql += ", ?";
         }
       }
 
       // The special update fields...
       //
-      for (int i = 0; i < meta.getFieldUpdate().length; i++) {
-        switch (meta.getFieldUpdate()[i]) {
-          case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
-          case DimensionLookupMeta.TYPE_UPDATE_DATE_INSERTED:
-          case DimensionLookupMeta.TYPE_UPDATE_LAST_VERSION:
+      for (DLField field : f.getFields()) {
+        switch (field.getUpdateType()) {
+          case INSERT_UPDATE:
+          case INSERT:
+          case LAST_VERSION:
             sql += ", ?";
             break;
           default:
@@ -1074,20 +1071,20 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
       // The end of the date range
       //
-      sqlUpdate += "SET " + databaseMeta.quoteField(meta.getDateTo()) + " = ?" + Const.CR;
-      updateRowMeta.addValueMeta(new ValueMetaDate(meta.getDateTo()));
+      sqlUpdate += "SET " + databaseMeta.quoteField(f.getDate().getTo()) + " = ?" + Const.CR;
+      updateRowMeta.addValueMeta(new ValueMetaDate(f.getDate().getTo()));
 
       // The special update fields...
       //
-      for (int i = 0; i < meta.getFieldUpdate().length; i++) {
+      for (DLField field : f.getFields()) {
         IValueMeta valueMeta = null;
-        switch (meta.getFieldUpdate()[i]) {
-          case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
-          case DimensionLookupMeta.TYPE_UPDATE_DATE_UPDATED:
-            valueMeta = new ValueMetaDate(meta.getFieldLookup()[i]);
+        switch (field.getUpdateType()) {
+          case INSERT_UPDATE:
+          case UPDATE:
+            valueMeta = new ValueMetaDate(field.getLookup());
             break;
-          case DimensionLookupMeta.TYPE_UPDATE_LAST_VERSION:
-            valueMeta = new ValueMetaBoolean(meta.getFieldLookup()[i]);
+          case LAST_VERSION:
+            valueMeta = new ValueMetaBoolean(field.getLookup());
             break;
           default:
             break;
@@ -1099,15 +1096,16 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       }
 
       sqlUpdate += "WHERE ";
-      for (int i = 0; i < meta.getKeyLookup().length; i++) {
+      for (int i = 0; i < f.getKeys().size(); i++) {
+        DLKey key = f.getKeys().get(i);
         if (i > 0) {
           sqlUpdate += "AND   ";
         }
-        sqlUpdate += databaseMeta.quoteField(meta.getKeyLookup()[i]) + " = ?" + Const.CR;
+        sqlUpdate += databaseMeta.quoteField(key.getLookup()) + " = ?" + Const.CR;
         updateRowMeta.addValueMeta(inputRowMeta.getValueMeta(data.keynrs[i]));
       }
-      sqlUpdate += "AND   " + databaseMeta.quoteField(meta.getVersionField()) + " = ? ";
-      updateRowMeta.addValueMeta(new ValueMetaInteger(meta.getVersionField()));
+      sqlUpdate += "AND   " + databaseMeta.quoteField(f.getReturns().getVersionField()) + " = ? ";
+      updateRowMeta.addValueMeta(new ValueMetaInteger(f.getReturns().getVersionField()));
 
       try {
         logDetailed("Preparing update: " + Const.CR + sqlUpdate + Const.CR);
@@ -1132,24 +1130,24 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     // on if newEntry == true
     insertRow[insertIndex++] = versionNr;
 
-    switch (data.startDateChoice) {
-      case DimensionLookupMeta.START_DATE_ALTERNATIVE_NONE:
+    switch (data.startDateAlternative) {
+      case NONE:
         insertRow[insertIndex++] = dateFrom;
         break;
-      case DimensionLookupMeta.START_DATE_ALTERNATIVE_SYSDATE:
+      case SYSTEM_DATE:
         // use the time the transform execution begins as the date from (passed in as dateFrom).
         // before, the current system time was used. this caused an exclusion of the row in the
         // lookup portion of the transform that uses this 'valueDate' and not the current time.
         // the result was multiple inserts for what should have been 1
         insertRow[insertIndex++] = dateFrom;
         break;
-      case DimensionLookupMeta.START_DATE_ALTERNATIVE_START_OF_PIPELINE:
+      case PIPELINE_START:
         insertRow[insertIndex++] = getPipeline().getExecutionStartDate();
         break;
-      case DimensionLookupMeta.START_DATE_ALTERNATIVE_NULL:
+      case NULL:
         insertRow[insertIndex++] = null;
         break;
-      case DimensionLookupMeta.START_DATE_ALTERNATIVE_COLUMN_VALUE:
+      case COLUMN_VALUE:
         insertRow[insertIndex++] = inputRowMeta.getDate(row, data.startDateFieldIndex);
         break;
       default:
@@ -1157,7 +1155,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
             BaseMessages.getString(
                 PKG,
                 "DimensionLookup.Exception.IllegalStartDateSelection",
-                Integer.toString(data.startDateChoice)));
+                data.startDateAlternative.getDescription()));
     }
 
     insertRow[insertIndex++] = dateTo;
@@ -1174,13 +1172,13 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     }
     // The special update fields...
     //
-    for (int i = 0; i < meta.getFieldUpdate().length; i++) {
-      switch (meta.getFieldUpdate()[i]) {
-        case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
-        case DimensionLookupMeta.TYPE_UPDATE_DATE_INSERTED:
+    for (DLField field : f.getFields()) {
+      switch (field.getUpdateType()) {
+        case INSERT_UPDATE:
+        case INSERT:
           insertRow[insertIndex++] = new Date();
           break;
-        case DimensionLookupMeta.TYPE_UPDATE_LAST_VERSION:
+        case LAST_VERSION:
           insertRow[insertIndex++] = Boolean.TRUE;
           break; // Always the last version on insert.
         default:
@@ -1226,42 +1224,40 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       Object[] updateRow = new Object[data.updateRowMeta.size()];
       int updateIndex = 0;
 
-      switch (data.startDateChoice) {
-        case DimensionLookupMeta.START_DATE_ALTERNATIVE_NONE:
+      switch (data.startDateAlternative) {
+        case NONE:
           updateRow[updateIndex++] = dateFrom;
           break;
-        case DimensionLookupMeta.START_DATE_ALTERNATIVE_SYSDATE:
+        case SYSTEM_DATE:
           updateRow[updateIndex++] = new Date();
           break;
-        case DimensionLookupMeta.START_DATE_ALTERNATIVE_START_OF_PIPELINE:
+        case PIPELINE_START:
           updateRow[updateIndex++] = getPipeline().getExecutionStartDate();
           break;
-        case DimensionLookupMeta.START_DATE_ALTERNATIVE_NULL:
+        case NULL:
           updateRow[updateIndex++] = null;
           break;
-        case DimensionLookupMeta.START_DATE_ALTERNATIVE_COLUMN_VALUE:
+        case COLUMN_VALUE:
           updateRow[updateIndex++] = inputRowMeta.getDate(row, data.startDateFieldIndex);
           break;
         default:
           throw new HopTransformException(
               BaseMessages.getString(
                   "DimensionLookup.Exception.IllegalStartDateSelection",
-                  Integer.toString(data.startDateChoice)));
+                  data.startDateAlternative.getDescription()));
       }
 
       // The special update fields...
       //
-      for (int i = 0; i < meta.getFieldUpdate().length; i++) {
-        switch (meta.getFieldUpdate()[i]) {
-          case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
+      for (DLField field : f.getFields()) {
+        switch (field.getUpdateType()) {
+          case INSERT_UPDATE:
+          case UPDATE:
             updateRow[updateIndex++] = new Date();
             break;
-          case DimensionLookupMeta.TYPE_UPDATE_LAST_VERSION:
+          case LAST_VERSION:
             updateRow[updateIndex++] = Boolean.FALSE;
             break; // Never the last version on this update
-          case DimensionLookupMeta.TYPE_UPDATE_DATE_UPDATED:
-            updateRow[updateIndex++] = new Date();
-            break;
           default:
             break;
         }
@@ -1271,7 +1267,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         updateRow[updateIndex++] = row[data.keynrs[i]];
       }
 
-      updateRow[updateIndex++] = versionNr - 1;
+      updateRow[updateIndex] = versionNr - 1;
 
       if (isRowLevel()) {
         logRowlevel("UPDATE using rupd=" + data.updateRowMeta.getString(updateRow));
@@ -1306,6 +1302,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
   public void dimUpdate(IRowMeta rowMeta, Object[] row, Long dimkey, Date valueDate)
       throws HopDatabaseException {
+    DLFields f = meta.getFields();
+
     if (data.prepStatementDimensionUpdate == null) {
       // first time: construct prepared statement
       //
@@ -1318,28 +1316,29 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
       String sql = "UPDATE " + data.schemaTable + Const.CR + "SET ";
       boolean comma = false;
-      for (int i = 0; i < meta.getFieldLookup().length; i++) {
-        if (!DimensionLookupMeta.isUpdateTypeWithoutArgument(
-            meta.isUpdate(), meta.getFieldUpdate()[i])) {
+      for (int i = 0; i < f.getFields().size(); i++) {
+        DLField field = f.getFields().get(i);
+        if (DimensionLookupMeta.isUpdateTypeWithArgument(
+                meta.isUpdate(), field.getUpdateType())) {
           if (comma) {
             sql += ", ";
           } else {
             sql += "  ";
           }
           comma = true;
-          sql += meta.getDatabaseMeta().quoteField(meta.getFieldLookup()[i]) + " = ?" + Const.CR;
+          sql += meta.getDatabaseMeta().quoteField(field.getLookup()) + " = ?" + Const.CR;
           data.dimensionUpdateRowMeta.addValueMeta(rowMeta.getValueMeta(data.fieldnrs[i]));
         }
       }
 
       // The special update fields...
       //
-      for (int i = 0; i < meta.getFieldUpdate().length; i++) {
+      for (DLField field : f.getFields()) {
         IValueMeta valueMeta = null;
-        switch (meta.getFieldUpdate()[i]) {
-          case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
-          case DimensionLookupMeta.TYPE_UPDATE_DATE_UPDATED:
-            valueMeta = new ValueMetaDate(meta.getFieldLookup()[i]);
+        switch (field.getUpdateType()) {
+          case INSERT_UPDATE:
+          case UPDATE:
+            valueMeta = new ValueMetaDate(field.getLookup());
             break;
           default:
             break;
@@ -1356,8 +1355,9 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         }
       }
 
-      sql += "WHERE  " + meta.getDatabaseMeta().quoteField(meta.getKeyField()) + " = ?";
-      data.dimensionUpdateRowMeta.addValueMeta(new ValueMetaInteger(meta.getKeyField())); // The tk
+      sql += "WHERE  " + meta.getDatabaseMeta().quoteField(f.getReturns().getKeyField()) + " = ?";
+      data.dimensionUpdateRowMeta.addValueMeta(
+          new ValueMetaInteger(f.getReturns().getKeyField())); // The tk
 
       try {
         if (isDebug()) {
@@ -1381,17 +1381,17 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         dimensionUpdateRow[updateIndex++] = row[data.fieldnrs[i]];
       }
     }
-    for (int i = 0; i < meta.getFieldUpdate().length; i++) {
-      switch (meta.getFieldUpdate()[i]) {
-        case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
-        case DimensionLookupMeta.TYPE_UPDATE_DATE_UPDATED:
+    for (DLField field : f.getFields()) {
+      switch (field.getUpdateType()) {
+        case INSERT_UPDATE:
+        case UPDATE:
           dimensionUpdateRow[updateIndex++] = valueDate;
           break;
         default:
           break;
       }
     }
-    dimensionUpdateRow[updateIndex++] = dimkey;
+    dimensionUpdateRow[updateIndex] = dimkey;
 
     data.db.setValues(
         data.dimensionUpdateRowMeta, dimensionUpdateRow, data.prepStatementDimensionUpdate);
@@ -1401,6 +1401,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
   // This updates all versions of a dimension entry.
   //
   public void dimPunchThrough(IRowMeta rowMeta, Object[] row) throws HopDatabaseException {
+    DLFields f = meta.getFields();
     if (data.prepStatementPunchThrough == null) { // first time: construct prepared statement
       DatabaseMeta databaseMeta = meta.getDatabaseMeta();
       data.punchThroughRowMeta = new RowMeta();
@@ -1412,26 +1413,27 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       String sqlUpdate = "UPDATE " + data.schemaTable + Const.CR;
       sqlUpdate += "SET ";
       boolean first = true;
-      for (int i = 0; i < meta.getFieldLookup().length; i++) {
-        if (meta.getFieldUpdate()[i] == DimensionLookupMeta.TYPE_UPDATE_DIM_PUNCHTHROUGH) {
+      for (int i = 0; i < f.getFields().size(); i++) {
+        DLField field = f.getFields().get(i);
+        if (field.getUpdateType() == PUNCH_THROUGH) {
           if (!first) {
             sqlUpdate += ", ";
           } else {
             sqlUpdate += "  ";
           }
           first = false;
-          sqlUpdate += databaseMeta.quoteField(meta.getFieldLookup()[i]) + " = ?" + Const.CR;
+          sqlUpdate += databaseMeta.quoteField(field.getLookup()) + " = ?" + Const.CR;
           data.punchThroughRowMeta.addValueMeta(rowMeta.getValueMeta(data.fieldnrs[i]));
         }
       }
       // The special update fields...
       //
-      for (int i = 0; i < meta.getFieldUpdate().length; i++) {
+      for (DLField field : f.getFields()) {
         IValueMeta valueMeta = null;
-        switch (meta.getFieldUpdate()[i]) {
-          case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
-          case DimensionLookupMeta.TYPE_UPDATE_DATE_UPDATED:
-            valueMeta = new ValueMetaDate(meta.getFieldLookup()[i]);
+        switch (field.getUpdateType()) {
+          case INSERT_UPDATE:
+          case UPDATE:
+            valueMeta = new ValueMetaDate(field.getUpdate());
             break;
           default:
             break;
@@ -1443,11 +1445,12 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       }
 
       sqlUpdate += "WHERE ";
-      for (int i = 0; i < meta.getKeyLookup().length; i++) {
+      for (int i = 0; i < f.getKeys().size(); i++) {
+        DLKey key = f.getKeys().get(i);
         if (i > 0) {
           sqlUpdate += "AND   ";
         }
-        sqlUpdate += databaseMeta.quoteField(meta.getKeyLookup()[i]) + " = ?" + Const.CR;
+        sqlUpdate += databaseMeta.quoteField(key.getLookup()) + " = ?" + Const.CR;
         data.punchThroughRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]));
       }
 
@@ -1464,15 +1467,16 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     Object[] punchThroughRow = new Object[data.punchThroughRowMeta.size()];
     int punchIndex = 0;
 
-    for (int i = 0; i < meta.getFieldLookup().length; i++) {
-      if (meta.getFieldUpdate()[i] == DimensionLookupMeta.TYPE_UPDATE_DIM_PUNCHTHROUGH) {
+    for (int i = 0; i < f.getFields().size(); i++) {
+      DLField field = f.getFields().get(i);
+      if (field.getUpdateType() == PUNCH_THROUGH) {
         punchThroughRow[punchIndex++] = row[data.fieldnrs[i]];
       }
     }
-    for (int i = 0; i < meta.getFieldUpdate().length; i++) {
-      switch (meta.getFieldUpdate()[i]) {
-        case DimensionLookupMeta.TYPE_UPDATE_DATE_INSUP:
-        case DimensionLookupMeta.TYPE_UPDATE_DATE_UPDATED:
+    for (DLField field : f.getFields()) {
+      switch (field.getUpdateType()) {
+        case INSERT_UPDATE:
+        case UPDATE:
           punchThroughRow[punchIndex++] = new Date();
           break;
         default:
@@ -1529,8 +1533,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     }
 
     cacheValues[cacheIndex++] = valueDateFrom;
-
-    cacheValues[cacheIndex++] = valueDateTo;
+    cacheValues[cacheIndex] = valueDateTo;
 
     return cacheValues;
   }
@@ -1689,11 +1692,11 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     if (!meta.isUpdate()) {
       return;
     }
-
+    DLFields f = meta.getFields();
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
     int startTechnicalKey = databaseMeta.getNotFoundTK(isAutoIncrement());
 
-    if (meta.isAutoIncrement()) {
+    if (isAutoIncrement()) {
       // See if there are rows in the table
       // If so, we can't insert the unknown row anymore...
       //
@@ -1701,7 +1704,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           "SELECT count(*) FROM "
               + data.schemaTable
               + " WHERE "
-              + databaseMeta.quoteField(meta.getKeyField())
+              + databaseMeta.quoteField(f.getReturns().getKeyField())
               + " = "
               + startTechnicalKey;
       RowMetaAndData r = data.db.getOneRow(sql);
@@ -1715,7 +1718,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         "SELECT count(*) FROM "
             + data.schemaTable
             + " WHERE "
-            + databaseMeta.quoteField(meta.getKeyField())
+            + databaseMeta.quoteField(f.getReturns().getKeyField())
             + " = "
             + startTechnicalKey;
     RowMetaAndData r = data.db.getOneRow(sql);
@@ -1728,16 +1731,16 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
               "insert into "
                   + data.schemaTable
                   + "("
-                  + databaseMeta.quoteField(meta.getKeyField())
+                  + databaseMeta.quoteField(f.getReturns().getKeyField())
                   + ", "
-                  + databaseMeta.quoteField(meta.getVersionField())
+                  + databaseMeta.quoteField(f.getReturns().getVersionField())
                   + ") values (0, 1)";
         } else {
           isql =
               databaseMeta.getSqlInsertAutoIncUnknownDimensionRow(
                   data.schemaTable,
-                  databaseMeta.quoteField(meta.getKeyField()),
-                  databaseMeta.quoteField(meta.getVersionField()));
+                  databaseMeta.quoteField(f.getReturns().getKeyField()),
+                  databaseMeta.quoteField(f.getReturns().getVersionField()));
         }
 
         data.db.execStatement(databaseMeta.stripCR(isql));
@@ -1751,40 +1754,45 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
   @Override
   public boolean init() {
 
-    if (super.init()) {
-      meta.actualizeWithInjectedValues();
-      data.minDate = meta.getMinDate();
-      data.maxDate = meta.getMaxDate();
-
-      data.realSchemaName = resolve(meta.getSchemaName());
-      data.realTableName = resolve(meta.getTableName());
-
-      data.startDateChoice = DimensionLookupMeta.START_DATE_ALTERNATIVE_NONE;
-      if (meta.isUsingStartDateAlternative()) {
-        data.startDateChoice = meta.getStartDateAlternative();
-      }
-      if (meta.getDatabaseMeta() == null) {
-        logError(
-            BaseMessages.getString(
-                PKG, "DimensionLookup.Init.ConnectionMissing", getTransformName()));
-        return false;
-      }
-      data.db = new Database(this, this, meta.getDatabaseMeta());
-      try {
-        data.db.connect();
-
-        if (log.isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "DimensionLookup.Log.ConnectedToDB"));
-        }
-        data.db.setCommit(meta.getCommitSize());
-
-        return true;
-      } catch (HopException ke) {
-        logError(
-            BaseMessages.getString(PKG, "DimensionLookup.Log.ErrorOccurredInProcessing")
-                + ke.getMessage());
-      }
+    if (!super.init()) {
+      return false;
     }
+
+    data.minDate = meta.getMinDate();
+    data.maxDate = meta.getMaxDate();
+
+    data.realSchemaName = resolve(meta.getSchemaName());
+    data.realTableName = resolve(meta.getTableName());
+
+    if (meta.isUsingStartDateAlternative()) {
+      data.startDateAlternative = meta.getStartDateAlternative();
+    }
+    if (data.startDateAlternative == null) {
+      data.startDateAlternative = NONE;
+    }
+
+    if (meta.getDatabaseMeta() == null) {
+      logError(
+          BaseMessages.getString(
+              PKG, "DimensionLookup.Init.ConnectionMissing", getTransformName()));
+      return false;
+    }
+    data.db = new Database(this, this, meta.getDatabaseMeta());
+    try {
+      data.db.connect();
+
+      if (log.isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "DimensionLookup.Log.ConnectedToDB"));
+      }
+      data.db.setCommit(meta.getCommitSize());
+
+      return true;
+    } catch (HopException ke) {
+      logError(
+          BaseMessages.getString(PKG, "DimensionLookup.Log.ErrorOccurredInProcessing")
+              + ke.getMessage());
+    }
+
     return false;
   }
 
