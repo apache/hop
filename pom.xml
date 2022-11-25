@@ -830,6 +830,7 @@
                         <exclude>**/integration-tests/**/*.xlsx</exclude>
                         <exclude>**/integration-tests/**/*.json</exclude>
                         <exclude>**/integration-tests/**/*.json.old</exclude>
+                        <exclude>**/integration-tests/**/*.edi</exclude>
 
                         <!-- Samples Exclusions -->
                         <!-- plugins/engines/beam -->

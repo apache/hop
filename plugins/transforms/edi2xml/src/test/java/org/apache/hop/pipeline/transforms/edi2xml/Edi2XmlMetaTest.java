@@ -18,7 +18,9 @@
 package org.apache.hop.pipeline.transforms.edi2xml;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Assert;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -29,22 +31,12 @@ import java.util.List;
 import java.util.Map;
 
 public class Edi2XmlMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
   @Test
-  public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList("inputfield", "outputfield");
+  public void testSerialization() throws Exception {
+    Edi2XmlMeta meta = TransformSerializationTestUtil.testSerialization(
+            "/edi-to-xml-transform.xml", Edi2XmlMeta.class);
 
-    Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("inputfield", "getInputField");
-    getterMap.put("outputfield", "getOutputField");
-
-    Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("inputfield", "setInputField");
-    setterMap.put("outputfield", "setOutputField");
-
-    LoadSaveTester loadSaveTester =
-        new LoadSaveTester(Edi2XmlMeta.class, attributes, getterMap, setterMap);
-    loadSaveTester.testSerialization();
+    Assert.assertNotNull(meta.getInputField());
+    Assert.assertNotNull(meta.getOutputField());
   }
 }

@@ -42,5 +42,10 @@
             <artifactId>hop-transform-edi2xml</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr-complete</artifactId>
+            <version>3.5.3</version>
+        </dependency>
     </dependencies>
 </project>

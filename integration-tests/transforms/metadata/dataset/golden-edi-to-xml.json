@@ -1,0 +1,72 @@
+{
+  "base_filename": "golden-edi-to-xml.csv",
+  "name": "golden-edi-to-xml",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 25,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "xml_data_type_description",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "xml_element_id",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "xml_parent_element_id",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "xml_element_level",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": 1024,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "xml_path",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 1024,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "xml_parent_path",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 1024,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "xml_data_name",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 1024,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "xml_data_value",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
