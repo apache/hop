@@ -211,7 +211,7 @@ public class HopBeamGuiPlugin {
     Set<File> jarFiles = new HashSet<>();
     jarFiles.addAll(FileUtils.listFiles(new File("lib"), new String[] {"jar"}, true));
 
-    File libSwtFiles = new File("libswt/linux/x86_64");
+    File libSwtFiles = new File("lib/swt/linux/x86_64");
     if (libSwtFiles.exists())
       jarFiles.addAll(FileUtils.listFiles(libSwtFiles, new String[] {"jar"}, true));
 
