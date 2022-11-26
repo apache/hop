@@ -119,7 +119,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       "WorkflowExecutionViewer-ToolBar-10500-Zoom-Level";
   public static final String TOOLBAR_ITEM_ZOOM_FIT_TO_SCREEN =
       "WorkflowExecutionViewer-ToolBar-10600-Zoom-Fit-To-Screen";
-
   public static final String TOOLBAR_ITEM_TO_EDITOR =
       "WorkflowExecutionViewer-Toolbar-11100-GoToEditor";
   public static final String TOOLBAR_ITEM_DRILL_DOWN =
@@ -161,6 +160,10 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
     actionExecutions = new HashMap<>();
 
+    // Calculate the pipeline size only once since the metadata is read-only
+    //
+    this.maximum = workflowMeta.getMaximum();
+    
     addWidgets();
   }
 
@@ -210,7 +213,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     canvas.setLayoutData(fdCanvas);
     canvas.addPaintListener(this);
     canvas.addMouseListener(this);
-    canvas.addKeyListener(this);
     if (!EnvironmentUtils.getInstance().isWeb()) {
       canvas.addMouseMoveListener(this);
     }
@@ -227,6 +229,11 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
     refresh();
 
+    // Add keyboard listeners from the main GUI and this class (toolbar etc) to the canvas. That's
+    // where the focus should be
+    //
+    hopGui.replaceKeyboardShortcutListeners(this);
+    
     tabFolder.setSelection(0);
     sash.setWeights(60, 40);
   }

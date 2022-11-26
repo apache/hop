@@ -116,7 +116,7 @@ import java.util.Set;
 
 @GuiPlugin
 public class PipelineExecutionViewer extends BaseExecutionViewer
-    implements IExecutionViewer, PaintListener, MouseListener, KeyListener {
+    implements IExecutionViewer, PaintListener, MouseListener {
   private static final Class<?> PKG = PipelineExecutionViewer.class; // For Translator
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "PipelineExecutionViewer-Toolbar";
@@ -128,11 +128,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       "PipelineExecutionViewer-ToolBar-10600-Zoom-Fit-To-Screen";
   public static final String TOOLBAR_ITEM_TO_EDITOR =
       "PipelineExecutionViewer-Toolbar-11100-GoToEditor";
-
   public static final String TOOLBAR_ITEM_DRILL_DOWN =
       "PipelineExecutionViewer-Toolbar-11200-DrillDown";
   public static final String TOOLBAR_ITEM_GO_UP = "PipelineExecutionViewer-Toolbar-11300-GoUp";
-
   public static final String TOOLBAR_ITEM_VIEW_EXECUTOR =
       "PipelineExecutionViewer-Toolbar-12000-ViewExecutor";
   public static final String TOOLBAR_ITEM_VIEW_METADATA =
@@ -223,7 +221,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     if (!EnvironmentUtils.getInstance().isWeb()) {
       canvas.addMouseMoveListener(this);
     }
-    canvas.addKeyListener(this);
 
     // The execution information tabs at the bottom
     //
@@ -1212,12 +1209,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   public void viewMetadata() {
     super.viewMetadata(execution);
   }
-
-  @Override
-  public void keyPressed(KeyEvent keyEvent) {}
-
-  @Override
-  public void keyReleased(KeyEvent keyEvent) {}
 
   @Override
   public String getActiveId() {
