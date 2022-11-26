@@ -423,7 +423,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdSourceTransform.top = new FormAttachment(wlSourceTransform, 5);
     wSourceTransform.setLayoutData(fdSourceTransform);
     wSourceTransform.addListener(SWT.Selection, e -> updateWidgets());
-    
+
     final int fieldRows = metaInjectMeta.getSourceOutputFields().size();
 
     ColumnInfo[] colinf =
@@ -619,6 +619,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     ToolItem wFilter = new ToolItem(treeTb, SWT.SEPARATOR);
     wSearchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
+    wSearchText.setData(BaseDialog.NO_DEFAULT_HANDLER, true);
     PropsUi.setLook(wSearchText);
     wSearchText.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.ToolTip"));
