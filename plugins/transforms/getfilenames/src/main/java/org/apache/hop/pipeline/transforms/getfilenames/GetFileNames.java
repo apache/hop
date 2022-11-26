@@ -320,7 +320,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
       return;
     }
 
-    List<FileObject> nonExistantFiles = data.files.getNonExistantFiles();
+    List<FileObject> nonExistantFiles = data.files.getNonExistentFiles();
 
     if (nonExistantFiles.size() != 0) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);

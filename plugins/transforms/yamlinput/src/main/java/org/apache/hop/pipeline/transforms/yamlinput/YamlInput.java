@@ -54,7 +54,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
   }
 
   private void handleMissingFiles() throws HopException {
-    List<FileObject> nonExistantFiles = data.files.getNonExistantFiles();
+    List<FileObject> nonExistantFiles = data.files.getNonExistentFiles();
     if (nonExistantFiles.size() != 0) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
       logError(

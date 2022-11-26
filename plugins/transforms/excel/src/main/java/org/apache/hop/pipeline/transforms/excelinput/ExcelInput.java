@@ -485,7 +485,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
   }
 
   private void handleMissingFiles() throws HopException {
-    List<FileObject> nonExistantFiles = data.files.getNonExistantFiles();
+    List<FileObject> nonExistantFiles = data.files.getNonExistentFiles();
 
     if (!nonExistantFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
