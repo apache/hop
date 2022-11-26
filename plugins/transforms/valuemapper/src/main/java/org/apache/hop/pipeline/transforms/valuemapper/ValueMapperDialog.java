@@ -89,7 +89,7 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
     shell.setText(BaseMessages.getString(PKG, "ValueMapperDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
@@ -197,7 +197,7 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
     wlFields.setLayoutData(fdlFields);
 
     final int FieldsCols = 2;
-    final int FieldsRows = input.getSourceValue().length;
+    final int FieldsRows = input.getValues().size();
 
     ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
     colinf[0] =
@@ -275,10 +275,11 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
       wNonMatchDefault.setText(input.getNonMatchDefault());
     }
 
-    for (int i = 0; i < input.getSourceValue().length; i++) {
-      TableItem item = wFields.table.getItem(i);
-      String src = input.getSourceValue()[i];
-      String tgt = input.getTargetValue()[i];
+    int i = 0;
+    for (Values v : input.getValues()) {
+      TableItem item = wFields.table.getItem(i++);
+      String src = v.getSource();
+      String tgt = v.getTarget();
 
       if (src != null) {
         item.setText(1, src);
@@ -312,15 +313,14 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
     input.setTargetField(wTargetFieldName.getText());
     input.setNonMatchDefault(wNonMatchDefault.getText());
 
-    int count = wFields.nrNonEmpty();
-    input.allocate(count);
-
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < count; i++) {
-      TableItem item = wFields.getNonEmpty(i);
-      input.getSourceValue()[i] = Utils.isEmpty(item.getText(1)) ? null : item.getText(1);
-      input.getTargetValue()[i] = item.getText(2);
+    input.getValues().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      Values v = new Values();
+      v.setSource(Utils.isEmpty(item.getText(1)) ? null : item.getText(1));
+      v.setTarget(item.getText(2));
+      input.getValues().add(v);
     }
+    
     dispose();
   }
 }
