@@ -40,9 +40,9 @@ WARNING: the Files To Result is available for historical reasons. Check the xref
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:question_mark.svg[Maybe Supported, 24]
-!Flink! image:question_mark.svg[Maybe Supported, 24]
-!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!Spark! image:cross.svg[Not Supported, 24]
+!Flink! image:cross.svg[Not Supported, 24]
+!Dataflow! image:cross.svg[Not Supported, 24]
 !===
 |===
 
