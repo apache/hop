@@ -33,7 +33,7 @@ public enum SpreadSheetType {
     return description;
   }
 
-  public static SpreadSheetType getStpreadSheetTypeByDescription(String description) {
+  public static SpreadSheetType getSpreadSheetTypeByDescription(String description) {
     for (SpreadSheetType type : values()) {
       if (type.getDescription().equalsIgnoreCase(description)) {
         return type;

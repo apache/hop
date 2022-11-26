@@ -17,176 +17,291 @@
 
 package org.apache.hop.pipeline.transforms.excelinput;
 
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes a single field in an excel file */
 public class ExcelInputField implements Cloneable {
-  @Injection(name = "NAME", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "NAME",
+      injectionKeyDescription = "ExcelInput.Injection.NAME")
   private String name;
 
-  private int type;
+  @HopMetadataProperty(
+      key = "type",
+      injectionKey = "TYPE",
+      injectionKeyDescription = "ExcelInput.Injection.TYPE")
+  private String type;
 
-  @Injection(name = "LENGTH", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "length",
+      injectionKey = "LENGTH",
+      injectionKeyDescription = "ExcelInput.Injection.LENGTH")
   private int length = -1;
 
-  @Injection(name = "PRECISION", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "precision",
+      injectionKey = "PRECISION",
+      injectionKeyDescription = "ExcelInput.Injection.PRECISION")
   private int precision = -1;
 
-  private int trimtype;
+  @HopMetadataProperty(
+      key = "trim_type",
+      storeWithCode = true,
+      injectionKey = "TRIM_TYPE",
+      injectionKeyDescription = "ExcelInput.Injection.TRIM_TYPE")
+  private IValueMeta.TrimType trimType;
 
-  @Injection(name = "FORMAT", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "format",
+      injectionKey = "FORMAT",
+      injectionKeyDescription = "ExcelInput.Injection.FORMAT")
   private String format;
 
-  @Injection(name = "CURRENCY", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "currency",
+      injectionKey = "CURRENCY",
+      injectionKeyDescription = "ExcelInput.Injection.CURRENCY")
   private String currencySymbol;
 
-  @Injection(name = "DECIMAL", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "decimal",
+      injectionKey = "DECIMAL",
+      injectionKeyDescription = "ExcelInput.Injection.DECIMAL")
   private String decimalSymbol;
 
-  @Injection(name = "GROUP", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "group",
+      injectionKey = "GROUP",
+      injectionKeyDescription = "ExcelInput.Injection.GROUP")
   private String groupSymbol;
 
-  @Injection(name = "REPEAT", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "repeat",
+      injectionKey = "REPEAT",
+      injectionKeyDescription = "ExcelInput.Injection.REPEAT")
   private boolean repeat;
 
-  public ExcelInputField(String fieldname, int position, int length) {
-    this.name = fieldname;
+  public ExcelInputField() {}
+
+  public ExcelInputField(ExcelInputField f) {
+    this();
+    this.name = f.name;
+    this.type = f.type;
+    this.length = f.length;
+    this.precision = f.precision;
+    this.trimType = f.trimType;
+    this.format = f.format;
+    this.currencySymbol = f.currencySymbol;
+    this.decimalSymbol = f.decimalSymbol;
+    this.groupSymbol = f.groupSymbol;
+    this.repeat = f.repeat;
+  }
+
+  public ExcelInputField(String name, int length, int precision) {
+    this();
+    this.name = name;
     this.length = length;
-    this.type = IValueMeta.TYPE_STRING;
-    this.format = "";
-    this.trimtype = ExcelInputMeta.TYPE_TRIM_NONE;
-    this.groupSymbol = "";
-    this.decimalSymbol = "";
-    this.currencySymbol = "";
-    this.precision = -1;
-    this.repeat = false;
-  }
-
-  public ExcelInputField() {
-    this(null, -1, -1);
-  }
-
-  @Override
-  public Object clone() {
-    try {
-      Object retval = super.clone();
-      return retval;
-    } catch (CloneNotSupportedException e) {
-      return null;
-    }
-  }
-
-  public int getLength() {
-    return length;
-  }
-
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String fieldname) {
-    this.name = fieldname;
-  }
-
-  public int getType() {
-    return type;
-  }
-
-  public String getTypeDesc() {
-    return ValueMetaFactory.getValueMetaName(type);
-  }
-
-  public void setType(int type) {
-    this.type = type;
-  }
-
-  @Injection(name = "TYPE", group = "FIELDS")
-  public void setType(String typeDesc) {
-    this.type = ValueMetaFactory.getIdForValueMeta(typeDesc);
-  }
-
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public int getTrimType() {
-    return trimtype;
-  }
-
-  public String getTrimTypeCode() {
-    return ExcelInputMeta.getTrimTypeCode(trimtype);
-  }
-
-  public String getTrimTypeDesc() {
-    return ExcelInputMeta.getTrimTypeDesc(trimtype);
-  }
-
-  public void setTrimType(int trimtype) {
-    this.trimtype = trimtype;
-  }
-
-  @Injection(name = "TRIM_TYPE", group = "FIELDS")
-  public void setTrimType(String trimType) {
-    this.trimtype = ValueMetaBase.getTrimTypeByCode(trimType);
-  }
-
-  public String getGroupSymbol() {
-    return groupSymbol;
-  }
-
-  public void setGroupSymbol(String symbol) {
-    this.groupSymbol = symbol;
-  }
-
-  public String getDecimalSymbol() {
-    return decimalSymbol;
-  }
-
-  public void setDecimalSymbol(String symbol) {
-    this.decimalSymbol = symbol;
-  }
-
-  public String getCurrencySymbol() {
-    return currencySymbol;
-  }
-
-  public void setCurrencySymbol(String symbol) {
-    this.currencySymbol = symbol;
-  }
-
-  public int getPrecision() {
-    return precision;
-  }
-
-  public void setPrecision(int precision) {
     this.precision = precision;
   }
 
-  public boolean isRepeated() {
-    return repeat;
-  }
-
-  public void setRepeated(boolean repeat) {
-    this.repeat = repeat;
-  }
-
-  public void flipRepeated() {
-    repeat = !repeat;
+  @Override
+  public ExcelInputField clone() {
+    return new ExcelInputField(this);
   }
 
   @Override
   public String toString() {
-    return name + ":" + getTypeDesc() + "(" + length + "," + precision + ")";
+    return name + ":" + type + "(" + length + "," + precision + ")";
+  }
+
+  public int getHopType() {
+    return ValueMetaFactory.getIdForValueMeta(type);
+  }
+
+  public String getTypeDesc() {
+    return ValueMetaFactory.getValueMetaName(getHopType());
+  }
+
+  /**
+   * Gets name
+   *
+   * @return value of name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Sets name
+   *
+   * @param name value of name
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  /**
+   * Gets type
+   *
+   * @return value of type
+   */
+  public String getType() {
+    return type;
+  }
+
+  /**
+   * Sets type
+   *
+   * @param type value of type
+   */
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  /**
+   * Gets length
+   *
+   * @return value of length
+   */
+  public int getLength() {
+    return length;
+  }
+
+  /**
+   * Sets length
+   *
+   * @param length value of length
+   */
+  public void setLength(int length) {
+    this.length = length;
+  }
+
+  /**
+   * Gets precision
+   *
+   * @return value of precision
+   */
+  public int getPrecision() {
+    return precision;
+  }
+
+  /**
+   * Sets precision
+   *
+   * @param precision value of precision
+   */
+  public void setPrecision(int precision) {
+    this.precision = precision;
+  }
+
+  /**
+   * Gets trimType
+   *
+   * @return value of trimType
+   */
+  public IValueMeta.TrimType getTrimType() {
+    return trimType;
+  }
+
+  /**
+   * Sets trimType
+   *
+   * @param trimType value of trimType
+   */
+  public void setTrimType(IValueMeta.TrimType trimType) {
+    this.trimType = trimType;
+  }
+
+  /**
+   * Gets format
+   *
+   * @return value of format
+   */
+  public String getFormat() {
+    return format;
+  }
+
+  /**
+   * Sets format
+   *
+   * @param format value of format
+   */
+  public void setFormat(String format) {
+    this.format = format;
+  }
+
+  /**
+   * Gets currencySymbol
+   *
+   * @return value of currencySymbol
+   */
+  public String getCurrencySymbol() {
+    return currencySymbol;
+  }
+
+  /**
+   * Sets currencySymbol
+   *
+   * @param currencySymbol value of currencySymbol
+   */
+  public void setCurrencySymbol(String currencySymbol) {
+    this.currencySymbol = currencySymbol;
+  }
+
+  /**
+   * Gets decimalSymbol
+   *
+   * @return value of decimalSymbol
+   */
+  public String getDecimalSymbol() {
+    return decimalSymbol;
+  }
+
+  /**
+   * Sets decimalSymbol
+   *
+   * @param decimalSymbol value of decimalSymbol
+   */
+  public void setDecimalSymbol(String decimalSymbol) {
+    this.decimalSymbol = decimalSymbol;
+  }
+
+  /**
+   * Gets groupSymbol
+   *
+   * @return value of groupSymbol
+   */
+  public String getGroupSymbol() {
+    return groupSymbol;
+  }
+
+  /**
+   * Sets groupSymbol
+   *
+   * @param groupSymbol value of groupSymbol
+   */
+  public void setGroupSymbol(String groupSymbol) {
+    this.groupSymbol = groupSymbol;
+  }
+
+  /**
+   * Gets repeat
+   *
+   * @return value of repeat
+   */
+  public boolean isRepeat() {
+    return repeat;
+  }
+
+  /**
+   * Sets repeat
+   *
+   * @param repeat value of repeat
+   */
+  public void setRepeat(boolean repeat) {
+    this.repeat = repeat;
   }
 }

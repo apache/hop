@@ -26,12 +26,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -45,16 +40,16 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -67,9 +62,6 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::ExcelInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/excelinput.html")
-@InjectionSupported(
-    localizationPrefix = "ExcelInput.Injection.",
-    groups = {"FIELDS", "SHEETS", "FILENAME_LINES"})
 public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData> {
   private static final Class<?> PKG = ExcelInputMeta.class; // For Translator
 
@@ -80,727 +72,216 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
       };
   public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
 
-  private static final String YES = "Y";
-  public static final int TYPE_TRIM_NONE = 0;
-  public static final int TYPE_TRIM_LEFT = 1;
-  public static final int TYPE_TRIM_RIGHT = 2;
-  public static final int TYPE_TRIM_BOTH = 3;
-
-  public static final String[] type_trimCode = {"none", "left", "right", "both"};
-
-  public static final String[] type_trimDesc = {
-    BaseMessages.getString(PKG, "ExcelInputMeta.TrimType.None"),
-    BaseMessages.getString(PKG, "ExcelInputMeta.TrimType.Left"),
-    BaseMessages.getString(PKG, "ExcelInputMeta.TrimType.Right"),
-    BaseMessages.getString(PKG, "ExcelInputMeta.TrimType.Both")
-  };
-
-  public static final String STRING_SEPARATOR = " \t --> ";
-
-  /** The filenames to load or directory in case a filemask was set. */
-  @Injection(name = "FILENAME", group = "FILENAME_LINES")
-  private String[] fileName;
-
-  /** The regular expression to use (null means: no mask) */
-  @Injection(name = "FILEMASK", group = "FILENAME_LINES")
-  private String[] fileMask;
-
-  /** Wildcard or filemask to exclude (regular expression) */
-  @Injection(name = "EXCLUDE_FILEMASK", group = "FILENAME_LINES")
-  private String[] excludeFileMask;
-
-  /** Array of boolean values as string, indicating if a file is required. */
-  @Injection(name = "FILE_REQUIRED", group = "FILENAME_LINES")
-  private String[] fileRequired;
+  @HopMetadataProperty(
+      key = "file",
+      injectionGroupKey = "FILENAME_LINES",
+      injectionGroupDescription = "ExcelInput.Injection.FILENAME_LINES")
+  private List<EIFile> files;
 
   /** The fieldname that holds the name of the file */
+  @HopMetadataProperty(key = "filefield")
   private String fileField;
 
-  /** The names of the sheets to load. Null means: all sheets... */
-  @Injection(name = "SHEET_NAME", group = "SHEETS")
-  private String[] sheetName;
-
-  /** The row-nr where we start processing. */
-  @Injection(name = "SHEET_START_ROW", group = "SHEETS")
-  private int[] startRow;
-
-  /** The column-nr where we start processing. */
-  @Injection(name = "SHEET_START_COL", group = "SHEETS")
-  private int[] startColumn;
+  @HopMetadataProperty(
+      groupKey = "sheets",
+      key = "sheet",
+      injectionKey = "SHEET",
+      injectionKeyDescription = "ExcelInput.Injection.SHEET",
+      injectionGroupKey = "SHEETS",
+      injectionGroupDescription = "ExcelInput.Injection.SHEETS")
+  private List<EISheet> sheets;
 
   /** The fieldname that holds the name of the sheet */
+  @HopMetadataProperty(key = "sheetfield", injectionKeyDescription = "Sheet name field")
   private String sheetField;
 
   /** The cell-range starts with a header-row */
+  @HopMetadataProperty(
+      key = "header",
+      injectionKeyDescription = "The cell-range starts with a header-row?")
   private boolean startsWithHeader;
 
   /** Stop reading when you hit an empty row. */
+  @HopMetadataProperty(
+      key = "stoponempty",
+      injectionKeyDescription = "Stop reading when you hit an empty row")
   private boolean stopOnEmpty;
 
   /** Avoid empty rows in the result. */
+  @HopMetadataProperty(key = "noempty", injectionKeyDescription = "Avoid empty rows in the result")
   private boolean ignoreEmptyRows;
 
   /**
    * The fieldname containing the row number. An empty (null) value means that no row number is
    * included in the output. This is the rownumber of all written rows (not the row in the sheet).
    */
+  @HopMetadataProperty(
+      key = "rownumfield",
+      injectionKeyDescription = "The field name containing the row number.")
   private String rowNumberField;
 
   /**
    * The fieldname containing the sheet row number. An empty (null) value means that no sheet row
    * number is included in the output. Sheet row number is the row number in the sheet.
    */
+  @HopMetadataProperty(
+      key = "sheetrownumfield",
+      injectionKeyDescription = "The field name containing the sheet row number")
   private String sheetRowNumberField;
 
   /** The maximum number of rows that this transform writes to the next transform. */
+  @HopMetadataProperty(
+      key = "limit",
+      injectionKeyDescription =
+          "The maximum number of rows that this transform writes to the next transform")
   private long rowLimit;
 
   /**
    * The fields to read in the range. Note: the number of columns in the range has to match
    * field.length
    */
-  @InjectionDeep private ExcelInputField[] field;
+  @HopMetadataProperty(
+      groupKey = "fields",
+      key = "field",
+      injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "ExcelInput.Injection.FIELDS")
+  private List<ExcelInputField> fields;
 
-  /** Strict types : will generate erros */
+  /** Strict types : will generate errors */
+  @HopMetadataProperty(key = "strict_types", injectionKeyDescription = "Strict types : data conversion errors are thrown")
   private boolean strictTypes;
 
   /** Ignore error : turn into warnings */
+  @HopMetadataProperty(key = "error_ignored", injectionKeyDescription = "Turn errors into warnings, ignoring them")
   private boolean errorIgnored;
 
   /** If error line are skipped, you can replay without introducing doubles. */
+  @HopMetadataProperty(key = "error_line_skipped", injectionKeyDescription = "Skip error lines?")
   private boolean errorLineSkipped;
 
   /** The directory that will contain warning files */
+  @HopMetadataProperty(key = "bad_line_files_destination_directory", injectionKeyDescription = "The directory that will contain warning files")
   private String warningFilesDestinationDirectory;
 
   /** The extension of warning files */
+  @HopMetadataProperty(key = "bad_line_files_extension", injectionKeyDescription = "The extension of warning files")
   private String warningFilesExtension;
 
   /** The directory that will contain error files */
+  @HopMetadataProperty(key = "error_line_files_destination_directory", injectionKeyDescription = "The directory that will contain error files")
   private String errorFilesDestinationDirectory;
 
   /** The extension of error files */
+  @HopMetadataProperty(key = "error_line_files_extension", injectionKeyDescription = "The extension of error files")
   private String errorFilesExtension;
 
   /** The directory that will contain line number files */
+  @HopMetadataProperty(key = "line_number_files_destination_directory", injectionKeyDescription = "The directory that will contain line number files")
   private String lineNumberFilesDestinationDirectory;
 
   /** The extension of line number files */
+  @HopMetadataProperty(key = "line_number_files_extension", injectionKeyDescription = "The extension of line number files")
   private String lineNumberFilesExtension;
 
   /** Are we accepting filenames in input rows? */
+  @HopMetadataProperty(key = "accept_filenames", injectionKeyDescription = "Are we accepting filenames in input rows?")
   private boolean acceptingFilenames;
 
   /** The field in which the filename is placed */
+  @HopMetadataProperty(key = "accept_field", injectionKeyDescription = "The field in which the filename is placed")
   private String acceptingField;
 
   /** The transformName to accept filenames from */
+  @HopMetadataProperty(key = "accept_transform_name", injectionKeyDescription = "The transform name to accept filenames from")
   private String acceptingTransformName;
 
-  /** Array of boolean values as string, indicating if we need to fetch sub folders. */
-  @Injection(name = "INCLUDE_SUBFOLDERS", group = "FILENAME_LINES")
-  private String[] includeSubFolders;
-
-  /** The transform to accept filenames from */
-  private TransformMeta acceptingTransform;
-
   /** The encoding to use for reading: null or empty string means system default encoding */
+  @HopMetadataProperty(key = "encoding", injectionKeyDescription = "The encoding to use for reading: null or empty string means system default encoding")
   private String encoding;
 
   /** The add filenames to result filenames flag */
-  private boolean isaddresult;
+  @HopMetadataProperty(key = "add_to_result_filenames", injectionKeyDescription = "Add filenames to result?")
+  private boolean addFilenamesToResult;
 
   /** Additional fields */
+  @HopMetadataProperty(key = "shortFileFieldName", injectionKeyDescription = "Extra output: short file field name")
   private String shortFileFieldName;
 
+  @HopMetadataProperty(key = "pathFieldName", injectionKeyDescription = "Extra output: path field name")
   private String pathFieldName;
+
+  @HopMetadataProperty(key = "hiddenFieldName", injectionKeyDescription = "Extra output: hidden flag field name")
   private String hiddenFieldName;
+
+  @HopMetadataProperty(key = "lastModificationTimeFieldName", injectionKeyDescription = "Extra output: last modification time field name")
   private String lastModificationTimeFieldName;
+
+  @HopMetadataProperty(key = "uriNameFieldName", injectionKeyDescription = "Extra output: URI field name")
   private String uriNameFieldName;
+
+  @HopMetadataProperty(key = "rootUriNameFieldName", injectionKeyDescription = "Extra output: root URI field name")
   private String rootUriNameFieldName;
+
+  @HopMetadataProperty(key = "extensionFieldName", injectionKeyDescription = "Extra output: extension field name")
   private String extensionFieldName;
+
+  @HopMetadataProperty(key = "sizeFieldName", injectionKeyDescription = "Extra output: file size field name")
   private String sizeFieldName;
 
-  @Injection(name = "SPREADSHEET_TYPE")
+  @HopMetadataProperty(
+      key = "spreadsheet_type",
+      injectionKey = "SPREADSHEET_TYPE",
+      injectionKeyDescription = "ExcelInput.Injection.SPREADSHEET_TYPE")
   private SpreadSheetType spreadSheetType;
 
   public ExcelInputMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    this.fields = new ArrayList<>();
+    this.files = new ArrayList<>();
+    this.sheets = new ArrayList<>();
   }
 
-  /**
-   * @return Returns the shortFileFieldName.
-   */
-  public String getShortFileNameField() {
-    return shortFileFieldName;
-  }
-
-  /**
-   * @param field The shortFileFieldName to set.
-   */
-  public void setShortFileNameField(String field) {
-    shortFileFieldName = field;
-  }
-
-  /**
-   * @return Returns the pathFieldName.
-   */
-  public String getPathField() {
-    return pathFieldName;
-  }
-
-  /**
-   * @param field The pathFieldName to set.
-   */
-  public void setPathField(String field) {
-    this.pathFieldName = field;
-  }
-
-  /**
-   * @return Returns the hiddenFieldName.
-   */
-  public String isHiddenField() {
-    return hiddenFieldName;
-  }
-
-  /**
-   * @param field The hiddenFieldName to set.
-   */
-  public void setIsHiddenField(String field) {
-    hiddenFieldName = field;
-  }
-
-  /**
-   * @return Returns the lastModificationTimeFieldName.
-   */
-  public String getLastModificationDateField() {
-    return lastModificationTimeFieldName;
-  }
-
-  /**
-   * @param field The lastModificationTimeFieldName to set.
-   */
-  public void setLastModificationDateField(String field) {
-    lastModificationTimeFieldName = field;
-  }
-
-  /**
-   * @return Returns the uriNameFieldName.
-   */
-  public String getUriField() {
-    return uriNameFieldName;
-  }
-
-  /**
-   * @param field The uriNameFieldName to set.
-   */
-  public void setUriField(String field) {
-    uriNameFieldName = field;
-  }
-
-  /**
-   * @return Returns the uriNameFieldName.
-   */
-  public String getRootUriField() {
-    return rootUriNameFieldName;
-  }
-
-  /**
-   * @param field The rootUriNameFieldName to set.
-   */
-  public void setRootUriField(String field) {
-    rootUriNameFieldName = field;
-  }
-
-  /**
-   * @return Returns the extensionFieldName.
-   */
-  public String getExtensionField() {
-    return extensionFieldName;
-  }
-
-  /**
-   * @param field The extensionFieldName to set.
-   */
-  public void setExtensionField(String field) {
-    extensionFieldName = field;
-  }
-
-  /**
-   * @return Returns the sizeFieldName.
-   */
-  public String getSizeField() {
-    return sizeFieldName;
-  }
-
-  /**
-   * @param field The sizeFieldName to set.
-   */
-  public void setSizeField(String field) {
-    sizeFieldName = field;
-  }
-
-  /**
-   * @return Returns the fieldLength.
-   */
-  public ExcelInputField[] getField() {
-    return field;
-  }
-
-  /**
-   * @param fields The excel input fields to set.
-   */
-  public void setField(ExcelInputField[] fields) {
-    this.field = fields;
-  }
-
-  /**
-   * @return Returns the fileField.
-   */
-  public String getFileField() {
-    return fileField;
-  }
-
-  /**
-   * @param fileField The fileField to set.
-   */
-  public void setFileField(String fileField) {
-    this.fileField = fileField;
-  }
-
-  /**
-   * @return Returns the fileMask.
-   */
-  public String[] getFileMask() {
-    return fileMask;
-  }
-
-  /**
-   * @param fileMask The fileMask to set.
-   */
-  public void setFileMask(String[] fileMask) {
-    this.fileMask = fileMask;
-  }
-
-  /**
-   * @return Returns the excludeFileMask.
-   */
-  public String[] getExcludeFileMask() {
-    return excludeFileMask;
-  }
-
-  /**
-   * @param excludeFileMask The excludeFileMask to set.
-   */
-  public void setExcludeFileMask(String[] excludeFileMask) {
-    this.excludeFileMask = excludeFileMask;
-  }
-
-  public String[] getIncludeSubFolders() {
-    return includeSubFolders;
-  }
-
-  public void setIncludeSubFolders(String[] includeSubFoldersin) {
-    if (includeSubFoldersin != null) {
-      includeSubFolders = new String[includeSubFoldersin.length];
-      for (int i = 0; i < includeSubFoldersin.length && i < includeSubFolders.length; i++) {
-        this.includeSubFolders[i] = getRequiredFilesCode(includeSubFoldersin[i]);
-      }
-    } else {
-      includeSubFolders = new String[0];
-    }
-  }
-
-  public String getRequiredFilesCode(String tt) {
-    if (tt == null) {
-      return RequiredFilesCode[0];
-    }
-    if (tt.equals(RequiredFilesDesc[1])) {
-      return RequiredFilesCode[1];
-    } else {
-      return RequiredFilesCode[0];
-    }
-  }
-
-  public String getRequiredFilesDesc(String tt) {
-    if (tt == null) {
-      return RequiredFilesDesc[0];
-    }
-    if (tt.equals(RequiredFilesCode[1])) {
-      return RequiredFilesDesc[1];
-    } else {
-      return RequiredFilesDesc[0];
-    }
-  }
-
-  /**
-   * @return Returns the fileName.
-   */
-  public String[] getFileName() {
-    return fileName;
-  }
-
-  /**
-   * @param fileName The fileName to set.
-   */
-  public void setFileName(String[] fileName) {
-    this.fileName = fileName;
-  }
-
-  /**
-   * @return Returns the ignoreEmptyRows.
-   */
-  public boolean ignoreEmptyRows() {
-    return ignoreEmptyRows;
-  }
-
-  /**
-   * @param ignoreEmptyRows The ignoreEmptyRows to set.
-   */
-  public void setIgnoreEmptyRows(boolean ignoreEmptyRows) {
-    this.ignoreEmptyRows = ignoreEmptyRows;
-  }
-
-  /**
-   * @return Returns the rowLimit.
-   */
-  public long getRowLimit() {
-    return rowLimit;
-  }
-
-  /**
-   * @param rowLimit The rowLimit to set.
-   */
-  public void setRowLimit(long rowLimit) {
-    this.rowLimit = rowLimit;
-  }
-
-  /**
-   * @return Returns the rowNumberField.
-   */
-  public String getRowNumberField() {
-    return rowNumberField;
-  }
-
-  /**
-   * @param rowNumberField The rowNumberField to set.
-   */
-  public void setRowNumberField(String rowNumberField) {
-    this.rowNumberField = rowNumberField;
-  }
-
-  /**
-   * @return Returns the sheetRowNumberField.
-   */
-  public String getSheetRowNumberField() {
-    return sheetRowNumberField;
-  }
-
-  /**
-   * @param rowNumberField The rowNumberField to set.
-   */
-  public void setSheetRowNumberField(String rowNumberField) {
-    this.sheetRowNumberField = rowNumberField;
-  }
-
-  /**
-   * @return Returns the sheetField.
-   */
-  public String getSheetField() {
-    return sheetField;
-  }
-
-  /**
-   * @param sheetField The sheetField to set.
-   */
-  public void setSheetField(String sheetField) {
-    this.sheetField = sheetField;
-  }
-
-  /**
-   * @return Returns the sheetName.
-   */
-  public String[] getSheetName() {
-    return sheetName;
-  }
-
-  /**
-   * @param sheetName The sheetName to set.
-   */
-  public void setSheetName(String[] sheetName) {
-    this.sheetName = sheetName;
-  }
-
-  /**
-   * @return Returns the startColumn.
-   */
-  public int[] getStartColumn() {
-    return startColumn;
-  }
-
-  /**
-   * @param startColumn The startColumn to set.
-   */
-  public void setStartColumn(int[] startColumn) {
-    this.startColumn = startColumn;
-  }
-
-  /**
-   * @return Returns the startRow.
-   */
-  public int[] getStartRow() {
-    return startRow;
-  }
-
-  /**
-   * @param startRow The startRow to set.
-   */
-  public void setStartRow(int[] startRow) {
-    this.startRow = startRow;
-  }
-
-  /**
-   * @return Returns the startsWithHeader.
-   */
-  public boolean startsWithHeader() {
-    return startsWithHeader;
-  }
-
-  /**
-   * @param startsWithHeader The startsWithHeader to set.
-   */
-  public void setStartsWithHeader(boolean startsWithHeader) {
-    this.startsWithHeader = startsWithHeader;
-  }
-
-  /**
-   * @return Returns the stopOnEmpty.
-   */
-  public boolean stopOnEmpty() {
-    return stopOnEmpty;
-  }
-
-  /**
-   * @param stopOnEmpty The stopOnEmpty to set.
-   */
-  public void setStopOnEmpty(boolean stopOnEmpty) {
-    this.stopOnEmpty = stopOnEmpty;
+  public ExcelInputMeta(ExcelInputMeta m) {
+    this();
+    m.fields.forEach(f -> this.fields.add(new ExcelInputField(f)));
+    m.sheets.forEach(s -> this.sheets.add(new EISheet(s)));
+    m.files.forEach(f -> this.files.add(new EIFile(f)));
+    this.fileField = m.fileField;
+    this.sheetField = m.sheetField;
+    this.startsWithHeader = m.startsWithHeader;
+    this.stopOnEmpty = m.stopOnEmpty;
+    this.ignoreEmptyRows = m.ignoreEmptyRows;
+    this.rowNumberField = m.rowNumberField;
+    this.sheetRowNumberField = m.sheetRowNumberField;
+    this.rowLimit = m.rowLimit;
+    this.strictTypes = m.strictTypes;
+    this.errorIgnored = m.errorIgnored;
+    this.errorLineSkipped = m.errorLineSkipped;
+    this.warningFilesDestinationDirectory = m.warningFilesDestinationDirectory;
+    this.warningFilesExtension = m.warningFilesExtension;
+    this.errorFilesDestinationDirectory = m.errorFilesDestinationDirectory;
+    this.errorFilesExtension = m.errorFilesExtension;
+    this.lineNumberFilesDestinationDirectory = m.lineNumberFilesDestinationDirectory;
+    this.lineNumberFilesExtension = m.lineNumberFilesExtension;
+    this.acceptingFilenames = m.acceptingFilenames;
+    this.acceptingField = m.acceptingField;
+    this.acceptingTransformName = m.acceptingTransformName;
+    this.encoding = m.encoding;
+    this.addFilenamesToResult = m.addFilenamesToResult;
+    this.shortFileFieldName = m.shortFileFieldName;
+    this.pathFieldName = m.pathFieldName;
+    this.hiddenFieldName = m.hiddenFieldName;
+    this.lastModificationTimeFieldName = m.lastModificationTimeFieldName;
+    this.uriNameFieldName = m.uriNameFieldName;
+    this.rootUriNameFieldName = m.rootUriNameFieldName;
+    this.extensionFieldName = m.extensionFieldName;
+    this.sizeFieldName = m.sizeFieldName;
+    this.spreadSheetType = m.spreadSheetType;
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  @Override
-  public Object clone() {
-    ExcelInputMeta retval = (ExcelInputMeta) super.clone();
-    normilizeAllocation();
-
-    int nrfiles = fileName.length;
-    int nrsheets = sheetName.length;
-    int nrFields = field.length;
-
-    retval.allocate(nrfiles, nrsheets, nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      retval.field[i] = (ExcelInputField) field[i].clone();
-    }
-
-    System.arraycopy(fileName, 0, retval.fileName, 0, nrfiles);
-    System.arraycopy(fileMask, 0, retval.fileMask, 0, nrfiles);
-    System.arraycopy(excludeFileMask, 0, retval.excludeFileMask, 0, nrfiles);
-    System.arraycopy(fileRequired, 0, retval.fileRequired, 0, nrfiles);
-    System.arraycopy(includeSubFolders, 0, retval.includeSubFolders, 0, nrfiles);
-
-    System.arraycopy(sheetName, 0, retval.sheetName, 0, nrsheets);
-    System.arraycopy(startColumn, 0, retval.startColumn, 0, nrsheets);
-    System.arraycopy(startRow, 0, retval.startRow, 0, nrsheets);
-
-    return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      startsWithHeader = YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "header"));
-      String nempty = XmlHandler.getTagValue(transformNode, "noempty");
-      ignoreEmptyRows = YES.equalsIgnoreCase(nempty) || nempty == null;
-      String soempty = XmlHandler.getTagValue(transformNode, "stoponempty");
-      stopOnEmpty = YES.equalsIgnoreCase(soempty) || nempty == null;
-      sheetRowNumberField = XmlHandler.getTagValue(transformNode, "sheetrownumfield");
-      rowNumberField = XmlHandler.getTagValue(transformNode, "rownum_field");
-      rowNumberField = XmlHandler.getTagValue(transformNode, "rownumfield");
-      rowLimit = Const.toLong(XmlHandler.getTagValue(transformNode, "limit"), 0);
-      encoding = XmlHandler.getTagValue(transformNode, "encoding");
-      String addToResult = XmlHandler.getTagValue(transformNode, "add_to_result_filenames");
-      if (Utils.isEmpty(addToResult)) {
-        isaddresult = true;
-      } else {
-        isaddresult = "Y".equalsIgnoreCase(addToResult);
-      }
-      sheetField = XmlHandler.getTagValue(transformNode, "sheetfield");
-      fileField = XmlHandler.getTagValue(transformNode, "filefield");
-
-      acceptingFilenames =
-          YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "accept_filenames"));
-      acceptingField = XmlHandler.getTagValue(transformNode, "accept_field");
-      acceptingTransformName = XmlHandler.getTagValue(transformNode, "accept_transform_name");
-
-      Node filenode = XmlHandler.getSubNode(transformNode, "file");
-      Node sheetsnode = XmlHandler.getSubNode(transformNode, "sheets");
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrfiles = XmlHandler.countNodes(filenode, "name");
-      int nrsheets = XmlHandler.countNodes(sheetsnode, "sheet");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      allocate(nrfiles, nrsheets, nrFields);
-
-      for (int i = 0; i < nrfiles; i++) {
-        Node filenamenode = XmlHandler.getSubNodeByNr(filenode, "name", i);
-        Node filemasknode = XmlHandler.getSubNodeByNr(filenode, "filemask", i);
-        Node excludefilemasknode = XmlHandler.getSubNodeByNr(filenode, "exclude_filemask", i);
-        Node fileRequirednode = XmlHandler.getSubNodeByNr(filenode, "file_required", i);
-        Node includeSubFoldersnode = XmlHandler.getSubNodeByNr(filenode, "include_subfolders", i);
-        fileName[i] = XmlHandler.getNodeValue(filenamenode);
-        fileMask[i] = XmlHandler.getNodeValue(filemasknode);
-        excludeFileMask[i] = XmlHandler.getNodeValue(excludefilemasknode);
-        fileRequired[i] = XmlHandler.getNodeValue(fileRequirednode);
-        includeSubFolders[i] = XmlHandler.getNodeValue(includeSubFoldersnode);
-      }
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        field[i] = new ExcelInputField();
-
-        field[i].setName(XmlHandler.getTagValue(fnode, "name"));
-        field[i].setType(ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
-        field[i].setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
-        field[i].setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
-        String srepeat = XmlHandler.getTagValue(fnode, "repeat");
-        field[i].setTrimType(getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
-
-        if (srepeat != null) {
-          field[i].setRepeated(YES.equalsIgnoreCase(srepeat));
-        } else {
-          field[i].setRepeated(false);
-        }
-
-        field[i].setFormat(XmlHandler.getTagValue(fnode, "format"));
-        field[i].setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
-        field[i].setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
-        field[i].setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
-      }
-
-      for (int i = 0; i < nrsheets; i++) {
-        Node snode = XmlHandler.getSubNodeByNr(sheetsnode, "sheet", i);
-
-        sheetName[i] = XmlHandler.getTagValue(snode, "name");
-        startRow[i] = Const.toInt(XmlHandler.getTagValue(snode, "startrow"), 0);
-        startColumn[i] = Const.toInt(XmlHandler.getTagValue(snode, "startcol"), 0);
-      }
-
-      strictTypes = YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "strict_types"));
-      errorIgnored = YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "error_ignored"));
-      errorLineSkipped =
-          YES.equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "error_line_skipped"));
-      warningFilesDestinationDirectory =
-          XmlHandler.getTagValue(transformNode, "bad_line_files_destination_directory");
-      warningFilesExtension = XmlHandler.getTagValue(transformNode, "bad_line_files_extension");
-      errorFilesDestinationDirectory =
-          XmlHandler.getTagValue(transformNode, "error_line_files_destination_directory");
-      errorFilesExtension = XmlHandler.getTagValue(transformNode, "error_line_files_extension");
-      lineNumberFilesDestinationDirectory =
-          XmlHandler.getTagValue(transformNode, "line_number_files_destination_directory");
-      lineNumberFilesExtension =
-          XmlHandler.getTagValue(transformNode, "line_number_files_extension");
-
-      shortFileFieldName = XmlHandler.getTagValue(transformNode, "shortFileFieldName");
-      pathFieldName = XmlHandler.getTagValue(transformNode, "pathFieldName");
-      hiddenFieldName = XmlHandler.getTagValue(transformNode, "hiddenFieldName");
-      lastModificationTimeFieldName =
-          XmlHandler.getTagValue(transformNode, "lastModificationTimeFieldName");
-      uriNameFieldName = XmlHandler.getTagValue(transformNode, "uriNameFieldName");
-      rootUriNameFieldName = XmlHandler.getTagValue(transformNode, "rootUriNameFieldName");
-      extensionFieldName = XmlHandler.getTagValue(transformNode, "extensionFieldName");
-      sizeFieldName = XmlHandler.getTagValue(transformNode, "sizeFieldName");
-
-      try {
-        spreadSheetType =
-            SpreadSheetType.valueOf(XmlHandler.getTagValue(transformNode, "spreadsheet_type"));
-      } catch (Exception e) {
-        spreadSheetType = SpreadSheetType.POI;
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to read transform information from XML", e);
-    }
-  }
-
-  public String[] normilizeArray(String[] array, int length) {
-    String[] newArray = new String[length];
-    if (array != null) {
-      if (array.length <= length) {
-        System.arraycopy(array, 0, newArray, 0, array.length);
-      } else {
-        System.arraycopy(array, 0, newArray, 0, length);
-      }
-    }
-    return newArray;
-  }
-
-  public int[] normilizeArray(int[] array, int length) {
-    int[] newArray = new int[length];
-    if (array != null) {
-      if (array.length <= length) {
-        System.arraycopy(array, 0, newArray, 0, array.length);
-      } else {
-        System.arraycopy(array, 0, newArray, 0, length);
-      }
-    }
-    return newArray;
-  }
-
-  public void normilizeAllocation() {
-    int nrfiles = 0;
-    int nrsheets = 0;
-
-    if (fileName != null) {
-      nrfiles = fileName.length;
-    } else {
-      fileName = new String[0];
-    }
-    if (sheetName != null) {
-      nrsheets = sheetName.length;
-    } else {
-      sheetName = new String[0];
-    }
-    if (field == null) {
-      field = new ExcelInputField[0];
-    }
-
-    fileMask = normilizeArray(fileMask, nrfiles);
-    excludeFileMask = normilizeArray(excludeFileMask, nrfiles);
-    fileRequired = normilizeArray(fileRequired, nrfiles);
-    includeSubFolders = normilizeArray(includeSubFolders, nrfiles);
-
-    startRow = normilizeArray(startRow, nrsheets);
-    startColumn = normilizeArray(startColumn, nrsheets);
-  }
-
-  public void allocate(int nrfiles, int nrsheets, int nrFields) {
-    allocateFiles(nrfiles);
-    sheetName = new String[nrsheets];
-    startRow = new int[nrsheets];
-    startColumn = new int[nrsheets];
-    field = new ExcelInputField[nrFields];
-  }
-
-  public void allocateFiles(int nrfiles) {
-    fileName = new String[nrfiles];
-    fileMask = new String[nrfiles];
-    excludeFileMask = new String[nrfiles];
-    fileRequired = new String[nrfiles];
-    includeSubFolders = new String[nrfiles];
+  public ExcelInputMeta clone() {
+    return new ExcelInputMeta(this);
   }
 
   @Override
@@ -809,12 +290,7 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     ignoreEmptyRows = true;
     rowNumberField = StringUtil.EMPTY_STRING;
     sheetRowNumberField = StringUtil.EMPTY_STRING;
-    isaddresult = true;
-    int nrfiles = 0;
-    int nrFields = 0;
-    int nrsheets = 0;
-
-    allocate(nrfiles, nrsheets, nrFields);
+    addFilenamesToResult = true;
 
     rowLimit = 0L;
 
@@ -840,20 +316,20 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    for (int i = 0; i < field.length; i++) {
-      int type = field[i].getType();
+    for (ExcelInputField field : fields) {
+      int type = field.getHopType();
       if (type == IValueMeta.TYPE_NONE) {
         type = IValueMeta.TYPE_STRING;
       }
       try {
-        IValueMeta v = ValueMetaFactory.createValueMeta(field[i].getName(), type);
-        v.setLength(field[i].getLength());
-        v.setPrecision(field[i].getPrecision());
+        IValueMeta v = ValueMetaFactory.createValueMeta(field.getName(), type);
+        v.setLength(field.getLength());
+        v.setPrecision(field.getPrecision());
         v.setOrigin(name);
-        v.setConversionMask(field[i].getFormat());
-        v.setDecimalSymbol(field[i].getDecimalSymbol());
-        v.setGroupingSymbol(field[i].getGroupSymbol());
-        v.setCurrencySymbol(field[i].getCurrencySymbol());
+        v.setConversionMask(field.getFormat());
+        v.setDecimalSymbol(field.getDecimalSymbol());
+        v.setGroupingSymbol(field.getGroupSymbol());
+        v.setCurrencySymbol(field.getCurrencySymbol());
         row.addValueMeta(v);
       } catch (Exception e) {
         throw new HopTransformException(e);
@@ -887,274 +363,120 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     }
 
     // Add additional fields
-
-    if (getShortFileNameField() != null && getShortFileNameField().length() > 0) {
-      IValueMeta v = new ValueMetaString(variables.resolve(getShortFileNameField()));
+    //
+    if (StringUtils.isNotEmpty(getShortFileFieldName())) {
+      IValueMeta v = new ValueMetaString(variables.resolve(getShortFileFieldName()));
       v.setLength(100, -1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (getExtensionField() != null && getExtensionField().length() > 0) {
-      IValueMeta v = new ValueMetaString(variables.resolve(getExtensionField()));
+    if (StringUtils.isNotEmpty(getExtensionFieldName())) {
+      IValueMeta v = new ValueMetaString(variables.resolve(getExtensionFieldName()));
       v.setLength(100, -1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (getPathField() != null && getPathField().length() > 0) {
-      IValueMeta v = new ValueMetaString(variables.resolve(getPathField()));
+    if (StringUtils.isNotEmpty(getPathFieldName())) {
+      IValueMeta v = new ValueMetaString(variables.resolve(getPathFieldName()));
       v.setLength(100, -1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (getSizeField() != null && getSizeField().length() > 0) {
-      IValueMeta v = new ValueMetaInteger(variables.resolve(getSizeField()));
+    if (StringUtils.isNotEmpty(getSizeFieldName())) {
+      IValueMeta v = new ValueMetaInteger(variables.resolve(getSizeFieldName()));
       v.setOrigin(name);
       v.setLength(9);
       row.addValueMeta(v);
     }
-    if (isHiddenField() != null && isHiddenField().length() > 0) {
-      IValueMeta v = new ValueMetaBoolean(variables.resolve(isHiddenField()));
+    if (StringUtils.isNotEmpty(getHiddenFieldName())) {
+      IValueMeta v = new ValueMetaBoolean(variables.resolve(getHiddenFieldName()));
       v.setOrigin(name);
       row.addValueMeta(v);
     }
 
-    if (getLastModificationDateField() != null && getLastModificationDateField().length() > 0) {
-      IValueMeta v = new ValueMetaDate(variables.resolve(getLastModificationDateField()));
+    if (StringUtils.isNotEmpty(getLastModificationTimeFieldName())) {
+      IValueMeta v = new ValueMetaDate(variables.resolve(getLastModificationTimeFieldName()));
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-    if (getUriField() != null && getUriField().length() > 0) {
-      IValueMeta v = new ValueMetaString(variables.resolve(getUriField()));
+    if (StringUtils.isNotEmpty(getUriNameFieldName())) {
+      IValueMeta v = new ValueMetaString(variables.resolve(getUriNameFieldName()));
       v.setLength(100, -1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
 
-    if (getRootUriField() != null && getRootUriField().length() > 0) {
-      IValueMeta v = new ValueMetaString(variables.resolve(getRootUriField()));
+    if (StringUtils.isNotEmpty(getRootUriNameFieldName())) {
+      IValueMeta v = new ValueMetaString(variables.resolve(getRootUriNameFieldName()));
       v.setLength(100, -1);
       v.setOrigin(name);
       row.addValueMeta(v);
     }
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(1024);
-    normilizeAllocation();
-
-    retval.append("    ").append(XmlHandler.addTagValue("header", startsWithHeader));
-    retval.append("    ").append(XmlHandler.addTagValue("noempty", ignoreEmptyRows));
-    retval.append("    ").append(XmlHandler.addTagValue("stoponempty", stopOnEmpty));
-    retval.append("    ").append(XmlHandler.addTagValue("filefield", fileField));
-    retval.append("    ").append(XmlHandler.addTagValue("sheetfield", sheetField));
-    retval.append("    ").append(XmlHandler.addTagValue("sheetrownumfield", sheetRowNumberField));
-    retval.append("    ").append(XmlHandler.addTagValue("rownumfield", rowNumberField));
-    retval.append("    ").append(XmlHandler.addTagValue("sheetfield", sheetField));
-    retval.append("    ").append(XmlHandler.addTagValue("filefield", fileField));
-    retval.append("    ").append(XmlHandler.addTagValue("limit", rowLimit));
-    retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
-    retval.append("    " + XmlHandler.addTagValue("add_to_result_filenames", isaddresult));
-
-    retval.append("    ").append(XmlHandler.addTagValue("accept_filenames", acceptingFilenames));
-    retval.append("    ").append(XmlHandler.addTagValue("accept_field", acceptingField));
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "accept_transform_name",
-                (acceptingTransform != null
-                    ? acceptingTransform.getName()
-                    : StringUtil.EMPTY_STRING)));
-
-    /*
-     * Describe the files to read
-     */
-    retval.append("    <file>").append(Const.CR);
-    for (int i = 0; i < fileName.length; i++) {
-      retval.append("      ").append(XmlHandler.addTagValue("name", fileName[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("filemask", fileMask[i]));
-      retval
-          .append("      ")
-          .append(XmlHandler.addTagValue("exclude_filemask", excludeFileMask[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("file_required", fileRequired[i]));
-      retval
-          .append("      ")
-          .append(XmlHandler.addTagValue("include_subfolders", includeSubFolders[i]));
+  private String[] getFilesNames() {
+    String[] fileName = new String[files.size()];
+    for (int i = 0; i < files.size(); i++) {
+      EIFile file = files.get(i);
+      fileName[i] = file.getName();
     }
-    retval.append("    </file>").append(Const.CR);
-
-    /*
-     * Describe the fields to read
-     */
-    retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < field.length; i++) {
-      retval.append("      <field>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", field[i].getName()));
-      retval.append("        ").append(XmlHandler.addTagValue("type", field[i].getTypeDesc()));
-      retval.append("        ").append(XmlHandler.addTagValue("length", field[i].getLength()));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("precision", field[i].getPrecision()));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("trim_type", field[i].getTrimTypeCode()));
-      retval.append("        ").append(XmlHandler.addTagValue("repeat", field[i].isRepeated()));
-
-      retval.append("        ").append(XmlHandler.addTagValue("format", field[i].getFormat()));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("currency", field[i].getCurrencySymbol()));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("decimal", field[i].getDecimalSymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("group", field[i].getGroupSymbol()));
-
-      retval.append("      </field>").append(Const.CR);
-    }
-    retval.append("    </fields>").append(Const.CR);
-
-    /*
-     * Describe the sheets to load...
-     */
-    retval.append("    <sheets>").append(Const.CR);
-    for (int i = 0; i < sheetName.length; i++) {
-      retval.append("      <sheet>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", sheetName[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("startrow", startRow[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("startcol", startColumn[i]));
-      retval.append("        </sheet>").append(Const.CR);
-    }
-    retval.append("    </sheets>").append(Const.CR);
-
-    // ERROR HANDLING
-    retval.append("    ").append(XmlHandler.addTagValue("strict_types", strictTypes));
-    retval.append("    ").append(XmlHandler.addTagValue("error_ignored", errorIgnored));
-    retval.append("    ").append(XmlHandler.addTagValue("error_line_skipped", errorLineSkipped));
-
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "bad_line_files_destination_directory", warningFilesDestinationDirectory));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("bad_line_files_extension", warningFilesExtension));
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "error_line_files_destination_directory", errorFilesDestinationDirectory));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("error_line_files_extension", errorFilesExtension));
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "line_number_files_destination_directory", lineNumberFilesDestinationDirectory));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("line_number_files_extension", lineNumberFilesExtension));
-
-    retval.append("    ").append(XmlHandler.addTagValue("shortFileFieldName", shortFileFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("pathFieldName", pathFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("hiddenFieldName", hiddenFieldName));
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue("lastModificationTimeFieldName", lastModificationTimeFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("uriNameFieldName", uriNameFieldName));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("rootUriNameFieldName", rootUriNameFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("extensionFieldName", extensionFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("sizeFieldName", sizeFieldName));
-
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "spreadsheet_type",
-                (spreadSheetType != null ? spreadSheetType.toString() : StringUtil.EMPTY_STRING)));
-
-    return retval.toString();
+    return fileName;
   }
 
-  private String getValueOrEmptyIfNull(String str) {
-    return str == null ? StringUtils.EMPTY : str;
+  private String[] getFilesMasks() {
+    String[] fileMask = new String[files.size()];
+    for (int i = 0; i < files.size(); i++) {
+      EIFile file = files.get(i);
+      fileMask[i] = file.getMask();
+    }
+    return fileMask;
   }
 
-  public static final int getTrimTypeByCode(String tt) {
-    if (tt != null) {
-      for (int i = 0; i < type_trimCode.length; i++) {
-        if (type_trimCode[i].equalsIgnoreCase(tt)) {
-          return i;
-        }
-      }
+  private String[] getFilesExcludeMasks() {
+    String[] excludeFileMask = new String[files.size()];
+    for (int i = 0; i < files.size(); i++) {
+      EIFile file = files.get(i);
+      excludeFileMask[i] = file.getExcludeMask();
     }
-    return 0;
+    return excludeFileMask;
   }
 
-  public static final int getTrimTypeByDesc(String tt) {
-    if (tt != null) {
-      for (int i = 0; i < type_trimDesc.length; i++) {
-        if (type_trimDesc[i].equalsIgnoreCase(tt)) {
-          return i;
-        }
-      }
+  private String[] getFilesRequired() {
+    String[] fileRequired = new String[files.size()];
+    for (int i = 0; i < files.size(); i++) {
+      EIFile file = files.get(i);
+      fileRequired[i] = file.getRequired();
     }
-    return 0;
+    return fileRequired;
   }
 
-  public static final String getTrimTypeCode(int i) {
-    if (i < 0 || i >= type_trimCode.length) {
-      return type_trimCode[0];
+  private boolean[] getFilesIncludeSubFolders() {
+    boolean[] includeSub = new boolean[files.size()];
+    for (int i = 0; i < files.size(); i++) {
+      EIFile file = files.get(i);
+      includeSub[i] = Const.toBoolean(file.getIncludeSubFolders());
     }
-    return type_trimCode[i];
-  }
-
-  public static final String getTrimTypeDesc(int i) {
-    if (i < 0 || i >= type_trimDesc.length) {
-      return type_trimDesc[0];
-    }
-    return type_trimDesc[i];
+    return includeSub;
   }
 
   public String[] getFilePaths(IVariables variables) {
-    normilizeAllocation();
     return FileInputList.createFilePathList(
-        variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubFolderBoolean());
+        variables,
+        getFilesNames(),
+        getFilesMasks(),
+        getFilesExcludeMasks(),
+        getFilesRequired(),
+        getFilesIncludeSubFolders());
   }
 
   public FileInputList getFileList(IVariables variables) {
-    normilizeAllocation();
     return FileInputList.createFileList(
-        variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubFolderBoolean());
-  }
-
-  private boolean[] includeSubFolderBoolean() {
-    normilizeAllocation();
-    int len = fileName.length;
-    boolean[] includeSubFolderBoolean = new boolean[len];
-    for (int i = 0; i < len; i++) {
-      includeSubFolderBoolean[i] = YES.equalsIgnoreCase(includeSubFolders[i]);
-    }
-    return includeSubFolderBoolean;
-  }
-
-  public String getLookupTransformName() {
-    if (acceptingFilenames
-        && acceptingTransform != null
-        && !Utils.isEmpty(acceptingTransform.getName())) {
-      return acceptingTransform.getName();
-    }
-    return null;
-  }
-
-  @Override
-  public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
-    acceptingTransform = TransformMeta.findTransform(transforms, acceptingTransformName);
+        variables,
+        getFilesNames(),
+        getFilesMasks(),
+        getFilesExcludeMasks(),
+        getFilesRequired(),
+        getFilesIncludeSubFolders());
   }
 
   public String[] getInfoTransforms() {
@@ -1225,16 +547,15 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
 
   public IRowMeta getEmptyFields() {
     IRowMeta row = new RowMeta();
-    if (field != null) {
-      for (int i = 0; i < field.length; i++) {
-        IValueMeta v;
-        try {
-          v = ValueMetaFactory.createValueMeta(field[i].getName(), field[i].getType());
-        } catch (HopPluginException e) {
-          v = new ValueMetaNone(field[i].getName());
-        }
-        row.addValueMeta(v);
+
+    for (ExcelInputField field : fields) {
+      IValueMeta v;
+      try {
+        v = ValueMetaFactory.createValueMeta(field.getName(), field.getHopType());
+      } catch (HopPluginException e) {
+        v = new ValueMetaNone(field.getName());
       }
+      row.addValueMeta(v);
     }
 
     return row;
@@ -1312,17 +633,6 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     this.strictTypes = strictTypes;
   }
 
-  public String[] getFileRequired() {
-    return fileRequired;
-  }
-
-  public void setFileRequired(String[] fileRequiredin) {
-    fileRequired = new String[fileRequiredin.length];
-    for (int i = 0; i < fileRequiredin.length && i < fileRequired.length; i++) {
-      this.fileRequired[i] = getRequiredFilesCode(fileRequiredin[i]);
-    }
-  }
-
   /**
    * @return Returns the acceptingField.
    */
@@ -1351,19 +661,6 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     this.acceptingFilenames = acceptingFilenames;
   }
 
-  /**
-   * @return Returns the acceptingTransform.
-   */
-  public TransformMeta getAcceptingTransform() {
-    return acceptingTransform;
-  }
-
-  /**
-   * @param acceptingTransform The acceptingTransform to set.
-   */
-  public void setAcceptingTransform(TransformMeta acceptingTransform) {
-    this.acceptingTransform = acceptingTransform;
-  }
 
   /**
    * @return Returns the acceptingTransformName.
@@ -1397,14 +694,14 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
    * @param isaddresult The isaddresult to set.
    */
   public void setAddResultFile(boolean isaddresult) {
-    this.isaddresult = isaddresult;
+    this.addFilenamesToResult = isaddresult;
   }
 
   /**
    * @return Returns isaddresult.
    */
   public boolean isAddResultFile() {
-    return isaddresult;
+    return addFilenamesToResult;
   }
 
   /**
@@ -1413,7 +710,8 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
    * @return true if all sheets are read.
    */
   public boolean readAllSheets() {
-    return Utils.isEmpty(sheetName) || (sheetName.length == 1 && Utils.isEmpty(sheetName[0]));
+    return sheets.isEmpty()
+        || (sheets.size() == 1 && StringUtils.isNotEmpty(sheets.get(0).getName()));
   }
 
   /**
@@ -1431,7 +729,6 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
       IHopMetadataProvider metadataProvider)
       throws HopException {
     try {
-      normilizeAllocation();
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
       // In case the name of the file comes from previous transforms, forget about this!
@@ -1440,10 +737,10 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
 
         // Replace the filename ONLY (folder or filename)
         //
-        for (int i = 0; i < fileName.length; i++) {
-          FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName[i]));
-          fileName[i] =
-              iResourceNaming.nameResource(fileObject, variables, Utils.isEmpty(fileMask[i]));
+        for (EIFile file : files) {
+          FileObject fileObject = HopVfs.getFileObject(variables.resolve(file.getName()));
+          file.setName(
+              iResourceNaming.nameResource(fileObject, variables, Utils.isEmpty(file.getMask())));
         }
       }
       return null;
@@ -1452,20 +749,638 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     }
   }
 
+  public String[] getSheetsNames() {
+    String[] names = new String[sheets.size()];
+    for (int i = 0; i < sheets.size(); i++) {
+      names[i] = sheets.get(i).getName();
+    }
+    return names;
+  }
+
+  public int[] getSheetsStartColumns() {
+    int[] columns = new int[sheets.size()];
+    for (int i = 0; i < sheets.size(); i++) {
+      columns[i] = sheets.get(i).getStartColumn();
+    }
+    return columns;
+  }
+
+  public int[] getSheetsStartRows() {
+    int[] rows = new int[sheets.size()];
+    for (int i = 0; i < sheets.size(); i++) {
+      rows[i] = sheets.get(i).getStartRow();
+    }
+    return rows;
+  }
+
+  public static class EIFile {
+    @HopMetadataProperty(
+        key = "name",
+        injectionKey = "FILENAME",
+        injectionKeyDescription = "ExcelInput.Injection.FILENAME")
+    private String name;
+
+    @HopMetadataProperty(
+        key = "filemask",
+        injectionKey = "FILEMASK",
+        injectionKeyDescription = "ExcelInput.Injection.FILEMASK")
+    private String mask;
+
+    @HopMetadataProperty(
+        key = "exclude_filemask",
+        injectionKey = "EXCLUDE_FILEMASK",
+        injectionKeyDescription = "ExcelInput.Injection.EXCLUDE_FILEMASK")
+    private String excludeMask;
+
+    @HopMetadataProperty(
+        key = "file_required",
+        injectionKey = "FILE_REQUIRED",
+        injectionKeyDescription = "ExcelInput.Injection.FILE_REQUIRED")
+    private String required;
+
+    @HopMetadataProperty(
+        key = "include_subfolders",
+        injectionKey = "INCLUDE_SUBFOLDERS",
+        injectionKeyDescription = "ExcelInput.Injection.INCLUDE_SUBFOLDERS")
+    private String includeSubFolders;
+
+    public EIFile() {}
+
+    public EIFile(EIFile f) {
+      this();
+      this.name = f.name;
+      this.mask = f.mask;
+      this.excludeMask = f.excludeMask;
+      this.required = f.required;
+      this.includeSubFolders = f.includeSubFolders;
+    }
+
+    /**
+     * Gets name
+     *
+     * @return value of name
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
+     * Sets name
+     *
+     * @param name value of name
+     */
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    /**
+     * Gets mask
+     *
+     * @return value of mask
+     */
+    public String getMask() {
+      return mask;
+    }
+
+    /**
+     * Sets mask
+     *
+     * @param mask value of mask
+     */
+    public void setMask(String mask) {
+      this.mask = mask;
+    }
+
+    /**
+     * Gets excludeMask
+     *
+     * @return value of excludeMask
+     */
+    public String getExcludeMask() {
+      return excludeMask;
+    }
+
+    /**
+     * Sets excludeMask
+     *
+     * @param excludeMask value of excludeMask
+     */
+    public void setExcludeMask(String excludeMask) {
+      this.excludeMask = excludeMask;
+    }
+
+    /**
+     * Gets required
+     *
+     * @return value of required
+     */
+    public String getRequired() {
+      return required;
+    }
+
+    /**
+     * Sets required
+     *
+     * @param required value of required
+     */
+    public void setRequired(String required) {
+      this.required = required;
+    }
+
+    /**
+     * Gets includeSubFolders
+     *
+     * @return value of includeSubFolders
+     */
+    public String getIncludeSubFolders() {
+      return includeSubFolders;
+    }
+
+    /**
+     * Sets includeSubFolders
+     *
+     * @param includeSubFolders value of includeSubFolders
+     */
+    public void setIncludeSubFolders(String includeSubFolders) {
+      this.includeSubFolders = includeSubFolders;
+    }
+  }
+
+  public static class EISheet {
+    @HopMetadataProperty(
+        key = "name",
+        injectionKey = "SHEET_NAME",
+        injectionKeyDescription = "ExcelInput.Injection.SHEET_NAME")
+    private String name;
+
+    @HopMetadataProperty(
+        key = "startrow",
+        injectionKey = "SHEET_START_ROW",
+        injectionKeyDescription = "ExcelInput.Injection.SHEET_START_ROW")
+    private int startRow;
+
+    @HopMetadataProperty(
+        key = "startcol",
+        injectionKey = "SHEET_START_COL",
+        injectionKeyDescription = "ExcelInput.Injection.SHEET_START_COL")
+    private int startColumn;
+
+    public EISheet() {}
+
+    public EISheet(EISheet s) {
+      this.name = s.name;
+      this.startRow = s.startRow;
+      this.startColumn = s.startColumn;
+    }
+
+    /**
+     * Gets name
+     *
+     * @return value of name
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
+     * Sets name
+     *
+     * @param name value of name
+     */
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    /**
+     * Gets startRow
+     *
+     * @return value of startRow
+     */
+    public int getStartRow() {
+      return startRow;
+    }
+
+    /**
+     * Sets startRow
+     *
+     * @param startRow value of startRow
+     */
+    public void setStartRow(int startRow) {
+      this.startRow = startRow;
+    }
+
+    /**
+     * Gets startColumn
+     *
+     * @return value of startColumn
+     */
+    public int getStartColumn() {
+      return startColumn;
+    }
+
+    /**
+     * Sets startColumn
+     *
+     * @param startColumn value of startColumn
+     */
+    public void setStartColumn(int startColumn) {
+      this.startColumn = startColumn;
+    }
+  }
+
+  /**
+   * Gets files
+   *
+   * @return value of files
+   */
+  public List<EIFile> getFiles() {
+    return files;
+  }
+
+  /**
+   * Sets files
+   *
+   * @param files value of files
+   */
+  public void setFiles(List<EIFile> files) {
+    this.files = files;
+  }
+
+  /**
+   * Gets fileField
+   *
+   * @return value of fileField
+   */
+  public String getFileField() {
+    return fileField;
+  }
+
+  /**
+   * Sets fileField
+   *
+   * @param fileField value of fileField
+   */
+  public void setFileField(String fileField) {
+    this.fileField = fileField;
+  }
+
+  /**
+   * Gets sheets
+   *
+   * @return value of sheets
+   */
+  public List<EISheet> getSheets() {
+    return sheets;
+  }
+
+  /**
+   * Sets sheets
+   *
+   * @param sheets value of sheets
+   */
+  public void setSheets(List<EISheet> sheets) {
+    this.sheets = sheets;
+  }
+
+  /**
+   * Gets sheetField
+   *
+   * @return value of sheetField
+   */
+  public String getSheetField() {
+    return sheetField;
+  }
+
+  /**
+   * Sets sheetField
+   *
+   * @param sheetField value of sheetField
+   */
+  public void setSheetField(String sheetField) {
+    this.sheetField = sheetField;
+  }
+
+  /**
+   * Gets startsWithHeader
+   *
+   * @return value of startsWithHeader
+   */
+  public boolean isStartsWithHeader() {
+    return startsWithHeader;
+  }
+
+  /**
+   * Sets startsWithHeader
+   *
+   * @param startsWithHeader value of startsWithHeader
+   */
+  public void setStartsWithHeader(boolean startsWithHeader) {
+    this.startsWithHeader = startsWithHeader;
+  }
+
+  /**
+   * Gets stopOnEmpty
+   *
+   * @return value of stopOnEmpty
+   */
+  public boolean isStopOnEmpty() {
+    return stopOnEmpty;
+  }
+
+  /**
+   * Sets stopOnEmpty
+   *
+   * @param stopOnEmpty value of stopOnEmpty
+   */
+  public void setStopOnEmpty(boolean stopOnEmpty) {
+    this.stopOnEmpty = stopOnEmpty;
+  }
+
+  /**
+   * Gets ignoreEmptyRows
+   *
+   * @return value of ignoreEmptyRows
+   */
+  public boolean isIgnoreEmptyRows() {
+    return ignoreEmptyRows;
+  }
+
+  /**
+   * Sets ignoreEmptyRows
+   *
+   * @param ignoreEmptyRows value of ignoreEmptyRows
+   */
+  public void setIgnoreEmptyRows(boolean ignoreEmptyRows) {
+    this.ignoreEmptyRows = ignoreEmptyRows;
+  }
+
+  /**
+   * Gets rowNumberField
+   *
+   * @return value of rowNumberField
+   */
+  public String getRowNumberField() {
+    return rowNumberField;
+  }
+
+  /**
+   * Sets rowNumberField
+   *
+   * @param rowNumberField value of rowNumberField
+   */
+  public void setRowNumberField(String rowNumberField) {
+    this.rowNumberField = rowNumberField;
+  }
+
+  /**
+   * Gets sheetRowNumberField
+   *
+   * @return value of sheetRowNumberField
+   */
+  public String getSheetRowNumberField() {
+    return sheetRowNumberField;
+  }
+
+  /**
+   * Sets sheetRowNumberField
+   *
+   * @param sheetRowNumberField value of sheetRowNumberField
+   */
+  public void setSheetRowNumberField(String sheetRowNumberField) {
+    this.sheetRowNumberField = sheetRowNumberField;
+  }
+
+  /**
+   * Gets rowLimit
+   *
+   * @return value of rowLimit
+   */
+  public long getRowLimit() {
+    return rowLimit;
+  }
+
+  /**
+   * Sets rowLimit
+   *
+   * @param rowLimit value of rowLimit
+   */
+  public void setRowLimit(long rowLimit) {
+    this.rowLimit = rowLimit;
+  }
+
+  /**
+   * Gets fields
+   *
+   * @return value of fields
+   */
+  public List<ExcelInputField> getFields() {
+    return fields;
+  }
+
+  /**
+   * Sets fields
+   *
+   * @param fields value of fields
+   */
+  public void setFields(List<ExcelInputField> fields) {
+    this.fields = fields;
+  }
+
+  /**
+   * Gets warningFilesExtension
+   *
+   * @return value of warningFilesExtension
+   */
+  public String getWarningFilesExtension() {
+    return warningFilesExtension;
+  }
+
+  /**
+   * Sets warningFilesExtension
+   *
+   * @param warningFilesExtension value of warningFilesExtension
+   */
+  public void setWarningFilesExtension(String warningFilesExtension) {
+    this.warningFilesExtension = warningFilesExtension;
+  }
+
+  /**
+   * Gets isaddresult
+   *
+   * @return value of isaddresult
+   */
+  public boolean isAddFilenamesToResult() {
+    return addFilenamesToResult;
+  }
+
+  /**
+   * Sets isaddresult
+   *
+   * @param addFilenamesToResult value of isaddresult
+   */
+  public void setAddFilenamesToResult(boolean addFilenamesToResult) {
+    this.addFilenamesToResult = addFilenamesToResult;
+  }
+
+  /**
+   * Gets shortFileFieldName
+   *
+   * @return value of shortFileFieldName
+   */
+  public String getShortFileFieldName() {
+    return shortFileFieldName;
+  }
+
+  /**
+   * Sets shortFileFieldName
+   *
+   * @param shortFileFieldName value of shortFileFieldName
+   */
+  public void setShortFileFieldName(String shortFileFieldName) {
+    this.shortFileFieldName = shortFileFieldName;
+  }
+
+  /**
+   * Gets pathFieldName
+   *
+   * @return value of pathFieldName
+   */
+  public String getPathFieldName() {
+    return pathFieldName;
+  }
+
+  /**
+   * Sets pathFieldName
+   *
+   * @param pathFieldName value of pathFieldName
+   */
+  public void setPathFieldName(String pathFieldName) {
+    this.pathFieldName = pathFieldName;
+  }
+
+  /**
+   * Gets hiddenFieldName
+   *
+   * @return value of hiddenFieldName
+   */
+  public String getHiddenFieldName() {
+    return hiddenFieldName;
+  }
+
+  /**
+   * Sets hiddenFieldName
+   *
+   * @param hiddenFieldName value of hiddenFieldName
+   */
+  public void setHiddenFieldName(String hiddenFieldName) {
+    this.hiddenFieldName = hiddenFieldName;
+  }
+
+  /**
+   * Gets lastModificationTimeFieldName
+   *
+   * @return value of lastModificationTimeFieldName
+   */
+  public String getLastModificationTimeFieldName() {
+    return lastModificationTimeFieldName;
+  }
+
+  /**
+   * Sets lastModificationTimeFieldName
+   *
+   * @param lastModificationTimeFieldName value of lastModificationTimeFieldName
+   */
+  public void setLastModificationTimeFieldName(String lastModificationTimeFieldName) {
+    this.lastModificationTimeFieldName = lastModificationTimeFieldName;
+  }
+
+  /**
+   * Gets uriNameFieldName
+   *
+   * @return value of uriNameFieldName
+   */
+  public String getUriNameFieldName() {
+    return uriNameFieldName;
+  }
+
+  /**
+   * Sets uriNameFieldName
+   *
+   * @param uriNameFieldName value of uriNameFieldName
+   */
+  public void setUriNameFieldName(String uriNameFieldName) {
+    this.uriNameFieldName = uriNameFieldName;
+  }
+
+  /**
+   * Gets rootUriNameFieldName
+   *
+   * @return value of rootUriNameFieldName
+   */
+  public String getRootUriNameFieldName() {
+    return rootUriNameFieldName;
+  }
+
+  /**
+   * Sets rootUriNameFieldName
+   *
+   * @param rootUriNameFieldName value of rootUriNameFieldName
+   */
+  public void setRootUriNameFieldName(String rootUriNameFieldName) {
+    this.rootUriNameFieldName = rootUriNameFieldName;
+  }
+
+  /**
+   * Gets extensionFieldName
+   *
+   * @return value of extensionFieldName
+   */
+  public String getExtensionFieldName() {
+    return extensionFieldName;
+  }
+
+  /**
+   * Sets extensionFieldName
+   *
+   * @param extensionFieldName value of extensionFieldName
+   */
+  public void setExtensionFieldName(String extensionFieldName) {
+    this.extensionFieldName = extensionFieldName;
+  }
+
+  /**
+   * Gets sizeFieldName
+   *
+   * @return value of sizeFieldName
+   */
+  public String getSizeFieldName() {
+    return sizeFieldName;
+  }
+
+  /**
+   * Sets sizeFieldName
+   *
+   * @param sizeFieldName value of sizeFieldName
+   */
+  public void setSizeFieldName(String sizeFieldName) {
+    this.sizeFieldName = sizeFieldName;
+  }
+
+  /**
+   * Gets spreadSheetType
+   *
+   * @return value of spreadSheetType
+   */
   public SpreadSheetType getSpreadSheetType() {
     return spreadSheetType;
   }
 
+  /**
+   * Sets spreadSheetType
+   *
+   * @param spreadSheetType value of spreadSheetType
+   */
   public void setSpreadSheetType(SpreadSheetType spreadSheetType) {
     this.spreadSheetType = spreadSheetType;
-  }
-
-  /**
-   * If we use injection we can have different arrays lengths. We need synchronize them for
-   * consistency behavior with UI
-   */
-  @AfterInjection
-  public void afterInjectionSynchronization() {
-    this.normilizeAllocation();
   }
 }

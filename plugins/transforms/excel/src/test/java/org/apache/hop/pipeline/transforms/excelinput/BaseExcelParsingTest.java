@@ -24,6 +24,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 
+import java.util.Arrays;
+
 /** Base class for all Fixed input transform tests. */
 @Ignore("No tests in abstract base class")
 public class BaseExcelParsingTest
@@ -49,12 +51,14 @@ public class BaseExcelParsingTest
   }
 
   /** Initialize for processing specified file. */
-  protected void init(String file) throws Exception {
-    meta.setFileName(new String[] {getFile(file).getURL().getFile()});
-    meta.setFileMask(new String[] {""});
-    meta.setExcludeFileMask(new String[] {""});
-    meta.setFileRequired(new String[] {"Y"});
-    meta.setIncludeSubFolders(new String[] {"N"});
+  protected void init(String filename) throws Exception {
+    ExcelInputMeta.EIFile file = new ExcelInputMeta.EIFile();
+    file.setName(getFile(filename).getURL().getFile());
+    file.setMask("");
+    file.setExcludeMask("");
+    file.setRequired("Y");
+    file.setIncludeSubFolders("N");
+    meta.getFiles().add(file);
 
     transform =
         new ExcelInput(transformMeta, meta, new ExcelInputData(), 1, pipelineMeta, pipeline);
@@ -64,7 +68,7 @@ public class BaseExcelParsingTest
 
   /** Declare fields for test. */
   protected void setFields(ExcelInputField... fields) throws Exception {
-    meta.setField(fields);
+    meta.setFields(Arrays.asList(fields));
     meta.getFields(data.outputRowMeta, meta.getName(), null, null, new Variables(), null);
   }
 
