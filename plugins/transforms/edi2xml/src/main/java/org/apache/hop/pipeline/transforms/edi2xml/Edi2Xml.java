@@ -57,7 +57,6 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> {
 
     Object[] r = getRow(); // get row, blocks when needed!
     if (r == null) { // no more input to be expected...
-
       setOutputDone();
       return false;
     }
@@ -77,23 +76,13 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> {
 
       data.inputFieldIndex = getInputRowMeta().indexOfValue(realInputField);
 
-      int numErrors = 0;
-
       if (data.inputFieldIndex < 0) {
-        logError(BaseMessages.getString(PKG, "Edi2Xml.Log.CouldNotFindInputField", realInputField));
-        numErrors++;
+        throw new HopException(BaseMessages.getString(PKG, "Edi2Xml.Log.CouldNotFindInputField", realInputField));
       }
-
       if (!data.inputRowMeta.getValueMeta(data.inputFieldIndex).isString()) {
-        logError(BaseMessages.getString(PKG, "Edi2Xml.Log.InputFieldIsNotAString", realInputField));
-        numErrors++;
+        throw new HopException(BaseMessages.getString(PKG, "Edi2Xml.Log.InputFieldIsNotAString", realInputField));
       }
 
-      if (numErrors > 0) {
-        setErrors(numErrors);
-        stopAll();
-        return false;
-      }
 
       data.inputMeta = data.inputRowMeta.getValueMeta(data.inputFieldIndex);
 
@@ -132,9 +121,7 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> {
       // place parsing result into output field
       r[data.outputFieldIndex] = parser.buf.toString();
       putRow(data.outputRowMeta, r);
-
     } catch (MismatchedTokenException e) {
-
       StringBuilder errorMessage = new StringBuilder(180);
       errorMessage.append(
           "error parsing edi on line " + e.line + " position " + e.charPositionInLine);
@@ -205,7 +192,7 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> {
     }
 
     if (checkFeedback(getLinesRead())) {
-      logBasic("Linenr " + getLinesRead());
+      logBasic("Line nr " + getLinesRead());
     }
 
     return true;

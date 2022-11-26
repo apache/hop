@@ -239,7 +239,7 @@ https://en.wikipedia.org/wiki/EDIFACT
       <name>${PROJECT_HOME}/files/sample.edi</name>
       <filemask/>
       <exclude_filemask/>
-      <file_required>N</file_required>
+      <file_required>Y</file_required>
       <include_subfolders>N</include_subfolders>
     </file>
     <fields>

@@ -38,5 +38,8 @@ public class Edi2XmlMetaTest {
 
     Assert.assertNotNull(meta.getInputField());
     Assert.assertNotNull(meta.getOutputField());
+
+    org.junit.Assert.assertEquals(meta.getInputField(), "edi");
+    org.junit.Assert.assertEquals(meta.getOutputField(), "xml");
   }
 }
