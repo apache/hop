@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.fieldsplitter;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -28,9 +29,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+import static org.apache.hop.pipeline.transforms.fieldsplitter.FieldSplitterMeta.FSField;
+
 /** Split a single String fields into multiple parts based on certain conditions. */
 public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitterData> {
-
   private static final Class<?> PKG = FieldSplitterMeta.class; // For Translator
 
   public FieldSplitter(
@@ -64,13 +66,9 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
                 PKG, "FieldSplitter.Log.SplitFieldNotValid", meta.getSplitField())));
       }
 
-      //check if the new field is empty or not
-      int newFieldsCount = meta.getFieldsCount();
-
-      if (newFieldsCount <= 0) {
+      if (meta.getFields().isEmpty()) {
         throw new HopValueException(
-                (BaseMessages.getString(
-                        PKG, "FieldSplitter.Log.SplitMetaNameNotValid")));
+            (BaseMessages.getString(PKG, "FieldSplitter.Log.SplitMetaNameNotValid")));
       }
       // prepare the outputMeta
       //
@@ -89,7 +87,7 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
     // reserve room
     Object[] outputRow = RowDataUtil.allocateRowData(data.outputMeta.size());
 
-    int nrExtraFields = meta.getFieldID().length - 1;
+    int nrExtraFields = meta.getFields().size() - 1;
 
     System.arraycopy(r, 0, outputRow, 0, data.fieldnr);
     System.arraycopy(
@@ -103,10 +101,8 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
     //
 
     // Named values info.id[0] not filled in!
-    final boolean selectFieldById =
-        (meta.getFieldID().length > 0)
-            && (meta.getFieldID()[0] != null)
-            && (meta.getFieldID()[0].length() > 0);
+    //
+    final boolean selectFieldById = StringUtils.isNotEmpty(meta.getFields().get(0).getId());
 
     if (log.isDebug()) {
       if (selectFieldById) {
@@ -122,14 +118,18 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
         Const.splitString(
             valueToSplit, data.delimiter, data.enclosure, removeEnclosure, data.escapeString);
     int prev = 0;
-    for (int i = 0; i < meta.getFieldsCount(); i++) {
+    for (int i = 0; i < meta.getFields().size(); i++) {
+      FSField field = meta.getFields().get(i);
+      String id = Const.NVL(field.getId(), "");
       String rawValue = null;
       if (selectFieldById) {
+        // Select the target field by the specified ID
+        //
         for (String part : valueParts) {
-          if (part.startsWith(meta.getFieldID()[i])) {
+          if (part.startsWith(id)) {
             // Optionally remove the id
-            if (meta.getFieldRemoveID()[i]) {
-              rawValue = part.substring(meta.getFieldID()[i].length());
+            if (field.isIdRemoved()) {
+              rawValue = part.substring(id.length());
             } else {
               rawValue = part;
             }
@@ -142,6 +142,8 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
           logDebug(BaseMessages.getString(PKG, "FieldSplitter.Log.SplitInfo") + rawValue);
         }
       } else {
+        // Use a delimiter to split the field
+        //
         rawValue = (valueParts == null || i >= valueParts.length) ? null : valueParts[i];
         prev += (rawValue == null ? 0 : rawValue.length()) + data.delimiter.length();
 
@@ -164,9 +166,9 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
             valueMeta.convertDataFromString(
                 rawValue,
                 conversionValueMeta,
-                meta.getFieldNullIf()[i],
-                meta.getFieldIfNull()[i],
-                meta.getFieldTrimType()[i]);
+                field.getNullIf(),
+                field.getIfNull(),
+                field.getTrimType().getType());
       } catch (Exception e) {
         throw new HopValueException(
             BaseMessages.getString(

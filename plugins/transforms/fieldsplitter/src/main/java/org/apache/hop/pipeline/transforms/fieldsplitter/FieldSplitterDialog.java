@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.fieldsplitter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -37,9 +38,6 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -49,6 +47,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+
+import static org.apache.hop.pipeline.transforms.fieldsplitter.FieldSplitterMeta.FSField;
 
 public class FieldSplitterDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = FieldSplitterMeta.class; // For Translator
@@ -81,9 +81,6 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     PropsUi.setLook(shell);
     setShellImage(shell, input);
 
-    ModifyListener lsMod = e -> input.setChanged();
-    changed = input.hasChanged();
-
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
@@ -106,7 +103,6 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
@@ -114,39 +110,33 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wTransformName.setLayoutData(fdTransformName);
 
     // Typefield line
-    Label wlSplitfield = new Label(shell, SWT.RIGHT);
-    wlSplitfield.setText(BaseMessages.getString(PKG, "FieldSplitterDialog.SplitField.Label"));
-    PropsUi.setLook(wlSplitfield);
-    FormData fdlSplitfield = new FormData();
-    fdlSplitfield.left = new FormAttachment(0, 0);
-    fdlSplitfield.right = new FormAttachment(middle, -margin);
-    fdlSplitfield.top = new FormAttachment(wTransformName, margin);
-    wlSplitfield.setLayoutData(fdlSplitfield);
+    Label wlSplitField = new Label(shell, SWT.RIGHT);
+    wlSplitField.setText(BaseMessages.getString(PKG, "FieldSplitterDialog.SplitField.Label"));
+    PropsUi.setLook(wlSplitField);
+    FormData fdlSplitField = new FormData();
+    fdlSplitField.left = new FormAttachment(0, 0);
+    fdlSplitField.right = new FormAttachment(middle, -margin);
+    fdlSplitField.top = new FormAttachment(wTransformName, margin);
+    wlSplitField.setLayoutData(fdlSplitField);
     wSplitField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
     wSplitField.setText("");
     PropsUi.setLook(wSplitField);
-    wSplitField.addModifyListener(lsMod);
-    FormData fdSplitfield = new FormData();
-    fdSplitfield.left = new FormAttachment(middle, 0);
-    fdSplitfield.top = new FormAttachment(wTransformName, margin);
-    fdSplitfield.right = new FormAttachment(100, 0);
-    wSplitField.setLayoutData(fdSplitfield);
-    wSplitField.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {}
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
+    FormData fdSplitField = new FormData();
+    fdSplitField.left = new FormAttachment(middle, 0);
+    fdSplitField.top = new FormAttachment(wTransformName, margin);
+    fdSplitField.right = new FormAttachment(100, 0);
+    wSplitField.setLayoutData(fdSplitField);
+    wSplitField.addListener(
+        SWT.FocusIn,
+        e -> {
+          Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+          shell.setCursor(busy);
+          getFields();
+          shell.setCursor(null);
+          busy.dispose();
         });
 
-    // Typefield line
+    // Delimiter line
     Label wlDelimiter = new Label(shell, SWT.RIGHT);
     wlDelimiter.setText(BaseMessages.getString(PKG, "FieldSplitterDialog.Delimiter.Label"));
     PropsUi.setLook(wlDelimiter);
@@ -159,14 +149,13 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wDelimiter.setToolTipText(BaseMessages.getString(PKG, "FieldSplitterDialog.Delimiter.Tooltip"));
     wDelimiter.setText("");
     PropsUi.setLook(wDelimiter);
-    wDelimiter.addModifyListener(lsMod);
     FormData fdDelimiter = new FormData();
     fdDelimiter.left = new FormAttachment(middle, 0);
     fdDelimiter.top = new FormAttachment(wSplitField, margin);
     fdDelimiter.right = new FormAttachment(100, 0);
     wDelimiter.setLayoutData(fdDelimiter);
 
-    // enclosure
+    // Enclosure
     Label wlEnclosure = new Label(shell, SWT.RIGHT);
     wlEnclosure.setText(BaseMessages.getString(PKG, "FieldSplitterDialog.Enclosure.Label"));
     PropsUi.setLook(wlEnclosure);
@@ -178,7 +167,6 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wEnclosure.setToolTipText(BaseMessages.getString(PKG, "FieldSplitterDialog.Enclosure.Tooltip"));
     PropsUi.setLook(wEnclosure);
-    wEnclosure.addModifyListener(lsMod);
     FormData fdEnclosure = new FormData();
     fdEnclosure.top = new FormAttachment(wDelimiter, margin);
     fdEnclosure.left = new FormAttachment(middle, 0);
@@ -198,7 +186,6 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wEscapeString.setToolTipText(
         BaseMessages.getString(PKG, "FieldSplitterDialog.EscapeString.Tooltip"));
     PropsUi.setLook(wEscapeString);
-    wEscapeString.addModifyListener(lsMod);
     FormData fdEscapeString = new FormData();
     fdEscapeString.top = new FormAttachment(wEnclosure, margin);
     fdEscapeString.left = new FormAttachment(middle, 0);
@@ -220,9 +207,9 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
 
     setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
-    final int fieldsRows = input.getFieldName().length;
+    final int fieldsRows = input.getFields().size();
 
-    final ColumnInfo[] colinf =
+    final ColumnInfo[] fieldColumns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.NewField"),
@@ -283,9 +270,9 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
             variables,
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
+            fieldColumns,
             fieldsRows,
-            lsMod,
+            null,
             props);
 
     FormData fdFields = new FormData();
@@ -300,7 +287,6 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
-    input.setChanged(changed);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -335,41 +321,26 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wEnclosure.setText(Const.NVL(input.getEnclosure(), ""));
     wEscapeString.setText(Const.NVL(input.getEscapeString(), ""));
 
-    for (int i = 0; i < input.getFieldName().length; i++) {
+    for (int i = 0; i < input.getFields().size(); i++) {
+      FSField field = input.getFields().get(i);
       final TableItem ti = wFields.table.getItem(i);
-      if (input.getFieldName()[i] != null) {
-        ti.setText(1, input.getFieldName()[i]);
+      ti.setText(1, Const.NVL(field.getName(), ""));
+      ti.setText(2, Const.NVL(field.getId(), ""));
+      ti.setText(3, field.isIdRemoved() ? "Y" : "N");
+      ti.setText(4, Const.NVL(field.getType(), ""));
+      if (field.getLength() >= 0) {
+        ti.setText(5, "" + field.getLength());
       }
-      if (input.getFieldID()[i] != null) {
-        ti.setText(2, input.getFieldID()[i]);
+      if (field.getPrecision() >= 0) {
+        ti.setText(6, "" + field.getPrecision());
       }
-      ti.setText(3, input.getFieldRemoveID()[i] ? "Y" : "N");
-      ti.setText(4, ValueMetaFactory.getValueMetaName(input.getFieldType()[i]));
-      if (input.getFieldLength()[i] >= 0) {
-        ti.setText(5, "" + input.getFieldLength()[i]);
-      }
-      if (input.getFieldPrecision()[i] >= 0) {
-        ti.setText(6, "" + input.getFieldPrecision()[i]);
-      }
-      if (input.getFieldFormat()[i] != null) {
-        ti.setText(7, input.getFieldFormat()[i]);
-      }
-      if (input.getFieldGroup()[i] != null) {
-        ti.setText(8, input.getFieldGroup()[i]);
-      }
-      if (input.getFieldDecimal()[i] != null) {
-        ti.setText(9, input.getFieldDecimal()[i]);
-      }
-      if (input.getFieldCurrency()[i] != null) {
-        ti.setText(10, input.getFieldCurrency()[i]);
-      }
-      if (input.getFieldNullIf()[i] != null) {
-        ti.setText(11, input.getFieldNullIf()[i]);
-      }
-      if (input.getFieldIfNull()[i] != null) {
-        ti.setText(12, input.getFieldIfNull()[i]);
-      }
-      ti.setText(13, ValueMetaString.getTrimTypeDesc(input.getFieldTrimType()[i]));
+      ti.setText(7, Const.NVL(field.getFormat(), ""));
+      ti.setText(8, Const.NVL(field.getGroup(), ""));
+      ti.setText(9, Const.NVL(field.getDecimal(), ""));
+      ti.setText(10, Const.NVL(field.getCurrency(), ""));
+      ti.setText(11, Const.NVL(field.getNullIf(), ""));
+      ti.setText(12, Const.NVL(field.getIfNull(), ""));
+      ti.setText(13, field.getTrimType() == null ? "" : field.getTrimType().getDescription());
     }
     wFields.setRowNums();
     wFields.optWidth(true);
@@ -380,7 +351,6 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
 
   private void cancel() {
     transformName = null;
-    input.setChanged(changed);
     dispose();
   }
 
@@ -396,38 +366,26 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     input.setEnclosure(wEnclosure.getText());
     input.setEscapeString(wEscapeString.getText());
 
-    int nrFields = wFields.nrNonEmpty();
-
-    input.allocate(nrFields);
-
-    //check if the new field is empty or not
-
-    if (input.getFieldName().length <= 0) {
-      new ErrorDialog(
-              shell,
-              BaseMessages.getString(PKG, "FieldSplitterDialog.FailedToGetFields.DialogTitle"),
-              BaseMessages.getString(PKG, "FieldSplitter.Log.SplitMetaNameNotValid"),null);
-      return;
+    input.getFields().clear();
+    for (TableItem ti : wFields.getNonEmptyItems()) {
+      FSField field = new FSField();
+      field.setName(ti.getText(1));
+      field.setId(ti.getText(2));
+      field.setIdRemoved("Y".equalsIgnoreCase(ti.getText(3)));
+      field.setType(ti.getText(4));
+      field.setLength(Const.toInt(ti.getText(5), -1));
+      field.setPrecision(Const.toInt(ti.getText(6), -1));
+      field.setFormat(ti.getText(7));
+      field.setGroup(ti.getText(8));
+      field.setDecimal(ti.getText(9));
+      field.setCurrency(ti.getText(10));
+      field.setNullIf(ti.getText(11));
+      field.setIfNull(ti.getText(12));
+      field.setTrimType(IValueMeta.TrimType.lookupDescription(ti.getText(13)));
+      input.getFields().add(field);
     }
 
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < input.getFieldName().length; i++) {
-      final TableItem ti = wFields.getNonEmpty(i);
-      input.getFieldName()[i] = ti.getText(1);
-      input.getFieldID()[i] = ti.getText(2);
-      input.getFieldRemoveID()[i] = "Y".equalsIgnoreCase(ti.getText(3));
-      input.getFieldType()[i] = ValueMetaFactory.getIdForValueMeta(ti.getText(4));
-      input.getFieldLength()[i] = Const.toInt(ti.getText(5), -1);
-      input.getFieldPrecision()[i] = Const.toInt(ti.getText(6), -1);
-      input.getFieldFormat()[i] = ti.getText(7);
-      input.getFieldGroup()[i] = ti.getText(8);
-      input.getFieldDecimal()[i] = ti.getText(9);
-      input.getFieldCurrency()[i] = ti.getText(10);
-      input.getFieldNullIf()[i] = ti.getText(11);
-      input.getFieldIfNull()[i] = ti.getText(12);
-      input.getFieldTrimType()[i] = ValueMetaString.getTrimTypeByDesc(ti.getText(13));
-    }
-
+    input.setChanged(true);
     dispose();
   }
 }
