@@ -137,6 +137,22 @@ public class PropsUi extends Props {
 
     populateContrastingColors();
 
+    // Only set OS look shown once in case we switch to dark mode
+    // and vice versa.  We don't want to override user choices all the time.
+    // If we do it like before it becomes impossible to choose your own font and colors.
+    //
+    if (!EnvironmentUtils.getInstance().isWeb() && !OsHelper.isWindows()) {
+      if (Display.isSystemDarkTheme()) {
+        if (!isDarkMode()) {
+          setDarkMode(true);
+        }
+      } else {
+        if (isDarkMode()) {
+          setDarkMode(false);
+        }
+      }
+    }
+    
     // The user manually selected Dark Mode
     // We'll try to change settings to make this possible.
     //
@@ -171,22 +187,6 @@ public class PropsUi extends Props {
           "org.eclipse.swt.internal.win32.Combo.backgroundColor",
           new Color(display, 0xD0, 0xD0, 0xD0));
       display.setData("org.eclipse.swt.internal.win32.ProgressBar.useColors", Boolean.TRUE);
-    }
-
-    // Only set OS look shown once in case we switch to dark mode
-    // and vice versa.  We don't want to override user choices all the time.
-    // If we do it like before it becomes impossible to choose your own font and colors.
-    //
-    if (!EnvironmentUtils.getInstance().isWeb()) {
-      if (Display.isSystemDarkTheme()) {
-        if (!isDarkMode()) {
-          setDarkMode(true);
-        }
-      } else {
-        if (isDarkMode()) {
-          setDarkMode(false);
-        }
-      }
     }
 
     if (display != null) {
