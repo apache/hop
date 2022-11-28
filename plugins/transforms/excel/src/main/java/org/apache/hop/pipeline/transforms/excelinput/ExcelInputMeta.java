@@ -754,7 +754,7 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
    */
   public boolean readAllSheets() {
     return sheets.isEmpty()
-        || (sheets.size() == 1 && StringUtils.isNotEmpty(sheets.get(0).getName()));
+        || (sheets.size() == 1 && StringUtils.isEmpty(sheets.get(0).getName()));
   }
 
   /**
