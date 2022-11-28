@@ -100,7 +100,7 @@ public abstract class DragViewZoomBase extends Composite {
     redraw();
   }
 
-  @GuiKeyboardShortcut(control = true, key = '=')
+  @GuiKeyboardShortcut(control = true, key = '+')
   public void zoomIn() {
     magnification += 0.1f;
     // Minimum 1000%
@@ -111,6 +111,12 @@ public abstract class DragViewZoomBase extends Composite {
     redraw();
   }
 
+  // Double keyboard shortcut zoom in '+' or '='
+  @GuiKeyboardShortcut(control = true, key = '=')
+  public void zoomIn2() {
+    zoomIn();
+  }
+  
   @GuiKeyboardShortcut(control = true, key = '-')
   public void zoomOut() {
     magnification -= 0.1f;
@@ -122,14 +128,20 @@ public abstract class DragViewZoomBase extends Composite {
     redraw();
   }
 
-  @GuiKeyboardShortcut(control = true, key = '0')
+  @GuiKeyboardShortcut(control = true, key = '0' )
   public void zoom100Percent() {
     magnification = 1.0f;
     setZoomLabel();
     redraw();
   }
-
-  @GuiKeyboardShortcut(control = true, key = ']')
+  
+  // Double keyboard shortcut zoom 100% '0' or keypad 0
+  @GuiKeyboardShortcut(control = true, key = SWT.KEYPAD_0 )
+  public void zoom100Percent2() {
+    zoom100Percent();
+  }
+  
+  @GuiKeyboardShortcut(control = true, key = '*')
   public void zoomFitToScreen() {
     if (maximum.x <= 0 || maximum.y <= 0) {
       return;
@@ -155,6 +167,12 @@ public abstract class DragViewZoomBase extends Composite {
     canvas.redraw();
   }
 
+  // Double keyboard shortcut zoom fit to screen '*' or keypad *
+  @GuiKeyboardShortcut(control = true, key = SWT.KEYPAD_MULTIPLY )
+  public void zoomFitToScreen2() {
+    zoomFitToScreen();
+  }
+  
   /**
    * There are 2 ways to drag the view-port around. One way is to use the navigation rectangle at
    * the bottom. The other way is to click-drag the background.

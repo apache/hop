@@ -1423,10 +1423,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     super.zoom100Percent();
   }
 
+  @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_TO_FIT,
-      toolTip = "i18n::HopGuiPipelineGraph.GuiAction.ZoomFitToScreen.Tooltip",
+      toolTip = "i18n::HopGuiWorkflowGraph.GuiAction.ZoomFitToScreen.Tooltip",
       type = GuiToolbarElementType.BUTTON,
       image = "ui/images/zoom-fit.svg")
   public void zoomFitToScreen() {

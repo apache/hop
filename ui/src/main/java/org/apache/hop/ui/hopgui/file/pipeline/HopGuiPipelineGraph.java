@@ -1820,7 +1820,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void zoomOut() {
     super.zoomOut();
   }
-
+  
+  @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_TO_FIT,

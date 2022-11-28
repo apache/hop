@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class BaseExecutionViewer extends DragViewZoomBase
-    implements KeyListener, MouseListener, MouseMoveListener {
+    implements MouseListener, MouseMoveListener {
 
   public static final String STRING_STATE_STALE = "Stale";
 
@@ -137,12 +137,6 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
   }
 
   public abstract void drillDownOnLocation(Point location);
-
-  @Override
-  public void keyPressed(KeyEvent keyEvent) {}
-
-  @Override
-  public void keyReleased(KeyEvent keyEvent) {}
 
   @Override
   public void mouseDoubleClick(MouseEvent mouseEvent) {
