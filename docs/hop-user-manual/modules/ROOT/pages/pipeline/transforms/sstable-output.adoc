@@ -18,7 +18,7 @@ under the License.
 :language: en_US
 :description: The Cassandra SSTable Output transform writes to a file system directory as a Cassandra SSTable.
 
-= image:transforms/icons/Cassandra.svg[Cassandra SSTable Output transform Icon, role="image-doc-icon"] Cassandra SSTable Output
+= image:transforms/icons/cassandra.svg[Cassandra SSTable Output transform Icon, role="image-doc-icon"] Cassandra SSTable Output
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===

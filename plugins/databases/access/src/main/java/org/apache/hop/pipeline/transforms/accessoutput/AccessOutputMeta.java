@@ -54,7 +54,7 @@ import java.util.Map;
     id = "AccessOutput",
     name = "i18n::AccessOutput.Name",
     description = "i18n::AccessOutput.Description",
-    image = "AccessOutput.svg",
+    image = "accessoutput.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::AccessOutput.Keyword",
     documentationUrl = "/pipeline/transforms/accessoutput.html")

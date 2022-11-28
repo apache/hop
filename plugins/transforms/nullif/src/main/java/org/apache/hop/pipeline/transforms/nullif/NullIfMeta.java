@@ -41,7 +41,7 @@ import java.util.List;
 
 @Transform(
     id = "NullIf",
-    image = "NullIf.svg",
+    image = "nullif.svg",
     name = "i18n::NullIf.Name",
     description = "i18n::NullIf.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",

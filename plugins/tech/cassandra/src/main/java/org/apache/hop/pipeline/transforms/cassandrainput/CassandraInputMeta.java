@@ -42,7 +42,7 @@ import java.util.List;
 /** Class providing an input transform for reading data from an Cassandra table */
 @Transform(
     id = "CassandraInput",
-    image = "Cassandrain.svg",
+    image = "cassandrain.svg",
     name = "Cassandra input",
     description = "Reads data from a Cassandra table",
     documentationUrl = "/pipeline/transforms/cassandra-input.html",

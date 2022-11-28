@@ -18,7 +18,7 @@ under the License.
 :language: en_US
 :description: The Oracle Bulk Loader transform streams data from Hop to Oracle. It will write the data it receives to a proper load format and will then invoke Oracle SQL*Loader to transfer it to the specified table.
 
-= image:transforms/icons/OraBulkLoader.svg[Oracle Bulk Loader transform Icon, role="image-doc-icon"] Oracle Bulk Loader
+= image:transforms/icons/orabulkloader.svg[Oracle Bulk Loader transform Icon, role="image-doc-icon"] Oracle Bulk Loader
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===

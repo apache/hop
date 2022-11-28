@@ -43,7 +43,7 @@ import java.util.List;
 
 @Transform(
     id = "OraBulkLoader",
-    image = "OraBulkLoader.svg",
+    image = "orabulkloader.svg",
     description = "i18n::OraBulkLoader.Description",
     name = "i18n::OraBulkLoader.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",

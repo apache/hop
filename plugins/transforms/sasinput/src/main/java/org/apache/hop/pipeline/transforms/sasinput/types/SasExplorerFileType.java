@@ -35,7 +35,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplore
     id = "SasExplorerFileType",
     name = "SAS File Type",
     description = "SAS file handling in the explorer perspective",
-    image = "SAS.svg")
+    image = "sas.svg")
 public class SasExplorerFileType extends BaseExplorerFileType<SasExplorerFileTypeHandler>
     implements IExplorerFileType<SasExplorerFileTypeHandler> {
 
