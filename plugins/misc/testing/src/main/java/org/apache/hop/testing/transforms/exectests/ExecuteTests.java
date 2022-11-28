@@ -19,6 +19,7 @@ package org.apache.hop.testing.transforms.exectests;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -143,6 +144,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
           test,
           this,
           getLogLevel(),
+          new Result(),
           metadataProvider,
           this,
           // Evaluate the execution the pipeline itself.  Was there an error?
