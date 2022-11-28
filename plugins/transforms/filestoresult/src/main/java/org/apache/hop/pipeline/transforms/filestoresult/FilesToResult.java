@@ -78,7 +78,9 @@ public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResul
     try {
       ResultFile resultFile =
           new ResultFile(
-              meta.getFileType(),
+              meta.getFileType() == null
+                  ? ResultFile.FileType.GENERAL.getType()
+                  : meta.getFileType().getType(),
               HopVfs.getFileObject(filename),
               getPipeline().getPipelineMeta().getName(),
               getTransformName());

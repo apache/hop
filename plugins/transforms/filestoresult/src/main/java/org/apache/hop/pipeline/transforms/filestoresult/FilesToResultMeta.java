@@ -19,21 +19,19 @@ package org.apache.hop.pipeline.transforms.filestoresult;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
+
+import static org.apache.hop.core.ResultFile.FileType;
 
 @Transform(
     id = "FilesToResult",
@@ -46,83 +44,31 @@ import java.util.List;
 public class FilesToResultMeta extends BaseTransformMeta<FilesToResult, FilesToResultData> {
   private static final Class<?> PKG = FilesToResultMeta.class; // For Translator
 
+  @HopMetadataProperty(key = "filename_field")
   private String filenameField;
 
-  private int fileType;
-
-  /** @return Returns the fieldname that contains the filename. */
-  public String getFilenameField() {
-    return filenameField;
-  }
-
-  /** @param filenameField set the fieldname that contains the filename. */
-  public void setFilenameField(String filenameField) {
-    this.filenameField = filenameField;
-  }
-
-  /**
-   * @return Returns the fileType.
-   * @see ResultFile
-   */
-  public int getFileType() {
-    return fileType;
-  }
-
-  /**
-   * @param fileType The fileType to set.
-   * @see ResultFile
-   */
-  public void setFileType(int fileType) {
-    this.fileType = fileType;
-  }
+  @HopMetadataProperty(key = "file_type", storeWithCode = true)
+  private FileType fileType;
 
   public FilesToResultMeta() {
     super(); // allocate BaseTransformMeta
+    fileType = FileType.GENERAL;
+  }
+
+  public FilesToResultMeta(FilesToResultMeta m) {
+    this.filenameField = m.filenameField;
+    this.fileType = m.fileType;
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder();
-
-    xml.append(XmlHandler.addTagValue("filename_field", filenameField));
-    xml.append(XmlHandler.addTagValue("file_type", ResultFile.getTypeCode(fileType)));
-
-    return xml.toString();
-  }
-
-  private void readData(Node transformNode) {
-    filenameField = XmlHandler.getTagValue(transformNode, "filename_field");
-    fileType = ResultFile.getType(XmlHandler.getTagValue(transformNode, "file_type"));
+  public FilesToResultMeta clone() {
+    return new FilesToResultMeta(this);
   }
 
   @Override
   public void setDefault() {
     filenameField = null;
-    fileType = ResultFile.FILE_TYPE_GENERAL;
-  }
-
-  @Override
-  public void getFields(
-      IRowMeta rowMeta,
-      String origin,
-      IRowMeta[] info,
-      TransformMeta nextTransform,
-      IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
-    // Default: nothing changes to rowMeta
+    fileType = FileType.GENERAL;
   }
 
   @Override
@@ -138,20 +84,50 @@ public class FilesToResultMeta extends BaseTransformMeta<FilesToResult, FilesToR
       IHopMetadataProvider metadataProvider) {
     // See if we have input streams leading to this transform!
     if (input.length > 0) {
-      CheckResult cr =
+      remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "FilesToResultMeta.CheckResult.TransformReceivingInfoFromOtherTransforms"),
-              transformMeta);
-      remarks.add(cr);
+              transformMeta));
     } else {
-      CheckResult cr =
+      remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "FilesToResultMeta.CheckResult.NoInputReceivedError"),
-              transformMeta);
-      remarks.add(cr);
+              transformMeta));
     }
+  }
+
+  /**
+   * @return Returns the fieldname that contains the filename.
+   */
+  public String getFilenameField() {
+    return filenameField;
+  }
+
+  /**
+   * @param filenameField set the fieldname that contains the filename.
+   */
+  public void setFilenameField(String filenameField) {
+    this.filenameField = filenameField;
+  }
+
+  /**
+   * Gets fileType
+   *
+   * @return value of fileType
+   */
+  public FileType getFileType() {
+    return fileType;
+  }
+
+  /**
+   * Sets fileType
+   *
+   * @param fileType value of fileType
+   */
+  public void setFileType(FileType fileType) {
+    this.fileType = fileType;
   }
 }

@@ -52,8 +52,13 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
   private final FilesToResultMeta input;
 
   public FilesToResultDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
+      Shell parent, IVariables variables, Object in, PipelineMeta tr, String transformName) {
+    super(
+        parent,
+        variables,
+        (BaseTransformMeta<FilesToResult, FilesToResultData>) in,
+        tr,
+        transformName);
     input = (FilesToResultMeta) in;
   }
 
@@ -77,7 +82,7 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     shell.setText(BaseMessages.getString(PKG, "FilesToResultDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -188,7 +193,9 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wTypes.select(input.getFileType());
+    ResultFile.FileType fileType = input.getFileType();
+
+    wTypes.select(fileType == null ? ResultFile.FileType.GENERAL.getType() : fileType.getType());
     if (input.getFilenameField() != null) {
       wFilenameField.setText(input.getFilenameField());
     }
@@ -212,9 +219,9 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
 
     input.setFilenameField(wFilenameField.getText());
     if (wTypes.getSelectionIndex() >= 0) {
-      input.setFileType(wTypes.getSelectionIndex());
+      input.setFileType(ResultFile.FileType.lookupDescription(wTypes.getSelection()[0]));
     } else {
-      input.setFileType(ResultFile.FILE_TYPE_GENERAL);
+      input.setFileType(ResultFile.FileType.GENERAL);
     }
 
     dispose();

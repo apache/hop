@@ -17,47 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.filestoresult;
 
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.junit.ClassRule;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class FilesToResultMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
-  public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList("filename_field", "file_type");
-
-    Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("filename_field", "getFilenameField");
-    getterMap.put("file_type", "getFileType");
-
-    Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("filename_field", "setFilenameField");
-    setterMap.put("file_type", "setFileType");
-
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
-    fieldLoadSaveValidatorAttributeMap.put(
-        "file_type", new IntLoadSaveValidator(ResultFile.fileTypeCode.length));
-
-    LoadSaveTester loadSaveTester =
-        new LoadSaveTester(
-            FilesToResultMeta.class,
-            attributes,
-            getterMap,
-            setterMap,
-            fieldLoadSaveValidatorAttributeMap,
-            new HashMap<>());
-    loadSaveTester.testSerialization();
+  public void testSerialization() throws Exception {
+    FilesToResultMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/files-to-result-transform.xml", FilesToResultMeta.class);
+    Assert.assertNotNull(meta.getFilenameField());
+    Assert.assertNotNull(meta.getFileType());
   }
 }
