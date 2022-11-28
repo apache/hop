@@ -17,22 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.filemetadata;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Transform(
     id = "FileMetadataPlugin",
@@ -43,33 +38,23 @@ import java.util.ArrayList;
     keywords = "i18n::FileMetadataMeta.keyword",
     documentationUrl = "/pipeline/transforms/filemetadata.html")
 public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetadataData> {
-
-  //  public enum DetectionMethod {
-  //    FILE_FORMAT,          // delimited or fixed width?
-  //    DELIMITED_LAYOUT,     // delimiters, enclosure, skip header lines etc.
-  //    DELIMITED_FIELDS,     // fields and types in a delimited file
-  //    FIXED_LAYOUT,         // fixed layout, total record length, nr. of fields
-  //    FIXED_FIELDS          // fixed fields layout beginning, end
-  //  }
-
-  /**
-   * The PKG member is used when looking up internationalized strings. The properties file with
-   * localized keys is expected to reside in {the package of the class
-   * specified}/messages/messages_{locale}.properties
-   */
-  private static final Class<?> PKG = FileMetadataMeta.class; // For Translator
-
   /** Stores the name of the file to examine */
-  private String fileName = "";
+  @HopMetadataProperty(key = "fileName")
+  private String fileName;
 
-  private String limitRows = "0";
-  private String defaultCharset = "ISO-8859-1";
+  @HopMetadataProperty(key = "limitRows")
+  private String limitRows;
+
+  @HopMetadataProperty(key = "defaultCharset")
+  private String defaultCharset;
 
   // candidates for delimiters in delimited files
-  private ArrayList<String> delimiterCandidates = new ArrayList<>(5);
+  @HopMetadataProperty(key = "delimiterCandidate")
+  private List<FMCandidate> delimiterCandidates;
 
   // candidates for enclosure characters in delimited files
-  private ArrayList<String> enclosureCandidates = new ArrayList<>(5);
+  @HopMetadataProperty(key = "enclosureCandidate")
+  private List<FMCandidate> enclosureCandidates;
 
   /**
    * Constructor should call super() to make sure the base class has a chance to initialize
@@ -77,6 +62,17 @@ public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetada
    */
   public FileMetadataMeta() {
     super();
+    this.delimiterCandidates = new ArrayList<>();
+    this.enclosureCandidates = new ArrayList<>();
+  }
+
+  public FileMetadataMeta(FileMetadataMeta m) {
+    this();
+    this.fileName = m.fileName;
+    this.limitRows = m.limitRows;
+    this.defaultCharset = m.defaultCharset;
+    m.delimiterCandidates.forEach(c -> this.delimiterCandidates.add(new FMCandidate(c)));
+    m.enclosureCandidates.forEach(c -> this.enclosureCandidates.add(new FMCandidate(c)));
   }
 
   /**
@@ -91,13 +87,13 @@ public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetada
     defaultCharset = "ISO-8859-1";
 
     delimiterCandidates.clear();
-    delimiterCandidates.add("\t");
-    delimiterCandidates.add(";");
-    delimiterCandidates.add(",");
+    delimiterCandidates.add(new FMCandidate("\t"));
+    delimiterCandidates.add(new FMCandidate(";"));
+    delimiterCandidates.add(new FMCandidate(","));
 
     enclosureCandidates.clear();
-    enclosureCandidates.add("\"");
-    enclosureCandidates.add("'");
+    enclosureCandidates.add(new FMCandidate("\""));
+    enclosureCandidates.add(new FMCandidate("'"));
   }
 
   /**
@@ -108,75 +104,8 @@ public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetada
    * @return a deep copy of this
    */
   @Override
-  public Object clone() {
-    FileMetadataMeta copy = (FileMetadataMeta) super.clone();
-    copy.setDelimiterCandidates(new ArrayList<>(this.delimiterCandidates));
-    copy.setEnclosureCandidates(new ArrayList<>(this.enclosureCandidates));
-    return copy;
-  }
-
-  @Override
-  public String getXml() throws HopValueException {
-
-    StringBuilder buffer = new StringBuilder(800);
-
-    buffer.append("    ").append(XmlHandler.addTagValue("fileName", fileName));
-    buffer.append("    ").append(XmlHandler.addTagValue("limitRows", limitRows));
-    buffer.append("    ").append(XmlHandler.addTagValue("defaultCharset", defaultCharset));
-
-    for (String delimiterCandidate : delimiterCandidates) {
-      buffer.append("      <delimiterCandidate>").append(Const.CR);
-      buffer.append("        ").append(XmlHandler.addTagValue("candidate", delimiterCandidate));
-      buffer.append("      </delimiterCandidate>").append(Const.CR);
-    }
-
-    for (String enclosureCandidate : enclosureCandidates) {
-      buffer.append("      <enclosureCandidate>").append(Const.CR);
-      buffer.append("        ").append(XmlHandler.addTagValue("candidate", enclosureCandidate));
-      buffer.append("      </enclosureCandidate>").append(Const.CR);
-    }
-
-    return buffer.toString();
-  }
-
-  /**
-   * This method is called by Hop when a transform needs to load its configuration from XML.
-   *
-   * <p>
-   *
-   * @param transformNode the XML node containing the configuration
-   * @param metadataProvider the metadata provider
-   */
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-
-    try {
-      setFileName(XmlHandler.getNodeValue(XmlHandler.getSubNode(transformNode, "fileName")));
-      setLimitRows(XmlHandler.getNodeValue(XmlHandler.getSubNode(transformNode, "limitRows")));
-      setDefaultCharset(
-          XmlHandler.getNodeValue(XmlHandler.getSubNode(transformNode, "defaultCharset")));
-
-      int nrDelimiters = XmlHandler.countNodes(transformNode, "delimiterCandidate");
-      delimiterCandidates.clear();
-      for (int i = 0; i < nrDelimiters; i++) {
-        Node node = XmlHandler.getSubNodeByNr(transformNode, "delimiterCandidate", i);
-        String candidate = XmlHandler.getTagValue(node, "candidate");
-        delimiterCandidates.add(candidate);
-      }
-
-      int nrEnclosures = XmlHandler.countNodes(transformNode, "enclosureCandidate");
-      enclosureCandidates.clear();
-      for (int i = 0; i < nrEnclosures; i++) {
-        Node node = XmlHandler.getSubNodeByNr(transformNode, "enclosureCandidate", i);
-        String candidate = XmlHandler.getTagValue(node, "candidate");
-        enclosureCandidates.add(candidate);
-      }
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          "File metadata plugin unable to read transform info from XML node", e);
-    }
+  public FileMetadataMeta clone() {
+    return new FileMetadataMeta(this);
   }
 
   @Override
@@ -188,59 +117,145 @@ public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetada
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
 
-    rowMeta.addValueMeta(new ValueMetaString("charset"));
-    rowMeta.addValueMeta(new ValueMetaString("delimiter"));
-    rowMeta.addValueMeta(new ValueMetaString("enclosure"));
-    rowMeta.addValueMeta(new ValueMetaInteger("field_count"));
-    rowMeta.addValueMeta(new ValueMetaInteger("skip_header_lines"));
-    rowMeta.addValueMeta(new ValueMetaInteger("skip_footer_lines"));
-    rowMeta.addValueMeta(new ValueMetaBoolean("header_line_present"));
-    rowMeta.addValueMeta(new ValueMetaString("name"));
-    rowMeta.addValueMeta(new ValueMetaString("type"));
-    rowMeta.addValueMeta(new ValueMetaInteger("length"));
-    rowMeta.addValueMeta(new ValueMetaInteger("precision"));
-    rowMeta.addValueMeta(new ValueMetaString("mask"));
-    rowMeta.addValueMeta(new ValueMetaString("decimal_symbol"));
-    rowMeta.addValueMeta(new ValueMetaString("grouping_symbol"));
+    rowMeta.addRowMeta(
+        new RowMetaBuilder()
+            .addString("charset")
+            .addString("delimiter")
+            .addString("enclosure")
+            .addInteger("field_count")
+            .addInteger("skip_header_lines")
+            .addInteger("skip_footer_lines")
+            .addBoolean("header_line_present")
+            .addString("name")
+            .addString("type")
+            .addInteger("length")
+            .addInteger("precision")
+            .addString("mask")
+            .addString("decimal_symbol")
+            .addString("grouping_symbol")
+            .build());
   }
 
-  public ArrayList<String> getDelimiterCandidates() {
-    return delimiterCandidates;
+  public static final class FMCandidate {
+    @HopMetadataProperty(key = "candidate")
+    private String candidate;
+
+    public FMCandidate() {}
+
+    public FMCandidate(FMCandidate c) {
+      this.candidate = c.candidate;
+    }
+
+    public FMCandidate(String candidate) {
+      this.candidate = candidate;
+    }
+
+    /**
+     * Gets candidate
+     *
+     * @return value of candidate
+     */
+    public String getCandidate() {
+      return candidate;
+    }
+
+    /**
+     * Sets candidate
+     *
+     * @param candidate value of candidate
+     */
+    public void setCandidate(String candidate) {
+      this.candidate = candidate;
+    }
   }
 
-  public void setDelimiterCandidates(ArrayList<String> delimiterCandidates) {
-    this.delimiterCandidates = delimiterCandidates;
-  }
-
-  public ArrayList<String> getEnclosureCandidates() {
-    return enclosureCandidates;
-  }
-
-  public void setEnclosureCandidates(ArrayList<String> enclosureCandidates) {
-    this.enclosureCandidates = enclosureCandidates;
-  }
-
-  public String getLimitRows() {
-    return limitRows;
-  }
-
-  public void setLimitRows(String limitRows) {
-    this.limitRows = limitRows;
-  }
-
-  public String getDefaultCharset() {
-    return defaultCharset;
-  }
-
-  public void setDefaultCharset(String defaultCharset) {
-    this.defaultCharset = defaultCharset;
-  }
-
+  /**
+   * Gets fileName
+   *
+   * @return value of fileName
+   */
   public String getFileName() {
     return fileName;
   }
 
+  /**
+   * Sets fileName
+   *
+   * @param fileName value of fileName
+   */
   public void setFileName(String fileName) {
     this.fileName = fileName;
+  }
+
+  /**
+   * Gets limitRows
+   *
+   * @return value of limitRows
+   */
+  public String getLimitRows() {
+    return limitRows;
+  }
+
+  /**
+   * Sets limitRows
+   *
+   * @param limitRows value of limitRows
+   */
+  public void setLimitRows(String limitRows) {
+    this.limitRows = limitRows;
+  }
+
+  /**
+   * Gets defaultCharset
+   *
+   * @return value of defaultCharset
+   */
+  public String getDefaultCharset() {
+    return defaultCharset;
+  }
+
+  /**
+   * Sets defaultCharset
+   *
+   * @param defaultCharset value of defaultCharset
+   */
+  public void setDefaultCharset(String defaultCharset) {
+    this.defaultCharset = defaultCharset;
+  }
+
+  /**
+   * Gets delimiterCandidates
+   *
+   * @return value of delimiterCandidates
+   */
+  public List<FMCandidate> getDelimiterCandidates() {
+    return delimiterCandidates;
+  }
+
+  /**
+   * Sets delimiterCandidates
+   *
+   * @param delimiterCandidates value of delimiterCandidates
+   */
+  public void setDelimiterCandidates(List<FMCandidate> delimiterCandidates) {
+    this.delimiterCandidates = delimiterCandidates;
+  }
+
+  /**
+   * Gets enclosureCandidates
+   *
+   * @return value of enclosureCandidates
+   */
+  public List<FMCandidate> getEnclosureCandidates() {
+    return enclosureCandidates;
+  }
+
+  /**
+   * Sets enclosureCandidates
+   *
+   * @param enclosureCandidates value of enclosureCandidates
+   */
+  public void setEnclosureCandidates(List<FMCandidate> enclosureCandidates) {
+    this.enclosureCandidates = enclosureCandidates;
   }
 }

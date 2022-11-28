@@ -13,22 +13,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.hop.pipeline.transforms.filestoresult;
+package org.apache.hop.pipeline.transforms.filemetadata;
 
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class FilesToResultMetaTest {
+public class FileMetadataMetaTest {
 
   @Test
   public void testSerialization() throws Exception {
-    FilesToResultMeta meta =
+    FileMetadataMeta meta =
         TransformSerializationTestUtil.testSerialization(
-            "/files-to-result-transform.xml", FilesToResultMeta.class);
-    Assert.assertNotNull(meta.getFilenameField());
-    Assert.assertNotNull(meta.getFileType());
+            "/file-metadata-transform.xml", FileMetadataMeta.class);
+    Assert.assertNotNull(meta.getFileName());
+    Assert.assertNotNull(meta.getLimitRows());
+    Assert.assertNotNull(meta.getDefaultCharset());
+    Assert.assertEquals(3, meta.getDelimiterCandidates().size());
+    Assert.assertEquals(2, meta.getEnclosureCandidates().size());
   }
 }

@@ -61,6 +61,7 @@ public class UnitTestUtil {
       PipelineUnitTest test,
       ILoggingObject parentObject,
       LogLevel logLevel,
+      Result previousResult,
       IHopMetadataProvider metadataProvider,
       IVariables variables,
       IPipelineResultEvaluator pipelineResultEvaluator,
@@ -83,6 +84,7 @@ public class UnitTestUtil {
       //
       testPipeline.initializeFrom(variables);
       testPipeline.setLogLevel(logLevel);
+      testPipeline.setPreviousResult(previousResult);
       testPipeline.setMetadataProvider(metadataProvider);
 
       // Set parameter values based on parent values (if any)

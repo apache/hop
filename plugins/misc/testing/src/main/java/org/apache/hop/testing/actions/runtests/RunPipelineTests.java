@@ -82,6 +82,7 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
           test,
           this,
           getLogLevel(),
+          prevResult,
           getMetadataProvider(),
           this,
           // Something went wrong executing the pipeline itself.
@@ -93,7 +94,7 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
               success.set(false);
             }
           },
-          // The pipeline ran fine so we can evaluate the test results
+          // The pipeline ran fine: we can evaluate the test results
           (pipeline, testResults) -> {
             int errorCount = 0;
             for (UnitTestResult testResult : testResults) {

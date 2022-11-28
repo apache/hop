@@ -148,11 +148,15 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
   private List<ExcelInputField> fields;
 
   /** Strict types : will generate errors */
-  @HopMetadataProperty(key = "strict_types", injectionKeyDescription = "Strict types : data conversion errors are thrown")
+  @HopMetadataProperty(
+      key = "strict_types",
+      injectionKeyDescription = "Strict types : data conversion errors are thrown")
   private boolean strictTypes;
 
   /** Ignore error : turn into warnings */
-  @HopMetadataProperty(key = "error_ignored", injectionKeyDescription = "Turn errors into warnings, ignoring them")
+  @HopMetadataProperty(
+      key = "error_ignored",
+      injectionKeyDescription = "Turn errors into warnings, ignoring them")
   private boolean errorIgnored;
 
   /** If error line are skipped, you can replay without introducing doubles. */
@@ -160,75 +164,115 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
   private boolean errorLineSkipped;
 
   /** The directory that will contain warning files */
-  @HopMetadataProperty(key = "bad_line_files_destination_directory", injectionKeyDescription = "The directory that will contain warning files")
+  @HopMetadataProperty(
+      key = "bad_line_files_destination_directory",
+      injectionKeyDescription = "The directory that will contain warning files")
   private String warningFilesDestinationDirectory;
 
   /** The extension of warning files */
-  @HopMetadataProperty(key = "bad_line_files_extension", injectionKeyDescription = "The extension of warning files")
+  @HopMetadataProperty(
+      key = "bad_line_files_extension",
+      injectionKeyDescription = "The extension of warning files")
   private String warningFilesExtension;
 
   /** The directory that will contain error files */
-  @HopMetadataProperty(key = "error_line_files_destination_directory", injectionKeyDescription = "The directory that will contain error files")
+  @HopMetadataProperty(
+      key = "error_line_files_destination_directory",
+      injectionKeyDescription = "The directory that will contain error files")
   private String errorFilesDestinationDirectory;
 
   /** The extension of error files */
-  @HopMetadataProperty(key = "error_line_files_extension", injectionKeyDescription = "The extension of error files")
+  @HopMetadataProperty(
+      key = "error_line_files_extension",
+      injectionKeyDescription = "The extension of error files")
   private String errorFilesExtension;
 
   /** The directory that will contain line number files */
-  @HopMetadataProperty(key = "line_number_files_destination_directory", injectionKeyDescription = "The directory that will contain line number files")
+  @HopMetadataProperty(
+      key = "line_number_files_destination_directory",
+      injectionKeyDescription = "The directory that will contain line number files")
   private String lineNumberFilesDestinationDirectory;
 
   /** The extension of line number files */
-  @HopMetadataProperty(key = "line_number_files_extension", injectionKeyDescription = "The extension of line number files")
+  @HopMetadataProperty(
+      key = "line_number_files_extension",
+      injectionKeyDescription = "The extension of line number files")
   private String lineNumberFilesExtension;
 
   /** Are we accepting filenames in input rows? */
-  @HopMetadataProperty(key = "accept_filenames", injectionKeyDescription = "Are we accepting filenames in input rows?")
+  @HopMetadataProperty(
+      key = "accept_filenames",
+      injectionKeyDescription = "Are we accepting filenames in input rows?")
   private boolean acceptingFilenames;
 
   /** The field in which the filename is placed */
-  @HopMetadataProperty(key = "accept_field", injectionKeyDescription = "The field in which the filename is placed")
+  @HopMetadataProperty(
+      key = "accept_field",
+      injectionKeyDescription = "The field in which the filename is placed")
   private String acceptingField;
 
   /** The transformName to accept filenames from */
-  @HopMetadataProperty(key = "accept_transform_name", injectionKeyDescription = "The transform name to accept filenames from")
+  @HopMetadataProperty(
+      key = "accept_transform_name",
+      injectionKeyDescription = "The transform name to accept filenames from")
   private String acceptingTransformName;
 
   /** The encoding to use for reading: null or empty string means system default encoding */
-  @HopMetadataProperty(key = "encoding", injectionKeyDescription = "The encoding to use for reading: null or empty string means system default encoding")
+  @HopMetadataProperty(
+      key = "encoding",
+      injectionKeyDescription =
+          "The encoding to use for reading: null or empty string means system default encoding")
   private String encoding;
 
   /** The add filenames to result filenames flag */
-  @HopMetadataProperty(key = "add_to_result_filenames", injectionKeyDescription = "Add filenames to result?")
+  @HopMetadataProperty(
+      key = "add_to_result_filenames",
+      injectionKeyDescription = "Add filenames to result?")
   private boolean addFilenamesToResult;
 
   /** Additional fields */
-  @HopMetadataProperty(key = "shortFileFieldName", injectionKeyDescription = "Extra output: short file field name")
+  @HopMetadataProperty(
+      key = "shortFileFieldName",
+      injectionKeyDescription = "Extra output: short file field name")
   private String shortFileFieldName;
 
-  @HopMetadataProperty(key = "pathFieldName", injectionKeyDescription = "Extra output: path field name")
+  @HopMetadataProperty(
+      key = "pathFieldName",
+      injectionKeyDescription = "Extra output: path field name")
   private String pathFieldName;
 
-  @HopMetadataProperty(key = "hiddenFieldName", injectionKeyDescription = "Extra output: hidden flag field name")
+  @HopMetadataProperty(
+      key = "hiddenFieldName",
+      injectionKeyDescription = "Extra output: hidden flag field name")
   private String hiddenFieldName;
 
-  @HopMetadataProperty(key = "lastModificationTimeFieldName", injectionKeyDescription = "Extra output: last modification time field name")
+  @HopMetadataProperty(
+      key = "lastModificationTimeFieldName",
+      injectionKeyDescription = "Extra output: last modification time field name")
   private String lastModificationTimeFieldName;
 
-  @HopMetadataProperty(key = "uriNameFieldName", injectionKeyDescription = "Extra output: URI field name")
+  @HopMetadataProperty(
+      key = "uriNameFieldName",
+      injectionKeyDescription = "Extra output: URI field name")
   private String uriNameFieldName;
 
-  @HopMetadataProperty(key = "rootUriNameFieldName", injectionKeyDescription = "Extra output: root URI field name")
+  @HopMetadataProperty(
+      key = "rootUriNameFieldName",
+      injectionKeyDescription = "Extra output: root URI field name")
   private String rootUriNameFieldName;
 
-  @HopMetadataProperty(key = "extensionFieldName", injectionKeyDescription = "Extra output: extension field name")
+  @HopMetadataProperty(
+      key = "extensionFieldName",
+      injectionKeyDescription = "Extra output: extension field name")
   private String extensionFieldName;
 
-  @HopMetadataProperty(key = "sizeFieldName", injectionKeyDescription = "Extra output: file size field name")
+  @HopMetadataProperty(
+      key = "sizeFieldName",
+      injectionKeyDescription = "Extra output: file size field name")
   private String sizeFieldName;
 
   @HopMetadataProperty(
+      enumNameWhenNotFound = "POI",
       key = "spreadsheet_type",
       injectionKey = "SPREADSHEET_TYPE",
       injectionKeyDescription = "ExcelInput.Injection.SPREADSHEET_TYPE")
@@ -661,7 +705,6 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     this.acceptingFilenames = acceptingFilenames;
   }
 
-
   /**
    * @return Returns the acceptingTransformName.
    */
@@ -711,7 +754,7 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
    */
   public boolean readAllSheets() {
     return sheets.isEmpty()
-        || (sheets.size() == 1 && StringUtils.isNotEmpty(sheets.get(0).getName()));
+        || (sheets.size() == 1 && StringUtils.isEmpty(sheets.get(0).getName()));
   }
 
   /**

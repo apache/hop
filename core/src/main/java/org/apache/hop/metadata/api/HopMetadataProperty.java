@@ -59,13 +59,22 @@ public @interface HopMetadataProperty {
    */
   boolean storeWithCode() default false;
 
-  /** @return The group key. In case this is a list use this key to encapsulate the list/array. */
+  /**
+   * @return The group key. In case this is a list use this key to encapsulate the list/array.
+   */
   String groupKey() default "";
 
-  /** @return The default value to return for a non-existing boolean value */
+  /**
+   * @return The default value to return for a non-existing boolean value
+   */
   boolean defaultBoolean() default false;
 
-  /** @return Prevents the item to be considered in injection. Default value: false */
+  /** What is the name of the enum to pick in case the code in the metadata can't be found? * */
+  String enumNameWhenNotFound() default "";
+
+  /**
+   * @return Prevents the item to be considered in injection. Default value: false
+   */
   boolean isExcludedFromInjection() default false;
 
   /**
@@ -74,7 +83,9 @@ public @interface HopMetadataProperty {
    */
   String injectionKey() default "";
 
-  /** @return The metadata description for this property. (i18n) */
+  /**
+   * @return The metadata description for this property. (i18n)
+   */
   String injectionKeyDescription() default "";
 
   /**
@@ -83,7 +94,9 @@ public @interface HopMetadataProperty {
    */
   String injectionGroupKey() default "";
 
-  /** @return A description of the metadata group key to which this property belongs. (i18n) */
+  /**
+   * @return A description of the metadata group key to which this property belongs. (i18n)
+   */
   String injectionGroupDescription() default "";
 
   /**

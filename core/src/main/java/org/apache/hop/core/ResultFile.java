@@ -27,6 +27,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.w3c.dom.Node;
 
 import java.util.Date;
@@ -94,37 +95,51 @@ public class ResultFile implements Cloneable {
     return (ResultFile) super.clone();
   }
 
-  /** @return Returns the comment. */
+  /**
+   * @return Returns the comment.
+   */
   public String getComment() {
     return comment;
   }
 
-  /** @param comment The comment to set. */
+  /**
+   * @param comment The comment to set.
+   */
   public void setComment(String comment) {
     this.comment = comment;
   }
 
-  /** @return Returns the file. */
+  /**
+   * @return Returns the file.
+   */
   public FileObject getFile() {
     return file;
   }
 
-  /** @param file The file to set. */
+  /**
+   * @param file The file to set.
+   */
   public void setFile(FileObject file) {
     this.file = file;
   }
 
-  /** @return Returns the origin : the transform or action that generated this result file */
+  /**
+   * @return Returns the origin : the transform or action that generated this result file
+   */
   public String getOrigin() {
     return origin;
   }
 
-  /** @param origin The origin to set : the transform or action that generated this result file */
+  /**
+   * @param origin The origin to set : the transform or action that generated this result file
+   */
   public void setOrigin(String origin) {
     this.origin = origin;
   }
 
-  /** @return Returns the originParent : the pipeline or workflow that generated this result file */
+  /**
+   * @return Returns the originParent : the pipeline or workflow that generated this result file
+   */
   public String getOriginParent() {
     return originParent;
   }
@@ -137,17 +152,23 @@ public class ResultFile implements Cloneable {
     this.originParent = originParent;
   }
 
-  /** @return Returns the type. */
+  /**
+   * @return Returns the type.
+   */
   public int getType() {
     return type;
   }
 
-  /** @param type The type to set. */
+  /**
+   * @param type The type to set.
+   */
   public void setType(int type) {
     this.type = type;
   }
 
-  /** @return The description of this result files type. */
+  /**
+   * @return The description of this result files type.
+   */
   @JsonIgnore
   public String getTypeDesc() {
     return fileTypeDesc[type];
@@ -198,18 +219,24 @@ public class ResultFile implements Cloneable {
     return fileTypeDesc;
   }
 
-  /** @return Returns the timestamp. */
+  /**
+   * @return Returns the timestamp.
+   */
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
   public Date getTimestamp() {
     return timestamp;
   }
 
-  /** @param timestamp The timestamp to set. */
+  /**
+   * @param timestamp The timestamp to set.
+   */
   public void setTimestamp(Date timestamp) {
     this.timestamp = timestamp;
   }
 
-  /** @return an output Row for this Result File object. */
+  /**
+   * @return an output Row for this Result File object.
+   */
   @JsonIgnore
   public RowMetaAndData getRow() {
     RowMetaAndData row = new RowMetaAndData();
@@ -266,6 +293,73 @@ public class ResultFile implements Cloneable {
       timestamp = XmlHandler.stringToDate(XmlHandler.getTagValue(node, "timestamp"));
     } catch (Exception e) {
       throw new HopFileException(e);
+    }
+  }
+
+  public static enum FileType implements IEnumHasCodeAndDescription {
+    GENERAL(
+        "GENERAL", BaseMessages.getString(PKG, "ResultFile.FileType.General"), FILE_TYPE_GENERAL),
+    LOG("LOG", BaseMessages.getString(PKG, "ResultFile.FileType.Log"), FILE_TYPE_LOG),
+    ERROR_LINE(
+        "ERRORLINE",
+        BaseMessages.getString(PKG, "ResultFile.FileType.ErrorLine"),
+        FILE_TYPE_ERRORLINE),
+    ERROR("ERROR", BaseMessages.getString(PKG, "ResultFile.FileType.Error"), FILE_TYPE_ERROR),
+    WARNING(
+        "WARNING", BaseMessages.getString(PKG, "ResultFile.FileType.Warning"), FILE_TYPE_WARNING),
+    ;
+    private final String code;
+    private final String description;
+    private final int type;
+
+    FileType(String code, String description, int type) {
+      this.code = code;
+      this.description = description;
+      this.type = type;
+    }
+
+    public static String[] getDescriptions() {
+      String[] descriptions = new String[values().length];
+      for (int i = 0; i < descriptions.length; i++) {
+        descriptions[i] = values()[i].getDescription();
+      }
+      return descriptions;
+    }
+
+    public static FileType lookupDescription(String description) {
+      for (FileType value : values()) {
+        if (value.getDescription().equals(description)) {
+          return value;
+        }
+      }
+      return GENERAL;
+    }
+
+    /**
+     * Gets code
+     *
+     * @return value of code
+     */
+    public String getCode() {
+      return code;
+    }
+
+    /**
+     * Gets description
+     *
+     * @return value of description
+     */
+    public String getDescription() {
+      return description;
+    }
+
+    /**
+     * Gets type
+     *
+     * @return value of type
+     */
+    public int getType() {
+      return type;
     }
   }
 }

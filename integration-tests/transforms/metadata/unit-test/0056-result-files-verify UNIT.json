@@ -1,0 +1,40 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        },
+        {
+          "transform_field": "filename",
+          "data_set_field": "filename"
+        },
+        {
+          "transform_field": "parentorigin",
+          "data_set_field": "parentorigin"
+        },
+        {
+          "transform_field": "origin",
+          "data_set_field": "origin"
+        }
+      ],
+      "field_order": [
+        "filename"
+      ],
+      "data_set_name": "golden-result-files",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0056-result-files-verify UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0056-result-files-verify.hpl",
+  "test_type": "UNIT_TEST"
+}

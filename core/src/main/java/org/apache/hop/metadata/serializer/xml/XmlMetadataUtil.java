@@ -466,7 +466,17 @@ public class XmlMetadataUtil {
                 "Unable to get values() of enumeration to look up code value " + elementString, e);
           }
         } else {
-          return Enum.valueOf(enumerationClass, elementString);
+          try {
+            return Enum.valueOf(enumerationClass, elementString);
+          } catch (IllegalArgumentException e) {
+            String nameNotFound =
+                field.getAnnotation(HopMetadataProperty.class).enumNameWhenNotFound();
+            if (StringUtils.isEmpty(nameNotFound)) {
+              throw e;
+            } else {
+              return Enum.valueOf(enumerationClass, nameNotFound);
+            }
+          }
         }
       }
     } else if (fieldType.equals(java.util.List.class)) {

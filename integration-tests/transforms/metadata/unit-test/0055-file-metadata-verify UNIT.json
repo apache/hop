@@ -1,0 +1,93 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "charset",
+          "data_set_field": "charset"
+        },
+        {
+          "transform_field": "delimiter",
+          "data_set_field": "delimiter"
+        },
+        {
+          "transform_field": "enclosure",
+          "data_set_field": "enclosure"
+        },
+        {
+          "transform_field": "field_count",
+          "data_set_field": "field_count"
+        },
+        {
+          "transform_field": "skip_header_lines",
+          "data_set_field": "skip_header_lines"
+        },
+        {
+          "transform_field": "skip_footer_lines",
+          "data_set_field": "skip_footer_lines"
+        },
+        {
+          "transform_field": "header_line_present",
+          "data_set_field": "header_line_present"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        },
+        {
+          "transform_field": "length",
+          "data_set_field": "length"
+        },
+        {
+          "transform_field": "precision",
+          "data_set_field": "precision"
+        },
+        {
+          "transform_field": "mask",
+          "data_set_field": "mask"
+        },
+        {
+          "transform_field": "decimal_symbol",
+          "data_set_field": "decimal_symbol"
+        },
+        {
+          "transform_field": "grouping_symbol",
+          "data_set_field": "grouping_symbol"
+        }
+      ],
+      "field_order": [
+        "charset",
+        "delimiter",
+        "enclosure",
+        "field_count",
+        "skip_header_lines",
+        "skip_footer_lines",
+        "header_line_present",
+        "name",
+        "type",
+        "length",
+        "precision",
+        "mask",
+        "decimal_symbol",
+        "grouping_symbol"
+      ],
+      "data_set_name": "golden-file-metadata",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0055-file-metadata-verify UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0055-file-metadata-verify.hpl",
+  "test_type": "UNIT_TEST"
+}
