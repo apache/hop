@@ -55,16 +55,17 @@ public class NullIf extends BaseTransform<NullIfMeta, NullIfData> {
     if (first) {
       first = false;
       data.outputRowMeta = getInputRowMeta().clone();
-      int fieldsLength = meta.getFields().length;
+      int fieldsLength = meta.getFields().size();
       data.keynr = new int[fieldsLength];
       data.nullValue = new Object[fieldsLength];
       data.nullValueMeta = new IValueMeta[fieldsLength];
       for (int i = 0; i < fieldsLength; i++) {
-        data.keynr[i] = data.outputRowMeta.indexOfValue(meta.getFields()[i].getFieldName());
+        NullIfField field = meta.getFields().get(i);        
+        data.keynr[i] = data.outputRowMeta.indexOfValue(field.getName());
         if (data.keynr[i] < 0) {
           logError(
               BaseMessages.getString(
-                  PKG, "NullIf.Log.CouldNotFindFieldInRow", meta.getFields()[i].getFieldName()));
+                  PKG, "NullIf.Log.CouldNotFindFieldInRow", field.getName()));
           setErrors(1);
           stopAll();
           return false;
@@ -74,7 +75,7 @@ public class NullIf extends BaseTransform<NullIfMeta, NullIfData> {
         ValueMetaString vms = new ValueMetaString();
         vms.setConversionMask(data.nullValueMeta[i].getConversionMask());
         data.nullValue[i] =
-            data.nullValueMeta[i].convertData(vms, meta.getFields()[i].getFieldValue());
+            data.nullValueMeta[i].convertData(vms, field.getValue());
       }
     }
 
@@ -84,7 +85,7 @@ public class NullIf extends BaseTransform<NullIfMeta, NullIfData> {
               + data.outputRowMeta.getString(r));
     }
 
-    for (int i = 0; i < meta.getFields().length; i++) {
+    for (int i = 0; i < meta.getFields().size(); i++) {
       Object field = r[data.keynr[i]];
       if (field != null && data.nullValueMeta[i].compare(field, data.nullValue[i]) == 0) {
         // OK, this value needs to be set to NULL
