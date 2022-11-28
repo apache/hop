@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.filemetadata;
 
-import com.google.common.base.Charsets;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -45,12 +44,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataData> {
 
   private Object[] r;
-  private Charset defaultCharset = Charsets.ISO_8859_1;
+  private Charset defaultCharset = StandardCharsets.ISO_8859_1;
   private long limitRows;
 
   /**
@@ -73,13 +73,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
   }
 
   @Override
-  public boolean init() {
-    return super.init();
-  }
-
-  @Override
   public boolean processRow() throws HopException {
-
     // get incoming row, getRow() potentially blocks waiting for more rows
     // returns null if no more rows expected
     // note: getRow must be called at least once, otherwise getInputRowMeta() returns null
@@ -89,7 +83,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
       first = false;
       // remember whether the transform is consuming a stream, or generating a row
       data.isReceivingInput =
-          getPipelineMeta().findPreviousTransforms(getTransformMeta()).size() > 0;
+          !getPipelineMeta().findPreviousTransforms(getTransformMeta()).isEmpty();
 
       // processing existing rows?
       if (data.isReceivingInput) {
@@ -175,8 +169,8 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     defaultCharset = Charset.forName(resolve(meta.getDefaultCharset()));
 
     ArrayList<Character> delimiterCandidates = new ArrayList<>(4);
-    for (String candidate : meta.getDelimiterCandidates()) {
-      candidate = resolve(candidate);
+    for (FileMetadataMeta.FMCandidate delimiterCandidate : meta.getDelimiterCandidates()) {
+      String candidate = resolve(delimiterCandidate.getCandidate());
       if (candidate.length() == 0) {
         logBasic("Warning: file metadata transform ignores empty delimiter candidate");
       } else if (candidate.length() > 1) {
@@ -189,8 +183,8 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     }
 
     ArrayList<Character> enclosureCandidates = new ArrayList<>(4);
-    for (String candidate : meta.getEnclosureCandidates()) {
-      candidate = resolve(candidate);
+    for (FileMetadataMeta.FMCandidate enclosureCandidate : meta.getEnclosureCandidates()) {
+      String candidate = resolve(enclosureCandidate.getCandidate());
       if (candidate.length() == 0) {
         logBasic("Warning: file metadata transform ignores empty enclosure candidate");
       } else if (candidate.length() > 1) {
@@ -237,88 +231,93 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
             new InputStreamReader(HopVfs.getInputStream(fileName), detectedCharset))) {
       while (skipLines > 0) {
         skipLines--;
+        // Skip the line. There is no need to use a variable here.
         inputReader.readLine();
       }
 
       CSVParser csvParser =
           new CSVParserBuilder().withSeparator(delimiter).withQuoteChar(enclosure).build();
 
-      CSVReader csvReader = new CSVReaderBuilder(inputReader).withCSVParser(csvParser).build();
-      String[] firstLine = csvReader.readNext();
-      dataLines--;
-
-      StringEvaluator[] evaluators = new StringEvaluator[firstLine.length];
-      for (int i = 0; i < evaluators.length; i++) {
-        evaluators[i] = new StringEvaluator(true);
-      }
-
-      while (dataLines > 0) {
+      try (CSVReader csvReader =
+          new CSVReaderBuilder(inputReader).withCSVParser(csvParser).build()) {
+        String[] firstLine = csvReader.readNext();
         dataLines--;
-        String[] fields = csvReader.readNext();
-        if (fields == null) break;
-        for (int i = 0; i < fields.length; i++) {
-          if (i < evaluators.length) evaluators[i].evaluateString(fields[i]);
-        }
-      }
 
-      // find evaluation results, excluding and including the first line
-      IValueMeta[] fields = new IValueMeta[evaluators.length];
-      IValueMeta[] firstLineFields = new IValueMeta[evaluators.length];
-
-      for (int i = 0; i < evaluators.length; i++) {
-        fields[i] = evaluators[i].getAdvicedResult().getConversionMeta();
-        evaluators[i].evaluateString(firstLine[i]);
-        firstLineFields[i] = evaluators[i].getAdvicedResult().getConversionMeta();
-      }
-
-      // check whether to use the first line as a header, if there is a single type mismatch -> yes
-      // if all fields are strings -> yes
-      boolean hasHeader = false;
-      boolean allStrings = true;
-      for (int i = 0; i < evaluators.length; i++) {
-
-        if (fields[i].getType() != IValueMeta.TYPE_STRING) {
-          allStrings = false;
-        }
-
-        if (fields[i].getType() != firstLineFields[i].getType()) {
-          hasHeader = true;
-          break;
-        }
-      }
-
-      hasHeader = hasHeader || allStrings;
-
-      if (hasHeader) {
+        StringEvaluator[] evaluators = new StringEvaluator[firstLine.length];
         for (int i = 0; i < evaluators.length; i++) {
-          fields[i].setName(firstLine[i].trim());
+          evaluators[i] = new StringEvaluator(true);
         }
-      } else {
-        // use the meta from the entire column
-        fields = firstLineFields;
-        int colNum = 1;
+
+        while (dataLines > 0) {
+          dataLines--;
+          String[] fields = csvReader.readNext();
+          if (fields == null) break;
+          for (int i = 0; i < fields.length; i++) {
+            if (i < evaluators.length) evaluators[i].evaluateString(fields[i]);
+          }
+        }
+
+        // find evaluation results, excluding and including the first line
+        IValueMeta[] fields = new IValueMeta[evaluators.length];
+        IValueMeta[] firstLineFields = new IValueMeta[evaluators.length];
+
         for (int i = 0; i < evaluators.length; i++) {
-          fields[i].setName("field_" + (colNum++));
+          fields[i] = evaluators[i].getAdvicedResult().getConversionMeta();
+          evaluators[i].evaluateString(firstLine[i]);
+          firstLineFields[i] = evaluators[i].getAdvicedResult().getConversionMeta();
         }
-      }
 
-      outputRow[idx++] = hasHeader;
+        // check whether to use the first line as a header, if there is a single type mismatch ->
+        // yes
+        // if all fields are strings -> yes
+        boolean hasHeader = false;
+        boolean allStrings = true;
+        for (int i = 0; i < evaluators.length; i++) {
 
-      int fieldIdx = idx;
-      for (int i = 0; i < evaluators.length; i++) {
+          if (fields[i].getType() != IValueMeta.TYPE_STRING) {
+            allStrings = false;
+          }
 
-        outputRow = RowDataUtil.createResizedCopy(outputRow, outputRow.length);
+          if (fields[i].getType() != firstLineFields[i].getType()) {
+            hasHeader = true;
+            break;
+          }
+        }
 
-        idx = fieldIdx;
-        outputRow[idx++] = fields[i].getName();
-        outputRow[idx++] = fields[i].getTypeDesc();
-        outputRow[idx++] = (fields[i].getLength() >= 0) ? (long) fields[i].getLength() : null;
-        outputRow[idx++] = (fields[i].getPrecision() >= 0) ? (long) fields[i].getPrecision() : null;
-        outputRow[idx++] = fields[i].getConversionMask();
-        outputRow[idx++] = fields[i].getDecimalSymbol();
-        outputRow[idx++] = fields[i].getGroupingSymbol();
+        hasHeader = hasHeader || allStrings;
 
-        putRow(data.outputRowMeta, outputRow);
+        if (hasHeader) {
+          for (int i = 0; i < evaluators.length; i++) {
+            fields[i].setName(firstLine[i].trim());
+          }
+        } else {
+          // use the meta from the entire column
+          fields = firstLineFields;
+          int colNum = 1;
+          for (int i = 0; i < evaluators.length; i++) {
+            fields[i].setName("field_" + (colNum++));
+          }
+        }
+
+        outputRow[idx++] = hasHeader;
+
+        int fieldIdx = idx;
+        for (int i = 0; i < evaluators.length; i++) {
+
+          outputRow = RowDataUtil.createResizedCopy(outputRow, outputRow.length);
+
+          idx = fieldIdx;
+          outputRow[idx++] = fields[i].getName();
+          outputRow[idx++] = fields[i].getTypeDesc();
+          outputRow[idx++] = (fields[i].getLength() >= 0) ? (long) fields[i].getLength() : null;
+          outputRow[idx++] =
+              (fields[i].getPrecision() >= 0) ? (long) fields[i].getPrecision() : null;
+          outputRow[idx++] = fields[i].getConversionMask();
+          outputRow[idx++] = fields[i].getDecimalSymbol();
+          outputRow[idx] = fields[i].getGroupingSymbol();
+
+          putRow(data.outputRowMeta, outputRow);
+        }
       }
 
     } catch (IOException | HopFileException e) {
@@ -370,10 +369,5 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     } catch (IOException | HopFileException e) {
       throw new RuntimeException(e.getMessage(), e);
     }
-  }
-
-  @Override
-  public void dispose() {
-    super.dispose();
   }
 }

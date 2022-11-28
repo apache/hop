@@ -31,9 +31,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -50,6 +47,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.hop.pipeline.transforms.filemetadata.FileMetadataMeta.FMCandidate;
+
 /** */
 public class FileMetadataDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -63,7 +62,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
   // this is the object the stores the transform's settings
   // the dialog reads the settings from it when opening
   // the dialog writes the settings to it when confirmed
-  private FileMetadataMeta meta;
+  private final FileMetadataMeta meta;
 
   private TextVar wFilename;
 
@@ -85,10 +84,14 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
    */
   public FileMetadataDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
+    super(
+        parent,
+        variables,
+        (BaseTransformMeta<FileMetadata, FileMetadataData>) in,
+        pipelineMeta,
+        sname);
     meta = (FileMetadataMeta) in;
   }
-
 
   private void setEncodings() {
     // Encoding of the text file:
@@ -97,8 +100,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 
       wDefaultCharset.removeAll();
       List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (int i = 0; i < values.size(); i++) {
-        Charset charSet = values.get(i);
+      for (Charset charSet : values) {
         wDefaultCharset.add(charSet.displayName());
       }
 
@@ -122,21 +124,6 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
     PropsUi.setLook(shell);
     setShellImage(shell, meta);
-
-    // Save the value of the changed flag on the meta object. If the user cancels
-    // the dialog, it will be restored to this saved value.
-    // The "changed" variable is inherited from BaseTransformDialog
-    changed = meta.hasChanged();
-
-    // The ModifyListener used on all controls. It will update the meta object to
-    // indicate that changes are being made.
-    ModifyListener lsMod =
-        new ModifyListener() {
-          @Override
-          public void modifyText(ModifyEvent e) {
-            meta.setChanged();
-          }
-        };
 
     // ------------------------------------------------------- //
     // SWT code for building the actual settings dialog        //
@@ -173,13 +160,11 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
-
     Control lastControl = wTransformName;
 
     // Filename...
@@ -208,13 +193,11 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     wlFilename.setLayoutData(fdlFilename);
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilename);
-    wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.top = new FormAttachment(lastControl, margin);
     fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.right = new FormAttachment(wbbFilename, -margin);
     wFilename.setLayoutData(fdFilename);
-    lastControl = wFilename;
 
     // options panel for DELIMITED_LAYOUT
     Group gDelimitedLayout = new Group(shell, SWT.SHADOW_ETCHED_IN);
@@ -238,7 +221,6 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     wLimit.setToolTipText(
         BaseMessages.getString(PKG, "FileMetadata.methods.DELIMITED_FIELDS.limit.tooltip"));
     PropsUi.setLook(wLimit);
-    wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.top = new FormAttachment(0, margin);
     fdLimit.left = new FormAttachment(middle, 0);
@@ -259,32 +241,25 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     wlEncoding.setLayoutData(fdlDefaultCharset);
     wDefaultCharset = new ComboVar(variables, gDelimitedLayout, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wDefaultCharset);
-    wDefaultCharset.addModifyListener(lsMod);
     FormData fdDefaultCharset = new FormData();
     fdDefaultCharset.top = new FormAttachment(lastControl, margin);
     fdDefaultCharset.left = new FormAttachment(middle, 0);
     fdDefaultCharset.right = new FormAttachment(100, 0);
     wDefaultCharset.setLayoutData(fdDefaultCharset);
-    lastControl = wDefaultCharset;
 
-    wDefaultCharset.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
-
-          @Override
-          public void focusGained(org.eclipse.swt.events.FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            setEncodings();
-            shell.setCursor(null);
-            busy.dispose();
-          }
+    wDefaultCharset.addListener(
+        SWT.FocusIn,
+        e -> {
+          Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+          shell.setCursor(busy);
+          setEncodings();
+          shell.setCursor(null);
+          busy.dispose();
         });
 
     int candidateCount = meta.getDelimiterCandidates().size();
 
-    ColumnInfo[] colinf =
+    ColumnInfo[] delimiterColumns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(
@@ -292,17 +267,16 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
               ColumnInfo.COLUMN_TYPE_TEXT,
               false)
         };
-
-    colinf[0].setUsingVariables(true);
+    delimiterColumns[0].setUsingVariables(true);
 
     wDelimiterCandidates =
         new TableView(
             variables,
             gDelimitedLayout,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
+            delimiterColumns,
             candidateCount,
-            lsMod,
+            null,
             props);
     FormData fdDelimiterCandidates = new FormData();
     fdDelimiterCandidates.left = new FormAttachment(0, 0);
@@ -313,7 +287,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 
     candidateCount = meta.getEnclosureCandidates().size();
 
-    colinf =
+    ColumnInfo[] enclosureColumns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(
@@ -322,16 +296,16 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
               false)
         };
 
-    colinf[0].setUsingVariables(true);
+    enclosureColumns[0].setUsingVariables(true);
 
     wEnclosureCandidates =
         new TableView(
             variables,
             gDelimitedLayout,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
+            enclosureColumns,
             candidateCount,
-            lsMod,
+            null,
             props);
     FormData fdEnclosureCandidates = new FormData();
     fdEnclosureCandidates.left = new FormAttachment(0, 0);
@@ -355,8 +329,14 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     meta.setChanged(changed);
 
     // Listen to the browse button next to the file name
-    wbbFilename.addListener(SWT.Selection, e->BaseDialog.presentFileDialog(
-            shell, wFilename, variables, new String[] {"*.txt;*.csv", "*.csv", "*.txt", "*"},
+    wbbFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wFilename,
+                variables,
+                new String[] {"*.txt;*.csv", "*.csv", "*.txt", "*"},
                 new String[] {
                   BaseMessages.getString(PKG, "System.FileType.CSVFiles")
                       + ", "
@@ -364,7 +344,8 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
                   BaseMessages.getString(PKG, "System.FileType.CSVFiles"),
                   BaseMessages.getString(PKG, "System.FileType.TextFiles"),
                   BaseMessages.getString(PKG, "System.FileType.AllFiles")
-                }, true));
+                },
+                true));
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -380,32 +361,19 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
   private void populateDialog() {
     wTransformName.selectAll();
 
-    if (meta.getFileName() != null) {
-      wFilename.setText(meta.getFileName());
-    }
+    wFilename.setText(Const.NVL(meta.getFileName(), ""));
+    wLimit.setText(Const.NVL(meta.getLimitRows(), ""));
+    wDefaultCharset.setText(Const.NVL(meta.getDefaultCharset(), ""));
 
-    if (meta.getLimitRows() != null) {
-      wLimit.setText(meta.getLimitRows());
+    for (int i = 0; i < meta.getDelimiterCandidates().size(); i++) {
+      FMCandidate candidate = meta.getDelimiterCandidates().get(i);
+      TableItem item = wDelimiterCandidates.table.getItem(i);
+      item.setText(1, Const.NVL(candidate.getCandidate(), ""));
     }
-
-    if (meta.getDefaultCharset() != null) {
-      wDefaultCharset.setText(meta.getDefaultCharset());
-    }
-
-    if (meta.getDelimiterCandidates() != null) {
-      for (int i = 0; i < meta.getDelimiterCandidates().size(); i++) {
-        String candidate = meta.getDelimiterCandidates().get(i);
-        TableItem item = wDelimiterCandidates.table.getItem(i);
-        item.setText(1, Const.NVL(candidate, ""));
-      }
-    }
-
-    if (meta.getEnclosureCandidates() != null) {
-      for (int i = 0; i < meta.getEnclosureCandidates().size(); i++) {
-        String candidate = meta.getEnclosureCandidates().get(i);
-        TableItem item = wEnclosureCandidates.table.getItem(i);
-        item.setText(1, Const.NVL(candidate, ""));
-      }
+    for (int i = 0; i < meta.getEnclosureCandidates().size(); i++) {
+      FMCandidate candidate = meta.getEnclosureCandidates().get(i);
+      TableItem item = wEnclosureCandidates.table.getItem(i);
+      item.setText(1, Const.NVL(candidate.getCandidate(), ""));
     }
   }
 
@@ -414,8 +382,6 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     // The "TransformName" variable will be the return value for the open() method.
     // Setting to null to indicate that dialog was cancelled.
     transformName = null;
-    // Restoring original "changed" flag on the meta object
-    meta.setChanged(changed);
     // close the SWT dialog window
     dispose();
   }
@@ -431,23 +397,15 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     meta.setDefaultCharset(wDefaultCharset.getText());
 
     // delimiter candidates
-    ArrayList<String> candidates = meta.getDelimiterCandidates();
-    candidates.clear();
-    int nrItems = wDelimiterCandidates.nrNonEmpty();
-
-    for (int i = 0; i < nrItems; i++) {
-      TableItem item = wDelimiterCandidates.getNonEmpty(i);
-      candidates.add(item.getText(1));
+    meta.getDelimiterCandidates().clear();
+    for (TableItem item : wDelimiterCandidates.getNonEmptyItems()) {
+      meta.getDelimiterCandidates().add(new FMCandidate(item.getText(1)));
     }
 
     // enclosure candidates
-    candidates = meta.getEnclosureCandidates();
-    candidates.clear();
-    nrItems = wEnclosureCandidates.nrNonEmpty();
-
-    for (int i = 0; i < nrItems; i++) {
-      TableItem item = wEnclosureCandidates.getNonEmpty(i);
-      candidates.add(item.getText(1));
+    meta.getEnclosureCandidates().clear();
+    for (TableItem item : wEnclosureCandidates.getNonEmptyItems()) {
+      meta.getEnclosureCandidates().add(new FMCandidate(item.getText(1)));
     }
 
     // close the SWT dialog window

@@ -20,21 +20,18 @@ package org.apache.hop.pipeline.transforms.filemetadata;
 import com.google.common.base.Charsets;
 import org.apache.hop.pipeline.transforms.filemetadata.util.delimiters.DelimiterDetector;
 import org.apache.hop.pipeline.transforms.filemetadata.util.delimiters.DelimiterDetectorBuilder;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.Assert.*;
 
-class DelimiterDetectorTest {
+public class DelimiterDetectorTest {
 
   @Test
-  void confirmsSimpleCSV() throws Exception {
+  public void confirmsSimpleCSV() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -59,7 +56,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void doesNotConfirmSimpleCSV() throws Exception {
+  public void doesNotConfirmSimpleCSV() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -82,7 +79,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void confirmsSimpleCSVwithEnclosure() throws Exception {
+  public void confirmsSimpleCSVwithEnclosure() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -104,7 +101,7 @@ class DelimiterDetectorTest {
       assertNotNull(result);
       assertEquals(',', (char) result.getDelimiter());
       assertEquals('"', (char) result.getEnclosure());
-      Assertions.assertTrue(result.isConsistentEnclosure());
+      assertTrue(result.isConsistentEnclosure());
       assertEquals(7, result.getDataLines());
       assertEquals(0, result.getBadHeaders());
       assertEquals(0, result.getBadFooters());
@@ -113,7 +110,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void prefersNoEnclosureIfNotSeenSimpleCSV() throws Exception {
+  public void prefersNoEnclosureIfNotSeenSimpleCSV() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -135,7 +132,7 @@ class DelimiterDetectorTest {
       assertNotNull(result);
       assertEquals(',', (char) result.getDelimiter());
       assertNull(result.getEnclosure());
-      Assertions.assertTrue(result.isConsistentEnclosure());
+      assertTrue(result.isConsistentEnclosure());
       assertEquals(7, result.getDataLines());
       assertEquals(0, result.getBadHeaders());
       assertEquals(0, result.getBadFooters());
@@ -144,7 +141,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void confirmsSimpleCSVwithOptionalEnclosure() throws Exception {
+  public void confirmsSimpleCSVwithOptionalEnclosure() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -166,7 +163,7 @@ class DelimiterDetectorTest {
       assertNotNull(result);
       assertEquals(',', (char) result.getDelimiter());
       assertEquals('"', (char) result.getEnclosure());
-      Assertions.assertTrue(result.isConsistentEnclosure());
+      assertTrue(result.isConsistentEnclosure());
       assertEquals(7, result.getDataLines());
       assertEquals(0, result.getBadHeaders());
       assertEquals(0, result.getBadFooters());
@@ -175,7 +172,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void detectsSimpleCSV() throws Exception {
+  public void detectsSimpleCSV() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -203,7 +200,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void detectsExcelExportCSV() throws Exception {
+  public void detectsExcelExportCSV() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -233,7 +230,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void detectsSimpleCSVWithEnclosure() throws Exception {
+  public void detectsSimpleCSVWithEnclosure() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -263,7 +260,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void detectsSimpleCSVWithOptionalEnclosure() throws Exception {
+  public void detectsSimpleCSVWithOptionalEnclosure() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -293,7 +290,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void detectsCSVWithHeaders() throws Exception {
+  public void detectsCSVWithHeaders() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -321,7 +318,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void detectsCSVWithFooters() throws Exception {
+  public void detectsCSVWithFooters() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -349,7 +346,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void detectsCSVWithHeadersAndFooters() throws Exception {
+  public void detectsCSVWithHeadersAndFooters() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -377,7 +374,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void detectsCSVWithHeadersAndFootersAndEnclosure() throws Exception {
+  public void detectsCSVWithHeadersAndFootersAndEnclosure() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
@@ -407,7 +404,7 @@ class DelimiterDetectorTest {
   }
 
   @Test
-  void detectsSimpleTSV() throws Exception {
+  public void detectsSimpleTSV() throws Exception {
 
     try (BufferedReader f =
         Files.newBufferedReader(
