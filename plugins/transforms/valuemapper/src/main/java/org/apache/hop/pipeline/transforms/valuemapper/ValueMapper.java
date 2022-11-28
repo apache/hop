@@ -82,14 +82,13 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
       // If there is an empty entry: we map null or "" to the target at the index
       // 0 or 1 empty mapping is allowed, not 2 or more.
       //
-      for (int i = 0; i < meta.getSourceValue().length; i++) {
-        if (Utils.isEmpty(meta.getSourceValue()[i])) {
-          if (data.emptyFieldValue==null) {
-            data.emptyFieldValue = resolve(meta.getTargetValue()[i]);
+      for (Values v : meta.getValues()) {
+        if (Utils.isEmpty(v.getSource())) {
+          if (data.emptyFieldValue == null) {
+            data.emptyFieldValue = resolve(v.getTarget());
           } else {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "ValueMapper.RuntimeError.OnlyOneEmptyMappingAllowed.VALUEMAPPER0004"));
+            throw new HopException(BaseMessages.getString(PKG,
+                "ValueMapper.RuntimeError.OnlyOneEmptyMappingAllowed.VALUEMAPPER0004"));
           }
         }
       }
@@ -180,9 +179,9 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
       }
 
       // Add all source to target mappings in here...
-      for (int i = 0; i < meta.getSourceValue().length; i++) {
-        String src = meta.getSourceValue()[i];
-        String tgt = this.resolve(meta.getTargetValue()[i]);
+      for (Values v : meta.getValues()) {
+        String src = v.getSource();
+        String tgt = this.resolve(v.getTarget());
 
         if (!Utils.isEmpty(src) && !Utils.isEmpty(tgt)) {
           data.mapValues.put(src, tgt);

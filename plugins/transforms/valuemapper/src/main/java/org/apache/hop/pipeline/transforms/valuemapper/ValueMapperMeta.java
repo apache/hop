@@ -17,34 +17,24 @@
 
 package org.apache.hop.pipeline.transforms.valuemapper;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
-
+import java.util.ArrayList;
 import java.util.List;
 
 /** Maps String values of a certain field to new values */
-@InjectionSupported(
-    localizationPrefix = "ValueMapper.Injection.",
-    groups = {"VALUES"})
 @Transform(
     id = "ValueMapper",
     image = "valuemapper.svg",
@@ -55,106 +45,61 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/valuemapper.html")
 public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperData> {
   private static final Class<?> PKG = ValueMapperMeta.class; // For Translator
-
-  @Injection(name = "FIELDNAME")
+  
+  @HopMetadataProperty(
+      key = "field_to_use",
+      injectionKey = "FIELDNAME",
+      injectionKeyDescription = "ValueMapper.Injection.FIELDNAME")
   private String fieldToUse;
-
-  @Injection(name = "TARGET_FIELDNAME")
+  
+  @HopMetadataProperty(
+      key = "target_field",
+      injectionKey = "TARGET_FIELDNAME",
+      injectionKeyDescription = "ValueMapper.Injection.TARGET_FIELDNAME")
   private String targetField;
 
-  @Injection(name = "NON_MATCH_DEFAULT")
+  @HopMetadataProperty(
+      key = "non_match_default",
+      injectionKey = "NON_MATCH_DEFAULT",
+      injectionKeyDescription = "ValueMapper.Injection.NON_MATCH_DEFAULT")
   private String nonMatchDefault;
 
-  @Injection(name = "SOURCE", group = "VALUES")
-  private String[] sourceValue;
-
-  @Injection(name = "TARGET", group = "VALUES")
-  private String[] targetValue;
+  @HopMetadataProperty(
+      groupKey = "fields",
+      key = "field",
+      injectionGroupKey = "VALUES",
+      injectionGroupDescription = "ValueMapper.Injection.VALUES")
+  private List<Values> values;
 
   public ValueMapperMeta() {
     super(); // allocate BaseTransformMeta
+    this.values = new ArrayList<>();
   }
 
-  /** @return Returns the fieldName. */
-  public String[] getSourceValue() {
-    return sourceValue;
+  public ValueMapperMeta(ValueMapperMeta meta) {
+    this();
+    for (Values v : meta.values) {
+      values.add(new Values(v));
+    }
+    
+    this.fieldToUse = meta.fieldToUse;
+    this.targetField = meta.targetField;
+    this.nonMatchDefault = meta.nonMatchDefault;
   }
-
-  /** @param fieldName The fieldName to set. */
-  public void setSourceValue(String[] fieldName) {
-    this.sourceValue = fieldName;
-  }
-
+  
   /** @return Returns the fieldValue. */
-  public String[] getTargetValue() {
-    return targetValue;
+  public List<Values> getValues() {
+    return values;
   }
 
   /** @param fieldValue The fieldValue to set. */
-  public void setTargetValue(String[] fieldValue) {
-    this.targetValue = fieldValue;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  public void allocate(int count) {
-    sourceValue = new String[count];
-    targetValue = new String[count];
+  public void setValues(List<Values> values) {
+    this.values = values;
   }
 
   @Override
   public Object clone() {
-    ValueMapperMeta retval = (ValueMapperMeta) super.clone();
-
-    int count = sourceValue.length;
-
-    retval.allocate(count);
-
-    System.arraycopy(sourceValue, 0, retval.sourceValue, 0, count);
-    System.arraycopy(targetValue, 0, retval.targetValue, 0, count);
-
-    return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      fieldToUse = XmlHandler.getTagValue(transformNode, "field_to_use");
-      targetField = XmlHandler.getTagValue(transformNode, "target_field");
-      nonMatchDefault = XmlHandler.getTagValue(transformNode, "non_match_default");
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int count = XmlHandler.countNodes(fields, "field");
-
-      allocate(count);
-
-      for (int i = 0; i < count; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        sourceValue[i] = XmlHandler.getTagValue(fnode, "source_value");
-        targetValue[i] = XmlHandler.getTagValue(fnode, "target_value");
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "ValueMapperMeta.RuntimeError.UnableToReadXML.VALUEMAPPER0004"),
-          e);
-    }
-  }
-
-  @Override
-  public void setDefault() {
-    int count = 0;
-
-    allocate(count);
-
-    for (int i = 0; i < count; i++) {
-      sourceValue[i] = "field" + i;
-      targetValue[i] = "";
-    }
+    return new ValueMapperMeta(this);
   }
 
   @Override
@@ -173,12 +118,12 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
       // Take the max length of all the strings...
       //
       int maxlen = -1;
-      for (int i = 0; i < targetValue.length; i++) {
-        if (targetValue[i] != null && targetValue[i].length() > maxlen) {
-          maxlen = targetValue[i].length();
+      for (Values v : this.values) {
+        if (v.getTarget() != null && v.getTarget().length() > maxlen) {
+          maxlen = v.getTarget().length();
         }
       }
-
+      
       // include default value in max length calculation
       //
       if (nonMatchDefault != null && nonMatchDefault.length() > maxlen) {
@@ -198,31 +143,6 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
       //
       extra.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
     }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    ").append(XmlHandler.addTagValue("field_to_use", fieldToUse));
-    retval.append("    ").append(XmlHandler.addTagValue("target_field", targetField));
-    retval.append("    ").append(XmlHandler.addTagValue("non_match_default", nonMatchDefault));
-
-    retval.append("    <fields>").append(Const.CR);
-
-    for (int i = 0; i < sourceValue.length; i++) {
-      retval.append("      <field>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("source_value", sourceValue[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("target_value", targetValue[i]));
-      retval.append("      </field>").append(Const.CR);
-    }
-    retval.append("    </fields>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  private String getNullOrEmpty(String str) {
-    return str == null ? StringUtils.EMPTY : str;
   }
 
   @Override
@@ -311,19 +231,5 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
    */
   public void setNonMatchDefault(String nonMatchDefault) {
     this.nonMatchDefault = nonMatchDefault;
-  }
-
-  /**
-   * If we use injection we can have different arrays lengths. We need synchronize them for
-   * consistency behavior with UI
-   */
-  @AfterInjection
-  public void afterInjectionSynchronization() {
-    int nrFields = (sourceValue == null) ? -1 : sourceValue.length;
-    if (nrFields <= 0) {
-      return;
-    }
-    String[][] rtn = Utils.normalizeArrays(nrFields, targetValue);
-    targetValue = rtn[0];
   }
 }
