@@ -35,6 +35,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.apache.hop.pipeline.transforms.fieldsplitter.FieldSplitterMeta.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -80,12 +81,20 @@ public class FieldSplitter_EmptyStringVsNull_Test {
 
   private void executeAndAssertResults(List<Object[]> expected) throws Exception {
     FieldSplitterMeta meta = new FieldSplitterMeta();
-    meta.allocate(3);
-    meta.setFieldName(new String[] {"s1", "s2", "s3"});
-    meta.setFieldType(
-        new int[] {IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING});
     meta.setSplitField("string");
     meta.setDelimiter(",");
+
+    FSField f1 = new FSField();
+    f1.setName("s1");
+    f1.setType("String");
+    FSField f2 = new FSField();
+    f2.setName("s2");
+    f2.setType("String");
+    FSField f3 = new FSField();
+    f3.setName("s3");
+    f3.setType("String");
+    meta.getFields().addAll(List.of(f1, f2, f3));
+
 
     FieldSplitterData data = new FieldSplitterData();
 

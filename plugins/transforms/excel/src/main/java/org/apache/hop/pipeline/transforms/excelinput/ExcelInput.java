@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.excelinput;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
@@ -32,7 +33,6 @@ import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -71,8 +71,8 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
    *
    * @return
    */
-  private Object[] fillRow(int startcolumn, ExcelInputRow excelInputRow) throws HopException {
-    Object[] r = new Object[data.outputRowMeta.size()];
+  private Object[] fillRow(int startColumn, ExcelInputRow excelInputRow) throws HopException {
+    Object[] row = new Object[data.outputRowMeta.size()];
 
     // Keep track whether or not we handled an error for this line yet.
     boolean errorHandled = false;
@@ -80,19 +80,19 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
     // Set values in the row...
     IKCell cell = null;
 
-    for (int i = startcolumn;
-        i < excelInputRow.cells.length && i - startcolumn < meta.getField().length;
+    for (int i = startColumn;
+        i < excelInputRow.cells.length && i - startColumn < meta.getFields().size();
         i++) {
       cell = excelInputRow.cells[i];
 
-      int rowcolumn = i - startcolumn;
+      int rowColumn = i - startColumn;
 
       if (cell == null) {
-        r[rowcolumn] = null;
+        row[rowColumn] = null;
         continue;
       }
 
-      IValueMeta targetMeta = data.outputRowMeta.getValueMeta(rowcolumn);
+      IValueMeta targetMeta = data.outputRowMeta.getValueMeta(rowColumn);
       IValueMeta sourceMeta = null;
 
       try {
@@ -122,38 +122,42 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         }
       }
 
+      ExcelInputField field = meta.getFields().get(rowColumn);
+
       KCellType cellType = cell.getType();
       if (KCellType.BOOLEAN == cellType || KCellType.BOOLEAN_FORMULA == cellType) {
-        r[rowcolumn] = cell.getValue();
+        row[rowColumn] = cell.getValue();
         sourceMeta = data.valueMetaBoolean;
       } else {
         if (KCellType.DATE.equals(cellType) || KCellType.DATE_FORMULA.equals(cellType)) {
           Date date = (Date) cell.getValue();
           long time = date.getTime();
           int offset = TimeZone.getDefault().getOffset(time);
-          r[rowcolumn] = new Date(time - offset);
+          row[rowColumn] = new Date(time - offset);
           sourceMeta = data.valueMetaDate;
         } else {
           if (KCellType.LABEL == cellType || KCellType.STRING_FORMULA == cellType) {
             String string = (String) cell.getValue();
-            switch (meta.getField()[rowcolumn].getTrimType()) {
-              case ExcelInputMeta.TYPE_TRIM_LEFT:
-                string = Const.ltrim(string);
-                break;
-              case ExcelInputMeta.TYPE_TRIM_RIGHT:
-                string = Const.rtrim(string);
-                break;
-              case ExcelInputMeta.TYPE_TRIM_BOTH:
-                string = Const.trim(string);
-                break;
-              default:
-                break;
+            if (field.getTrimType() != null) {
+              switch (field.getTrimType()) {
+                case LEFT:
+                  string = Const.ltrim(string);
+                  break;
+                case RIGHT:
+                  string = Const.rtrim(string);
+                  break;
+                case BOTH:
+                  string = Const.trim(string);
+                  break;
+                default:
+                  break;
+              }
             }
-            r[rowcolumn] = string;
+            row[rowColumn] = string;
             sourceMeta = data.valueMetaString;
           } else {
             if (KCellType.NUMBER == cellType || KCellType.NUMBER_FORMULA == cellType) {
-              r[rowcolumn] = cell.getValue();
+              row[rowColumn] = cell.getValue();
               sourceMeta = data.valueMetaNumber;
             } else {
               if (log.isDetailed()) {
@@ -165,13 +169,11 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
                         ((ct != null) ? ct.toString() : "null"),
                         cell.getContents()));
               }
-              r[rowcolumn] = null;
+              row[rowColumn] = null;
             }
           }
         }
       }
-
-      ExcelInputField field = meta.getField()[rowcolumn];
 
       // Change to the appropriate type if needed...
       //
@@ -180,7 +182,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         //
         if (sourceMeta != null
             && sourceMeta.getType() != targetMeta.getType()
-            && r[rowcolumn] != null) {
+            && row[rowColumn] != null) {
           IValueMeta sourceMetaCopy = sourceMeta.clone();
           sourceMetaCopy.setConversionMask(field.getFormat());
           sourceMetaCopy.setGroupingSymbol(field.getGroupSymbol());
@@ -193,24 +195,24 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
               //
             case IValueMeta.TYPE_NUMBER:
             case IValueMeta.TYPE_INTEGER:
-              if (field.getType() == IValueMeta.TYPE_DATE) {
+              if (field.getHopType() == IValueMeta.TYPE_DATE) {
                 // number to string conversion (20070522.00 --> "20070522")
                 //
                 IValueMeta valueMetaNumber = new ValueMetaNumber("num");
                 valueMetaNumber.setConversionMask("#");
-                Object string = sourceMetaCopy.convertData(valueMetaNumber, r[rowcolumn]);
+                Object string = sourceMetaCopy.convertData(valueMetaNumber, row[rowColumn]);
 
                 // String to date with mask...
                 //
-                r[rowcolumn] = targetMeta.convertData(sourceMetaCopy, string);
+                row[rowColumn] = targetMeta.convertData(sourceMetaCopy, string);
               } else {
-                r[rowcolumn] = targetMeta.convertData(sourceMetaCopy, r[rowcolumn]);
+                row[rowColumn] = targetMeta.convertData(sourceMetaCopy, row[rowColumn]);
               }
               break;
               // Use case: we find a date: convert it using the supplied format to String...
               //
             default:
-              r[rowcolumn] = targetMeta.convertData(sourceMetaCopy, r[rowcolumn]);
+              row[rowColumn] = targetMeta.convertData(sourceMetaCopy, row[rowColumn]);
           }
         }
       } catch (HopException ex) {
@@ -236,77 +238,77 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         if (meta.isErrorLineSkipped()) {
           return null;
         } else {
-          r[rowcolumn] = null;
+          row[rowColumn] = null;
         }
       }
     }
 
-    int rowIndex = meta.getField().length;
+    int rowIndex = meta.getFields().size();
 
     // Do we need to include the filename?
-    if (!Utils.isEmpty(meta.getFileField())) {
-      r[rowIndex] = data.filename;
+    if (StringUtils.isNotEmpty(meta.getFileField())) {
+      row[rowIndex] = data.filename;
       rowIndex++;
     }
 
     // Do we need to include the sheetname?
-    if (!Utils.isEmpty(meta.getSheetField())) {
-      r[rowIndex] = excelInputRow.sheetName;
+    if (StringUtils.isNotEmpty(meta.getSheetField())) {
+      row[rowIndex] = excelInputRow.sheetName;
       rowIndex++;
     }
 
     // Do we need to include the sheet rownumber?
-    if (!Utils.isEmpty(meta.getSheetRowNumberField())) {
-      r[rowIndex] = Long.valueOf(data.rownr);
+    if (StringUtils.isNotEmpty(meta.getSheetRowNumberField())) {
+      row[rowIndex] = (long) data.rownr;
       rowIndex++;
     }
 
     // Do we need to include the rownumber?
-    if (!Utils.isEmpty(meta.getRowNumberField())) {
-      r[rowIndex] = Long.valueOf(getLinesWritten() + 1);
+    if (StringUtils.isNotEmpty(meta.getRowNumberField())) {
+      row[rowIndex] = getLinesWritten() + 1;
       rowIndex++;
     }
     // Possibly add short filename...
-    if (!Utils.isEmpty(meta.getShortFileNameField())) {
-      r[rowIndex] = data.shortFilename;
+    if (StringUtils.isNotEmpty(meta.getShortFileFieldName())) {
+      row[rowIndex] = data.shortFilename;
       rowIndex++;
     }
     // Add Extension
-    if (!Utils.isEmpty(meta.getExtensionField())) {
-      r[rowIndex] = data.extension;
+    if (StringUtils.isNotEmpty(meta.getExtensionFieldName())) {
+      row[rowIndex] = data.extension;
       rowIndex++;
     }
     // add path
-    if (!Utils.isEmpty(meta.getPathField())) {
-      r[rowIndex] = data.path;
+    if (StringUtils.isNotEmpty(meta.getPathFieldName())) {
+      row[rowIndex] = data.path;
       rowIndex++;
     }
     // Add Size
-    if (!Utils.isEmpty(meta.getSizeField())) {
-      r[rowIndex] = Long.valueOf(data.size);
+    if (StringUtils.isNotEmpty(meta.getSizeFieldName())) {
+      row[rowIndex] = data.size;
       rowIndex++;
     }
     // add Hidden
-    if (!Utils.isEmpty(meta.isHiddenField())) {
-      r[rowIndex] = Boolean.valueOf(data.hidden);
+    if (StringUtils.isNotEmpty(meta.getHiddenFieldName())) {
+      row[rowIndex] = data.hidden;
       rowIndex++;
     }
     // Add modification date
-    if (!Utils.isEmpty(meta.getLastModificationDateField())) {
-      r[rowIndex] = data.lastModificationDateTime;
+    if (StringUtils.isNotEmpty(meta.getLastModificationTimeFieldName())) {
+      row[rowIndex] = data.lastModificationDateTime;
       rowIndex++;
     }
     // Add Uri
-    if (!Utils.isEmpty(meta.getUriField())) {
-      r[rowIndex] = data.uriName;
+    if (StringUtils.isNotEmpty(meta.getUriNameFieldName())) {
+      row[rowIndex] = data.uriName;
       rowIndex++;
     }
     // Add RootUri
-    if (!Utils.isEmpty(meta.getRootUriField())) {
-      r[rowIndex] = data.rootUriName;
+    if (StringUtils.isNotEmpty(meta.getRootUriNameFieldName())) {
+      row[rowIndex] = data.rootUriName;
     }
 
-    return r;
+    return row;
   }
 
   private void checkType(IKCell cell, IValueMeta v) throws HopException {
@@ -382,7 +384,6 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
   @Override
   public boolean processRow() throws HopException {
-
     if (first) {
       first = false;
 
@@ -457,11 +458,12 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
       // OK, see if we need to repeat values.
       if (data.previousRow != null) {
-        for (int i = 0; i < meta.getField().length; i++) {
+        for (int i = 0; i < meta.getFields().size(); i++) {
           IValueMeta valueMeta = data.outputRowMeta.getValueMeta(i);
+          ExcelInputField field = meta.getFields().get(i);
           Object valueData = r[i];
 
-          if (valueMeta.isNull(valueData) && meta.getField()[i].isRepeated()) {
+          if (valueMeta.isNull(valueData) && field.isRepeat()) {
             // Take the value from the previous row.
             r[i] = data.previousRow[i];
           }
@@ -483,7 +485,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
   }
 
   private void handleMissingFiles() throws HopException {
-    List<FileObject> nonExistantFiles = data.files.getNonExistantFiles();
+    List<FileObject> nonExistantFiles = data.files.getNonExistentFiles();
 
     if (!nonExistantFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
@@ -537,32 +539,30 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         data.file = data.files.getFile(data.filenr);
         data.filename = HopVfs.getFilename(data.file);
         // Add additional fields?
-        if (meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0) {
+        if (StringUtils.isNotEmpty(meta.getShortFileFieldName())) {
           data.shortFilename = data.file.getName().getBaseName();
         }
-        if (meta.getPathField() != null && meta.getPathField().length() > 0) {
+        if (StringUtils.isNotEmpty(meta.getPathFieldName())) {
           data.path = HopVfs.getFilename(data.file.getParent());
         }
-        if (meta.isHiddenField() != null && meta.isHiddenField().length() > 0) {
+        if (StringUtils.isNotEmpty(meta.getHiddenFieldName())) {
           data.hidden = data.file.isHidden();
         }
-        if (meta.getExtensionField() != null && meta.getExtensionField().length() > 0) {
+        if (StringUtils.isNotEmpty(meta.getExtensionFieldName())) {
           data.extension = data.file.getName().getExtension();
         }
-        if (meta.getLastModificationDateField() != null
-            && meta.getLastModificationDateField().length() > 0) {
+        if (StringUtils.isNotEmpty(meta.getLastModificationTimeFieldName())) {
           data.lastModificationDateTime = new Date(data.file.getContent().getLastModifiedTime());
         }
-        if (meta.getUriField() != null && meta.getUriField().length() > 0) {
+        if (StringUtils.isNotEmpty(meta.getUriNameFieldName())) {
           data.uriName = data.file.getName().getURI();
         }
-        if (meta.getRootUriField() != null && meta.getRootUriField().length() > 0) {
+        if (StringUtils.isNotEmpty(meta.getRootUriNameFieldName())) {
           data.rootUriName = data.file.getName().getRootURI();
         }
-        if (meta.getSizeField() != null && meta.getSizeField().length() > 0) {
+        if (StringUtils.isNotEmpty(meta.getSizeFieldName())) {
           data.size = data.file.getContent().getSize();
         }
-
         if (meta.isAddResultFile()) {
           ResultFile resultFile =
               new ResultFile(
@@ -615,7 +615,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
           data.rownr = data.startRow[data.sheetnr];
 
           // Add an extra row if we have a header row to skip...
-          if (meta.startsWithHeader()) {
+          if (meta.isStartsWithHeader()) {
             data.rownr++;
           }
         }
@@ -657,7 +657,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
             }
 
             boolean isEmpty = isLineEmpty(line);
-            if (!isEmpty || !meta.ignoreEmptyRows()) {
+            if (!isEmpty || !meta.isIgnoreEmptyRows()) {
               // Put the row
               retval = r;
             } else {
@@ -666,7 +666,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
               }
             }
 
-            if (isEmpty && meta.stopOnEmpty()) {
+            if (isEmpty && meta.isStopOnEmpty()) {
               nextsheet = true;
             }
           }
@@ -720,7 +720,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
     boolean isEmpty = true;
     for (int i = 0; i < line.length && isEmpty; i++) {
-      if (line[i] != null && !Utils.isEmpty(line[i].getContents())) {
+      if (line[i] != null && StringUtils.isNotEmpty(line[i].getContents())) {
         isEmpty = false;
       }
     }
@@ -848,32 +848,20 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         // Determine the maximum sheet name length...
         data.maxsheetlength = -1;
         if (!meta.readAllSheets()) {
-          data.sheetNames = new String[meta.getSheetName().length];
-          data.startColumn = new int[meta.getSheetName().length];
-          data.startRow = new int[meta.getSheetName().length];
-          for (int i = 0; i < meta.getSheetName().length; i++) {
-            data.sheetNames[i] = meta.getSheetName()[i];
-            data.startColumn[i] = meta.getStartColumn()[i];
-            data.startRow[i] = meta.getStartRow()[i];
-
-            if (meta.getSheetName()[i].length() > data.maxsheetlength) {
-              data.maxsheetlength = meta.getSheetName()[i].length();
-            }
-          }
+          data.sheetNames = meta.getSheetsNames();
+          ;
+          data.startColumn = meta.getSheetsStartColumns();
+          data.startRow = meta.getSheetsStartRows();
         } else {
           // Allocated at open file time: we want ALL sheets.
-          if (meta.getStartRow().length == 1) {
-            data.defaultStartRow = meta.getStartRow()[0];
-          } else {
+          if (meta.getSheets().isEmpty()) {
             data.defaultStartRow = 0;
-          }
-          if (meta.getStartColumn().length == 1) {
-            data.defaultStartColumn = meta.getStartColumn()[0];
-          } else {
             data.defaultStartColumn = 0;
+          } else {
+            data.defaultStartRow = meta.getSheets().get(0).getStartRow();
+            data.defaultStartColumn = meta.getSheets().get(0).getStartColumn();
           }
         }
-
         return true;
       } else {
         logError(BaseMessages.getString(PKG, "ExcelInput.Error.NotInputFieldsDefined"));

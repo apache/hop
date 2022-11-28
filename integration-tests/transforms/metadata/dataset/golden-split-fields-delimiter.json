@@ -1,0 +1,56 @@
+{
+  "base_filename": "golden-split-fields-delimiter.csv",
+  "name": "golden-split-fields-delimiter",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "id",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "sales1",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "sales2",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "sales3",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "sales4",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "value2",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

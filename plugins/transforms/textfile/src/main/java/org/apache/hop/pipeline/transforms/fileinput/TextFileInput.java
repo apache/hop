@@ -1519,7 +1519,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
   }
 
   private void handleMissingFiles() throws HopException {
-    List<FileObject> nonExistantFiles = data.getFiles().getNonExistantFiles();
+    List<FileObject> nonExistantFiles = data.getFiles().getNonExistentFiles();
 
     if (nonExistantFiles.size() != 0) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);

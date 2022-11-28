@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<transform>
+    <name>Split value</name>
+    <type>FieldSplitter</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+        <method>none</method>
+        <schema_name/>
+    </partitioning>
+    <splitfield>value</splitfield>
+    <delimiter>,</delimiter>
+    <enclosure/>
+    <escape_string/>
+    <fields>
+        <field>
+            <name>a</name>
+            <id>a=</id>
+            <idrem>Y</idrem>
+            <type>Integer</type>
+            <format>#</format>
+            <group/>
+            <decimal/>
+            <currency/>
+            <length>-1</length>
+            <precision>-1</precision>
+            <nullif/>
+            <ifnull/>
+            <trimtype>both</trimtype>
+        </field>
+        <field>
+            <name>b</name>
+            <id>b=</id>
+            <idrem>Y</idrem>
+            <type>Integer</type>
+            <format>#</format>
+            <group/>
+            <decimal/>
+            <currency/>
+            <length>-1</length>
+            <precision>-1</precision>
+            <nullif/>
+            <ifnull/>
+            <trimtype>both</trimtype>
+        </field>
+        <field>
+            <name>c</name>
+            <id>c=</id>
+            <idrem>Y</idrem>
+            <type>Integer</type>
+            <format>#</format>
+            <group/>
+            <decimal/>
+            <currency/>
+            <length>-1</length>
+            <precision>-1</precision>
+            <nullif/>
+            <ifnull/>
+            <trimtype>both</trimtype>
+        </field>
+        <field>
+            <name>d</name>
+            <id>d=</id>
+            <idrem>Y</idrem>
+            <type>Integer</type>
+            <format>#</format>
+            <group/>
+            <decimal/>
+            <currency/>
+            <length>-1</length>
+            <precision>-1</precision>
+            <nullif/>
+            <ifnull/>
+            <trimtype>both</trimtype>
+        </field>
+    </fields>
+    <attributes></attributes>
+    <GUI>
+        <xloc>256</xloc>
+        <yloc>80</yloc>
+    </GUI>
+</transform>

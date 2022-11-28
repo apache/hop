@@ -72,6 +72,8 @@ import java.util.function.Consumer;
 public abstract class BaseDialog extends Dialog {
   private static final Class<?> PKG = BaseDialog.class; // For Translator
 
+  public static final String NO_DEFAULT_HANDLER = "NoDefaultHandler";
+
   @Variable(
       scope = VariableScope.APPLICATION,
       value = "N",
@@ -470,6 +472,17 @@ public abstract class BaseDialog extends Dialog {
     this.buttons = buttons;
   }
 
+  /**
+   * Handle the shell specified until the OK (button) is consumed. Set a default icon on the shell,
+   * add default selection handlers on fields. Set the appropriate size for the shell. If you have
+   * widgets on which you don't want to have this default selection handler to okConsumer, do:
+   *
+   * <p>widget.setData(NO_DEFAULT_HANDLER, true)
+   *
+   * @param shell The shell to handle.
+   * @param okConsumer What to do when the dialog information needs to be retained after closing.
+   * @param cancelConsumer What to do when the dialog is cancelled.
+   */
   public static void defaultShellHandling(
       Shell shell, Consumer<Void> okConsumer, Consumer<Void> cancelConsumer) {
 
@@ -528,6 +541,9 @@ public abstract class BaseDialog extends Dialog {
     }
 
     for (Control control : composite.getChildren()) {
+      if (control.getData(NO_DEFAULT_HANDLER) != null) {
+        continue;
+      }
       // Some of these are composites so check first
       //
       if ((control instanceof Text)

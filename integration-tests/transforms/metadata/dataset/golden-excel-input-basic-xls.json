@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-excel-input-basic-xls.csv",
+  "name": "golden-excel-input-basic-xls",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "col1",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "col2",
+      "field_format": "yyy/MM/dd"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "col3",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_name": "col4",
+      "field_format": "0.00"
+    }
+  ],
+  "folder_name": ""
+}

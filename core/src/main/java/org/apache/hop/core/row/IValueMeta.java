@@ -27,6 +27,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.json.simple.JSONObject;
 import org.w3c.dom.Node;
 
@@ -138,6 +140,8 @@ import java.util.TimeZone;
  */
 @JsonDeserialize(using = ValueMetaDeserializer.class)
 public interface IValueMeta extends Cloneable {
+  public static final Class<?> PKG = IValueMeta.class; // For Translator
+
   /** Value type indicating that the value has no type set */
   int TYPE_NONE = 0;
 
@@ -252,6 +256,66 @@ public interface IValueMeta extends Cloneable {
    * to another data type
    */
   int TRIM_TYPE_BOTH = 3;
+
+  enum TrimType implements IEnumHasCodeAndDescription {
+    NONE("none", BaseMessages.getString(PKG, "ValueMeta.TrimType.None"), TRIM_TYPE_NONE),
+    LEFT("left", BaseMessages.getString(PKG, "ValueMeta.TrimType.Left"), TRIM_TYPE_LEFT),
+    RIGHT("right", BaseMessages.getString(PKG, "ValueMeta.TrimType.Right"), TRIM_TYPE_RIGHT),
+    BOTH("both", BaseMessages.getString(PKG, "ValueMeta.TrimType.Both"), TRIM_TYPE_BOTH);
+    private final String code;
+    private final String description;
+    private final int type;
+
+    TrimType(String code, String description, int type) {
+      this.code = code;
+      this.description = description;
+      this.type = type;
+    }
+
+    public static String[] getDescriptions() {
+      String[] descriptions = new String[values().length];
+      for (int i = 0; i < descriptions.length; i++) {
+        descriptions[i] = values()[i].description;
+      }
+      return descriptions;
+    }
+
+    public static TrimType lookupDescription(String description) {
+      for (TrimType value : values()) {
+        if (value.description.equals(description)) {
+          return value;
+        }
+      }
+      return NONE;
+    }
+
+    /**
+     * Gets code
+     *
+     * @return value of code
+     */
+    public String getCode() {
+      return code;
+    }
+
+    /**
+     * Gets description
+     *
+     * @return value of description
+     */
+    public String getDescription() {
+      return description;
+    }
+
+    /**
+     * Gets type
+     *
+     * @return value of type
+     */
+    public int getType() {
+      return type;
+    }
+  }
 
   /** Default integer length for hardcoded metadata integers */
   int DEFAULT_INTEGER_LENGTH = 10;

@@ -35,9 +35,9 @@ As always, the row layout for the input data coming from both transforms has to 
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:question_mark.svg[Maybe Supported, 24]
-!Flink! image:question_mark.svg[Maybe Supported, 24]
-!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!Spark! image:cross.svg[Not Supported, 24]
+!Flink! image:cross.svg[Not Supported, 24]
+!Dataflow! image:cross.svg[Not Supported, 24]
 !===
 |===
 

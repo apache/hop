@@ -479,6 +479,16 @@ public class BeanInjectionInfo<Meta extends Object> {
         baseClass = baseClass.getSuperclass();
       }
     }
+    // If all else fails and there are spaces in the text, just let it be.  It's probably a literal
+    // string not meant to be translated.  Let's just remove the exclamation marks.
+    //
+    if (translated != null
+        && translated.startsWith("!")
+        && translated.endsWith("!")
+        && translated.contains(" ")
+        && translated.length() > 3) {
+      translated = translated.substring(1, translated.length() - 1);
+    }
     return translated;
   }
 

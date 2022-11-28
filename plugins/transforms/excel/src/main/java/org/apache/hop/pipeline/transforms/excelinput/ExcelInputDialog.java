@@ -28,7 +28,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
@@ -58,7 +57,6 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.core.widget.VariableButtonListenerFactory;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -66,9 +64,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
@@ -87,6 +82,8 @@ import org.eclipse.swt.widgets.Text;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.*;
 
 public class ExcelInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ExcelInputMeta.class; // For Translator
@@ -118,11 +115,11 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
   private Label wlFilenameList;
   private TableView wFilenameList;
 
-  private Label wlFilemask;
-  private Text wFilemask;
+  private Label wlFileMask;
+  private Text wFileMask;
 
-  private Label wlExcludeFilemask;
-  private TextVar wExcludeFilemask;
+  private Label wlExcludeFileMask;
+  private TextVar wExcludeFileMask;
 
   private Button wAccFilenames;
 
@@ -134,7 +131,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
   private Button wbShowFiles;
 
-  private TableView wSheetnameList;
+  private TableView wSheetNameList;
 
   private Button wHeader;
 
@@ -144,11 +141,11 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
   private Text wInclFilenameField;
 
-  private Text wInclSheetnameField;
+  private Text wInclSheetNameField;
 
-  private Text wInclRownumField;
+  private Text wInclRowNumField;
 
-  private Text wInclSheetRownumField;
+  private Text wInclSheetRowNumField;
 
   private Text wLimit;
 
@@ -199,8 +196,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
   private Button wAddResult;
 
-  private ModifyListener lsMod;
-
   private Text wShortFileFieldName;
   private Text wPathFieldName;
 
@@ -213,7 +208,8 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
   public ExcelInputDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
+    super(
+        parent, variables, (BaseTransformMeta<ExcelInput, ExcelInputData>) in, pipelineMeta, sname);
     input = (ExcelInputMeta) in;
   }
 
@@ -225,13 +221,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     PropsUi.setLook(shell);
     setShellImage(shell, input);
 
-    lsMod =
-        e -> {
-          input.setChanged();
-          checkAlerts();
-        };
-    changed = input.hasChanged();
-
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
@@ -240,7 +229,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     shell.setText(BaseMessages.getString(PKG, "ExcelInputDialog.DialogTitle"));
 
     middle = props.getMiddlePct();
-    margin = props.getMargin();
+    margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);
@@ -266,7 +255,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
@@ -317,7 +305,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wSpreadSheetType = new CCombo(wFileComp, SWT.BORDER | SWT.READ_ONLY);
     wSpreadSheetType.setEditable(true);
     PropsUi.setLook(wSpreadSheetType);
-    wSpreadSheetType.addModifyListener(lsMod);
     FormData fdSpreadSheetType = new FormData();
     fdSpreadSheetType.left = new FormAttachment(middle, 0);
     fdSpreadSheetType.right = new FormAttachment(100, 0);
@@ -358,47 +345,44 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilename);
-    wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.right = new FormAttachment(wbaFilename, -margin);
     fdFilename.top = new FormAttachment(wSpreadSheetType, margin);
     wFilename.setLayoutData(fdFilename);
 
-    wlFilemask = new Label(wFileComp, SWT.RIGHT);
-    wlFilemask.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Filemask.Label"));
-    PropsUi.setLook(wlFilemask);
+    wlFileMask = new Label(wFileComp, SWT.RIGHT);
+    wlFileMask.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Filemask.Label"));
+    PropsUi.setLook(wlFileMask);
     FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
     fdlFilemask.top = new FormAttachment(wFilename, margin);
     fdlFilemask.right = new FormAttachment(middle, -margin);
-    wlFilemask.setLayoutData(fdlFilemask);
-    wFilemask = new Text(wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wFilemask);
-    wFilemask.addModifyListener(lsMod);
+    wlFileMask.setLayoutData(fdlFilemask);
+    wFileMask = new Text(wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wFileMask);
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
     fdFilemask.top = new FormAttachment(wFilename, margin);
     fdFilemask.right = new FormAttachment(wbaFilename, -margin);
-    wFilemask.setLayoutData(fdFilemask);
+    wFileMask.setLayoutData(fdFilemask);
 
-    wlExcludeFilemask = new Label(wFileComp, SWT.RIGHT);
-    wlExcludeFilemask.setText(
+    wlExcludeFileMask = new Label(wFileComp, SWT.RIGHT);
+    wlExcludeFileMask.setText(
         BaseMessages.getString(PKG, "ExcelInputDialog.ExcludeFilemask.Label"));
-    PropsUi.setLook(wlExcludeFilemask);
+    PropsUi.setLook(wlExcludeFileMask);
     FormData fdlExcludeFilemask = new FormData();
     fdlExcludeFilemask.left = new FormAttachment(0, 0);
-    fdlExcludeFilemask.top = new FormAttachment(wFilemask, margin);
+    fdlExcludeFilemask.top = new FormAttachment(wFileMask, margin);
     fdlExcludeFilemask.right = new FormAttachment(middle, -margin);
-    wlExcludeFilemask.setLayoutData(fdlExcludeFilemask);
-    wExcludeFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wExcludeFilemask);
-    wExcludeFilemask.addModifyListener(lsMod);
+    wlExcludeFileMask.setLayoutData(fdlExcludeFilemask);
+    wExcludeFileMask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wExcludeFileMask);
     FormData fdExcludeFilemask = new FormData();
     fdExcludeFilemask.left = new FormAttachment(middle, 0);
-    fdExcludeFilemask.top = new FormAttachment(wFilemask, margin);
+    fdExcludeFilemask.top = new FormAttachment(wFileMask, margin);
     fdExcludeFilemask.right = new FormAttachment(wFilename, 0, SWT.RIGHT);
-    wExcludeFilemask.setLayoutData(fdExcludeFilemask);
+    wExcludeFileMask.setLayoutData(fdExcludeFilemask);
 
     // Filename list line
     wlFilenameList = new Label(wFileComp, SWT.RIGHT);
@@ -406,7 +390,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     PropsUi.setLook(wlFilenameList);
     FormData fdlFilenameList = new FormData();
     fdlFilenameList.left = new FormAttachment(0, 0);
-    fdlFilenameList.top = new FormAttachment(wExcludeFilemask, margin);
+    fdlFilenameList.top = new FormAttachment(wExcludeFileMask, margin);
     fdlFilenameList.right = new FormAttachment(middle, -margin);
     wlFilenameList.setLayoutData(fdlFilenameList);
 
@@ -418,7 +402,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
         BaseMessages.getString(PKG, "ExcelInputDialog.FilenameDelete.Tooltip"));
     FormData fdbdFilename = new FormData();
     fdbdFilename.right = new FormAttachment(100, 0);
-    fdbdFilename.top = new FormAttachment(wExcludeFilemask, 40);
+    fdbdFilename.top = new FormAttachment(wExcludeFileMask, 40);
     wbdFilename.setLayoutData(fdbdFilename);
 
     wbeFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
@@ -469,14 +453,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdAccFilenames.left = new FormAttachment(middle, 0);
     fdAccFilenames.right = new FormAttachment(100, 0);
     wAccFilenames.setLayoutData(fdAccFilenames);
-    wAccFilenames.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            setFlags();
-            input.setChanged();
-          }
-        });
+    wAccFilenames.addListener(SWT.Selection, e -> setFlags());
 
     // Which transform to read from?
     wlAccTransform = new Label(gAccepting, SWT.RIGHT);
@@ -582,14 +559,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
             wFileComp,
             SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER,
             colinfo,
-            input.getFileName().length,
-            lsMod,
+            input.getFiles().size(),
+            null,
             props);
     PropsUi.setLook(wFilenameList);
     FormData fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment(middle, 0);
     fdFilenameList.right = new FormAttachment(wbdFilename, -margin);
-    fdFilenameList.top = new FormAttachment(wExcludeFilemask, margin);
+    fdFilenameList.top = new FormAttachment(wExcludeFileMask, margin);
     fdFilenameList.bottom = new FormAttachment(gAccepting, -margin);
     wFilenameList.setLayoutData(fdFilenameList);
 
@@ -655,24 +632,24 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
 
-    wSheetnameList =
+    wSheetNameList =
         new TableView(
             variables,
             wSheetComp,
             SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
             shinfo,
-            input.getSheetName().length,
-            lsMod,
+            input.getSheets().size(),
+            null,
             props);
-    PropsUi.setLook(wSheetnameList);
+    PropsUi.setLook(wSheetNameList);
     fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment(middle, 0);
     fdFilenameList.right = new FormAttachment(100, 0);
     fdFilenameList.top = new FormAttachment(0, 0);
     fdFilenameList.bottom = new FormAttachment(wbGetSheets, -margin);
-    wSheetnameList.setLayoutData(fdFilenameList);
+    wSheetNameList.setLayoutData(fdFilenameList);
 
-    wSheetnameList.addModifyListener(arg0 -> checkAlerts());
+    wSheetNameList.addModifyListener(arg0 -> checkAlerts());
 
     FormData fdSheetComp = new FormData();
     fdSheetComp.left = new FormAttachment(0, 0);
@@ -718,14 +695,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdHeader.top = new FormAttachment(wlHeader, 0, SWT.CENTER);
     fdHeader.right = new FormAttachment(100, 0);
     wHeader.setLayoutData(fdHeader);
-    wHeader.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            setFlags();
-            input.setChanged();
-          }
-        });
+    wHeader.addListener(SWT.Selection, e -> setFlags());
 
     Label wlNoEmpty = new Label(wContentComp, SWT.RIGHT);
     wlNoEmpty.setText(BaseMessages.getString(PKG, "ExcelInputDialog.NoEmpty.Label"));
@@ -774,7 +744,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wLimit);
-    wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
     fdLimit.top = new FormAttachment(wStopOnEmpty, margin);
@@ -792,26 +761,21 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wEncoding = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
     wEncoding.setEditable(true);
     PropsUi.setLook(wEncoding);
-    wEncoding.addModifyListener(lsMod);
     FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment(middle, 0);
     fdEncoding.top = new FormAttachment(wLimit, margin);
     fdEncoding.right = new FormAttachment(100, 0);
     wEncoding.setLayoutData(fdEncoding);
-    wEncoding.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {}
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            setEncodings();
-            shell.setCursor(null);
-            busy.dispose();
-          }
+    wEncoding.addListener(
+        SWT.FocusIn,
+        e -> {
+          Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+          shell.setCursor(busy);
+          setEncodings();
+          shell.setCursor(null);
+          busy.dispose();
         });
+    wEncoding.layout();
 
     //
     // START OF AddFileResult GROUP
@@ -888,7 +852,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     setButtonPositions(new Button[] {wbGetFields}, margin, null);
 
-    final int FieldsRows = input.getField().length;
+    final int FieldsRows = input.getFields().size();
     int fieldsWidth = 600;
     int fieldsHeight = 150;
 
@@ -913,14 +877,12 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
           new ColumnInfo(
               BaseMessages.getString(PKG, "ExcelInputDialog.TrimType.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaString.trimTypeDesc),
+              IValueMeta.TrimType.getDescriptions()),
           new ColumnInfo(
               BaseMessages.getString(PKG, "ExcelInputDialog.Repeat.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No")
-              }),
+              BaseMessages.getString(PKG, "System.Combo.Yes"),
+              BaseMessages.getString(PKG, "System.Combo.No")),
           new ColumnInfo(
               BaseMessages.getString(PKG, "ExcelInputDialog.Format.Column"),
               ColumnInfo.COLUMN_TYPE_FORMAT,
@@ -945,7 +907,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
             SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             FieldsRows,
-            lsMod,
+            null,
             props);
     wFields.setSize(fieldsWidth, fieldsHeight);
     wFields.addModifyListener(arg0 -> checkAlerts());
@@ -983,16 +945,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
           @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFilenameList.add(
-                new String[] {
-                  wFilename.getText(),
-                  wFilemask.getText(),
-                  wExcludeFilemask.getText(),
-                  ExcelInputMeta.RequiredFilesCode[0],
-                  ExcelInputMeta.RequiredFilesCode[0]
-                });
+                wFilename.getText(),
+                wFileMask.getText(),
+                wExcludeFileMask.getText(),
+                RequiredFilesCode[0],
+                RequiredFilesCode[0]);
             wFilename.setText("");
-            wFilemask.setText("");
-            wExcludeFilemask.setText("");
+            wFileMask.setText("");
+            wExcludeFileMask.setText("");
             wFilenameList.removeEmptyRows();
             wFilenameList.setRowNums();
             wFilenameList.optWidth(true);
@@ -1003,44 +963,34 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wFilename.addSelectionListener(selA);
 
     // Delete files from the list of files...
-    wbdFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            int[] idx = wFilenameList.getSelectionIndices();
-            wFilenameList.remove(idx);
-            wFilenameList.removeEmptyRows();
-            wFilenameList.setRowNums();
-            checkAlerts();
-          }
+    wbdFilename.addListener(
+        SWT.Selection,
+        e -> {
+          int[] idx = wFilenameList.getSelectionIndices();
+          wFilenameList.remove(idx);
+          wFilenameList.removeEmptyRows();
+          wFilenameList.setRowNums();
+          checkAlerts();
         });
 
     // Edit the selected file & remove from the list...
-    wbeFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            int idx = wFilenameList.getSelectionIndex();
-            if (idx >= 0) {
-              String[] string = wFilenameList.getItem(idx);
-              wFilename.setText(string[0]);
-              wFilemask.setText(string[1]);
-              wExcludeFilemask.setText(string[2]);
-              wFilenameList.remove(idx);
-            }
-            wFilenameList.removeEmptyRows();
-            wFilenameList.setRowNums();
+    wbeFilename.addListener(
+        SWT.Selection,
+        e -> {
+          int idx = wFilenameList.getSelectionIndex();
+          if (idx >= 0) {
+            String[] string = wFilenameList.getItem(idx);
+            wFilename.setText(string[0]);
+            wFileMask.setText(string[1]);
+            wExcludeFileMask.setText(string[2]);
+            wFilenameList.remove(idx);
           }
+          wFilenameList.removeEmptyRows();
+          wFilenameList.setRowNums();
         });
 
     // Show the files that are selected at this time...
-    wbShowFiles.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            showFiles();
-          }
-        });
+    wbShowFiles.addListener(SWT.Selection, e -> showFiles());
 
     // Whenever something changes, set the tooltip to the expanded version of the filename:
     wFilename.addModifyListener(
@@ -1050,23 +1000,26 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wbbFilename.addListener(
         SWT.Selection,
         e -> {
-          if (!Utils.isEmpty(wFilemask.getText())
-              || !Utils.isEmpty(wExcludeFilemask.getText())) { // A mask: a directory!
+          if (!Utils.isEmpty(wFileMask.getText())
+              || !Utils.isEmpty(wExcludeFileMask.getText())) { // A mask: a directory!
             BaseDialog.presentDirectoryDialog(shell, wFilename, variables);
           } else {
-            String[] extentions;
+            String[] extensions;
             SpreadSheetType type =
-                SpreadSheetType.getStpreadSheetTypeByDescription(wSpreadSheetType.getText());
+                SpreadSheetType.getSpreadSheetTypeByDescription(wSpreadSheetType.getText());
+            if (type == null) {
+              return;
+            }
             switch (type) {
               case SAX_POI:
-                extentions = new String[] {"*.xlsx;*.XLSX;*.xlsm;*.XLSM", "*"};
+                extensions = new String[] {"*.xlsx;*.XLSX;*.xlsm;*.XLSM", "*"};
                 break;
               case ODS:
-                extentions = new String[] {"*.ods;*.ODS;", "*"};
+                extensions = new String[] {"*.ods;*.ODS;", "*"};
                 break;
               case POI:
               default:
-                extentions = new String[] {"*.xls;*.XLS;*.xlsx;*.XLSX;*.xlsm;*.XLSM", "*"};
+                extensions = new String[] {"*.xls;*.XLS;*.xlsx;*.XLSX;*.xlsm;*.XLSM", "*"};
                 break;
             }
 
@@ -1074,7 +1027,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
                 shell,
                 wFilename,
                 variables,
-                extentions,
+                extensions,
                 new String[] {
                   BaseMessages.getString(PKG, "ExcelInputDialog.FilterNames.ExcelFiles"),
                   BaseMessages.getString(PKG, "System.FileType.AllFiles")
@@ -1083,28 +1036,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
           }
         });
 
-    // Get a list of the sheetnames.
-    wbGetSheets.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            getSheets();
-          }
-        });
-
-    wbGetFields.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            getFields();
-          }
-        });
+    // Get a list of the sheet names.
+    wbGetSheets.addListener(SWT.Selection, e -> getSheets());
+    wbGetFields.addListener(SWT.Selection, e -> getFields());
 
     wTabFolder.setSelection(0);
 
     getData(input);
     wFields.optWidth(true);
-    input.setChanged(changed);
     checkAlerts(); // resyncing after setup
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -1129,10 +1068,10 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wFilename.setEnabled(!accept);
     wlFilenameList.setEnabled(!accept);
     wFilenameList.setEnabled(!accept);
-    wlFilemask.setEnabled(!accept);
-    wlExcludeFilemask.setEnabled(!accept);
-    wExcludeFilemask.setEnabled(!accept);
-    wFilemask.setEnabled(!accept);
+    wlFileMask.setEnabled(!accept);
+    wlExcludeFileMask.setEnabled(!accept);
+    wExcludeFileMask.setEnabled(!accept);
+    wFileMask.setEnabled(!accept);
     wbShowFiles.setEnabled(!accept);
 
     // wPreview.setEnabled(!accept); // Keep this one: you can do preview on defined files in the
@@ -1170,23 +1109,16 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
    * @param meta The ExcelInputMeta object to obtain the data from.
    */
   public void getData(ExcelInputMeta meta) {
-    if (meta.getFileName() != null) {
-      wFilenameList.removeAll();
-
-      for (int i = 0; i < meta.getFileName().length; i++) {
-        wFilenameList.add(
-            new String[] {
-              meta.getFileName()[i],
-              meta.getFileMask()[i],
-              meta.getExcludeFileMask()[i],
-              meta.getRequiredFilesDesc(meta.getFileRequired()[i]),
-              meta.getRequiredFilesDesc(meta.getIncludeSubFolders()[i])
-            });
-      }
-      wFilenameList.removeEmptyRows();
-      wFilenameList.setRowNums();
-      wFilenameList.optWidth(true);
+    for (int i = 0; i < meta.getFiles().size(); i++) {
+      EIFile file = meta.getFiles().get(i);
+      TableItem item = wFilenameList.table.getItem(i);
+      item.setText(1, Const.NVL(file.getName(), ""));
+      item.setText(2, Const.NVL(file.getMask(), ""));
+      item.setText(3, Const.NVL(file.getExcludeMask(), ""));
+      item.setText(4, Const.NVL(file.getRequired(), ""));
+      item.setText(5, Const.NVL(file.getIncludeSubFolders(), ""));
     }
+    wFilenameList.optimizeTableView();
 
     wAccFilenames.setSelection(meta.isAcceptingFilenames());
 
@@ -1197,21 +1129,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
       wAccTransform.select(wAccTransform.indexOf(meta.getAcceptingTransformName()));
     }
 
-    wHeader.setSelection(meta.startsWithHeader());
-    wNoEmpty.setSelection(meta.ignoreEmptyRows());
-    wStopOnEmpty.setSelection(meta.stopOnEmpty());
-    if (meta.getFileField() != null) {
-      wInclFilenameField.setText(meta.getFileField());
-    }
-    if (meta.getSheetField() != null) {
-      wInclSheetnameField.setText(meta.getSheetField());
-    }
-    if (meta.getSheetRowNumberField() != null) {
-      wInclSheetRownumField.setText(meta.getSheetRowNumberField());
-    }
-    if (meta.getRowNumberField() != null) {
-      wInclRownumField.setText(meta.getRowNumberField());
-    }
+    wHeader.setSelection(meta.isStartsWithHeader());
+    wNoEmpty.setSelection(meta.isIgnoreEmptyRows());
+    wStopOnEmpty.setSelection(meta.isStopOnEmpty());
+
+    wInclFilenameField.setText(Const.NVL(meta.getFileField(), ""));
+    wInclSheetNameField.setText(Const.NVL(meta.getSheetField(), ""));
+    wInclSheetRowNumField.setText(Const.NVL(meta.getSheetRowNumberField(), ""));
+    wInclRowNumField.setText(Const.NVL(meta.getRowNumberField(), ""));
     wLimit.setText("" + meta.getRowLimit());
     wEncoding.setText(Const.NVL(meta.getEncoding(), ""));
     wSpreadSheetType.setText(meta.getSpreadSheetType().getDescription());
@@ -1220,52 +1145,33 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     if (isDebug()) {
       logDebug("getting fields info...");
     }
-    for (int i = 0; i < meta.getField().length; i++) {
+    for (int i = 0; i < meta.getFields().size(); i++) {
+      ExcelInputField f = meta.getFields().get(i);
       TableItem item = wFields.table.getItem(i);
-      String field = meta.getField()[i].getName();
-      String type = meta.getField()[i].getTypeDesc();
-      String length = "" + meta.getField()[i].getLength();
-      String prec = "" + meta.getField()[i].getPrecision();
-      String trim = meta.getField()[i].getTrimTypeDesc();
+      String field = f.getName();
+      String type = f.getTypeDesc();
+      String length = "" + f.getLength();
+      String prec = "" + f.getPrecision();
+      String trim = f.getTrimType().getDescription();
       String rep =
-          meta.getField()[i].isRepeated()
+          f.isRepeat()
               ? BaseMessages.getString(PKG, "System.Combo.Yes")
               : BaseMessages.getString(PKG, "System.Combo.No");
-      String format = meta.getField()[i].getFormat();
-      String currency = meta.getField()[i].getCurrencySymbol();
-      String decimal = meta.getField()[i].getDecimalSymbol();
-      String grouping = meta.getField()[i].getGroupSymbol();
+      String format = f.getFormat();
+      String currency = f.getCurrencySymbol();
+      String decimal = f.getDecimalSymbol();
+      String grouping = f.getGroupSymbol();
 
-      if (field != null) {
-        item.setText(1, field);
-      }
-      if (type != null) {
-        item.setText(2, type);
-      }
-      if (length != null) {
-        item.setText(3, length);
-      }
-      if (prec != null) {
-        item.setText(4, prec);
-      }
-      if (trim != null) {
-        item.setText(5, trim);
-      }
-      if (rep != null) {
-        item.setText(6, rep);
-      }
-      if (format != null) {
-        item.setText(7, format);
-      }
-      if (currency != null) {
-        item.setText(8, currency);
-      }
-      if (decimal != null) {
-        item.setText(9, decimal);
-      }
-      if (grouping != null) {
-        item.setText(10, grouping);
-      }
+      item.setText(1, Const.NVL(field, ""));
+      item.setText(2, Const.NVL(type, ""));
+      item.setText(3, Const.NVL(length, ""));
+      item.setText(4, Const.NVL(prec, ""));
+      item.setText(5, Const.NVL(trim, ""));
+      item.setText(6, Const.NVL(rep, ""));
+      item.setText(7, Const.NVL(format, ""));
+      item.setText(8, Const.NVL(currency, ""));
+      item.setText(9, Const.NVL(decimal, ""));
+      item.setText(10, Const.NVL(grouping, ""));
     }
 
     wFields.removeEmptyRows();
@@ -1273,79 +1179,39 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wFields.optWidth(true);
 
     logDebug("getting sheets info...");
-    for (int i = 0; i < meta.getSheetName().length; i++) {
-      TableItem item = wSheetnameList.table.getItem(i);
-      String sheetname = meta.getSheetName()[i];
-      String startrow = "" + meta.getStartRow()[i];
-      String startcol = "" + meta.getStartColumn()[i];
+    for (int i = 0; i < meta.getSheets().size(); i++) {
+      EISheet sheet = meta.getSheets().get(i);
+      TableItem item = wSheetNameList.table.getItem(i);
+      String sheetname = sheet.getName();
+      String startrow = "" + sheet.getStartRow();
+      String startcol = "" + sheet.getStartColumn();
 
-      if (sheetname != null) {
-        item.setText(1, sheetname);
-      }
-      if (startrow != null) {
-        item.setText(2, startrow);
-      }
-      if (startcol != null) {
-        item.setText(3, startcol);
-      }
+      item.setText(1, Const.NVL(sheetname, ""));
+      item.setText(2, Const.NVL(startrow, ""));
+      item.setText(3, Const.NVL(startcol, ""));
     }
-    wSheetnameList.removeEmptyRows();
-    wSheetnameList.setRowNums();
-    wSheetnameList.optWidth(true);
+    wSheetNameList.optimizeTableView();
 
     // Error handling fields...
     wErrorIgnored.setSelection(meta.isErrorIgnored());
     wStrictTypes.setSelection(meta.isStrictTypes());
     wSkipErrorLines.setSelection(meta.isErrorLineSkipped());
 
-    if (meta.getWarningFilesDestinationDirectory() != null) {
-      wWarningDestDir.setText(meta.getWarningFilesDestinationDirectory());
-    }
-    if (meta.getBadLineFilesExtension() != null) {
-      wWarningExt.setText(meta.getBadLineFilesExtension());
-    }
-
-    if (meta.getErrorFilesDestinationDirectory() != null) {
-      wErrorDestDir.setText(meta.getErrorFilesDestinationDirectory());
-    }
-    if (meta.getErrorFilesExtension() != null) {
-      wErrorExt.setText(meta.getErrorFilesExtension());
-    }
-
-    if (meta.getLineNumberFilesDestinationDirectory() != null) {
-      wLineNrDestDir.setText(meta.getLineNumberFilesDestinationDirectory());
-    }
-    if (meta.getLineNumberFilesExtension() != null) {
-      wLineNrExt.setText(meta.getLineNumberFilesExtension());
-    }
-    if (meta.getPathField() != null) {
-      wPathFieldName.setText(meta.getPathField());
-    }
-    if (meta.getShortFileNameField() != null) {
-      wShortFileFieldName.setText(meta.getShortFileNameField());
-    }
-
-    if (meta.getPathField() != null) {
-      wPathFieldName.setText(meta.getPathField());
-    }
-    if (meta.isHiddenField() != null) {
-      wIsHiddenName.setText(meta.isHiddenField());
-    }
-    if (meta.getLastModificationDateField() != null) {
-      wLastModificationTimeName.setText(meta.getLastModificationDateField());
-    }
-    if (meta.getUriField() != null) {
-      wUriName.setText(meta.getUriField());
-    }
-    if (meta.getRootUriField() != null) {
-      wRootUriName.setText(meta.getRootUriField());
-    }
-    if (meta.getExtensionField() != null) {
-      wExtensionFieldName.setText(meta.getExtensionField());
-    }
-    if (meta.getSizeField() != null) {
-      wSizeFieldName.setText(meta.getSizeField());
-    }
+    wWarningDestDir.setText(Const.NVL(meta.getWarningFilesDestinationDirectory(), ""));
+    wWarningExt.setText(Const.NVL(meta.getBadLineFilesExtension(), ""));
+    wErrorDestDir.setText(Const.NVL(meta.getErrorFilesDestinationDirectory(), ""));
+    wErrorExt.setText(Const.NVL(meta.getErrorFilesExtension(), ""));
+    wLineNrDestDir.setText(Const.NVL(meta.getLineNumberFilesDestinationDirectory(), ""));
+    wLineNrExt.setText(Const.NVL(meta.getLineNumberFilesExtension(), ""));
+    wPathFieldName.setText(Const.NVL(meta.getPathFieldName(), ""));
+    wShortFileFieldName.setText(Const.NVL(meta.getShortFileFieldName(), ""));
+    wPathFieldName.setText(Const.NVL(meta.getPathFieldName(), ""));
+    wIsHiddenName.setText(Const.NVL(meta.getHiddenFieldName(), ""));
+    wLastModificationTimeName.setText(Const.NVL(meta.getLastModificationTimeFieldName(), ""));
+    wUriName.setText(Const.NVL(meta.getUriNameFieldName(), ""));
+    wRootUriName.setText(Const.NVL(meta.getRootUriNameFieldName(), ""));
+    wExtensionFieldName.setText(Const.NVL(meta.getExtensionFieldName(), ""));
+    wSizeFieldName.setText(Const.NVL(meta.getSizeFieldName(), ""));
 
     setFlags();
 
@@ -1355,7 +1221,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
   private void cancel() {
     transformName = null;
-    input.setChanged(changed);
     dispose();
   }
 
@@ -1365,6 +1230,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     }
 
     getInfo(input);
+    input.setChanged();
     dispose();
   }
 
@@ -1377,9 +1243,9 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     meta.setEncoding(wEncoding.getText());
     meta.setSpreadSheetType(SpreadSheetType.values()[wSpreadSheetType.getSelectionIndex()]);
     meta.setFileField(wInclFilenameField.getText());
-    meta.setSheetField(wInclSheetnameField.getText());
-    meta.setSheetRowNumberField(wInclSheetRownumField.getText());
-    meta.setRowNumberField(wInclRownumField.getText());
+    meta.setSheetField(wInclSheetNameField.getText());
+    meta.setSheetRowNumberField(wInclSheetRowNumField.getText());
+    meta.setRowNumberField(wInclRowNumField.getText());
 
     meta.setAddResultFile(wAddResult.getSelection());
 
@@ -1392,46 +1258,43 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     meta.setAcceptingTransformName(wAccTransform.getText());
     meta.searchInfoAndTargetTransforms(pipelineMeta.findPreviousTransforms(currentTransformMeta));
 
-    int nrfiles = wFilenameList.nrNonEmpty();
-    int nrsheets = wSheetnameList.nrNonEmpty();
-    int nrFields = wFields.nrNonEmpty();
-
-    meta.allocate(nrfiles, nrsheets, nrFields);
-
-    meta.setFileName(wFilenameList.getItems(0));
-    meta.setFileMask(wFilenameList.getItems(1));
-    meta.setExcludeFileMask(wFilenameList.getItems(2));
-    meta.setFileRequired(wFilenameList.getItems(3));
-    meta.setIncludeSubFolders(wFilenameList.getItems(4));
-
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < nrsheets; i++) {
-      TableItem item = wSheetnameList.getNonEmpty(i);
-      meta.getSheetName()[i] = item.getText(1);
-      meta.getStartRow()[i] = Const.toInt(item.getText(2), 0);
-      meta.getStartColumn()[i] = Const.toInt(item.getText(3), 0);
+    meta.getSheets().clear();
+    for (TableItem item : wSheetNameList.getNonEmptyItems()) {
+      EISheet sheet = new EISheet();
+      sheet.setName(item.getText(1));
+      sheet.setStartRow(Const.toInt(item.getText(2), 0));
+      sheet.setStartColumn(Const.toInt(item.getText(3), 0));
+      meta.getSheets().add(sheet);
     }
 
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < nrFields; i++) {
-      TableItem item = wFields.getNonEmpty(i);
-      meta.getField()[i] = new ExcelInputField();
-
-      meta.getField()[i].setName(item.getText(1));
-      meta.getField()[i].setType(ValueMetaFactory.getIdForValueMeta(item.getText(2)));
+    meta.getFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      ExcelInputField field = new ExcelInputField();
+      field.setName(item.getText(1));
+      field.setType(item.getText(2));
       String slength = item.getText(3);
       String sprec = item.getText(4);
-      meta.getField()[i].setTrimType(ExcelInputMeta.getTrimTypeByDesc(item.getText(5)));
-      meta.getField()[i].setRepeated(
+      field.setTrimType(IValueMeta.TrimType.lookupDescription(item.getText(5)));
+      field.setRepeat(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(6)));
+      field.setLength(Const.toInt(slength, -1));
+      field.setPrecision(Const.toInt(sprec, -1));
+      field.setFormat(item.getText(7));
+      field.setCurrencySymbol(item.getText(8));
+      field.setDecimalSymbol(item.getText(9));
+      field.setGroupSymbol(item.getText(10));
+      meta.getFields().add(field);
+    }
 
-      meta.getField()[i].setLength(Const.toInt(slength, -1));
-      meta.getField()[i].setPrecision(Const.toInt(sprec, -1));
-
-      meta.getField()[i].setFormat(item.getText(7));
-      meta.getField()[i].setCurrencySymbol(item.getText(8));
-      meta.getField()[i].setDecimalSymbol(item.getText(9));
-      meta.getField()[i].setGroupSymbol(item.getText(10));
+    meta.getFiles().clear();
+    for (TableItem item : wFilenameList.getNonEmptyItems()) {
+      EIFile file = new EIFile();
+      file.setName(item.getText(1));
+      file.setMask(item.getText(2));
+      file.setExcludeMask(item.getText(3));
+      file.setRequired(item.getText(4));
+      file.setIncludeSubFolders(item.getText(5));
+      meta.getFiles().add(file);
     }
 
     // Error handling fields...
@@ -1445,14 +1308,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     meta.setErrorFilesExtension(wErrorExt.getText());
     meta.setLineNumberFilesDestinationDirectory(wLineNrDestDir.getText());
     meta.setLineNumberFilesExtension(wLineNrExt.getText());
-    meta.setShortFileNameField(wShortFileFieldName.getText());
-    meta.setPathField(wPathFieldName.getText());
-    meta.setIsHiddenField(wIsHiddenName.getText());
-    meta.setLastModificationDateField(wLastModificationTimeName.getText());
-    meta.setUriField(wUriName.getText());
-    meta.setRootUriField(wRootUriName.getText());
-    meta.setExtensionField(wExtensionFieldName.getText());
-    meta.setSizeField(wSizeFieldName.getText());
+    meta.setShortFileFieldName(wShortFileFieldName.getText());
+    meta.setPathFieldName(wPathFieldName.getText());
+    meta.setHiddenFieldName(wIsHiddenName.getText());
+    meta.setLastModificationTimeFieldName(wLastModificationTimeName.getText());
+    meta.setUriNameFieldName(wUriName.getText());
+    meta.setRootUriNameFieldName(wRootUriName.getText());
+    meta.setExtensionFieldName(wExtensionFieldName.getText());
+    meta.setSizeFieldName(wSizeFieldName.getText());
   }
 
   private void addErrorTab() {
@@ -1511,14 +1374,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdErrorIgnored.top = new FormAttachment(wlErrorIgnored, 0, SWT.CENTER);
     wErrorIgnored.setLayoutData(fdErrorIgnored);
     previous = wErrorIgnored;
-    wErrorIgnored.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            setFlags();
-            input.setChanged();
-          }
-        });
+    wErrorIgnored.addListener(SWT.Selection, e -> setFlags());
 
     // Skip error lines?
     wlSkipErrorLines = new Label(wErrorComp, SWT.RIGHT);
@@ -1573,7 +1429,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wWarningExt = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wWarningExt);
-    wWarningExt.addModifyListener(lsMod);
     FormData fdWarningDestExt = new FormData();
     fdWarningDestExt.left = new FormAttachment(wbvWarningDestDir, -150);
     fdWarningDestExt.right = new FormAttachment(wbvWarningDestDir, -margin);
@@ -1590,7 +1445,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wWarningDestDir = new TextVar(variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wWarningDestDir);
-    wWarningDestDir.addModifyListener(lsMod);
     FormData fdWarningDestDir = new FormData();
     fdWarningDestDir.left = new FormAttachment(middle, 0);
     fdWarningDestDir.right = new FormAttachment(wlWarningExt, -margin);
@@ -1641,7 +1495,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wErrorExt = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wErrorExt);
-    wErrorExt.addModifyListener(lsMod);
     FormData fdErrorDestExt = new FormData();
     fdErrorDestExt.left = new FormAttachment(wbvErrorDestDir, -150);
     fdErrorDestExt.right = new FormAttachment(wbvErrorDestDir, -margin);
@@ -1658,7 +1511,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wErrorDestDir = new TextVar(variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wErrorDestDir);
-    wErrorDestDir.addModifyListener(lsMod);
     FormData fdErrorDestDir = new FormData();
     fdErrorDestDir.left = new FormAttachment(middle, 0);
     fdErrorDestDir.right = new FormAttachment(wlErrorExt, -margin);
@@ -1709,7 +1561,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wLineNrExt = new Text(wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wLineNrExt);
-    wLineNrExt.addModifyListener(lsMod);
     FormData fdLineNrDestExt = new FormData();
     fdLineNrDestExt.left = new FormAttachment(wbvLineNrDestDir, -150);
     fdLineNrDestExt.right = new FormAttachment(wbvLineNrDestDir, -margin);
@@ -1726,7 +1577,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wLineNrDestDir = new TextVar(variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wLineNrDestDir);
-    wLineNrDestDir.addModifyListener(lsMod);
     FormData fdLineNrDestDir = new FormData();
     fdLineNrDestDir.left = new FormAttachment(middle, 0);
     fdLineNrDestDir.right = new FormAttachment(wlLineNrExt, -margin);
@@ -1802,18 +1652,18 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
       Pipeline pipeline = progressDialog.getPipeline();
       String loggingText = progressDialog.getLoggingText();
 
-      if (!progressDialog.isCancelled()) {
-        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-          EnterTextDialog etd =
-              new EnterTextDialog(
-                  shell,
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                  loggingText,
-                  true);
-          etd.setReadOnly();
-          etd.open();
-        }
+      if (!progressDialog.isCancelled()
+          && pipeline.getResult() != null
+          && pipeline.getResult().getNrErrors() > 0) {
+        EnterTextDialog etd =
+            new EnterTextDialog(
+                shell,
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
+                loggingText,
+                true);
+        etd.setReadOnly();
+        etd.open();
       }
 
       PreviewRowsDialog prd =
@@ -1834,7 +1684,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
    * them.
    */
   public void getSheets() {
-    List<String> sheetnames = new ArrayList<>();
+    List<String> sheetNames = new ArrayList<>();
 
     ExcelInputMeta info = new ExcelInputMeta();
     getInfo(info);
@@ -1851,8 +1701,8 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
           IKSheet sheet = workbook.getSheet(j);
           String sheetname = sheet.getName();
 
-          if (Const.indexOfString(sheetname, sheetnames) < 0) {
-            sheetnames.add(sheetname);
+          if (Const.indexOfString(sheetname, sheetNames) < 0) {
+            sheetNames.add(sheetname);
           }
         }
 
@@ -1870,18 +1720,18 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     }
 
     // Put it in an array:
-    String[] lst = sheetnames.toArray(new String[sheetnames.size()]);
+    String[] lst = sheetNames.toArray(new String[0]);
 
     // Let the user select the sheet-names...
     EnterListDialog esd = new EnterListDialog(shell, SWT.NONE, lst);
     String[] selection = esd.open();
     if (selection != null) {
       for (String s : selection) {
-        wSheetnameList.add(new String[] {s, ""});
+        wSheetNameList.add(s, "");
       }
-      wSheetnameList.removeEmptyRows();
-      wSheetnameList.setRowNums();
-      wSheetnameList.optWidth(true);
+      wSheetNameList.removeEmptyRows();
+      wSheetNameList.setRowNums();
+      wSheetNameList.optWidth(true);
       checkAlerts();
     }
   }
@@ -1953,11 +1803,11 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
    * Processing excel workbook, filling fields
    *
    * @param fields IRowMeta for filling fields
-   * @param info ExcelInputMeta
+   * @param meta ExcelInputMeta
    * @param workbook excel workbook for processing
-   * @throws HopPluginException
+   * @throws HopPluginException In case something goes wrong
    */
-  private void processingWorkbook(IRowMeta fields, ExcelInputMeta info, IKWorkbook workbook)
+  private void processingWorkbook(IRowMeta fields, ExcelInputMeta meta, IKWorkbook workbook)
       throws HopPluginException {
     int nrSheets = workbook.getNumberOfSheets();
     for (int j = 0; j < nrSheets; j++) {
@@ -1965,69 +1815,57 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
       // See if it's a selected sheet:
       int sheetIndex;
-      if (info.readAllSheets()) {
+      if (meta.readAllSheets()) {
         sheetIndex = 0;
       } else {
-        sheetIndex = Const.indexOfString(sheet.getName(), info.getSheetName());
+        sheetIndex = Const.indexOfString(sheet.getName(), meta.getSheetsNames());
       }
       if (sheetIndex >= 0) {
         // We suppose it's the complete range we're looking for...
         //
-        int rownr = 0;
-        int startcol = 0;
+        EISheet sh = meta.getSheets().get(sheetIndex);
 
-        if (info.readAllSheets()) {
-          if (info.getStartColumn().length == 1) {
-            startcol = info.getStartColumn()[0];
-          }
-          if (info.getStartRow().length == 1) {
-            rownr = info.getStartRow()[0];
-          }
-        } else {
-          rownr = info.getStartRow()[sheetIndex];
-          startcol = info.getStartColumn()[sheetIndex];
-        }
+        int rowNr = sh.getStartRow();
+        int startCol = sh.getStartColumn();
 
         boolean stop = false;
-        for (int colnr = startcol; !stop; colnr++) {
+        for (int colnr = startCol; !stop; colnr++) {
           try {
-            String fieldname = null;
-            int fieldtype = IValueMeta.TYPE_NONE;
+            String fieldName = null;
+            int fieldType;
 
-            IKCell cell = sheet.getCell(colnr, rownr);
+            IKCell cell = sheet.getCell(colnr, rowNr);
             if (cell == null) {
               stop = true;
             } else {
               if (cell.getType() != KCellType.EMPTY) {
                 // We found a field.
-                fieldname = cell.getContents();
+                fieldName = cell.getContents();
               }
 
-              IKCell below = sheet.getCell(colnr, rownr + 1);
+              IKCell below = sheet.getCell(colnr, rowNr + 1);
 
               if (below != null) {
                 if (below.getType() == KCellType.BOOLEAN) {
-                  fieldtype = IValueMeta.TYPE_BOOLEAN;
+                  fieldType = IValueMeta.TYPE_BOOLEAN;
                 } else if (below.getType() == KCellType.DATE) {
-                  fieldtype = IValueMeta.TYPE_DATE;
+                  fieldType = IValueMeta.TYPE_DATE;
                 } else if (below.getType() == KCellType.LABEL) {
-                  fieldtype = IValueMeta.TYPE_STRING;
+                  fieldType = IValueMeta.TYPE_STRING;
                 } else if (below.getType() == KCellType.NUMBER) {
-                  fieldtype = IValueMeta.TYPE_NUMBER;
+                  fieldType = IValueMeta.TYPE_NUMBER;
                 } else {
-                  fieldtype = IValueMeta.TYPE_STRING;
+                  fieldType = IValueMeta.TYPE_STRING;
                 }
               } else {
-                fieldtype = IValueMeta.TYPE_STRING;
+                fieldType = IValueMeta.TYPE_STRING;
               }
 
-              if (Utils.isEmpty(fieldname)) {
+              if (Utils.isEmpty(fieldName)) {
                 stop = true;
               } else {
-                if (fieldtype != IValueMeta.TYPE_NONE) {
-                  IValueMeta field = ValueMetaFactory.createValueMeta(fieldname, fieldtype);
-                  fields.addValueMeta(field);
-                }
+                IValueMeta field = ValueMetaFactory.createValueMeta(fieldName, fieldType);
+                fields.addValueMeta(field);
               }
             }
           } catch (ArrayIndexOutOfBoundsException aioobe) {
@@ -2041,7 +1879,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
   private void showFiles() {
     ExcelInputMeta eii = new ExcelInputMeta();
     getInfo(eii);
-    String[] files = eii.getFilePaths(HopGui.getInstance().getVariables());
+    String[] files = eii.getFilePaths(variables);
     if (files.length > 0) {
       EnterSelectionDialog esd =
           new EnterSelectionDialog(
@@ -2097,7 +1935,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // # Check the Files tab.
 
     final boolean fieldsOk = wFields.nrNonEmpty() != 0;
-    final boolean sheetsOk = wSheetnameList.nrNonEmpty() != 0;
+    final boolean sheetsOk = wSheetNameList.nrNonEmpty() != 0;
     final boolean filesOk =
         wFilenameList.nrNonEmpty() != 0
             || (wAccFilenames.getSelection() && !Utils.isEmpty(wAccField.getText()));
@@ -2105,13 +1943,10 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     // Assign the highest-priority action message.
     if (!fieldsOk) {
-      // TODO: NLS
       msgText = (BaseMessages.getString(PKG, "ExcelInputDialog.AddFields"));
     } else if (!sheetsOk) {
-      // TODO: NLS
       msgText = (BaseMessages.getString(PKG, "ExcelInputDialog.AddSheets"));
     } else if (!filesOk) {
-      // TODO: NLS
       msgText = (BaseMessages.getString(PKG, "ExcelInputDialog.AddFilenames"));
     }
     tagTab(
@@ -2168,7 +2003,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wlInclFilenameField.setLayoutData(fdlInclFilenameField);
     wInclFilenameField = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wInclFilenameField);
-    wInclFilenameField.addModifyListener(lsMod);
     FormData fdInclFilenameField = new FormData();
     fdInclFilenameField.left = new FormAttachment(middle, 0);
     fdInclFilenameField.top = new FormAttachment(wTransformName, margin);
@@ -2184,14 +2018,13 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdlInclSheetnameField.top = new FormAttachment(wInclFilenameField, margin);
     fdlInclSheetnameField.right = new FormAttachment(middle, -margin);
     wlInclSheetnameField.setLayoutData(fdlInclSheetnameField);
-    wInclSheetnameField = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wInclSheetnameField);
-    wInclSheetnameField.addModifyListener(lsMod);
+    wInclSheetNameField = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wInclSheetNameField);
     FormData fdInclSheetnameField = new FormData();
     fdInclSheetnameField.left = new FormAttachment(middle, 0);
     fdInclSheetnameField.top = new FormAttachment(wInclFilenameField, margin);
     fdInclSheetnameField.right = new FormAttachment(100, 0);
-    wInclSheetnameField.setLayoutData(fdInclSheetnameField);
+    wInclSheetNameField.setLayoutData(fdInclSheetnameField);
 
     Label wlInclSheetRownumField = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlInclSheetRownumField.setText(
@@ -2199,17 +2032,16 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     PropsUi.setLook(wlInclSheetRownumField);
     FormData fdlInclSheetRownumField = new FormData();
     fdlInclSheetRownumField.left = new FormAttachment(0, 0);
-    fdlInclSheetRownumField.top = new FormAttachment(wInclSheetnameField, margin);
+    fdlInclSheetRownumField.top = new FormAttachment(wInclSheetNameField, margin);
     fdlInclSheetRownumField.right = new FormAttachment(middle, -margin);
     wlInclSheetRownumField.setLayoutData(fdlInclSheetRownumField);
-    wInclSheetRownumField = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wInclSheetRownumField);
-    wInclSheetRownumField.addModifyListener(lsMod);
+    wInclSheetRowNumField = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wInclSheetRowNumField);
     FormData fdInclSheetRownumField = new FormData();
     fdInclSheetRownumField.left = new FormAttachment(middle, 0);
-    fdInclSheetRownumField.top = new FormAttachment(wInclSheetnameField, margin);
+    fdInclSheetRownumField.top = new FormAttachment(wInclSheetNameField, margin);
     fdInclSheetRownumField.right = new FormAttachment(100, 0);
-    wInclSheetRownumField.setLayoutData(fdInclSheetRownumField);
+    wInclSheetRowNumField.setLayoutData(fdInclSheetRownumField);
 
     Label wlInclRownumField = new Label(wAdditionalFieldsComp, SWT.RIGHT);
     wlInclRownumField.setText(
@@ -2217,17 +2049,16 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     PropsUi.setLook(wlInclRownumField);
     FormData fdlInclRownumField = new FormData();
     fdlInclRownumField.left = new FormAttachment(0, 0);
-    fdlInclRownumField.top = new FormAttachment(wInclSheetRownumField, margin);
+    fdlInclRownumField.top = new FormAttachment(wInclSheetRowNumField, margin);
     fdlInclRownumField.right = new FormAttachment(middle, -margin);
     wlInclRownumField.setLayoutData(fdlInclRownumField);
-    wInclRownumField = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wInclRownumField);
-    wInclRownumField.addModifyListener(lsMod);
+    wInclRowNumField = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wInclRowNumField);
     FormData fdInclRownumField = new FormData();
     fdInclRownumField.left = new FormAttachment(middle, 0);
-    fdInclRownumField.top = new FormAttachment(wInclSheetRownumField, margin);
+    fdInclRownumField.top = new FormAttachment(wInclSheetRowNumField, margin);
     fdInclRownumField.right = new FormAttachment(100, 0);
-    wInclRownumField.setLayoutData(fdInclRownumField);
+    wInclRowNumField.setLayoutData(fdInclRownumField);
 
     // ShortFileFieldName line
     Label wlShortFileFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT);
@@ -2236,17 +2067,16 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     PropsUi.setLook(wlShortFileFieldName);
     FormData fdlShortFileFieldName = new FormData();
     fdlShortFileFieldName.left = new FormAttachment(0, 0);
-    fdlShortFileFieldName.top = new FormAttachment(wInclRownumField, margin);
+    fdlShortFileFieldName.top = new FormAttachment(wInclRowNumField, margin);
     fdlShortFileFieldName.right = new FormAttachment(middle, -margin);
     wlShortFileFieldName.setLayoutData(fdlShortFileFieldName);
 
     wShortFileFieldName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wShortFileFieldName);
-    wShortFileFieldName.addModifyListener(lsMod);
     FormData fdShortFileFieldName = new FormData();
     fdShortFileFieldName.left = new FormAttachment(middle, 0);
     fdShortFileFieldName.right = new FormAttachment(100, -margin);
-    fdShortFileFieldName.top = new FormAttachment(wInclRownumField, margin);
+    fdShortFileFieldName.top = new FormAttachment(wInclRowNumField, margin);
     wShortFileFieldName.setLayoutData(fdShortFileFieldName);
 
     // ExtensionFieldName line
@@ -2262,7 +2092,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wExtensionFieldName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wExtensionFieldName);
-    wExtensionFieldName.addModifyListener(lsMod);
     FormData fdExtensionFieldName = new FormData();
     fdExtensionFieldName.left = new FormAttachment(middle, 0);
     fdExtensionFieldName.right = new FormAttachment(100, -margin);
@@ -2281,7 +2110,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wPathFieldName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPathFieldName);
-    wPathFieldName.addModifyListener(lsMod);
     FormData fdPathFieldName = new FormData();
     fdPathFieldName.left = new FormAttachment(middle, 0);
     fdPathFieldName.right = new FormAttachment(100, -margin);
@@ -2300,7 +2128,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wSizeFieldName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSizeFieldName);
-    wSizeFieldName.addModifyListener(lsMod);
     FormData fdSizeFieldName = new FormData();
     fdSizeFieldName.left = new FormAttachment(middle, 0);
     fdSizeFieldName.right = new FormAttachment(100, -margin);
@@ -2319,7 +2146,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wIsHiddenName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wIsHiddenName);
-    wIsHiddenName.addModifyListener(lsMod);
     FormData fdIsHiddenName = new FormData();
     fdIsHiddenName.left = new FormAttachment(middle, 0);
     fdIsHiddenName.right = new FormAttachment(100, -margin);
@@ -2339,7 +2165,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wLastModificationTimeName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wLastModificationTimeName);
-    wLastModificationTimeName.addModifyListener(lsMod);
     FormData fdLastModificationTimeName = new FormData();
     fdLastModificationTimeName.left = new FormAttachment(middle, 0);
     fdLastModificationTimeName.right = new FormAttachment(100, -margin);
@@ -2358,7 +2183,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wUriName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wUriName);
-    wUriName.addModifyListener(lsMod);
     FormData fdUriName = new FormData();
     fdUriName.left = new FormAttachment(middle, 0);
     fdUriName.right = new FormAttachment(100, -margin);
@@ -2377,7 +2201,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     wRootUriName = new Text(wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wRootUriName);
-    wRootUriName.addModifyListener(lsMod);
     FormData fdRootUriName = new FormData();
     fdRootUriName.left = new FormAttachment(middle, 0);
     fdRootUriName.right = new FormAttachment(100, -margin);

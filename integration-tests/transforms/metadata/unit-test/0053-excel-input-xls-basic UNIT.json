@@ -1,0 +1,43 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "col1",
+          "data_set_field": "col1"
+        },
+        {
+          "transform_field": "col2",
+          "data_set_field": "col2"
+        },
+        {
+          "transform_field": "col3",
+          "data_set_field": "col3"
+        },
+        {
+          "transform_field": "col4",
+          "data_set_field": "col4"
+        }
+      ],
+      "field_order": [
+        "col1",
+        "col2",
+        "col3",
+        "col4"
+      ],
+      "data_set_name": "golden-excel-input-basic-xls",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0053-excel-input-xls-basic UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0053-excel-input-xls-basic.hpl",
+  "test_type": "UNIT_TEST"
+}

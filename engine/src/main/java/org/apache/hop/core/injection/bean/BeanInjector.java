@@ -290,7 +290,7 @@ public class BeanInjector<Meta extends Object> {
                 if (s.setter == null) {
                   throw new HopException("No setter defined for " + root.getClass());
                 }
-                next = s.leafClass.newInstance();
+                next = s.leafClass.getConstructor().newInstance();
                 s.setter.invoke(obj, next);
               }
               obj = next;

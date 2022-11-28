@@ -18,6 +18,8 @@
 package org.apache.hop.core.injection;
 
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 
 /** Default type converter for metadata injection. */
 public class DefaultInjectionTypeConverter extends InjectionTypeConverter {
@@ -65,6 +67,22 @@ public class DefaultInjectionTypeConverter extends InjectionTypeConverter {
       Enum<?> e = (Enum<?>) eo;
       if (e.name().equals(v)) {
         return e;
+      }
+      // To make it easier to inject, also check the code
+      //
+      if (eo instanceof IEnumHasCode) {
+        IEnumHasCode hasCode = (IEnumHasCode) eo;
+        if (hasCode.getCode().equalsIgnoreCase(v)) {
+          return e;
+        }
+      }
+      // Perhaps the user is trying to use the description from the GUI...
+      //
+      if (eo instanceof IEnumHasCodeAndDescription) {
+        IEnumHasCodeAndDescription hasDescription = (IEnumHasCodeAndDescription) eo;
+        if (hasDescription.getDescription().equalsIgnoreCase(v)) {
+          return e;
+        }
       }
     }
     throw new HopValueException("Unknown value " + v + " for enum " + enumClass);

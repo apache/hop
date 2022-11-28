@@ -39,11 +39,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class FileInputList {
-  private List<FileObject> files = new ArrayList<>();
-  private List<FileObject> nonExistantFiles = new ArrayList<>(1);
-  private List<FileObject> nonAccessibleFiles = new ArrayList<>(1);
+  private final List<FileObject> files = new ArrayList<>();
+  private final List<FileObject> nonExistentFiles = new ArrayList<>(1);
+  private final List<FileObject> nonAccessibleFiles = new ArrayList<>(1);
 
-  private static ILogChannel log = new LogChannel("FileInputList");
+  private static final ILogChannel log = new LogChannel("FileInputList");
 
   public enum FileTypeFilter {
     FILES_AND_FOLDERS("all_files", FileType.FILE, FileType.FOLDER),
@@ -186,31 +186,31 @@ public class FileInputList {
     FileInputList fileInputList = new FileInputList();
 
     // Replace possible environment variables...
-    final String[] realfile = variables.resolve(fileName);
-    final String[] realmask = variables.resolve(fileMask);
+    final String[] realFile = variables.resolve(fileName);
+    final String[] realMask = variables.resolve(fileMask);
     final String[] realExcludeMask = variables.resolve(excludeFileMask);
 
-    for (int i = 0; i < realfile.length; i++) {
-      final String onefile = realfile[i];
-      final String onemask = realmask[i];
-      final String excludeonemask = realExcludeMask[i];
-      final boolean onerequired = YES.equalsIgnoreCase(fileRequired[i]);
-      final boolean subdirs = includeSubdirs[i];
+    for (int i = 0; i < realFile.length; i++) {
+      final String oneFile = realFile[i];
+      final String oneMask = realMask[i];
+      final String excludeOneMask = realExcludeMask[i];
+      final boolean oneRequired = YES.equalsIgnoreCase(fileRequired[i]);
+      final boolean subDirs = includeSubdirs[i];
       final FileTypeFilter filter =
           ((fileTypeFilters == null || fileTypeFilters[i] == null)
               ? FileTypeFilter.ONLY_FILES
               : fileTypeFilters[i]);
 
-      if (Utils.isEmpty(onefile)) {
+      if (Utils.isEmpty(oneFile)) {
         continue;
       }
 
       try {
-        FileObject directoryFileObject = HopVfs.getFileObject(onefile);
+        FileObject directoryFileObject = HopVfs.getFileObject(oneFile);
         boolean processFolder = true;
-        if (onerequired) {
+        if (oneRequired) {
           if (!directoryFileObject.exists()) {
-            // if we don't find folder..no need to continue
+            // if we don't find folder: no need to continue
             fileInputList.addNonExistantFile(directoryFileObject);
             processFolder = false;
           } else {
@@ -231,7 +231,7 @@ public class FileInputList {
                     new AllFileSelector() {
                       @Override
                       public boolean traverseDescendents(FileSelectInfo info) {
-                        return info.getDepth() == 0 || subdirs;
+                        return info.getDepth() == 0 || subDirs;
                       }
 
                       @Override
@@ -247,12 +247,12 @@ public class FileInputList {
                               && filter.isFileTypeAllowed(fileObject.getType())) {
                             String name = info.getFile().getName().getBaseName();
                             boolean matches = true;
-                            if (!Utils.isEmpty(onemask)) {
-                              matches = Pattern.matches(onemask, name);
+                            if (!Utils.isEmpty(oneMask)) {
+                              matches = Pattern.matches(oneMask, name);
                             }
                             boolean excludematches = false;
-                            if (!Utils.isEmpty(excludeonemask)) {
-                              excludematches = Pattern.matches(excludeonemask, name);
+                            if (!Utils.isEmpty(excludeOneMask)) {
+                              excludematches = Pattern.matches(excludeOneMask, name);
                             }
                             return (matches && !excludematches);
                           }
@@ -271,7 +271,7 @@ public class FileInputList {
                 }
               }
             }
-            if (Utils.isEmpty(fileObjects) && onerequired) {
+            if (Utils.isEmpty(fileObjects) && oneRequired) {
 
               fileInputList.addNonAccessibleFile(directoryFileObject);
             }
@@ -284,12 +284,12 @@ public class FileInputList {
               // See if the wildcard (regexp) matches...
               String name = children[j].getName().getBaseName();
               boolean matches = true;
-              if (!Utils.isEmpty(onemask)) {
-                matches = Pattern.matches(onemask, name);
+              if (!Utils.isEmpty(oneMask)) {
+                matches = Pattern.matches(oneMask, name);
               }
               boolean excludematches = false;
-              if (!Utils.isEmpty(excludeonemask)) {
-                excludematches = Pattern.matches(excludeonemask, name);
+              if (!Utils.isEmpty(excludeOneMask)) {
+                excludematches = Pattern.matches(excludeOneMask, name);
               }
               if (matches && !excludematches) {
                 fileInputList.addFile(children[j]);
@@ -297,25 +297,25 @@ public class FileInputList {
             }
             // We don't sort here, keep the order of the files in the archive.
           } else {
-            FileObject fileObject = HopVfs.getFileObject(onefile);
+            FileObject fileObject = HopVfs.getFileObject(oneFile);
             if (fileObject.exists()) {
               if (fileObject.isReadable()) {
                 fileInputList.addFile(fileObject);
               } else {
-                if (onerequired) {
+                if (oneRequired) {
                   fileInputList.addNonAccessibleFile(fileObject);
                 }
               }
             } else {
-              if (onerequired) {
+              if (oneRequired) {
                 fileInputList.addNonExistantFile(fileObject);
               }
             }
           }
         }
       } catch (Exception e) {
-        if (onerequired) {
-          fileInputList.addNonAccessibleFile(new NonAccessibleFileObject(onefile));
+        if (oneRequired) {
+          fileInputList.addNonAccessibleFile(new NonAccessibleFileObject(oneFile));
         }
         log.logError(Const.getStackTracker(e));
       }
@@ -435,8 +435,8 @@ public class FileInputList {
     return nonAccessibleFiles;
   }
 
-  public List<FileObject> getNonExistantFiles() {
-    return nonExistantFiles;
+  public List<FileObject> getNonExistentFiles() {
+    return nonExistentFiles;
   }
 
   public void addFile(FileObject file) {
@@ -448,13 +448,13 @@ public class FileInputList {
   }
 
   public void addNonExistantFile(FileObject file) {
-    nonExistantFiles.add(file);
+    nonExistentFiles.add(file);
   }
 
   public void sortFiles() {
     Collections.sort(files, HopVfs.getComparator());
     Collections.sort(nonAccessibleFiles, HopVfs.getComparator());
-    Collections.sort(nonExistantFiles, HopVfs.getComparator());
+    Collections.sort(nonExistentFiles, HopVfs.getComparator());
   }
 
   public FileObject getFile(int i) {
@@ -466,7 +466,7 @@ public class FileInputList {
   }
 
   public int nrOfMissingFiles() {
-    return nonAccessibleFiles.size() + nonExistantFiles.size();
+    return nonAccessibleFiles.size() + nonExistentFiles.size();
   }
 
   public static FileInputList createFileList(

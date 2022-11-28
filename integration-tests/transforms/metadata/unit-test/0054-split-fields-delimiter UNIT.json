@@ -1,0 +1,48 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "sales1",
+          "data_set_field": "sales1"
+        },
+        {
+          "transform_field": "sales2",
+          "data_set_field": "sales2"
+        },
+        {
+          "transform_field": "sales3",
+          "data_set_field": "sales3"
+        },
+        {
+          "transform_field": "sales4",
+          "data_set_field": "sales4"
+        },
+        {
+          "transform_field": "value2",
+          "data_set_field": "value2"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-split-fields-delimiter",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0054-split-fields-delimiter UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0054-split-fields-delimiter.hpl",
+  "test_type": "UNIT_TEST"
+}

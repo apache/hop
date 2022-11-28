@@ -42,10 +42,10 @@ import java.util.List;
     keywords = "i18n::Edi2XmlMeta.keyword",
     documentationUrl = "/pipeline/transforms/edi2xml.html")
 public class Edi2XmlMeta extends BaseTransformMeta<Edi2Xml, Edi2XmlData> {
-  @HopMetadataProperty(key = "inputfield")
+  @HopMetadataProperty(key = "outputfield")
   private String outputField;
 
-  @HopMetadataProperty(key = "outputfield")
+  @HopMetadataProperty(key = "inputfield")
   private String inputField;
 
   public Edi2XmlMeta() {

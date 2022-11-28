@@ -49,9 +49,9 @@ This can speed up lookup performance dramatically while limiting the fields to i
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:question_mark.svg[Maybe Supported, 24]
-!Flink! image:question_mark.svg[Maybe Supported, 24]
-!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:check_mark.svg[Supported, 24]
+!Dataflow! image:check_mark.svg[Supported, 24]
 !===
 |===
 
