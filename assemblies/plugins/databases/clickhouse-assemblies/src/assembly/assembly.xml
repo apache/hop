@@ -49,10 +49,8 @@
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
-            <scope>runtime</scope>
             <includes>
-                <include>com.clickhouse:clickhouse-jdbc</include>
-                <include>com.clickhouse:clickhouse-http-client</include>
+                <include>com.clickhouse:clickhouse-jdbc:jar:all</include>
             </includes>
         </dependencySet>
     </dependencySets>
