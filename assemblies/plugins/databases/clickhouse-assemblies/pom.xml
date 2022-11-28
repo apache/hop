@@ -35,7 +35,7 @@
     <description></description>
 
     <properties>
-        <clickhouse.jdbc.version>0.3.2-patch9</clickhouse.jdbc.version>
+        <clickhouse.jdbc.version>0.3.2-patch11</clickhouse.jdbc.version>
     </properties>
 
     <dependencies>
