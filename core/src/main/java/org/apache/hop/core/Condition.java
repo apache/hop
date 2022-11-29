@@ -17,6 +17,7 @@
 
 package org.apache.hop.core;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
@@ -36,8 +37,7 @@ import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -352,7 +352,6 @@ public class Condition implements Cloneable {
    * @return true if the condition evaluates to true.
    */
   public boolean evaluate(IRowMeta rowMeta, Object[] r) {
-    // Start of evaluate
     boolean evaluation = false;
 
     // If we have 0 items in the list, evaluate the current condition
@@ -365,17 +364,20 @@ public class Condition implements Cloneable {
           return !negated;
         }
 
-        // Get field index: left value
+        // Get field index: left value name
         //
         // Check out the field index if we don't have them...
-        if (leftValueName != null && leftValueName.length() > 0) {
+        if (StringUtils.isNotEmpty(leftValueName)) {
           leftFieldIndex = rowMeta.indexOfValue(leftValueName);
         }
 
-        // Get field index: right value
+        // Get field index: right value name
         //
-        if (rightValueName != null && rightValueName.length() > 0) {
+        if (StringUtils.isNotEmpty(rightValueName)) {
           rightFieldIndex = rowMeta.indexOfValue(rightValueName);
+
+          // We can't have a right value in this case
+          rightValue = null;
         }
 
         // Get field index: left field
@@ -392,7 +394,12 @@ public class Condition implements Cloneable {
         // Get field index: right value
         //
         IValueMeta fieldMeta2 = rightValue != null ? rightValue.createValueMeta() : null;
-        Object field2 = rightValue != null ? rightValue.createValueData() : null;
+        // Old metadata contains a right value block without name, type and so on.  This means: no
+        // value
+        Object field2 =
+            rightValue != null && rightValue.getName() != null
+                ? rightValue.createValueData()
+                : null;
         if (field2 == null && rightFieldIndex >= 0) {
           fieldMeta2 = rowMeta.getValueMeta(rightFieldIndex);
           field2 = r[rightFieldIndex];
@@ -553,7 +560,7 @@ public class Condition implements Cloneable {
         }
       }
     } catch (Exception e) {
-      throw new RuntimeException("Unexpected error evaluation condition [" + toString() + "]", e);
+      throw new RuntimeException("Unexpected error evaluation condition [" + this + "]", e);
     }
 
     return evaluation;
@@ -756,7 +763,9 @@ public class Condition implements Cloneable {
 
   public String getXml() throws HopValueException {
     try {
-      return XmlMetadataUtil.serializeObjectToXml(this);
+      return XmlHandler.openTag(XML_TAG)
+          + XmlMetadataUtil.serializeObjectToXml(this)
+          + XmlHandler.closeTag(XML_TAG);
     } catch (Exception e) {
       throw new HopValueException("Error serializing Condition to XML", e);
     }
@@ -778,18 +787,9 @@ public class Condition implements Cloneable {
   }
 
   public String[] getUsedFields() {
-    Hashtable<String, String> fields = new Hashtable<>();
+    Map<String, String> fields = new HashMap<>();
     getUsedFields(fields);
-
-    String[] retval = new String[fields.size()];
-    Enumeration<String> keys = fields.keys();
-    int i = 0;
-    while (keys.hasMoreElements()) {
-      retval[i] = keys.nextElement();
-      i++;
-    }
-
-    return retval;
+    return fields.keySet().toArray(new String[0]);
   }
 
   public void getUsedFields(Map<String, String> fields) {

@@ -80,7 +80,7 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
   private String falseTransformName;
 
   public FilterRowsMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
     compare = new FRCompare();
   }
 

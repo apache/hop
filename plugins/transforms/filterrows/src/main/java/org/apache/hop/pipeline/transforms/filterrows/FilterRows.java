@@ -64,12 +64,8 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
 
   @Override
   public boolean processRow() throws HopException {
-
-    boolean keep;
-
     Object[] r = getRow(); // Get next usable row from input rowset(s)!
-    if (r == null) { // no more input to be expected...
-
+    if (r == null) {
       setOutputDone();
       return false;
     }
@@ -123,7 +119,7 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
       }
     }
 
-    keep = keepRow(getInputRowMeta(), r); // Keep this row?
+    boolean keep = keepRow(getInputRowMeta(), r); // Keep this row?
     if (!data.chosesTargetTransforms) {
       if (keep) {
         putRow(data.outputRowMeta, r); // copy row to output rowset(s)

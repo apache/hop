@@ -293,6 +293,11 @@ public class XmlMetadataUtil {
       throws HopXmlException {
     if (object == null) {
       try {
+        // Do not create a new object if the node is null
+        //
+        if (node==null) {
+          return null;
+        }
 
         // See if this is an interface where we need to use a factory.
         //

@@ -90,8 +90,8 @@ limitations under the License.
       <condition>
         <conditions>
 </conditions>
-        <function>&gt;</function>
-        <leftvalue>ExecutionExitStatus</leftvalue>
+        <function>=</function>
+        <leftvalue>ExecutionResult</leftvalue>
         <negated>N</negated>
         <operator>-</operator>
         <value>
@@ -99,9 +99,9 @@ limitations under the License.
           <length>-1</length>
           <mask>####0;-####0</mask>
           <name>constant</name>
-          <precision>0</precision>
-          <text>1</text>
-          <type>Integer</type>
+          <precision>-1</precision>
+          <text>N</text>
+          <type>Boolean</type>
         </value>
       </condition>
     </compare>

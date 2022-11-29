@@ -100,4 +100,20 @@ public class ConditionTest {
     Assert.assertEquals("housenr", c2.getLeftValueName());
     Assert.assertEquals("100", c2.getRightValueString());
   }
+
+  @Test
+  public void testSerialization2() throws Exception {
+    Document document = XmlHandler.loadXmlFile(getClass().getResourceAsStream("/condition2.xml"));
+    Node node = XmlHandler.getSubNode(document, Condition.XML_TAG);
+
+    Condition condition = new Condition(node);
+
+    Assert.assertNotNull(condition);
+    Assert.assertEquals(0, condition.getChildren().size());
+
+    Assert.assertEquals("id1", condition.getLeftValueName());
+    Assert.assertEquals("rangeStart", condition.getRightValueName());
+    Assert.assertNull(condition.getRightValue());
+    Assert.assertEquals(Function.LARGER_EQUAL, condition.getFunction());
+  }
 }
