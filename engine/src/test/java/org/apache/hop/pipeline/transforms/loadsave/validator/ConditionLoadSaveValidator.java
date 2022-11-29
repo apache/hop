@@ -28,11 +28,11 @@ public class ConditionLoadSaveValidator implements IFieldLoadSaveValidator<Condi
   @Override
   public Condition getTestObject() {
     Condition rtn = new Condition();
-    rtn.setFunction(rand.nextInt(Condition.functions.length));
-    rtn.setLeftValuename(UUID.randomUUID().toString());
+    rtn.setFunction(Condition.Function.lookupType(rand.nextInt(Condition.functions.length)));
+    rtn.setLeftValueName(UUID.randomUUID().toString());
     rtn.setNegated(rand.nextBoolean());
-    rtn.setOperator(rand.nextInt(Condition.operators.length));
-    rtn.setRightValuename(UUID.randomUUID().toString());
+    rtn.setOperator(Condition.Operator.lookupType(rand.nextInt(Condition.operators.length)));
+    rtn.setRightValueName(UUID.randomUUID().toString());
     return rtn;
   }
 

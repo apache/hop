@@ -40,6 +40,8 @@ public class XmlMetadataUtilTest extends TestCase {
     metaTest.getFields().add(new Field("a", "String", 50, -1, null, TestEnum.ONE));
     metaTest.getFields().add(new Field("b", "Integer", 10, 0, "#;-#", null));
     metaTest.getFields().add(new Field("c", "Date", -1, -1, "yyyy/MM/dd HH:mm:ss", TestEnum.THREE));
+    metaTest.getFields().get(1).setTestCode(2);
+    metaTest.getFields().get(2).setTestCode(3);
     metaTest.setValues(Arrays.asList("v1", "v2", "v3"));
     metaTest.setTestEnum(TestEnum.TWO);
     metaTest.setInfo(new Info("aValue", "bValue"));
@@ -60,6 +62,8 @@ public class XmlMetadataUtilTest extends TestCase {
             + Const.CR
             + "<precision>-1</precision>"
             + Const.CR
+            + "<test_code>NONE</test_code>"
+            + Const.CR
             + "<type>String</type>"
             + Const.CR
             + "</field>"
@@ -73,6 +77,8 @@ public class XmlMetadataUtilTest extends TestCase {
             + "<name>b</name>"
             + Const.CR
             + "<precision>0</precision>"
+            + Const.CR
+            + "<test_code>TWO</test_code>"
             + Const.CR
             + "<type>Integer</type>"
             + Const.CR
@@ -89,6 +95,8 @@ public class XmlMetadataUtilTest extends TestCase {
             + "<ott>THREE</ott>"
             + Const.CR
             + "<precision>-1</precision>"
+            + Const.CR
+            + "<test_code>THREE</test_code>"
             + Const.CR
             + "<type>Date</type>"
             + Const.CR

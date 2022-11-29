@@ -300,7 +300,7 @@ public class BeanInjector<Meta extends Object> {
             break;
         }
       } else {
-        // set to latest field
+        // set to the latest field
         if (!s.convertEmpty) {
           if (data != null) {
             if (data.isEmptyValue(dataName)) {
@@ -324,7 +324,12 @@ public class BeanInjector<Meta extends Object> {
                   metadataProvider.getSerializer((Class<? extends IHopMetadata>) s.leafClass);
               value = serializer.load(name);
             } else {
-              value = data.getAsJavaType(dataName, s.leafClass, s.converter);
+              if (s.stringObjectConverter != null) {
+                String string = data.getString(dataName, null);
+                value = s.stringObjectConverter.getObject(string);
+              } else {
+                value = data.getAsJavaType(dataName, s.leafClass, s.converter);
+              }
             }
           } else {
             value = RowMetaAndData.getStringAsJavaType(dataValue, s.leafClass, s.converter);
@@ -343,7 +348,7 @@ public class BeanInjector<Meta extends Object> {
                   data != null ? extendArray(s, obj, index + 1) : checkArray(s, obj, index);
               if (existArray == null) {
                 // A constant is set in a group. We need to allocate one element in the array.
-                existArray = Array.newInstance(s.leafClass, index+1);
+                existArray = Array.newInstance(s.leafClass, index + 1);
                 s.field.set(obj, existArray);
                 returnValue = false;
               }

@@ -18,17 +18,23 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0017-postgresql-bulkloader</name>
+  <name>run-workflow</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
   <workflow_version/>
+  <workflow_status>0</workflow_status>
   <created_user>-</created_user>
-  <created_date>2021/06/16 15:52:34.018</created_date>
+  <created_date>2022/11/29 14:21:33.654</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2021/06/16 15:52:34.018</modified_date>
+  <modified_date>2022/11/29 14:21:33.654</modified_date>
   <parameters>
-    </parameters>
+    <parameter>
+      <name>WORKFLOW_FILE</name>
+      <default_value/>
+      <description>The workflow to execute</description>
+    </parameter>
+  </parameters>
   <actions>
     <action>
       <name>Start</name>
@@ -44,51 +50,34 @@ limitations under the License.
       <schedulerType>0</schedulerType>
       <weekDay>1</weekDay>
       <parallel>N</parallel>
-      <xloc>80</xloc>
+      <xloc>112</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>SQL</name>
+      <name>Run ${WORKFLOW_FILE}</name>
       <description/>
-      <type>SQL</type>
+      <type>WORKFLOW</type>
       <attributes/>
-      <sql/>
-      <useVariableSubstitution>F</useVariableSubstitution>
-      <sqlfromfile>T</sqlfromfile>
-      <sqlfilename>${PROJECT_HOME}/scripts/script1.sql</sqlfilename>
-      <sendOneStatement>F</sendOneStatement>
-      <connection>unit-test-db</connection>
-      <parallel>N</parallel>
-      <xloc>288</xloc>
-      <yloc>80</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>0017-postgresql-bulkloader.hpl</name>
-      <description/>
-      <type>PIPELINE</type>
-      <attributes/>
-      <filename>${PROJECT_HOME}/0017-postgresql-bulkloader.hpl</filename>
+      <run_configuration>local</run_configuration>
+      <filename>${WORKFLOW_FILE}</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
       <set_logfile>N</set_logfile>
       <logfile/>
       <logext/>
       <add_date>N</add_date>
       <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
+      <loglevel>Nothing</loglevel>
       <wait_until_finished>Y</wait_until_finished>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
+      <set_append_logfile>N</set_append_logfile>
       <parallel>N</parallel>
-      <xloc>496</xloc>
+      <xloc>288</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
     </action>
@@ -99,28 +88,21 @@ limitations under the License.
       <attributes/>
       <always_log_rows>N</always_log_rows>
       <parallel>N</parallel>
-      <xloc>752</xloc>
+      <xloc>496</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
     <hop>
-      <from>SQL</from>
-      <to>0017-postgresql-bulkloader.hpl</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
       <from>Start</from>
-      <to>SQL</to>
+      <to>Run ${WORKFLOW_FILE}</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>0017-postgresql-bulkloader.hpl</from>
+      <from>Run ${WORKFLOW_FILE}</from>
       <to>Abort workflow</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
