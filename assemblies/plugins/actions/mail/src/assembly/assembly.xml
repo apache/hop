@@ -46,13 +46,5 @@
                 <include>org.apache.hop:hop-action-mail:jar</include>
             </includes>
         </dependencySet>
-        <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
-                <include>com.sun.mail:jakarta.mail</include>
-                <include>com.sun.activation:jakarta.activation</include>
-          </includes>
-        </dependencySet>
     </dependencySets>
 </assembly>
