@@ -1,0 +1,96 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: Task
+description: File a task
+title: "[Task]: "
+labels: ["task", "awaiting triage"]
+assignees:
+  - octocat
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this task! 
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What needs to happen?
+      description: Please describe the task
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Issue Priority
+      description: What priority is this task? See [priority guide](https://hop.apache.org/community/contribution-guides/priority-guide/) for the meaning and expectations around issue priorities.
+      options:
+        - "Priority: 3"
+        - "Priority: 2"
+        - "Priority: 1"
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Issue Component
+      options:
+      - "Component: Actions"
+      - "Component: Api"
+      - "Component: Architecture"
+      - "Component: Beam"
+      - "Component: Bigquery"
+      - "Component: Bigtable"
+      - "Component: Build"
+      - "Component: Cli"
+      - "Component: Containers"
+      - "Component: Database"
+      - "Component: Dataflow"
+      - "Component: Docker"
+      - "Component: Documentation"
+      - "Component: Execution Information"
+      - "Component: Flink"
+      - "Component: Git"
+      - "Component: Graph"
+      - "Component: Gui"
+      - "Component: Hop Config"
+      - "Component: Hop Gui"
+      - "Component: Hop Run"
+      - "Component: Hop Search"
+      - "Component: Hop Server"
+      - "Component: Hop Web"
+      - "Component: Import"
+      - "Component: Infrastructure"
+      - "Component: Integration Testing"
+      - "Component: Kafka"
+      - "Component: Metadata"
+      - "Component: Pipelines"
+      - "Component: Plugins"
+      - "Component: Projects"
+      - "Component: Samples"
+      - "Component: Snowflake"
+      - "Component: Spark"
+      - "Component: Technology"
+      - "Component: Transforms"
+      - "Component: Translations"
+      - "Component: Unit Test"
+      - "Component: Vfs"
+      - "Component: Website"
+      - "Component: Workflows"
+      - "Component: Other"
+    validations:
+      required: true
