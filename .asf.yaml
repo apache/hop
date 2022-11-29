@@ -33,9 +33,9 @@ github:
     - apache
   features:
     # Enable issues management
-    issues: false
+    issues: true
     # Enable projects for project management boards
-    projects: false
+    projects: true
     # Enable wiki for documentation
     wiki: false
 
