@@ -16,122 +16,30 @@
  */
 package org.apache.hop.pipeline.transforms.fuzzymatch;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.Before;
-import org.junit.ClassRule;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 public class FuzzyMatchMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  LoadSaveTester loadSaveTester;
-
-  @Before
-  public void setUp() throws Exception {
-    List<String> attributes =
-        Arrays.asList(
-            "value",
-            "valueName",
-            "algorithm",
-            "lookupfield",
-            "mainstreamfield",
-            "outputmatchfield",
-            "outputvaluefield",
-            "caseSensitive",
-            "minimalValue",
-            "maximalValue",
-            "separator",
-            "closervalue");
-
-    Map<String, String> getterMap =
-        new HashMap<String, String>() {
-          {
-            put("value", "getValue");
-            put("valueName", "getValueName");
-            put("algorithm", "getAlgorithmType");
-            put("lookupfield", "getLookupField");
-            put("mainstreamfield", "getMainStreamField");
-            put("outputmatchfield", "getOutputMatchField");
-            put("outputvaluefield", "getOutputValueField");
-            put("caseSensitive", "isCaseSensitive");
-            put("minimalValue", "getMinimalValue");
-            put("maximalValue", "getMaximalValue");
-            put("separator", "getSeparator");
-            put("closervalue", "isGetCloserValue");
-          }
-        };
-
-    Map<String, String> setterMap =
-        new HashMap<String, String>() {
-          {
-            put("value", "setValue");
-            put("valueName", "setValueName");
-            put("algorithm", "setAlgorithmType");
-            put("lookupfield", "setLookupField");
-            put("mainstreamfield", "setMainStreamField");
-            put("outputmatchfield", "setOutputMatchField");
-            put("outputvaluefield", "setOutputValueField");
-            put("caseSensitive", "setCaseSensitive");
-            put("minimalValue", "setMinimalValue");
-            put("maximalValue", "setMaximalValue");
-            put("separator", "setSeparator");
-            put("closervalue", "setGetCloserValue");
-          }
-        };
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 3);
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("value", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("valueName", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("algorithm", new AlgorithmLoadSaveValidator());
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-    // typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator(
-    // new IntLoadSaveValidator(), 3 ) );
-
-    loadSaveTester =
-        new LoadSaveTester(
-            FuzzyMatchMeta.class,
-            attributes,
-            getterMap,
-            setterMap,
-            attrValidatorMap,
-            typeValidatorMap);
-  }
 
   @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
-  }
+  public void testSerialization() throws Exception {
+    FuzzyMatchMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/fuzzy-match-transform.xml", FuzzyMatchMeta.class);
 
-  // Clone test removed as it's covered by the load/save tester now.
-
-  public class AlgorithmLoadSaveValidator implements IFieldLoadSaveValidator<Integer> {
-    final Random rand = new Random();
-
-    @Override
-    public Integer getTestObject() {
-      return rand.nextInt(10);
-    }
-
-    @Override
-    public boolean validateTestObject(Integer testObject, Object actual) {
-      if (!(actual instanceof Integer)) {
-        return false;
-      }
-      Integer actualInt = (Integer) actual;
-      return actualInt.equals(testObject);
-    }
+    Assert.assertEquals("name", meta.getLookupField());
+    Assert.assertEquals("name", meta.getMainStreamField());
+    Assert.assertEquals("match", meta.getOutputMatchField());
+    Assert.assertEquals("measure value", meta.getOutputValueField());
+    Assert.assertEquals(false, meta.isCaseSensitive());
+    Assert.assertEquals(true, meta.isCloserValue());
+    Assert.assertEquals("0", meta.getMinimalValue());
+    Assert.assertEquals("1", meta.getMaximalValue());
+    Assert.assertEquals(",", meta.getSeparator());
+    Assert.assertEquals(FuzzyMatchMeta.Algorithm.SOUNDEX, meta.getAlgorithm());
+    Assert.assertEquals(1, meta.getLookupValues().size());
+    Assert.assertEquals("name", meta.getLookupValues().get(0).getName());
+    Assert.assertEquals("lookupName", meta.getLookupValues().get(0).getRename());
   }
 }

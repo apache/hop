@@ -43,6 +43,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.Iterator;
 
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.FMLookupValue;
+
 /**
  * Performs a fuzzy match for each main stream field row An approximative match is done in a lookup
  * stream
@@ -101,20 +104,21 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
         // Check additional fields
         if (data.addAdditionalFields) {
           IValueMeta additionalFieldValueMeta;
-          for (int i = 0; i < meta.getValue().length; i++) {
+          for (int i = 0; i < meta.getLookupValues().size(); i++) {
+            FMLookupValue lookupValue = meta.getLookupValues().get(i);
             int fi = i + 1;
-            data.indexOfCachedFields[fi] = data.infoMeta.indexOfValue(meta.getValue()[i]);
+            data.indexOfCachedFields[fi] = data.infoMeta.indexOfValue(lookupValue.getName());
             if (data.indexOfCachedFields[fi] < 0) {
               // The field is unreachable !
               throw new HopException(
                   BaseMessages.getString(
-                      PKG, "FuzzyMatch.Exception.CouldnotFindLookField", meta.getValue()[i]));
+                      PKG, "FuzzyMatch.Exception.CouldnotFindLookField", lookupValue.getName()));
             }
             additionalFieldValueMeta = data.infoMeta.getValueMeta(data.indexOfCachedFields[fi]);
             additionalFieldValueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
             data.infoCache.addValueMeta(additionalFieldValueMeta);
           }
-          data.nrCachedFields += meta.getValue().length;
+          data.nrCachedFields += meta.getLookupValues().size();
         }
       }
       if (log.isRowLevel()) {
@@ -192,9 +196,9 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
                 PKG, "FuzzyMatch.Exception.CouldnotFindMainField", meta.getMainStreamField()));
       }
     }
-    Object[] add = null;
+    Object[] add;
     if (row[data.indexOfMainField] == null) {
-      add = buildEmptyRow();
+      add = RowDataUtil.allocateRowData(data.outputRowMeta.size());
     } else {
       try {
         add = getFromCache(row);
@@ -222,21 +226,21 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
               PKG, "FuzzyMatch.Log.ReadingMainStreamRow", getInputRowMeta().getString(keyRow)));
     }
     Object[] retval = null;
-    switch (meta.getAlgorithmType()) {
-      case FuzzyMatchMeta.OPERATION_TYPE_LEVENSHTEIN:
-      case FuzzyMatchMeta.OPERATION_TYPE_DAMERAU_LEVENSHTEIN:
-      case FuzzyMatchMeta.OPERATION_TYPE_NEEDLEMAN_WUNSH:
+    switch (meta.getAlgorithm()) {
+      case LEVENSHTEIN:
+      case DAMERAU_LEVENSHTEIN:
+      case NEEDLEMAN_WUNSH:
         retval = doDistance(keyRow);
         break;
-      case FuzzyMatchMeta.OPERATION_TYPE_DOUBLE_METAPHONE:
-      case FuzzyMatchMeta.OPERATION_TYPE_METAPHONE:
-      case FuzzyMatchMeta.OPERATION_TYPE_SOUNDEX:
-      case FuzzyMatchMeta.OPERATION_TYPE_REFINED_SOUNDEX:
+      case DOUBLE_METAPHONE:
+      case METAPHONE:
+      case SOUNDEX:
+      case REFINED_SOUNDEX:
         retval = doPhonetic(keyRow);
         break;
-      case FuzzyMatchMeta.OPERATION_TYPE_JARO:
-      case FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER:
-      case FuzzyMatchMeta.OPERATION_TYPE_PAIR_SIMILARITY:
+      case JARO:
+      case JARO_WINKLER:
+      case PAIR_SIMILARITY:
         retval = doSimilarity(keyRow);
         break;
       default:
@@ -248,13 +252,13 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
 
   private Object[] doDistance(Object[] row) throws HopValueException {
     // Reserve room
-    Object[] rowData = buildEmptyRow();
+    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
 
     Iterator<Object[]> it = data.look.iterator();
 
     long distance = -1;
 
-    String lookupvalue = getInputRowMeta().getString(row, data.indexOfMainField);
+    String lookupValueString = getInputRowMeta().getString(row, data.indexOfMainField);
 
     while (it.hasNext()) {
       // Get cached row data
@@ -262,32 +266,32 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
       // Key value is the first value
       String cacheValue = (String) cachedData[0];
 
-      int cdistance = -1;
-      String usecacheValue = cacheValue;
-      String uselookupvalue = lookupvalue;
+      int cDistance;
+      String useCacheValue = cacheValue;
+      String useLookupvalue = lookupValueString;
       if (!meta.isCaseSensitive()) {
-        usecacheValue = cacheValue.toLowerCase();
-        uselookupvalue = lookupvalue.toLowerCase();
+        useCacheValue = cacheValue.toLowerCase();
+        useLookupvalue = lookupValueString.toLowerCase();
       }
 
-      switch (meta.getAlgorithmType()) {
-        case FuzzyMatchMeta.OPERATION_TYPE_DAMERAU_LEVENSHTEIN:
-          cdistance = Utils.getDamerauLevenshteinDistance(usecacheValue, uselookupvalue);
+      switch (meta.getAlgorithm()) {
+        case DAMERAU_LEVENSHTEIN:
+          cDistance = Utils.getDamerauLevenshteinDistance(useCacheValue, useLookupvalue);
           break;
-        case FuzzyMatchMeta.OPERATION_TYPE_NEEDLEMAN_WUNSH:
-          cdistance = Math.abs((int) new NeedlemanWunsch().score(usecacheValue, uselookupvalue));
+        case NEEDLEMAN_WUNSH:
+          cDistance = Math.abs((int) new NeedlemanWunsch().score(useCacheValue, useLookupvalue));
           break;
         default:
-          cdistance = StringUtils.getLevenshteinDistance(usecacheValue, uselookupvalue);
+          cDistance = StringUtils.getLevenshteinDistance(useCacheValue, useLookupvalue);
           break;
       }
 
-      if (data.minimalDistance <= cdistance && cdistance <= data.maximalDistance) {
-        if (meta.isGetCloserValue()) {
-          if (cdistance < distance || distance == -1) {
+      if (data.minimalDistance <= cDistance && cDistance <= data.maximalDistance) {
+        if (meta.isCloserValue()) {
+          if (cDistance < distance || distance == -1) {
             // Get closer value
             // minimal distance
-            distance = cdistance;
+            distance = cDistance;
             int index = 0;
             rowData[index++] = cacheValue;
             // Add metric value?
@@ -296,7 +300,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
             }
             // Add additional return values?
             if (data.addAdditionalFields) {
-              for (int i = 0; i < meta.getValue().length; i++) {
+              for (int i = 0; i < meta.getLookupValues().size(); i++) {
                 int nr = i + 1;
                 int nf = i + index;
                 rowData[nf] = cachedData[nr];
@@ -308,7 +312,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
           if (rowData[0] == null) {
             rowData[0] = cacheValue;
           } else {
-            rowData[0] = (String) rowData[0] + data.valueSeparator + cacheValue;
+            rowData[0] = rowData[0] + data.valueSeparator + cacheValue;
           }
         }
       }
@@ -319,14 +323,14 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
 
   private Object[] doPhonetic(Object[] row) {
     // Reserve room
-    Object[] rowData = buildEmptyRow();
+    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
 
     Iterator<Object[]> it = data.look.iterator();
 
     Object o = row[data.indexOfMainField];
     String lookupvalue = (String) o;
 
-    String lookupValueMF = getEncodedMF(lookupvalue, meta.getAlgorithmType());
+    String lookupValueMF = getEncodedMF(lookupvalue, meta.getAlgorithm());
 
     while (it.hasNext()) {
       // Get cached row data
@@ -334,7 +338,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
       // Key value is the first value
       String cacheValue = (String) cachedData[0];
 
-      String cacheValueMF = getEncodedMF(cacheValue, meta.getAlgorithmType());
+      String cacheValueMF = getEncodedMF(cacheValue, meta.getAlgorithm());
 
       if (lookupValueMF.equals(cacheValueMF)) {
 
@@ -348,7 +352,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
         }
         // Add additional return values?
         if (data.addAdditionalFields) {
-          for (int i = 0; i < meta.getValue().length; i++) {
+          for (int i = 0; i < meta.getLookupValues().size(); i++) {
             int nf = i + index;
             int nr = i + 1;
             rowData[nf] = cachedData[nr];
@@ -360,19 +364,19 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
     return rowData;
   }
 
-  private String getEncodedMF(String value, Integer algorithmType) {
+  private String getEncodedMF(String value, Algorithm algorithmType) {
     String encodedValueMF = "";
     switch (algorithmType) {
-      case FuzzyMatchMeta.OPERATION_TYPE_METAPHONE:
+      case METAPHONE:
         encodedValueMF = (new Metaphone()).metaphone(value);
         break;
-      case FuzzyMatchMeta.OPERATION_TYPE_DOUBLE_METAPHONE:
+      case DOUBLE_METAPHONE:
         encodedValueMF = ((new DoubleMetaphone()).doubleMetaphone(value));
         break;
-      case FuzzyMatchMeta.OPERATION_TYPE_SOUNDEX:
+      case SOUNDEX:
         encodedValueMF = (new Soundex()).encode(value);
         break;
-      case FuzzyMatchMeta.OPERATION_TYPE_REFINED_SOUNDEX:
+      case REFINED_SOUNDEX:
         encodedValueMF = (new RefinedSoundex()).encode(value);
         break;
       default:
@@ -382,9 +386,8 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
   }
 
   private Object[] doSimilarity(Object[] row) {
-
     // Reserve room
-    Object[] rowData = buildEmptyRow();
+    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
     // prepare to read from cache ...
     Iterator<Object[]> it = data.look.iterator();
     double similarity = 0;
@@ -392,7 +395,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
     // get current value from main stream
     Object o = row[data.indexOfMainField];
 
-    String lookupvalue = o == null ? "" : (String) o;
+    String lookupValueString = o == null ? "" : (String) o;
 
     while (it.hasNext()) {
       // Get cached row data
@@ -400,36 +403,37 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
       // Key value is the first value
       String cacheValue = (String) cachedData[0];
 
-      double csimilarity = 0;
+      double cSimilarity;
 
-      switch (meta.getAlgorithmType()) {
-        case FuzzyMatchMeta.OPERATION_TYPE_JARO:
-          csimilarity = new Jaro().score(cacheValue, lookupvalue);
+      switch (meta.getAlgorithm()) {
+        case JARO:
+          cSimilarity = new Jaro().score(cacheValue, lookupValueString);
           break;
-        case FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER:
-          csimilarity = new JaroWinkler().score(cacheValue, lookupvalue);
+        case JARO_WINKLER:
+          cSimilarity = new JaroWinkler().score(cacheValue, lookupValueString);
           break;
         default:
           // Letters pair similarity
-          csimilarity = LetterPairSimilarity.getSimiliarity(cacheValue, lookupvalue);
+          cSimilarity = LetterPairSimilarity.getSimiliarity(cacheValue, lookupValueString);
           break;
       }
 
-      if (data.minimalSimilarity <= csimilarity && csimilarity <= data.maximalSimilarity) {
-        if (meta.isGetCloserValue()) {
-          if (csimilarity > similarity || (csimilarity == 0 && cacheValue.equals(lookupvalue))) {
-            similarity = csimilarity;
+      if (data.minimalSimilarity <= cSimilarity && cSimilarity <= data.maximalSimilarity) {
+        if (meta.isCloserValue()) {
+          if (cSimilarity > similarity
+              || (cSimilarity == 0 && cacheValue.equals(lookupValueString))) {
+            similarity = cSimilarity;
             // Update match value
             int index = 0;
             rowData[index++] = cacheValue;
             // Add metric value?
             if (data.addValueFieldName) {
-              rowData[index++] = Double.valueOf(similarity);
+              rowData[index++] = similarity;
             }
 
             // Add additional return values?
             if (data.addAdditionalFields) {
-              for (int i = 0; i < meta.getValue().length; i++) {
+              for (int i = 0; i < meta.getLookupValues().size(); i++) {
                 int nf = i + index;
                 int nr = i + 1;
                 rowData[nf] = cachedData[nr];
@@ -441,7 +445,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
           if (rowData[0] == null) {
             rowData[0] = cacheValue;
           } else {
-            rowData[0] = (String) rowData[0] + data.valueSeparator + cacheValue;
+            rowData[0] = rowData[0] + data.valueSeparator + cacheValue;
           }
         }
       }
@@ -450,20 +454,8 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
     return rowData;
   }
 
-  /**
-   * Build an empty row based on the meta-data...
-   *
-   * @return
-   */
-  private Object[] buildEmptyRow() {
-    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-
-    return rowData;
-  }
-
   @Override
   public boolean processRow() throws HopException {
-
     if (data.readLookupValues) {
       data.readLookupValues = false;
 
@@ -506,12 +498,9 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
         logBasic(BaseMessages.getString(PKG, "FuzzyMatch.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
-      boolean sendToErrorRow = false;
-      String errorMessage = null;
-
       if (getTransformMeta().isDoingErrorHandling()) {
-        sendToErrorRow = true;
-        errorMessage = e.toString();
+        // Send this row to the error handling transform
+        putError(getInputRowMeta(), r, 1, e.toString(), meta.getMainStreamField(), "FuzzyMatch001");
       } else {
         logError(
             BaseMessages.getString(PKG, "FuzzyMatch.Log.ErrorInTransformRunning") + e.getMessage());
@@ -520,10 +509,6 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      if (sendToErrorRow) {
-        // Simply add this row to the error row
-        putError(getInputRowMeta(), r, 1, errorMessage, meta.getMainStreamField(), "FuzzyMatch001");
-      }
     }
 
     return true;
@@ -531,105 +516,103 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
 
   @Override
   public boolean init() {
-    if (super.init()) {
-
-      // Check lookup and main stream field
-      if (Utils.isEmpty(meta.getMainStreamField())) {
-        logError(BaseMessages.getString(PKG, "FuzzyMatch.Error.MainStreamFieldMissing"));
-        return false;
-      }
-      if (Utils.isEmpty(meta.getLookupField())) {
-        logError(BaseMessages.getString(PKG, "FuzzyMatch.Error.LookupStreamFieldMissing"));
-        return false;
-      }
-
-      // Checks output fields
-      String matchField = resolve(meta.getOutputMatchField());
-      if (Utils.isEmpty(matchField)) {
-        logError(BaseMessages.getString(PKG, "FuzzyMatch.Error.OutputMatchFieldMissing"));
-        return false;
-      }
-
-      // We need to add metrics (distance, similarity, ...)
-      // only when the fieldname is provided
-      // and user want to return the closer value
-      data.addValueFieldName =
-          (!Utils.isEmpty(resolve(meta.getOutputValueField())) && meta.isGetCloserValue());
-
-      // Set the number of fields to cache
-      // default value is one
-      int nrFields = 1;
-
-      if (meta.getValue() != null && meta.getValue().length > 0) {
-
-        if (meta.isGetCloserValue()
-            || (meta.getAlgorithmType() == FuzzyMatchMeta.OPERATION_TYPE_DOUBLE_METAPHONE)
-            || (meta.getAlgorithmType() == FuzzyMatchMeta.OPERATION_TYPE_SOUNDEX)
-            || (meta.getAlgorithmType() == FuzzyMatchMeta.OPERATION_TYPE_REFINED_SOUNDEX)
-            || (meta.getAlgorithmType() == FuzzyMatchMeta.OPERATION_TYPE_METAPHONE)) {
-          // cache also additional fields
-          data.addAdditionalFields = true;
-          nrFields += meta.getValue().length;
-        }
-      }
-      data.indexOfCachedFields = new int[nrFields];
-
-      switch (meta.getAlgorithmType()) {
-        case FuzzyMatchMeta.OPERATION_TYPE_LEVENSHTEIN:
-        case FuzzyMatchMeta.OPERATION_TYPE_DAMERAU_LEVENSHTEIN:
-        case FuzzyMatchMeta.OPERATION_TYPE_NEEDLEMAN_WUNSH:
-          data.minimalDistance = Const.toInt(resolve(meta.getMinimalValue()), 0);
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG, "FuzzyMatch.Log.MinimalDistance", data.minimalDistance));
-          }
-          data.maximalDistance = Const.toInt(resolve(meta.getMaximalValue()), 5);
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG, "FuzzyMatch.Log.MaximalDistance", data.maximalDistance));
-          }
-          if (!meta.isGetCloserValue()) {
-            data.valueSeparator = resolve(meta.getSeparator());
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(PKG, "FuzzyMatch.Log.Separator", data.valueSeparator));
-            }
-          }
-          break;
-        case FuzzyMatchMeta.OPERATION_TYPE_JARO:
-        case FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER:
-        case FuzzyMatchMeta.OPERATION_TYPE_PAIR_SIMILARITY:
-          data.minimalSimilarity = Const.toDouble(resolve(meta.getMinimalValue()), 0);
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG, "FuzzyMatch.Log.MinimalSimilarity", data.minimalSimilarity));
-          }
-          data.maximalSimilarity = Const.toDouble(resolve(meta.getMaximalValue()), 1);
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG, "FuzzyMatch.Log.MaximalSimilarity", data.maximalSimilarity));
-          }
-          if (!meta.isGetCloserValue()) {
-            data.valueSeparator = resolve(meta.getSeparator());
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(PKG, "FuzzyMatch.Log.Separator", data.valueSeparator));
-            }
-          }
-          break;
-        default:
-          break;
-      }
-
-      data.readLookupValues = true;
-
-      return true;
+    if (!super.init()) {
+      return false;
     }
-    return false;
+
+    // Check lookup and main stream field
+    if (StringUtils.isEmpty(meta.getMainStreamField())) {
+      logError(BaseMessages.getString(PKG, "FuzzyMatch.Error.MainStreamFieldMissing"));
+      return false;
+    }
+    if (StringUtils.isEmpty(meta.getLookupField())) {
+      logError(BaseMessages.getString(PKG, "FuzzyMatch.Error.LookupStreamFieldMissing"));
+      return false;
+    }
+
+    // Checks output fields
+    String matchField = resolve(meta.getOutputMatchField());
+    if (StringUtils.isEmpty(matchField)) {
+      logError(BaseMessages.getString(PKG, "FuzzyMatch.Error.OutputMatchFieldMissing"));
+      return false;
+    }
+
+    // We need to add metrics (distance, similarity, ...)
+    // only when the field name is provided
+    // and user want to return the closer value.
+    //
+    data.addValueFieldName =
+        (StringUtils.isNotEmpty(resolve(meta.getOutputValueField())) && meta.isCloserValue());
+
+    // Set the number of fields to cache
+    // default value is one
+    //
+    int nrFields = 1;
+
+    if (!meta.getLookupValues().isEmpty()
+        && (meta.isCloserValue()
+            || meta.getAlgorithm() == Algorithm.DOUBLE_METAPHONE
+            || meta.getAlgorithm() == Algorithm.SOUNDEX
+            || meta.getAlgorithm() == Algorithm.REFINED_SOUNDEX
+            || meta.getAlgorithm() == Algorithm.METAPHONE)) {
+      // cache also additional fields
+      data.addAdditionalFields = true;
+      nrFields += meta.getLookupValues().size();
+    }
+    data.indexOfCachedFields = new int[nrFields];
+
+    switch (meta.getAlgorithm()) {
+      case LEVENSHTEIN:
+      case DAMERAU_LEVENSHTEIN:
+      case NEEDLEMAN_WUNSH:
+        data.minimalDistance = Const.toInt(resolve(meta.getMinimalValue()), 0);
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(PKG, "FuzzyMatch.Log.MinimalDistance", data.minimalDistance));
+        }
+        data.maximalDistance = Const.toInt(resolve(meta.getMaximalValue()), 5);
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(PKG, "FuzzyMatch.Log.MaximalDistance", data.maximalDistance));
+        }
+        if (!meta.isCloserValue()) {
+          data.valueSeparator = resolve(meta.getSeparator());
+          if (isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(PKG, "FuzzyMatch.Log.Separator", data.valueSeparator));
+          }
+        }
+        break;
+      case JARO:
+      case JARO_WINKLER:
+      case PAIR_SIMILARITY:
+        data.minimalSimilarity = Const.toDouble(resolve(meta.getMinimalValue()), 0);
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "FuzzyMatch.Log.MinimalSimilarity", data.minimalSimilarity));
+        }
+        data.maximalSimilarity = Const.toDouble(resolve(meta.getMaximalValue()), 1);
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "FuzzyMatch.Log.MaximalSimilarity", data.maximalSimilarity));
+        }
+        if (!meta.isCloserValue()) {
+          data.valueSeparator = resolve(meta.getSeparator());
+          if (isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(PKG, "FuzzyMatch.Log.Separator", data.valueSeparator));
+          }
+        }
+        break;
+      default:
+        break;
+    }
+
+    data.readLookupValues = true;
+
+    return true;
   }
 
   @Override
