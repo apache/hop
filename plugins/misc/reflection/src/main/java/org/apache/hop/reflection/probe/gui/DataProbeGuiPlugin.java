@@ -71,7 +71,11 @@ public class DataProbeGuiPlugin {
       IHopMetadataSerializer<PipelineProbe> serializer =
           metadataProvider.getSerializer(PipelineProbe.class);
       MetadataManager<PipelineProbe> manager =
-          new MetadataManager<>(hopGui.getVariables(), metadataProvider, PipelineProbe.class);
+          new MetadataManager<>(
+              hopGui.getVariables(),
+              metadataProvider,
+              PipelineProbe.class,
+              context.getPipelineGraph().getShell());
 
       PipelineProbe pipelineProbe = null;
       List<String> pipelineProbeNames = serializer.listObjectNames();

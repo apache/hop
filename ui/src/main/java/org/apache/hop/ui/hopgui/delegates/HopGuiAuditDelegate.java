@@ -154,7 +154,7 @@ public class HopGuiAuditDelegate {
             IHopMetadata metadata = serializer.load(name);
             MetadataManager<IHopMetadata> metadataManager =
                 new MetadataManager<>(
-                    HopGui.getInstance().getVariables(), metadataProvider, metadataClass);
+                    HopGui.getInstance().getVariables(), metadataProvider, metadataClass, hopGui.getShell());
             MetadataEditor<IHopMetadata> editor = metadataManager.createEditor(metadata);
 
             // We assume that all tab items are closed so we can just open up a new editor for the

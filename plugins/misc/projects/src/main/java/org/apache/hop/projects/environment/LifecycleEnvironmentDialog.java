@@ -264,7 +264,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
       FileObject file = HopVfs.getFileObject(realConfigFilename);
       if (!file.exists()) {
         MessageBox box =
-            new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+            new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
         box.setText("Create file?");
         box.setMessage("This configuration file doesn't exist.  Do you want to create it?");
         int answer = box.open();
@@ -396,14 +396,12 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
     wProject.setItems(config.listProjectConfigNames().toArray(new String[0]));
     wPurpose.setItems(
-        new String[] {
-          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Development"),
-          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Testing"),
-          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Acceptance"),
-          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Production"),
-          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.CI"),
-          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.CB")
-        });
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Development"),
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Testing"),
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Acceptance"),
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Production"),
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.CI"),
+            BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.CB"));
 
     wName.setText(Const.NVL(environment.getName(), ""));
     wPurpose.setText(Const.NVL(environment.getPurpose(), ""));

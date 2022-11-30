@@ -72,7 +72,11 @@ public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
     return (searchable, searchResult) ->
         // Open the metadata object...
         //
-        new MetadataManager(HopGui.getInstance().getVariables(), metadataProvider, managedClass)
+        new MetadataManager(
+                HopGui.getInstance().getVariables(),
+                metadataProvider,
+                managedClass,
+                HopGui.getInstance().getShell())
             .editMetadata(searchable.getName());
   }
 
@@ -86,7 +90,9 @@ public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
     return searchableObject;
   }
 
-  /** @param searchableObject The searchableObject to set */
+  /**
+   * @param searchableObject The searchableObject to set
+   */
   public void setSearchableObject(IHopMetadata searchableObject) {
     this.searchableObject = searchableObject;
   }
@@ -100,7 +106,9 @@ public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
     return managedClass;
   }
 
-  /** @param managedClass The managedClass to set */
+  /**
+   * @param managedClass The managedClass to set
+   */
   public void setManagedClass(Class<IHopMetadata> managedClass) {
     this.managedClass = managedClass;
   }

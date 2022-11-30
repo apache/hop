@@ -643,7 +643,7 @@ public class TestingGuiPlugin {
       }
 
       MetadataManager<DataSet> manager =
-          new MetadataManager<>(hopGui.getVariables(), hopGui.getMetadataProvider(), DataSet.class);
+          new MetadataManager<>(hopGui.getVariables(), hopGui.getMetadataProvider(), DataSet.class, hopGui.getShell());
       if (manager.newMetadata(dataSet) != null) {
 
         PipelineUnitTest unitTest = getCurrentUnitTest(pipelineMeta);
@@ -873,7 +873,7 @@ public class TestingGuiPlugin {
 
     MetadataManager<PipelineUnitTest> manager =
         new MetadataManager<>(
-            hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class);
+            hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class, hopGui.getShell());
     if (manager.editMetadata(unitTest.getName())) {
       // Activate the test
       refreshUnitTestsList();
@@ -896,7 +896,7 @@ public class TestingGuiPlugin {
 
     MetadataManager<PipelineUnitTest> manager =
         new MetadataManager<>(
-            hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class);
+            hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class, hopGui.getShell());
     PipelineUnitTest test = manager.newMetadata();
     if (test != null) {
       // Activate the test
@@ -1014,7 +1014,7 @@ public class TestingGuiPlugin {
     try {
       MetadataManager<PipelineUnitTest> manager =
           new MetadataManager<>(
-              hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class);
+              hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class, hopGui.getShell());
       if (manager.editMetadata(unitTestName)) {
         refreshUnitTestsList();
         selectUnitTestInList(unitTestName);

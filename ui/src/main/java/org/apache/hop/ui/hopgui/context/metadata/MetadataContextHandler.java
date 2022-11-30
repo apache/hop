@@ -53,7 +53,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
     this.metadataObjectClass = metadataObjectClass;
 
     metadataManager =
-        new MetadataManager<>(hopGui.getVariables(), metadataProvider, metadataObjectClass);
+        new MetadataManager<>(hopGui.getVariables(), metadataProvider, metadataObjectClass, hopGui.getShell());
     metadataManager.setClassLoader(metadataObjectClass.getClassLoader());
   }
 

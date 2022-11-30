@@ -49,6 +49,7 @@ import java.util.List;
  */
 public class MetadataManager<T extends IHopMetadata> {
 
+  private final Shell parentShell;
   private IHopMetadataProvider metadataProvider;
   private IVariables variables;
   private ClassLoader classLoader;
@@ -56,11 +57,12 @@ public class MetadataManager<T extends IHopMetadata> {
   private Class<T> managedClass;
 
   public MetadataManager(
-      IVariables variables, IHopMetadataProvider metadataProvider, Class<T> managedClass) {
+      IVariables variables, IHopMetadataProvider metadataProvider, Class<T> managedClass, Shell parentShell) {
     this.variables = variables;
     this.classLoader = managedClass.getClassLoader();
     this.metadataProvider = metadataProvider;
     this.managedClass = managedClass;
+    this.parentShell = parentShell;
   }
 
   /**
@@ -183,7 +185,9 @@ public class MetadataManager<T extends IHopMetadata> {
         perspective.addEditor(editor);
         return false;
       } else {
-        MetadataEditorDialog dialog = new MetadataEditorDialog(hopGui.getShell(), editor);
+        // Make sure to use the correct parent shell
+        //
+        MetadataEditorDialog dialog = new MetadataEditorDialog(parentShell, editor);
         String result = dialog.open();
 
         if (result != null) {

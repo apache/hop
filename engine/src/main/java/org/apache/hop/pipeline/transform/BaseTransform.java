@@ -1312,11 +1312,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       }
     }
 
-    // call all row listeners...
-    //
-    for (IRowListener listener : rowListeners) {
-      listener.rowWrittenEvent(rowMeta, row);
-    }
+    // Do not call the row listeners for targeted rows.
+    // It can cause rows with varying layouts to arrive at the same listener without a way to keep them apart.
 
     // Keep adding to terminator_rows buffer...
     if (terminator && terminatorRows != null) {
