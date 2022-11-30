@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.getfilesrowcount;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -30,6 +30,11 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.getfilesrowcount.GetFilesRowsCountMeta.SeparatorFormat;
+
+import java.io.InputStream;
+
+import static org.apache.hop.pipeline.transforms.getfilesrowcount.GetFilesRowsCountMeta.SeparatorFormat.CRLF;
 
 /** Read all files, count rows number */
 public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetFilesRowsCountData> {
@@ -46,32 +51,44 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private Object[] getOneRow() throws HopException {
+  private boolean getOneRow() throws HopException {
     if (!openNextFile()) {
-      return null;
+      return true;
     }
 
     // Build an empty row based on the meta-data
-    Object[] r;
+    //
     try {
-      // Create new row or clone
-      if (meta.isFileField()) {
-        r = data.readrow.clone();
-        r = RowDataUtil.resizeArray(r, data.outputRowMeta.size());
+      // Create a new output row or clone the input row
+      //
+      Object[] outputRow;
+      if (meta.isFileFromField()) {
+        outputRow = getInputRowMeta().cloneRow(data.inputRow);
+        outputRow = RowDataUtil.resizeArray(outputRow, data.outputRowMeta.size());
       } else {
-        r = RowDataUtil.allocateRowData(data.outputRowMeta.size());
+        outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
       }
 
       if (meta.isSmartCount() && data.foundData) {
         // We have data right the last separator,
-        // we need to update the row count
-        data.rownr++;
+        // we need to update the outputRow count
+        data.rowNumber++;
       }
 
-      r[data.totalpreviousfields] = data.rownr;
+      outputRow[data.totalPreviousFields] = data.rowNumber;
 
-      if (meta.includeCountFiles()) {
-        r[data.totalpreviousfields + 1] = data.filenr;
+      if (meta.isIncludeFilesCount()) {
+        outputRow[data.totalPreviousFields + 1] = data.fileNumber;
+      }
+
+      if (meta.isFileFromField() || data.lastFile) {
+        putRow(data.outputRowMeta, outputRow);
+        if (log.isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(PKG, "GetFilesRowsCount.Log.TotalRowsFiles"),
+              data.rowNumber,
+              data.fileNumber);
+        }
       }
 
       incrementLinesInput();
@@ -80,126 +97,92 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
       throw new HopException("Unable to read row from file", e);
     }
 
-    return r;
+    return false;
   }
 
   @Override
   public boolean processRow() throws HopException {
-
-    try {
-      // Grab one row
-      Object[] outputRowData = getOneRow();
-      if (outputRowData == null) {
-        setOutputDone(); // signal end to receiver(s)
-        return false; // end of data or error.
-      }
-      if ((!meta.isFileField() && data.last_file) || meta.isFileField()) {
-        putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
-        if (log.isDetailed()) {
-          logDetailed(
-              BaseMessages.getString(PKG, "GetFilesRowsCount.Log.TotalRowsFiles"),
-              data.rownr,
-              data.filenr);
-        }
-      }
-
-    } catch (HopException e) {
-
-      logError(
-          BaseMessages.getString(PKG, "GetFilesRowsCount.ErrorInTransformRunning", e.getMessage()));
-      setErrors(1);
-      stopAll();
+    boolean done = getOneRow();
+    if (done) {
       setOutputDone(); // signal end to receiver(s)
-      return false;
+      return false; // end of data or error.
     }
     return true;
   }
 
   private void getRowNumber() throws HopException {
     try {
-
       if (data.file.getType() == FileType.FILE) {
-        data.fr = HopVfs.getInputStream(data.file);
-        // Avoid method calls - see here:
-        // http://java.sun.com/developer/technicalArticles/Programming/PerfTuning/
-        byte[] buf = new byte[8192]; // BufferedaInputStream default buffer size
-        int n;
-        boolean prevCR = false;
-        while ((n = data.fr.read(buf)) != -1) {
-          for (int i = 0; i < n; i++) {
-            data.foundData = true;
-            if (meta.getRowSeparatorFormat().equals("CRLF")) {
-              // We need to check for CRLF
-              if (buf[i] == '\r' || buf[i] == '\n') {
-                if (buf[i] == '\r') {
-                  // we have a carriage return
-                  // keep track of it..maybe we will have a line feed right after :-)
-                  prevCR = true;
-                } else if (buf[i] == '\n') {
-                  // we have a line feed
-                  // let's see if we had previously a carriage return
-                  if (prevCR) {
-                    // we have a carriage return followed by a line feed
-                    data.rownr++;
-                    // Maybe we won't have data after
-                    data.foundData = false;
-                    prevCR = false;
+        try (InputStream inputStream = HopVfs.getInputStream(data.file)) {
+          // BufferedInputStream default buffer size
+          byte[] buf = new byte[8192];
+          int n;
+          boolean prevCR = false;
+          while ((n = inputStream.read(buf)) != -1) {
+            for (int i = 0; i < n; i++) {
+              data.foundData = true;
+              if (meta.getRowSeparatorFormat() == CRLF) {
+                // We need to check for CRLF
+                if (buf[i] == '\r' || buf[i] == '\n') {
+                  if (buf[i] == '\r') {
+                    // we have a carriage return
+                    // keep track of it..maybe we will have a line feed right after :-)
+                    prevCR = true;
+                  } else if (buf[i] == '\n') {
+                    // we have a line feed
+                    // let's see if we had previously a carriage return
+                    if (prevCR) {
+                      // we have a carriage return followed by a line feed
+                      data.rowNumber++;
+                      // Maybe we won't have data after
+                      data.foundData = false;
+                      prevCR = false;
+                    }
                   }
+                } else {
+                  // we have another char (other than \n , \r)
+                  prevCR = false;
                 }
-              } else {
-                // we have another char (other than \n , \r)
-                prevCR = false;
-              }
 
-            } else {
-              if (buf[i] == data.separator) {
-                data.rownr++;
-                // Maybe we won't have data after
-                data.foundData = false;
+              } else {
+                if (buf[i] == data.separator) {
+                  data.rowNumber++;
+                  // Maybe we won't have data after
+                  data.foundData = false;
+                }
               }
             }
           }
+        } catch (Exception ex) {
+          throw new HopException(ex);
         }
       }
       if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
-                PKG, "GetFilesRowsCount.Log.RowsInFile", data.file.toString(), "" + data.rownr));
+                PKG,
+                "GetFilesRowsCount.Log.RowsInFile",
+                data.file.toString(),
+                "" + data.rowNumber));
       }
     } catch (Exception e) {
       throw new HopException(e);
-    } finally {
-      // Close inputstream - not used except for counting
-      if (data.fr != null) {
-        BaseTransform.closeQuietly(data.fr);
-        data.fr = null;
-      }
     }
   }
 
   private boolean openNextFile() {
-    if (data.last_file) {
+    if (data.lastFile) {
       return false; // Done!
     }
 
     try {
-      if (!meta.isFileField()) {
-        if (data.filenr >= data.files.nrOfFiles()) {
-          // finished processing!
-
-          if (log.isDetailed()) {
-            logDetailed(BaseMessages.getString(PKG, "GetFilesRowsCount.Log.FinishedProcessing"));
-          }
+      if (!meta.isFileFromField()) {
+        if (getNextFilenameFromField()) {
           return false;
         }
-
-        // Is this the last file?
-        data.last_file = (data.filenr == data.files.nrOfFiles() - 1);
-        data.file = data.files.getFile((int) data.filenr);
-
       } else {
-        data.readrow = getRow(); // Get row from input rowset & set row busy!
-        if (data.readrow == null) {
+        data.inputRow = getRow();
+        if (data.inputRow == null) {
           if (log.isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "GetFilesRowsCount.Log.FinishedProcessing"));
           }
@@ -215,7 +198,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
               data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
           // Get total previous fields
-          data.totalpreviousfields = data.inputRowMeta.size();
+          data.totalPreviousFields = data.inputRowMeta.size();
 
           // Check is filename field is provided
           if (Utils.isEmpty(meta.getOutputFilenameField())) {
@@ -243,7 +226,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
           }
         } // End if first
 
-        String filename = getInputRowMeta().getString(data.readrow, data.indexOfFilenameField);
+        String filename = getInputRowMeta().getString(data.inputRow, data.indexOfFilenameField);
         if (log.isDetailed()) {
           logDetailed(
               BaseMessages.getString(
@@ -256,15 +239,15 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
         data.file = HopVfs.getFileObject(filename);
 
         // Init Row number
-        if (meta.isFileField()) {
-          data.rownr = 0;
+        if (meta.isFileFromField()) {
+          data.rowNumber = 0;
         }
       }
 
       // Move file pointer ahead!
-      data.filenr++;
+      data.fileNumber++;
 
-      if (meta.isAddResultFile()) {
+      if (meta.isAddResultFilename()) {
         // Add this to the result file names...
         ResultFile resultFile =
             new ResultFile(
@@ -291,7 +274,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
           BaseMessages.getString(
               PKG,
               "GetFilesRowsCount.Log.UnableToOpenFile",
-              "" + data.filenr,
+              "" + data.fileNumber,
               data.file.toString(),
               e.toString()));
       stopAll();
@@ -301,100 +284,88 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
     return true;
   }
 
-  @Override
-  public boolean init() {
-    if (super.init()) {
+  private boolean getNextFilenameFromField() {
+    if (data.fileNumber >= data.files.nrOfFiles()) {
+      // finished processing!
 
-      if ((meta.getRowSeparatorFormat().equals("CUSTOM"))
-          && (Utils.isEmpty(meta.getRowSeparator()))) {
-        logError(
-            BaseMessages.getString(PKG, "GetFilesRowsCount.Error.NoSeparator.Title"),
-            BaseMessages.getString(PKG, "GetFilesRowsCount.Error.NoSeparator.Msg"));
-        setErrors(1);
-        stopAll();
-      } else {
-        // Checking for 'LF' for backwards compatibility.
-        if (meta.getRowSeparatorFormat().equals("CARRIAGERETURN")
-            || meta.getRowSeparatorFormat().equals("LF")) {
-          data.separator = '\r';
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(PKG, "GetFilesRowsCount.Log.Separator.Title"),
-                BaseMessages.getString(PKG, "GetFilesRowsCount.Log.Separatoris.Infos") + " \\n");
-          }
-        } else if (meta.getRowSeparatorFormat().equals("LINEFEED")
-            || meta.getRowSeparatorFormat().equals("CR")) {
-          // Checking for 'CR' for backwards compatibility.
-          data.separator = '\n';
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(PKG, "GetFilesRowsCount.Log.Separator.Title"),
-                BaseMessages.getString(PKG, "GetFilesRowsCount.Log.Separatoris.Infos") + " \\r");
-          }
-        } else if (meta.getRowSeparatorFormat().equals("TAB")) {
-          data.separator = '\t';
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(PKG, "GetFilesRowsCount.Log.Separator.Title"),
-                BaseMessages.getString(PKG, "GetFilesRowsCount.Log.Separatoris.Infos") + " \\t");
-          }
-        } else if (meta.getRowSeparatorFormat().equals("CRLF")) {
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(PKG, "GetFilesRowsCount.Log.Separator.Title"),
-                BaseMessages.getString(PKG, "GetFilesRowsCount.Log.Separatoris.Infos") + " \\r\\n");
-          }
-        } else {
-
-          data.separator = resolve(meta.getRowSeparator()).charAt(0);
-
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(PKG, "GetFilesRowsCount.Log.Separator.Title"),
-                BaseMessages.getString(PKG, "GetFilesRowsCount.Log.Separatoris.Infos")
-                    + " "
-                    + data.separator);
-          }
-        }
+      if (log.isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "GetFilesRowsCount.Log.FinishedProcessing"));
       }
-
-      if (!meta.isFileField()) {
-        data.files = meta.getFiles(this);
-        if (data.files == null || data.files.nrOfFiles() == 0) {
-          logError(BaseMessages.getString(PKG, "GetFilesRowsCount.Log.NoFiles"));
-          return false;
-        }
-        try {
-          // Create the output row meta-data
-          data.outputRowMeta = new RowMeta();
-          meta.getFields(
-              data.outputRowMeta,
-              getTransformName(),
-              null,
-              null,
-              this,
-              metadataProvider); // get the
-          // metadata
-          // populated
-
-        } catch (Exception e) {
-          logError("Error initializing transform: " + e.toString());
-          logError(Const.getStackTracker(e));
-          return false;
-        }
-      }
-      data.rownr = 0;
-      data.filenr = 0;
-      data.totalpreviousfields = 0;
-
       return true;
     }
+
+    // Is this the last file?
+    data.lastFile = (data.fileNumber == data.files.nrOfFiles() - 1);
+    data.file = data.files.getFile((int) data.fileNumber);
     return false;
   }
 
   @Override
-  public void dispose() {
+  public boolean init() {
+    if (!super.init()) {
+      return false;
+    }
+    SeparatorFormat format = meta.getRowSeparatorFormat();
+    switch (format) {
+      case CUSTOM:
+        if (StringUtils.isEmpty(meta.getRowSeparator())) {
+          logError(
+              BaseMessages.getString(PKG, "GetFilesRowsCount.Error.NoSeparator.Title"),
+              BaseMessages.getString(PKG, "GetFilesRowsCount.Error.NoSeparator.Msg"));
+          setErrors(1L);
+          return false;
+        }
+        data.separator = resolve(meta.getRowSeparator()).charAt(0);
+        break;
+      case LF:
+        data.separator = '\n';
+        break;
+      case CR:
+        data.separator = '\r';
+        break;
+      case TAB:
+        data.separator = '\t';
+        break;
+      default:
+        break;
+    }
 
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(PKG, "GetFilesRowsCount.Log.Separator.Title"),
+          BaseMessages.getString(PKG, "GetFilesRowsCount.Log.Separatoris.Infos")
+              + " "
+              + data.separator);
+    }
+
+    if (!meta.isFileFromField()) {
+      data.files = meta.getFiles(this);
+      if (data.files == null || data.files.nrOfFiles() == 0) {
+        logError(BaseMessages.getString(PKG, "GetFilesRowsCount.Log.NoFiles"));
+        return false;
+      }
+      try {
+        // Create the output row meta-data
+        data.outputRowMeta = new RowMeta();
+        meta.getFields(
+            data.outputRowMeta, getTransformName(), null, null, this, metadataProvider); // get the
+        // metadata
+        // populated
+
+      } catch (Exception e) {
+        logError("Error initializing transform: ", e);
+        return false;
+      }
+    }
+    data.rowNumber = 0;
+    data.fileNumber = 0;
+    data.totalPreviousFields = 0;
+
+    return true;
+  }
+
+  @Override
+  public void dispose() {
     if (data.file != null) {
       try {
         data.file.close();
@@ -402,10 +373,6 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
       } catch (Exception e) {
         log.logError("Error closing file", e);
       }
-    }
-    if (data.fr != null) {
-      BaseTransform.closeQuietly(data.fr);
-      data.fr = null;
     }
     if (data.lineStringBuilder != null) {
       data.lineStringBuilder = null;

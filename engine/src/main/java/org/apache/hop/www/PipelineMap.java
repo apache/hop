@@ -17,7 +17,6 @@
 
 package org.apache.hop.www;
 
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -111,7 +110,9 @@ public class PipelineMap {
     return pipelineMap.get(entry).getConfiguration();
   }
 
-  /** @param entry the HopServer object entry */
+  /**
+   * @param entry the HopServer object entry
+   */
   public void removePipeline(HopServerObjectEntry entry) {
     pipelineMap.remove(entry);
   }
@@ -129,45 +130,18 @@ public class PipelineMap {
     return null;
   }
 
-  /** @return the hopServerConfig */
+  /**
+   * @return the hopServerConfig
+   */
   public HopServerConfig getHopServerConfig() {
     return hopServerConfig;
   }
 
-  /** @param hopServerConfig the hopServerConfig to set */
+  /**
+   * @param hopServerConfig the hopServerConfig to set
+   */
   public void setHopServerConfig(HopServerConfig hopServerConfig) {
     this.hopServerConfig = hopServerConfig;
-  }
-
-  public HopServerSequence getServerSequence(String name) {
-    return HopServerSequence.findServerSequence(name, hopServerConfig.getHopServerSequences());
-  }
-
-  public boolean isAutomaticServerSequenceCreationAllowed() {
-    return hopServerConfig.isAutomaticCreationAllowed();
-  }
-
-  public HopServerSequence createServerSequence(String name) throws HopException {
-    HopServerSequence auto = hopServerConfig.getAutoSequence();
-    if (auto == null) {
-      throw new HopException(
-          "No auto-sequence information found in the hop server config.  "
-              + "Server sequence could not be created automatically.");
-    }
-
-    HopServerSequence hopServerSequence =
-        new HopServerSequence(
-            name,
-            auto.getStartValue(),
-            auto.getDatabaseMeta(),
-            auto.getSchemaName(),
-            auto.getTableName(),
-            auto.getSequenceNameField(),
-            auto.getValueField());
-
-    hopServerConfig.getHopServerSequences().add(hopServerSequence);
-
-    return hopServerSequence;
   }
 
   private static class PipelineData {

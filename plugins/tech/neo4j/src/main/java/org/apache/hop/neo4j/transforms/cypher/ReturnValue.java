@@ -18,20 +18,35 @@
 
 package org.apache.hop.neo4j.transforms.cypher;
 
-import org.apache.hop.core.injection.Injection;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ReturnValue {
-
-  @Injection(name = "RETURN_NAME", group = "RETURNS")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "RETURN_NAME",
+      injectionKeyDescription = "Cypher.Inject.RETURN_NAME")
   private String name;
 
-  @Injection(name = "RETURN_TYPE", group = "RETURNS")
+  @HopMetadataProperty(
+      key = "type",
+      injectionKey = "RETURN_TYPE",
+      injectionKeyDescription = "Cypher.Inject.RETURN_TYPE")
   private String type;
 
-  @Injection(name = "RETURN_SOURCE_TYPE", group = "RETURNS")
+  @HopMetadataProperty(
+      key = "source_type",
+      injectionKey = "RETURN_SOURCE_TYPE",
+      injectionKeyDescription = "Cypher.Inject.RETURN_SOURCE_TYPE")
   private String sourceType;
 
   public ReturnValue() {}
+
+  public ReturnValue(ReturnValue v) {
+    this();
+    this.name = v.name;
+    this.type = v.type;
+    this.sourceType = v.sourceType;
+  }
 
   public ReturnValue(String name, String type, String sourceType) {
     this.name = name;
@@ -48,7 +63,9 @@ public class ReturnValue {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -62,7 +79,9 @@ public class ReturnValue {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(String type) {
     this.type = type;
   }
@@ -76,7 +95,9 @@ public class ReturnValue {
     return sourceType;
   }
 
-  /** @param sourceType The sourceType to set */
+  /**
+   * @param sourceType The sourceType to set
+   */
   public void setSourceType(String sourceType) {
     this.sourceType = sourceType;
   }

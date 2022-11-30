@@ -13,24 +13,32 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.hop.pipeline.transforms.getserversequence;
+package org.apache.hop.neo4j.transforms.cypher;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.server.HopServer;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class GetServerSequenceData extends BaseTransformData implements ITransformData {
-  public IRowMeta outputRowMeta;
-  public HopServer hopServer;
-  public long value;
-  public long startValue;
-  public long increment;
-  public String sequenceName;
+public class CypherMetaTest {
 
-  public GetServerSequenceData() {
-    super();
+  @Test
+  public void testSerialization() throws Exception {
+    CypherMeta meta =
+        TransformSerializationTestUtil.testSerialization("/cypher-transform.xml", CypherMeta.class);
+
+    Assert.assertEquals("Test", meta.getConnectionName());
+    Assert.assertEquals(1, meta.getParameterMappings().size());
+  }
+
+  @Test
+  public void testSerialization2() throws Exception {
+    CypherMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/cypher-transform2.xml", CypherMeta.class);
+
+    Assert.assertEquals(1, meta.getReturnValues().size());
   }
 }
