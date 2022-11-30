@@ -41,7 +41,6 @@ import org.apache.hop.www.GetWorkflowStatusServlet;
 import org.apache.hop.www.HopServerPipelineStatus;
 import org.apache.hop.www.HopServerStatus;
 import org.apache.hop.www.HopServerWorkflowStatus;
-import org.apache.hop.www.NextSequenceValueServlet;
 import org.apache.hop.www.PausePipelineServlet;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RemovePipelineServlet;
@@ -81,7 +80,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContexts;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import javax.net.ssl.SSLContext;
@@ -1087,61 +1085,6 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
             + "&lines="
             + lines
             + "&xml=Y");
-  }
-
-  public long getNextServerSequenceValue(
-      IVariables variables, String serverSequenceName, long incrementValue) throws HopException {
-    try {
-      String xml =
-          execService(
-              variables,
-              NextSequenceValueServlet.CONTEXT_PATH
-                  + "/"
-                  + "?"
-                  + NextSequenceValueServlet.PARAM_NAME
-                  + "="
-                  + URLEncoder.encode(serverSequenceName, "UTF-8")
-                  + "&"
-                  + NextSequenceValueServlet.PARAM_INCREMENT
-                  + "="
-                  + Long.toString(incrementValue));
-
-      Document doc = XmlHandler.loadXmlString(xml);
-      Node seqNode = XmlHandler.getSubNode(doc, NextSequenceValueServlet.XML_TAG);
-      String nextValueString =
-          XmlHandler.getTagValue(seqNode, NextSequenceValueServlet.XML_TAG_VALUE);
-      String errorString = XmlHandler.getTagValue(seqNode, NextSequenceValueServlet.XML_TAG_ERROR);
-
-      if (!Utils.isEmpty(errorString)) {
-        throw new HopException(errorString);
-      }
-      if (Utils.isEmpty(nextValueString)) {
-        throw new HopException(
-            "No value retrieved from server sequence '"
-                + serverSequenceName
-                + "' on server "
-                + toString());
-      }
-      long nextValue = Const.toLong(nextValueString, Long.MIN_VALUE);
-      if (nextValue == Long.MIN_VALUE) {
-        throw new HopException(
-            "Incorrect value '"
-                + nextValueString
-                + "' retrieved from server sequence '"
-                + serverSequenceName
-                + "' on server "
-                + toString());
-      }
-
-      return nextValue;
-    } catch (Exception e) {
-      throw new HopException(
-          "There was a problem retrieving a next sequence value from server sequence '"
-              + serverSequenceName
-              + "' on server "
-              + toString(),
-          e);
-    }
   }
 
   public HopServer getClient() {

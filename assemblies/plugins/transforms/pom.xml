@@ -84,7 +84,6 @@
     <module>fuzzymatch</module>
     <module>getfilenames</module>
     <module>getfilesrowcount</module>
-    <module>getserversequence</module>
     <module>getsubfolders</module>
     <module>gettablenames</module>
     <module>getvariable</module>
