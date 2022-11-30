@@ -74,7 +74,7 @@ public class Flattener extends BaseTransform<FlattenerMeta, FlattenerData> {
 
       // Allocate the result row...
       //
-      data.targetResult = new Object[meta.getTargetField().length];
+      data.targetResult = new Object[meta.getTargetFields().size()];
 
       first = false;
     }
@@ -83,14 +83,14 @@ public class Flattener extends BaseTransform<FlattenerMeta, FlattenerData> {
     //
     data.targetResult[data.processed++] = r[data.fieldNr];
 
-    if (data.processed >= meta.getTargetField().length) {
+    if (data.processed >= meta.getTargetFields().size()) {
       Object[] outputRowData = createOutputRow(r);
 
       // send out input row + the flattened part
       putRow(data.outputRowMeta, outputRowData);
 
       // clear the result row
-      data.targetResult = new Object[meta.getTargetField().length];
+      data.targetResult = new Object[meta.getTargetFields().size()];
 
       data.processed = 0;
     }

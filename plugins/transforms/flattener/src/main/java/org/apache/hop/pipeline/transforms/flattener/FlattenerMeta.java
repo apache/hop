@@ -18,22 +18,20 @@
 package org.apache.hop.pipeline.transforms.flattener;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** The flattener transform meta-data */
@@ -49,52 +47,27 @@ public class FlattenerMeta extends BaseTransformMeta<Flattener, FlattenerData> {
   private static final Class<?> PKG = FlattenerMeta.class; // For Translator
 
   /** The field to flatten */
+  @HopMetadataProperty(key = "field_name")
   private String fieldName;
 
   /** Fields to flatten, same data type as input */
-  private String[] targetField;
+  @HopMetadataProperty(groupKey = "fields", key = "field")
+  private List<FField> targetFields;
 
   public FlattenerMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    this.targetFields = new ArrayList<>();
   }
 
-  public String getFieldName() {
-    return fieldName;
-  }
-
-  public void setFieldName(String fieldName) {
-    this.fieldName = fieldName;
-  }
-
-  public String[] getTargetField() {
-    return targetField;
-  }
-
-  public void setTargetField(String[] targetField) {
-    this.targetField = targetField;
+  public FlattenerMeta(FlattenerMeta m) {
+    this();
+    this.fieldName = m.fieldName;
+    m.targetFields.forEach(f -> this.targetFields.add(new FField(f)));
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  public void allocate(int nrFields) {
-    targetField = new String[nrFields];
-  }
-
-  @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
-  }
-
-  @Override
-  public void setDefault() {
-    int nrFields = 0;
-
-    allocate(nrFields);
+  public FlattenerMeta clone() {
+    return new FlattenerMeta(this);
   }
 
   @Override
@@ -120,9 +93,9 @@ public class FlattenerMeta extends BaseTransformMeta<Flattener, FlattenerData> {
       IValueMeta v = row.getValueMeta(idx);
       row.removeValueMeta(idx);
 
-      for (int i = 0; i < targetField.length; i++) {
+      for (FField targetField : targetFields) {
         IValueMeta value = v.clone();
-        value.setName(targetField[i]);
+        value.setName(targetField.getName());
         value.setOrigin(name);
 
         row.addValueMeta(value);
@@ -131,43 +104,6 @@ public class FlattenerMeta extends BaseTransformMeta<Flattener, FlattenerData> {
       throw new HopTransformException(
           BaseMessages.getString(PKG, "FlattenerMeta.Exception.FlattenFieldRequired"));
     }
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      fieldName = XmlHandler.getTagValue(transformNode, "field_name");
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      allocate(nrFields);
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        targetField[i] = XmlHandler.getTagValue(fnode, "name");
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "FlattenerMeta.Exception.UnableToLoadTransformMetaFromXML"),
-          e);
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("      " + XmlHandler.addTagValue("field_name", fieldName));
-
-    retval.append("      <fields>" + Const.CR);
-    for (int i = 0; i < targetField.length; i++) {
-      retval.append("        <field>" + Const.CR);
-      retval.append("          " + XmlHandler.addTagValue("name", targetField[i]));
-      retval.append("          </field>" + Const.CR);
-    }
-    retval.append("        </fields>" + Const.CR);
-
-    return retval.toString();
   }
 
   @Override
@@ -200,6 +136,75 @@ public class FlattenerMeta extends BaseTransformMeta<Flattener, FlattenerData> {
                   PKG, "FlattenerMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
               transformMeta);
       remarks.add(cr);
+    }
+  }
+
+  /**
+   * Gets fieldName
+   *
+   * @return value of fieldName
+   */
+  public String getFieldName() {
+    return fieldName;
+  }
+
+  /**
+   * Sets fieldName
+   *
+   * @param fieldName value of fieldName
+   */
+  public void setFieldName(String fieldName) {
+    this.fieldName = fieldName;
+  }
+
+  /**
+   * Gets targetFields
+   *
+   * @return value of targetFields
+   */
+  public List<FField> getTargetFields() {
+    return targetFields;
+  }
+
+  /**
+   * Sets targetFields
+   *
+   * @param targetFields value of targetFields
+   */
+  public void setTargetFields(List<FField> targetFields) {
+    this.targetFields = targetFields;
+  }
+
+  public static final class FField {
+    @HopMetadataProperty(key = "name")
+    private String name;
+
+    public FField() {}
+
+    public FField(FField f) {
+      this.name = f.name;
+    }
+
+    public FField(String name) {
+      this.name = name;
+    }
+
+    /**
+     * Gets name
+     *
+     * @return value of name
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
+     * Sets name
+     *
+     * @param name value of name
+     */
+    public void setName(String name) {
+      this.name = name;
     }
   }
 }

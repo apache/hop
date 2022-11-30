@@ -1,0 +1,46 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "field1",
+          "data_set_field": "field1"
+        },
+        {
+          "transform_field": "field2",
+          "data_set_field": "field2"
+        },
+        {
+          "transform_field": "field3",
+          "data_set_field": "field3"
+        },
+        {
+          "transform_field": "target1",
+          "data_set_field": "target1"
+        },
+        {
+          "transform_field": "target2",
+          "data_set_field": "target2"
+        }
+      ],
+      "field_order": [
+        "field1",
+        "field2",
+        "field3"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-flattener"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0058-flattener UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0058-flattener.hpl",
+  "test_type": "UNIT_TEST"
+}

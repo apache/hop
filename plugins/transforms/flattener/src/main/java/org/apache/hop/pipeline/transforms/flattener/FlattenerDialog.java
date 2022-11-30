@@ -17,13 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.flattener;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -33,8 +33,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
@@ -55,12 +53,16 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
 
   private boolean gotPreviousFields = false;
 
-  private FlattenerMeta input;
+  private final FlattenerMeta input;
 
   public FlattenerDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (FlattenerMeta) in;
+      Shell parent,
+      IVariables variables,
+      Object flattenerMeta,
+      PipelineMeta pipelineMeta,
+      String transformName) {
+    super(parent, variables, (FlattenerMeta) flattenerMeta, pipelineMeta, transformName);
+    this.input = (FlattenerMeta) flattenerMeta;
   }
 
   @Override
@@ -82,7 +84,7 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
     shell.setText(BaseMessages.getString(PKG, "FlattenerDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // THE BUTTONS
     wOk = new Button(shell, SWT.PUSH);
@@ -121,7 +123,7 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
     fdlField.right = new FormAttachment(middle, -margin);
     fdlField.top = new FormAttachment(wTransformName, margin);
     wlField.setLayoutData(fdlField);
-    wField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
+    wField = new CCombo(shell, SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wField);
     wField.addModifyListener(lsMod);
     FormData fdField = new FormData();
@@ -129,19 +131,14 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
     fdField.top = new FormAttachment(wTransformName, margin);
     fdField.right = new FormAttachment(100, 0);
     wField.setLayoutData(fdField);
-    wField.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {}
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
+    wField.addListener(
+        SWT.FocusIn,
+        e -> {
+          Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+          shell.setCursor(busy);
+          getFields();
+          shell.setCursor(null);
+          busy.dispose();
         });
 
     Label wlFields = new Label(shell, SWT.NONE);
@@ -153,7 +150,7 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
     wlFields.setLayoutData(fdlFields);
 
     int nrKeyCols = 1;
-    int nrKeyRows = (input.getTargetField() != null ? input.getTargetField().length : 1);
+    int nrKeyRows = input.getTargetFields().size();
 
     ColumnInfo[] ciKey = new ColumnInfo[nrKeyCols];
     ciKey[0] =
@@ -214,17 +211,11 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
       logDebug(BaseMessages.getString(PKG, "FlattenerDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getFieldName() != null) {
-      wField.setText(input.getFieldName());
-    }
+    wField.setText(Const.NVL(input.getFieldName(), ""));
 
-    if (input.getTargetField() != null) {
-      for (int i = 0; i < input.getTargetField().length; i++) {
-        TableItem item = wFields.table.getItem(i);
-        if (input.getTargetField()[i] != null) {
-          item.setText(1, input.getTargetField()[i]);
-        }
-      }
+    for (int i = 0; i < input.getTargetFields().size(); i++) {
+      TableItem item = wFields.table.getItem(i);
+      item.setText(1, Const.NVL(input.getTargetFields().get(i).getName(), ""));
     }
 
     wFields.setRowNums();
@@ -244,16 +235,10 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
       return;
     }
 
-    int nrTargets = wFields.nrNonEmpty();
-
     input.setFieldName(wField.getText());
-
-    input.allocate(nrTargets);
-
-    for (int i = 0; i < nrTargets; i++) {
-      TableItem item = wFields.getNonEmpty(i);
-      // CHECKSTYLE:Indentation:OFF
-      input.getTargetField()[i] = item.getText(1);
+    input.getTargetFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      input.getTargetFields().add(new FlattenerMeta.FField(item.getText(1)));
     }
     transformName = wTransformName.getText();
 
